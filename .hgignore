@@ -1,0 +1,5 @@
+syntax: glob
+src/libt3widget.la
+src/unicode
+src/window
+src/charconv

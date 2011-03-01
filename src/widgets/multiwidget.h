@@ -1,0 +1,48 @@
+/* Copyright (C) 2010 G.P. Halkes
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License version 3, as
+   published by the Free Software Foundation.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef MULTIWIDGET_H
+#define MULTIWIDGET_H
+
+#include "widgets/widgets.h"
+
+class multi_widget_t : public widget_t {
+	private:
+		struct item_t {
+			widget_t *widget;
+			int width;
+			bool takes_focus;
+			bool send_keys;
+		};
+		list<item_t> widgets;
+		int width, top, left, fixed_sum, proportion_sum;
+
+	public:
+		multi_widget_t(window_component_t *parent, int _width, int _top, int _left, int relation);
+		virtual void process_key(key_t key);
+		virtual bool resize(optint height, optint _width, optint _top, optint _left);
+		virtual void update_contents(void);
+		virtual void set_focus(bool focus);
+		virtual void set_show(bool show);
+		virtual bool accepts_focus(void);
+
+		/* Width is negative for fixed width widgets, positive for proportion */
+		void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);
+		//FIXME: allow iteration and removal
+		void pop_back(void);
+		widget_t *back(void);
+		bool empty(void);
+		void resize_widgets(void);
+};
+
+#endif
