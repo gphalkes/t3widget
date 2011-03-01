@@ -3,3 +3,7 @@ src/libt3widget.la
 src/unicode
 src/window
 src/charconv
+src/key
+src/.deps
+src/.objects
+src/.libs

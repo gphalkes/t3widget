@@ -13,6 +13,7 @@
 */
 #ifndef UTIL_H
 #define UTIL_H
+#include <unistd.h>
 #include <sigc++/sigc++.h>
 
 /* Class defining integers with a separate validity check. */
@@ -60,5 +61,7 @@ protected: \
 public: \
 	sigc::connection connect_##_name(const sigc::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
 
+ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
+ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
 #endif

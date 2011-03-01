@@ -18,11 +18,9 @@
 using namespace std;
 
 #include "keys.h"
-#include "log.h"
 #include "util.h"
 #include "main.h"
 #include "key.h"
-#include "filewrapper.h"
 #ifdef THREADED_KEYS
 #include "keybuffer.h"
 #endif
@@ -194,10 +192,11 @@ static key_t wreadkey_internal(void) {
 
 			if (c == EKEY_ESC) {
 				c = decode_sequence(true);
-			} else if (UTF8mode && c > 0 && (c & 0x80)) {
+#warning FIXME: decode UTF-8 and other encodings
+/* 			} else if (UTF8mode && c > 0 && (c & 0x80)) {
 				UTF8TermInput input;
 				t3_term_unget_keychar(c);
-				c = getNextUTF8InputChar(&input);
+				c = getNextUTF8InputChar(&input); */
 			} else if (c > 0 && c < UCHAR_MAX && map_single[c] != 0) {
 				c = map_single[c];
 			}
@@ -205,10 +204,6 @@ static key_t wreadkey_internal(void) {
 		// FIXME: check for error conditions other than timeout!
 	} while (c < 0);
 
-	if (c >= 0x110000)
-		lprintf("Returning key 0x%X\n", c);
-	else
-		lprintf("Returning key %d\n", c);
 	return c;
 }
 
@@ -276,8 +271,6 @@ static key_t decode_sequence(bool outer) {
 	/* Something unwanted has happened here: the character sequence we encoutered was not
 	   in our key map. Because it will give some undesired result to just return
 	   <alt><first character> we ignore the whole sequence */
-	logkeyseq(sequence);
-
 	return -1;
 }
 
