@@ -76,9 +76,6 @@ void menu_bar_t::process_key(key_t key) {
 			current_menu += menus.size() - 1;
 			current_menu %= menus.size();
 			break;
-		case EKEY_ESC:
-			deactivate_window();
-			break;
 		default:
 			menus[current_menu]->process_key(key);
 			break;

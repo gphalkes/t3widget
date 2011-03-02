@@ -34,8 +34,8 @@ CXXFLAGS += -I$(CURDIR)/window -I$(CURDIR)/unicode -I$(CURDIR)/key
 CXXFLAGS += -pthread -DTHREADED_KEYS
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 LDLIBS += `pkg-config --libs sigc++-2.0`
-CXX := clang++
-CXXFLAGS += -fno-caret-diagnostics
+#~ CXX := clang++
+#~ CXXFLAGS += -fno-caret-diagnostics
 
 links:
 	@[ -L unicode ] || ln -s ../../unicode/src unicode

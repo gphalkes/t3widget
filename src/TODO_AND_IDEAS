@@ -9,3 +9,5 @@
 - put all the dialog output into a single window (unwritten positions are see-
 	through anyway!)
 - add a test program to check if everything works
+- figure out how to get rid of the bullet_status_t interface
+- rename the multi_string_list_i interface to something ending in _t

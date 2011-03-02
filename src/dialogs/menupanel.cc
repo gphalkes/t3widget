@@ -40,34 +40,34 @@ void menu_panel_t::process_key(key_t key) {
 			focus_next();
 			break;
 		case EKEY_HOME:
-			(*current_component)->set_focus(false);
-			current_component = components.begin();
-			(*current_component)->set_focus(true);
+			(*current_widget)->set_focus(false);
+			current_widget = widgets.begin();
+			(*current_widget)->set_focus(true);
 			break;
 		case EKEY_END:
-			(*current_component)->set_focus(false);
-			current_component = components.end();
-			current_component--;
-			(*current_component)->set_focus(true);
+			(*current_widget)->set_focus(false);
+			current_widget = widgets.end();
+			current_widget--;
+			(*current_widget)->set_focus(true);
 			break;
 		case '\t':
 		case EKEY_SHIFT | '\t':
 			break;
 		case EKEY_ESC:
-			deactivate_window();
+			set_show(false);
 			break;
 		case EKEY_NL:
 		case ' ':
-			(*current_component)->process_key(key);
+			(*current_widget)->process_key(key);
 			break;
 		default:
-			for (widgets_t::iterator iter = components.begin();
-					iter != components.end(); iter++) {
+			for (widgets_t::iterator iter = widgets.begin();
+					iter != widgets.end(); iter++) {
 				if ((*iter)->accepts_focus() && (*iter)->is_hotkey(key)) {
-					(*current_component)->set_focus(false);
-					current_component = iter;
-					(*current_component)->set_focus(true);
-					(*current_component)->process_key(EKEY_HOTKEY);
+					(*current_widget)->set_focus(false);
+					current_widget = iter;
+					(*current_widget)->set_focus(true);
+					(*current_widget)->process_key(EKEY_HOTKEY);
 					break;
 				}
 			}
@@ -81,7 +81,7 @@ bool menu_panel_t::resize(optint height, optint _width, optint top, optint left)
 	int i;
 	(void) _width;
 	(void) top;
-	for (iter = components.begin(), i = 0; iter != components.end(); iter++, i++)
+	for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++)
 		(*iter)->resize(None, width - 2, i + 1, None);
 
 	result = dialog_t::resize(height, width, 1, left);
@@ -92,16 +92,16 @@ bool menu_panel_t::resize(optint height, optint _width, optint top, optint left)
 void menu_panel_t::add_item(const char *item, const char *hotkey, int action) {
 	menu_item_t *menu_item;
 	if (strcmp(item, "-") == 0) {
-		components.push_back(new menu_separator_t(window, components.size() + 1, width - 2));
+		widgets.push_back(new menu_separator_t(window, widgets.size() + 1, width - 2));
 		return;
 	}
 
-	menu_item = new menu_item_t(window, item, hotkey, components.size() + 1, action);
-	components.push_back(menu_item);
+	menu_item = new menu_item_t(window, item, hotkey, widgets.size() + 1, action);
+	widgets.push_back(menu_item);
 
 	hotkey_width = max(hotkey_width, menu_item->get_hotkey_width());
 	label_width = max(label_width, menu_item->get_label_width());
 	if (hotkey_width + label_width > width - 2)
 		width = hotkey_width + label_width + 2;
-	resize(components.size() + 2, width, 1, t3_win_get_x(window));
+	resize(widgets.size() + 2, width, 1, t3_win_get_x(window));
 }

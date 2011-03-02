@@ -16,9 +16,6 @@
 
 #include "dialogs/dialogs.h"
 
-void activate_window(dialog_t *dialog);
-void deactivate_window(void);
-
 class line_t;
 extern line_t *copyBuffer;
 

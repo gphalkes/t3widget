@@ -91,8 +91,8 @@ void message_dialog_base_t::set_message(const string *_message) {
 message_dialog_t::message_dialog_t(int width, int top, int left, const char *_title) : message_dialog_base_t(width, top, left, _title) {
 	button = new button_t(this, NULL, -1, -1, width / 2, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT), "_OK;oO", true);
 	button->resize(None, None, None, (width - button->get_width()) / 2 );
-	button->connect_activate(sigc::ptr_fun(deactivate_window));
-	components.push_back(button);
+	button->connect_activate(sigc::bind(sigc::mem_fun(this, &message_dialog_t::set_show), false));
+	widgets.push_back(button);
 }
 
 bool message_dialog_t::resize(optint _height, optint width, optint top, optint left) {
@@ -106,15 +106,15 @@ question_dialog_t::question_dialog_t(int width, int top, int left, const char *_
 		const char *okName, const char *cancelName) : message_dialog_base_t(width, top, left, _title)
 {
 	ok_button = new button_t(this, NULL, -1, -1, width / 2, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT), okName, true);
-	ok_button->connect_activate(sigc::ptr_fun(deactivate_window));
+	ok_button->connect_activate(sigc::bind(sigc::mem_fun(this, &question_dialog_t::set_show), false));
 	ok_button->connect_activate(ok.make_slot());
 	cancel_button = new button_t(this, ok_button, -1, 0, 2, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT), cancelName, true);
-	cancel_button->connect_activate(sigc::ptr_fun(deactivate_window));
+	cancel_button->connect_activate(sigc::bind(sigc::mem_fun(this, &question_dialog_t::set_show), false));
 	cancel_button->connect_activate(cancel.make_slot());
 	ok_button->resize(None, None, None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2 );
 
-	components.push_back(ok_button);
-	components.push_back(cancel_button);
+	widgets.push_back(ok_button);
+	widgets.push_back(cancel_button);
 }
 
 bool question_dialog_t::resize(optint _height, optint width, optint top, optint left) {

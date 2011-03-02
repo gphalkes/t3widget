@@ -20,11 +20,19 @@
 #define DIALOG_DEPTH 80
 
 class dialog_t : public window_component_t {
+	private:
+		static vector<dialog_t *> dialogs;
+		static int dialog_depth;
+		void activate_dialog(void);
+		void deactivate_dialog(void);
+
+		bool active;
+
 	protected:
 		t3_window_t *window, *shadow_window;
 		const char *title;
-		widgets_t components;
-		widgets_t::iterator current_component;
+		widgets_t widgets;
+		widgets_t::iterator current_widget;
 
 		dialog_t(int height, int width, int top, int left, int depth, const char *_title);
 		virtual ~dialog_t();
