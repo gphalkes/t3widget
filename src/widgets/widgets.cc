@@ -20,7 +20,7 @@ bool base_widget_t::is_hotkey(key_t key) {
 	return false;
 }
 
-bool base_widget_t::accepts_focus(void) { return shown; }
+bool base_widget_t::accepts_focus(void) { return true; }
 
 widget_t::widget_t(void) {
 	window = NULL;
@@ -30,13 +30,10 @@ widget_t::~widget_t(void) {
 	t3_win_del(window);
 }
 
-void widget_t::set_show(bool show) {
-	if (window == NULL)
-		return;
+void widget_t::show(void) {
+	t3_win_show(window);
+}
 
-	shown = show;
-	if (show)
-		t3_win_show(window);
-	else
-		t3_win_hide(window);
+void widget_t::hide(void) {
+	t3_win_hide(window);
 }

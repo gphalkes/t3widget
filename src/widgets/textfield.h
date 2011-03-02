@@ -76,7 +76,8 @@ class text_field_t : public widget_t {
 				virtual bool resize(optint height, optint _width, optint top, optint left);
 				virtual void update_contents(void);
 				virtual void set_focus(bool focus);
-				virtual void set_show(bool show);
+				virtual void show(void);
+				virtual void hide(void);
 				virtual t3_window_t *get_draw_window(void) { return window; }
 				void update_view(void);
 				void set_autocomplete(string_list_t *completions);
@@ -92,7 +93,8 @@ class text_field_t : public widget_t {
 		virtual bool resize(optint height, optint _width, optint top, optint _left);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
-		virtual void set_show(bool show);
+		virtual void show(void);
+		virtual void hide(void);
 		void set_text(const string *text);
 		void set_text(const char *text);
 		void set_autocomplete(string_list_t *_completions);

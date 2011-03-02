@@ -369,9 +369,9 @@ void text_field_t::update_contents(void) {
 		if (drop_down_list != NULL && need_repaint == REPAINT_EDIT) {
 			drop_down_list->update_view();
 			if (drop_down_list->has_items() && line->get_length() > 0)
-				drop_down_list->set_show(true);
+				drop_down_list->show();
 			else
-				drop_down_list->set_show(false);
+				drop_down_list->hide();
 		}
 		need_repaint = NO_REPAINT;
 	}
@@ -403,21 +403,22 @@ void text_field_t::set_focus(bool _focus) {
 	} else {
 		if (drop_down_list != NULL) {
 			drop_down_list->set_focus(false);
-			drop_down_list->set_show(false);
+			drop_down_list->hide();
 		}
 		in_drop_down_list = false;
 		lose_focus();
 	}
 }
 
-void text_field_t::set_show(bool show) {
-	if (show) {
-		in_drop_down_list = false;
-	} else {
-		if (drop_down_list != NULL)
-			drop_down_list->set_show(false);
-	}
-	widget_t::set_show(show);
+void text_field_t::show(void) {
+	in_drop_down_list = false;
+	widget_t::show();
+}
+
+void text_field_t::hide(void) {
+	if (drop_down_list != NULL)
+		drop_down_list->hide();
+	widget_t::hide();
 }
 
 void text_field_t::ensure_on_cursor_screen(void) {
@@ -612,11 +613,12 @@ void text_field_t::drop_down_list_t::set_focus(bool _focus) {
 	}
 }
 
-void text_field_t::drop_down_list_t::set_show(bool show) {
-	if (show)
-		t3_win_show(window);
-	else
-		t3_win_hide(window);
+void text_field_t::drop_down_list_t::show(void) {
+	t3_win_show(window);
+}
+
+void text_field_t::drop_down_list_t::hide(void) {
+	t3_win_hide(window);
 }
 
 void text_field_t::drop_down_list_t::update_view(void) {

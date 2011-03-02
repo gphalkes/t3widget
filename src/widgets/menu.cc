@@ -20,7 +20,7 @@
 #include "keys.h"
 
 #warning FIXME: should this be part of the main_window somehow?
-menu_bar_t::menu_bar_t(bool _hide) : current_menu(0), hide(_hide) {
+menu_bar_t::menu_bar_t(bool _hidden) : current_menu(0), hidden(_hidden) {
 	int width;
 	t3_term_get_size(NULL, &width);
 
@@ -29,7 +29,7 @@ menu_bar_t::menu_bar_t(bool _hide) : current_menu(0), hide(_hide) {
 
 	resize(None, width, None, None);
 
-	if (!hide)
+	if (!hidden)
 		t3_win_show(topline);
 }
 
@@ -104,9 +104,9 @@ void menu_bar_t::update_contents(void) {
 		return;
 	}
 	if (old_menu != current_menu) {
-		menus[old_menu]->set_show(false);
+		menus[old_menu]->hide();
 		menus[old_menu]->set_focus(false);
-		menus[current_menu]->set_show(true);
+		menus[current_menu]->show();
 		menus[current_menu]->set_focus(true);
 		draw_menu_name(menus[old_menu], colors.menubar_attrs);
 		draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
@@ -121,15 +121,16 @@ void menu_bar_t::set_focus(bool focus) {
 	menus[current_menu]->set_focus(focus);
 }
 
-void menu_bar_t::set_show(bool show) {
-	if (show) {
-		if (hide)
-			t3_win_show(topline);
-		draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
-	} else {
-		if (hide)
-			t3_win_hide(topline);
-		draw_menu_name(menus[current_menu], colors.menubar_attrs);
-	}
-	menus[current_menu]->set_show(show);
+void menu_bar_t::show(void) {
+	if (hidden)
+		t3_win_show(topline);
+	draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+	menus[current_menu]->show();
+}
+
+void menu_bar_t::hide(void) {
+	if (hidden)
+		t3_win_hide(topline);
+	draw_menu_name(menus[current_menu], colors.menubar_attrs);
+	menus[current_menu]->hide();
 }

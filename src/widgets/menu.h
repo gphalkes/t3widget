@@ -25,21 +25,22 @@ class menu_bar_t : public window_component_t {
 	private:
 		t3_window_t *topline;
 		int current_menu, old_menu;
-		bool hide;
+		bool hidden;
 
 		vector<menu_panel_t *> menus;
 
 		//void drawItem(menu_panel_t *menu, int item, int attr);
 		void draw_menu_name(menu_panel_t *menu, int attr);
 	public:
-		menu_bar_t(bool _hide = false);
+		menu_bar_t(bool _hidden = false);
 		~menu_bar_t(void);
 
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint top, optint left);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
-		virtual void set_show(bool show);
+		virtual void show(void);
+		virtual void hide(void);
 		bool activate(key_t key);
 };
 #endif

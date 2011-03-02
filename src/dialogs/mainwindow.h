@@ -29,7 +29,8 @@ class main_window_t : public window_component_t {
 		virtual bool resize(optint height, optint width, optint top, optint left);
 		virtual void update_contents(void) {}
 		virtual void set_focus(bool focus) { (void) focus; }
-		virtual void set_show(bool show) { (void) show; }
+		virtual void show(void) {}
+		virtual void hide(void) {}
 		virtual t3_window_t *get_draw_window(void) { return window; }
 		virtual ~main_window_t(void);
 };

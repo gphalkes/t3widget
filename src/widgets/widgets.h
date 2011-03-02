@@ -41,7 +41,8 @@ class widget_t : public base_widget_t {
 		widget_t(void);
 		virtual ~widget_t(void);
 		virtual t3_window_t *get_draw_window(void) { return window; }
-		virtual void set_show(bool show);
+		virtual void show(void);
+		virtual void hide(void);
 };
 
 typedef deque<base_widget_t *> widgets_t;

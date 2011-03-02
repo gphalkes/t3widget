@@ -54,7 +54,7 @@ void menu_panel_t::process_key(key_t key) {
 		case EKEY_SHIFT | '\t':
 			break;
 		case EKEY_ESC:
-			set_show(false);
+			hide();
 			break;
 		case EKEY_NL:
 		case ' ':

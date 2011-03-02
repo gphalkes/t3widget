@@ -22,7 +22,8 @@ class dummy_widget_t : public base_widget_t {
 		virtual bool resize(optint height, optint width, optint top, optint left);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
-		virtual void set_show(bool show);
+		virtual void show(void);
+		virtual void hide(void);
 
 		virtual t3_window_t *get_draw_window(void);
 };

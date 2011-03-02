@@ -52,7 +52,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	show_hidden_box->set_label(show_hidden_label);
 
 	cancel_button = new button_t(this, this, -1, -1, -2, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT), "_Cancel;cC", false);
-	cancel_button->connect_activate(sigc::bind(sigc::mem_fun(this, &file_dialog_t::set_show), false));
+	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
 	ok_button = new button_t(this, cancel_button, -1, 0, -2, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT), "_OK;oO", true);
 	ok_button->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 	ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
@@ -63,7 +63,6 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	//~ encoding_button->set_callback(button_t::ENTER, this, CHOOSE_ENCODING);
 
 	filter_create_button_offset = show_hidden_label->get_width() + 2 + 2 + 4; // 2 for window offset, 2 for offset of "Show hidden", 1 for extra space, 4 for "[ ] " preceding text
-	show = false;
 
 	widgets.push_back(name_label);
 	widgets.push_back(file_line);
@@ -94,16 +93,11 @@ bool file_dialog_t::resize(optint height, optint width, optint top, optint left)
 	return true;
 }
 
-void file_dialog_t::set_show(bool _show) {
-	if (_show == show)
-		return;
-	show = _show;
-
-	dialog_t::set_show(show);
-	if (show)
-		file_pane->reset();
+void file_dialog_t::show(void) {
+	#warning FIXME: there used to be a check if the widget was already shown to prevent unwanted resets
+	dialog_t::show();
+	file_pane->reset();
 }
-
 
 void file_dialog_t::set_file(const char *file) {
 	size_t idx;
@@ -141,7 +135,7 @@ void file_dialog_t::ok_callback(const string *file) {
 		string full_name = current_dir;
 		full_name += "/";
 		full_name += *file;
-		set_show(false);
+		hide();
 		file_selected(&full_name);
 	}
 }

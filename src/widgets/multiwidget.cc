@@ -57,13 +57,6 @@ void multi_widget_t::set_focus(bool focus) {
 	}
 }
 
-void multi_widget_t::set_show(bool show) {
-	if (show)
-		t3_win_show(window);
-	else
-		t3_win_hide(window);
-}
-
 bool multi_widget_t::accepts_focus(void) {
 	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		if (iter->takes_focus)

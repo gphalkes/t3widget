@@ -70,9 +70,8 @@ void menu_item_t::set_focus(bool focus) {
 	has_focus = focus;
 }
 
-void menu_item_t::set_show(bool show) {
-	(void) show;
-}
+void menu_item_t::show(void) {}
+void menu_item_t::hide(void) {}
 
 bool menu_item_t::is_hotkey(key_t key) {
 	return label.is_hotkey(key);
@@ -111,9 +110,8 @@ void menu_separator_t::set_focus(bool focus) {
 	(void) focus;
 }
 
-void menu_separator_t::set_show(bool show) {
-	(void) show;
-}
+void menu_separator_t::show(void) {}
+void menu_separator_t::hide(void) {}
 
 bool menu_separator_t::accepts_focus(void) {
 	return false;

@@ -39,7 +39,8 @@ class menu_item_t : public menu_item_base_t {
 		virtual bool resize(optint height, optint _width, optint _top, optint left);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
-		virtual void set_show(bool show);
+		virtual void show(void);
+		virtual void hide(void);
 		virtual bool is_hotkey(key_t key);
 		int get_label_width(void);
 		int get_hotkey_width(void);
@@ -52,7 +53,8 @@ class menu_separator_t : public menu_item_base_t {
 		virtual bool resize(optint height, optint _width, optint _top, optint left);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
-		virtual void set_show(bool show);
+		virtual void show(void);
+		virtual void hide(void);
 		virtual bool accepts_focus(void);
 };
 

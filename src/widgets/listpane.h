@@ -40,7 +40,8 @@ class list_pane_t : public widget_t {
 				virtual bool resize(optint _height, optint _width, optint _top, optint _left) { (void) _height; (void) _width; (void) _top; (void) _left; return true; }
 				virtual void update_contents(void) {}
 				virtual void set_focus(bool _focus) { (void) _focus; }
-				virtual void set_show(bool show) { (void) show; }
+				virtual void show(void) {}
+				virtual void hide(void) {}
 				virtual t3_window_t *get_draw_window(void) { return window; }
 		};
 

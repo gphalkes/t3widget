@@ -36,8 +36,6 @@ class file_dialog_t : public dialog_t {
 		checkbox_t *show_hidden_box;
 		smart_label_t *name_label, *show_hidden_label;
 
-		bool show;
-
 		file_dialog_t(int height, int width, const char *_title);
 		void ok_callback(void);
 		void ok_callback(const string *file);
@@ -45,7 +43,7 @@ class file_dialog_t : public dialog_t {
 
 	public:
 		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void set_show(bool _show);
+		virtual void show(void);
 		void change_dir(const string *dir);
 		virtual void set_file(const char *file);
 		void refresh_view(const string *file);

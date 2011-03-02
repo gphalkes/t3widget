@@ -111,7 +111,7 @@ void dialog_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_ESC:
-			set_show(false);
+			hide();
 			break;
 		case '\t':
 			focus_next();
@@ -152,19 +152,19 @@ void dialog_t::set_focus(bool focus) {
 	(*current_widget)->set_focus(focus);
 }
 
-void dialog_t::set_show(bool show) {
-	if (show) {
-		activate_dialog();
-		for (current_widget = widgets.begin();
-			!(*current_widget)->accepts_focus() && current_widget != widgets.end();
-			current_widget++)
-		{}
+void dialog_t::show(void) {
+	activate_dialog();
+	for (current_widget = widgets.begin();
+		!(*current_widget)->accepts_focus() && current_widget != widgets.end();
+		current_widget++)
+	{}
 
-		t3_win_show(window);
-	} else {
-		deactivate_dialog();
-		t3_win_hide(window);
-	}
+	t3_win_show(window);
+}
+
+void dialog_t::hide(void) {
+	deactivate_dialog();
+	t3_win_hide(window);
 }
 
 void dialog_t::focus_next(void) {

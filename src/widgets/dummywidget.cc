@@ -34,9 +34,9 @@ void dummy_widget_t::set_focus(bool focus) {
 	return;
 }
 
-void dummy_widget_t::set_show(bool show) {
-	(void) show;
-}
+void dummy_widget_t::show(void) {}
+
+void dummy_widget_t::hide(void) {}
 
 t3_window_t *dummy_widget_t::get_draw_window(void) {
 	return NULL;

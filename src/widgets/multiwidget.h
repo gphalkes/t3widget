@@ -33,7 +33,6 @@ class multi_widget_t : public widget_t, public container_t {
 		virtual bool resize(optint height, optint _width, optint _top, optint _left);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
-		virtual void set_show(bool show);
 		virtual bool accepts_focus(void);
 
 		/* Width is negative for fixed width widgets, positive for proportion */
