@@ -13,7 +13,8 @@
 */
 #include "widgets/multiwidget.h"
 
-multi_widget_t::multi_widget_t(window_component_t *parent, int _width, int _top, int _left, int relation) :
+#warning FIXME: allow anchor
+multi_widget_t::multi_widget_t(container_t *parent, int _width, int _top, int _left, int relation) :
 	width(_width), top(_top), left(_left), fixed_sum(0), proportion_sum(0)
 {
 	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, top, left, 0, parent->get_draw_window(), relation)) == NULL)

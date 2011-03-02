@@ -13,12 +13,9 @@
 */
 #include "widgets/bullet.h"
 
-bullet_t::bullet_t(window_component_t *parent, window_component_t *anchor, int _top, int _left, int relation,
+bullet_t::bullet_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation,
 	bullet_status_t *_source) : source(_source), top(_top), left(_left), focus(false)
 {
-	if (anchor == NULL)
-		anchor = parent;
-
 	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, 1, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);

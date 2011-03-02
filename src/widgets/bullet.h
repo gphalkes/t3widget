@@ -23,7 +23,7 @@ class bullet_t : public widget_t {
 		bool focus;
 
 	public:
-		bullet_t(window_component_t *parent, window_component_t *anchor,
+		bullet_t(container_t *parent, window_component_t *anchor,
 			int _top, int _left, int relation, bullet_status_t *_source);
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint _top, optint _left);

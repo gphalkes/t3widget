@@ -19,6 +19,7 @@
 #include "main.h"
 #include "keys.h"
 
+#warning FIXME: should this be part of the main_window somehow?
 menu_bar_t::menu_bar_t(bool _hide) : current_menu(0), hide(_hide) {
 	int width;
 	t3_term_get_size(NULL, &width);

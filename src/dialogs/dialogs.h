@@ -21,7 +21,7 @@
 
 #define DIALOG_DEPTH 80
 
-class dialog_t : public window_component_t {
+class dialog_t : public window_component_t, public container_t {
 	private:
 		friend void ::iterate(void);
 		static window_components_t dialogs;

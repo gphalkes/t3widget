@@ -15,6 +15,7 @@
 #include "widgets/menuitem.h"
 
 #warning FIXME: top should be derived automatically from adding to the menu_panel_t
+#warning FIXME: passing a t3_window_t * as parent is wrong. Should probably refer to menu_panel_t
 menu_item_t::menu_item_t(t3_window_t *_parent, const char *_label, const char *_hotkey, int _top, int _id) :
 		menu_item_base_t(_parent, _top), label(_label), hotkey(_hotkey), id(_id)
 {

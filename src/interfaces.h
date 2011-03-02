@@ -33,6 +33,11 @@ class window_component_t {
 		virtual t3_window_t *get_draw_window(void) = 0;
 };
 
+class container_t {
+	public:
+		virtual t3_window_t *get_draw_window(void) = 0;
+};
+
 typedef list<window_component_t *> window_components_t;
 
 class bullet_status_t {

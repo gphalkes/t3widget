@@ -14,7 +14,8 @@
 #include "colorscheme.h"
 #include "widgets/listpane.h"
 
-list_pane_t::list_pane_t(window_component_t *_parent, int _height, int _width, int _top, int _left, bool _indicator) : height(_height - 2),
+#warning FIXME: use separate anchor
+list_pane_t::list_pane_t(container_t *_parent, int _height, int _width, int _top, int _left, bool _indicator) : height(_height - 2),
 	width(_width - 2), top(_top), left(_left), top_idx(0), parent(_parent), widgets(NULL), indicator(_indicator)
 {
 	clip_window = t3_win_new_relative(parent->get_draw_window(), height, width, top + 1, left + 1, 0, parent->get_draw_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));

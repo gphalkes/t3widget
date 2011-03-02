@@ -21,11 +21,11 @@ class checkbox_t : public widget_t {
 		bool state, has_focus;
 		smart_label_t *label;
 
-		void init(window_component_t *parent, window_component_t *anchor, int top, int left, int relation);
+		void init(container_t *parent, window_component_t *anchor, int top, int left, int relation);
 
 	public:
-		checkbox_t(window_component_t *parent, int top, int left, bool _state);
-		checkbox_t(window_component_t *parent, window_component_t *anchor, int top, int left, int relation, bool _state);
+		checkbox_t(container_t *parent, int top, int left, bool _state);
+		checkbox_t(container_t *parent, window_component_t *anchor, int top, int left, int relation, bool _state);
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint top, optint left);
 		virtual void update_contents(void);

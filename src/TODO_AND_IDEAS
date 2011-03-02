@@ -3,8 +3,6 @@
 	- split set_show into show and hide routines
 	- widget constructor should have parent and dimension args, such that it can
 		create the window itself.
-	- call correct process_key function after moving all the activate/deactivate
-		stuff into dialog_t
 - put everything in a namespace (t3 sounds about right, or maybe even
 	t3::window)
 - figure out which dialogs should be included as defaults, and which should be

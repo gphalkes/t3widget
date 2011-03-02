@@ -16,7 +16,7 @@
 
 #include "widgets/widgets.h"
 
-scrollbar_t::scrollbar_t(window_component_t *parent, window_component_t *anchor, int _top, int _left, int relation, int _length, bool _vertical) :
+scrollbar_t::scrollbar_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation, int _length, bool _vertical) :
 	top(_top), left(_left), length(_length), vertical(_vertical)
 {
 	int width, height;

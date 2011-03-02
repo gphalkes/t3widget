@@ -13,20 +13,17 @@
 */
 #include "checkbox.h"
 
-checkbox_t::checkbox_t(window_component_t *parent, int top, int left, bool _state) : state(_state) {
+checkbox_t::checkbox_t(container_t *parent, int top, int left, bool _state) : state(_state) {
 	init(parent, NULL, top, left, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 }
 
-checkbox_t::checkbox_t(window_component_t *parent, window_component_t *anchor, int top, int left, int relation, bool _state) :
+checkbox_t::checkbox_t(container_t *parent, window_component_t *anchor, int top, int left, int relation, bool _state) :
 	state(_state)
 {
 	init(parent, anchor, top, left, relation);
 }
 
-void checkbox_t::init(window_component_t *parent, window_component_t *anchor, int top, int left, int relation) {
-	if (anchor == NULL)
-		anchor = parent;
-
+void checkbox_t::init(container_t *parent, window_component_t *anchor, int top, int left, int relation) {
 	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, 3, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
 		throw(-1);
 

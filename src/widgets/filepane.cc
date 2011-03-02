@@ -14,6 +14,7 @@
 #include "colorscheme.h"
 #include "widgets/filepane.h"
 
+#warning FIXME: should use container_t for parent and allow anchor
 file_pane_t::file_pane_t(t3_window_t *_parent, int _height, int _width, int _top, int _left) : height(_height - 2),
 	width(_width - 2), top(_top), left(_left), top_idx(0), parent(_parent), file_list(NULL)
 {

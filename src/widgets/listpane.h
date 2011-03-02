@@ -21,13 +21,16 @@ class list_pane_t : public widget_t {
 	private:
 		int height, width, top, left;
 		size_t top_idx, current;
-		window_component_t *parent;
+		container_t *parent;
 		t3_window_t *clip_window;
 		widgets_t widgets;
 		bool focus;
 		scrollbar_t *scrollbar;
 		bool indicator;
 
+		/* Wrapper around a t3_window_t * to allow passing of a different window
+		   to the scrollbar_t. All widgets except the scrollbar use an unbacked
+		   window of which only part is actually shown through clipping. */
 		class clipwindow_component_t : public window_component_t {
 			private:
 				t3_window_t *window;
@@ -43,7 +46,7 @@ class list_pane_t : public widget_t {
 
 		void ensure_cursor_on_screen(void);
 	public:
-		list_pane_t(window_component_t *_parent, int _height, int _width, int _top, int _left, bool _indicator);
+		list_pane_t(container_t *_parent, int _height, int _width, int _top, int _left, bool _indicator);
 		virtual ~list_pane_t(void);
 		virtual void process_key(key_t key);
 		virtual bool resize(optint _height, optint _width, optint _top, optint _left);

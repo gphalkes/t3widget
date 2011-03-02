@@ -103,33 +103,32 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 	return false;
 }
 
-smart_label_t::smart_label_t(window_component_t *parent, int top, int left, smart_label_text_t *spec) : smart_label_text_t(spec) {
-	init(parent, parent, top, left, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+smart_label_t::smart_label_t(container_t *parent, int top, int left, smart_label_text_t *spec) : smart_label_text_t(spec) {
+	init(parent, NULL, top, left, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 }
 
-smart_label_t::smart_label_t(window_component_t *parent, int top, int left, const char *spec, bool _addColon) :
+smart_label_t::smart_label_t(container_t *parent, int top, int left, const char *spec, bool _addColon) :
 	smart_label_text_t(spec, _addColon)
 {
-	init(parent, parent, top, left, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	init(parent, NULL, top, left, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 }
 
-smart_label_t::smart_label_t(window_component_t *parent, window_component_t *anchor,
+smart_label_t::smart_label_t(container_t *parent, window_component_t *anchor,
 	int top, int left, int relation, smart_label_text_t *spec) : smart_label_text_t(spec)
 {
 	init(parent, anchor, top, left, relation);
 }
 
-smart_label_t::smart_label_t(window_component_t *parent, window_component_t *anchor,
+smart_label_t::smart_label_t(container_t *parent, window_component_t *anchor,
 	int top, int left, int relation, const char *spec, bool _addColon) : smart_label_text_t(spec, _addColon)
 {
 	init(parent, anchor, top, left, relation);
 }
 
-void smart_label_t::init(window_component_t *parent, window_component_t *anchor, int top, int left, int relation) {
-	if (anchor == NULL)
-		anchor = parent;
+void smart_label_t::init(container_t *parent, window_component_t *anchor, int top, int left, int relation) {
+	t3_window_t *anchor_window = anchor == NULL ? parent->get_draw_window() : anchor->get_draw_window();
 
-	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, get_width(), top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, get_width(), top, left, 0, anchor_window, relation)) == NULL)
 		throw(-1);
 
 	t3_win_show(window);

@@ -16,15 +16,13 @@
 #include "colorscheme.h"
 #include "button.h"
 
-button_t::button_t(window_component_t *parent, window_component_t *anchor, int _width, int _top, int _left, int relation, const char *_text, bool _isDefault) :
-	width(_width), top(_top), left(_left), text(_text), is_default(_isDefault)
+button_t::button_t(container_t *parent, window_component_t *anchor, int _width, int _top, int _left, int relation,
+	const char *_text, bool _isDefault) : width(_width), top(_top), left(_left), text(_text), is_default(_isDefault)
 {
 	text_width = text.get_width();
 
-	if (anchor == NULL)
-		anchor = parent;
-
-	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, width > 0 ? width : text_width + 4, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, width > 0 ? width : text_width + 4,
+			top, left, 0, anchor->get_draw_window(), relation)) == NULL)
 		throw(-1);
 	t3_win_set_default_attrs(window, colors.button_attrs);
 

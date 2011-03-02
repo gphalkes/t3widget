@@ -16,7 +16,7 @@
 
 #include "widgets/widgets.h"
 
-class multi_widget_t : public widget_t {
+class multi_widget_t : public widget_t, public container_t {
 	private:
 		struct item_t {
 			widget_t *widget;
@@ -28,7 +28,7 @@ class multi_widget_t : public widget_t {
 		int width, top, left, fixed_sum, proportion_sum;
 
 	public:
-		multi_widget_t(window_component_t *parent, int _width, int _top, int _left, int relation);
+		multi_widget_t(container_t *parent, int _width, int _top, int _left, int relation);
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint _width, optint _top, optint _left);
 		virtual void update_contents(void);
