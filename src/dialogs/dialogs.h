@@ -14,22 +14,26 @@
 #ifndef DIALOGS_H
 #define DIALOGS_H
 
+#include "main.h"
 #include "interfaces.h"
 #include "widgets/widgets.h"
+#include "dialogs/mainwindow.h"
 
 #define DIALOG_DEPTH 80
 
 class dialog_t : public window_component_t {
 	private:
-		static vector<dialog_t *> dialogs;
+		friend void ::iterate(void);
+		static window_components_t dialogs;
 		static int dialog_depth;
+
 		void activate_dialog(void);
 		void deactivate_dialog(void);
 
 		bool active;
 
 	protected:
-		t3_window_t *window, *shadow_window;
+		t3_window_t *window;
 		const char *title;
 		widgets_t widgets;
 		widgets_t::iterator current_widget;
@@ -41,6 +45,9 @@ class dialog_t : public window_component_t {
 		void focus_previous(void);
 
 	public:
+		static window_component_t *main_window;
+		static void init(void);
+
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint top, optint left);
 		virtual void update_contents(void);

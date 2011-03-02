@@ -14,9 +14,26 @@
 #include "colorscheme.h"
 #include "main.h"
 #include "dialogs/dialogs.h"
+#include "dialogs/mainwindow.h"
 
-vector<dialog_t *> dialog_t::dialogs;
+window_components_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
+window_component_t *dialog_t::main_window;
+
+void dialog_t::init(void) {
+	main_window = new main_window_t();
+	dialogs.push_back(main_window);
+}
+
+dialog_t::dialog_t(int height, int width, int top, int left, int depth, const char *_title) : active(false), title(_title) {
+	if ((window = t3_win_new(NULL, height + 1, width + 1, top, left, depth)) == NULL)
+		throw bad_alloc();
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
+}
+
+dialog_t::~dialog_t() {
+	t3_win_del(window);
+}
 
 void dialog_t::activate_dialog(void) {
 	if (this == dialogs.back())
@@ -24,7 +41,7 @@ void dialog_t::activate_dialog(void) {
 
 	dialogs.back()->set_focus(false);
 	if (this->active) {
-		for (vector<dialog_t *>::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+		for (window_components_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
 			if (*iter == this) {
 				dialogs.erase(iter);
 				break;
@@ -49,23 +66,12 @@ void dialog_t::deactivate_dialog(void) {
 		return;
 	}
 
-	for (vector<dialog_t *>::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+	for (window_components_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
 		if (*iter == this) {
 			dialogs.erase(iter);
 			break;
 		}
 	}
-}
-
-dialog_t::dialog_t(int height, int width, int top, int left, int depth, const char *_title) : active(false), title(_title) {
-	if ((window = t3_win_new(NULL, height + 1, width + 1, top, left, depth)) == NULL)
-		throw bad_alloc();
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
-}
-
-dialog_t::~dialog_t() {
-	t3_win_del(window);
-	t3_win_del(shadow_window);
 }
 
 void dialog_t::draw_dialog(void) {
@@ -82,10 +88,10 @@ void dialog_t::draw_dialog(void) {
 	x = t3_win_get_width(window) - 1;
 	for (i = t3_win_get_height(window) - 1; i > 0; i--) {
 		t3_win_set_paint(window, i, x);
-		t3_win_addch(shadow_window, ' ', T3_ATTR_REVERSE);
+		t3_win_addch(window, ' ', T3_ATTR_REVERSE);
 	}
-	t3_win_set_paint(shadow_window, t3_win_get_height(window) - 1, 1);
-	t3_win_addchrep(shadow_window, ' ', T3_ATTR_REVERSE, t3_win_get_width(window) - 1);
+	t3_win_set_paint(window, t3_win_get_height(window) - 1, 1);
+	t3_win_addchrep(window, ' ', T3_ATTR_REVERSE, t3_win_get_width(window) - 1);
 }
 
 void dialog_t::process_key(key_t key) {
@@ -131,10 +137,8 @@ bool dialog_t::resize(optint height, optint width, optint top, optint left) {
 	if (!left.is_valid())
 		left = t3_win_get_x(window);
 
-	result &= (t3_win_resize(window, height, width) == 0);
-	result &= (t3_win_resize(shadow_window, height, width) == 0);
+	result &= (t3_win_resize(window, height + 1, width + 1) == 0);
 	t3_win_move(window, top, left);
-	t3_win_move(shadow_window, top + 1, left + 1);
 	return result;
 }
 
@@ -157,11 +161,9 @@ void dialog_t::set_show(bool show) {
 		{}
 
 		t3_win_show(window);
-		t3_win_show(shadow_window);
 	} else {
 		deactivate_dialog();
 		t3_win_hide(window);
-		t3_win_hide(shadow_window);
 	}
 }
 
