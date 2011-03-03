@@ -23,7 +23,7 @@ class scrollbar_t : public widget_t {
 		bool vertical;
 
 	public:
-		scrollbar_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation, int _length, bool _vertical = true);
+		scrollbar_t(container_t *parent, bool _vertical);
 		virtual void process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

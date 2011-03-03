@@ -22,7 +22,7 @@ class file_pane_t : public widget_t {
 	private:
 		int height, width, top, left;
 		size_t top_idx, current;
-		t3_window_t *parent;
+		container_t *parent;
 		file_list_t *file_list;
 		bool focus;
 		text_field_t *field;
@@ -30,7 +30,7 @@ class file_pane_t : public widget_t {
 		void ensure_cursor_on_screen(void);
 		void draw_line(int idx, bool selected);
 	public:
-		file_pane_t(t3_window_t *_parent, int _height, int _width, int _top, int _left);
+		file_pane_t(container_t *_parent);
 		void set_text_field(text_field_t *_field);
 		virtual void process_key(key_t key);
 		virtual void set_position(optint top, optint left);

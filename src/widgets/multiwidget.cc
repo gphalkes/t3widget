@@ -16,10 +16,10 @@
 using namespace std;
 
 #warning FIXME: allow anchor
-multi_widget_t::multi_widget_t(container_t *parent, int _width, int top, int left, int relation) :
-	width(_width), fixed_sum(0), proportion_sum(0)
+multi_widget_t::multi_widget_t(container_t *parent) :
+	width(1), fixed_sum(0), proportion_sum(0)
 {
-	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, top, left, 0, parent->get_draw_window(), relation)) == NULL)
+	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, 0, 0, 0, NULL, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 }

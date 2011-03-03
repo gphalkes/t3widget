@@ -48,7 +48,7 @@ class list_pane_t : public widget_t {
 
 		void ensure_cursor_on_screen(void);
 	public:
-		list_pane_t(container_t *_parent, int _height, int _width, int _top, int _left, bool _indicator);
+		list_pane_t(container_t *_parent, bool _indicator);
 		virtual ~list_pane_t(void);
 		virtual void process_key(key_t key);
 		virtual void set_position(optint top, optint left);

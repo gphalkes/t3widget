@@ -32,8 +32,7 @@ class label_t : public widget_t {
 		bool redraw;
 
 	public:
-		label_t(container_t *parent, window_component_t *anchor,
-			int top, int left, optint _width, int relation, const char *_text);
+		label_t(container_t *parent, const char *_text);
 
 		virtual void process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

@@ -27,24 +27,8 @@ using namespace std;
 	- pressing esc in drop-down list should close the list
 */
 
-text_field_t::text_field_t(window_component_t *parent, int top, int left, int _width) :
-	width(_width), pos(0), screen_pos(0), leftcol(0)
-{
-	init(parent, NULL, top, left, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-}
-
-text_field_t::text_field_t(window_component_t *parent, window_component_t *anchor, int top, int left, int _width, int relation) :
-	width(_width), pos(0), screen_pos(0), leftcol(0)
-{
-	init(parent, anchor, top, left, relation);
-}
-
-void text_field_t::init(window_component_t *parent, window_component_t *anchor, int top, int left, int relation) {
-	if (anchor == NULL)
-		anchor = parent;
-
-	parent_window = parent->get_draw_window();
-	if ((window = t3_win_new_relative(parent_window, 1, width, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+text_field_t::text_field_t(container_t *_parent) : width(4), pos(0), screen_pos(0), leftcol(0), parent(_parent) {
+	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
 		throw(-1);
 
 	line = new line_t();
@@ -472,7 +456,7 @@ const line_t *text_field_t::get_line(void) const {
 
 void text_field_t::set_autocomplete(string_list_t *completions) {
 	if (drop_down_list == NULL)
-		drop_down_list = new drop_down_list_t(parent_window, window, width, this);
+		drop_down_list = new drop_down_list_t(parent->get_draw_window(), window, width, this);
 	drop_down_list->set_autocomplete(completions);
 }
 

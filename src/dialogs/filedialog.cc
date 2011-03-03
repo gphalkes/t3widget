@@ -33,23 +33,33 @@ static key_t nul = 0;
 	//FIXME: perhaps we should also allow a drop down list, which would require different handling
 #warning FIXME: complete focus moving
 file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, 2, 1, DIALOG_DEPTH, _title), view(NULL) {
-	name_label = new smart_label_t(this, 1, 2, "_Name;nN", true);
+	name_label = new smart_label_t(this, "_Name;nN", true);
+	name_label->set_position(1, 2);
 	name_offset = name_label->get_width() + 2 + 1; // 2 for offset of "Name", 1 for space in ": ["
-	file_line = new text_field_t(this, name_label, 0, 1, t3_win_get_width(window) - 2 - name_offset, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	file_line = new text_field_t(this);
+	file_line->set_anchor(name_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	file_line->set_position(0, 1);
+	file_line->set_size(None, t3_win_get_width(window) - 2 - name_offset);
 	file_line->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 	file_line->set_label(name_label);
 	file_line->set_key_filter(&nul, 1, false);
 
-	file_pane = new file_pane_t(window, height - 5, width - 4, 2, 2);
+	file_pane = new file_pane_t(this);
+	file_pane->set_size(height - 5, width);
+	file_pane->set_position(2, 2);
 	file_pane->set_file_list(&names);
 	file_pane->set_text_field(file_line);
 	file_pane->connect_activate(sigc::mem_fun1(this, &file_dialog_t::ok_callback));
 
-	show_hidden_box = new checkbox_t(this, NULL, -2, 2, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT), false);
+	show_hidden_box = new checkbox_t(this, false);
+	show_hidden_box->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+	show_hidden_box->set_position(-2, 2);
 	show_hidden_box->connect_toggled(sigc::bind(sigc::mem_fun(this, &file_dialog_t::refresh_view), (const string *) NULL));
 	show_hidden_box->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 
-	show_hidden_label = new smart_label_t(this, show_hidden_box, 0, 1, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT), "_Show hidden;sS");
+	show_hidden_label = new smart_label_t(this, "_Show hidden;sS");
+	show_hidden_label->set_anchor(show_hidden_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	show_hidden_label->set_position(0, 1);
 	show_hidden_box->set_label(show_hidden_label);
 
 	cancel_button = new button_t(this, "_Cancel;cC");
@@ -196,10 +206,15 @@ void file_dialog_t::refresh_view(const string *file) {
 open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(height, width, "Open File") {
 	widgets_t::iterator iter;
 
-	filter_label = new smart_label_t(this, show_hidden_label, 0, 2, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT), "_Filter;fF", true);
+	filter_label = new smart_label_t(this, "_Filter;fF", true);
+	filter_label->set_anchor(show_hidden_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	filter_label->set_position(0, 2);
 	filter_offset = filter_label->get_width() + 1;
 	filter_width = 10;
-	filter_line = new text_field_t(this, filter_label, 0, 1, filter_width, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	filter_line = new text_field_t(this);
+	filter_line->set_anchor(filter_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	filter_line->set_position(0, 1);
+	filter_line->set_size(None, filter_width);
 	filter_line->set_text("*");
 	filter_line->connect_activate(sigc::bind(sigc::mem_fun(this, &open_file_dialog_t::refresh_view), (const string *) NULL));
 	filter_line->connect_lose_focus(sigc::bind(sigc::mem_fun(this, &open_file_dialog_t::refresh_view), (const string *) NULL));

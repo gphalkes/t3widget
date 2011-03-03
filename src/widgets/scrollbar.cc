@@ -16,8 +16,8 @@
 
 #include "widgets/widgets.h"
 
-scrollbar_t::scrollbar_t(container_t *parent, window_component_t *anchor, int top, int left, int relation, int _length, bool _vertical) :
-	length(_length), vertical(_vertical)
+scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
+	length(3), vertical(_vertical)
 {
 	int width, height;
 
@@ -29,14 +29,13 @@ scrollbar_t::scrollbar_t(container_t *parent, window_component_t *anchor, int to
 		height = 1;
 	}
 
-	if ((window = t3_win_new_relative(parent->get_draw_window(), height, width, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
 		throw(-1);
 	t3_win_set_default_attrs(window, 0/*FIXME: option.scrollbar_selected_attrs */);
 
 	range = 1;
 	start = 0;
 	used = 1;
-	update_contents();
 	t3_win_show(window);
 }
 

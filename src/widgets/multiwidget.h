@@ -28,7 +28,7 @@ class multi_widget_t : public widget_t, public container_t {
 		int width, fixed_sum, proportion_sum;
 
 	public:
-		multi_widget_t(container_t *parent, int _width, int _top, int _left, int relation);
+		multi_widget_t(container_t *parent);
 		virtual void process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

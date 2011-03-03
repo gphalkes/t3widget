@@ -15,12 +15,12 @@
 #include "widgets/filepane.h"
 
 using namespace std;
-
-#warning FIXME: should use container_t for parent and allow anchor
-file_pane_t::file_pane_t(t3_window_t *_parent, int _height, int _width, int _top, int _left) : height(_height - 2),
-	width(_width - 2), top(_top), left(_left), top_idx(0), parent(_parent), file_list(NULL)
+//FIXME: the number of columns should be dependent on the contents, not fixed to 2
+#warning FIXME: do not paint on parent window!
+file_pane_t::file_pane_t(container_t *_parent) : height(1),
+	width(1), top(0), left(0), top_idx(0), parent(_parent), file_list(NULL)
 {
-	window = t3_win_new(parent, height, width, top + 1, left + 1, 0);
+	window = t3_win_new(parent->get_draw_window(), height, width, top + 1, left + 1, 0);
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	field = NULL;
 	focus = false;
@@ -163,7 +163,7 @@ void file_pane_t::update_contents(void) {
 	for (i = top_idx, max_idx = min(top_idx + 2 * height, file_list->get_length()); i < max_idx; i++)
 		draw_line(i, focus && i == current);
 
-	t3_win_box(parent, top, left, height + 2, width + 2, 0);
+	t3_win_box(parent->get_draw_window(), top, left, height + 2, width + 2, 0);
 }
 
 void file_pane_t::set_focus(bool _focus) {

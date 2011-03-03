@@ -37,14 +37,10 @@ class smart_label_text_t {
 
 class smart_label_t : public smart_label_text_t, public widget_t {
 	private:
-		void init(container_t *parent, window_component_t *anchor, int top, int left, int relation);
+		void init(container_t *parent);
 	public:
-		smart_label_t(container_t *parent, int top, int left, smart_label_text_t *spec);
-		smart_label_t(container_t *parent, int top, int left, const char *spec, bool _addColon = false);
-		smart_label_t(container_t *parent, window_component_t *anchor,
-			int top, int left, int relation, smart_label_text_t *spec);
-		smart_label_t(container_t *parent, window_component_t *anchor,
-			int top, int left, int relation, const char *spec, bool _addColon = false);
+		smart_label_t(container_t *parent, smart_label_text_t *spec);
+		smart_label_t(container_t *parent, const char *spec, bool _addColon = false);
 		virtual void process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

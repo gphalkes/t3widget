@@ -3,8 +3,6 @@
 	- widget constructor should have parent and dimension args, such that it can
 		create the window itself. (Probably keep the current constructor for
 		widgets that do special stuff in the constructor)
-	- make the constructors for the different widgets more uniform. Now some do
-		and some don't have an anchor for example
 	- figure out what to do with the menu. Should that be a normal widget, and
 		how should the keys be handled? [yes it should be a normal widget and
 		handling keys can be done through the is_hotkey function]
@@ -24,8 +22,6 @@
 	part of tilde/edit
 - move the casefolding stuff into libt3unicode
 - refine the editwindow/file/line stuff into an edit widget
-- put all the dialog output into a single window (unwritten positions are see-
-	through anyway!)
 - add a test program to check if everything works
 - figure out how to get rid of the bullet_status_t interface
 - rename the multi_string_list_i interface to something ending in _t
@@ -35,7 +31,6 @@
 - create a single header file to be included by users of the library.
 	Furthermore, the library should have its own header file which provides
 	all the other needed functionality (such as "using namespace std")
-- set the anchor in a separate call, instead of doing it in the constructor.
-	requires change in the window library
-- do not set the position of the widget from the constructor. This should
-	make the constructors arguments much less cluttered.
+- the current implementation of parents inside the window library is not
+	intuitive. Using a subdepth attribute does not work well with arbitrarily
+	nested windows.

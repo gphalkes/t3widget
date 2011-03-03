@@ -15,10 +15,9 @@
 
 using namespace std;
 
-bullet_t::bullet_t(container_t *parent, window_component_t *anchor, int top, int left, int relation,
-	bullet_status_t *_source) : source(_source), focus(false)
+bullet_t::bullet_t(container_t *parent, bullet_status_t *_source) : source(_source), focus(false)
 {
-	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, 1, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+	if ((window = t3_win_new(parent->get_draw_window(), 1, 1, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 	update_contents();

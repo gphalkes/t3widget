@@ -15,10 +15,10 @@
 #include "widgets/listpane.h"
 
 #warning FIXME: do not draw on the parent window!
-list_pane_t::list_pane_t(container_t *_parent, int _height, int _width, int _top, int _left, bool _indicator) : height(_height - 2),
-	width(_width - 2), top(_top), left(_left), top_idx(0), parent(_parent), widgets(NULL), indicator(_indicator)
+list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1),
+	width(1), top(0), left(0), top_idx(0), parent(_parent), widgets(NULL), indicator(_indicator)
 {
-	clip_window = t3_win_new_relative(parent->get_draw_window(), height, width, top + 1, left + 1, 0, parent->get_draw_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	clip_window = t3_win_new(parent->get_draw_window(), height, width, top + 1, left + 1, 0);
 	window = t3_win_new_unbacked(clip_window, 1, width, 0, 0, 0, clip_window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	focus = false;
@@ -27,7 +27,9 @@ list_pane_t::list_pane_t(container_t *_parent, int _height, int _width, int _top
 	t3_win_show(clip_window);
 
 	clipwindow_component_t scrollbarAnchor(clip_window);
-	scrollbar = new scrollbar_t(parent, &scrollbarAnchor, 0, 0, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT), height);
+	scrollbar = new scrollbar_t(parent, true);
+	scrollbar->set_anchor(&scrollbarAnchor, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	scrollbar->set_size(height, None);
 }
 
 list_pane_t::~list_pane_t(void) {

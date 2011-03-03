@@ -18,17 +18,13 @@ using namespace std;
 
 //FIXME: maybe we should allow scrolling with the left and right keys
 
-label_t::label_t(container_t *parent, window_component_t *anchor,
-	int top, int left, optint _width, int relation, const char *_text) : text(_text), align(ALIGN_LEFT)
+label_t::label_t(container_t *parent, const char *_text) : text(_text), align(ALIGN_LEFT)
 {
-	text_width = t3_term_strwidth(text);
-	width = _width.is_valid() ? (int) _width : text_width;
-
-	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, width, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+	width = text_width = t3_term_strwidth(text);
+	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	redraw = true;
 	t3_win_show(window);
-	update_contents();
 }
 
 

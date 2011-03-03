@@ -47,9 +47,8 @@ class text_field_t : public widget_t {
 		bool filter_keys_accept;
 
 		smart_label_t *label;
-		t3_window_t *parent_window;
+		container_t *parent;
 
-		void init(window_component_t *parent, window_component_t *anchor, int top, int left, int relation);
 		void reset_selection(void);
 		void set_selection(key_t key);
 		void delete_selection(bool saveToCopybuffer);
@@ -85,8 +84,7 @@ class text_field_t : public widget_t {
 		drop_down_list_t *drop_down_list;
 
 	public:
-		text_field_t(window_component_t *parent, int top, int left, int _width);
-		text_field_t(window_component_t *parent, window_component_t *anchor, int top, int left, int _width, int relation);
+		text_field_t(container_t *_parent);
 		virtual ~text_field_t(void);
 		virtual void process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
