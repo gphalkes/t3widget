@@ -77,18 +77,24 @@ void menu_panel_t::process_key(key_t key) {
 	}
 }
 
-bool menu_panel_t::resize(optint height, optint _width, optint top, optint left) {
+bool menu_panel_t::set_size(optint height, optint _width) {
 	widgets_t::iterator iter;
 	bool result;
 	int i;
 	(void) _width;
-	(void) top;
-	for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++)
-		(*iter)->resize(None, width - 2, i + 1, None);
+	for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++) {
+		(*iter)->set_size(None, width - 2);
+		(*iter)->set_position(i + 1, None);
+	}
 
-	result = dialog_t::resize(height, width, 1, left);
+	result = dialog_t::set_size(height, width);
 	draw_dialog();
 	return result;
+}
+
+void menu_panel_t::set_position(optint top, optint left) {
+	(void) top;
+	dialog_t::set_position(1, left);
 }
 
 void menu_panel_t::add_item(const char *item, const char *hotkey, int action) {
@@ -105,5 +111,6 @@ void menu_panel_t::add_item(const char *item, const char *hotkey, int action) {
 	label_width = max(label_width, menu_item->get_label_width());
 	if (hotkey_width + label_width > width - 2)
 		width = hotkey_width + label_width + 2;
-	resize(widgets.size() + 2, width, 1, t3_win_get_x(window));
+	set_size(widgets.size() + 2, width);
+	set_position(1, t3_win_get_x(window));
 }

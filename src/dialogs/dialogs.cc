@@ -133,22 +133,27 @@ void dialog_t::process_key(key_t key) {
 	}
 }
 
-bool dialog_t::resize(optint height, optint width, optint top, optint left) {
+void dialog_t::set_position(optint top, optint left) {
+	if (!top.is_valid())
+		top = t3_win_get_y(window);
+	if (!left.is_valid())
+		left = t3_win_get_x(window);
+
+	t3_win_move(window, top, left);
+}
+
+bool dialog_t::set_size(optint height, optint width) {
 	bool result = true;
 
 	if (!height.is_valid())
 		height = t3_win_get_height(window);
 	if (!width.is_valid())
 		width = t3_win_get_width(window);
-	if (!top.is_valid())
-		top = t3_win_get_y(window);
-	if (!left.is_valid())
-		left = t3_win_get_x(window);
 
 	result &= (t3_win_resize(window, height + 1, width + 1) == 0);
-	t3_win_move(window, top, left);
 	return result;
 }
+
 
 void dialog_t::update_contents(void) {
 	for (widgets_t::iterator iter = widgets.begin();

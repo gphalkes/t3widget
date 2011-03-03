@@ -29,7 +29,7 @@ menu_bar_t::menu_bar_t(bool _hidden) : current_menu(0), hidden(_hidden) {
 	if ((topline = t3_win_new(NULL, 1, width, 0, 0, 50)) == NULL)
 		throw -1;
 
-	resize(None, width, None, None);
+	set_size(None, width);
 
 	if (!hidden)
 		t3_win_show(topline);

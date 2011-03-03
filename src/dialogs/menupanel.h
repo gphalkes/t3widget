@@ -29,7 +29,8 @@ class menu_panel_t : public dialog_t {
 	public:
 		menu_panel_t(int left);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint _width, optint top, optint left);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		void add_item(const char *item, const char *hotkey, int id);
 };
 

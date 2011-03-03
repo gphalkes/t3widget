@@ -41,7 +41,7 @@ class file_dialog_t : public dialog_t {
 		virtual const std::string *get_filter(void) = 0;
 
 	public:
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void show(void);
 		void change_dir(const std::string *dir);
 		virtual void set_file(const char *file);

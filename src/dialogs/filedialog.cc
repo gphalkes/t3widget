@@ -81,16 +81,13 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	widgets.push_back(cancel_button);
 }
 
-bool file_dialog_t::resize(optint height, optint width, optint top, optint left) {
-	(void) top;
-	(void) left;
-
+bool file_dialog_t::set_size(optint height, optint width) {
 //FIXME: check return values
-	dialog_t::resize(height, width, None, None);
+	dialog_t::set_size(height, width);
 
-	file_line->resize(None, t3_win_get_width(window) - 3 - name_offset, None, None);
+	file_line->set_size(None, t3_win_get_width(window) - 3 - name_offset);
 
-	file_pane->resize(height - 5, width - 4, 2, 2);
+	file_pane->set_size(height - 5, width - 4);
 
 	/* Just clear the whole thing and redraw */
 	t3_win_set_paint(window, 0, 0);

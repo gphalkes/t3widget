@@ -68,7 +68,7 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 		takes_focus = false;
 
 	if (_width < 0) {
-		widget->resize(None, -_width, None, None);
+		widget->set_size(None, -_width);
 		fixed_sum += -_width;
 	} else {
 		proportion_sum += _width;
@@ -105,7 +105,7 @@ void multi_widget_t::resize_widgets(void) {
 		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
 				continue;
-			iter->widget->resize(None, 1, None, None);
+			iter->widget->set_size(None, 1);
 		}
 	} else if (proportion_sum > 0) {
 		double scale = (double) (width - fixed_sum) / proportion_sum;
@@ -118,7 +118,7 @@ void multi_widget_t::resize_widgets(void) {
 			if (size == 0)
 				size = 1;
 			//FIXME: make sure that widgets fill space available
-			iter->widget->resize(None, size, None, None);
+			iter->widget->set_size(None, size);
 		}
 	}
 }

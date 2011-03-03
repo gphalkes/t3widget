@@ -120,9 +120,9 @@ bool list_pane_t::set_size(optint _height, optint _width) {
 
 	for (widgets_t::iterator iter = widgets.begin();
 			iter != widgets.end(); iter++)
-		(*iter)->resize(None, widget_width, None, None);
+		(*iter)->set_size(None, widget_width);
 
-	scrollbar->resize(height, None, None, None);
+	scrollbar->set_size(height, None);
 
 	ensure_cursor_on_screen();
 	//FIXME: let return value depend on success!
@@ -173,7 +173,10 @@ void list_pane_t::update_positions(void) {
 	for (iter = widgets.begin(), idx = 0;
 			iter != widgets.end();
 			iter++, idx++)
-		(*iter)->resize(1, widget_width, idx, indicator ? 1 : 0);
+	{
+		(*iter)->set_size(1, widget_width);
+		(*iter)->set_position(idx, indicator ? 1 : 0);
+	}
 }
 
 void list_pane_t::push_back(widget_t *widget) {

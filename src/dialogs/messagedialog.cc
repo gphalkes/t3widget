@@ -62,11 +62,6 @@ void message_dialog_base_t::draw_dialog(void) {
 	}
 }
 
-bool message_dialog_base_t::resize(optint _height, optint width, optint top, optint left) {
-	(void) _height;
-	return dialog_t::resize(height, width, top, left);
-}
-
 void message_dialog_base_t::set_message(const string *_message) {
 	int i;
 	if (message != NULL)
@@ -83,7 +78,7 @@ void message_dialog_base_t::set_message(const string *_message) {
 		}
 	}
 	height = i + 4;
-	resize(height, t3_win_get_width(window), None, None);
+	set_size(height, t3_win_get_width(window));
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 	draw_dialog();
@@ -93,15 +88,15 @@ void message_dialog_base_t::set_message(const string *_message) {
 message_dialog_t::message_dialog_t(int width, int top, int left, const char *_title) : message_dialog_base_t(width, top, left, _title) {
 	button = new button_t(this, "_OK;oO", true);
 	button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	button->resize(None, None, -1, (width - button->get_width()) / 2 );
+	button->set_position(-1, (width - button->get_width()) / 2 );
 	button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
 	widgets.push_back(button);
 }
 
-bool message_dialog_t::resize(optint _height, optint width, optint top, optint left) {
+bool message_dialog_t::set_size(optint _height, optint width) {
 	bool result;
-	result = message_dialog_base_t::resize(_height, width, top, left);
-	button->resize(None, None, None, (t3_win_get_width(window) - button->get_width()) / 2);
+	result = message_dialog_base_t::set_size(_height, width);
+	button->set_position(None, (t3_win_get_width(window) - button->get_width()) / 2);
 	return result;
 }
 
@@ -114,18 +109,18 @@ question_dialog_t::question_dialog_t(int width, int top, int left, const char *_
 	ok_button->connect_activate(ok.make_slot());
 	cancel_button = new button_t(this, cancelName);
 	cancel_button->set_anchor(ok_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	cancel_button->resize(None, None, 0, 2);
+	cancel_button->set_position(0, 2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &question_dialog_t::hide));
 	cancel_button->connect_activate(cancel.make_slot());
-	ok_button->resize(None, None, -1, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2 );
+	ok_button->set_position(-1, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2 );
 
 	widgets.push_back(ok_button);
 	widgets.push_back(cancel_button);
 }
 
-bool question_dialog_t::resize(optint _height, optint width, optint top, optint left) {
+bool question_dialog_t::set_size(optint _height, optint width) {
 	bool result;
-	result = message_dialog_base_t::resize(_height, width, top, left);
-	ok_button->resize(None, None, None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2);
+	result = message_dialog_base_t::set_size(_height, width);
+	ok_button->set_size(None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2);
 	return result;
 }

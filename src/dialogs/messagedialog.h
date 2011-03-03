@@ -31,7 +31,6 @@ class message_dialog_base_t : public dialog_t {
 
 	public:
 		message_dialog_base_t(int width, int top, int left, const char *_title);
-		virtual bool resize(optint height, optint width, optint top, optint left);
 		void set_message(const std::string *_message);
 };
 
@@ -42,7 +41,7 @@ class message_dialog_t : public message_dialog_base_t {
 
 	public:
 		message_dialog_t(int width, int top, int left, const char *_title);
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 };
 
 class question_dialog_t : public message_dialog_base_t {
@@ -52,7 +51,7 @@ class question_dialog_t : public message_dialog_base_t {
 
 	public:
 		question_dialog_t(int width, int top, int left, const char *_title, const char *okName, const char *cancelName);
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 
 	SIGNAL(ok, void);
 	SIGNAL(cancel, void);
