@@ -14,7 +14,7 @@
 #include "mainwindow.h"
 
 
-main_window_t::main_window_t(void) {
+main_window_t::main_window_t(void) : dialog_t() {
 	int height, width;
 	t3_term_get_size(&height, &width);
 	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, -1, NULL, 0)) == NULL)
@@ -32,8 +32,4 @@ bool main_window_t::resize(optint _height, optint _width, optint _top, optint _l
 
 	t3_term_get_size(&height, &width);
 	return t3_win_resize(window, height, width);
-}
-
-main_window_t::~main_window_t(void) {
-	t3_win_del(window);
 }

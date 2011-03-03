@@ -16,12 +16,12 @@
 #include "dialogs/dialogs.h"
 #include "dialogs/mainwindow.h"
 
-window_components_t dialog_t::dialogs;
+dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
-window_component_t *dialog_t::main_window;
+dialog_t *dialog_t::main_window;
 
-void dialog_t::init(void) {
-	main_window = new main_window_t();
+void dialog_t::init(main_window_t *_main_window) {
+	main_window = _main_window;
 	dialogs.push_back(main_window);
 }
 
@@ -30,6 +30,12 @@ dialog_t::dialog_t(int height, int width, int top, int left, int depth, const ch
 		throw bad_alloc();
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
 }
+
+/** Create a new ::dialog_t.
+
+    This constructor should only be called by ::main_window_t.
+*/
+dialog_t::dialog_t(void) {}
 
 dialog_t::~dialog_t() {
 	t3_win_del(window);
@@ -41,7 +47,7 @@ void dialog_t::activate_dialog(void) {
 
 	dialogs.back()->set_focus(false);
 	if (this->active) {
-		for (window_components_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+		for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
 			if (*iter == this) {
 				dialogs.erase(iter);
 				break;
@@ -66,7 +72,7 @@ void dialog_t::deactivate_dialog(void) {
 		return;
 	}
 
-	for (window_components_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+	for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
 		if (*iter == this) {
 			dialogs.erase(iter);
 			break;

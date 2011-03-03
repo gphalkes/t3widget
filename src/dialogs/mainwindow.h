@@ -17,22 +17,14 @@
 #include "interfaces.h"
 #include "dialogs/dialogs.h"
 
-class main_window_t : public window_component_t {
-	private:
-		friend class dialog_t;
-
-		t3_window_t *window;
+class main_window_t : public dialog_t {
+	protected:
 		main_window_t(void);
 
 	public:
-		virtual void process_key(key_t key) { (void) key; }
 		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void update_contents(void) {}
-		virtual void set_focus(bool focus) { (void) focus; }
 		virtual void show(void) {}
 		virtual void hide(void) {}
-		virtual t3_window_t *get_draw_window(void) { return window; }
-		virtual ~main_window_t(void);
 };
 
 #endif

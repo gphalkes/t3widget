@@ -18,3 +18,6 @@
 - add a test program to check if everything works
 - figure out how to get rid of the bullet_status_t interface
 - rename the multi_string_list_i interface to something ending in _t
+- how should the notification of the resize operation work? Even for the
+	main_window the size may be known, but not how the widgets on it should be
+	resized. So just calling resize on it is probably not such a good idea.

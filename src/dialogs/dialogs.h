@@ -14,23 +14,32 @@
 #ifndef DIALOGS_H
 #define DIALOGS_H
 
+#include <list>
 #include "main.h"
 #include "interfaces.h"
 #include "widgets/widgets.h"
-#include "dialogs/mainwindow.h"
 
 #define DIALOG_DEPTH 80
+
+class dialog_t;
+typedef std::list<dialog_t *> dialogs_t;
+class main_window_t;
 
 class dialog_t : public window_component_t, public container_t {
 	private:
 		friend void ::iterate(void);
-		static window_components_t dialogs;
+		// main_window_t should be allowed to call dialog_t(), but no others should
+		friend class main_window_t;
+
+		static dialogs_t dialogs;
 		static int dialog_depth;
 
 		void activate_dialog(void);
 		void deactivate_dialog(void);
 
 		bool active;
+
+		dialog_t(void);
 
 	protected:
 		t3_window_t *window;
@@ -45,8 +54,8 @@ class dialog_t : public window_component_t, public container_t {
 		void focus_previous(void);
 
 	public:
-		static window_component_t *main_window;
-		static void init(void);
+		static dialog_t *main_window;
+		static void init(main_window_t *_main_window);
 
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint top, optint left);

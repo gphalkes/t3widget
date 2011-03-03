@@ -101,7 +101,7 @@ bool doResize(void) {
 void iterate(void) {
 	key_t key;
 
-	for (window_components_t::iterator iter = dialog_t::dialogs.begin(); iter != dialog_t::dialogs.end(); iter++)
+	for (dialogs_t::iterator iter = dialog_t::dialogs.begin(); iter != dialog_t::dialogs.end(); iter++)
 		(*iter)->update_contents();
 
 	t3_term_update();
