@@ -24,6 +24,8 @@
 #include "util.h"
 #include "widgets/contentlist.h"
 
+using namespace std;
+
 string file_name_list_t::get_working_directory(void) {
 	size_t buffer_max = 511;
 	char *buffer = NULL, *result;

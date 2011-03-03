@@ -16,6 +16,8 @@
 #include "dialogs/dialogs.h"
 #include "dialogs/mainwindow.h"
 
+using namespace std;
+
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
 dialog_t *dialog_t::main_window;

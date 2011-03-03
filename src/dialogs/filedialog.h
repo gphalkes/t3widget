@@ -18,13 +18,12 @@
 #include "widgets/widgets.h"
 #include "dialogs/dialogs.h"
 
-using namespace std;
 
 class file_dialog_t : public dialog_t {
 	protected:
 		file_name_list_t names;
 		file_name_list_t::file_name_list_view_t *view;
-		string current_dir;
+		std::string current_dir;
 
 		int name_offset,
 			filter_create_button_offset;
@@ -38,17 +37,17 @@ class file_dialog_t : public dialog_t {
 
 		file_dialog_t(int height, int width, const char *_title);
 		void ok_callback(void);
-		void ok_callback(const string *file);
-		virtual const string *get_filter(void) = 0;
+		void ok_callback(const std::string *file);
+		virtual const std::string *get_filter(void) = 0;
 
 	public:
 		virtual bool resize(optint height, optint width, optint top, optint left);
 		virtual void show(void);
-		void change_dir(const string *dir);
+		void change_dir(const std::string *dir);
 		virtual void set_file(const char *file);
-		void refresh_view(const string *file);
+		void refresh_view(const std::string *file);
 
-	SIGNAL(file_selected, void, string *);
+	SIGNAL(file_selected, void, std::string *);
 };
 
 class open_file_dialog_t : public file_dialog_t {
@@ -58,7 +57,7 @@ class open_file_dialog_t : public file_dialog_t {
 		text_field_t *filter_line;
 		smart_label_t *filter_label;
 
-		virtual const string *get_filter(void);
+		virtual const std::string *get_filter(void);
 
 	public:
 		open_file_dialog_t(int height, int width);
@@ -69,9 +68,9 @@ class open_file_dialog_t : public file_dialog_t {
 class save_as_dialog_t : public file_dialog_t {
 	private:
 		button_t *create_button;
-		static string empty_filter;
+		static std::string empty_filter;
 
-		virtual const string *get_filter(void) { return &empty_filter; }
+		virtual const std::string *get_filter(void) { return &empty_filter; }
 	public:
 		save_as_dialog_t(int height, int width);
 		void create_folder(void);

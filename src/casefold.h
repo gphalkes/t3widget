@@ -16,7 +16,6 @@
 
 #include <string>
 #include <vector>
-using namespace std;
 
 class line_t;
 
@@ -24,7 +23,7 @@ class case_fold_t {
 	private:
 		struct replacement_t {
 			char base[4];
-			string replacement;
+			std::string replacement;
 
 			replacement_t(int _base);
 			void append(int _replacement);
@@ -32,13 +31,13 @@ class case_fold_t {
 			bool operator<(const char *other) const;
 		};
 
-		typedef vector<replacement_t> replacements_t;
+		typedef std::vector<replacement_t> replacements_t;
 
 		static replacements_t replacements;
 	public:
 		static int init(const char *fileName);
 		static line_t *fold(const line_t *line, int *pos);
-		static string *fold(const string *line, string *result = NULL);
+		static std::string *fold(const std::string *line, std::string *result = NULL);
 };
 
 #endif

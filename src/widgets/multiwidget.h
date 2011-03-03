@@ -24,7 +24,7 @@ class multi_widget_t : public widget_t, public container_t {
 			bool takes_focus;
 			bool send_keys;
 		};
-		list<item_t> widgets;
+		std::list<item_t> widgets;
 		int width, top, left, fixed_sum, proportion_sum;
 
 	public:

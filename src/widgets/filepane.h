@@ -41,7 +41,7 @@ class file_pane_t : public widget_t {
 		void set_file_list(file_list_t *_fileList);
 		void set_file(size_t idx);
 
-	SIGNAL(activate, void, const string *);
+	SIGNAL(activate, void, const std::string *);
 };
 
 #endif

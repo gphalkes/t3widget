@@ -15,8 +15,6 @@
 #include <cstring>
 #include <climits>
 
-using namespace std;
-
 #include "keys.h"
 #include "util.h"
 #include "main.h"

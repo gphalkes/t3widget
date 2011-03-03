@@ -19,6 +19,8 @@
 #include "main.h"
 #include "keys.h"
 
+using namespace std;
+
 #warning FIXME: should this be part of the main_window somehow?
 menu_bar_t::menu_bar_t(bool _hidden) : current_menu(0), hidden(_hidden) {
 	int width;

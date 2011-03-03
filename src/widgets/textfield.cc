@@ -18,6 +18,8 @@
 #include "main.h"
 #include "widgets/textfield.h"
 
+using namespace std;
+
 /*FIXME:
 	auto-completion
 	- when typing directories, the entries in the dir should complete as well

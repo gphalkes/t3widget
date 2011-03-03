@@ -15,8 +15,6 @@
 #define WIDGETS_H
 
 #include <deque>
-#include <vector>
-using namespace std;
 
 #include "window/window.h"
 #include "interfaces.h"
@@ -45,7 +43,7 @@ class widget_t : public base_widget_t {
 		virtual void hide(void);
 };
 
-typedef deque<base_widget_t *> widgets_t;
+typedef std::deque<base_widget_t *> widgets_t;
 
 #include "widgets/smartlabel.h"
 #include "widgets/textfield.h"

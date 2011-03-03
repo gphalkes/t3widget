@@ -17,6 +17,8 @@
 #include "widgets/menuitem.h"
 #include "util.h"
 
+using namespace std;
+
 menu_panel_t::menu_panel_t(int left) : dialog_t(3, 5, 1, left, 40, NULL) {
 	width = 5;
 	label_width = 1;

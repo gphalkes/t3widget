@@ -17,8 +17,6 @@
 #include <cstdio>
 #include <vector>
 
-using namespace std;
-
 #include "keys.h"
 
 struct text_coordinate_t {
@@ -36,8 +34,8 @@ struct text_coordinate_t {
 #include "charactersets.h"
 #include "filestate.h"
 
-typedef vector<line_t *> lines_t;
-typedef vector<Subline *> sublines_t;
+typedef std::vector<line_t *> lines_t;
+typedef std::vector<Subline *> sublines_t;
 
 class edit_window_t;
 

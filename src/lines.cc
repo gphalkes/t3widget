@@ -21,8 +21,6 @@
 #include <cerrno>
 #include <unistd.h>
 
-using namespace std;
-
 #include "options.h"
 #include "lines.h"
 #include "log.h"

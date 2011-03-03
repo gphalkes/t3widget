@@ -32,7 +32,7 @@ class message_dialog_base_t : public dialog_t {
 	public:
 		message_dialog_base_t(int width, int top, int left, const char *_title);
 		virtual bool resize(optint height, optint width, optint top, optint left);
-		void set_message(const string *_message);
+		void set_message(const std::string *_message);
 };
 
 

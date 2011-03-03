@@ -20,6 +20,7 @@
 #include "main.h"
 #include "util.h"
 
+using namespace std;
 
 static key_t nul = 0;
 /* FIXME: TODO:

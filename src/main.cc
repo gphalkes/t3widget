@@ -12,8 +12,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//~ using namespace std;
-
 //~ #include "keys.h"
 //~ #include "files.h"
 #include "main.h"

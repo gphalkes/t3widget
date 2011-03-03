@@ -17,8 +17,6 @@
 #include <cstdarg>
 #include <list>
 
-using namespace std;
-
 #include "keys.h"
 #include "util.h"
 #include "window/window.h"
@@ -39,7 +37,7 @@ class container_t {
 		virtual t3_window_t *get_draw_window(void) = 0;
 };
 
-typedef list<window_component_t *> window_components_t;
+typedef std::list<window_component_t *> window_components_t;
 
 class bullet_status_t {
 	public:

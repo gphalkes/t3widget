@@ -16,8 +16,6 @@
 
 #include <string>
 
-using namespace std;
-
 class text_field_t;
 
 #include "widgets/widgets.h"
@@ -95,11 +93,11 @@ class text_field_t : public widget_t {
 		virtual void set_focus(bool _focus);
 		virtual void show(void);
 		virtual void hide(void);
-		void set_text(const string *text);
+		void set_text(const std::string *text);
 		void set_text(const char *text);
 		void set_autocomplete(string_list_t *_completions);
 		void set_key_filter(key_t *keys, size_t nrOfKeys, bool accept);
-		const string *get_text(void) const;
+		const std::string *get_text(void) const;
 		const line_t *get_line(void) const;
 		void set_label(smart_label_t *_label);
 		virtual bool is_hotkey(key_t key);

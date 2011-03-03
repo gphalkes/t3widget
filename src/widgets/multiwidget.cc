@@ -13,6 +13,8 @@
 */
 #include "widgets/multiwidget.h"
 
+using namespace std;
+
 #warning FIXME: allow anchor
 multi_widget_t::multi_widget_t(container_t *parent, int _width, int _top, int _left, int relation) :
 	width(_width), top(_top), left(_left), fixed_sum(0), proportion_sum(0)

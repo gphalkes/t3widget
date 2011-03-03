@@ -14,6 +14,8 @@
 #include "label.h"
 #include "window/window.h"
 
+using namespace std;
+
 //FIXME: maybe we should allow scrolling with the left and right keys
 
 label_t::label_t(container_t *parent, window_component_t *anchor,

@@ -16,6 +16,8 @@
 #include "main.h"
 #include "dialogs/messagedialog.h"
 
+using namespace std;
+
 message_dialog_base_t::message_dialog_base_t(int width, int top, int left, const char *_title) : dialog_t(5, width, top, left, 0, _title) {
 	int i;
 	message = NULL;

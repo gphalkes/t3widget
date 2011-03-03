@@ -21,3 +21,6 @@
 - how should the notification of the resize operation work? Even for the
 	main_window the size may be known, but not how the widgets on it should be
 	resized. So just calling resize on it is probably not such a good idea.
+- create a single header file to be included by users of the library.
+	Furthermore, the library should have its own header file which provides
+	all the other needed functionality (such as "using namespace std")

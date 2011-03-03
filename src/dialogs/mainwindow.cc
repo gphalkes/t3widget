@@ -13,6 +13,7 @@
 */
 #include "mainwindow.h"
 
+using namespace std;
 
 main_window_t::main_window_t(void) : dialog_t() {
 	int height, width;

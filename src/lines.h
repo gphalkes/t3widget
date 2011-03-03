@@ -23,8 +23,6 @@
 #include <window.h>
 #include <pcre.h>
 
-using namespace std;
-
 #include "keys.h"
 #include "casefold.h"
 #include "stringmatcher.h"
@@ -86,7 +84,7 @@ class line_t {
 		};
 
 	private:
-		string buffer, meta_buffer;
+		std::string buffer, meta_buffer;
 		bool starts_with_combining;
 
 		static char spaces[MAX_TAB];
@@ -107,7 +105,7 @@ class line_t {
 	public:
 		line_t(int buffersize = BUFFERSIZE);
 		line_t(const char *_buffer, int length = -1); //UTF8Mode switch
-		line_t(const string *str);
+		line_t(const std::string *str);
 
 		void merge(line_t *other);
 		line_t *break_line(int pos);
@@ -142,7 +140,7 @@ class line_t {
 		int isSpace(int pos) const;
 		int isBadDraw(int pos) const;
 
-		const string *getData(void);
+		const std::string *getData(void);
 		bool find(find_context_t *context, find_result_t *result) const;
 
 		static void init(void);

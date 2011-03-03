@@ -13,6 +13,8 @@
 */
 #include "widgets/bullet.h"
 
+using namespace std;
+
 bullet_t::bullet_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation,
 	bullet_status_t *_source) : source(_source), top(_top), left(_left), focus(false)
 {

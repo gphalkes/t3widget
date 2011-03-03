@@ -27,7 +27,7 @@ class menu_bar_t : public window_component_t {
 		int current_menu, old_menu;
 		bool hidden;
 
-		vector<menu_panel_t *> menus;
+		std::vector<menu_panel_t *> menus;
 
 		//void drawItem(menu_panel_t *menu, int item, int attr);
 		void draw_menu_name(menu_panel_t *menu, int attr);

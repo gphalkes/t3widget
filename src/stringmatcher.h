@@ -15,20 +15,19 @@
 #define STRINGMATCHER_H
 
 #include <string>
-using namespace std;
 
 class string_matcher_t {
 	private:
-		const string needle;
+		const std::string needle;
 		int *partial_match_table, *reverse_partial_match_table, *index_table;
 		int i;
 
 	public:
-		string_matcher_t(const string &_needle);
+		string_matcher_t(const std::string &_needle);
 		~string_matcher_t(void);
 		void reset(void);
-		int next_char(const string *c);
-		int previous_char(const string *c);
+		int next_char(const std::string *c);
+		int previous_char(const std::string *c);
 };
 
 #endif

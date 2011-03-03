@@ -24,8 +24,6 @@
 #include <new>
 #include <window.h>
 
-using namespace std;
-
 #include "files.h"
 #include "lines.h"
 #include "subline.h"

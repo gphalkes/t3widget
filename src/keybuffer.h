@@ -22,9 +22,7 @@
 
 #include "keys.h"
 
-using namespace std;
-
-typedef deque<key_t> keys_t;
+typedef std::deque<key_t> keys_t;
 
 class KeyBuffer {
 	private:
