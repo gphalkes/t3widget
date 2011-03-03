@@ -59,6 +59,8 @@ class dialog_t : public window_component_t, public container_t {
 
 		virtual void process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual void set_position(optint top, optint left) { resize(None, None, top, left); }
+		virtual bool set_size(optint height, optint width) { return resize(height, width, None, None); }
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void show(void);

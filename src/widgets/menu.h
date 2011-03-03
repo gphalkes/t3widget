@@ -36,7 +36,8 @@ class menu_bar_t : public window_component_t {
 		~menu_bar_t(void);
 
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void show(void);

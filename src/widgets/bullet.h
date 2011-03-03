@@ -19,14 +19,13 @@
 class bullet_t : public widget_t {
 	private:
 		bullet_status_t *source;
-		int top, left;
 		bool focus;
 
 	public:
 		bullet_t(container_t *parent, window_component_t *anchor,
-			int _top, int _left, int relation, bullet_status_t *_source);
+			int top, int left, int relation, bullet_status_t *_source);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint width, optint _top, optint _left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 };

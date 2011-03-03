@@ -36,7 +36,7 @@ class label_t : public widget_t {
 			int top, int left, optint _width, int relation, const char *_text);
 
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint _width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 

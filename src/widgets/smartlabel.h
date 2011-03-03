@@ -46,7 +46,7 @@ class smart_label_t : public smart_label_text_t, public widget_t {
 		smart_label_t(container_t *parent, window_component_t *anchor,
 			int top, int left, int relation, const char *spec, bool _addColon = false);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 

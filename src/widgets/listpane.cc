@@ -14,7 +14,7 @@
 #include "colorscheme.h"
 #include "widgets/listpane.h"
 
-#warning FIXME: use separate anchor
+#warning FIXME: do not draw on the parent window!
 list_pane_t::list_pane_t(container_t *_parent, int _height, int _width, int _top, int _left, bool _indicator) : height(_height - 2),
 	width(_width - 2), top(_top), left(_left), top_idx(0), parent(_parent), widgets(NULL), indicator(_indicator)
 {
@@ -96,20 +96,24 @@ void list_pane_t::process_key(key_t key) {
 	ensure_cursor_on_screen();
 }
 
-bool list_pane_t::resize(optint _height, optint _width, optint _top, optint _left) {
+void list_pane_t::set_position(optint _top, optint _left) {
+	if (_top.is_valid())
+		top = _top;
+	if (_left.is_valid())
+		left = _left;
+
+	t3_win_move(clip_window, top + 1, left + 1);
+}
+
+bool list_pane_t::set_size(optint _height, optint _width) {
 	int widget_width;
 
 	if (_height.is_valid())
 		height = _height - 2;
 	if (_width.is_valid())
 		width = _width - 2;
-	if (_top.is_valid())
-		top = _top;
-	if (_left.is_valid())
-		left = _left;
 
 	t3_win_resize(clip_window, height, width);
-	t3_win_move(clip_window, top + 1, left + 1);
 	t3_win_resize(window, t3_win_get_height(window), width);
 
 	widget_width = indicator ? width - 2 : width;
@@ -124,6 +128,7 @@ bool list_pane_t::resize(optint _height, optint _width, optint _top, optint _lef
 	//FIXME: let return value depend on success!
 	return true;
 }
+
 
 void list_pane_t::update_contents(void) {
 	t3_win_set_paint(clip_window, 0, 0);

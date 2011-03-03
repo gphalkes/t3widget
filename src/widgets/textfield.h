@@ -71,7 +71,8 @@ class text_field_t : public widget_t {
 				drop_down_list_t(t3_window_t *parent, t3_window_t *anchor, int _width, text_field_t *_field);
 				~drop_down_list_t(void);
 				virtual void process_key(key_t key);
-				virtual bool resize(optint height, optint _width, optint top, optint left);
+				virtual void set_position(optint top, optint left);
+				virtual bool set_size(optint height, optint width);
 				virtual void update_contents(void);
 				virtual void set_focus(bool focus);
 				virtual void show(void);
@@ -88,7 +89,7 @@ class text_field_t : public widget_t {
 		text_field_t(window_component_t *parent, window_component_t *anchor, int top, int left, int _width, int relation);
 		virtual ~text_field_t(void);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint _width, optint top, optint _left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 		virtual void show(void);

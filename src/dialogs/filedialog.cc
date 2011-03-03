@@ -52,14 +52,20 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	show_hidden_label = new smart_label_t(this, show_hidden_box, 0, 1, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT), "_Show hidden;sS");
 	show_hidden_box->set_label(show_hidden_label);
 
-	cancel_button = new button_t(this, this, -1, -1, -2, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT), "_Cancel;cC", false);
+	cancel_button = new button_t(this, "_Cancel;cC");
+	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
+	cancel_button->set_position(-1, -2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
-	ok_button = new button_t(this, cancel_button, -1, 0, -2, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT), "_OK;oO", true);
+	ok_button = new button_t(this, "_OK;oO", true);
+	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 	ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 
-	encoding_button = new button_t(this, this, -1, -2, -2, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT), "_Encoding;eE", false);
+	encoding_button = new button_t(this, "_Encoding;eE");
+	encoding_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
+	encoding_button->set_position(-2, -2);
 	#warning FIXME: this should probably not be here
 	//~ encoding_button->set_callback(button_t::ENTER, this, CHOOSE_ENCODING);
 
@@ -226,7 +232,9 @@ string save_as_dialog_t::empty_filter("*");
 save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height, width, "Save File As") {
 	widgets_t::iterator iter;
 
-	create_button = new button_t(this, show_hidden_label, -1, 0, 2, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT), "Create Folder", false);
+	create_button = new button_t(this, "Create Folder");
+	create_button->set_anchor(show_hidden_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	create_button->set_position(0, 2);
 	create_button->connect_activate(sigc::mem_fun(this, &save_as_dialog_t::create_folder));
 	for (iter = widgets.begin(); iter != widgets.end() && *iter != show_hidden_box; iter++) {}
 	iter++;

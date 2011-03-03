@@ -30,6 +30,19 @@ widget_t::~widget_t(void) {
 	t3_win_del(window);
 }
 
+void widget_t::set_anchor(window_component_t *anchor, int relation) {
+	t3_win_set_anchor(window, anchor->get_draw_window(), relation);
+}
+
+void widget_t::set_position(optint top, optint left) {
+	if (!top.is_valid())
+		top = t3_win_get_y(window);
+	if (!left.is_valid())
+		left = t3_win_get_x(window);
+
+	t3_win_move(window, top, left);
+}
+
 void widget_t::show(void) {
 	t3_win_show(window);
 }

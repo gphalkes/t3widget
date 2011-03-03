@@ -136,16 +136,9 @@ void smart_label_t::init(container_t *parent, window_component_t *anchor, int to
 
 void smart_label_t::process_key(key_t key) { (void) key; }
 
-bool smart_label_t::resize(optint height, optint width, optint top, optint left) {
+bool smart_label_t::set_size(optint height, optint width) {
 	(void) height;
 	(void) width;
-
-	if (!top.is_valid())
-		top = t3_win_get_y(window);
-	if (!left.is_valid())
-		left = t3_win_get_x(window);
-
-	t3_win_move(window, top, left);
 	return true;
 }
 

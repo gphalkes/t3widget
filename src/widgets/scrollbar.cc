@@ -16,8 +16,8 @@
 
 #include "widgets/widgets.h"
 
-scrollbar_t::scrollbar_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation, int _length, bool _vertical) :
-	top(_top), left(_left), length(_length), vertical(_vertical)
+scrollbar_t::scrollbar_t(container_t *parent, window_component_t *anchor, int top, int left, int relation, int _length, bool _vertical) :
+	length(_length), vertical(_vertical)
 {
 	int width, height;
 
@@ -44,28 +44,20 @@ void scrollbar_t::process_key(key_t key) {
 	(void) key;
 }
 
-bool scrollbar_t::resize(optint _height, optint _width, optint _top, optint _left) {
+bool scrollbar_t::set_size(optint height, optint width) {
+	bool result = true;
 	if (vertical) {
-		if (_height.is_valid()) {
-			length = _height;
-			t3_win_resize(window, length, 1);
+		if (height.is_valid()) {
+			length = height;
+			result = t3_win_resize(window, length, 1);
 		}
 	} else {
-		if (_width.is_valid()) {
-			length = _width;
-			t3_win_resize(window, 1, length);
+		if (width.is_valid()) {
+			length = width;
+			result = t3_win_resize(window, 1, length);
 		}
 	}
-
-	if (_top.is_valid() || _left.is_valid()) {
-		if (_top.is_valid())
-			top = _top;
-		if (_left.is_valid())
-			left = left;
-		t3_win_move(window, top, left);
-	}
-	//FIXME make resize dependent on results of resize operation
-	return true;
+	return result;
 }
 
 void scrollbar_t::update_contents(void) {

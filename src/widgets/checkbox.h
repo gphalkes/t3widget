@@ -27,7 +27,7 @@ class checkbox_t : public widget_t {
 		checkbox_t(container_t *parent, int top, int left, bool _state);
 		checkbox_t(container_t *parent, window_component_t *anchor, int top, int left, int relation, bool _state);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		bool get_state(void);

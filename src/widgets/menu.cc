@@ -85,11 +85,14 @@ void menu_bar_t::process_key(key_t key) {
 	}
 }
 
-bool menu_bar_t::resize(optint height, optint width, optint top, optint left) {
-	bool result;
-	(void) height;
+void menu_bar_t::set_position(optint top, optint left) {
 	(void) top;
 	(void) left;
+}
+
+bool menu_bar_t::set_size(optint height, optint width) {
+	bool result;
+	(void) height;
 
 	result = t3_win_resize(topline, 1, width) == 0;
 	t3_win_set_paint(topline, 0, 0);

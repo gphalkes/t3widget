@@ -18,16 +18,16 @@
 
 class button_t : public widget_t {
 	private:
-		int width, top, left;
+		int width;
 		smart_label_text_t text;
 
 		int text_width;
 		bool is_default, has_focus;
 
 	public:
-		button_t(container_t *_parent, window_component_t *anchor, int _width, int _top, int _left, int relation, const char *_text, bool _isDefault);
+		button_t(container_t *_parent, const char *_text, bool _isDefault = false);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint _width, optint _top, optint _left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		int get_width(void);

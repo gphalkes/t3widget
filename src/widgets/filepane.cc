@@ -98,20 +98,23 @@ void file_pane_t::process_key(key_t key) {
 	ensure_cursor_on_screen();
 }
 
-bool file_pane_t::resize(optint _height, optint _width, optint _top, optint _left) {
-	if (_height.is_valid())
-		height = _height - 2;
-	if (_width.is_valid())
-		width = _width - 2;
+void file_pane_t::set_position(optint _top, optint _left) {
 	if (_top.is_valid())
 		top = _top;
 	if (_left.is_valid())
 		left = _left;
-	t3_win_resize(window, height, width);
 	t3_win_move(window, top + 1, left + 1);
+}
 
+bool file_pane_t::set_size(optint _height, optint _width) {
+	bool result;
+	if (_height.is_valid())
+		height = _height - 2;
+	if (_width.is_valid())
+		width = _width - 2;
+	result = t3_win_resize(window, height, width);
 	ensure_cursor_on_screen();
-	return true;
+	return result;
 }
 
 void file_pane_t::draw_line(int idx, bool selected) {

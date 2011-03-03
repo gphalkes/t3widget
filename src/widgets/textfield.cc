@@ -295,21 +295,13 @@ void text_field_t::process_key(key_t key) {
 	}
 }
 
-bool text_field_t::resize(optint height, optint _width, optint top, optint left) {
+bool text_field_t::set_size(optint height, optint _width) {
 	(void) height;
-
-	if (!top.is_valid())
-		top = t3_win_get_y(window);
-	if (!left.is_valid())
-		left = t3_win_get_x(window);
-
-	t3_win_move(window, top, left);
-
 	if (_width.is_valid() && width != _width) {
 		width = _width;
 		t3_win_resize(window, 1, width);
 		if (drop_down_list != NULL)
-			drop_down_list->resize(None, width, top + 1, left);
+			drop_down_list->set_size(None, width);
 	}
 
 	ensure_on_cursor_screen();
@@ -543,16 +535,21 @@ void text_field_t::drop_down_list_t::process_key(key_t key) {
 	}
 }
 
-bool text_field_t::drop_down_list_t::resize(optint height, optint _width, optint top, optint left) {
-	(void) height;
+void text_field_t::drop_down_list_t::set_position(optint top, optint left) {
 	(void) top;
 	(void) left;
+}
+
+bool text_field_t::drop_down_list_t::set_size(optint height, optint _width) {
+	bool result;
+
+	(void) height;
 
 	width = _width;
 
-	t3_win_resize(window, 6, width);
+	result = t3_win_resize(window, 6, width);
 	update_contents();
-	return true; //FIXME: return based on result of resize and move
+	return result;
 }
 
 void text_field_t::drop_down_list_t::update_contents(void) {

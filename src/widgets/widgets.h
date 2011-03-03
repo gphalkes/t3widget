@@ -38,7 +38,9 @@ class widget_t : public base_widget_t {
 	public:
 		widget_t(void);
 		virtual ~widget_t(void);
+		virtual void set_anchor(window_component_t *anchor, int relation);
 		virtual t3_window_t *get_draw_window(void) { return window; }
+		virtual void set_position(optint top, optint left);
 		virtual void show(void);
 		virtual void hide(void);
 };

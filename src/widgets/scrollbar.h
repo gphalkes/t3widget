@@ -18,14 +18,14 @@
 
 class scrollbar_t : public widget_t {
 	private:
-		int top, left, length;
+		int length;
 		int range, start, used;
 		bool vertical;
 
 	public:
 		scrollbar_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation, int _length, bool _vertical = true);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint _width, optint _top, optint _left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual bool accepts_focus(void);
 		virtual void set_focus(bool focus);

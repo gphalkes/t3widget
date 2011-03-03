@@ -15,8 +15,8 @@
 
 using namespace std;
 
-bullet_t::bullet_t(container_t *parent, window_component_t *anchor, int _top, int _left, int relation,
-	bullet_status_t *_source) : source(_source), top(_top), left(_left), focus(false)
+bullet_t::bullet_t(container_t *parent, window_component_t *anchor, int top, int left, int relation,
+	bullet_status_t *_source) : source(_source), focus(false)
 {
 	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, 1, top, left, 0, anchor->get_draw_window(), relation)) == NULL)
 		throw bad_alloc();
@@ -24,16 +24,9 @@ bullet_t::bullet_t(container_t *parent, window_component_t *anchor, int _top, in
 	update_contents();
 }
 
-void bullet_t::process_key(key_t key) { (void) key; }
-bool bullet_t::resize(optint height, optint width, optint _top, optint _left) {
+bool bullet_t::set_size(optint height, optint width) {
 	(void) height;
 	(void) width;
-
-	if (_top.is_valid())
-		top = _top;
-	if (_left.is_valid())
-		left = _left;
-	t3_win_move(window, top, left);
 	return true;
 }
 

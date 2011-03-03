@@ -14,15 +14,14 @@
 #include <cstring>
 
 #include "colorscheme.h"
-#include "button.h"
+#include "widgets/button.h"
 
-button_t::button_t(container_t *parent, window_component_t *anchor, int _width, int _top, int _left, int relation,
-	const char *_text, bool _isDefault) : width(_width), top(_top), left(_left), text(_text), is_default(_isDefault)
+button_t::button_t(container_t *parent, const char *_text, bool _isDefault) : text(_text), is_default(_isDefault)
 {
 	text_width = text.get_width();
+	width = text_width + 4;
 
-	if ((window = t3_win_new_relative(parent->get_draw_window(), 1, width > 0 ? width : text_width + 4,
-			top, left, 0, anchor->get_draw_window(), relation)) == NULL)
+	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
 		throw(-1);
 	t3_win_set_default_attrs(window, colors.button_attrs);
 
@@ -55,19 +54,19 @@ void button_t::process_key(key_t key) {
 	}
 }
 
-bool button_t::resize(optint height, optint _width, optint _top, optint _left) {
+bool button_t::set_size(optint height, optint _width) {
 	(void) height;
 
-	if (_top.is_valid())
-		top = _top;
-
-	if (_left.is_valid())
-		left = _left;
-#warning FIXME: this can not be right because width is never changed!
-	if ((!_width.is_valid() && width >= 0) || (_width.is_valid() && _width != width))
-		t3_win_resize(window, 1, _width.is_valid() ? (int) _width : text_width + 4);
-
-	t3_win_move(window, top, left);
+	if (_width.is_valid()) {
+		if (_width <= 0) {
+			if (text_width + 4 == width)
+				return true;
+			width = text_width + 4;
+		} else {
+			width = _width;
+		}
+		return t3_win_resize(window, 1, width);
+	}
 	return true;
 }
 
@@ -93,7 +92,7 @@ void button_t::set_focus(bool focus) {
 }
 
 int button_t::get_width(void) {
-	return width >= 0 ? width : text_width + 4;
+	return width;
 }
 
 bool button_t::is_hotkey(key_t key) {

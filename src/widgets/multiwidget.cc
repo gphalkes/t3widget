@@ -16,8 +16,8 @@
 using namespace std;
 
 #warning FIXME: allow anchor
-multi_widget_t::multi_widget_t(container_t *parent, int _width, int _top, int _left, int relation) :
-	width(_width), top(_top), left(_left), fixed_sum(0), proportion_sum(0)
+multi_widget_t::multi_widget_t(container_t *parent, int _width, int top, int left, int relation) :
+	width(_width), fixed_sum(0), proportion_sum(0)
 {
 	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, top, left, 0, parent->get_draw_window(), relation)) == NULL)
 		throw bad_alloc();
@@ -31,21 +31,15 @@ void multi_widget_t::process_key(key_t key) {
 	}
 }
 
-bool multi_widget_t::resize(optint height, optint _width, optint _top, optint _left) {
+bool multi_widget_t::set_size(optint height, optint _width) {
 	(void) height;
-
-	if (_top.is_valid())
-		top = _top;
-	if (_left.is_valid())
-		left = _left;
-	t3_win_move(window, top, left);
-
 	if (_width.is_valid() && width != _width) {
 		width = _width;
 		resize_widgets();
 	}
-	return true; //FIXME: use result of widgets
+	return true;   //FIXME: use result of widgets
 }
+
 
 void multi_widget_t::update_contents(void) {
 	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)

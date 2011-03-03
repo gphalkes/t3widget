@@ -33,7 +33,8 @@ class file_pane_t : public widget_t {
 		file_pane_t(t3_window_t *_parent, int _height, int _width, int _top, int _left);
 		void set_text_field(text_field_t *_field);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint _height, optint _width, optint _top, optint _left);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 		virtual bool accepts_enter(void);

@@ -25,12 +25,12 @@ class multi_widget_t : public widget_t, public container_t {
 			bool send_keys;
 		};
 		std::list<item_t> widgets;
-		int width, top, left, fixed_sum, proportion_sum;
+		int width, fixed_sum, proportion_sum;
 
 	public:
 		multi_widget_t(container_t *parent, int _width, int _top, int _left, int relation);
 		virtual void process_key(key_t key);
-		virtual bool resize(optint height, optint _width, optint _top, optint _left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual bool accepts_focus(void);

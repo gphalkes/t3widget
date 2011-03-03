@@ -37,13 +37,16 @@ void menu_item_t::process_key(key_t key) {
 	}
 }
 
-bool menu_item_t::resize(optint height, optint _width, optint _top, optint left) {
-	(void) height;
+void menu_item_t::set_position(optint _top, optint left) {
 	(void) left;
-	if (_width.is_valid())
-		width = _width;
 	if (_top.is_valid())
 		top = _top;
+}
+
+bool menu_item_t::set_size(optint height, optint _width) {
+	(void) height;
+	if (_width.is_valid())
+		width = _width;
 	return true;
 }
 
@@ -91,15 +94,19 @@ void menu_separator_t::process_key(key_t key) {
 	(void) key;
 }
 
-bool menu_separator_t::resize(optint height, optint _width, optint _top, optint left) {
-	(void) height;
+void menu_separator_t::set_position(optint _top, optint left) {
 	(void) left;
 	if (_top.is_valid())
 		top = _top;
+}
+
+bool menu_separator_t::set_size(optint height, optint _width) {
+	(void) height;
 	if (_width.is_valid())
 		width = _width;
 	return true;
 }
+
 
 void menu_separator_t::update_contents(void) {
 	t3_win_set_paint(parent, top, 1);

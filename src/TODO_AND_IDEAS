@@ -6,7 +6,18 @@
 	- make the constructors for the different widgets more uniform. Now some do
 		and some don't have an anchor for example
 	- figure out what to do with the menu. Should that be a normal widget, and
-		how should the keys be handled?
+		how should the keys be handled? [yes it should be a normal widget and
+		handling keys can be done through the is_hotkey function]
+	- adding key-bindings can be done through deriving from a class and
+		overriding process_key
+	- perhaps it is a good idea to let the user define short-cuts for things
+		like calling the insert_char_dialog. Forcing F9 may not be a great idea.
+		On the other hand, enforcing a standard can also be good.
+- is it possible to use some sort of layouting management. Either as a separate
+	object, or by allowing two anchors. The latter sounds easy enough to
+	implement and seems flexible enough to do what we want. However, it does
+	not allow things like splitting a screen in half. But that may be possible
+	by using special container components which do just that.
 - put everything in a namespace (t3 sounds about right, or maybe even
 	t3::widget or t3_widget::)
 - figure out which dialogs should be included as defaults, and which should be
@@ -24,3 +35,7 @@
 - create a single header file to be included by users of the library.
 	Furthermore, the library should have its own header file which provides
 	all the other needed functionality (such as "using namespace std")
+- set the anchor in a separate call, instead of doing it in the constructor.
+	requires change in the window library
+- do not set the position of the widget from the constructor. This should
+	make the constructors arguments much less cluttered.
