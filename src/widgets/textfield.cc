@@ -101,11 +101,9 @@ void text_field_t::delete_selection(bool saveToCopybuffer) {
 	need_repaint = REPAINT_EDIT;
 }
 
-void text_field_t::process_key(key_t key) {
-	if (in_drop_down_list) {
-		drop_down_list->process_key(key);
-		return;
-	}
+bool text_field_t::process_key(key_t key) {
+	if (in_drop_down_list)
+		return drop_down_list->process_key(key);
 
 	set_selection(key);
 
@@ -256,13 +254,13 @@ void text_field_t::process_key(key_t key) {
 
 		default:
 			if (key < 31)
-				break;
+				return false;
 
 			key &= ~EKEY_PROTECT;
 
 			if (key < 0x110000) {
 				if (filter_keys != NULL && (find(filter_keys, filter_keys + filter_keys_size, key) == filter_keys + filter_keys_size) == filter_keys_accept)
-					break;
+					return false;
 
 				if (selection_mode != SelectionMode::NONE)
 					delete_selection(false);
@@ -277,6 +275,7 @@ void text_field_t::process_key(key_t key) {
 				need_repaint = REPAINT_EDIT;
 			}
 	}
+	return true;
 }
 
 bool text_field_t::set_size(optint height, optint _width) {
@@ -481,7 +480,7 @@ text_field_t::drop_down_list_t::~drop_down_list_t(void) {
 	t3_win_del(window);
 }
 
-void text_field_t::drop_down_list_t::process_key(key_t key) {
+bool text_field_t::drop_down_list_t::process_key(key_t key) {
 	string_list_t *list = view == NULL ? completions : view;
 	size_t length = list->get_length();
 
@@ -518,6 +517,7 @@ void text_field_t::drop_down_list_t::process_key(key_t key) {
 			field->process_key(key);
 			break;
 	}
+	return true;
 }
 
 void text_field_t::drop_down_list_t::set_position(optint top, optint left) {

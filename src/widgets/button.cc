@@ -30,7 +30,7 @@ button_t::button_t(container_t *parent, const char *_text, bool _isDefault) : te
 	t3_win_show(window);
 }
 
-void button_t::process_key(key_t key) {
+bool button_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_HOTKEY:
 		case EKEY_NL:
@@ -50,8 +50,9 @@ void button_t::process_key(key_t key) {
 			move_focus_down();
 			break;
 		default:
-			break;
+			return false;
 	}
+	return true;
 }
 
 bool button_t::set_size(optint height, optint _width) {

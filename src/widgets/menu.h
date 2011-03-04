@@ -21,27 +21,26 @@
 
 class menu_panel_t;
 
-class menu_bar_t : public window_component_t {
+class menu_bar_t : public widget_t {
 	private:
-		t3_window_t *topline;
 		int current_menu, old_menu;
 		bool hidden;
 
 		std::vector<menu_panel_t *> menus;
 
-		//void drawItem(menu_panel_t *menu, int item, int attr);
 		void draw_menu_name(menu_panel_t *menu, int attr);
 	public:
-		menu_bar_t(bool _hidden = false);
+		menu_bar_t(container_t *parent, bool _hidden = false);
 		~menu_bar_t(void);
 
-		virtual void process_key(key_t key);
-		virtual void set_position(optint top, optint left);
+		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void show(void);
 		virtual void hide(void);
-		bool activate(key_t key);
+		virtual bool is_hotkey(key_t key);
+		virtual bool accepts_focus(void);
+		void draw(void);
 };
 #endif

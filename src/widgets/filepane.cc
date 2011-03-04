@@ -41,16 +41,16 @@ void file_pane_t::ensure_cursor_on_screen(void) {
 		top_idx = 0;
 }
 
-void file_pane_t::process_key(key_t key) {
+bool file_pane_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_DOWN:
 			if (current + 1 >= file_list->get_length())
-				return;
+				return true;
 			current++;
 			break;
 		case EKEY_UP:
 			if (current == 0)
-				return;
+				return true;
 			current--;
 			break;
 		case EKEY_RIGHT:
@@ -89,13 +89,14 @@ void file_pane_t::process_key(key_t key) {
 			break;
 		case EKEY_NL:
 			activate(file_list->get_name(current));
-			return;
+			return true;
 		default:
-			return;
+			return false;
 	}
 	if (field)
 		field->set_text(file_list->get_name(current)->c_str());
 	ensure_cursor_on_screen();
+	return true;
 }
 
 void file_pane_t::set_position(optint _top, optint _left) {

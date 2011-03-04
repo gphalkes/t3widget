@@ -15,7 +15,6 @@
 
 using namespace std;
 
-#warning FIXME: allow anchor
 multi_widget_t::multi_widget_t(container_t *parent) :
 	width(1), fixed_sum(0), proportion_sum(0)
 {
@@ -24,11 +23,12 @@ multi_widget_t::multi_widget_t(container_t *parent) :
 	t3_win_show(window);
 }
 
-void multi_widget_t::process_key(key_t key) {
+bool multi_widget_t::process_key(key_t key) {
 	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (iter->send_keys)
-			iter->widget->process_key(key);
+			return iter->widget->process_key(key);
 	}
+	return false;
 }
 
 bool multi_widget_t::set_size(optint height, optint _width) {

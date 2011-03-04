@@ -44,17 +44,17 @@ void list_pane_t::ensure_cursor_on_screen(void) {
 		top_idx = current;
 }
 
-void list_pane_t::process_key(key_t key) {
+bool list_pane_t::process_key(key_t key) {
 	size_t old_current = current;
 	switch (key) {
 		case EKEY_DOWN:
 			if (current + 1 >= widgets.size())
-				return;
+				return true;
 			current++;
 			break;
 		case EKEY_UP:
 			if (current == 0)
-				return;
+				return true;
 			current--;
 			break;
 		case EKEY_END:
@@ -85,11 +85,11 @@ void list_pane_t::process_key(key_t key) {
 		case EKEY_NL:
 			if (widgets.size() > 0)
 				activate();
-			return;
+			return true;
 		default:
 			if (widgets.size() > 0)
-				widgets[current]->process_key(key);
-			return;
+				return widgets[current]->process_key(key);
+			return false;
 	}
 	if (current != old_current) {
 		widgets[old_current]->set_focus(false);
@@ -97,6 +97,7 @@ void list_pane_t::process_key(key_t key) {
 		selection_changed();
 	}
 	ensure_cursor_on_screen();
+	return true;
 }
 
 void list_pane_t::set_position(optint _top, optint _left) {

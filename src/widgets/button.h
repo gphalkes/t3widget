@@ -26,7 +26,7 @@ class button_t : public widget_t {
 
 	public:
 		button_t(container_t *_parent, const char *_text, bool _isDefault = false);
-		virtual void process_key(key_t key);
+		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);

@@ -101,20 +101,26 @@ void dialog_t::draw_dialog(void) {
 	t3_win_addchrep(window, ' ', T3_ATTR_REVERSE, t3_win_get_width(window) - 1);
 }
 
-void dialog_t::process_key(key_t key) {
+bool dialog_t::process_key(key_t key) {
 	if (key & EKEY_META) {
 		for (widgets_t::iterator iter = widgets.begin();
 				iter != widgets.end(); iter++) {
-			if ((*iter)->accepts_focus() && (*iter)->is_hotkey(key & ~EKEY_META)) {
+			/* Don't check for whether it accepts focus. If it accepts a hot key,
+			   it _must_ accept focus. However, it may decline focus in the normal
+			   widget focus order. This is used by the menu bar. */
+			if ((*iter)->is_hotkey(key & ~EKEY_META)) {
 				(*current_widget)->set_focus(false);
 				current_widget = iter;
 				(*current_widget)->set_focus(true);
 				(*current_widget)->process_key(EKEY_HOTKEY);
-				break;
+				return true;
 			}
 		}
-		return;
+		return false;
 	}
+
+	if ((*current_widget)->process_key(key))
+		return true;
 
 	switch (key) {
 		case EKEY_ESC:
@@ -127,9 +133,9 @@ void dialog_t::process_key(key_t key) {
 			focus_previous();
 			break;
 		default:
-			(*current_widget)->process_key(key);
-			break;
+			return false;
 	}
+	return true;
 }
 
 void dialog_t::set_position(optint top, optint left) {

@@ -39,8 +39,9 @@ scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
 	t3_win_show(window);
 }
 
-void scrollbar_t::process_key(key_t key) {
+bool scrollbar_t::process_key(key_t key) {
 	(void) key;
+	return false;
 }
 
 bool scrollbar_t::set_size(optint height, optint width) {

@@ -28,8 +28,9 @@ label_t::label_t(container_t *parent, const char *_text) : text(_text), align(AL
 }
 
 
-void label_t::process_key(key_t key) {
+bool label_t::process_key(key_t key) {
 	(void) key;
+	return false;
 }
 
 bool label_t::set_size(optint height, optint _width) {

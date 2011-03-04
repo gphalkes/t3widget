@@ -23,7 +23,7 @@
 
 class window_component_t {
 	public:
-		virtual void process_key(key_t key) = 0;
+		virtual bool process_key(key_t key) = 0;
 		virtual void set_position(optint top, optint left) = 0;
 		virtual bool set_size(optint height, optint width) = 0;
 		virtual void update_contents(void) = 0;

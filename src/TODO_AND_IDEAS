@@ -3,9 +3,10 @@
 	- widget constructor should have parent and dimension args, such that it can
 		create the window itself. (Probably keep the current constructor for
 		widgets that do special stuff in the constructor)
-	- figure out what to do with the menu. Should that be a normal widget, and
-		how should the keys be handled? [yes it should be a normal widget and
-		handling keys can be done through the is_hotkey function]
+	- figure out how to bind a key to the menu functionality (F10 in tilde).
+		To some extent this can be left to the user, as the most common place
+		for the menu bar is the main window anyway, which has to be overriden
+		anyway.
 	- adding key-bindings can be done through deriving from a class and
 		overriding process_key
 	- perhaps it is a good idea to let the user define short-cuts for things
@@ -17,7 +18,7 @@
 	not allow things like splitting a screen in half. But that may be possible
 	by using special container components which do just that.
 - put everything in a namespace (t3 sounds about right, or maybe even
-	t3::widget or t3_widget::)
+	t3::widget or t3widget::)
 - figure out which dialogs should be included as defaults, and which should be
 	part of tilde/edit
 - move the casefolding stuff into libt3unicode

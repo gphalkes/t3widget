@@ -24,7 +24,7 @@ class scrollbar_t : public widget_t {
 
 	public:
 		scrollbar_t(container_t *parent, bool _vertical);
-		virtual void process_key(key_t key);
+		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual bool accepts_focus(void);

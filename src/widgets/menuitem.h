@@ -15,27 +15,28 @@
 #define MENUITEM_H
 
 #include "widgets/widgets.h"
+#include "dialogs/menupanel.h"
 
 class menu_item_base_t : public base_widget_t {
 	protected:
-		t3_window_t *parent;
-		int top, width;
+		menu_panel_t *parent;
+		int top;
 
 	public:
-		menu_item_base_t(t3_window_t *_parent, int _top) : parent(_parent), top(_top) {}
-		virtual t3_window_t *get_draw_window(void) { return parent; }
+		menu_item_base_t(menu_panel_t *_parent) : parent(_parent), top(0) {}
+		virtual t3_window_t *get_draw_window(void) { return parent->get_draw_window(); }
 };
 
 class menu_item_t : public menu_item_base_t {
 	private:
 		smart_label_text_t label;
 		const char *hotkey;
-		int id;
+		int width, id;
 		bool has_focus;
 
 	public:
-		menu_item_t(t3_window_t *_parent, const char *_label, const char *_hotkey, int _top, int _id);
-		virtual void process_key(key_t key);
+		menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
+		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
@@ -49,8 +50,8 @@ class menu_item_t : public menu_item_base_t {
 
 class menu_separator_t : public menu_item_base_t {
 	public:
-		menu_separator_t(t3_window_t *_parent, int _top, int _width);
-		virtual void process_key(key_t key);
+		menu_separator_t(menu_panel_t *_parent);
+		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

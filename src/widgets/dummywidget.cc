@@ -14,9 +14,9 @@
 #include "widgets/dummywidget.h"
 
 
-void dummy_widget_t::process_key(key_t key) {
+bool dummy_widget_t::process_key(key_t key) {
 	(void) key;
-	return;
+	return false;
 }
 
 bool dummy_widget_t::resize(optint height, optint width, optint top, optint left) {

@@ -36,7 +36,7 @@ class list_pane_t : public widget_t {
 				t3_window_t *window;
 			public:
 				clipwindow_component_t(t3_window_t *_clipWindow) : window(_clipWindow) {}
-				virtual void process_key(key_t key) { (void) key; }
+				virtual bool process_key(key_t key) { (void) key; return false; }
 				virtual void set_position(optint top, optint left) { (void) top; (void) left; }
 				virtual bool set_size(optint height, optint width) { (void) height; (void) width; return true; }
 				virtual void update_contents(void) {}
@@ -50,7 +50,7 @@ class list_pane_t : public widget_t {
 	public:
 		list_pane_t(container_t *_parent, bool _indicator);
 		virtual ~list_pane_t(void);
-		virtual void process_key(key_t key);
+		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

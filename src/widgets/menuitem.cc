@@ -16,25 +16,25 @@
 
 #warning FIXME: top should be derived automatically from adding to the menu_panel_t
 #warning FIXME: passing a t3_window_t * as parent is wrong. Should probably refer to menu_panel_t
-menu_item_t::menu_item_t(t3_window_t *_parent, const char *_label, const char *_hotkey, int _top, int _id) :
-		menu_item_base_t(_parent, _top), label(_label), hotkey(_hotkey), id(_id)
+menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
+		menu_item_base_t(_parent), label(_label), hotkey(_hotkey), id(_id)
 {
 	has_focus = false;
 }
 
-void menu_item_t::process_key(key_t key) {
+bool menu_item_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_NL:
 		case ' ':
 		case EKEY_HOTKEY:
-#warning FIXME: deactivate window here
-			//deactivate_window();
+			parent->hide();
 #warning FIXME: signaling should be done from menu_bar_t class
 			//executeAction(action);
 			break;
 		default:
-			break;
+			return false;
 	}
+	return true;
 }
 
 void menu_item_t::set_position(optint _top, optint left) {
@@ -51,21 +51,22 @@ bool menu_item_t::set_size(optint height, optint _width) {
 }
 
 void menu_item_t::update_contents(void) {
+	t3_window_t *parent_window = parent->get_draw_window();
 	int spaces;
 
-	t3_win_set_paint(parent, top, 1);
-	t3_win_addch(parent, ' ', has_focus ? colors.dialog_selected_attrs: colors.dialog_attrs);
-	label.draw(parent, has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
+	t3_win_set_paint(parent_window, top, 1);
+	t3_win_addch(parent_window, ' ', has_focus ? colors.dialog_selected_attrs: colors.dialog_attrs);
+	label.draw(parent_window, has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
 
 	spaces = width - 2 - label.get_width();
 	if (hotkey != NULL) {
 		spaces -= t3_term_strwidth(hotkey);
-		t3_win_addchrep(parent, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs, spaces);
-		t3_win_addstr(parent, hotkey, has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
-		t3_win_addch(parent, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
+		t3_win_addchrep(parent_window, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs, spaces);
+		t3_win_addstr(parent_window, hotkey, has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
+		t3_win_addch(parent_window, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
 	} else {
 		spaces++;
-		t3_win_addchrep(parent, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs, spaces);
+		t3_win_addchrep(parent_window, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs, spaces);
 	}
 }
 
@@ -88,10 +89,11 @@ int menu_item_t::get_hotkey_width(void) {
 	return hotkey == NULL ? 0 : (t3_term_strwidth(hotkey) + 2);
 }
 
-menu_separator_t::menu_separator_t(t3_window_t *_parent, int _top, int _width) : menu_item_base_t(_parent, _top) { width = _width; }
+menu_separator_t::menu_separator_t(menu_panel_t *_parent) : menu_item_base_t(_parent) {}
 
-void menu_separator_t::process_key(key_t key) {
+bool menu_separator_t::process_key(key_t key) {
 	(void) key;
+	return false;
 }
 
 void menu_separator_t::set_position(optint _top, optint left) {
@@ -100,17 +102,17 @@ void menu_separator_t::set_position(optint _top, optint left) {
 		top = _top;
 }
 
-bool menu_separator_t::set_size(optint height, optint _width) {
+bool menu_separator_t::set_size(optint height, optint width) {
 	(void) height;
-	if (_width.is_valid())
-		width = _width;
+	(void) width;
 	return true;
 }
 
 
 void menu_separator_t::update_contents(void) {
-	t3_win_set_paint(parent, top, 1);
-	t3_win_addchrep(parent, T3_ACS_HLINE, T3_ATTR_ACS | colors.dialog_attrs, width);
+	t3_window_t *parent_window = parent->get_draw_window();
+	t3_win_set_paint(parent_window, top, 1);
+	t3_win_addchrep(parent_window, T3_ACS_HLINE, T3_ATTR_ACS | colors.dialog_attrs, t3_win_get_width(parent_window) - 2);
 }
 
 void menu_separator_t::set_focus(bool focus) {

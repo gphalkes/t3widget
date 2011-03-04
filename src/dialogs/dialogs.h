@@ -57,7 +57,7 @@ class dialog_t : public window_component_t, public container_t {
 		static dialog_t *main_window;
 		static void init(main_window_t *_main_window);
 
-		virtual void process_key(key_t key);
+		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

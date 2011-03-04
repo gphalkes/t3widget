@@ -32,7 +32,7 @@ class file_pane_t : public widget_t {
 	public:
 		file_pane_t(container_t *_parent);
 		void set_text_field(text_field_t *_field);
-		virtual void process_key(key_t key);
+		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

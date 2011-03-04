@@ -59,6 +59,7 @@ enum {
 	EKEY_F12,
 	EKEY_RESIZE,
 	EKEY_HOTKEY,
+	EKEY_MENU,
 	EKEY_NOP
 };
 

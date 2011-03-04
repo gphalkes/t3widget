@@ -33,7 +33,7 @@ void menu_panel_t::draw_dialog(void) {
 	update_contents();
 }
 
-void menu_panel_t::process_key(key_t key) {
+bool menu_panel_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_UP:
 			focus_previous();
@@ -70,11 +70,12 @@ void menu_panel_t::process_key(key_t key) {
 					current_widget = iter;
 					(*current_widget)->set_focus(true);
 					(*current_widget)->process_key(EKEY_HOTKEY);
-					break;
+					return true;
 				}
 			}
-			break;
+			return false;
 	}
+	return true;
 }
 
 bool menu_panel_t::set_size(optint height, optint _width) {
@@ -97,20 +98,21 @@ void menu_panel_t::set_position(optint top, optint left) {
 	dialog_t::set_position(1, left);
 }
 
-void menu_panel_t::add_item(const char *item, const char *hotkey, int action) {
-	menu_item_t *menu_item;
-	if (strcmp(item, "-") == 0) {
-		widgets.push_back(new menu_separator_t(window, widgets.size() + 1, width - 2));
-		return;
-	}
+void menu_panel_t::add_item(menu_item_t *item) {
+	item->set_position(widgets.size() + 1, None);
+	widgets.push_back(item);
 
-	menu_item = new menu_item_t(window, item, hotkey, widgets.size() + 1, action);
-	widgets.push_back(menu_item);
-
-	hotkey_width = max(hotkey_width, menu_item->get_hotkey_width());
-	label_width = max(label_width, menu_item->get_label_width());
+	hotkey_width = max(hotkey_width, item->get_hotkey_width());
+	label_width = max(label_width, item->get_label_width());
 	if (hotkey_width + label_width > width - 2)
 		width = hotkey_width + label_width + 2;
 	set_size(widgets.size() + 2, width);
 	set_position(1, t3_win_get_x(window));
+}
+
+void menu_panel_t::add_separator(void) {
+	menu_separator_t *sep = new menu_separator_t(this);
+	sep->set_position(widgets.size() + 1, None);
+	widgets.push_back(sep);
+	return;
 }

@@ -34,7 +34,7 @@ class label_t : public widget_t {
 	public:
 		label_t(container_t *parent, const char *_text);
 
-		virtual void process_key(key_t key);
+		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);

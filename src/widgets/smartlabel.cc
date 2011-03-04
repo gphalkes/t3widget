@@ -120,7 +120,7 @@ void smart_label_t::init(container_t *parent) {
 	t3_win_show(window);
 }
 
-void smart_label_t::process_key(key_t key) { (void) key; }
+bool smart_label_t::process_key(key_t key) { (void) key; return false; }
 
 bool smart_label_t::set_size(optint height, optint width) {
 	(void) height;

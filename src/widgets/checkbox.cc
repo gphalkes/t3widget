@@ -22,7 +22,7 @@ checkbox_t::checkbox_t(container_t *parent, bool _state) : state(_state) {
 	label = NULL;
 }
 
-void checkbox_t::process_key(key_t key) {
+bool checkbox_t::process_key(key_t key) {
 	switch (key) {
 		case ' ':
 		case EKEY_HOTKEY:
@@ -46,8 +46,9 @@ void checkbox_t::process_key(key_t key) {
 			move_focus_down();
 			break;
 		default:
-			break;
+			return false;
 	}
+	return true;
 }
 
 bool checkbox_t::set_size(optint height, optint width) {

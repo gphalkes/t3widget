@@ -21,52 +21,32 @@
 
 using namespace std;
 
-#warning FIXME: should this be part of the main_window somehow?
-menu_bar_t::menu_bar_t(bool _hidden) : current_menu(0), hidden(_hidden) {
-	int width;
-	t3_term_get_size(NULL, &width);
+menu_bar_t::menu_bar_t(container_t *parent, bool _hidden) : current_menu(0), hidden(_hidden) {
+	int width = t3_win_get_width(parent->get_draw_window());
 
-	if ((topline = t3_win_new(NULL, 1, width, 0, 0, 50)) == NULL)
+	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 50)) == NULL)
 		throw -1;
 
-	set_size(None, width);
+	draw();
 
 	if (!hidden)
-		t3_win_show(topline);
+		t3_win_show(window);
 }
 
 menu_bar_t::~menu_bar_t(void) {
-	t3_win_del(topline);
+	t3_win_del(window);
 }
 
 void menu_bar_t::draw_menu_name(menu_panel_t *menu, int attr) {
-	t3_win_set_paint(topline, 0, menu->colnr);
-	t3_win_addch(topline, ' ', attr);
-	menu->label->draw(topline, attr);
-	t3_win_addch(topline, ' ', attr);
+	t3_win_set_paint(window, 0, menu->colnr);
+	t3_win_addch(window, ' ', attr);
+	menu->label->draw(window, attr);
+	t3_win_addch(window, ' ', attr);
 }
 
-bool menu_bar_t::activate(key_t key) {
-	size_t i;
-
-	if (key == EKEY_F10) {
-		old_menu = current_menu = 0;
-		return true;
-	}
-
-	key = (key & ~EKEY_META) | ('a'-'A');
-	for (i = 0; i < menus.size(); i++) {
-		if (menus[i]->label->is_hotkey(key)) {
-			old_menu = current_menu = i;
-			return true;
-		}
-	}
-	return false;
-}
-
-void menu_bar_t::process_key(key_t key) {
+bool menu_bar_t::process_key(key_t key) {
 	if (menus.size() == 0)
-		return;
+		return false;
 
 	switch (key) {
 		case EKEY_RIGHT:
@@ -80,27 +60,16 @@ void menu_bar_t::process_key(key_t key) {
 			current_menu %= menus.size();
 			break;
 		default:
-			menus[current_menu]->process_key(key);
-			break;
+			return menus[current_menu]->process_key(key);
 	}
-}
-
-void menu_bar_t::set_position(optint top, optint left) {
-	(void) top;
-	(void) left;
+	return true;
 }
 
 bool menu_bar_t::set_size(optint height, optint width) {
-	bool result;
 	(void) height;
-
-	result = t3_win_resize(topline, 1, width) == 0;
-	t3_win_set_paint(topline, 0, 0);
-	t3_win_addchrep(topline, ' ', colors.menubar_attrs, width);
-	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
-		draw_menu_name(*iter, colors.menubar_attrs);
-
-	return result;
+	if (!width.is_valid())
+		return true;
+	return t3_win_resize(window, 1, width) == 0;
 }
 
 void menu_bar_t::update_contents(void) {
@@ -128,14 +97,38 @@ void menu_bar_t::set_focus(bool focus) {
 
 void menu_bar_t::show(void) {
 	if (hidden)
-		t3_win_show(topline);
+		t3_win_show(window);
 	draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
 	menus[current_menu]->show();
 }
 
 void menu_bar_t::hide(void) {
 	if (hidden)
-		t3_win_hide(topline);
+		t3_win_hide(window);
 	draw_menu_name(menus[current_menu], colors.menubar_attrs);
 	menus[current_menu]->hide();
+}
+
+bool menu_bar_t::is_hotkey(key_t key) {
+	if (key == EKEY_MENU) {
+		old_menu = current_menu = 0;
+		return true;
+	}
+
+	for (int i = 0; i < (int) menus.size(); i++) {
+		if (menus[i]->label->is_hotkey(key)) {
+			old_menu = current_menu = i;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool menu_bar_t::accepts_focus(void) { return false; }
+
+void menu_bar_t::draw(void) {
+	t3_win_set_paint(window, 0, 0);
+	t3_win_addchrep(window, ' ', colors.menubar_attrs, t3_win_get_width(window));
+	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
+		draw_menu_name(*iter, colors.menubar_attrs);
 }
