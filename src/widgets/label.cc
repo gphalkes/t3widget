@@ -21,10 +21,8 @@ using namespace std;
 label_t::label_t(container_t *parent, const char *_text) : text(_text), align(ALIGN_LEFT)
 {
 	width = text_width = t3_term_strwidth(text);
-	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+	init_window(parent, 1, width);
 	redraw = true;
-	t3_win_show(window);
 }
 
 

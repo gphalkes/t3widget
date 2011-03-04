@@ -14,10 +14,11 @@
 #include <cstring>
 #include <cmath>
 
+#include "colorscheme.h"
 #include "widgets/widgets.h"
 
 scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
-	length(3), vertical(_vertical)
+	length(3), range(1), start(0), used(1), vertical(_vertical)
 {
 	int width, height;
 
@@ -29,14 +30,8 @@ scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
 		height = 1;
 	}
 
-	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
-		throw(-1);
-	t3_win_set_default_attrs(window, 0/*FIXME: option.scrollbar_selected_attrs */);
-
-	range = 1;
-	start = 0;
-	used = 1;
-	t3_win_show(window);
+	init_window(parent, height, width);
+	t3_win_set_default_attrs(window, colors.scrollbar_selected_attrs);
 }
 
 bool scrollbar_t::process_key(key_t key) {

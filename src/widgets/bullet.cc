@@ -15,13 +15,7 @@
 
 using namespace std;
 
-bullet_t::bullet_t(container_t *parent, bullet_status_t *_source) : source(_source), focus(false)
-{
-	if ((window = t3_win_new(parent->get_draw_window(), 1, 1, 0, 0, 0)) == NULL)
-		throw bad_alloc();
-	t3_win_show(window);
-	update_contents();
-}
+bullet_t::bullet_t(container_t *parent, bullet_status_t *_source) : widget_t(parent, 1, 1), source(_source), focus(false) {}
 
 bool bullet_t::set_size(optint height, optint width) {
 	(void) height;

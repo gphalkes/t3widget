@@ -1,9 +1,6 @@
 TODO
 - restructure the code. There is lots of code in places that it should not be.
 	First thing to do is to define how it should be...
-	- widget constructor should have parent and dimension args, such that it can
-		create the window itself. (Probably keep the current constructor for
-		widgets that do special stuff in the constructor)
 	- figure out how to bind a key to the menu functionality (F10 in tilde).
 		To some extent this can be left to the user, as the most common place
 		for the menu bar is the main window anyway, which has to be overriden

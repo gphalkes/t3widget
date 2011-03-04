@@ -24,8 +24,8 @@ class base_widget_t : public window_component_t {
 	protected:
 		bool shown;
 
-	public:
 		base_widget_t(void) : shown(true) {}
+	public:
 		virtual ~base_widget_t(void);
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
@@ -35,8 +35,12 @@ class base_widget_t : public window_component_t {
 class widget_t : public base_widget_t {
 	protected:
 		t3_window_t *window;
-	public:
+		widget_t(container_t *parent, int height, int width);
 		widget_t(void);
+
+		void init_window(container_t *parent, int height, int width);
+
+	public:
 		virtual ~widget_t(void);
 		virtual void set_anchor(window_component_t *anchor, int relation);
 		virtual t3_window_t *get_draw_window(void) { return window; }

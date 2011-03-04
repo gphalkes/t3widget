@@ -27,19 +27,22 @@ using namespace std;
 	- pressing esc in drop-down list should close the list
 */
 
-text_field_t::text_field_t(container_t *_parent) : width(4), pos(0), screen_pos(0), leftcol(0), parent(_parent) {
-	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
-		throw(-1);
+text_field_t::text_field_t(container_t *_parent) : widget_t(parent, 1, 4),
+	width(4),
+	pos(0),
+	screen_pos(0),
+	leftcol(0),
+	focus(false),
+	in_drop_down_list(false),
+	dont_select_on_focus(false),
+	line(new line_t),
+	filter_keys(NULL),
+	label(NULL),
+	parent(_parent),
+	drop_down_list(NULL)
 
-	line = new line_t();
-	focus = false;
+{
 	reset_selection();
-	drop_down_list = NULL;
-	in_drop_down_list = false;
-	label = NULL;
-	dont_select_on_focus = false;
-	filter_keys = NULL;
-	t3_win_show(window);
 }
 
 text_field_t::~text_field_t(void) {

@@ -13,6 +13,8 @@
 */
 #include "widgets/widgets.h"
 
+using namespace std;
+
 base_widget_t::~base_widget_t(void) {}
 
 bool base_widget_t::is_hotkey(key_t key) {
@@ -22,8 +24,18 @@ bool base_widget_t::is_hotkey(key_t key) {
 
 bool base_widget_t::accepts_focus(void) { return true; }
 
+widget_t::widget_t(container_t *parent, int height, int width) {
+	init_window(parent, height, width);
+}
+
 widget_t::widget_t(void) {
 	window = NULL;
+}
+
+void widget_t::init_window(container_t *parent, int height, int width) {
+	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
+		throw bad_alloc();
+	t3_win_show(window);
 }
 
 widget_t::~widget_t(void) {

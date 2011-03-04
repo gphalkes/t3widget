@@ -36,8 +36,6 @@ class smart_label_text_t {
 };
 
 class smart_label_t : public smart_label_text_t, public widget_t {
-	private:
-		void init(container_t *parent);
 	public:
 		smart_label_t(container_t *parent, smart_label_text_t *spec);
 		smart_label_t(container_t *parent, const char *spec, bool _addColon = false);

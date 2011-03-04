@@ -17,15 +17,12 @@
 using namespace std;
 //FIXME: the number of columns should be dependent on the contents, not fixed to 2
 #warning FIXME: do not paint on parent window!
-file_pane_t::file_pane_t(container_t *_parent) : height(1),
-	width(1), top(0), left(0), top_idx(0), parent(_parent), file_list(NULL)
+file_pane_t::file_pane_t(container_t *_parent) : widget_t(parent, 1, 1), height(1),
+	width(1), top(0), left(0), top_idx(0), current(0), parent(_parent), file_list(NULL), focus(false), field(NULL)
 {
-	window = t3_win_new(parent->get_draw_window(), height, width, top + 1, left + 1, 0);
+	//FIXME: no longer necessary if we don't paint on parent window anymore
+	t3_win_move(window, 1, 1);
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
-	field = NULL;
-	focus = false;
-	current = 0;
-	t3_win_show(window);
 }
 
 void file_pane_t::set_text_field(text_field_t *_field) {

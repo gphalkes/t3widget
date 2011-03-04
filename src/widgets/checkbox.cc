@@ -13,14 +13,7 @@
 */
 #include "checkbox.h"
 
-checkbox_t::checkbox_t(container_t *parent, bool _state) : state(_state) {
-	if ((window = t3_win_new(parent->get_draw_window(), 1, 3, 0, 0, 0)) == NULL)
-		throw(-1);
-
-	t3_win_show(window);
-	has_focus = false;
-	label = NULL;
-}
+checkbox_t::checkbox_t(container_t *parent, bool _state) : widget_t(parent, 1, 3), state(_state), has_focus(false), label(NULL) {}
 
 bool checkbox_t::process_key(key_t key) {
 	switch (key) {

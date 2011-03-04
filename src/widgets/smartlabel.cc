@@ -103,22 +103,11 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 	return false;
 }
 
-smart_label_t::smart_label_t(container_t *parent, smart_label_text_t *spec) : smart_label_text_t(spec) {
-	init(parent);
-}
+smart_label_t::smart_label_t(container_t *parent, smart_label_text_t *spec) :
+	smart_label_text_t(spec), widget_t(parent, 1, get_width()) {}
 
 smart_label_t::smart_label_t(container_t *parent, const char *spec, bool _addColon) :
-	smart_label_text_t(spec, _addColon)
-{
-	init(parent);
-}
-
-void smart_label_t::init(container_t *parent) {
-	if ((window = t3_win_new(parent->get_draw_window(), 1, get_width(), 0, 0, 0)) == NULL)
-		throw(-1);
-
-	t3_win_show(window);
-}
+	smart_label_text_t(spec, _addColon), widget_t(parent, 1, get_width()) {}
 
 bool smart_label_t::process_key(key_t key) { (void) key; return false; }
 

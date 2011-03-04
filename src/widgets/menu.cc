@@ -21,16 +21,13 @@
 
 using namespace std;
 
-menu_bar_t::menu_bar_t(container_t *parent, bool _hidden) : current_menu(0), hidden(_hidden) {
-	int width = t3_win_get_width(parent->get_draw_window());
-
-	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 50)) == NULL)
-		throw -1;
-
-	draw();
-
-	if (!hidden)
-		t3_win_show(window);
+menu_bar_t::menu_bar_t(container_t *parent, bool _hidden) : widget_t(parent, 1, t3_win_get_width(parent->get_draw_window())),
+		current_menu(0), hidden(_hidden), redraw(true), has_focus(false)
+{
+	// Menu bar should be above normal widgets
+	t3_win_set_depth(window, -1);
+	if (hidden)
+		t3_win_hide(window);
 }
 
 menu_bar_t::~menu_bar_t(void) {
@@ -59,6 +56,8 @@ bool menu_bar_t::process_key(key_t key) {
 			current_menu += menus.size() - 1;
 			current_menu %= menus.size();
 			break;
+		case EKEY_HOTKEY:
+			break;
 		default:
 			return menus[current_menu]->process_key(key);
 	}
@@ -69,10 +68,17 @@ bool menu_bar_t::set_size(optint height, optint width) {
 	(void) height;
 	if (!width.is_valid())
 		return true;
+	redraw = true;
 	return t3_win_resize(window, 1, width) == 0;
 }
 
 void menu_bar_t::update_contents(void) {
+	if (redraw) {
+		draw();
+		if (has_focus)
+			draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+	}
+
 	if (old_menu == current_menu) {
 		menus[current_menu]->update_contents();
 		return;
@@ -90,23 +96,29 @@ void menu_bar_t::update_contents(void) {
 }
 
 void menu_bar_t::set_focus(bool focus) {
-	if (focus)
+	has_focus = focus;
+	if (focus) {
 		t3_term_hide_cursor();
+		if (hidden)
+			t3_win_show(window);
+		draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+		menus[current_menu]->show();
+	} else {
+		if (hidden)
+			t3_win_hide(window);
+		draw_menu_name(menus[current_menu], colors.menubar_attrs);
+		menus[current_menu]->hide();
+	}
 	menus[current_menu]->set_focus(focus);
 }
 
 void menu_bar_t::show(void) {
-	if (hidden)
+	if (!hidden || has_focus)
 		t3_win_show(window);
-	draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
-	menus[current_menu]->show();
 }
 
 void menu_bar_t::hide(void) {
-	if (hidden)
-		t3_win_hide(window);
-	draw_menu_name(menus[current_menu], colors.menubar_attrs);
-	menus[current_menu]->hide();
+	t3_win_hide(window);
 }
 
 bool menu_bar_t::is_hotkey(key_t key) {
