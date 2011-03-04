@@ -18,7 +18,7 @@ using namespace std;
 main_window_t::main_window_t(void) : dialog_t() {
 	int height, width;
 	t3_term_get_size(&height, &width);
-	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, -1, NULL, 0)) == NULL)
+	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MIN)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 }

@@ -59,8 +59,7 @@ void dialog_t::activate_dialog(void) {
 
 	this->active = true;
 	this->set_focus(true);
-	#warning FIXME: implement this in the window library
-	//t3_window_set_depth(this->window, --dialog_depth);
+	t3_win_set_depth(this->window, --dialog_depth);
 	dialogs.push_back(this);
 }
 

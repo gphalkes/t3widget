@@ -19,7 +19,7 @@ using namespace std;
 multi_widget_t::multi_widget_t(container_t *parent) :
 	width(1), fixed_sum(0), proportion_sum(0)
 {
-	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, 0, 0, 0, NULL, 0)) == NULL)
+	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 }
