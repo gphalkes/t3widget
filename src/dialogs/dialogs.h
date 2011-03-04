@@ -27,7 +27,7 @@ class main_window_t;
 
 class dialog_t : public window_component_t, public container_t {
 	private:
-		friend void ::iterate(void);
+		friend void iterate(void);
 		// main_window_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_t;
 

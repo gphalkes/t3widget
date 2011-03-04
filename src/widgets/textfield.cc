@@ -466,10 +466,10 @@ void text_field_t::set_autocomplete(string_list_t *completions) {
 /*==================
   == drop_down_list_t ==
   ==================*/
-text_field_t::drop_down_list_t::drop_down_list_t(t3_window_t *parent, t3_window_t *anchor, int _width, text_field_t *_field) :
+text_field_t::drop_down_list_t::drop_down_list_t(t3_window_t *_parent, t3_window_t *anchor, int _width, text_field_t *_field) :
 	width(_width), field(_field)
 {
-	if ((window = t3_win_new(parent, 6, width, 1, 0, -1)) == NULL)
+	if ((window = t3_win_new(_parent, 6, width, 1, 0, -1)) == NULL)
 		throw(-1);
 	t3_win_set_anchor(window, anchor, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 

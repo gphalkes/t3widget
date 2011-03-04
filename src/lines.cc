@@ -21,9 +21,8 @@
 #include <cerrno>
 #include <unistd.h>
 
-#include "options.h"
+#include "colorscheme.h"
 #include "lines.h"
-#include "log.h"
 #include "util.h"
 #include "undo.h"
 #include "main.h"
@@ -312,8 +311,8 @@ void line_t::paintpart(t3_window_t *win, const char *paintBuffer, bool isPrint, 
 		t3_win_addnstr(win, paintBuffer, todo, selectionAttr);
 	} else {
 		for (; (size_t) todo > sizeof(dots); todo -= sizeof(dots))
-			t3_win_addnstr(win, dots, sizeof(dots), option.non_print_attrs | selectionAttr);
-		t3_win_addnstr(win, dots, todo, option.non_print_attrs | selectionAttr);
+			t3_win_addnstr(win, dots, sizeof(dots), colors.non_print_attrs | selectionAttr);
+		t3_win_addnstr(win, dots, todo, colors.non_print_attrs | selectionAttr);
 	}
 }
 
@@ -321,12 +320,12 @@ t3_attr_t line_t::getDrawAttrs(int i, const line_t::paint_info_t *info) const {
 	t3_attr_t retval = info->normal_attr;
 
 	if (i >= info->selection_start && i < info->selection_end)
-		retval = i == info->cursor ? option.attr_selection_cursor2 : info->selected_attr;
+		retval = i == info->cursor ? colors.attr_selection_cursor2 : info->selected_attr;
 	else if (i == info->cursor)
-		retval = i == info->selection_end ? option.attr_selection_cursor : option.attr_cursor;
+		retval = i == info->selection_end ? colors.attr_selection_cursor : colors.attr_cursor;
 
 	if (isBadDraw(i))
-		retval = t3_term_combine_attrs(option.attr_bad_draw, retval);
+		retval = t3_term_combine_attrs(colors.attr_bad_draw, retval);
 
 	//FIXME: also take highlighting into account
 	return retval;
@@ -379,12 +378,12 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 			total += 2;
 			// If total > info->leftcol than only the right side character is visible
 			if (total > info->leftcol)
-				t3_win_addch(win, control_map[(int) buffer[i]], option.non_print_attrs | selectionAttr);
+				t3_win_addch(win, control_map[(int) buffer[i]], colors.non_print_attrs | selectionAttr);
 		} else if (widthAt(i) > 1) {
 			total += widthAt(i);
 			if (total > info->leftcol) {
 				for (j = info->leftcol; j < total; j++)
-					t3_win_addch(win, '<',  option.non_print_attrs | selectionAttr);
+					t3_win_addch(win, '<',  colors.non_print_attrs | selectionAttr);
 			}
 		} else {
 			total += widthAt(i);
@@ -392,7 +391,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 	}
 
 	if (starts_with_combining && info->leftcol == 0 && info->start == 0) {
-		paintpart(win, " ", true, 1, option.non_print_attrs | selectionAttr);
+		paintpart(win, " ", true, 1, colors.non_print_attrs | selectionAttr);
 		accumulated++;
 	} else {
 		/* Skip to first non-zero-width char */
@@ -432,10 +431,10 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 			paintpart(win, buffer.data() + printFrom, _isPrint, _isPrint ? i - printFrom : accumulated, selectionAttr);
 			total += accumulated;
 			accumulated = 0;
-			t3_win_addch(win, '^', option.non_print_attrs | selectionAttr);
+			t3_win_addch(win, '^', colors.non_print_attrs | selectionAttr);
 			total += 2;
 			if (total <= size)
-				t3_win_addch(win, control_map[(int) buffer[i]], option.non_print_attrs | selectionAttr);
+				t3_win_addch(win, control_map[(int) buffer[i]], colors.non_print_attrs | selectionAttr);
 			printFrom = i + 1;
 		} else if (_isPrint != newIsPrint) {
 			/* Print part of the buffer as either printable or control characters, because
@@ -464,7 +463,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 		endchars = 1;
 
 	for (j = 0; j < endchars; j++)
-		t3_win_addch(win, '>', option.non_print_attrs | selectionAttr);
+		t3_win_addch(win, '>', colors.non_print_attrs | selectionAttr);
 	total += endchars;
 
 	/* Add a selected space when the selection crosses the end of this line
@@ -491,9 +490,9 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 
 void line_t::paintWrapSymbol(t3_window_t *win) {
 	if (UTF8mode)
-		t3_win_addnstr(win, "\xE2\x86\xB5", 3, option.non_print_attrs);
+		t3_win_addnstr(win, "\xE2\x86\xB5", 3, colors.non_print_attrs);
 	else
-		t3_win_addch(win, '$', option.non_print_attrs);
+		t3_win_addch(win, '$', colors.non_print_attrs);
 }
 
 

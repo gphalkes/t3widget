@@ -18,7 +18,7 @@ SOURCES.libt3widget.la := widgets/menu.cc widgets/scrollbar.cc widgets/label.cc 
 	widgets/contentlist.cc main.cc keys.cc \
 	dialogs/dialogs.cc dialogs/filedialog.cc dialogs/menupanel.cc dialogs/messagedialog.cc \
 	dialogs/mainwindow.cc
-	#~ dialogs/messagedialog.cc dialogs/finddialog.cc dialogs/insertchardialog.cc \
+	#~ dialogs/finddialog.cc dialogs/insertchardialog.cc \
 	#~ dialogs/closeconfirmdialog.cc dialogs/altmessagedialog.cc dialogs/gotodialog.cc \
 	#~ dialogs/overwriteconfirmdialog.cc dialogs/openrecentdialog.cc dialogs/selectbufferdialog.cc \
 	#~ dialogs/encodingdialog.cc
@@ -35,8 +35,8 @@ CXXFLAGS += -I$(CURDIR)/window -I$(CURDIR)/unicode -I$(CURDIR)/key
 CXXFLAGS += -pthread -DTHREADED_KEYS
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 LDLIBS += `pkg-config --libs sigc++-2.0`
-#~ CXX := clang++
-#~ CXXFLAGS += -fno-caret-diagnostics
+CXX := clang++
+CXXFLAGS += -fno-caret-diagnostics
 
 links:
 	@[ -L unicode ] || ln -s ../../unicode/src unicode

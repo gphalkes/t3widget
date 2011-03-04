@@ -18,5 +18,5 @@
 
 class line_t;
 extern line_t *copyBuffer;
-
+void iterate(void);
 #endif

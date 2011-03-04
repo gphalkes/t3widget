@@ -7,3 +7,4 @@ src/key
 src/.deps
 src/.objects
 src/.libs
+tmp/
