@@ -16,13 +16,15 @@
 #include "colorscheme.h"
 #include "widgets/button.h"
 
+using namespace std;
+
 button_t::button_t(container_t *parent, const char *_text, bool _isDefault) : text(_text), is_default(_isDefault)
 {
 	text_width = text.get_width();
 	width = text_width + 4;
 
 	if ((window = t3_win_new(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
-		throw(-1);
+		throw bad_alloc();
 	t3_win_set_default_attrs(window, colors.button_attrs);
 
 	has_focus = false;
