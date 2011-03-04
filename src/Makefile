@@ -15,7 +15,7 @@ SOURCES.libt3widget.la := widgets/menu.cc widgets/scrollbar.cc widgets/label.cc 
 	widgets/listpane.cc widgets/multiwidget.cc widgets/bullet.cc \
 	widgets/textfield.cc widgets/filepane.cc widgets/button.cc widgets/checkbox.cc \
 	widgets/smartlabel.cc widgets/widgets.cc widgets/dummywidget.cc widgets/menuitem.cc \
-	widgets/contentlist.cc main.cc keys.cc undo.cc lines.cc \
+	widgets/contentlist.cc main.cc keys.cc undo.cc lines.cc stringmatcher.cc \
 	dialogs/dialogs.cc dialogs/filedialog.cc dialogs/menupanel.cc dialogs/messagedialog.cc \
 	dialogs/mainwindow.cc
 	#~ dialogs/finddialog.cc dialogs/insertchardialog.cc \

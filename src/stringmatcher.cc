@@ -15,6 +15,8 @@
 
 #include "stringmatcher.h"
 
+using namespace std;
+
 /* Adaptation of the Knuth-Morris-Pratt string searching algorithm, to work
    with UTF-8 and allow tracking of the start of the match in number of
    UTF-8 characters instead of bytes. The latter is required to allow the
