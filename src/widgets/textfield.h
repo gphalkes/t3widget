@@ -31,7 +31,7 @@ class text_field_t : public widget_t {
 			selection_start_pos,
 			selection_end_pos;
 
-		SelectionMode selection_mode;
+		selection_mode_t selection_mode;
 		bool focus, in_drop_down_list, dont_select_on_focus;
 		enum {
 			NO_REPAINT,

@@ -43,7 +43,7 @@ void message_dialog_base_t::draw_dialog(void) {
 	info.selected_attr = 0;
 
 	if (break_positions[1] == INT_MAX) {
-		int message_width = message->calculateScreenWidth(0, message->get_length(), 0 /* Tab as control */);
+		int message_width = message->calculate_screen_width(0, message->get_length(), 0 /* Tab as control */);
 		info.start = 0;
 		info.max = INT_MAX;
 		info.size = message_width;

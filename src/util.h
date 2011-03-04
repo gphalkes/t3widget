@@ -48,11 +48,22 @@ class _name { \
 		_values _value; \
 }
 
-ENUM(SelectionMode,
+ENUM(selection_mode_t,
 	NONE,
 	SHIFT,
 	MARK,
 	ALL
+);
+
+ENUM(find_flags_t,
+	BACKWARD = (1<<0),
+	NEXT = (1<<1),
+	ICASE = (1<<2),
+	REGEX = (1<<3),
+	WRAP = (1<<4),
+	TRANSFROM_BACKSLASH = (1<<5),
+	WHOLE_WORD = (1<<6),
+	VALID = (1<<7)
 );
 
 #define SIGNAL(_name, ...) \
@@ -63,5 +74,12 @@ public: \
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 ssize_t nosig_read(int fd, char *buffer, size_t bytes);
+
+struct text_coordinate_t {
+	text_coordinate_t(void) {}
+	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
+	int line;
+	int pos;
+};
 
 #endif

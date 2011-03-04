@@ -55,6 +55,7 @@
 
 
 int screenLines, screenColumns;
+line_t *copy_buffer;
 
 bool doResize(void) {
 	int newScreenLines, newScreenColumns;

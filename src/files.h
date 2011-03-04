@@ -18,24 +18,16 @@
 #include <vector>
 
 #include "keys.h"
-
-struct text_coordinate_t {
-	text_coordinate_t(void) {}
-	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
-	int line;
-	int pos;
-};
-
 #include "lines.h"
 #include "subline.h"
 #include "undo.h"
 #include "main.h"
 #include "interfaces.h"
-#include "charactersets.h"
-#include "filestate.h"
+//#include "charactersets.h"
+//#include "filestate.h"
 
 typedef std::vector<line_t *> lines_t;
-typedef std::vector<Subline *> sublines_t;
+typedef std::vector<subline_t *> sublines_t;
 
 class edit_window_t;
 
@@ -53,10 +45,10 @@ class text_file_t : public bullet_status_t {
 		int wrap_width;
 		text_coordinate_t selection_start;
 		text_coordinate_t selection_end;
-		UndoList undo_list;
+		undo_list_t undo_list;
 		text_coordinate_t last_undo_position;
-		UndoType last_undo_type;
-		Undo *last_undo;
+		undo_type_t last_undo_type;
+		undo_t *last_undo;
 		char *name;
 		Encoding *encoding;
 		line_t *name_line;
@@ -68,8 +60,8 @@ class text_file_t : public bullet_status_t {
 
 		static find_context_t last_find;
 
-		Undo *get_undo(UndoType type);
-		Undo *get_undo(UndoType type, int line, int pos);
+		undo_t *get_undo(undo_type_t type);
+		undo_t *get_undo(undo_type_t type, int line, int pos);
 		bool init_wrap_lines(void);
 		void locate_pos(void);
 		void locate_pos(text_coordinate_t *coord) const;
@@ -79,9 +71,9 @@ class text_file_t : public bullet_status_t {
 		text_coordinate_t get_wrap_line(text_coordinate_t coord) const;
 		int get_max(int line) const;
 		bool rewrap_line(int line);
-		void delete_block(text_coordinate_t start, text_coordinate_t end, Undo *undo);
+		void delete_block(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
 		void insert_block_internal(text_coordinate_t insertAt, line_t *block);
-		int apply_undo_redo(UndoType type, Undo *current);
+		int apply_undo_redo(undo_type_t type, undo_t *current);
 		int merge_internal(int line);
 		bool break_line_internal(void);
 		static char *resolve_links(const char *startName);
@@ -98,8 +90,8 @@ class text_file_t : public bullet_status_t {
 		RWResult save(SaveState *state);
 
 		int get_used_lines(void) const;
-		void setTabsize(int tabsize);
-		int getTabsize(void) const;
+		void set_tabsize(int tabsize);
+		int get_tabsize(void) const;
 
 		// API for manipulating lines through the file
 		bool insert_char(key_t c);

@@ -52,7 +52,7 @@ text_field_t::~text_field_t(void) {
 void text_field_t::reset_selection(void) {
 	selection_start_pos = -1;
 	selection_end_pos = -1;
-	selection_mode = SelectionMode::NONE;
+	selection_mode = selection_mode_t::NONE;
 	need_repaint = REPAINT_OTHER;
 }
 
@@ -62,12 +62,12 @@ void text_field_t::set_selection(key_t key) {
 		case EKEY_HOME:
 		case EKEY_LEFT:
 		case EKEY_RIGHT:
-			if (selection_mode == SelectionMode::SHIFT && !(key & EKEY_SHIFT)) {
+			if (selection_mode == selection_mode_t::SHIFT && !(key & EKEY_SHIFT)) {
 				reset_selection();
-			} else if (selection_mode == SelectionMode::NONE && (key & EKEY_SHIFT)) {
+			} else if (selection_mode == selection_mode_t::NONE && (key & EKEY_SHIFT)) {
 				selection_start_pos = pos;
 				selection_end_pos = pos;
-				selection_mode = SelectionMode::SHIFT;
+				selection_mode = selection_mode_t::SHIFT;
 			}
 			break;
 		default:
@@ -75,7 +75,7 @@ void text_field_t::set_selection(key_t key) {
 	}
 }
 
-void text_field_t::delete_selection(bool saveToCopybuffer) {
+void text_field_t::delete_selection(bool save_to_copy_buffer) {
 	line_t *result;
 
 	int start, end;
@@ -90,11 +90,11 @@ void text_field_t::delete_selection(bool saveToCopybuffer) {
 		end = selection_start_pos;
 	}
 
-	result = line->cutLine(start, end);
-	if (saveToCopybuffer) {
-		if (copyBuffer != NULL)
-			delete copyBuffer;
-		copyBuffer = result;
+	result = line->cut_line(start, end);
+	if (save_to_copy_buffer) {
+		if (copy_buffer != NULL)
+			delete copy_buffer;
+		copy_buffer = result;
 	} else {
 		delete result;
 	}
@@ -123,7 +123,7 @@ bool text_field_t::process_key(key_t key) {
 			move_focus_up();
 			break;
 		case EKEY_BS:
-			if (selection_mode != SelectionMode::NONE) {
+			if (selection_mode != selection_mode_t::NONE) {
 				delete_selection(false);
 			} else if (pos > 0) {
 				int newpos = line->adjust_position(pos, -1);
@@ -134,7 +134,7 @@ bool text_field_t::process_key(key_t key) {
 			}
 			break;
 		case EKEY_DEL:
-			if (selection_mode != SelectionMode::NONE) {
+			if (selection_mode != selection_mode_t::NONE) {
 				delete_selection(false);
 			} else if (pos < line->get_length()) {
 				line->delete_char(pos, NULL);
@@ -184,11 +184,11 @@ bool text_field_t::process_key(key_t key) {
 			ensure_on_cursor_screen();
 			break;
 		case EKEY_CTRL | 'x':
-			if (selection_mode != SelectionMode::NONE)
+			if (selection_mode != selection_mode_t::NONE)
 				delete_selection(true);
 			break;
 		case EKEY_CTRL | 'c':
-			if (selection_mode != SelectionMode::NONE) {
+			if (selection_mode != selection_mode_t::NONE) {
 				int start, end;
 				if (selection_start_pos == selection_end_pos) {
 					reset_selection();
@@ -201,23 +201,23 @@ bool text_field_t::process_key(key_t key) {
 					end = selection_start_pos;
 				}
 
-				if (copyBuffer != NULL)
-					delete copyBuffer;
+				if (copy_buffer != NULL)
+					delete copy_buffer;
 
-				copyBuffer = line->clone(start, end);
+				copy_buffer = line->clone(start, end);
 			}
 			break;
 
 		case EKEY_CTRL | 'v':
-			if (copyBuffer != NULL) {
+			if (copy_buffer != NULL) {
 				line_t *end = NULL;
 
-				if (selection_mode != SelectionMode::NONE)
+				if (selection_mode != selection_mode_t::NONE)
 					delete_selection(false);
 				if (pos < line->get_length())
 					end = line->break_line(pos);
 
-				line->merge(copyBuffer->clone(0, -1));
+				line->merge(copy_buffer->clone(0, -1));
 				pos = line->get_length();
 				if (end != NULL)
 					line->merge(end);
@@ -228,15 +228,15 @@ bool text_field_t::process_key(key_t key) {
 
 		case 0: //CTRL-SPACE (and others)
 			switch (selection_mode) {
-				case SelectionMode::MARK:
+				case selection_mode_t::MARK:
 					reset_selection();
 					break;
-				case SelectionMode::NONE:
+				case selection_mode_t::NONE:
 					selection_start_pos = pos;
 					selection_end_pos = pos;
 				/* FALLTHROUGH */
-				case SelectionMode::SHIFT:
-					selection_mode = SelectionMode::MARK;
+				case selection_mode_t::SHIFT:
+					selection_mode = selection_mode_t::MARK;
 					break;
 				default:
 					/* Should not happen, but just try to get back to a sane state. */
@@ -265,7 +265,7 @@ bool text_field_t::process_key(key_t key) {
 				if (filter_keys != NULL && (find(filter_keys, filter_keys + filter_keys_size, key) == filter_keys + filter_keys_size) == filter_keys_accept)
 					return false;
 
-				if (selection_mode != SelectionMode::NONE)
+				if (selection_mode != selection_mode_t::NONE)
 					delete_selection(false);
 
 				if (pos == line->get_length())
@@ -298,7 +298,7 @@ bool text_field_t::set_size(optint height, optint _width) {
 }
 
 void text_field_t::update_selection(void) {
-	if (selection_mode == SelectionMode::SHIFT) {
+	if (selection_mode == selection_mode_t::SHIFT) {
 		if (selection_start_pos == pos) {
 			reset_selection();
 			return;
@@ -311,13 +311,13 @@ void text_field_t::update_selection(void) {
 void text_field_t::update_contents(void) {
 	bool hard_cursor;
 
-	if (selection_mode != SelectionMode::NONE)
+	if (selection_mode != selection_mode_t::NONE)
 		update_selection();
 
-	hard_cursor = (selection_mode == SelectionMode::NONE && colors.attr_cursor == 0) ||
-			(selection_mode != SelectionMode::NONE && colors.attr_selection_cursor == 0);
+	hard_cursor = (selection_mode == selection_mode_t::NONE && colors.attr_cursor == 0) ||
+			(selection_mode != selection_mode_t::NONE && colors.attr_selection_cursor == 0);
 
-	if (need_repaint || (selection_mode != SelectionMode::NONE && focus) || !hard_cursor) {
+	if (need_repaint || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
 		line_t::paint_info_t info;
 
 		t3_win_set_paint(window, 0, 0);
@@ -375,7 +375,7 @@ void text_field_t::set_focus(bool _focus) {
 		if (!dont_select_on_focus) {
 			selection_end_pos = pos = line->get_length();
 			selection_start_pos = 0;
-			selection_mode = SelectionMode::SHIFT;
+			selection_mode = selection_mode_t::SHIFT;
 		}
 		dont_select_on_focus = true;
 		if (drop_down_list != NULL)
@@ -407,9 +407,9 @@ void text_field_t::ensure_on_cursor_screen(void) {
 	if (pos == line->get_length())
 		char_width = 1;
 	else
-		char_width = line->widthAt(pos);
+		char_width = line->width_at(pos);
 
-	screen_pos = line->calculateScreenWidth(0, pos, 0);
+	screen_pos = line->calculate_screen_width(0, pos, 0);
 
 	if (screen_pos < leftcol) {
 		leftcol = screen_pos;
@@ -449,7 +449,7 @@ void text_field_t::set_key_filter(key_t *keys, size_t nrOfKeys, bool accept) {
 }
 
 const string *text_field_t::get_text(void) const {
-	return line->getData();
+	return line->get_data();
 }
 
 const line_t *text_field_t::get_line(void) const {
@@ -616,7 +616,7 @@ void text_field_t::drop_down_list_t::update_view(void) {
 	if (view != NULL)
 		delete view;
 	if (file_completions != NULL) {
-		view = new file_name_list_t::file_name_list_view_t(file_completions, field->line->getData());
+		view = new file_name_list_t::file_name_list_view_t(file_completions, field->line->get_data());
 	} else {
 		view = NULL;
 	}

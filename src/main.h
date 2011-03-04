@@ -17,6 +17,6 @@
 #include "dialogs/dialogs.h"
 
 class line_t;
-extern line_t *copyBuffer;
+extern line_t *copy_buffer;
 void iterate(void);
 #endif

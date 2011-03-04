@@ -27,7 +27,7 @@
 #include "casefold.h"
 #include "stringmatcher.h"
 
-class Undo;
+class undo_t;
 
 #define MAX_TAB 80
 
@@ -90,32 +90,33 @@ class line_t {
 		static char spaces[MAX_TAB];
 		static char dots[16];
 		static const char *control_map;
+		static const char *wrap_symbol;
 
 		static char conversion_buffer[5];
 		static int conversion_length;
 		static char conversion_meta_data;
 
-		static void paintpart(t3_window_t *win, const char *buffer, bool isPrint, int todo, t3_attr_t selectionAttr);
+		static void paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr);
 
-		t3_attr_t getDrawAttrs(int i, const line_t::paint_info_t *info) const;
+		t3_attr_t get_draw_attrs(int i, const line_t::paint_info_t *info) const;
 
-		void fillLine(const char *_buffer, int length);
-		bool checkBoundaries(int matchStart, int matchEnd) const;
+		void fill_line(const char *_buffer, int length);
+		bool check_boundaries(int match_start, int match_end) const;
 
 	public:
 		line_t(int buffersize = BUFFERSIZE);
-		line_t(const char *_buffer, int length = -1); //UTF8Mode switch
+		line_t(const char *_buffer, int length = -1);
 		line_t(const std::string *str);
 
 		void merge(line_t *other);
 		line_t *break_line(int pos);
-		line_t *cutLine(int start, int end);
+		line_t *cut_line(int start, int end);
 		line_t *clone(int start, int end);
-		line_t *breakOnNL(int *startFrom);
+		line_t *break_on_nl(int *start_from);
 
 		void minimize(void);
 
-		int calculateScreenWidth(int start, int pos, int tabsize) const;
+		int calculate_screen_width(int start, int pos, int tabsize) const;
 		int calculate_line_pos(int start, int max, int pos, int tabsize) const;
 
 		void paint_line(t3_window_t *win, const paint_info_t *info) const;
@@ -124,42 +125,40 @@ class line_t {
 		int get_next_word(int start) const;
 		int get_previous_word(int start) const;
 
-		bool insert_char(int pos, key_t c, Undo *undo);
-		bool overwrite_char(int pos, key_t c, Undo *undo);
-		int delete_char(int pos, Undo *undo);
-		bool append_char(key_t c, Undo *undo);
-		int backspace_char(int pos, Undo *undo);
+		bool insert_char(int pos, key_t c, undo_t *undo);
+		bool overwrite_char(int pos, key_t c, undo_t *undo);
+		int delete_char(int pos, undo_t *undo);
+		bool append_char(key_t c, undo_t *undo);
+		int backspace_char(int pos, undo_t *undo);
 
 		int adjust_position(int pos, int adjust) const;
 
 		int get_length(void) const;
-		int widthAt(int pos) const;
-		int isPrint(int pos) const;
-		int isGraph(int pos) const;
-		int isAlnum(int pos) const;
-		int isSpace(int pos) const;
-		int isBadDraw(int pos) const;
+		int width_at(int pos) const;
+		int is_print(int pos) const;
+		int is_graph(int pos) const;
+		int is_alnum(int pos) const;
+		int is_space(int pos) const;
+		int is_bad_draw(int pos) const;
 
-		const std::string *getData(void);
+		const std::string *get_data(void);
 		bool find(find_context_t *context, find_result_t *result) const;
 
 		static void init(void);
 
 	private:
-		int getClass(int pos) const;
-		void insertBytes(int pos, const char *bytes, int space, char meta_data);
+		int get_class(int pos) const;
+		void insert_bytes(int pos, const char *bytes, int space, char meta_data);
 		void reserve(int size);
-		int byteWidthFromFirst(int pos) const; //UTF8Mode switch
+		int byte_width_from_first(int pos) const;
 
-		static void convertKey(key_t c); //UTF8Mode switch
-		static void paintWrapSymbol(t3_window_t *win); //UTF8Mode switch
-		static char get_s_b_c_meta_data(key_t c);
+		static void convert_key(key_t c);
 
 		static int callout(pcre_callout_block *block);
 
 		friend line_t *case_fold_t::fold(const line_t *line, int *pos);
 
-		void checkBadDraw(int i);
+		void check_bad_draw(int i);
 };
 
 #endif
