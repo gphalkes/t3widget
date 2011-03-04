@@ -39,6 +39,6 @@ typedef struct {
 } color_scheme_t;
 
 extern color_scheme_t colors;
-
+void init_colors(void);
 
 #endif

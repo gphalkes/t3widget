@@ -14,6 +14,10 @@
 #include <unistd.h>
 #include <cerrno>
 
+#include "util.h"
+
+const optint None;
+
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
 	size_t start = 0;
 
