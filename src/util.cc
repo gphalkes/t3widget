@@ -12,6 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <unistd.h>
+#include <cerrno>
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
 	size_t start = 0;
@@ -30,7 +31,7 @@ ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
 }
 
 ssize_t nosig_read(int fd, char *buffer, size_t bytes) {
-	ssize_t bytes_read = 0;
+	size_t bytes_read = 0;
 
 	/* Use while loop to allow interrupted reads */
 	while (true) {
