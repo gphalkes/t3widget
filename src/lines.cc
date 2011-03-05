@@ -467,7 +467,7 @@ Several things need to be done:
   - should control characters break both before and after?
 */
 /* tabsize == 0 -> tab as control */
-break_pos_t line_t::findNextBreakPos(int start, int length, int tabsize) const {
+break_pos_t line_t::find_next_break_pos(int start, int length, int tabsize) const {
 	int i, total = 0;
 	break_pos_t possible_break = { 0, 0 };
 	bool graph_seen = false, last_was_graph = false;

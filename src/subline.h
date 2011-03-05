@@ -11,28 +11,26 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef STRINGMATCHER_H
-#define STRINGMATCHER_H
+#ifndef EDIT_SUBLINE_H
+#define EDIT_SUBLINE_H
 
-#include <string>
+#include "lines.h"
 
-class string_matcher_t {
+class subline_t {
 	private:
-		char *needle;
-		size_t needle_size;
-		int *partial_match_table, *reverse_partial_match_table, *index_table;
-		int i;
-		void init(void);
+		line_t *line;
+		int start;
+		int flags;
 
 	public:
-		string_matcher_t(const std::string &_needle);
-		string_matcher_t(char *_needle, size_t _needle_size);
-		~string_matcher_t(void);
-		void reset(void);
-		int next_char(const std::string *c);
-		int previous_char(const std::string *c);
-		int next_char(const char *c, size_t c_size);
-		int previous_char(const char *c, size_t c_size);
+		subline_t(line_t *_line, int _start) : line(_line), start(_start), flags(0) {}
+
+		void set_start(int start);
+		int get_start(void) const;
+		line_t *get_line(void) const;
+		void set_line(line_t *line);
+		int get_flags(void) const;
+		void set_flags(int flags);
 };
 
 #endif

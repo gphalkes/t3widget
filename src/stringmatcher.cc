@@ -12,6 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+#include <cstdlib>
 
 #include "stringmatcher.h"
 
@@ -23,11 +24,14 @@ using namespace std;
    case-insensitive matching in UTF-8 to match the fully case-folded
    version. */
 
-string_matcher_t::string_matcher_t(const string &_needle) : needle(_needle.data()), needle_size(_needle.size()) {
+string_matcher_t::string_matcher_t(const string &_needle) {
+	if ((needle = (char *) malloc(_needle.size())) == NULL)
+		throw bad_alloc();
+	memcpy(needle, _needle.data(), _needle.size());
 	init();
 }
 
-string_matcher_t::string_matcher_t(const char *_needle, size_t _needle_size) : needle(_needle), needle_size(_needle_size) {
+string_matcher_t::string_matcher_t(char *_needle, size_t _needle_size) : needle(_needle), needle_size(_needle_size) {
 	init();
 }
 
@@ -79,6 +83,7 @@ string_matcher_t::~string_matcher_t(void) {
 	delete partial_match_table;
 	delete reverse_partial_match_table;
 	delete index_table;
+	free(needle);
 }
 
 void string_matcher_t::reset(void) {

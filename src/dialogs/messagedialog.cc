@@ -69,7 +69,7 @@ void message_dialog_base_t::set_message(const string *_message) {
 	message = new line_t(_message);
 	break_positions[0] = 0;
 	for (i = 1; i < MESSAGEDIALOG_MAX_LINES; i++) {
-		break_pos_t brk = message->findNextBreakPos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
+		break_pos_t brk = message->find_next_break_pos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
 		if (brk.pos > 0) {
 			break_positions[i] = brk.pos;
 		} else {

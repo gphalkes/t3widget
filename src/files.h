@@ -50,12 +50,11 @@ class text_file_t : public bullet_status_t {
 		undo_type_t last_undo_type;
 		undo_t *last_undo;
 		char *name;
-		Encoding *encoding;
 		line_t *name_line;
 
 		text_coordinate_t cursor, topleft;
 		int ins_mode, last_set_pos;
-		SelectionMode selection_mode;
+		selection_mode_t selection_mode;
 		edit_window_t *window;
 
 		static find_context_t last_find;
@@ -76,18 +75,19 @@ class text_file_t : public bullet_status_t {
 		int apply_undo_redo(undo_type_t type, undo_t *current);
 		int merge_internal(int line);
 		bool break_line_internal(void);
-		static char *resolve_links(const char *startName);
-		static char *canonicalize_path(const char *name);
+
+		/* static char *resolve_links(const char *startName);
+		static char *canonicalize_path(const char *name); */
 
 		void set_selection_from_find(int line, find_result_t *result);
 	public:
 		text_file_t(void);
-		text_file_t(const char *_name, Encoding *_encoding = NULL);
+		text_file_t(const char *_name);
 		void common_init(void);
-		~text_file_t(void);
+		virtual ~text_file_t(void);
 
-		RWResult load(LoadState *load);
-		RWResult save(SaveState *state);
+/*		RWResult load(LoadState *load);
+		RWResult save(SaveState *state);*/
 
 		int get_used_lines(void) const;
 		void set_tabsize(int tabsize);
@@ -118,7 +118,7 @@ class text_file_t : public bullet_status_t {
 		int get_line_max(int line) const;
 		void get_next_word(void);
 		void get_previous_word(void);
-		void get_line_info(text_coordinate_t *newCoord) const;
+		void get_line_info(text_coordinate_t *new_coord) const;
 
 		void adjust_position(int adjust);
 		void rewrap(void);
@@ -142,14 +142,13 @@ class text_file_t : public bullet_status_t {
 		void dump_undo(void) { undo_list.dump(); }
 		#endif
 
-		bool is_modified(void) { return !undo_list.isAtMark(); }
+		bool is_modified(void) { return !undo_list.is_at_mark(); }
 
-		bool find(const string *what, int flags, const line_t *replacement);
+		bool find(const std::string *what, int flags, const line_t *replacement);
 		void replace(void);
 
 		virtual bool get_bullet_status(void);
 		const char *get_name(void) const;
-		const Encoding *get_encoding(void) const;
 };
 
 #endif

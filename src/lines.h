@@ -122,7 +122,7 @@ class line_t {
 
 		void paint_line(t3_window_t *win, const paint_info_t *info) const;
 
-		break_pos_t findNextBreakPos(int start, int length, int tabsize) const;
+		break_pos_t find_next_break_pos(int start, int length, int tabsize) const;
 		int get_next_word(int start) const;
 		int get_previous_word(int start) const;
 
