@@ -24,7 +24,6 @@
 #include <pcre.h>
 
 #include "keys.h"
-#include "casefold.h"
 #include "stringmatcher.h"
 
 class undo_t;
@@ -157,8 +156,6 @@ class line_t {
 		static void convert_key(key_t c);
 
 		static int callout(pcre_callout_block *block);
-
-		friend line_t *case_fold_t::fold(const line_t *line, int *pos);
 
 		void check_bad_draw(int i);
 };
