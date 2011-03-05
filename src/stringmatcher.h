@@ -18,16 +18,21 @@
 
 class string_matcher_t {
 	private:
-		const std::string needle;
+		const char *needle;
+		size_t needle_size;
 		int *partial_match_table, *reverse_partial_match_table, *index_table;
 		int i;
+		void init(void);
 
 	public:
 		string_matcher_t(const std::string &_needle);
+		string_matcher_t(const char *_needle, size_t _needle_size);
 		~string_matcher_t(void);
 		void reset(void);
 		int next_char(const std::string *c);
 		int previous_char(const std::string *c);
+		int next_char(const char *c, size_t c_size);
+		int previous_char(const char *c, size_t c_size);
 };
 
 #endif

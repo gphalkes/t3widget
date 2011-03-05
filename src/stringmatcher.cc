@@ -23,20 +23,28 @@ using namespace std;
    case-insensitive matching in UTF-8 to match the fully case-folded
    version. */
 
-string_matcher_t::string_matcher_t(const string &_needle) : needle(_needle) {
+string_matcher_t::string_matcher_t(const string &_needle) : needle(_needle.data()), needle_size(_needle.size()) {
+	init();
+}
+
+string_matcher_t::string_matcher_t(const char *_needle, size_t _needle_size) : needle(_needle), needle_size(_needle_size) {
+	init();
+}
+
+void string_matcher_t::init(void) {
 	size_t pos, cnd;
 
-	partial_match_table = new int[needle.size() + 1];
+	partial_match_table = new int[needle_size + 1];
 	partial_match_table[0] = -1;
 	partial_match_table[1] = 0;
-	reverse_partial_match_table = new int[needle.size() + 1];
+	reverse_partial_match_table = new int[needle_size + 1];
 	reverse_partial_match_table[0] = -1;
 	reverse_partial_match_table[1] = 0;
-	index_table = new int[needle.size() + 1];
+	index_table = new int[needle_size + 1];
 
 	pos = 2;
 	cnd = 0;
-	while (pos <= needle.size()) {
+	while (pos <= needle_size) {
 		if (needle[pos - 1] == needle[cnd]) {
 			partial_match_table[pos] = cnd + 1;
 			pos++;
@@ -51,8 +59,8 @@ string_matcher_t::string_matcher_t(const string &_needle) : needle(_needle) {
 
 	pos = 2;
 	cnd = 0;
-	while (pos <= needle.size()) {
-		if (needle[needle.size() - 1 - (pos - 1)] == needle[needle.size() - 1 - cnd]) {
+	while (pos <= needle_size) {
+		if (needle[needle_size - 1 - (pos - 1)] == needle[needle_size - 1 - cnd]) {
 			reverse_partial_match_table[pos] = cnd + 1;
 			pos++;
 			cnd++;
@@ -78,12 +86,16 @@ void string_matcher_t::reset(void) {
 	index_table[0] = 0;
 }
 
-int string_matcher_t::next_char(const string *c) {
+int string_matcher_t::next_char(const std::string *c) { return next_char(c->data(), c->size()); }
+int string_matcher_t::previous_char(const std::string *c) { return previous_char(c->data(), c->size()); }
+
+
+int string_matcher_t::next_char(const char *c, size_t c_size) {
 	while (1) {
-		if (needle.compare(i, c->size(), *c) == 0) {
-			index_table[i + c->size()] = index_table[i] + 1;
-			i += c->size();
-			if ((size_t) i == needle.size())
+		if (i + c_size <= needle_size && memcmp(needle + i, c, c_size) == 0) {
+			index_table[i + c_size] = index_table[i] + 1;
+			i += c_size;
+			if ((size_t) i == needle_size)
 				return index_table[0];
 			return -1;
 		} else {
@@ -99,12 +111,12 @@ int string_matcher_t::next_char(const string *c) {
 	}
 }
 
-int string_matcher_t::previous_char(const string *c) {
+int string_matcher_t::previous_char(const char *c, size_t c_size) {
 	while (1) {
-		if (i + c->size() <= needle.size() && needle.compare(needle.size() - i - c->size(), c->size(), *c) == 0) {
-			index_table[i + c->size()] = index_table[i] + 1;
-			i += c->size();
-			if ((size_t) i == needle.size())
+		if (i + c_size <= needle_size && memcmp(needle + needle_size - i - c_size, c, c_size) == 0) {
+			index_table[i + c_size] = index_table[i] + 1;
+			i += c_size;
+			if ((size_t) i == needle_size)
 				return index_table[0];
 			return -1;
 		} else {
@@ -124,28 +136,37 @@ int string_matcher_t::previous_char(const string *c) {
 #if 0
 #include <cstdio>
 #include <cstdlib>
+
+#define CHAR_SIZE 2
+
 int main(int argc, char *argv[]) {
-										/* 012345678901234567890123 */
-	string needle = "abcdabde", haystack = "abc abcdab  abcdabcdabdefgcdabdef";
-	string_matcher_t matcher(&needle);
+	//string needle = "abcdabde";
+	//~ string needle = "abc";
+	string needle = "abcd";
+					/* 012345678901234567890123 */
+	string haystack = "abc abcdab  abcdabcdabdefgcdabdef";
+	string_matcher_t matcher(needle);
 	int start = 0, i;
-#if 0
-	for (i = start; (size_t) i < haystack.size(); i += 2) {
-		string substr = haystack.substr(i, 2);
+#if 1
+	printf("Searching forward:\n");
+	for (i = start; (size_t) i < haystack.size(); i += CHAR_SIZE) {
+		string substr = haystack.substr(i, CHAR_SIZE);
 		int result = matcher.next_char(&substr);
 		if (result >= 0) {
-			printf("Found substring at %d, %d\n", result + start, i);
-			exit(1);
+			printf("Found substring at %d, %d (%.*s)\n", result * CHAR_SIZE + start, i, (int) needle.size(), haystack.c_str() + result * CHAR_SIZE + start);
+			//~ exit(1);
 		}
 	}
 	matcher.reset();
 #endif
-	for (i = haystack.size() - start - 2; i >= 0; i -= 2) {
-		string substr = haystack.substr(i, 2);
+	int begin = haystack.size() - CHAR_SIZE - (haystack.size() % CHAR_SIZE);
+	printf("Searching backward:\n");
+	for (i = begin; i >= start; i -= CHAR_SIZE) {
+		string substr = haystack.substr(i, CHAR_SIZE);
 		int result = matcher.previous_char(&substr);
 		if (result >= 0) {
-			printf("Found substring at %d, %d\n", result + start, i);
-			exit(1);
+			printf("Found substring at %d, %d (%.*s)\n", begin - result * CHAR_SIZE, i, (int) needle.size(), haystack.c_str() + i);
+			//~ exit(1);
 		}
 	}
 }

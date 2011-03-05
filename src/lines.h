@@ -54,6 +54,8 @@ struct find_context_t {
 	int pattern_length;
 	bool found;
 	line_t *replacement;
+	char *folded;
+	size_t folded_size;
 };
 
 class line_t {

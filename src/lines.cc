@@ -27,7 +27,6 @@
 #include "undo.h"
 #include "main.h"
 #include "stringmatcher.h"
-#include "casefold.h"
 #include "unicode/unicode.h"
 
 #warning FIXME: what should we do with all the asserts?
@@ -811,10 +810,12 @@ bool line_t::check_boundaries(int match_start, int match_end) const {
 }
 
 bool line_t::find(find_context_t *context, find_result_t *result) const {
-	string substr, folded;
-	int currChar, next_char;
+	string substr;
+	int curr_char, next_char;
 	int match_result;
 	int start, end;
+	size_t c_size;
+	const char *c;
 
 	if (context->flags & find_flags_t::REGEX) {
 		pcre_extra extra;
@@ -855,48 +856,52 @@ bool line_t::find(find_context_t *context, find_result_t *result) const {
 	}
 
 	start = result->start >= 0 && (size_t) result->start > buffer.size() ? buffer.size() : result->start;
-	currChar = start;
+	curr_char = start;
 
 	if (context->flags & find_flags_t::BACKWARD) {
 		context->matcher->reset();
-		while((size_t) currChar > 0) {
-			next_char = adjust_position(currChar, -1);
+		while((size_t) curr_char > 0) {
+			next_char = adjust_position(curr_char, -1);
 			substr.clear();
-			substr = buffer.substr(next_char, currChar - next_char);
+			substr = buffer.substr(next_char, curr_char - next_char);
 			if (context->flags & find_flags_t::ICASE) {
-				folded.clear();
-				case_fold_t::fold(&substr, &folded);
-				substr = folded;
+				c_size = t3_casefold(substr.data(), substr.size(), &context->folded, &context->folded_size, t3_false);
+				c = context->folded;
+			} else {
+				c = substr.data();
+				c_size = substr.size();
 			}
-			match_result = context->matcher->previous_char(&substr);
+			match_result = context->matcher->previous_char(c, c_size);
 			if (match_result >= 0 &&
 					(!(context->flags & find_flags_t::WHOLE_WORD) || check_boundaries(next_char, adjust_position(start, -match_result)))) {
 				result->end = adjust_position(start, -match_result);
 				result->start = next_char;
 				return true;
 			}
-			currChar = next_char;
+			curr_char = next_char;
 		}
 		return false;
 	} else {
 		context->matcher->reset();
-		while((size_t) currChar < buffer.size()) {
-			next_char = adjust_position(currChar, 1);
+		while((size_t) curr_char < buffer.size()) {
+			next_char = adjust_position(curr_char, 1);
 			substr.clear();
-			substr = buffer.substr(currChar, next_char - currChar);
+			substr = buffer.substr(curr_char, next_char - curr_char);
 			if (context->flags & find_flags_t::ICASE) {
-				folded.clear();
-				case_fold_t::fold(&substr, &folded);
-				substr = folded;
+				c_size = t3_casefold(substr.data(), substr.size(), &context->folded, &context->folded_size, t3_false);
+				c = context->folded;
+			} else {
+				c = substr.data();
+				c_size = substr.size();
 			}
-			match_result = context->matcher->next_char(&substr);
+			match_result = context->matcher->next_char(c, c_size);
 			if (match_result >= 0 &&
 					(!(context->flags & find_flags_t::WHOLE_WORD) || check_boundaries(adjust_position(start, match_result), next_char))) {
 				result->start = adjust_position(start, match_result);
 				result->end = next_char;
 				return true;
 			}
-			currChar = next_char;
+			curr_char = next_char;
 		}
 		return false;
 	}
