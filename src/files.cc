@@ -145,8 +145,7 @@ text_file_t::text_file_t(void) : wrap_width(79), name(NULL) {
 	/* Allocate a new, empty line */
 	lines.push_back(new line_t());
 	common_init();
-	#warning FIXME: only if this is a file should this be the name
-	name_line = new line_t("(Untitled)");
+	name_line = new line_t("");
 }
 
 void text_file_t::common_init(void) {

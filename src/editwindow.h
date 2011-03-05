@@ -22,13 +22,13 @@ class edit_window_t;
 #include "keys.h"
 #include "interfaces.h"
 
-class edit_window_t : public window_component_t {
+class edit_window_t : public widget_t {
 	private:
-		t3_window_t *editwin, *bottomlinewin;
+		t3_window_t *bottomlinewin;
 		scrollbar_t *scrollbar;
 		text_file_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
-		bool focus, need_repaint, hard_cursor, is_backup_file;
+		bool focus, need_repaint, hard_cursor;
 
 		static const char *insstring[];
 		static bool (text_file_t::*proces_char[])(key_t);
@@ -50,7 +50,7 @@ class edit_window_t : public window_component_t {
 		void unshow_file(void);
 
 	public:
-		edit_window_t(int height, int width, int top, int left, text_file_t *_text = NULL);
+		edit_window_t(container_t *parent, text_file_t *_text = NULL);
 		virtual ~edit_window_t(void);
 		virtual void set_text_file(text_file_t *_text);
 		virtual bool process_key(key_t key);
@@ -60,8 +60,8 @@ class edit_window_t : public window_component_t {
 		virtual void set_show(bool show);
 		virtual t3_window_t *get_draw_window(void);
 
-		void next_buffer(void);
-		void previous_buffer(void);
+/*		void next_buffer(void);
+		void previous_buffer(void);*/
 
 /*		void save(void);
 		void save_as(const std::string *name, Encoding *encoding);*/
@@ -74,8 +74,11 @@ class edit_window_t : public window_component_t {
 		void get_dimensions(int *height, int *width, int *top, int *left);
 		bool get_selection_lines(int *top, int *bottom);
 
-		//FIXME remove
-		/* void action(EditAction _action); */
+		void undo(void);
+		void redo(void);
+		void cut_copy(bool cut);
+		void paste(void);
+		void select_all(void);
 		const text_file_t *get_text_file(void);
 };
 

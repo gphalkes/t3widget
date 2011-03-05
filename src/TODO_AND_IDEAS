@@ -10,6 +10,10 @@ TODO
 	- perhaps it is a good idea to let the user define short-cuts for things
 		like calling the insert_char_dialog. Forcing F9 may not be a great idea.
 		On the other hand, enforcing a standard can also be good.
+
+	- TextFile should be renamed TextBuffer and be put in a file named
+		textbuffer.cc/h
+	- lines.cc/h should be renamed line.cc/h
 - put everything in a namespace (t3 sounds about right, or maybe even
 	t3::widget or t3widget::)
 - figure out which dialogs should be included as defaults, and which should be
