@@ -138,9 +138,9 @@ class text_file_t : public bullet_status_t {
 		int apply_undo(void);
 		int apply_redo(void);
 
-		#ifdef DEBUG
+/* 		#ifdef DEBUG
 		void dump_undo(void) { undo_list.dump(); }
-		#endif
+		#endif */
 
 		bool is_modified(void) { return !undo_list.is_at_mark(); }
 

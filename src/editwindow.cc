@@ -59,10 +59,10 @@ edit_window_t::edit_window_t(container_t *parent, text_file_t *_text) : widget_t
 }
 
 edit_window_t::~edit_window_t(void) {
-	#ifdef DEBUG
+/* 	#ifdef DEBUG
 	text->dump_undo();
-	#endif
-	unshow_file();
+	#endif */
+	//~ unshow_file();
 	t3_win_del(window);
 	t3_win_del(bottomlinewin);
 	delete scrollbar;

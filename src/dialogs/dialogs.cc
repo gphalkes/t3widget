@@ -69,6 +69,7 @@ void dialog_t::deactivate_dialog(void) {
 		this->set_focus(false);
 		dialogs.pop_back();
 		dialogs.back()->set_focus(true);
+		#warning FIXME: retrieve depth from window, because some other dialog may have already been deactivated
 		dialog_depth++;
 		return;
 	}

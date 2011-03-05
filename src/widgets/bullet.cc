@@ -23,6 +23,8 @@ bool bullet_t::set_size(optint height, optint width) {
 	return true;
 }
 
+bool bullet_t::process_key(key_t key) { (void) key; return false; }
+
 void bullet_t::update_contents(void) {
 	t3_win_set_paint(window, 0, 0);
 	if (source->get_bullet_status())

@@ -47,7 +47,6 @@ class edit_window_t : public widget_t {
 		void reset_selection(void);
 		void set_selection_mode(key_t key);
 		void delete_selection(void);
-		void unshow_file(void);
 
 	public:
 		edit_window_t(container_t *parent, text_file_t *_text = NULL);
