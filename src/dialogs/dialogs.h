@@ -35,6 +35,7 @@ class dialog_t : public window_component_t, public container_t {
 		static dialogs_t dialogs;
 		static int dialog_depth;
 		static dialog_t *main_window;
+		static dummy_widget_t *dummy;
 
 		static void init(main_window_t *_main_window);
 
@@ -68,8 +69,6 @@ class dialog_t : public window_component_t, public container_t {
 		virtual void show(void);
 		virtual void hide(void);
 		virtual t3_window_t *get_draw_window(void) { return window; }
-
-		//FIXME: make dialogs without widgets possible without crashing
 };
 
 //FIXME: enable the proper includes again

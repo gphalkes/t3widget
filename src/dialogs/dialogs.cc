@@ -21,8 +21,11 @@ using namespace std;
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
 dialog_t *dialog_t::main_window;
+dummy_widget_t *dialog_t::dummy;
 
 void dialog_t::init(main_window_t *_main_window) {
+	dummy = new dummy_widget_t();
+
 	main_window = _main_window;
 	dialogs.push_back(main_window);
 	main_window->active = true;
@@ -179,9 +182,15 @@ void dialog_t::set_focus(bool focus) {
 
 void dialog_t::show(void) {
 	for (current_widget = widgets.begin();
-		!(*current_widget)->accepts_focus() && current_widget != widgets.end();
+		current_widget != widgets.end() && !(*current_widget)->accepts_focus();
 		current_widget++)
 	{}
+
+	if (current_widget == widgets.end()) {
+		widgets.push_back(dummy);
+		current_widget = widgets.begin();
+	}
+
 	activate_dialog();
 
 	t3_win_show(window);
@@ -190,6 +199,8 @@ void dialog_t::show(void) {
 void dialog_t::hide(void) {
 	deactivate_dialog();
 	t3_win_hide(window);
+	if (widgets.front() == dummy)
+		widgets.pop_front();
 }
 
 void dialog_t::focus_next(void) {

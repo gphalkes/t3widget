@@ -38,6 +38,17 @@ void dummy_widget_t::show(void) {}
 
 void dummy_widget_t::hide(void) {}
 
+void dummy_widget_t::set_position(optint top, optint left) {
+	(void) top;
+	(void) left;
+}
+
+bool dummy_widget_t::set_size(optint height, optint width) {
+	(void) height;
+	(void) width;
+	return true;
+}
+
 t3_window_t *dummy_widget_t::get_draw_window(void) {
 	return NULL;
 }
