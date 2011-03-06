@@ -124,3 +124,7 @@ void menu_panel_t::add_separator(void) {
 	widgets.push_back(sep);
 	return;
 }
+
+void menu_panel_t::signal(int id) {
+	menu->activate(id);
+}

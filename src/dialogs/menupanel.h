@@ -34,6 +34,10 @@ class menu_panel_t : public dialog_t {
 		void add_item(const char *label, const char *hotkey, int id);
 		void add_item(menu_item_t *item);
 		void add_separator(void);
+
+		void signal(int id);
+
+		//FIXME: allow removal of items to allow dynamic menus
 };
 
 #endif

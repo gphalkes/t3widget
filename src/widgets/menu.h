@@ -50,5 +50,7 @@ class menu_bar_t : public widget_t {
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
 		void draw(void);
+
+		SIGNAL(activate, void, int);
 };
 #endif

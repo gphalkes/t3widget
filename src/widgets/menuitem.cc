@@ -27,6 +27,7 @@ bool menu_item_t::process_key(key_t key) {
 		case ' ':
 		case EKEY_HOTKEY:
 			parent->close();
+			parent->signal(id);
 #warning FIXME: signaling should be done from menu_bar_t class
 			//executeAction(action);
 			break;
