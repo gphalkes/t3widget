@@ -88,10 +88,8 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 	bool result;
 	int i;
 	(void) _width;
-	for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++) {
+	for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++)
 		(*iter)->set_size(None, width - 2);
-		(*iter)->set_position(i + 1, None);
-	}
 
 	result = dialog_t::set_size(height, width);
 	return result;
@@ -101,28 +99,58 @@ void menu_panel_t::close(void) {
 	menu->close();
 }
 
-void menu_panel_t::add_item(const char *_label, const char *hotkey, int id) {
+menu_item_base_t *menu_panel_t::add_item(const char *_label, const char *hotkey, int id) {
 	menu_item_t *item = new menu_item_t(this, _label, hotkey, id);
-	add_item(item);
+	return add_item(item);
 }
 
-void menu_panel_t::add_item(menu_item_t *item) {
-	item->set_position(widgets.size() + 1, None);
+menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
 	widgets.push_back(item);
+	item->set_position(widgets.size(), None);
 
 	hotkey_width = max(hotkey_width, item->get_hotkey_width());
 	label_width = max(label_width, item->get_label_width());
 	if (hotkey_width + label_width > width - 2)
 		width = hotkey_width + label_width + 2;
 	set_size(widgets.size() + 2, width);
-	set_position(1, t3_win_get_x(window));
+	return item;
 }
 
-void menu_panel_t::add_separator(void) {
+menu_item_base_t *menu_panel_t::add_separator(void) {
 	menu_separator_t *sep = new menu_separator_t(this);
 	sep->set_position(widgets.size() + 1, None);
 	widgets.push_back(sep);
+	return sep;
+}
+
+void menu_panel_t::remove_item(menu_item_base_t *item) {
+	widgets_t::iterator iter;
+	menu_item_t *label_item;
+	int i;
+
+	for (iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if ((*iter) == item) {
+			widgets.erase(iter);
+			goto resize_panel;
+		}
+	}
 	return;
+
+resize_panel:
+	width = 5;
+	label_width = 1;
+	hotkey_width = 0;
+	for (iter = widgets.begin(), i = 1; iter != widgets.end(); iter++, i++) {
+		(*iter)->set_position(i, None);
+		label_item = dynamic_cast<menu_item_t *>(*iter);
+		if (label_item != NULL) {
+			hotkey_width = max(hotkey_width, label_item->get_hotkey_width());
+			label_width = max(label_width, label_item->get_label_width());
+		}
+		if (hotkey_width + label_width > width - 2)
+			width = hotkey_width + label_width + 2;
+	}
+	set_size(widgets.size() + 2, width);
 }
 
 void menu_panel_t::signal(int id) {

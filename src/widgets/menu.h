@@ -51,6 +51,8 @@ class menu_bar_t : public widget_t {
 		virtual bool accepts_focus(void);
 		void draw(void);
 
+		//FIXME: allow removal of menu_panel_t's to allow dynamic menus
+
 		SIGNAL(activate, void, int);
 };
 #endif
