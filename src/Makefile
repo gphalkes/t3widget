@@ -18,7 +18,7 @@ SOURCES.libt3widget.la := widgets/menu.cc widgets/scrollbar.cc widgets/label.cc 
 	widgets/contentlist.cc main.cc keys.cc undo.cc lines.cc stringmatcher.cc util.cc \
 	colorscheme.cc files.cc subline.cc editwindow.cc \
 	dialogs/dialogs.cc dialogs/filedialog.cc dialogs/menupanel.cc dialogs/messagedialog.cc \
-	dialogs/mainwindow.cc
+	dialogs/mainwindow.cc log.cc
 	#~ dialogs/finddialog.cc dialogs/insertchardialog.cc \
 	#~ dialogs/closeconfirmdialog.cc dialogs/altmessagedialog.cc dialogs/gotodialog.cc \
 	#~ dialogs/overwriteconfirmdialog.cc dialogs/openrecentdialog.cc dialogs/selectbufferdialog.cc \

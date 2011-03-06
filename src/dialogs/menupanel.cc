@@ -19,18 +19,12 @@
 
 using namespace std;
 
-menu_panel_t::menu_panel_t(int left) : dialog_t(3, 5, 1, left, 40, NULL) {
+menu_panel_t::menu_panel_t(menu_bar_t *_menu, const char *name) : dialog_t(3, 5, 1, 0, 40, NULL), label(name), menu(_menu) {
+	menu->add_menu(this);
+	t3_win_set_anchor(window, menu->get_draw_window(), 0);
 	width = 5;
 	label_width = 1;
 	hotkey_width = 0;
-	draw_dialog();
-}
-
-void menu_panel_t::draw_dialog(void) {
-	t3_win_set_paint(window, 0, 0);
-	t3_win_clrtobot(window);
-	dialog_t::draw_dialog();
-	update_contents();
 }
 
 bool menu_panel_t::process_key(key_t key) {
@@ -78,6 +72,11 @@ bool menu_panel_t::process_key(key_t key) {
 	return true;
 }
 
+void menu_panel_t::set_position(optint top, optint left) {
+	(void) top;
+	dialog_t::set_position(1, left);
+}
+
 bool menu_panel_t::set_size(optint height, optint _width) {
 	widgets_t::iterator iter;
 	bool result;
@@ -89,13 +88,16 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 	}
 
 	result = dialog_t::set_size(height, width);
-	draw_dialog();
 	return result;
 }
 
-void menu_panel_t::set_position(optint top, optint left) {
-	(void) top;
-	dialog_t::set_position(1, left);
+void menu_panel_t::hide(void) {
+	menu->close();
+}
+
+void menu_panel_t::add_item(const char *_label, const char *hotkey, int id) {
+	menu_item_t *item = new menu_item_t(this, _label, hotkey, id);
+	add_item(item);
 }
 
 void menu_panel_t::add_item(menu_item_t *item) {

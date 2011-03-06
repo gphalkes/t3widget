@@ -50,6 +50,7 @@ class dialog_t : public window_component_t, public container_t {
 		const char *title;
 		widgets_t widgets;
 		widgets_t::iterator current_widget;
+		bool redraw;
 
 		dialog_t(int height, int width, int top, int left, int depth, const char *_title);
 		virtual ~dialog_t();

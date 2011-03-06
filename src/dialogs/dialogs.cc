@@ -30,7 +30,7 @@ void dialog_t::init(main_window_t *_main_window) {
 	main_window->set_focus(true);
 }
 
-dialog_t::dialog_t(int height, int width, int top, int left, int depth, const char *_title) : active(false), title(_title) {
+dialog_t::dialog_t(int height, int width, int top, int left, int depth, const char *_title) : active(false), title(_title), redraw(true) {
 	if ((window = t3_win_new(NULL, height + 1, width + 1, top, left, depth)) == NULL)
 		throw bad_alloc();
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
@@ -40,7 +40,7 @@ dialog_t::dialog_t(int height, int width, int top, int left, int depth, const ch
 
     This constructor should only be called by ::main_window_t.
 */
-dialog_t::dialog_t(void) {}
+dialog_t::dialog_t(void) : active(false), title(NULL), redraw(false) {}
 
 dialog_t::~dialog_t() {
 	t3_win_del(window);
@@ -88,6 +88,7 @@ void dialog_t::deactivate_dialog(void) {
 void dialog_t::draw_dialog(void) {
 	int i, x;
 
+	redraw = false;
 	t3_win_box(window, 0, 0, t3_win_get_height(window) - 1, t3_win_get_width(window) - 1, 0);
 	if (title != NULL) {
 		t3_win_set_paint(window, 0, 2);
@@ -109,14 +110,13 @@ bool dialog_t::process_key(key_t key) {
 	if (key & EKEY_META) {
 		for (widgets_t::iterator iter = widgets.begin();
 				iter != widgets.end(); iter++) {
-			/* Don't check for whether it accepts focus. If it accepts a hot key,
-			   it _must_ accept focus. However, it may decline focus in the normal
-			   widget focus order. This is used by the menu bar. */
 			if ((*iter)->is_hotkey(key & ~EKEY_META)) {
-				(*current_widget)->set_focus(false);
-				current_widget = iter;
-				(*current_widget)->set_focus(true);
-				(*current_widget)->process_key(EKEY_HOTKEY);
+				if ((*iter)->accepts_focus()) {
+					(*current_widget)->set_focus(false);
+					current_widget = iter;
+					(*current_widget)->set_focus(true);
+				}
+				(*iter)->process_key(EKEY_HOTKEY);
 				return true;
 			}
 		}
@@ -154,6 +154,7 @@ void dialog_t::set_position(optint top, optint left) {
 bool dialog_t::set_size(optint height, optint width) {
 	bool result = true;
 
+	redraw = true;
 	if (!height.is_valid())
 		height = t3_win_get_height(window);
 	if (!width.is_valid())
@@ -165,6 +166,9 @@ bool dialog_t::set_size(optint height, optint width) {
 
 
 void dialog_t::update_contents(void) {
+	if (redraw)
+		draw_dialog();
+
 	for (widgets_t::iterator iter = widgets.begin();
 			iter != widgets.end(); iter++)
 		(*iter)->update_contents();
@@ -175,11 +179,11 @@ void dialog_t::set_focus(bool focus) {
 }
 
 void dialog_t::show(void) {
-	activate_dialog();
 	for (current_widget = widgets.begin();
 		!(*current_widget)->accepts_focus() && current_widget != widgets.end();
 		current_widget++)
 	{}
+	activate_dialog();
 
 	t3_win_show(window);
 }

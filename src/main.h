@@ -14,6 +14,8 @@
 #ifndef EDIT_MAIN_H
 #define EDIT_MAIN_H
 
+#include "log.h"
+
 class main_window_t;
 
 #include "dialogs/dialogs.h"

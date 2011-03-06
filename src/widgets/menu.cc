@@ -22,7 +22,7 @@
 using namespace std;
 
 menu_bar_t::menu_bar_t(container_t *parent, bool _hidden) : widget_t(parent, 1, t3_win_get_width(parent->get_draw_window())),
-		current_menu(0), hidden(_hidden), redraw(true), has_focus(false)
+		current_menu(0), old_menu(0), start_col(0), hidden(_hidden), redraw(true), has_focus(false)
 {
 	// Menu bar should be above normal widgets
 	t3_win_set_depth(window, -1);
@@ -35,10 +35,17 @@ menu_bar_t::~menu_bar_t(void) {
 }
 
 void menu_bar_t::draw_menu_name(menu_panel_t *menu, int attr) {
-	t3_win_set_paint(window, 0, menu->colnr);
+	t3_win_set_paint(window, 0, t3_win_get_x(menu->get_draw_window()) + 1);
 	t3_win_addch(window, ' ', attr);
-	menu->label->draw(window, attr);
+	menu->label.draw(window, attr);
 	t3_win_addch(window, ' ', attr);
+}
+
+void menu_bar_t::add_menu(menu_panel_t *menu) {
+	menus.push_back(menu);
+	menu->set_position(None, start_col);
+	start_col += menu->label.get_width() + 2;
+	redraw = true;
 }
 
 bool menu_bar_t::process_key(key_t key) {
@@ -46,6 +53,7 @@ bool menu_bar_t::process_key(key_t key) {
 		return false;
 
 	switch (key) {
+		#warning FIXME: move these to a separate menu
 		case EKEY_RIGHT:
 			/* go to next menu */
 			current_menu++;
@@ -57,9 +65,16 @@ bool menu_bar_t::process_key(key_t key) {
 			current_menu %= menus.size();
 			break;
 		case EKEY_HOTKEY:
+			t3_term_hide_cursor();
+			has_focus = true;
+			if (hidden)
+				t3_win_show(window);
+			draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+			menus[current_menu]->show();
 			break;
 		default:
-			return menus[current_menu]->process_key(key);
+			//~ return menus[current_menu]->process_key(key);
+			return false;
 	}
 	return true;
 }
@@ -79,6 +94,9 @@ void menu_bar_t::update_contents(void) {
 			draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
 	}
 
+	if (!has_focus)
+		return;
+
 	if (old_menu == current_menu) {
 		menus[current_menu]->update_contents();
 		return;
@@ -96,20 +114,18 @@ void menu_bar_t::update_contents(void) {
 }
 
 void menu_bar_t::set_focus(bool focus) {
-	has_focus = focus;
-	if (focus) {
-		t3_term_hide_cursor();
-		if (hidden)
-			t3_win_show(window);
-		draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
-		menus[current_menu]->show();
-	} else {
-		if (hidden)
-			t3_win_hide(window);
-		draw_menu_name(menus[current_menu], colors.menubar_attrs);
-		menus[current_menu]->hide();
-	}
-	menus[current_menu]->set_focus(focus);
+	(void) focus;
+}
+
+
+void menu_bar_t::close(void) {
+	has_focus = false;
+	if (hidden)
+		t3_win_hide(window);
+	/* menu_panel_t::hide calls this function. What we want is to call the
+	   function defined by dialog_t, so call that directly. */
+	menus[current_menu]->dialog_t::hide();
+	draw_menu_name(menus[current_menu], colors.menubar_attrs);
 }
 
 void menu_bar_t::show(void) {
@@ -128,7 +144,7 @@ bool menu_bar_t::is_hotkey(key_t key) {
 	}
 
 	for (int i = 0; i < (int) menus.size(); i++) {
-		if (menus[i]->label->is_hotkey(key)) {
+		if (menus[i]->label.is_hotkey(key)) {
 			old_menu = current_menu = i;
 			return true;
 		}
@@ -139,6 +155,7 @@ bool menu_bar_t::is_hotkey(key_t key) {
 bool menu_bar_t::accepts_focus(void) { return false; }
 
 void menu_bar_t::draw(void) {
+	redraw = false;
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addchrep(window, ' ', colors.menubar_attrs, t3_win_get_width(window));
 	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)

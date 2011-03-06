@@ -28,7 +28,7 @@ TODO
 - create a single header file to be included by users of the library.
 	Furthermore, the library should have its own header file which provides
 	all the other needed functionality (such as "using namespace std")
-
+- rename main_window_t and make sure set_size is called on resize
 
 IDEAS
 

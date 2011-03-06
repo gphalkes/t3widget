@@ -22,17 +22,16 @@ class menu_panel_t : public dialog_t {
 	friend class menu_bar_t;
 	private:
 		int width, label_width, hotkey_width;
-		smart_label_text_t *label;
-		int colnr;
-
-	protected:
-		virtual void draw_dialog(void);
+		smart_label_text_t label;
+		menu_bar_t *menu;
 
 	public:
-		menu_panel_t(int left);
+		menu_panel_t(menu_bar_t *_menu, const char *name);
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
+		virtual void hide(void);
+		void add_item(const char *label, const char *hotkey, int id);
 		void add_item(menu_item_t *item);
 		void add_separator(void);
 };

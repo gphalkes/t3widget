@@ -22,7 +22,7 @@ class checkbox_t : public widget_t {
 		smart_label_t *label;
 
 	public:
-		checkbox_t(container_t *parent, bool _state);
+		checkbox_t(container_t *parent, bool _state = false);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

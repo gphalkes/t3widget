@@ -140,6 +140,8 @@ static void terminalSpecificSetup(void) {
 #warning FIXME: returning the value from t3_term_init is not very useful!
 int init(main_window_t *main_window) {
 	int result;
+
+	init_log();
 	init_colors();
 
 	if ((result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {

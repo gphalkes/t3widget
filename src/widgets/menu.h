@@ -22,13 +22,19 @@
 class menu_panel_t;
 
 class menu_bar_t : public widget_t {
+	friend class menu_panel_t;
+
 	private:
 		int current_menu, old_menu;
+		int start_col;
 		bool hidden, redraw, has_focus;
 
 		std::vector<menu_panel_t *> menus;
 
 		void draw_menu_name(menu_panel_t *menu, int attr);
+
+		void add_menu(menu_panel_t *menu);
+		void close(void);
 	public:
 		menu_bar_t(container_t *parent, bool _hidden = false);
 		~menu_bar_t(void);
