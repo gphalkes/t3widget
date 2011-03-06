@@ -14,9 +14,18 @@
 #ifndef EDIT_MAIN_H
 #define EDIT_MAIN_H
 
+class main_window_t;
+
 #include "dialogs/dialogs.h"
 
 class line_t;
 extern line_t *copy_buffer;
+
+sigc::connection connect_resize(const sigc::slot<void, int, int> &_slot);
+
+int init(main_window_t *main_window);
 void iterate(void);
+void main_loop(void);
+
+
 #endif

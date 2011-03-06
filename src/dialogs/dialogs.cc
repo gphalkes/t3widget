@@ -25,6 +25,9 @@ dialog_t *dialog_t::main_window;
 void dialog_t::init(main_window_t *_main_window) {
 	main_window = _main_window;
 	dialogs.push_back(main_window);
+	main_window->active = true;
+	main_window->show();
+	main_window->set_focus(true);
 }
 
 dialog_t::dialog_t(int height, int width, int top, int left, int depth, const char *_title) : active(false), title(_title) {

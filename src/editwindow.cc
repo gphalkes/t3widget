@@ -712,10 +712,6 @@ void edit_window_t::set_focus(bool _focus) {
 	}
 }
 
-void edit_window_t::set_show(bool show) {
-	(void) show;
-}
-
 t3_window_t *edit_window_t::get_draw_window(void) {
 	return window;
 }

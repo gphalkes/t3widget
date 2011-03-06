@@ -16,21 +16,23 @@
 using namespace std;
 
 main_window_t::main_window_t(void) : dialog_t() {
-	int height, width;
-	t3_term_get_size(&height, &width);
-	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MIN)) == NULL)
+	if ((window = t3_win_new_unbacked(NULL, 25, 80, 0, 0, INT_MIN)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
+	connect_resize(sigc::mem_fun(this, &main_window_t::set_size_real));
 }
 
-bool main_window_t::resize(optint _height, optint _width, optint _top, optint _left) {
-	int height, width;
+bool main_window_t::set_size(optint height, optint width) {
+	(void) height;
+	(void) width;
+	return true;
+}
 
-	(void) _height;
-	(void) _width;
-	(void) _top;
-	(void) _left;
+void main_window_t::set_position(optint top, optint left) {
+	(void) top;
+	(void) left;
+}
 
-	t3_term_get_size(&height, &width);
-	return t3_win_resize(window, height, width);
+void main_window_t::set_size_real(int height, int width) {
+	t3_win_resize(window, height, width);
 }

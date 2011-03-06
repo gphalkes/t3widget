@@ -28,11 +28,15 @@ class main_window_t;
 class dialog_t : public window_component_t, public container_t {
 	private:
 		friend void iterate(void);
+		friend int init(main_window_t *main_window);
 		// main_window_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_t;
 
 		static dialogs_t dialogs;
 		static int dialog_depth;
+		static dialog_t *main_window;
+
+		static void init(main_window_t *_main_window);
 
 		void activate_dialog(void);
 		void deactivate_dialog(void);
@@ -54,8 +58,6 @@ class dialog_t : public window_component_t, public container_t {
 		void focus_previous(void);
 
 	public:
-		static dialog_t *main_window;
-		static void init(main_window_t *_main_window);
 
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
@@ -80,4 +82,5 @@ class dialog_t : public window_component_t, public container_t {
 //~ #include "dialogs/openrecentdialog.h"
 //~ #include "dialogs/selectbufferdialog.h"
 //#include "dialogs/encodingdialog.h"
+#include "dialogs/mainwindow.h"
 #endif

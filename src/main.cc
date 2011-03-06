@@ -18,6 +18,9 @@
 #include "colorscheme.h"
 #include "widgets/widgets.h"
 #include "dialogs/dialogs.h"
+
+using namespace std;
+using namespace sigc;
 //~ #include "log.h"
 //~ #include "options.h"
 //~ #include "util.h"
@@ -55,47 +58,99 @@
 #define MIN_COLUMNS 60
 
 
-int screenLines, screenColumns;
+static int screen_lines, screen_columns;
 line_t *copy_buffer;
 
-bool doResize(void) {
-	int newScreenLines, newScreenColumns;
-	bool result = true, needRedraw = false;
+static signal<void, int, int> resize;
+
+connection connect_resize(const slot<void, int, int> &_slot) {
+	return resize.connect(_slot);
+}
+
+void do_resize(void) {
+	int new_screen_lines, new_screen_columns;
+	bool need_redraw = false;
 
 	t3_term_resize();
-	t3_term_get_size(&newScreenLines, &newScreenColumns);
-	if (newScreenLines == screenLines && newScreenColumns == screenColumns)
-		return 0;
+	t3_term_get_size(&new_screen_lines, &new_screen_columns);
+	if (new_screen_lines == screen_lines && new_screen_columns == screen_columns)
+		return;
 
-	if (newScreenLines < screenLines || newScreenColumns < screenColumns)
-		needRedraw = true;
+	if (new_screen_lines < screen_lines || new_screen_columns < screen_columns)
+		need_redraw = true;
 
 	// Ensure minimal coordinates to maintain sort of sane screen layout
-	screenLines = newScreenLines < MIN_LINES ? MIN_LINES : newScreenLines;
-	screenColumns = newScreenColumns < MIN_COLUMNS? MIN_COLUMNS : newScreenColumns;
-/*
-	result &= menubar->resize(1, screenColumns, 0, 0);
-	result &= editwin->resize(screenLines - 1, screenColumns, 1, 0);
-	result &= openFileDialog->resize(screenLines - 4, (screenColumns - 4) & (~1), None, None);
-	result &= saveAsDialog->resize(screenLines - 4, (screenColumns - 4) & (~1), None, None);
-	result &= errorDialog->resize(None, MESSAGE_DIALOG_WIDTH, screenLines / 3, (screenColumns - MESSAGE_DIALOG_WIDTH) / 2);
-	result &= messageDialog->resize(None, MESSAGE_DIALOG_WIDTH, screenLines / 3, (screenColumns - MESSAGE_DIALOG_WIDTH) / 2);
-	result &= continueAbortDialog->resize(None, MESSAGE_DIALOG_WIDTH, screenLines / 3, (screenColumns - MESSAGE_DIALOG_WIDTH) / 2);
-	result &= findDialog->resize(None, None, None, None);
-	result &= replaceDialog->resize(None, None, None, None);
-	result &= insertCharDialog->resize(None, None, None, None);
-	result &= closeConfirmDialog->resize(None, None, None, None);
-	result &= altMessageDialog->resize(None, None, None, None);
-	result &= gotoDialog->resize(None, None, None, None);
-	result &= overwriteConfirmDialog->resize(None, None, None, None);
-	result &= replaceButtonsDialog->resize(None, None, None, None);
-	result &= openRecentDialog->resize(None, None, None, None);
-	result &= encodingDialog->resize(None, None, None, None);
-*/
-	if (needRedraw)
-		t3_term_redraw();
+	screen_lines = new_screen_lines < MIN_LINES ? MIN_LINES : new_screen_lines;
+	screen_columns = new_screen_columns < MIN_COLUMNS? MIN_COLUMNS : new_screen_columns;
 
-	return result;
+	resize(screen_lines, screen_columns);
+
+	if (need_redraw)
+		t3_term_redraw();
+}
+
+#if 0
+typedef enum {
+	TERM_NONE,
+	TERM_XTERM
+} TerminalCode;
+
+typedef struct {
+	const char *name;
+	TerminalCode code;
+} TerminalMapping;
+
+TerminalMapping terminalMapping[] = {
+	{"xterm", TERM_XTERM},
+	{NULL, TERM_NONE}
+};
+
+TerminalCode terminal;
+
+static void terminalSpecificRestore(void) {
+	switch (terminal) {
+		case TERM_XTERM:
+			/* Note: this may not actually reset to previous value, because of broken xterm */
+			t3_term_putp("\033[?1036r");
+			break;
+		default:
+			break;
+	}
+}
+
+static void terminalSpecificSetup(void) {
+	const char *term;
+	int i;
+
+	term = getenv("TERM");
+	for (i = 0; terminalMapping[i].name != NULL && strcmp(terminalMapping[i].name, term) != 0; i++) {}
+	terminal = terminalMapping[i].code;
+
+	switch (terminal) {
+		case TERM_XTERM:
+			t3_term_putp("\033[?1036s\033[?1036h");
+			break;
+		default:
+			return;
+	}
+	atexit(terminalSpecificRestore);
+}
+#endif
+
+#warning FIXME: returning the value from t3_term_init is not very useful!
+int init(main_window_t *main_window) {
+	int result;
+	init_colors();
+
+	if ((result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
+		t3_term_restore();
+		return result;
+	}
+	atexit(t3_term_restore);
+	init_keys();
+	do_resize();
+	dialog_t::init(main_window);
+	return 0;
 }
 
 void iterate(void) {
@@ -109,10 +164,7 @@ void iterate(void) {
 
 	switch (key) {
 		case EKEY_RESIZE:
-			if (doResize() < 0) {
-/*FIXME: this is to abrupt. It should show an error message or just use
-	the current window settings */
-			}
+			do_resize();
 			break;
 		case EKEY_META | EKEY_ESC:
 #warning FIXME: how do we handle the whole alt-message mess?
@@ -128,8 +180,4 @@ void main_loop(void) {
 	while (true) {
 		iterate();
 	}
-}
-
-void init(void) {
-	init_colors();
 }

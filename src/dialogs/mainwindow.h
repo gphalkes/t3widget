@@ -18,12 +18,14 @@
 #include "dialogs/dialogs.h"
 
 class main_window_t : public dialog_t {
+	private:
+		void set_size_real(int height, int width);
 	protected:
 		main_window_t(void);
 
 	public:
-		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void show(void) {}
+		virtual bool set_size(optint height, optint width);
+		virtual void set_position(optint top, optint left);
 		virtual void hide(void) {}
 };
 
