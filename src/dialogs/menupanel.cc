@@ -29,6 +29,12 @@ menu_panel_t::menu_panel_t(menu_bar_t *_menu, const char *name) : dialog_t(3, 5,
 
 bool menu_panel_t::process_key(key_t key) {
 	switch (key) {
+		case EKEY_LEFT:
+			menu->previous_menu();
+			break;
+		case EKEY_RIGHT:
+			menu->next_menu();
+			break;
 		case EKEY_UP:
 			focus_previous();
 			break;
@@ -50,7 +56,7 @@ bool menu_panel_t::process_key(key_t key) {
 		case EKEY_SHIFT | '\t':
 			break;
 		case EKEY_ESC:
-			hide();
+			menu->close();
 			break;
 		case EKEY_NL:
 		case ' ':
@@ -91,7 +97,7 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 	return result;
 }
 
-void menu_panel_t::hide(void) {
+void menu_panel_t::close(void) {
 	menu->close();
 }
 

@@ -35,6 +35,8 @@ class menu_bar_t : public widget_t {
 
 		void add_menu(menu_panel_t *menu);
 		void close(void);
+		void next_menu(void);
+		void previous_menu(void);
 	public:
 		menu_bar_t(container_t *parent, bool _hidden = false);
 		~menu_bar_t(void);

@@ -30,7 +30,7 @@ class menu_panel_t : public dialog_t {
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
-		virtual void hide(void);
+		void close(void);
 		void add_item(const char *label, const char *hotkey, int id);
 		void add_item(menu_item_t *item);
 		void add_separator(void);

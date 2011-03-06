@@ -48,22 +48,29 @@ void menu_bar_t::add_menu(menu_panel_t *menu) {
 	redraw = true;
 }
 
+void menu_bar_t::close(void) {
+	has_focus = false;
+	if (hidden)
+		t3_win_hide(window);
+	draw_menu_name(menus[current_menu], colors.menubar_attrs);
+	menus[current_menu]->hide();
+}
+
+void menu_bar_t::next_menu(void) {
+	current_menu++;
+	current_menu %= menus.size();
+}
+
+void menu_bar_t::previous_menu(void) {
+	current_menu += menus.size() - 1;
+	current_menu %= menus.size();
+}
+
 bool menu_bar_t::process_key(key_t key) {
 	if (menus.size() == 0)
 		return false;
 
 	switch (key) {
-		#warning FIXME: move these to a separate menu
-		case EKEY_RIGHT:
-			/* go to next menu */
-			current_menu++;
-			current_menu %= menus.size();
-			break;
-		case EKEY_LEFT:
-			/* go to previous Menu */
-			current_menu += menus.size() - 1;
-			current_menu %= menus.size();
-			break;
 		case EKEY_HOTKEY:
 			t3_term_hide_cursor();
 			has_focus = true;
@@ -71,12 +78,10 @@ bool menu_bar_t::process_key(key_t key) {
 				t3_win_show(window);
 			draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
 			menus[current_menu]->show();
-			break;
+			return true;
 		default:
-			//~ return menus[current_menu]->process_key(key);
 			return false;
 	}
-	return true;
 }
 
 bool menu_bar_t::set_size(optint height, optint width) {
@@ -115,17 +120,6 @@ void menu_bar_t::update_contents(void) {
 
 void menu_bar_t::set_focus(bool focus) {
 	(void) focus;
-}
-
-
-void menu_bar_t::close(void) {
-	has_focus = false;
-	if (hidden)
-		t3_win_hide(window);
-	/* menu_panel_t::hide calls this function. What we want is to call the
-	   function defined by dialog_t, so call that directly. */
-	menus[current_menu]->dialog_t::hide();
-	draw_menu_name(menus[current_menu], colors.menubar_attrs);
 }
 
 void menu_bar_t::show(void) {

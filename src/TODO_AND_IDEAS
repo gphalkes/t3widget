@@ -18,7 +18,6 @@ TODO
 	t3::widget or t3widget::)
 - figure out which dialogs should be included as defaults, and which should be
 	part of tilde/edit
-- move the casefolding stuff into libt3unicode
 - add a test program to check if everything works
 - figure out how to get rid of the bullet_status_t interface
 - rename the multi_string_list_i interface to something ending in _t
@@ -28,7 +27,7 @@ TODO
 - create a single header file to be included by users of the library.
 	Furthermore, the library should have its own header file which provides
 	all the other needed functionality (such as "using namespace std")
-- rename main_window_t and make sure set_size is called on resize
+- rename main_window_t
 
 IDEAS
 
