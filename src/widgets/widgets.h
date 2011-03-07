@@ -63,4 +63,5 @@ typedef std::deque<base_widget_t *> widgets_t;
 #include "widgets/label.h"
 #include "widgets/multiwidget.h"
 #include "widgets/bullet.h"
+#include "widgets/frame.h"
 #endif
