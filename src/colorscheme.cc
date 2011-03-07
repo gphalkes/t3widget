@@ -18,6 +18,12 @@
 color_scheme_t colors;
 
 void init_colors(void) {
+	static bool initialized = false;
+
+	if (initialized)
+		return;
+	initialized = true;
+
 	memset(&colors, 0, sizeof(colors));
 	//FIXME: read default parameters from config file
 	colors.non_print_attrs = T3_ATTR_UNDERLINE;

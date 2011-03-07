@@ -130,8 +130,10 @@ void file_name_list_t::load_directory(string *dirName) {
 
 	files.clear();
 
-	if ((dir = opendir(dirName->c_str())) == NULL)
+	if ((dir = opendir(dirName->c_str())) == NULL) {
+		content_changed();
 		throw errno;
+	}
 
 	// Make sure errno is clear on EOF
 	errno = 0;
@@ -146,11 +148,13 @@ void file_name_list_t::load_directory(string *dirName) {
 	if (errno != 0) {
 		int error = errno;
 		closedir(dir);
+		content_changed();
 		throw error;
 	}
 	closedir(dir);
 
 	sort(files.begin(), files.end(), sort_entries);
+	content_changed();
 }
 
 size_t file_name_list_t::get_index(const string *name) const {

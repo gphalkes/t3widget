@@ -36,6 +36,9 @@ void widget_t::init_window(container_t *parent, int height, int width) {
 	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
+	/* Make sure the colors are initialized, because everything else expects
+	   them to be. */
+	init_colors();
 }
 
 widget_t::~widget_t(void) {

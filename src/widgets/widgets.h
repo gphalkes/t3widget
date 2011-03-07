@@ -51,6 +51,7 @@ class widget_t : public base_widget_t {
 
 typedef std::deque<base_widget_t *> widgets_t;
 
+#include "widgets/scrollbar.h"
 #include "widgets/smartlabel.h"
 #include "widgets/textfield.h"
 #include "widgets/filepane.h"
@@ -58,7 +59,6 @@ typedef std::deque<base_widget_t *> widgets_t;
 #include "widgets/checkbox.h"
 #include "widgets/dummywidget.h"
 #include "widgets/menu.h"
-#include "widgets/scrollbar.h"
 #include "widgets/listpane.h"
 #include "widgets/label.h"
 #include "widgets/multiwidget.h"

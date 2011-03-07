@@ -18,16 +18,24 @@
 #include "widgets/widgets.h"
 #include "widgets/contentlist.h"
 
-class file_pane_t : public widget_t {
+#define _FP_MAX_COLUMNS 8
+
+class file_pane_t : public widget_t, public container_t {
 	private:
+		scrollbar_t scrollbar;
 		int height, width;
 		size_t top_idx, current;
 		file_list_t *file_list;
-		bool focus;
+		bool focus, redraw;
 		text_field_t *field;
+		int column_widths[_FP_MAX_COLUMNS], column_positions[_FP_MAX_COLUMNS], columns_visible;
+		sigc::connection content_changed_connection;
 
 		void ensure_cursor_on_screen(void);
 		void draw_line(int idx, bool selected);
+		void update_column_width(int column, int start);
+		void update_column_widths(void);
+		void content_changed(void);
 	public:
 		file_pane_t(container_t *_parent);
 		void set_text_field(text_field_t *_field);
@@ -36,8 +44,9 @@ class file_pane_t : public widget_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 		virtual bool accepts_enter(void);
+		virtual t3_window_t *get_draw_window(void);
 		void reset(void);
-		void set_file_list(file_list_t *_fileList);
+		void set_file_list(file_list_t *_file_list);
 		void set_file(size_t idx);
 
 	SIGNAL(activate, void, const std::string *);

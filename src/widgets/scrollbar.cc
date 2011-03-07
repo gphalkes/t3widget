@@ -16,6 +16,7 @@
 
 #include "colorscheme.h"
 #include "widgets/widgets.h"
+#include "log.h"
 
 scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
 	length(3), range(1), start(0), used(1), vertical(_vertical)
@@ -58,7 +59,7 @@ bool scrollbar_t::set_size(optint height, optint width) {
 void scrollbar_t::update_contents(void) {
 	int before, slider_size, i;
 
-	double blocks_per_line = (double) (t3_win_get_height(window) - 2) / range;
+	double blocks_per_line = (double) (length - 2) / range;
 	slider_size = blocks_per_line * used;
 	if (slider_size == 0)
 		slider_size = 1;
@@ -67,30 +68,34 @@ void scrollbar_t::update_contents(void) {
 	if (range <= used)
 		blocks_per_line = strtod("Inf", NULL);
 	else
-		blocks_per_line = (double) (t3_win_get_height(window) - 2 - slider_size) / (range - used);
+		blocks_per_line = (double) (length - 2 - slider_size) / (range - used);
 
 	before = ceil(blocks_per_line * start);
-	if (before >= t3_win_get_height(window) - 2)
-		before = t3_win_get_height(window) - 3;
+	if (before >= length - 2)
+		before = length - 3;
 
 	t3_win_set_paint(window, 0, 0);
-	t3_win_addch(window, T3_ACS_UARROW, T3_ATTR_ACS | colors.scrollbar_attrs);
+	t3_win_addch(window, vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | colors.scrollbar_attrs);
 
-	for (i = 1; i < t3_win_get_height(window) - 1 && i < before + 1; i++) {
-		t3_win_set_paint(window, i, 0);
+	for (i = 1; i < length - 1 && i < before + 1; i++) {
+		if (vertical)
+			t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS);
 	}
-	for (; i < t3_win_get_height(window) - 1 && i < before + slider_size + 1; i++) {
-		t3_win_set_paint(window, i, 0);
+	for (; i < length - 1 && i < before + slider_size + 1; i++) {
+		if (vertical)
+			t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, ' ', 0);
 	}
-	for (; i < t3_win_get_height(window) - 1; i++) {
-		t3_win_set_paint(window, i, 0);
+	for (; i < length - 1; i++) {
+		if (vertical)
+			t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS);
 	}
 
-	t3_win_set_paint(window, t3_win_get_height(window) - 1, 0);
-	t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS | colors.scrollbar_attrs);
+	if (vertical)
+		t3_win_set_paint(window, length - 1, 0);
+	t3_win_addch(window, vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | colors.scrollbar_attrs);
 }
 
 
