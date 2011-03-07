@@ -27,7 +27,7 @@ using namespace std;
 	- pressing esc in drop-down list should close the list
 */
 
-text_field_t::text_field_t(container_t *_parent) : widget_t(parent, 1, 4),
+text_field_t::text_field_t(container_t *_parent) : widget_t(_parent, 1, 4),
 	width(4),
 	pos(0),
 	screen_pos(0),

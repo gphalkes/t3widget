@@ -24,6 +24,8 @@
 #include "util.h"
 #include "widgets/contentlist.h"
 
+#warning FIXME: this whole content list thing is very messy, especially the way it is used in file_dialog_t
+
 using namespace std;
 
 string file_name_list_t::get_working_directory(void) {

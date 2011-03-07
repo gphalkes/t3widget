@@ -187,7 +187,7 @@ void dialog_t::show(void) {
 	{}
 
 	if (current_widget == widgets.end()) {
-		widgets.push_back(dummy);
+		widgets.push_front(dummy);
 		current_widget = widgets.begin();
 	}
 
