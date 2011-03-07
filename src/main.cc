@@ -143,6 +143,7 @@ int init(main_window_t *main_window) {
 
 	init_log();
 	init_colors();
+	line_t::init();
 
 	if ((result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
 		t3_term_restore();

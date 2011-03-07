@@ -20,9 +20,8 @@
 
 class file_pane_t : public widget_t {
 	private:
-		int height, width, top, left;
+		int height, width;
 		size_t top_idx, current;
-		container_t *parent;
 		file_list_t *file_list;
 		bool focus;
 		text_field_t *field;
@@ -33,7 +32,6 @@ class file_pane_t : public widget_t {
 		file_pane_t(container_t *_parent);
 		void set_text_field(text_field_t *_field);
 		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);

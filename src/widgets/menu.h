@@ -53,6 +53,6 @@ class menu_bar_t : public widget_t {
 
 		//FIXME: allow removal of menu_panel_t's to allow dynamic menus
 
-		SIGNAL(activate, void, int);
+	SIGNAL(activate, void, int);
 };
 #endif

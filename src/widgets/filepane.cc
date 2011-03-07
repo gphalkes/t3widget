@@ -13,15 +13,13 @@
 */
 #include "colorscheme.h"
 #include "widgets/filepane.h"
+#include "log.h"
 
 using namespace std;
 //FIXME: the number of columns should be dependent on the contents, not fixed to 2
-#warning FIXME: do not paint on parent window!
-file_pane_t::file_pane_t(container_t *_parent) : widget_t(parent, 1, 1), height(1),
-	width(1), top(0), left(0), top_idx(0), current(0), parent(_parent), file_list(NULL), focus(false), field(NULL)
+file_pane_t::file_pane_t(container_t *parent) : widget_t(parent, 3, 3), height(1),
+	width(1),top_idx(0), current(0), file_list(NULL), focus(false), field(NULL)
 {
-	//FIXME: no longer necessary if we don't paint on parent window anymore
-	t3_win_move(window, 1, 1);
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
 }
 
@@ -96,21 +94,13 @@ bool file_pane_t::process_key(key_t key) {
 	return true;
 }
 
-void file_pane_t::set_position(optint _top, optint _left) {
-	if (_top.is_valid())
-		top = _top;
-	if (_left.is_valid())
-		left = _left;
-	t3_win_move(window, top + 1, left + 1);
-}
-
 bool file_pane_t::set_size(optint _height, optint _width) {
 	bool result;
 	if (_height.is_valid())
 		height = _height - 2;
 	if (_width.is_valid())
 		width = _width - 2;
-	result = t3_win_resize(window, height, width);
+	result = t3_win_resize(window, height + 2, width + 2);
 	ensure_cursor_on_screen();
 	return result;
 }
@@ -131,7 +121,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 	if (column > 1)
 		return;
 
-	t3_win_set_paint(window, idx, (width >> 1) * column);
+	t3_win_set_paint(window, idx + 1, (width >> 1) * column + 1);
 	t3_win_addch(window, is_dir ? '/' : ' ', selected ? colors.dialog_selected_attrs : 0);
 
 	info.start = 0;
@@ -161,16 +151,18 @@ void file_pane_t::update_contents(void) {
 	for (i = top_idx, max_idx = min(top_idx + 2 * height, file_list->get_length()); i < max_idx; i++)
 		draw_line(i, focus && i == current);
 
-	t3_win_box(parent->get_draw_window(), top, left, height + 2, width + 2, 0);
+	t3_win_box(window, 0, 0, height + 2, width + 2, 0);
 }
 
 void file_pane_t::set_focus(bool _focus) {
 	focus = _focus;
 	if (focus) {
 		t3_term_hide_cursor();
-		draw_line(current, true);
+		if (file_list != NULL)
+			draw_line(current, true);
 	} else {
-		draw_line(current, false);
+		if (file_list != NULL)
+			draw_line(current, false);
 	}
 }
 
