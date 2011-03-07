@@ -234,11 +234,17 @@ void file_pane_t::update_column_widths(void) {
 			columns_visible = i - 1;
 		} else {
 			column_widths[0] = width;
+			sum_width = width;
 		}
 	}
+	if (columns_visible == 0)
+		columns_visible = 1;
 
 	for (i = 0; i < columns_visible; i++)
 		column_widths[i] += (width - sum_width) / columns_visible;
+	sum_width += columns_visible * ((width - sum_width) / columns_visible);
+	for (i = 0; i < columns_visible; i++)
+		column_widths[i]++;
 	column_positions[0] = 0;
 	for (i = 1; i < columns_visible; i++)
 		column_positions[i] = column_positions[i - 1] + column_widths[i - 1] + 2;
