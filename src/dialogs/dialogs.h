@@ -72,7 +72,7 @@ class dialog_t : public window_component_t, public container_t {
 };
 
 //FIXME: enable the proper includes again
-//~ #include "dialogs/filedialog.h"
+#include "dialogs/filedialog.h"
 #include "dialogs/messagedialog.h"
 //~ #include "dialogs/finddialog.h"
 //~ #include "dialogs/insertchardialog.h"

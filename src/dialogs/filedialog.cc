@@ -39,13 +39,13 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	file_line = new text_field_t(this);
 	file_line->set_anchor(name_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	file_line->set_position(0, 1);
-	file_line->set_size(None, t3_win_get_width(window) - 2 - name_offset);
+	file_line->set_size(None, width - 2 - name_offset);
 	file_line->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 	file_line->set_label(name_label);
 	file_line->set_key_filter(&nul, 1, false);
 
 	file_pane = new file_pane_t(this);
-	file_pane->set_size(height - 5, width);
+	file_pane->set_size(height - 5, width - 4);
 	file_pane->set_position(2, 2);
 	file_pane->set_file_list(&names);
 	file_pane->set_text_field(file_line);
@@ -53,7 +53,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 
 	show_hidden_box = new checkbox_t(this, false);
 	show_hidden_box->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	show_hidden_box->set_position(-2, 2);
+	show_hidden_box->set_position(-3, 2);
 	show_hidden_box->connect_toggled(sigc::bind(sigc::mem_fun(this, &file_dialog_t::refresh_view), (const string *) NULL));
 	show_hidden_box->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 
@@ -64,7 +64,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 
 	cancel_button = new button_t(this, "_Cancel;cC");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
-	cancel_button->set_position(-1, -2);
+	cancel_button->set_position(-2, -3);
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
 	ok_button = new button_t(this, "_OK;oO", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
@@ -75,7 +75,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 
 	encoding_button = new button_t(this, "_Encoding;eE");
 	encoding_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
-	encoding_button->set_position(-2, -2);
+	encoding_button->set_position(-3, -3);
 	#warning FIXME: this should probably not be here
 	//~ encoding_button->set_callback(button_t::ENTER, this, CHOOSE_ENCODING);
 
@@ -102,8 +102,6 @@ bool file_dialog_t::set_size(optint height, optint width) {
 	/* Just clear the whole thing and redraw */
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
-
-	draw_dialog();
 	return true;
 }
 
@@ -227,7 +225,6 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	iter++;
 	widgets.insert(iter, filter_label);
 	widgets.insert(iter, filter_line);
-	draw_dialog();
 }
 
 const string *open_file_dialog_t::get_filter(void) {
@@ -251,7 +248,6 @@ save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height
 	for (iter = widgets.begin(); iter != widgets.end() && *iter != show_hidden_box; iter++) {}
 	iter++;
 	widgets.insert(iter, create_button);
-	draw_dialog();
 }
 
 void save_as_dialog_t::create_folder(void) {

@@ -123,7 +123,7 @@ bool file_pane_t::set_size(optint _height, optint _width) {
 }
 
 void file_pane_t::draw_line(int idx, bool selected) {
-	if ((size_t) idx < top_idx || (size_t) idx > file_list->get_length())
+	if ((size_t) idx < top_idx || (size_t) idx >= file_list->get_length())
 		return;
 
 	int column;
