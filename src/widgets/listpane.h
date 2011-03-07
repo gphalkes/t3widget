@@ -17,34 +17,31 @@
 #include "window/window.h"
 #include "widgets/widgets.h"
 
-class list_pane_t : public widget_t {
+class list_pane_t : public widget_t, public container_t {
 	private:
-		int height, width, top, left;
+		int height;
 		size_t top_idx, current;
 		container_t *parent;
 		t3_window_t *clip_window;
 		widgets_t widgets;
-		bool focus;
-		scrollbar_t *scrollbar;
+		bool has_focus;
+		scrollbar_t scrollbar;
 		bool indicator;
 
-		/* Wrapper around a t3_window_t * to allow passing of a different window
-		   to the scrollbar_t. All widgets except the scrollbar use an unbacked
-		   window of which only part is actually shown through clipping. */
-		class clipwindow_component_t : public window_component_t {
+		class indicator_widget_t : public widget_t {
 			private:
-				t3_window_t *window;
+				bool has_focus;
 			public:
-				clipwindow_component_t(t3_window_t *_clipWindow) : window(_clipWindow) {}
-				virtual bool process_key(key_t key) { (void) key; return false; }
-				virtual void set_position(optint _top, optint _left) { (void) _top; (void) _left; }
-				virtual bool set_size(optint _height, optint _width) { (void) _height; (void) _width; return true; }
-				virtual void update_contents(void) {}
-				virtual void set_focus(bool _focus) { (void) _focus; }
-				virtual void show(void) {}
-				virtual void hide(void) {}
-				virtual t3_window_t *get_draw_window(void) { return window; }
+				indicator_widget_t(container_t *parent);
+				virtual bool process_key(key_t key);
+				virtual void update_contents(void);
+				virtual void set_focus(bool focus);
+				virtual bool set_size(optint height, optint width);
+				virtual t3_window_t *get_draw_window(void);
+				virtual bool accepts_focus(void);
 		};
+
+		indicator_widget_t *indicator_widget;
 
 		void ensure_cursor_on_screen(void);
 	public:
@@ -54,7 +51,7 @@ class list_pane_t : public widget_t {
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool _focus);
+		virtual void set_focus(bool focus);
 		virtual bool accepts_enter(void);
 		void reset(void);
 		void update_positions(void);

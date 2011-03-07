@@ -14,23 +14,28 @@
 #include "colorscheme.h"
 #include "widgets/listpane.h"
 
-#warning FIXME: do not draw on the parent window!
-list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1),
-	width(1), top(0), left(0), top_idx(0), parent(_parent), widgets(NULL), indicator(_indicator)
+using namespace std;
+
+list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1), top_idx(0), current(0), parent(_parent),
+		widgets(NULL), has_focus(false), scrollbar(_parent, true), indicator(_indicator)
 {
-	clip_window = t3_win_new(parent->get_draw_window(), height, width, top + 1, left + 1, 0);
-	window = t3_win_new_unbacked(clip_window, 1, width, 0, 0, 0);
+	/* We temporarily store the clip_window in window, so that we can use set_anchor on
+	   the scrollbar. */
+	if ((clip_window = window = t3_win_new_unbacked(parent->get_draw_window(), height, 3, 0, 0, 0)) == NULL)
+		throw bad_alloc();
+	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	scrollbar.set_size(height, None);
+
+	if ((window = t3_win_new_unbacked(clip_window, 1, 3, 0, 0, 0)) == NULL)
+		throw bad_alloc();
+
 	t3_win_set_anchor(window, clip_window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
-	focus = false;
-	current = 0;
 	t3_win_show(window);
 	t3_win_show(clip_window);
 
-	clipwindow_component_t scrollbarAnchor(clip_window);
-	scrollbar = new scrollbar_t(parent, true);
-	scrollbar->set_anchor(&scrollbarAnchor, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	scrollbar->set_size(height, None);
+	if (indicator)
+		indicator_widget = new indicator_widget_t(this);
 }
 
 list_pane_t::~list_pane_t(void) {
@@ -93,70 +98,63 @@ bool list_pane_t::process_key(key_t key) {
 	}
 	if (current != old_current) {
 		widgets[old_current]->set_focus(false);
-		widgets[current]->set_focus(focus);
+		widgets[current]->set_focus(has_focus);
 		selection_changed();
 	}
 	ensure_cursor_on_screen();
 	return true;
 }
 
-void list_pane_t::set_position(optint _top, optint _left) {
-	if (_top.is_valid())
-		top = _top;
-	if (_left.is_valid())
-		left = _left;
+void list_pane_t::set_position(optint top, optint left) {
+	if (!top.is_valid())
+		top = t3_win_get_y(clip_window);
+	if (!left.is_valid())
+		left = t3_win_get_x(clip_window);
 
-	t3_win_move(clip_window, top + 1, left + 1);
+	t3_win_move(clip_window, top, left);
 }
 
-bool list_pane_t::set_size(optint _height, optint _width) {
+bool list_pane_t::set_size(optint _height, optint width) {
 	int widget_width;
+	bool result;
 
 	if (_height.is_valid())
-		height = _height - 2;
-	if (_width.is_valid())
-		width = _width - 2;
+		height = _height;
+	if (!width.is_valid())
+		width = t3_win_get_width(clip_window);
 
-	t3_win_resize(clip_window, height, width);
-	t3_win_resize(window, t3_win_get_height(window), width);
+	result = t3_win_resize(clip_window, height, width);
+	result &= t3_win_resize(window, t3_win_get_height(window), width);
 
-	widget_width = indicator ? width - 2 : width;
+	widget_width = indicator ? (int) width - 2 : (int) width;
 
 	for (widgets_t::iterator iter = widgets.begin();
 			iter != widgets.end(); iter++)
-		(*iter)->set_size(None, widget_width);
+		result &= (*iter)->set_size(None, widget_width);
 
-	scrollbar->set_size(height, None);
+	result &= scrollbar.set_size(height, None);
 
 	ensure_cursor_on_screen();
-	//FIXME: let return value depend on success!
-	return true;
+	return result;
 }
 
 
 void list_pane_t::update_contents(void) {
-	t3_win_set_paint(clip_window, 0, 0);
-	t3_win_clrtobot(clip_window);
-	if (indicator && widgets.size() > 0) {
-		t3_win_set_paint(clip_window, current - top_idx, 0);
-		t3_win_addch(clip_window, T3_ACS_RARROW, T3_ATTR_ACS | (focus ? T3_ATTR_REVERSE : 0));
-		t3_win_set_paint(clip_window, current - top_idx, width - 1);
-		t3_win_addch(clip_window, T3_ACS_LARROW, T3_ATTR_ACS | (focus ? T3_ATTR_REVERSE : 0));
-	}
+	if (indicator)
+		indicator_widget->set_position(current, 0);
 	t3_win_move(window, -top_idx, 0);
-	t3_win_box(parent->get_draw_window(), top, left, height + 2, width + 2, 0);
-	scrollbar->set_parameters(widgets.size(), top_idx, height);
-	scrollbar->update_contents();
+	scrollbar.set_parameters(widgets.size(), top_idx, height);
+	scrollbar.update_contents();
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->update_contents();
 }
 
-void list_pane_t::set_focus(bool _focus) {
-	focus = _focus;
+void list_pane_t::set_focus(bool focus) {
+	has_focus = focus;
 	if (widgets.size() == 0)
 		t3_term_hide_cursor();
 	else if (current < widgets.size())
-		widgets[current]->set_focus(focus);
+		widgets[current]->set_focus(has_focus);
 }
 
 bool list_pane_t::accepts_enter(void) { return true; }
@@ -169,7 +167,7 @@ void list_pane_t::reset(void) {
 void list_pane_t::update_positions(void) {
 	widgets_t::iterator iter;
 	size_t idx;
-	int widget_width = width;
+	int widget_width = t3_win_get_width(clip_window);
 	if (indicator)
 		widget_width -= 2;
 
@@ -200,7 +198,7 @@ void list_pane_t::pop_back(void) {
 		widgets[current]->set_focus(false);
 		if (current > 0) {
 			current--;
-			widgets[current]->set_focus(focus);
+			widgets[current]->set_focus(has_focus);
 		}
 	}
 	widgets.pop_back();
@@ -210,7 +208,7 @@ void list_pane_t::pop_front(void) {
 	if (current == 0) {
 		widgets[0]->set_focus(false);
 		if (widgets.size() > 1)
-			widgets[1]->set_focus(focus);
+			widgets[1]->set_focus(has_focus);
 	} else {
 		current--;
 	}
@@ -262,3 +260,37 @@ void list_pane_t::set_current(int idx) {
 	current = idx;
 	ensure_cursor_on_screen();
 }
+
+//=========== Indicator widget ================
+
+list_pane_t::indicator_widget_t::indicator_widget_t(container_t *_parent) : widget_t(_parent, 1, 3), has_focus(false) {
+	t3_win_set_depth(window, 1);
+	set_size(None, 3);
+}
+bool list_pane_t::indicator_widget_t::process_key(key_t key) { (void) key; return false; }
+void list_pane_t::indicator_widget_t::update_contents(void) {}
+
+void list_pane_t::indicator_widget_t::set_focus(bool focus) {
+	has_focus = focus;
+}
+
+bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
+	bool result;
+
+	(void) _height;
+
+	if (!width.is_valid())
+		return true;
+	result = t3_win_resize(window, 1, width);
+	t3_win_set_paint(window, 0, 0);
+	t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS | (has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs));
+	t3_win_set_paint(window, 0, width - 1);
+	t3_win_addch(window, T3_ACS_LARROW, T3_ATTR_ACS | (has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs));
+	return result;
+}
+
+t3_window_t *list_pane_t::indicator_widget_t::get_draw_window(void) {
+	return window;
+}
+
+bool list_pane_t::indicator_widget_t::accepts_focus(void) { return false; }

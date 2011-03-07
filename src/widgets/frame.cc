@@ -23,13 +23,23 @@ frame_t::frame_t(container_t *parent, widget_t *_child, frame_dimension_t _dimen
 		child_left = 0;
 	child->set_anchor(this, 0);
 	child->set_position(child_top, child_left);
+	set_size(3, 3);
 }
 
+bool frame_t::process_key(key_t key) { (void) key; return false; }
 void frame_t::update_contents(void) {}
+void frame_t::set_focus(bool focus) { (void) focus; }
 
 bool frame_t::set_size(optint height, optint width) {
 	int child_height, child_width;
-	bool result = widget_t::set_size(height, width);
+	bool result;
+
+	if (!height.is_valid())
+		height = t3_win_get_height(window);
+	if (!width.is_valid())
+		width = t3_win_get_height(window);
+
+	result = t3_win_resize(window, height, width);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), colors.dialog_attrs);

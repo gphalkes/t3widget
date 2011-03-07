@@ -27,7 +27,9 @@ class frame_t : public widget_t, public container_t {
 		};
 
 		frame_t(container_t *parent, widget_t *_child, frame_dimension_t _dimension);
+		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
+		virtual void set_focus(bool focus);
 		virtual bool set_size(optint height, optint width);
 		virtual t3_window_t *get_draw_window(void);
  		virtual bool accepts_focus(void);
