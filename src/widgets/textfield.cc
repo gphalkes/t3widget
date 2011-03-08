@@ -261,22 +261,24 @@ bool text_field_t::process_key(key_t key) {
 
 			key &= ~EKEY_PROTECT;
 
-			if (key < 0x110000) {
-				if (filter_keys != NULL && (find(filter_keys, filter_keys + filter_keys_size, key) == filter_keys + filter_keys_size) == filter_keys_accept)
-					return false;
 
-				if (selection_mode != selection_mode_t::NONE)
-					delete_selection(false);
+			if (key > 0x10ffff)
+				return false;
 
-				if (pos == line->get_length())
-					line->append_char(key, NULL);
-				else
-					line->insert_char(pos, key, NULL);
-					#warning FIXME: implement overwrite!
-				pos = line->adjust_position(pos, 1);
-				ensure_on_cursor_screen();
-				need_repaint = REPAINT_EDIT;
-			}
+			if (filter_keys != NULL && (find(filter_keys, filter_keys + filter_keys_size, key) == filter_keys + filter_keys_size) == filter_keys_accept)
+				return false;
+
+			if (selection_mode != selection_mode_t::NONE)
+				delete_selection(false);
+
+			if (pos == line->get_length())
+				line->append_char(key, NULL);
+			else
+				line->insert_char(pos, key, NULL);
+				#warning FIXME: implement overwrite!
+			pos = line->adjust_position(pos, 1);
+			ensure_on_cursor_screen();
+			need_repaint = REPAINT_EDIT;
 	}
 	return true;
 }
