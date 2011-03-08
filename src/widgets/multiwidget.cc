@@ -12,7 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "widgets/multiwidget.h"
-
+#include "log.h"
 using namespace std;
 
 multi_widget_t::multi_widget_t(container_t *parent) :
@@ -35,6 +35,7 @@ bool multi_widget_t::set_size(optint height, optint _width) {
 	(void) height;
 	if (_width.is_valid() && width != _width) {
 		width = _width;
+		t3_win_resize(window, 1, width);
 		resize_widgets();
 	}
 	return true;   //FIXME: use result of widgets
@@ -60,6 +61,10 @@ bool multi_widget_t::accepts_focus(void) {
 	return false;
 }
 
+t3_window_t *multi_widget_t::get_draw_window(void) {
+	return window;
+}
+
 /* Width is negative for fixed width widgets, positive for proportion */
 void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys) {
 	item_t item;
@@ -78,6 +83,9 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 	item.width = _width;
 	item.takes_focus = takes_focus;
 	item.send_keys = send_keys;
+	if (widgets.size() > 0)
+		widget->set_anchor(widgets.back().widget, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	widget->set_position(0, 0);
 	widgets.push_back(item);
 	resize_widgets();
 }
@@ -101,24 +109,40 @@ bool multi_widget_t::empty(void) {
 }
 
 void multi_widget_t::resize_widgets(void) {
-	if (width <= fixed_sum) {
-		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-			if (iter->width < 0)
-				continue;
-			iter->widget->set_size(None, 1);
-		}
-	} else if (proportion_sum > 0) {
+	if (proportion_sum > 0) {
 		double scale = (double) (width - fixed_sum) / proportion_sum;
 		int size;
 
 		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
 				continue;
-			size = scale * iter->width;
-			if (size == 0)
-				size = 1;
-			//FIXME: make sure that widgets fill space available
-			iter->widget->set_size(None, size);
+			iter->calculated_width = scale * iter->width;
+			if (iter->calculated_width == 0)
+				iter->calculated_width = 1;
+			size = iter->calculated_width;
+		}
+		//FIXME: this will do for now, but should be slightly smarter
+		if (size > width - fixed_sum) {
+			for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size > width - fixed_sum; iter++) {
+				if (iter->width < 0)
+					continue;
+				if (iter->calculated_width > 1) {
+					iter->calculated_width--;
+					size--;
+				}
+			}
+		} else if (size < width - fixed_sum) {
+			for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size < width - fixed_sum; iter++) {
+				if (iter->width < 0)
+					continue;
+				iter->calculated_width++;
+				size++;
+			}
+		}
+		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+			if (iter->width < 0)
+				continue;
+			iter->widget->set_size(1, iter->calculated_width);
 		}
 	}
 }

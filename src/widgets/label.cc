@@ -13,6 +13,7 @@
 */
 #include "label.h"
 #include "window/window.h"
+#include "log.h"
 
 using namespace std;
 
@@ -35,12 +36,10 @@ bool label_t::set_size(optint height, optint _width) {
 	bool result = true;
 
 	(void) height;
-
 	if (_width.is_valid() && width != _width) {
 		width = _width;
 		result = t3_win_resize(window, 1, width);
 		redraw = true;
-		update_contents();
 	}
 	return result;
 }

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-bullet_t::bullet_t(container_t *parent, bullet_status_t *_source) : widget_t(parent, 1, 1), source(_source), focus(false) {}
+bullet_t::bullet_t(container_t *parent, const bool *_source) : widget_t(parent, 1, 1), source(_source), focus(false) {}
 
 bool bullet_t::set_size(optint height, optint width) {
 	(void) height;
@@ -27,7 +27,7 @@ bool bullet_t::process_key(key_t key) { (void) key; return false; }
 
 void bullet_t::update_contents(void) {
 	t3_win_set_paint(window, 0, 0);
-	if (source->get_bullet_status())
+	if (*source)
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (focus ? T3_ATTR_REVERSE : 0)); //FIXME: use proper attributes
 	else
 		t3_win_addch(window, ' ', focus ? T3_ATTR_REVERSE : 0);
@@ -36,4 +36,3 @@ void bullet_t::update_contents(void) {
 void bullet_t::set_focus(bool _focus) {
 	focus = _focus;
 }
-

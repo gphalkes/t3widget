@@ -21,6 +21,7 @@ class multi_widget_t : public widget_t, public container_t {
 		struct item_t {
 			widget_t *widget;
 			int width;
+			int calculated_width;
 			bool takes_focus;
 			bool send_keys;
 		};
@@ -34,6 +35,7 @@ class multi_widget_t : public widget_t, public container_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual bool accepts_focus(void);
+		virtual t3_window_t *get_draw_window(void);
 
 		/* Width is negative for fixed width widgets, positive for proportion */
 		void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);

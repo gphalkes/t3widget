@@ -18,11 +18,11 @@
 
 class bullet_t : public widget_t {
 	private:
-		bullet_status_t *source;
+		const bool *source;
 		bool focus;
 
 	public:
-		bullet_t(container_t *parent, bullet_status_t *_source);
+		bullet_t(container_t *parent, const bool *_source);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
