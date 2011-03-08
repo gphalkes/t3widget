@@ -22,9 +22,9 @@ using namespace std;
 namespace t3_widget {
 
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
-bool (text_file_t::*edit_window_t::proces_char[])(key_t) = { &text_file_t::insert_char, &text_file_t::overwrite_char};
+bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-edit_window_t::edit_window_t(container_t *parent, text_file_t *_text) : widget_t(parent, 10, 10) {
+edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget_t(parent, 10, 10) {
 	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 0, 0, 0)) == NULL) {
 		t3_win_del(window);
 		throw bad_alloc();
@@ -37,7 +37,7 @@ edit_window_t::edit_window_t(container_t *parent, text_file_t *_text) : widget_t
 	scrollbar->set_size(10, None);
 
 	if (_text == NULL)
-		text = new text_file_t();
+		text = new text_buffer_t();
 	else
 		text = _text;
 
@@ -67,7 +67,7 @@ edit_window_t::~edit_window_t(void) {
 	//FIXME: implement proper clean-up
 }
 
-void edit_window_t::set_text_file(text_file_t *_text) {
+void edit_window_t::set_text_file(text_buffer_t *_text) {
 	if (text == _text)
 		return;
 
@@ -77,7 +77,7 @@ void edit_window_t::set_text_file(text_file_t *_text) {
 		text = NULL;
 		_text->window->next_buffer();
 		if (_text->window != NULL) {
-			text_file_t *replacement = new text_file_t();
+			text_buffer_t *replacement = new text_buffer_t();
 			_text->window->set_text_file(replacement);
 		}
 	}*/
@@ -862,7 +862,7 @@ void edit_window_t::close(bool force) {
 		(*current)->window = this;
 		this->text = *current;
 	} else {
-		text = new text_file_t();
+		text = new text_buffer_t();
 		text->window = this;
 		is_backup_file = true;
 	}
@@ -889,7 +889,7 @@ bool edit_window_t::get_selection_lines(int *top, int *bottom) {
 	return true;
 }
 
-const text_file_t *edit_window_t::get_text_file(void) {
+const text_buffer_t *edit_window_t::get_text_file(void) {
 	return text;
 }
 

@@ -33,7 +33,7 @@ typedef std::vector<subline_t *> sublines_t;
 
 class edit_window_t;
 
-class text_file_t : public bullet_status_t {
+class text_buffer_t : public bullet_status_t {
 	friend class edit_window_t;
 	friend class OpenFiles;
 	friend class RecentFiles;
@@ -83,10 +83,10 @@ class text_file_t : public bullet_status_t {
 
 		void set_selection_from_find(int line, find_result_t *result);
 	public:
-		text_file_t(void);
-		text_file_t(const char *_name);
+		text_buffer_t(void);
+		text_buffer_t(const char *_name);
 		void common_init(void);
-		virtual ~text_file_t(void);
+		virtual ~text_buffer_t(void);
 
 /*		RWResult load(LoadState *load);
 		RWResult save(SaveState *state);*/
