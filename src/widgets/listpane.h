@@ -16,6 +16,7 @@
 
 #include "window/window.h"
 #include "widgets/widgets.h"
+#include "widgets/scrollbar.h"
 
 class list_pane_t : public widget_t, public container_t {
 	private:

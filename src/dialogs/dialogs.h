@@ -18,6 +18,7 @@
 #include "main.h"
 #include "interfaces.h"
 #include "widgets/widgets.h"
+#include "widgets/dummywidget.h"
 
 #define DIALOG_DEPTH 80
 
@@ -71,18 +72,4 @@ class dialog_t : public window_component_t, public container_t {
 		virtual t3_window_t *get_draw_window(void) { return window; }
 };
 
-//FIXME: enable the proper includes again
-#include "dialogs/filedialog.h"
-#include "dialogs/messagedialog.h"
-//~ #include "dialogs/finddialog.h"
-//~ #include "dialogs/insertchardialog.h"
-//~ #include "dialogs/closeconfirmdialog.h"
-//~ #include "dialogs/altmessagedialog.h"
-#include "dialogs/menupanel.h"
-//~ #include "dialogs/gotodialog.h"
-//~ #include "dialogs/overwriteconfirmdialog.h"
-//~ #include "dialogs/openrecentdialog.h"
-//~ #include "dialogs/selectbufferdialog.h"
-//#include "dialogs/encodingdialog.h"
-#include "dialogs/mainwindow.h"
 #endif

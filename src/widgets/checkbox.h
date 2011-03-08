@@ -14,7 +14,8 @@
 #ifndef CHECKBOX_H
 #define CHECKBOX_H
 
-#include "widgets.h"
+#include "widgets/widgets.h"
+#include "widgets/smartlabel.h"
 
 class checkbox_t : public widget_t {
 	private:

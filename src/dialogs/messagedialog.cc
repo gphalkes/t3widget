@@ -15,6 +15,7 @@
 #include <cstring>
 #include "main.h"
 #include "dialogs/messagedialog.h"
+#include "lines.h"
 
 using namespace std;
 

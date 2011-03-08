@@ -14,8 +14,9 @@
 #ifndef MESSAGEDIALOG_H
 #define MESSAGEDIALOG_H
 
+#include <string>
 #include "dialogs/dialogs.h"
-#include "widgets/widgets.h"
+#include "widgets/button.h"
 
 #define MESSAGEDIALOG_MAX_LINES 10
 

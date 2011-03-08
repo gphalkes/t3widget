@@ -15,7 +15,7 @@
 #include <cmath>
 
 #include "colorscheme.h"
-#include "widgets/widgets.h"
+#include "widgets/scrollbar.h"
 #include "log.h"
 
 scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :

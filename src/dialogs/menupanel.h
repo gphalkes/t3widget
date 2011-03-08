@@ -15,6 +15,7 @@
 #define MENUPANEL_H
 
 #include "dialogs/dialogs.h"
+#include "widgets/menu.h"
 
 class menu_item_base_t;
 class menu_item_t;

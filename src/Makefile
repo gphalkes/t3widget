@@ -11,12 +11,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 SOURCES.libt3widget.la := widgets/menu.cc widgets/scrollbar.cc widgets/label.cc \
 	widgets/listpane.cc widgets/multiwidget.cc widgets/bullet.cc \
 	widgets/textfield.cc widgets/filepane.cc widgets/button.cc widgets/checkbox.cc \
 	widgets/smartlabel.cc widgets/widgets.cc widgets/dummywidget.cc widgets/menuitem.cc \
 	widgets/contentlist.cc main.cc keys.cc undo.cc lines.cc stringmatcher.cc util.cc \
-	colorscheme.cc files.cc subline.cc editwindow.cc \
+	colorscheme.cc files.cc subline.cc widgets/editwindow.cc \
 	dialogs/dialogs.cc dialogs/filedialog.cc dialogs/menupanel.cc dialogs/messagedialog.cc \
 	dialogs/mainwindow.cc log.cc widgets/frame.cc
 	#~ dialogs/finddialog.cc dialogs/insertchardialog.cc \
@@ -31,6 +32,10 @@ CXXLTTARGETS := libt3widget.la
 #================================================#
 include ../../makesys/rules.mk
 #================================================#
+T3NAME := widget
+include ../../t3shared/rules.mk
+#================================================#
+
 CXXFLAGS += -I$(CURDIR) -D__STDC_LIMIT_MACROS -D_T3_WIDGET_DEBUG
 CXXFLAGS += -I$(CURDIR)/window -I$(CURDIR)/unicode -I$(CURDIR)/key
 CXXFLAGS += -pthread -DTHREADED_KEYS

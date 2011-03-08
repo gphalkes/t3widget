@@ -19,6 +19,7 @@
 #include "colorscheme.h"
 #include "widgets/widgets.h"
 #include "dialogs/dialogs.h"
+#include "lines.h"
 
 using namespace std;
 using namespace sigc;

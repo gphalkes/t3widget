@@ -11,7 +11,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/widgets.h"
+#include "widgets/frame.h"
 
 frame_t::frame_t(container_t *parent, frame_dimension_t _dimension) : widget_t(parent, 3, 3),
 		dimension(_dimension), child(NULL) {}

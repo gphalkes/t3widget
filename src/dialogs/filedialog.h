@@ -15,9 +15,10 @@
 #define FILEDIALOG_H
 
 #include "interfaces.h"
-#include "widgets/widgets.h"
 #include "dialogs/dialogs.h"
-
+#include "widgets/filepane.h"
+#include "widgets/button.h"
+#include "widgets/checkbox.h"
 
 class file_dialog_t : public dialog_t {
 	protected:

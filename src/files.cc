@@ -32,7 +32,7 @@
 #include "util.h"
 #include "undo.h"
 #include "main.h"
-#include "editwindow.h"
+#include "widgets/editwindow.h"
 
 using namespace std;
 /* FIXME: TODO

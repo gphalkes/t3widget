@@ -17,6 +17,8 @@
 #include "window/window.h"
 #include "widgets/widgets.h"
 #include "widgets/contentlist.h"
+#include "widgets/scrollbar.h"
+#include "widgets/textfield.h"
 
 #define _FP_MAX_COLUMNS 8
 

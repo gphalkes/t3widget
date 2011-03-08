@@ -14,7 +14,8 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "widgets.h"
+#include "widgets/widgets.h"
+#include "widgets/smartlabel.h"
 
 class button_t : public widget_t {
 	private:

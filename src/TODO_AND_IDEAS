@@ -30,6 +30,10 @@ TODO
 - rename main_window_t
 
 IDEAS
+- use a line_factory_t for the text_buffer_t, such that lines with extensions
+	for e.g. syntax highlighting can be created.
+- many widgets can be made aggregated types, rather than pointers. This does
+	mean calling the constructor from the initializer list.
 
 THOUGHTS
 - we won't do layout management. For most things the anchoring does what we

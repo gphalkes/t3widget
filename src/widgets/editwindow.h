@@ -18,6 +18,7 @@ class edit_window_t;
 
 #include "window/window.h"
 #include "widgets/widgets.h"
+#include "widgets/scrollbar.h"
 #include "files.h"
 #include "keys.h"
 #include "interfaces.h"

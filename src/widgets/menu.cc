@@ -14,8 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "widgets/widgets.h"
-#include "dialogs/dialogs.h"
+#include "widgets/menu.h"
+#include "dialogs/menupanel.h"
 #include "main.h"
 #include "keys.h"
 
