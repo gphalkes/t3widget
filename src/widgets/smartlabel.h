@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_SMARTLABEL_H
 #define T3_WIDGET_SMARTLABEL_H
 
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "window/window.h"
 #include "keys.h"
 

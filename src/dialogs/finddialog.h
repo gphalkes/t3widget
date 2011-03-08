@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_FINDDIALOG_H
 #define T3_WIDGET_FINDDIALOG_H
 
-#include "dialogs/dialogs.h"
+#include "dialogs/dialog.h"
 
 namespace t3_widget {
 

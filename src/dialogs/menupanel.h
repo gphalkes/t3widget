@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_MENUPANEL_H
 #define T3_WIDGET_MENUPANEL_H
 
-#include "dialogs/dialogs.h"
+#include "dialogs/dialog.h"
 #include "widgets/menu.h"
 
 namespace t3_widget {

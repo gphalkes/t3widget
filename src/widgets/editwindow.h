@@ -19,7 +19,7 @@ namespace t3_widget {
 }; // namespace
 
 #include "window/window.h"
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 #include "textbuffer.h"
 #include "keys.h"

@@ -15,7 +15,7 @@
 #define T3_WIDGET_MAINWINDOW_H
 
 #include "interfaces.h"
-#include "dialogs/dialogs.h"
+#include "dialogs/dialog.h"
 
 namespace t3_widget {
 

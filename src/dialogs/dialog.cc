@@ -13,7 +13,7 @@
 */
 #include "colorscheme.h"
 #include "main.h"
-#include "dialogs/dialogs.h"
+#include "dialogs/dialog.h"
 #include "dialogs/mainwindow.h"
 
 using namespace std;

@@ -16,13 +16,13 @@
 
 #include "main.h"
 
-#include "dialogs/dialogs.h"
+#include "dialogs/dialog.h"
 #include "dialogs/filedialog.h"
 #include "dialogs/mainwindow.h"
 #include "dialogs/menupanel.h"
 #include "dialogs/messagedialog.h"
 
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "widgets/bullet.h"
 #include "widgets/button.h"
 #include "widgets/checkbox.h"

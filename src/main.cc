@@ -17,8 +17,8 @@
 #include "main.h"
 #include "log.h"
 #include "colorscheme.h"
-#include "widgets/widgets.h"
-#include "dialogs/dialogs.h"
+#include "widgets/widget.h"
+#include "dialogs/dialog.h"
 #include "textline.h"
 
 using namespace std;
@@ -34,7 +34,7 @@ namespace t3_widget {
 //~ #include "textline.h"
 //~ #include "charactersets.h"
 //~ #include "key/key.h"
-//~ #include "dialogs/dialogs.h"
+//~ #include "dialogs/dialog.h"
 
 //~ static EditSplit *editwin;
 //~ static menu_bar_t *menubar;

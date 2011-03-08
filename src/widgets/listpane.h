@@ -15,7 +15,7 @@
 #define T3_WIDGET_LISTPANE_H
 
 #include "window/window.h"
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 
 namespace t3_widget {

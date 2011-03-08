@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_SCROLLBAR_H
 #define T3_WIDGET_SCROLLBAR_H
 
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 
 namespace t3_widget {
 

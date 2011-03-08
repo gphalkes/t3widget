@@ -16,7 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include "unicode.h"
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "widgets/smartlabel.h"
 #include "textline.h"
 #include "util.h"

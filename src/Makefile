@@ -15,10 +15,10 @@
 SOURCES.libt3widget.la := widgets/menu.cc widgets/scrollbar.cc widgets/label.cc \
 	widgets/listpane.cc widgets/multiwidget.cc widgets/bullet.cc \
 	widgets/textfield.cc widgets/filepane.cc widgets/button.cc widgets/checkbox.cc \
-	widgets/smartlabel.cc widgets/widgets.cc widgets/dummywidget.cc widgets/menuitem.cc \
+	widgets/smartlabel.cc widgets/widget.cc widgets/dummywidget.cc widgets/menuitem.cc \
 	widgets/contentlist.cc main.cc keys.cc undo.cc textline.cc stringmatcher.cc util.cc \
 	colorscheme.cc textbuffer.cc subline.cc widgets/editwindow.cc \
-	dialogs/dialogs.cc dialogs/filedialog.cc dialogs/menupanel.cc dialogs/messagedialog.cc \
+	dialogs/dialog.cc dialogs/filedialog.cc dialogs/menupanel.cc dialogs/messagedialog.cc \
 	dialogs/mainwindow.cc log.cc widgets/frame.cc
 	#~ dialogs/finddialog.cc dialogs/insertchardialog.cc \
 	#~ dialogs/closeconfirmdialog.cc dialogs/altmessagedialog.cc dialogs/gotodialog.cc \

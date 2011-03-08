@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_MENUITEM_H
 #define T3_WIDGET_MENUITEM_H
 
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "dialogs/menupanel.h"
 
 namespace t3_widget {

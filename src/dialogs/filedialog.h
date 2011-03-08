@@ -15,7 +15,7 @@
 #define T3_WIDGET_FILEDIALOG_H
 
 #include "interfaces.h"
-#include "dialogs/dialogs.h"
+#include "dialogs/dialog.h"
 #include "widgets/filepane.h"
 #include "widgets/button.h"
 #include "widgets/checkbox.h"

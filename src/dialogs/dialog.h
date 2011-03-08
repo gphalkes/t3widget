@@ -17,7 +17,7 @@
 #include <list>
 #include "main.h"
 #include "interfaces.h"
-#include "widgets/widgets.h"
+#include "widgets/widget.h"
 #include "widgets/dummywidget.h"
 
 namespace t3_widget {
