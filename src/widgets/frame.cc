@@ -13,22 +13,26 @@
 */
 #include "widgets/widgets.h"
 
-frame_t::frame_t(container_t *parent, widget_t *_child, frame_dimension_t _dimension) : widget_t(parent, 3, 3),
-		dimension(_dimension), child(_child)
-{
+frame_t::frame_t(container_t *parent, frame_dimension_t _dimension) : widget_t(parent, 3, 3),
+		dimension(_dimension), child(NULL) {}
+
+void frame_t::set_child(widget_t *_child) {
 	int child_top = 1, child_left = 1;
+
+	child = _child;
+
 	if (dimension & COVER_TOP)
 		child_top = 0;
 	if (dimension & COVER_LEFT)
 		child_left = 0;
 	child->set_anchor(this, 0);
 	child->set_position(child_top, child_left);
-	set_size(3, 3);
+	set_size(None, None);
 }
 
-bool frame_t::process_key(key_t key) { return child->process_key(key); }
-void frame_t::update_contents(void) { child->update_contents(); }
-void frame_t::set_focus(bool focus) { child->set_focus(focus); }
+bool frame_t::process_key(key_t key) { return child != NULL ? child->process_key(key) : false; }
+void frame_t::update_contents(void) { if (child != NULL) child->update_contents(); }
+void frame_t::set_focus(bool focus) { if (child != NULL) child->set_focus(focus); }
 
 bool frame_t::set_size(optint height, optint width) {
 	int child_height, child_width;
@@ -44,23 +48,23 @@ bool frame_t::set_size(optint height, optint width) {
 	t3_win_clrtobot(window);
 	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), colors.dialog_attrs);
 
-	child_height = t3_win_get_height(window);
-	if (!(dimension & COVER_TOP))
-		child_height--;
-	if (!(dimension & COVER_BOTTOM))
-		child_height--;
-	child_width = t3_win_get_width(window);
-	if (!(dimension & COVER_LEFT))
-		child_width--;
-	if (!(dimension & COVER_RIGHT))
-		child_width--;
+	if (child != NULL) {
+		child_height = t3_win_get_height(window);
+		if (!(dimension & COVER_TOP))
+			child_height--;
+		if (!(dimension & COVER_BOTTOM))
+			child_height--;
+		child_width = t3_win_get_width(window);
+		if (!(dimension & COVER_LEFT))
+			child_width--;
+		if (!(dimension & COVER_RIGHT))
+			child_width--;
 
-	result &= child->set_size(child_height, child_width);
+		result &= child->set_size(child_height, child_width);
+	}
 	return result;
 }
 
-t3_window_t *frame_t::get_draw_window(void) {
-	return window;
-}
-
-bool frame_t::accepts_focus(void) { return child->accepts_focus(); }
+t3_window_t *frame_t::get_draw_window(void) { return window; }
+bool frame_t::accepts_focus(void) { return child != NULL ? child->accepts_focus() : false; }
+bool frame_t::is_hotkey(key_t key) { return child != NULL ? child->is_hotkey(key) : false; }
