@@ -15,6 +15,7 @@
 #define T3_WIDGET_KEYS_H
 
 #include <climits>
+namespace t3_widget {
 
 #if INT_MAX < 2147483647L
 typedef long key_t;
@@ -64,4 +65,6 @@ enum {
 };
 
 void insert_protected_key(key_t key);
+
+}; // namespace
 #endif

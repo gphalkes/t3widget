@@ -16,6 +16,8 @@
 
 #include "widgets/widgets.h"
 
+namespace t3_widget {
+
 class scrollbar_t : public widget_t {
 	private:
 		int length;
@@ -33,4 +35,5 @@ class scrollbar_t : public widget_t {
 		void set_parameters(int _range, int _start, int _used);
 };
 
+}; // namespace
 #endif

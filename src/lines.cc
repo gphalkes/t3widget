@@ -30,6 +30,7 @@
 #include "unicode/unicode.h"
 
 using namespace std;
+namespace t3_widget {
 
 char line_t::spaces[MAX_TAB];
 char line_t::dots[16];
@@ -911,3 +912,5 @@ void line_t::check_bad_draw(int i) {
 	else
 		meta_buffer[i] |= BAD_DRAW_BIT;
 }
+
+}; // namespace

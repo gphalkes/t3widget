@@ -16,6 +16,8 @@
 
 #include "lines.h"
 
+namespace t3_widget {
+
 class subline_t {
 	private:
 		line_t *line;
@@ -33,4 +35,5 @@ class subline_t {
 		void set_flags(int flags);
 };
 
+}; // namespace
 #endif

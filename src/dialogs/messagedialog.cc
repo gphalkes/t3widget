@@ -18,6 +18,7 @@
 #include "lines.h"
 
 using namespace std;
+namespace t3_widget {
 
 message_dialog_base_t::message_dialog_base_t(int width, int top, int left, const char *_title) : dialog_t(5, width, top, left, 0, _title) {
 	int i;
@@ -125,3 +126,5 @@ bool question_dialog_t::set_size(optint _height, optint width) {
 	ok_button->set_size(None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2);
 	return result;
 }
+
+}; // namespace

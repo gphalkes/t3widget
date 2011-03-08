@@ -21,6 +21,7 @@
 #include <deque>
 
 #include "keys.h"
+namespace t3_widget {
 
 typedef std::deque<key_t> keys_t;
 
@@ -65,4 +66,5 @@ class KeyBuffer {
 		}
 };
 
+}; // namespace
 #endif

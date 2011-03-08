@@ -20,6 +20,8 @@
 #include "interfaces.h"
 #include "colorscheme.h"
 
+namespace t3_widget {
+
 class base_widget_t : public window_component_t {
 	protected:
 		bool shown;
@@ -51,4 +53,5 @@ class widget_t : public base_widget_t {
 
 typedef std::deque<base_widget_t *> widgets_t;
 
+}; // namespace
 #endif

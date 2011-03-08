@@ -11,10 +11,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef LABEL_H
-#define LABEL_H
+#ifndef T3_WIDGET_LABEL_H
+#define T3_WIDGET_LABEL_H
 
 #include "widgets/widgets.h"
+
+namespace t3_widget {
 
 class label_t : public widget_t {
 	public:
@@ -43,5 +45,6 @@ class label_t : public widget_t {
 		void set_align(align_t _align);
 };
 
+}; // namespace
 #endif
 

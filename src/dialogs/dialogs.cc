@@ -17,6 +17,7 @@
 #include "dialogs/mainwindow.h"
 
 using namespace std;
+namespace t3_widget {
 
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
@@ -227,3 +228,5 @@ void dialog_t::focus_previous(void) {
 
 	(*current_widget)->set_focus(true);
 }
+
+}; // namespace

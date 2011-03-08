@@ -18,6 +18,7 @@
 #include "window/window.h"
 #include "keys.h"
 
+namespace t3_widget {
 
 class smart_label_text_t {
 	protected:
@@ -48,4 +49,5 @@ class smart_label_t : public smart_label_text_t, public widget_t {
 		virtual bool accepts_focus(void);
 };
 
+}; // namespace
 #endif

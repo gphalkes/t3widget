@@ -16,6 +16,8 @@
 #include "log.h"
 
 using namespace std;
+namespace t3_widget {
+
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 file_pane_t::file_pane_t(container_t *parent) : widget_t(parent, 3, 3), scrollbar(this, false), height(1),
 	width(1),top_idx(0), current(0), file_list(NULL), focus(false), redraw(true), field(NULL), columns_visible(0)
@@ -256,3 +258,5 @@ void file_pane_t::content_changed(void) {
 	scrollbar.set_parameters(file_list->get_length(), 0, columns_visible * height);
 	redraw = true;
 }
+
+}; // namespace

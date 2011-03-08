@@ -14,10 +14,13 @@
 #ifndef T3_WIDGET_UNDO_H
 #define T3_WIDGET_UNDO_H
 
-class undo_t;
+namespace t3_widget {
+	class undo_t;
+};
 
 #include "lines.h"
 #include "util.h"
+namespace t3_widget {
 
 #define TEXT_START_SIZE 32
 
@@ -130,4 +133,5 @@ class undo_double_text_triple_coord_t : public undo_double_text_t {
 		virtual text_coordinate_t get_new_end(void) const;
 };
 
+}; // namespace
 #endif

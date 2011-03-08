@@ -13,6 +13,8 @@
 */
 #include "checkbox.h"
 
+namespace t3_widget {
+
 checkbox_t::checkbox_t(container_t *parent, bool _state) : widget_t(parent, 1, 3), state(_state), has_focus(false), label(NULL) {}
 
 bool checkbox_t::process_key(key_t key) {
@@ -78,3 +80,5 @@ void checkbox_t::set_label(smart_label_t *_label) {
 bool checkbox_t::is_hotkey(key_t key) {
 	return label == NULL ? false : label->is_hotkey(key);
 }
+
+}; // namespace

@@ -17,6 +17,7 @@
 #include "log.h"
 
 using namespace std;
+namespace t3_widget {
 
 //FIXME: maybe we should allow scrolling with the left and right keys
 
@@ -89,3 +90,5 @@ void label_t::set_focus(bool focus) {
 void label_t::set_align(label_t::align_t _align) {
 	align = _align;
 }
+
+}; // namespace

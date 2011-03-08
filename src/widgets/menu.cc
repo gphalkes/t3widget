@@ -20,6 +20,7 @@
 #include "keys.h"
 
 using namespace std;
+namespace t3_widget {
 
 menu_bar_t::menu_bar_t(container_t *parent, bool _hidden) : widget_t(parent, 1, t3_win_get_width(parent->get_draw_window())),
 		current_menu(0), old_menu(0), start_col(0), hidden(_hidden), redraw(true), has_focus(false)
@@ -155,3 +156,5 @@ void menu_bar_t::draw(void) {
 	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
 		draw_menu_name(*iter, colors.menubar_attrs);
 }
+
+}; // namespace

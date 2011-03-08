@@ -11,13 +11,14 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EDIT_MENU_H
-#define EDIT_MENU_H
+#ifndef T3_WIDGET_MENU_H
+#define T3_WIDGET_MENU_H
 
 #include <vector>
 #include "interfaces.h"
 #include "widgets/smartlabel.h"
-//#include "main.h" //For ActionID
+
+namespace t3_widget {
 
 class menu_panel_t;
 
@@ -55,4 +56,6 @@ class menu_bar_t : public widget_t {
 
 	SIGNAL(activate, void, int);
 };
+
+}; // namespace
 #endif

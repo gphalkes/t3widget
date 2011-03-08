@@ -13,6 +13,8 @@
 */
 #include "widgets/frame.h"
 
+namespace t3_widget {
+
 frame_t::frame_t(container_t *parent, frame_dimension_t _dimension) : widget_t(parent, 3, 3),
 		dimension(_dimension), child(NULL) {}
 
@@ -68,3 +70,5 @@ bool frame_t::set_size(optint height, optint width) {
 t3_window_t *frame_t::get_draw_window(void) { return window; }
 bool frame_t::accepts_focus(void) { return child != NULL ? child->accepts_focus() : false; }
 bool frame_t::is_hotkey(key_t key) { return child != NULL ? child->is_hotkey(key) : false; }
+
+}; // namespace

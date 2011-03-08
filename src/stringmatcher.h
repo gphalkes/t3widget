@@ -16,6 +16,8 @@
 
 #include <string>
 
+namespace t3_widget {
+
 class string_matcher_t {
 	private:
 		char *needle;
@@ -35,4 +37,5 @@ class string_matcher_t {
 		int previous_char(const char *c, size_t c_size);
 };
 
+}; // namespace
 #endif

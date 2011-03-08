@@ -20,6 +20,7 @@
 #include "keys.h"
 #include "util.h"
 #include "window/window.h"
+namespace t3_widget {
 
 class window_component_t {
 	public:
@@ -45,4 +46,5 @@ class bullet_status_t {
 		virtual bool get_bullet_status(void) = 0;
 };
 
+}; // namespace
 #endif

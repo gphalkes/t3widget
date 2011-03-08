@@ -35,6 +35,7 @@
 #include "widgets/editwindow.h"
 
 using namespace std;
+namespace t3_widget {
 /* FIXME: TODO
 	- check rewrap_line return values!
 */
@@ -1525,3 +1526,5 @@ bool text_file_t::get_bullet_status(void) {
 const char *text_file_t::get_name(void) const {
 	return name;
 }
+
+}; // namespace

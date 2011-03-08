@@ -18,6 +18,7 @@
 #include "util.h"
 
 using namespace std;
+namespace t3_widget {
 
 menu_panel_t::menu_panel_t(menu_bar_t *_menu, const char *name) : dialog_t(3, 5, 1, 0, 40, NULL), label(name), menu(_menu) {
 	menu->add_menu(this);
@@ -156,3 +157,5 @@ resize_panel:
 void menu_panel_t::signal(int id) {
 	menu->activate(id);
 }
+
+}; // namespace

@@ -14,11 +14,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <new>
-
-using namespace std;
-
 #include "undo.h"
 #include "lines.h"
+
+using namespace std;
+namespace t3_widget {
 
 undo_list_t::~undo_list_t(void) {
 	current = head;
@@ -200,3 +200,5 @@ void undo_double_text_t::minimize(void) {
 
 void undo_double_text_triple_coord_t::setNewEnd(text_coordinate_t _new_end) { new_end = _new_end; }
 text_coordinate_t undo_double_text_triple_coord_t::get_new_end(void) const { return new_end; }
+
+}; // namespace

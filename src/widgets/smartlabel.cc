@@ -24,6 +24,7 @@
 #include "colorscheme.h"
 
 using namespace std;
+namespace t3_widget {
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _addColon) : add_colon(_addColon) {
 	line_t *line;
@@ -130,3 +131,5 @@ bool smart_label_t::is_hotkey(key_t key) {
 }
 
 bool smart_label_t::accepts_focus(void) { return false; }
+
+}; // namespace

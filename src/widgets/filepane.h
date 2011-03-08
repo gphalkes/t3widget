@@ -22,6 +22,8 @@
 
 #define _T3_WDIGET_FP_MAX_COLUMNS 8
 
+namespace t3_widget {
+
 class file_pane_t : public widget_t, public container_t {
 	private:
 		scrollbar_t scrollbar;
@@ -53,5 +55,7 @@ class file_pane_t : public widget_t, public container_t {
 
 	SIGNAL(activate, void, const std::string *);
 };
+
+}; // namespace
 
 #endif

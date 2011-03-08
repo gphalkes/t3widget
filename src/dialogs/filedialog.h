@@ -20,6 +20,8 @@
 #include "widgets/button.h"
 #include "widgets/checkbox.h"
 
+namespace t3_widget {
+
 class file_dialog_t : public dialog_t {
 	protected:
 		file_name_list_t names;
@@ -77,4 +79,5 @@ class save_as_dialog_t : public file_dialog_t {
 		void create_folder(void);
 };
 
+}; // namespace
 #endif

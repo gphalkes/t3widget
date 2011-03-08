@@ -11,10 +11,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef DUMMYWIDGET_H
-#define DUMMYWIDGET_H
+#ifndef T3_WIDGET_DUMMYWIDGET_H
+#define T3_WIDGET_DUMMYWIDGET_H
 
 #include "widgets/widgets.h"
+
+namespace t3_widget {
 
 class dummy_widget_t : public base_widget_t {
 	public:
@@ -30,4 +32,5 @@ class dummy_widget_t : public base_widget_t {
 		virtual t3_window_t *get_draw_window(void);
 };
 
+}; // namespace
 #endif

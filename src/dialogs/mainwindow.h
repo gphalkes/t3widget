@@ -17,6 +17,8 @@
 #include "interfaces.h"
 #include "dialogs/dialogs.h"
 
+namespace t3_widget {
+
 class main_window_t : public dialog_t {
 	private:
 		void set_size_real(int height, int width);
@@ -29,4 +31,5 @@ class main_window_t : public dialog_t {
 		virtual void hide(void) {}
 };
 
+}; // namespace
 #endif

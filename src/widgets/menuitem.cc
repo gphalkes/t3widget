@@ -14,6 +14,8 @@
 #include "colorscheme.h"
 #include "widgets/menuitem.h"
 
+namespace t3_widget {
+
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
 		menu_item_base_t(_parent), label(_label), hotkey(_hotkey), id(_id)
 {
@@ -123,3 +125,4 @@ bool menu_separator_t::accepts_focus(void) {
 	return false;
 }
 
+}; // namespace

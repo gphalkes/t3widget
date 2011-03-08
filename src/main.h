@@ -14,10 +14,10 @@
 #ifndef T3_WIDGET_MAIN_H
 #define T3_WIDGET_MAIN_H
 
-
-class main_window_t;
-
 #include "dialogs/dialogs.h"
+
+namespace t3_widget {
+class main_window_t;
 
 class line_t;
 //FIXME: remove anything not related to the external interface
@@ -34,5 +34,7 @@ void main_loop(void);
 #else
 #define ASSERT(_x)
 #endif
+
+}; // namespace
 
 #endif

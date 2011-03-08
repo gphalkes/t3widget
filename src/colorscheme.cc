@@ -15,6 +15,8 @@
 #include "colorscheme.h"
 #include "window/window.h"
 
+namespace t3_widget {
+
 color_scheme_t colors;
 
 void init_colors(void) {
@@ -58,3 +60,5 @@ void init_colors(void) {
 	colors.highlight_attrs = T3_ATTR_UNDERLINE;
 #endif
 }
+
+}; // namespace

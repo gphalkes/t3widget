@@ -16,6 +16,8 @@
 
 #include "widgets/widgets.h"
 
+namespace t3_widget {
+
 class frame_t : public widget_t, public container_t {
 	public:
 		enum frame_dimension_t {
@@ -41,4 +43,5 @@ class frame_t : public widget_t, public container_t {
 		widget_t *child;
 };
 
+}; // namespace
 #endif

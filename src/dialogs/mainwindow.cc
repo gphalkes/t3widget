@@ -14,6 +14,7 @@
 #include "mainwindow.h"
 
 using namespace std;
+namespace t3_widget {
 
 main_window_t::main_window_t(void) : dialog_t() {
 	if ((window = t3_win_new_unbacked(NULL, 25, 80, 0, 0, INT_MAX)) == NULL)
@@ -37,3 +38,5 @@ void main_window_t::set_size_real(int height, int width) {
 	t3_win_resize(window, height, width);
 	set_size(height, width);
 }
+
+}; // namespace

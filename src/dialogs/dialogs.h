@@ -20,6 +20,8 @@
 #include "widgets/widgets.h"
 #include "widgets/dummywidget.h"
 
+namespace t3_widget {
+
 #define DIALOG_DEPTH 80
 
 class dialog_t;
@@ -72,4 +74,5 @@ class dialog_t : public window_component_t, public container_t {
 		virtual t3_window_t *get_draw_window(void) { return window; }
 };
 
+}; // namespace
 #endif

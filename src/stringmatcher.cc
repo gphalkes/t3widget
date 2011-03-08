@@ -17,6 +17,7 @@
 #include "stringmatcher.h"
 
 using namespace std;
+namespace t3_widget {
 
 /* Adaptation of the Knuth-Morris-Pratt string searching algorithm, to work
    with UTF-8 and allow tracking of the start of the match in number of
@@ -176,3 +177,5 @@ int main(int argc, char *argv[]) {
 	}
 }
 #endif
+
+}; // namespace

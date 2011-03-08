@@ -13,6 +13,7 @@
 */
 #include "widgets/dummywidget.h"
 
+namespace t3_widget {
 
 bool dummy_widget_t::process_key(key_t key) {
 	(void) key;
@@ -52,3 +53,5 @@ bool dummy_widget_t::set_size(optint height, optint width) {
 t3_window_t *dummy_widget_t::get_draw_window(void) {
 	return NULL;
 }
+
+}; // namespace

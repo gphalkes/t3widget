@@ -23,7 +23,10 @@
 #include "keybuffer.h"
 #endif
 
+namespace t3_widget {
+
 #define MAX_SEQUENCE 100
+
 
 typedef struct {
 	const char *string;
@@ -388,3 +391,5 @@ static void stop_keys(void) {
 	t3_key_free_map(keymap);
 #endif
 }
+
+}; // namespace

@@ -15,6 +15,7 @@
 #define T3_WIDGET_LOG_H
 
 #include <stdio.h>
+namespace t3_widget {
 
 #ifdef _T3_WIDGET_DEBUG
 void init_log(void);
@@ -31,4 +32,6 @@ void logkeyseq(const char *keys);
 #define ldumpstr(str, length)
 #define logkeyseq(keys)
 #endif
+
+}; // namespace
 #endif

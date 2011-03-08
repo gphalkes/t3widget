@@ -14,6 +14,7 @@
 #include "widgets/multiwidget.h"
 #include "log.h"
 using namespace std;
+namespace t3_widget {
 
 multi_widget_t::multi_widget_t(container_t *parent) :
 	width(1), fixed_sum(0), proportion_sum(0)
@@ -146,3 +147,5 @@ void multi_widget_t::resize_widgets(void) {
 		}
 	}
 }
+
+}; // namespace

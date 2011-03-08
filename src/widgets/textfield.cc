@@ -19,6 +19,7 @@
 #include "widgets/textfield.h"
 
 using namespace std;
+namespace t3_widget {
 
 /*FIXME:
 	auto-completion
@@ -643,3 +644,5 @@ void text_field_t::set_label(smart_label_t *_label) {
 bool text_field_t::is_hotkey(key_t key) {
 	return label == NULL ? false : label->is_hotkey(key);
 }
+
+}; // namespace

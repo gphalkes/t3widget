@@ -18,6 +18,8 @@
 #include "widgets/scrollbar.h"
 #include "log.h"
 
+namespace t3_widget {
+
 scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
 	length(3), range(1), start(0), used(1), vertical(_vertical)
 {
@@ -112,3 +114,5 @@ void scrollbar_t::set_parameters(int _range, int _start, int _used) {
 	start = _start;
 	used = _used;
 }
+
+}; // namespace

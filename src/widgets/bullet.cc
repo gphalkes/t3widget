@@ -14,6 +14,7 @@
 #include "widgets/bullet.h"
 
 using namespace std;
+namespace t3_widget {
 
 bullet_t::bullet_t(container_t *parent, const bool *_source) : widget_t(parent, 1, 1), source(_source), focus(false) {}
 
@@ -36,3 +37,5 @@ void bullet_t::update_contents(void) {
 void bullet_t::set_focus(bool _focus) {
 	focus = _focus;
 }
+
+}; // namespace

@@ -17,6 +17,8 @@
 #include "widgets/widgets.h"
 #include "dialogs/menupanel.h"
 
+namespace t3_widget {
+
 class menu_item_base_t : public base_widget_t {
 	protected:
 		menu_panel_t *parent;
@@ -61,4 +63,5 @@ class menu_separator_t : public menu_item_base_t {
 		virtual bool accepts_focus(void);
 };
 
+}; // namespace
 #endif

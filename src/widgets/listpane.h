@@ -18,6 +18,8 @@
 #include "widgets/widgets.h"
 #include "widgets/scrollbar.h"
 
+namespace t3_widget {
+
 class list_pane_t : public widget_t, public container_t {
 	private:
 		int height;
@@ -81,4 +83,5 @@ class list_pane_t : public widget_t, public container_t {
 	SIGNAL(selection_changed, void);
 };
 
+}; // namespace
 #endif

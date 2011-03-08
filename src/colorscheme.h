@@ -16,6 +16,8 @@
 
 #include <window.h>
 
+namespace t3_widget {
+
 typedef struct {
 	t3_attr_t non_print_attrs;
 	t3_attr_t attr_selection_cursor;
@@ -40,5 +42,7 @@ typedef struct {
 
 extern color_scheme_t colors;
 void init_colors(void);
+
+}; // namespace
 
 #endif

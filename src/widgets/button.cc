@@ -17,6 +17,7 @@
 #include "widgets/button.h"
 
 using namespace std;
+namespace t3_widget {
 
 button_t::button_t(container_t *parent, const char *_text, bool _isDefault) : text(_text), is_default(_isDefault) {
 	text_width = text.get_width();
@@ -97,3 +98,5 @@ int button_t::get_width(void) {
 bool button_t::is_hotkey(key_t key) {
 	return text.is_hotkey(key);
 }
+
+}; // namespace

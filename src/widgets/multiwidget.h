@@ -16,6 +16,8 @@
 
 #include "widgets/widgets.h"
 
+namespace t3_widget {
+
 class multi_widget_t : public widget_t, public container_t {
 	private:
 		struct item_t {
@@ -46,4 +48,5 @@ class multi_widget_t : public widget_t, public container_t {
 		void resize_widgets(void);
 };
 
+}; // namespace
 #endif

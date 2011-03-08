@@ -14,6 +14,7 @@
 #include "widgets/widgets.h"
 
 using namespace std;
+namespace t3_widget {
 
 base_widget_t::~base_widget_t(void) {}
 
@@ -65,3 +66,5 @@ void widget_t::show(void) {
 void widget_t::hide(void) {
 	t3_win_hide(window);
 }
+
+}; // namespace

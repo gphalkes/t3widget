@@ -21,6 +21,7 @@
 #include "util.h"
 
 using namespace std;
+namespace t3_widget {
 
 static key_t nul = 0;
 /* FIXME: TODO:
@@ -254,3 +255,4 @@ void save_as_dialog_t::create_folder(void) {
 	#warning FIXME: create folder here
 }
 
+}; // namespace

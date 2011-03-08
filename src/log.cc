@@ -14,10 +14,11 @@
 #include <cstdlib>
 #include <cstdarg>
 #include <cstring>
+#include "log.h"
 
 using namespace std;
+namespace t3_widget {
 
-#include "log.h"
 #ifdef _T3_WIDGET_DEBUG
 static FILE *log_file;
 
@@ -69,3 +70,5 @@ void logkeyseq(const char *keys) {
 	fflush(log_file);
 }
 #endif
+
+}; // namespace

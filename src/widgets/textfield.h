@@ -16,12 +16,12 @@
 
 #include <string>
 
-class text_field_t;
-
 #include "widgets/widgets.h"
 #include "lines.h"
 #include "widgets/contentlist.h"
 #include "widgets/smartlabel.h"
+
+namespace t3_widget {
 
 class text_field_t : public widget_t {
 	protected:
@@ -108,5 +108,5 @@ class text_field_t : public widget_t {
 	SIGNAL(move_focus_down, void);
 };
 
-
+}; // namespace
 #endif

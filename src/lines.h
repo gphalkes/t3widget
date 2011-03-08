@@ -26,6 +26,8 @@
 #include "keys.h"
 #include "stringmatcher.h"
 
+namespace t3_widget {
+
 class undo_t;
 
 #define MAX_TAB 80
@@ -160,4 +162,5 @@ class line_t {
 		void check_bad_draw(int i);
 };
 
+}; // namespace
 #endif

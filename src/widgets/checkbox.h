@@ -17,6 +17,8 @@
 #include "widgets/widgets.h"
 #include "widgets/smartlabel.h"
 
+namespace t3_widget {
+
 class checkbox_t : public widget_t {
 	private:
 		bool state, has_focus;
@@ -41,4 +43,5 @@ class checkbox_t : public widget_t {
 	SIGNAL(move_focus_down, void);
 };
 
+}; // namespace
 #endif

@@ -16,6 +16,8 @@
 
 #include "widgets/widgets.h"
 
+namespace t3_widget {
+
 class bullet_t : public widget_t {
 	private:
 		const bool *source;
@@ -29,4 +31,5 @@ class bullet_t : public widget_t {
 		virtual void set_focus(bool _focus);
 };
 
+}; // namespace
 #endif

@@ -17,6 +17,8 @@
 #include "widgets/widgets.h"
 #include "widgets/smartlabel.h"
 
+namespace t3_widget {
+
 class button_t : public widget_t {
 	private:
 		int width;
@@ -41,4 +43,5 @@ class button_t : public widget_t {
 	SIGNAL(move_focus_down, void);
 };
 
+}; // namespace
 #endif

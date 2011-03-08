@@ -26,6 +26,8 @@
 //#include "charactersets.h"
 //#include "filestate.h"
 
+namespace t3_widget {
+
 typedef std::vector<line_t *> lines_t;
 typedef std::vector<subline_t *> sublines_t;
 
@@ -151,4 +153,5 @@ class text_file_t : public bullet_status_t {
 		const char *get_name(void) const;
 };
 
+}; // namespace
 #endif

@@ -14,7 +14,9 @@
 #ifndef EDITWINDOW_H
 #define EDITWINDOW_H
 
-class edit_window_t;
+namespace t3_widget {
+	class edit_window_t;
+}; // namespace
 
 #include "window/window.h"
 #include "widgets/widgets.h"
@@ -22,6 +24,8 @@ class edit_window_t;
 #include "files.h"
 #include "keys.h"
 #include "interfaces.h"
+
+namespace t3_widget {
 
 class edit_window_t : public widget_t {
 	private:
@@ -81,4 +85,5 @@ class edit_window_t : public widget_t {
 		const text_file_t *get_text_file(void);
 };
 
+}; // namespace
 #endif

@@ -19,6 +19,7 @@
 #include "main.h"
 
 using namespace std;
+namespace t3_widget {
 
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_file_t::*edit_window_t::proces_char[])(key_t) = { &text_file_t::insert_char, &text_file_t::overwrite_char};
@@ -891,3 +892,5 @@ bool edit_window_t::get_selection_lines(int *top, int *bottom) {
 const text_file_t *edit_window_t::get_text_file(void) {
 	return text;
 }
+
+}; // namespace

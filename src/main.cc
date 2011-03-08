@@ -23,6 +23,8 @@
 
 using namespace std;
 using namespace sigc;
+
+namespace t3_widget {
 //~ #include "log.h"
 //~ #include "options.h"
 //~ #include "util.h"
@@ -186,3 +188,5 @@ void main_loop(void) {
 		iterate();
 	}
 }
+
+}; // namespace

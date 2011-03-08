@@ -16,6 +16,7 @@
 #include "log.h"
 
 using namespace std;
+namespace t3_widget {
 
 list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1), top_idx(0), current(0), parent(_parent),
 		widgets(NULL), has_focus(false), scrollbar(_parent, true), indicator(_indicator)
@@ -310,3 +311,5 @@ t3_window_t *list_pane_t::indicator_widget_t::get_draw_window(void) {
 }
 
 bool list_pane_t::indicator_widget_t::accepts_focus(void) { return false; }
+
+}; // namespace
