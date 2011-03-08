@@ -25,7 +25,7 @@
 #include <window.h>
 #include <unicode.h>
 
-#include "files.h"
+#include "textbuffer.h"
 #include "lines.h"
 #include "subline.h"
 #include "colorscheme.h"
