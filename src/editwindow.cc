@@ -24,7 +24,7 @@ const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_file_t::*edit_window_t::proces_char[])(key_t) = { &text_file_t::insert_char, &text_file_t::overwrite_char};
 
 edit_window_t::edit_window_t(container_t *parent, text_file_t *_text) : widget_t(parent, 10, 10) {
-	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 1, 0, 0)) == NULL) {
+	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 0, 0, 0)) == NULL) {
 		t3_win_del(window);
 		throw bad_alloc();
 	}
@@ -89,7 +89,7 @@ void edit_window_t::set_text_file(text_file_t *_text) {
 	need_repaint = true;
 }
 
-bool edit_window_t::resize(optint height, optint width, optint top, optint left) {
+bool edit_window_t::set_size(optint height, optint width) {
 	if (width > t3_win_get_width(window) || height > t3_win_get_height(window) + 1)
 		need_repaint = true;
 
@@ -100,7 +100,6 @@ bool edit_window_t::resize(optint height, optint width, optint top, optint left)
 	if (!scrollbar->set_size(height - 1, None))
 		return false;
 
-	t3_win_move(window, top, left);
 	t3_win_set_paint(bottomlinewin, 0, 0);
 	t3_win_addchrep(bottomlinewin, ' ', colors.dialog_attrs, width);
 

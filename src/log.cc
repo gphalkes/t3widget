@@ -18,7 +18,7 @@
 using namespace std;
 
 #include "log.h"
-#ifdef _T3_WDIGET_DEBUG
+#ifdef _T3_WIDGET_DEBUG
 static FILE *log_file;
 
 static void close_log(void) {

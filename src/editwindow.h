@@ -53,7 +53,7 @@ class edit_window_t : public widget_t {
 		virtual ~edit_window_t(void);
 		virtual void set_text_file(text_file_t *_text);
 		virtual bool process_key(key_t key);
-		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual t3_window_t *get_draw_window(void);
