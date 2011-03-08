@@ -13,6 +13,8 @@
 */
 #include "dialogs/altmessagedialog.h"
 
+namespace t3_widget {
+
 alt_message_dialog_t::alt_message_dialog_t(const char *_message) :
 	dialog_t(5, t3_term_strwidth(_message) + 4, screenLines / 3, (screenColumns - t3_term_strwidth(_message) - 4) / 2, 40, NULL),
 	message(_message)
@@ -41,3 +43,5 @@ void alt_message_dialog_t::process_key(key_t key) {
 		return;
 	sendKey(key | EKEY_META);
 }
+
+}; // namespace

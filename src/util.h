@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include <sigc++/sigc++.h>
 
+namespace t3_widget {
+
 /* Class defining integers with a separate validity check. */
 class optint {
 	private:
@@ -82,4 +84,5 @@ struct text_coordinate_t {
 	int pos;
 };
 
+}; // namespace
 #endif

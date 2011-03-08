@@ -16,6 +16,8 @@
 
 #include "dialogs/dialogs.h"
 
+namespace t3_widget {
+
 class insert_char_dialog_t : public dialog_t {
 	private:
 		text_field_t *description_line;
@@ -27,4 +29,5 @@ class insert_char_dialog_t : public dialog_t {
 		virtual void callback(int action, const void *data = NULL);
 };
 
+}; // namespace
 #endif

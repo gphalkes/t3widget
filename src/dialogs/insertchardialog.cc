@@ -19,6 +19,7 @@
 #include "log.h"
 
 //FIXME: auto-complete list from previous entries
+namespace t3_widget {
 
 #define INSERT_CHAR_DIALOG_WIDTH 30
 #define INSERT_CHAR_DIALOG_HEIGHT 4
@@ -121,3 +122,5 @@ void insert_char_dialog_t::callback(int action, const void *data) {
 			break;
 	}
 }
+
+}; // namespace

@@ -16,6 +16,8 @@
 
 #include "util.h"
 
+namespace t3_widget {
+
 const optint None;
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
@@ -54,3 +56,5 @@ ssize_t nosig_read(int fd, char *buffer, size_t bytes) {
 	}
 	return bytes_read;
 }
+
+}; // namespace

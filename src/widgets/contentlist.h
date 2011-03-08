@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+namespace t3_widget {
+
 class string_list_t {
 	public:
 		virtual size_t get_length(void) const = 0;
@@ -89,4 +91,5 @@ class multi_string_list_t : public multi_string_list_i {
 		void add_line(const std::string *first, ...);
 };
 
+}; // namespace
 #endif

@@ -16,6 +16,8 @@
 
 #include "dialogs/dialogs.h"
 
+namespace t3_widget {
+
 class alt_message_dialog_t : public dialog_t {
 	private:
 		const char *message;
@@ -27,4 +29,5 @@ class alt_message_dialog_t : public dialog_t {
 		virtual void process_key(key_t key);
 };
 
+}; // namespace
 #endif

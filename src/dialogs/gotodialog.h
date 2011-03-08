@@ -16,6 +16,8 @@
 
 #include "dialogs/dialogs.h"
 
+namespace t3_widget {
+
 class goto_dialog_t : public dialog_t {
 	private:
 		text_field_t *number_line;
@@ -26,4 +28,5 @@ class goto_dialog_t : public dialog_t {
 		virtual void callback(int action, const void *data = NULL);
 };
 
+}; // namespace
 #endif

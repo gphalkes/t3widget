@@ -27,6 +27,7 @@
 #warning FIXME: this whole content list thing is very messy, especially the way it is used in file_dialog_t
 
 using namespace std;
+namespace t3_widget {
 
 string file_name_list_t::get_working_directory(void) {
 	size_t buffer_max = 511;
@@ -246,3 +247,5 @@ void multi_string_list_t::add_line(const string *first, ...) {
 		data[i].push_back(va_arg(args, const string *));
 	va_end(args);
 }
+
+}; // namespace

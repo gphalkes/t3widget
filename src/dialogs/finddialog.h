@@ -16,6 +16,8 @@
 
 #include "dialogs/dialogs.h"
 
+namespace t3_widget {
+
 class replace_buttons_dialog_t;
 
 class find_dialog_t : public dialog_t {
@@ -49,4 +51,5 @@ class replace_buttons_dialog_t : public dialog_t {
 		virtual void set_show(bool show);
 };
 
+}; // namespace
 #endif

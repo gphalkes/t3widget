@@ -14,8 +14,6 @@ TODO
 	- TextFile should be renamed TextBuffer and be put in a file named
 		textbuffer.cc/h
 	- lines.cc/h should be renamed line.cc/h
-- put everything in a namespace (t3 sounds about right, or maybe even
-	t3::widget or t3widget::)
 - figure out which dialogs should be included as defaults, and which should be
 	part of tilde/edit
 - add a test program to check if everything works

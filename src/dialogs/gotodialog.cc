@@ -17,8 +17,9 @@
 #define GOTO_DIALOG_WIDTH 30
 #define GOTO_DIALOG_HEIGHT 4
 
-static key_t accepted_keys[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
+namespace t3_widget {
 
+static key_t accepted_keys[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
 
 goto_dialog_t::goto_dialog_t(void) :
 	dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, (screenLines - GOTO_DIALOG_HEIGHT) / 2,
@@ -82,3 +83,5 @@ void goto_dialog_t::callback(int action, const void *data) {
 			break;
 	}
 }
+
+}; // namespace
