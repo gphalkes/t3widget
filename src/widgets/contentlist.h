@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CONTENTLIST_H
-#define CONTENTLIST_H
+#ifndef T3_WIDGET_CONTENTLIST_H
+#define T3_WIDGET_CONTENTLIST_H
 
 #include <string>
 #include <vector>

@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef WIDGETS_H
-#define WIDGETS_H
+#ifndef T3_WIDGET_WIDGETS_H
+#define T3_WIDGET_WIDGETS_H
 
 #include <deque>
 

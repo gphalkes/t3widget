@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef FILEPANE_H
-#define FILEPANE_H
+#ifndef T3_WIDGET_FILEPANE_H
+#define T3_WIDGET_FILEPANE_H
 
 #include "window/window.h"
 #include "widgets/widgets.h"

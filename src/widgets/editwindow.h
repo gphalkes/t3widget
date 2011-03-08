@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EDITWINDOW_H
-#define EDITWINDOW_H
+#ifndef T3_WIDGET_EDITWINDOW_H
+#define T3_WIDGET_EDITWINDOW_H
 
 namespace t3_widget {
 	class edit_window_t;

@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef SCROLLBAR_H
-#define SCROLLBAR_H
+#ifndef T3_WIDGET_SCROLLBAR_H
+#define T3_WIDGET_SCROLLBAR_H
 
 #include "widgets/widgets.h"
 

@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef MULTIWIDGET_H
-#define MULTIWIDGET_H
+#ifndef T3_WIDGET_MULTIWIDGET_H
+#define T3_WIDGET_MULTIWIDGET_H
 
 #include "widgets/widgets.h"
 

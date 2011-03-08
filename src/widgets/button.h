@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef T3_WIDGET_BUTTON_H
+#define T3_WIDGET_BUTTON_H
 
 #include "widgets/widgets.h"
 #include "widgets/smartlabel.h"

@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef MENUITEM_H
-#define MENUITEM_H
+#ifndef T3_WIDGET_MENUITEM_H
+#define T3_WIDGET_MENUITEM_H
 
 #include "widgets/widgets.h"
 #include "dialogs/menupanel.h"

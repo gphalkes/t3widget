@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef LISTPANE_H
-#define LISTPANE_H
+#ifndef T3_WIDGET_LISTPANE_H
+#define T3_WIDGET_LISTPANE_H
 
 #include "window/window.h"
 #include "widgets/widgets.h"
