@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 #include "colorscheme.h"
-#include "lines.h"
+#include "textline.h"
 #include "util.h"
 #include "undo.h"
 #include "main.h"

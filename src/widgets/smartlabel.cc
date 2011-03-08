@@ -18,7 +18,7 @@
 #include "unicode.h"
 #include "widgets/widgets.h"
 #include "widgets/smartlabel.h"
-#include "lines.h"
+#include "textline.h"
 #include "util.h"
 #include "window.h"
 #include "colorscheme.h"

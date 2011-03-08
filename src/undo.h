@@ -18,7 +18,7 @@ namespace t3_widget {
 	class undo_t;
 };
 
-#include "lines.h"
+#include "textline.h"
 #include "util.h"
 namespace t3_widget {
 

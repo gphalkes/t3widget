@@ -17,7 +17,7 @@
 #include <string>
 
 #include "widgets/widgets.h"
-#include "lines.h"
+#include "textline.h"
 #include "widgets/contentlist.h"
 #include "widgets/smartlabel.h"
 

@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef T3_WIDGET_LINES_H
-#define T3_WIDGET_LINES_H
+#ifndef T3_WIDGET_TEXTLINE_H
+#define T3_WIDGET_TEXTLINE_H
 
 #define BUFFERSIZE 64
 #define BUFFERINC 16

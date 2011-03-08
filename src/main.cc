@@ -19,7 +19,7 @@
 #include "colorscheme.h"
 #include "widgets/widgets.h"
 #include "dialogs/dialogs.h"
-#include "lines.h"
+#include "textline.h"
 
 using namespace std;
 using namespace sigc;
@@ -28,10 +28,10 @@ namespace t3_widget {
 //~ #include "log.h"
 //~ #include "options.h"
 //~ #include "util.h"
-//~ #include "lines.h"
+//~ #include "textline.h"
 //~ #include "editwindow.h"
 //~ #include "editsplit.h"
-//~ #include "lines.h"
+//~ #include "textline.h"
 //~ #include "charactersets.h"
 //~ #include "key/key.h"
 //~ #include "dialogs/dialogs.h"

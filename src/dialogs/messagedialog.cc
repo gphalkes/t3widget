@@ -15,7 +15,7 @@
 #include <cstring>
 #include "main.h"
 #include "dialogs/messagedialog.h"
-#include "lines.h"
+#include "textline.h"
 
 using namespace std;
 namespace t3_widget {

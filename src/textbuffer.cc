@@ -26,7 +26,7 @@
 #include <unicode.h>
 
 #include "textbuffer.h"
-#include "lines.h"
+#include "textline.h"
 #include "subline.h"
 #include "colorscheme.h"
 #include "util.h"

@@ -13,7 +13,7 @@
 */
 #include "window/window.h"
 #include "widgets/label.h"
-#include "lines.h"
+#include "textline.h"
 #include "log.h"
 
 using namespace std;
