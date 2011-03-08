@@ -15,6 +15,7 @@
 //~ #include "keys.h"
 //~ #include "files.h"
 #include "main.h"
+#include "log.h"
 #include "colorscheme.h"
 #include "widgets/widgets.h"
 #include "dialogs/dialogs.h"

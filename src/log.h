@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 
-#ifdef DEBUG
+#ifdef _T3_WIDGET_DEBUG
 void init_log(void);
 void lprintf(const char *fmt, ...)
 	#ifdef __GNUC__

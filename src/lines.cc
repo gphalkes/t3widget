@@ -29,9 +29,6 @@
 #include "stringmatcher.h"
 #include "unicode/unicode.h"
 
-#warning FIXME: what should we do with all the asserts?
-#define ASSERT(_x)
-
 using namespace std;
 
 char line_t::spaces[MAX_TAB];

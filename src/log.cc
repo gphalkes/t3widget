@@ -18,7 +18,7 @@
 using namespace std;
 
 #include "log.h"
-
+#ifdef _T3_WDIGET_DEBUG
 static FILE *log_file;
 
 static void close_log(void) {
@@ -68,3 +68,4 @@ void logkeyseq(const char *keys) {
 	fprintf(log_file, "\n");
 	fflush(log_file);
 }
+#endif

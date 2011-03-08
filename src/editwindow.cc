@@ -18,9 +18,6 @@
 #include "colorscheme.h"
 #include "main.h"
 
-#warning FIXME: what do we do with the ASSERTs?
-#define ASSERT(_x)
-
 using namespace std;
 
 const char *edit_window_t::insstring[] = {"INS", "OVR"};

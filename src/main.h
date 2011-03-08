@@ -14,8 +14,6 @@
 #ifndef EDIT_MAIN_H
 #define EDIT_MAIN_H
 
-#include "log.h"
-
 class main_window_t;
 
 #include "dialogs/dialogs.h"
@@ -29,5 +27,10 @@ int init(main_window_t *main_window);
 void iterate(void);
 void main_loop(void);
 
+#ifdef _T3_WIDGET_DEBUG
+#define ASSERT(_x) do { if (!(_x)) fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); } while (0)
+#else
+#define ASSERT(_x)
+#endif
 
 #endif

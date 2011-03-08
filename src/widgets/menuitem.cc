@@ -14,7 +14,6 @@
 #include "colorscheme.h"
 #include "widgets/menuitem.h"
 
-#warning FIXME: top should be derived automatically from adding to the menu_panel_t
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
 		menu_item_base_t(_parent), label(_label), hotkey(_hotkey), id(_id)
 {
@@ -28,8 +27,6 @@ bool menu_item_t::process_key(key_t key) {
 		case EKEY_HOTKEY:
 			parent->close();
 			parent->signal(id);
-#warning FIXME: signaling should be done from menu_bar_t class
-			//executeAction(action);
 			break;
 		default:
 			return false;

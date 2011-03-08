@@ -34,9 +34,6 @@
 #include "main.h"
 #include "editwindow.h"
 
-#warning FIXME: what do we do with the ASSERTs?
-#define ASSERT(_x)
-
 using namespace std;
 /* FIXME: TODO
 	- check rewrap_line return values!
