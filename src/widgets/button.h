@@ -36,11 +36,11 @@ class button_t : public widget_t {
 		int get_width(void);
 		virtual bool is_hotkey(key_t key);
 
-	SIGNAL(activate, void);
-	SIGNAL(move_focus_left, void);
-	SIGNAL(move_focus_right, void);
-	SIGNAL(move_focus_up, void);
-	SIGNAL(move_focus_down, void);
+	T3_WIDET_SIGNAL(activate, void);
+	T3_WIDET_SIGNAL(move_focus_left, void);
+	T3_WIDET_SIGNAL(move_focus_right, void);
+	T3_WIDET_SIGNAL(move_focus_up, void);
+	T3_WIDET_SIGNAL(move_focus_down, void);
 };
 
 }; // namespace

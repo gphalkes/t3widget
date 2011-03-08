@@ -24,7 +24,7 @@ class string_list_t {
 		virtual size_t get_length(void) const = 0;
 		virtual const std::string *get_name(int idx) const = 0;
 
-	SIGNAL(content_changed, void);
+	T3_WIDET_SIGNAL(content_changed, void);
 };
 
 class file_list_t : public string_list_t {

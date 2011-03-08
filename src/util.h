@@ -18,9 +18,6 @@
 
 namespace t3_widget {
 
-class text_line_t;
-extern text_line_t *copy_buffer;
-
 /* Class defining integers with a separate validity check. */
 class optint {
 	private:
@@ -37,8 +34,20 @@ class optint {
 };
 extern const optint None;
 
+struct text_coordinate_t {
+	text_coordinate_t(void) {}
+	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
+	int line;
+	int pos;
+};
 
-#define ENUM(_name, ...) \
+#define T3_WIDET_SIGNAL(_name, ...) \
+protected: \
+	sigc::signal<__VA_ARGS__> _name; \
+public: \
+	sigc::connection connect_##_name(const sigc::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
+
+#define _T3_WIDGET_ENUM(_name, ...) \
 class _name { \
 	public: \
 		enum _values { \
@@ -53,14 +62,14 @@ class _name { \
 		_values _value; \
 }
 
-ENUM(selection_mode_t,
+_T3_WIDGET_ENUM(selection_mode_t,
 	NONE,
 	SHIFT,
 	MARK,
 	ALL
 );
 
-ENUM(find_flags_t,
+_T3_WIDGET_ENUM(find_flags_t,
 	BACKWARD = (1<<0),
 	NEXT = (1<<1),
 	ICASE = (1<<2),
@@ -70,22 +79,14 @@ ENUM(find_flags_t,
 	WHOLE_WORD = (1<<6),
 	VALID = (1<<7)
 );
-
-#define SIGNAL(_name, ...) \
-protected: \
-	sigc::signal<__VA_ARGS__> _name; \
-public: \
-	sigc::connection connect_##_name(const sigc::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
+#undef _T3_WIDGET_ENUM
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
-struct text_coordinate_t {
-	text_coordinate_t(void) {}
-	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
-	int line;
-	int pos;
-};
+#ifdef _T3_WIDGET_INTERNAL
+class text_line_t;
+extern text_line_t *copy_buffer;
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)
@@ -93,5 +94,6 @@ struct text_coordinate_t {
 #define ASSERT(_x)
 #endif
 
+#endif // _T3_WIDGET_INTERNAL
 }; // namespace
 #endif

@@ -55,8 +55,8 @@ class question_dialog_t : public message_dialog_base_t {
 		question_dialog_t(int width, int top, int left, const char *_title, const char *okName, const char *cancelName);
 		virtual bool set_size(optint height, optint width);
 
-	SIGNAL(ok, void);
-	SIGNAL(cancel, void);
+	T3_WIDET_SIGNAL(ok, void);
+	T3_WIDET_SIGNAL(cancel, void);
 };
 
 }; // namespace

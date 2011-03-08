@@ -62,7 +62,7 @@ T3NAME := widget
 include ../../t3shared/rules.mk
 #================================================#
 
-CXXFLAGS += -I$(CURDIR) -D__STDC_LIMIT_MACROS -D_T3_WIDGET_DEBUG
+CXXFLAGS += -I$(CURDIR) -D__STDC_LIMIT_MACROS -D_T3_WIDGET_INTERNAL -D_T3_WIDGET_DEBUG
 CXXFLAGS += -I$(CURDIR)/window -I$(CURDIR)/unicode -I$(CURDIR)/key
 CXXFLAGS += -pthread -DTHREADED_KEYS
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`

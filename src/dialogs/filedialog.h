@@ -50,7 +50,7 @@ class file_dialog_t : public dialog_t {
 		virtual void set_file(const char *file);
 		void refresh_view(const std::string *file);
 
-	SIGNAL(file_selected, void, std::string *);
+	T3_WIDET_SIGNAL(file_selected, void, std::string *);
 };
 
 class open_file_dialog_t : public file_dialog_t {
