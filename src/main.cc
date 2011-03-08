@@ -12,12 +12,12 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//~ #include "keys.h"
-//~ #include "textbuffer.h"
+#include <cstdlib>
+#include <cstring>
+
 #include "main.h"
 #include "log.h"
 #include "colorscheme.h"
-#include "widgets/widget.h"
 #include "dialogs/dialog.h"
 #include "textline.h"
 
@@ -25,53 +25,18 @@ using namespace std;
 using namespace sigc;
 
 namespace t3_widget {
-//~ #include "log.h"
-//~ #include "options.h"
-//~ #include "util.h"
-//~ #include "textline.h"
-//~ #include "editwindow.h"
-//~ #include "editsplit.h"
-//~ #include "textline.h"
-//~ #include "charactersets.h"
-//~ #include "key/key.h"
-//~ #include "dialogs/dialog.h"
-
-//~ static EditSplit *editwin;
-//~ static menu_bar_t *menubar;
-//~ static file_dialog_t *openFileDialog, *saveAsDialog;
-//~ static message_dialog_t *errorDialog, *messageDialog;
-//~ static question_dialog_t *continueAbortDialog;
-//~ static find_dialog_t *findDialog, *replaceDialog;
-//~ static insert_char_dialog_t *insertCharDialog;
-//~ static close_confirm_dialog_t *closeConfirmDialog;
-//~ static alt_message_dialog_t *altMessageDialog;
-//~ static goto_dialog_t *gotoDialog;
-//~ static overwrite_confirm_dialog_t *overwriteConfirmDialog;
-//~ static replace_buttons_dialog_t *replaceButtonsDialog;
-//~ static open_recent_dialog_t *openRecentDialog;
-//~ static select_buffer_dialog_t *selectBufferDialog;
-//~ static encoding_dialog_t *encodingDialog;
-//~ OpenFiles openFiles;
-//~ RecentFiles recentFiles;
-
-//~ static const string *findText;
-
-
 #define MESSAGE_DIALOG_WIDTH 50
 #define MIN_LINES 16
 #define MIN_COLUMNS 60
 
-
 static int screen_lines, screen_columns;
-text_line_t *copy_buffer;
-
 static signal<void, int, int> resize;
 
 connection connect_resize(const slot<void, int, int> &_slot) {
 	return resize.connect(_slot);
 }
 
-void do_resize(void) {
+static void do_resize(void) {
 	int new_screen_lines, new_screen_columns;
 	bool need_redraw = false;
 
@@ -93,25 +58,24 @@ void do_resize(void) {
 		t3_term_redraw();
 }
 
-#if 0
-typedef enum {
+enum terminal_code_t {
 	TERM_NONE,
 	TERM_XTERM
-} TerminalCode;
+};
 
-typedef struct {
+struct terminal_mapping_t {
 	const char *name;
-	TerminalCode code;
-} TerminalMapping;
+	terminal_code_t code;
+};
 
-TerminalMapping terminalMapping[] = {
+static terminal_mapping_t terminal_mapping[] = {
 	{"xterm", TERM_XTERM},
 	{NULL, TERM_NONE}
 };
 
-TerminalCode terminal;
+static terminal_code_t terminal;
 
-static void terminalSpecificRestore(void) {
+static void terminal_specific_restore(void) {
 	switch (terminal) {
 		case TERM_XTERM:
 			/* Note: this may not actually reset to previous value, because of broken xterm */
@@ -122,13 +86,13 @@ static void terminalSpecificRestore(void) {
 	}
 }
 
-static void terminalSpecificSetup(void) {
+static void terminal_specific_setup(void) {
 	const char *term;
 	int i;
 
 	term = getenv("TERM");
-	for (i = 0; terminalMapping[i].name != NULL && strcmp(terminalMapping[i].name, term) != 0; i++) {}
-	terminal = terminalMapping[i].code;
+	for (i = 0; terminal_mapping[i].name != NULL && strcmp(terminal_mapping[i].name, term) != 0; i++) {}
+	terminal = terminal_mapping[i].code;
 
 	switch (terminal) {
 		case TERM_XTERM:
@@ -137,16 +101,15 @@ static void terminalSpecificSetup(void) {
 		default:
 			return;
 	}
-	atexit(terminalSpecificRestore);
+	atexit(terminal_specific_restore);
 }
-#endif
 
 #warning FIXME: returning the value from t3_term_init is not very useful!
 int init(main_window_base_t *main_window) {
 	int result;
 
 	init_log();
-	init_colors();
+	init_colors(); // Probably called somewhere else already, but just to make sure
 	text_line_t::init();
 
 	if ((result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
@@ -154,6 +117,10 @@ int init(main_window_base_t *main_window) {
 		return result;
 	}
 	atexit(t3_term_restore);
+
+	terminal_specific_setup();
+	atexit(terminal_specific_restore);
+
 	init_keys();
 	do_resize();
 	dialog_t::init(main_window);

@@ -12,7 +12,6 @@ TODO
 		On the other hand, enforcing a standard can also be good.
 
 - rename the multi_string_list_i interface to something ending in _t
-- rename main_window_t
 - remove anything not related to the external interface from the externally
 	used header files
 

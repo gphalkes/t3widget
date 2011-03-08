@@ -19,6 +19,7 @@
 namespace t3_widget {
 
 const optint None;
+text_line_t *copy_buffer;
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
 	size_t start = 0;

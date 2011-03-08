@@ -19,21 +19,11 @@
 namespace t3_widget {
 class main_window_base_t;
 
-class text_line_t;
-//FIXME: remove anything not related to the external interface
-extern text_line_t *copy_buffer;
-
 sigc::connection connect_resize(const sigc::slot<void, int, int> &_slot);
 
 int init(main_window_base_t *main_window);
 void iterate(void);
 void main_loop(void);
-
-#ifdef _T3_WIDGET_DEBUG
-#define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)
-#else
-#define ASSERT(_x)
-#endif
 
 }; // namespace
 

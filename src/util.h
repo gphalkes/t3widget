@@ -18,6 +18,9 @@
 
 namespace t3_widget {
 
+class text_line_t;
+extern text_line_t *copy_buffer;
+
 /* Class defining integers with a separate validity check. */
 class optint {
 	private:
@@ -83,6 +86,12 @@ struct text_coordinate_t {
 	int line;
 	int pos;
 };
+
+#ifdef _T3_WIDGET_DEBUG
+#define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)
+#else
+#define ASSERT(_x)
+#endif
 
 }; // namespace
 #endif
