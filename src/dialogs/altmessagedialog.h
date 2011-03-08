@@ -11,24 +11,20 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef T3_WIDGET_LOG_H
-#define T3_WIDGET_LOG_H
+#ifndef T3_WIDGET_ALTMESSAGEDIALOG_H
+#define T3_WIDGET_ALTMESSAGEDIALOG_H
 
-#include <stdio.h>
+#include "dialogs/dialogs.h"
 
-#ifdef _T3_WIDGET_DEBUG
-void init_log(void);
-void lprintf(const char *fmt, ...)
-	#ifdef __GNUC__
-	__attribute__((format(printf, 1, 2)))
-	#endif
-	;
-void ldumpstr(const char *str, int length);
-void logkeyseq(const char *keys);
-#else
-#define init_log()
-#define lprintf(fmt, ...)
-#define ldumpstr(str, length)
-#define logkeyseq(keys)
-#endif
+class alt_message_dialog_t : public dialog_t {
+	private:
+		const char *message;
+		virtual void draw_dialog(void);
+
+	public:
+		alt_message_dialog_t(const char *_message);
+		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual void process_key(key_t key);
+};
+
 #endif

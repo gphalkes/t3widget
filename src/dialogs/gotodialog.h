@@ -11,24 +11,19 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef T3_WIDGET_LOG_H
-#define T3_WIDGET_LOG_H
+#ifndef T3_WIDGET_GOTODIALOG_H
+#define T3_WIDGET_GOTODIALOG_H
 
-#include <stdio.h>
+#include "dialogs/dialogs.h"
 
-#ifdef _T3_WIDGET_DEBUG
-void init_log(void);
-void lprintf(const char *fmt, ...)
-	#ifdef __GNUC__
-	__attribute__((format(printf, 1, 2)))
-	#endif
-	;
-void ldumpstr(const char *str, int length);
-void logkeyseq(const char *keys);
-#else
-#define init_log()
-#define lprintf(fmt, ...)
-#define ldumpstr(str, length)
-#define logkeyseq(keys)
-#endif
+class goto_dialog_t : public dialog_t {
+	private:
+		text_field_t *number_line;
+	public:
+		goto_dialog_t(void);
+		virtual bool resize(optint height, optint width, optint top, optint left);
+		virtual void set_show(bool show);
+		virtual void callback(int action, const void *data = NULL);
+};
+
 #endif

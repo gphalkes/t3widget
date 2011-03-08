@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef FILEDIALOG_H
-#define FILEDIALOG_H
+#ifndef T3_WIDGET_FILEDIALOG_H
+#define T3_WIDGET_FILEDIALOG_H
 
 #include "interfaces.h"
 #include "dialogs/dialogs.h"

@@ -11,19 +11,19 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef MESSAGEDIALOG_H
-#define MESSAGEDIALOG_H
+#ifndef T3_WIDGET_MESSAGEDIALOG_H
+#define T3_WIDGET_MESSAGEDIALOG_H
 
 #include <string>
 #include "dialogs/dialogs.h"
 #include "widgets/button.h"
 
-#define MESSAGEDIALOG_MAX_LINES 10
+#define _T3_WIDGET_MESSAGEDIALOG_MAX_LINES 10
 
 
 class message_dialog_base_t : public dialog_t {
 	private:
-		int break_positions[MESSAGEDIALOG_MAX_LINES + 1];
+		int break_positions[_T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1];
 		int height;
 		line_t *message;
 		const char *title;

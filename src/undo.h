@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef UNDO_H
-#define UNDO_H
+#ifndef T3_WIDGET_UNDO_H
+#define T3_WIDGET_UNDO_H
 
 class undo_t;
 

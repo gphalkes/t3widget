@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef T3_WIDGET_UTIL_H
+#define T3_WIDGET_UTIL_H
 #include <unistd.h>
 #include <sigc++/sigc++.h>
 

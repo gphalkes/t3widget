@@ -220,7 +220,7 @@ void file_pane_t::update_column_widths(void) {
 	if (file_list == NULL)
 		return;
 
-	for (i = 0, sum_width = 0; i < _FP_MAX_COLUMNS && sum_width < width &&
+	for (i = 0, sum_width = 0; i < _T3_WDIGET_FP_MAX_COLUMNS && sum_width < width &&
 			top_idx + i * height < file_list->get_length(); i++)
 	{
 		update_column_width(i, top_idx + i * height);

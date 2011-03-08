@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef STRINGMATCHER_H
-#define STRINGMATCHER_H
+#ifndef T3_WIDGET_STRINGMATCHER_H
+#define T3_WIDGET_STRINGMATCHER_H
 
 #include <string>
 

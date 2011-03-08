@@ -11,14 +11,16 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EDIT_MAIN_H
-#define EDIT_MAIN_H
+#ifndef T3_WIDGET_MAIN_H
+#define T3_WIDGET_MAIN_H
+
 
 class main_window_t;
 
 #include "dialogs/dialogs.h"
 
 class line_t;
+//FIXME: remove anything not related to the external interface
 extern line_t *copy_buffer;
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &_slot);

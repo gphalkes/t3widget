@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef INTERFACES_H
-#define INTERFACES_H
+#ifndef T3_WIDGET_INTERFACES_H
+#define T3_WIDGET_INTERFACES_H
 
 #include <cstdarg>
 #include <list>

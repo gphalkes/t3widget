@@ -22,7 +22,7 @@ using namespace std;
 message_dialog_base_t::message_dialog_base_t(int width, int top, int left, const char *_title) : dialog_t(5, width, top, left, 0, _title) {
 	int i;
 	message = NULL;
-	for (i = 0; i < MESSAGEDIALOG_MAX_LINES + 1; i++)
+	for (i = 0; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1; i++)
 		break_positions[i] = INT_MAX;
 }
 
@@ -54,7 +54,7 @@ void message_dialog_base_t::draw_dialog(void) {
 	}
 
 
-	for (i = 0; i < MESSAGEDIALOG_MAX_LINES && break_positions[i] < INT_MAX; i++) {
+	for (i = 0; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES && break_positions[i] < INT_MAX; i++) {
 		t3_win_set_paint(window, i + 1, 2);
 		info.start = break_positions[i];
 		info.max = break_positions[i + 1];
@@ -69,7 +69,7 @@ void message_dialog_base_t::set_message(const string *_message) {
 		delete message;
 	message = new line_t(_message);
 	break_positions[0] = 0;
-	for (i = 1; i < MESSAGEDIALOG_MAX_LINES; i++) {
+	for (i = 1; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES; i++) {
 		break_pos_t brk = message->find_next_break_pos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
 		if (brk.pos > 0) {
 			break_positions[i] = brk.pos;

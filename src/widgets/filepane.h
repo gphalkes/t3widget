@@ -20,7 +20,7 @@
 #include "widgets/scrollbar.h"
 #include "widgets/textfield.h"
 
-#define _FP_MAX_COLUMNS 8
+#define _T3_WDIGET_FP_MAX_COLUMNS 8
 
 class file_pane_t : public widget_t, public container_t {
 	private:
@@ -30,7 +30,7 @@ class file_pane_t : public widget_t, public container_t {
 		file_list_t *file_list;
 		bool focus, redraw;
 		text_field_t *field;
-		int column_widths[_FP_MAX_COLUMNS], column_positions[_FP_MAX_COLUMNS], columns_visible;
+		int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], column_positions[_T3_WDIGET_FP_MAX_COLUMNS], columns_visible;
 		sigc::connection content_changed_connection;
 
 		void ensure_cursor_on_screen(void);

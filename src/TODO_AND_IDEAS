@@ -28,6 +28,8 @@ TODO
 	Furthermore, the library should have its own header file which provides
 	all the other needed functionality (such as "using namespace std")
 - rename main_window_t
+- remove anything not related to the external interface from the externally
+	used header files
 
 IDEAS
 - use a line_factory_t for the text_buffer_t, such that lines with extensions

@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef KEYBUFFER_H
-#define KEYBUFFER_H
+#ifndef T3_WIDGET_KEYBUFFER_H
+#define T3_WIDGET_KEYBUFFER_H
 
 /* Buffer for storing keys that ensures thread-safe operation by means of a
    mutex. It is implemented by means of a double ended queue.  */
