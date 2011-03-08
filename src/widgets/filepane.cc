@@ -129,9 +129,9 @@ void file_pane_t::draw_line(int idx, bool selected) {
 		return;
 
 	int column;
-	line_t line(file_list->get_name(idx));
+	text_line_t line(file_list->get_name(idx));
 	bool is_dir = file_list->is_dir(idx);
-	line_t::paint_info_t info;
+	text_line_t::paint_info_t info;
 
 	idx -= top_idx;
 	column = idx / height;
@@ -145,7 +145,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 	info.max = INT_MAX;
 	info.size = column_widths[column];
 	info.tabsize = 0;
-	info.flags = line_t::SPACECLEAR | line_t::TAB_AS_CONTROL | (selected ? line_t::EXTEND_SELECTION : 0);
+	info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL | (selected ? text_line_t::EXTEND_SELECTION : 0);
 	info.selection_start = -1;
 	info.selection_end = selected ? INT_MAX : -1;
 	info.cursor = -1;

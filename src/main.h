@@ -19,9 +19,9 @@
 namespace t3_widget {
 class main_window_t;
 
-class line_t;
+class text_line_t;
 //FIXME: remove anything not related to the external interface
-extern line_t *copy_buffer;
+extern text_line_t *copy_buffer;
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &_slot);
 

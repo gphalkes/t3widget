@@ -26,7 +26,7 @@ class message_dialog_base_t : public dialog_t {
 	private:
 		int break_positions[_T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1];
 		int height;
-		line_t *message;
+		text_line_t *message;
 		const char *title;
 
 		virtual void draw_dialog(void);

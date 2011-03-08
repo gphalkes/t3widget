@@ -81,8 +81,8 @@ class undo_t {
 		undo_type_t get_redo_type(void) const;
 		virtual text_coordinate_t get_start(void);
 	    virtual void add_newline(void) {}
-		virtual line_t *get_text(void);
-		virtual line_t *get_replacement(void);
+		virtual text_line_t *get_text(void);
+		virtual text_line_t *get_replacement(void);
 		virtual text_coordinate_t get_end(void) const;
 		virtual void minimize(void) {}
 		virtual text_coordinate_t get_new_end(void) const;
@@ -90,12 +90,12 @@ class undo_t {
 
 class undo_single_text_t : public undo_t {
 	private:
-		line_t text;
+		text_line_t text;
 
 	public:
 		undo_single_text_t(undo_type_t _type, int start_line, int start_pos) : undo_t(_type, start_line, start_pos), text(TEXT_START_SIZE) {};
 	    virtual void add_newline(void);
-		virtual line_t *get_text(void);
+		virtual text_line_t *get_text(void);
 		virtual void minimize(void);
 };
 
@@ -111,13 +111,13 @@ class undo_single_text_double_coord_t : public undo_single_text_t {
 
 class undo_double_text_t : public undo_single_text_double_coord_t {
 	private:
-		line_t replacement;
+		text_line_t replacement;
 
 	public:
 		undo_double_text_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
 			undo_single_text_double_coord_t(_type, start_line, start_pos, end_line, end_pos), replacement(TEXT_START_SIZE) {}
 
-		virtual line_t *get_replacement(void);
+		virtual text_line_t *get_replacement(void);
 		virtual void minimize(void);
 };
 

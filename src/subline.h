@@ -18,19 +18,19 @@
 
 namespace t3_widget {
 
-class subline_t {
+class subtext_line_t {
 	private:
-		line_t *line;
+		text_line_t *line;
 		int start;
 		int flags;
 
 	public:
-		subline_t(line_t *_line, int _start) : line(_line), start(_start), flags(0) {}
+		subtext_line_t(text_line_t *_line, int _start) : line(_line), start(_start), flags(0) {}
 
 		void set_start(int start);
 		int get_start(void) const;
-		line_t *get_line(void) const;
-		void set_line(line_t *line);
+		text_line_t *get_line(void) const;
+		void set_line(text_line_t *line);
 		int get_flags(void) const;
 		void set_flags(int flags);
 };

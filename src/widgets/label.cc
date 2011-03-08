@@ -51,8 +51,8 @@ void label_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	line_t *line = new line_t(text);
-	line_t::paint_info_t paint_info;
+	text_line_t *line = new text_line_t(text);
+	text_line_t::paint_info_t paint_info;
 
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtoeol(window);
@@ -69,7 +69,7 @@ void label_t::update_contents(void) {
 	}
 	paint_info.max = INT_MAX;
 	paint_info.tabsize = 0;
-	paint_info.flags = line_t::TAB_AS_CONTROL;
+	paint_info.flags = text_line_t::TAB_AS_CONTROL;
 	paint_info.selection_start = -1;
 	paint_info.selection_end = -1;
 	paint_info.cursor = -1;

@@ -41,7 +41,7 @@ struct find_result_t {
 	int start, end;
 };
 
-class line_t;
+class text_line_t;
 
 struct find_context_t {
 	int flags, original_flags;
@@ -54,12 +54,12 @@ struct find_context_t {
 	int captures;
 	int pattern_length;
 	bool found;
-	line_t *replacement;
+	text_line_t *replacement;
 	char *folded;
 	size_t folded_size;
 };
 
-class line_t {
+class text_line_t {
 	public:
 		enum {
 			BREAK = (1<<0),
@@ -101,21 +101,21 @@ class line_t {
 
 		static void paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr);
 
-		t3_attr_t get_draw_attrs(int i, const line_t::paint_info_t *info) const;
+		t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info) const;
 
 		void fill_line(const char *_buffer, int length);
 		bool check_boundaries(int match_start, int match_end) const;
 
 	public:
-		line_t(int buffersize = BUFFERSIZE);
-		line_t(const char *_buffer, int length = -1);
-		line_t(const std::string *str);
+		text_line_t(int buffersize = BUFFERSIZE);
+		text_line_t(const char *_buffer, int length = -1);
+		text_line_t(const std::string *str);
 
-		void merge(line_t *other);
-		line_t *break_line(int pos);
-		line_t *cut_line(int start, int end);
-		line_t *clone(int start, int end);
-		line_t *break_on_nl(int *start_from);
+		void merge(text_line_t *other);
+		text_line_t *break_line(int pos);
+		text_line_t *cut_line(int start, int end);
+		text_line_t *clone(int start, int end);
+		text_line_t *break_on_nl(int *start_from);
 
 		void minimize(void);
 

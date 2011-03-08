@@ -36,7 +36,7 @@ text_field_t::text_field_t(container_t *_parent) : widget_t(_parent, 1, 4),
 	focus(false),
 	in_drop_down_list(false),
 	dont_select_on_focus(false),
-	line(new line_t),
+	line(new text_line_t),
 	filter_keys(NULL),
 	label(NULL),
 	parent(_parent),
@@ -77,7 +77,7 @@ void text_field_t::set_selection(key_t key) {
 }
 
 void text_field_t::delete_selection(bool save_to_copy_buffer) {
-	line_t *result;
+	text_line_t *result;
 
 	int start, end;
 	if (selection_start_pos == selection_end_pos) {
@@ -211,7 +211,7 @@ bool text_field_t::process_key(key_t key) {
 
 		case EKEY_CTRL | 'v':
 			if (copy_buffer != NULL) {
-				line_t *end = NULL;
+				text_line_t *end = NULL;
 
 				if (selection_mode != selection_mode_t::NONE)
 					delete_selection(false);
@@ -321,7 +321,7 @@ void text_field_t::update_contents(void) {
 			(selection_mode != selection_mode_t::NONE && colors.attr_selection_cursor == 0);
 
 	if (need_repaint || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
-		line_t::paint_info_t info;
+		text_line_t::paint_info_t info;
 
 		t3_win_set_paint(window, 0, 0);
 		t3_win_addch(window, '[', 0);
@@ -331,7 +331,7 @@ void text_field_t::update_contents(void) {
 		info.max = INT_MAX;
 		info.size = width - 2;
 		info.tabsize = 0;
-		info.flags = line_t::SPACECLEAR | line_t::TAB_AS_CONTROL;
+		info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL;
 		if (!focus) {
 			info.selection_start = -1;
 			info.selection_end = -1;
@@ -428,14 +428,14 @@ void text_field_t::ensure_on_cursor_screen(void) {
 void text_field_t::set_text(const string *text) {
 	if (line != NULL)
 		delete line;
-	line = new line_t(text->data(), text->size());
+	line = new text_line_t(text->data(), text->size());
 	set_text_finish();
 }
 
 void text_field_t::set_text(const char *text) {
 	if (line != NULL)
 		delete line;
-	line = new line_t(text, strlen(text));
+	line = new text_line_t(text, strlen(text));
 	set_text_finish();
 }
 
@@ -455,7 +455,7 @@ const string *text_field_t::get_text(void) const {
 	return line->get_data();
 }
 
-const line_t *text_field_t::get_line(void) const {
+const text_line_t *text_field_t::get_line(void) const {
 	return line;
 }
 
@@ -564,8 +564,8 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
 	t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
 	for (i = 0, idx = top_idx; i < 5 && idx < list->get_length(); i++, idx++) {
-		line_t::paint_info_t info;
-		line_t fileNameLine(list->get_name(idx));
+		text_line_t::paint_info_t info;
+		text_line_t fileNameLine(list->get_name(idx));
 		bool paint_selected = focus && idx == current;
 
 		t3_win_set_paint(window, i, 1);
@@ -575,7 +575,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 		info.max = INT_MAX;
 		info.size = width - 2;
 		info.tabsize = 0;
-		info.flags = line_t::SPACECLEAR | line_t::TAB_AS_CONTROL | (paint_selected ? line_t::EXTEND_SELECTION : 0);
+		info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL | (paint_selected ? text_line_t::EXTEND_SELECTION : 0);
 		info.selection_start = -1;
 		info.selection_end = paint_selected ? INT_MAX : -1;
 		info.cursor = -1;

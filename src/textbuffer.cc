@@ -65,7 +65,7 @@ text_buffer_t::~text_buffer_t(void) {
     int i;
 
 	//FIXME: this doesn't take into account sublines etc. Needs checking of what should be deleted
-    /* Free all the line_t structs */
+    /* Free all the text_line_t structs */
     for (i = 0; (size_t) i < lines.size(); i++)
 		delete lines[i];
 	//free(name);
@@ -100,7 +100,7 @@ RWResult text_buffer_t::load(LoadState *state) {
 				return RWResult(RWResult::ERRNO_ERROR, errno);
 
 			try {
-				name_line = new line_t(name);
+				name_line = new text_line_t(name);
 				state->wrapper = new FileReadWrapper(state->fd, encoding->getHandle());
 			} catch (bad_alloc &ba) {
 				return RWResult(RWResult::ERRNO_ERROR, ENOMEM);
@@ -117,9 +117,9 @@ RWResult text_buffer_t::load(LoadState *state) {
 						line->erase(0, 3);
 					}
 
-					/* Allocate a new line_t struct and initialize it with the newly read line */
+					/* Allocate a new text_line_t struct and initialize it with the newly read line */
 					try {
-						lines.push_back(new line_t(line));
+						lines.push_back(new text_line_t(line));
 					} catch (...) {
 						delete line;
 						return RWResult(RWResult::ERRNO_ERROR, ENOMEM);
@@ -141,9 +141,9 @@ RWResult text_buffer_t::load(LoadState *state) {
 /* Create a new, 'empty' text_buffer_t structure */
 text_buffer_t::text_buffer_t(void) : wrap_width(79), name(NULL) {
 	/* Allocate a new, empty line */
-	lines.push_back(new line_t());
+	lines.push_back(new text_line_t());
 	common_init();
-	name_line = new line_t("");
+	name_line = new text_line_t("");
 }
 
 void text_buffer_t::common_init(void) {
@@ -472,7 +472,7 @@ int text_buffer_t::backspace_char(void) {
 //~ int text_buffer_t::replaceString(int line, int pos, int n, char *string);
 
 int text_buffer_t::find_line(int idx) const {
-	line_t *line = wraplines[idx]->get_line();
+	text_line_t *line = wraplines[idx]->get_line();
 
 	if ((size_t) idx >= lines.size())
 		idx = lines.size() - 1;
@@ -485,7 +485,7 @@ int text_buffer_t::find_line(int idx) const {
 }
 
 void text_buffer_t::find_wrap_line(text_coordinate_t *coord) const {
-	line_t *line = lines[coord->line];
+	text_line_t *line = lines[coord->line];
 	while (wraplines[coord->line]->get_line() != line && (size_t) coord->line < wraplines.size())
 		coord->line++;
 
@@ -506,7 +506,7 @@ text_coordinate_t text_buffer_t::get_wrap_line(text_coordinate_t coord) const {
 int text_buffer_t::merge_internal(int line) {
 	if (wrap) {
 		int otherline;
-		line_t *replace_line, *replace_with;
+		text_line_t *replace_line, *replace_with;
 
 		cursor.line = line;
 		cursor.pos = wraplines[line]->get_line()->get_length();
@@ -556,7 +556,7 @@ int text_buffer_t::merge(bool backspace) {
 
 bool text_buffer_t::break_line_internal(void) {
 	int lineindex;
-	line_t *insert;
+	text_line_t *insert;
 
 	lineindex = wrap ? find_line(cursor.line) : cursor.line;
 
@@ -578,7 +578,7 @@ bool text_buffer_t::break_line_internal(void) {
 			if (nextline > cursor.line + 2)
 				wraplines.erase(wraplines.begin() + cursor.line + 2, wraplines.begin() + nextline);
 		} else {
-			subline_t *next = new subline_t(insert, 0);
+			subtext_line_t *next = new subtext_line_t(insert, 0);
 			if (next == NULL)
 				return false;
 
@@ -598,14 +598,14 @@ bool text_buffer_t::break_line(void) {
 
 void text_buffer_t::new_line(void) {
 	int lineindex;
-	line_t *insert = new line_t();
+	text_line_t *insert = new text_line_t();
 
 	get_undo(UNDO_ADD_NEWLINE);
 
 	lineindex = get_real_line(cursor.line + 1);
 	lines.insert(lines.begin() + lineindex, insert);
 	if (wrap) {
-		subline_t *next = new subline_t(insert, 0);
+		subtext_line_t *next = new subtext_line_t(insert, 0);
 		wraplines.insert(wraplines.begin() + cursor.line + 1, next);
 	}
 }
@@ -644,7 +644,7 @@ int text_buffer_t::calculate_line_pos(int line, int pos) const {
 	}
 }
 
-void text_buffer_t::paint_line(t3_window_t *win, int line, line_t::paint_info_t *info) const {
+void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const {
 	info->tabsize = tabsize;
 	if (wrap) {
 		info->start = wraplines[line]->get_start();
@@ -670,7 +670,7 @@ int text_buffer_t::get_line_max(int line) const {
 }
 
 void text_buffer_t::get_next_word(void) {
-	line_t *line;
+	text_line_t *line;
 
 	if (wrap)
 		line = wraplines[cursor.line]->get_line();
@@ -717,7 +717,7 @@ void text_buffer_t::get_next_word(void) {
 }
 
 void text_buffer_t::get_previous_word(void) {
-	line_t *line;
+	text_line_t *line;
 
 	if (wrap)
 		line = wraplines[cursor.line]->get_line();
@@ -759,7 +759,7 @@ bool text_buffer_t::init_wrap_lines(void) {
 		do {
 			if (breakpos.pos != 0)
 				wraplines[wraplines.size() - 1]->set_flags(breakpos.flags);
-			wraplines.push_back(new subline_t(lines[i], breakpos.pos));
+			wraplines.push_back(new subtext_line_t(lines[i], breakpos.pos));
 		} while ((breakpos = lines[i]->find_next_break_pos(breakpos.pos, wrap_width - 1, tabsize)).pos >= 0);
 	}
 
@@ -782,10 +782,10 @@ bool text_buffer_t::rewrap_line(int line) {
 	}
 
 	while (breakpos.pos >= 0) {
-		subline_t *next;
+		subtext_line_t *next;
 
 		wraplines[line]->set_flags(breakpos.flags);
-		if ((next = new subline_t(wraplines[line]->get_line(), breakpos.pos)) == NULL)
+		if ((next = new subtext_line_t(wraplines[line]->get_line(), breakpos.pos)) == NULL)
 			return false;
 
 		line++;
@@ -822,7 +822,7 @@ void text_buffer_t::adjust_position(int adjust) {
 }
 
 void text_buffer_t::rewrap(void) {
-	line_t *base_line;
+	text_line_t *base_line;
 	int i, wrap_index = 0;
 
 	if (window != NULL) {
@@ -873,7 +873,7 @@ text_coordinate_t text_buffer_t::get_selection_start(void) const { return select
 text_coordinate_t text_buffer_t::get_selection_end(void) const { return selection_end.pos < 0 ? selection_end : get_wrap_line(selection_end); }
 
 void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end, undo_t *undo) {
-	line_t *start_part = NULL, *end_part = NULL;
+	text_line_t *start_part = NULL, *end_part = NULL;
 	int i, wrapped_start_line = 0 /* Shut up compiler */;
 
 	/* Don't do anything on empty selection */
@@ -890,7 +890,7 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 
 	if (start.line == end.line ||
 			(wrap && wraplines[start.line]->get_line() == wraplines[end.line]->get_line())) {
-		line_t *selected_text;
+		text_line_t *selected_text;
 		if (wrap) {
 			selected_text = wraplines[start.line]->get_line()->cut_line(start.pos, end.pos);
 			if (start.line > 0 && wraplines[start.line]->get_line() == wraplines[start.line - 1]->get_line())
@@ -908,17 +908,17 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 	}
 
 	if (wrap) {
-		line_t *end_line;
+		text_line_t *end_line;
 		int wrapped_end_line;
 
 		wrapped_start_line = start.line;
 		start.line = find_line(wrapped_start_line);
-		/* Find first wrapped line that points to the starting line_t * */
+		/* Find first wrapped line that points to the starting text_line_t * */
 		while (wrapped_start_line > 0 && wraplines[wrapped_start_line - 1]->get_line() == wraplines[start.line]->get_line())
 			wrapped_start_line--;
 
 		end_line = wraplines[end.line]->get_line();
-		/* Find first wrapped line that points to the line_t * after the ending line */
+		/* Find first wrapped line that points to the text_line_t * after the ending line */
 		for (wrapped_end_line = end.line;
 				(size_t) wrapped_end_line < wraplines.size() && wraplines[wrapped_end_line]->get_line() == end_line;
 				wrapped_end_line++) {}
@@ -930,7 +930,7 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 
 		wraplines.erase(wraplines.begin() + wrapped_start_line + 1, wraplines.begin() + wrapped_end_line);
 
-		/* Find the index of the ending line_t * */
+		/* Find the index of the ending text_line_t * */
 		for (end.line = start.line + 1; lines[end.line] != end_line; end.line++) {}
 	}
 
@@ -957,7 +957,7 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 	if (start.pos == lines[start.line]->get_length()) {
 		start_part = lines[start.line];
 	} else if (start.pos != 0) {
-		line_t *retval = lines[start.line]->break_line(start.pos);
+		text_line_t *retval = lines[start.line]->break_line(start.pos);
 		if (undo != NULL)
 			undo->get_text()->merge(retval);
 		else
@@ -988,7 +988,7 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 				undo->get_text()->merge(lines[start.line]);
 			else
 				delete lines[start.line];
-			lines[start.line] = new line_t();
+			lines[start.line] = new text_line_t();
 		}
 	} else {
 		if (end_part != NULL)
@@ -1040,8 +1040,8 @@ void text_buffer_t::delete_selection(void) {
 	undo_list.add(last_undo);
 }
 
-void text_buffer_t::insert_block_internal(text_coordinate_t insertAt, line_t *block) {
-	line_t *second_half = NULL, *next_line;
+void text_buffer_t::insert_block_internal(text_coordinate_t insertAt, text_line_t *block) {
+	text_line_t *second_half = NULL, *next_line;
 	int next_start = 0, unwrapped_line, saved_line;
 	int i, j;
 
@@ -1072,7 +1072,7 @@ void text_buffer_t::insert_block_internal(text_coordinate_t insertAt, line_t *bl
 
 	if (wrap) {
 		/* - remove wrapping info for indicated line because inserting may cause different wrapping
-		   - at end add at least one subline_t for each inserted line and allow rewrap to do its magic.
+		   - at end add at least one subtext_line_t for each inserted line and allow rewrap to do its magic.
 		*/
 		int wrap_start, wrap_end;
 
@@ -1086,10 +1086,10 @@ void text_buffer_t::insert_block_internal(text_coordinate_t insertAt, line_t *bl
 			int available_sublines = wrap_end - wrap_start + 1;
 
 			wraplines.reserve(wraplines.size() + needed_sublines - available_sublines);
-			wraplines.insert(wraplines.begin() + wrap_end + 1, needed_sublines - available_sublines, (subline_t *) NULL);
+			wraplines.insert(wraplines.begin() + wrap_end + 1, needed_sublines - available_sublines, (subtext_line_t *) NULL);
 
 			for (i = wrap_end + 1; i <= wrap_start + unwrapped_line - saved_line; i++)
-				wraplines[i] = new subline_t(NULL, 0);
+				wraplines[i] = new subtext_line_t(NULL, 0);
 			wrap_end = wrap_start + unwrapped_line - saved_line;
 		}
 
@@ -1111,7 +1111,7 @@ void text_buffer_t::insert_block_internal(text_coordinate_t insertAt, line_t *bl
 	}
 }
 
-int text_buffer_t::insert_block(line_t *block) {
+int text_buffer_t::insert_block(text_line_t *block) {
 	text_coordinate_t cursor_at_start = cursor;
 
 	insert_block_internal(cursor, block);
@@ -1124,7 +1124,7 @@ int text_buffer_t::insert_block(line_t *block) {
 	return 0;
 }
 
-void text_buffer_t::replace_selection(line_t *block) {
+void text_buffer_t::replace_selection(text_line_t *block) {
 	text_coordinate_t current_start, current_end;
 	undo_double_text_triple_coord_t *undo;
 
@@ -1155,9 +1155,9 @@ void text_buffer_t::replace_selection(line_t *block) {
 	undo_list.add(undo);
 }
 
-line_t *text_buffer_t::convert_selection(void) {
+text_line_t *text_buffer_t::convert_selection(void) {
 	text_coordinate_t current_start, current_end;
-	line_t *retval;
+	text_line_t *retval;
 	int i;
 
 	current_start = get_selection_start();
@@ -1378,7 +1378,7 @@ void text_buffer_t::set_selection_from_find(int line, find_result_t *result) {
 	selection_mode = selection_mode_t::SHIFT;
 }
 
-bool text_buffer_t::find(const string *what, int flags, const line_t *replacement) {
+bool text_buffer_t::find(const string *what, int flags, const text_line_t *replacement) {
 	find_result_t result;
 	size_t start, idx;
 
@@ -1446,7 +1446,7 @@ bool text_buffer_t::find(const string *what, int flags, const line_t *replacemen
 		}
 
 		if (replacement != NULL)
-			last_find.replacement = new line_t(*replacement);
+			last_find.replacement = new text_line_t(*replacement);
 	}
 
 	start = idx = get_real_line(cursor.line);

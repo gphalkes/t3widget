@@ -144,7 +144,7 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 	}
 }
 
-bool edit_window_t::find(const string *what, int flags, const line_t *replacement) {
+bool edit_window_t::find(const string *what, int flags, const text_line_t *replacement) {
 	int start_screen_pos;
 
 	if (!text->find(what, flags, replacement))
@@ -173,7 +173,7 @@ void edit_window_t::replace(void) {
 
 void edit_window_t::repaint_screen(void) {
 	text_coordinate_t current_start, current_end;
-	line_t::paint_info_t info;
+	text_line_t::paint_info_t info;
 	int i;
 
 	current_start = text->get_selection_start();
@@ -634,7 +634,7 @@ void edit_window_t::update_contents(void) {
 	text_coordinate_t logical_cursor_pos;
 	char info[30];
 	int info_width, name_width;
-	line_t::paint_info_t paint_info;
+	text_line_t::paint_info_t paint_info;
 
 	if (text->selection_mode != selection_mode_t::NONE && text->selection_mode != selection_mode_t::ALL) {
 		text->set_selection_end(text->cursor.line, text->cursor.pos);
@@ -676,7 +676,7 @@ void edit_window_t::update_contents(void) {
 	paint_info.leftcol = 0;
 	paint_info.max = INT_MAX;
 	paint_info.tabsize = 1;
-	paint_info.flags = line_t::TAB_AS_CONTROL | line_t::SPACECLEAR;
+	paint_info.flags = text_line_t::TAB_AS_CONTROL | text_line_t::SPACECLEAR;
 	paint_info.selection_start = -1;
 	paint_info.selection_end = -1;
 	paint_info.cursor = -1;

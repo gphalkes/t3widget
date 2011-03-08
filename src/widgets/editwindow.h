@@ -72,7 +72,7 @@ class edit_window_t : public widget_t {
 		void close(bool force);
 		void goto_line(int line);
 
-		bool find(const std::string *what, int flags, const line_t *replacement);
+		bool find(const std::string *what, int flags, const text_line_t *replacement);
 		void replace(void);
 		void get_dimensions(int *height, int *width, int *top, int *left);
 		bool get_selection_lines(int *top, int *bottom);

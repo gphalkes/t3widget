@@ -42,7 +42,7 @@ class text_field_t : public widget_t {
 			REPAINT_OTHER
 		} need_repaint;
 
-		line_t *line;
+		text_line_t *line;
 		const key_t *filter_keys;
 		size_t filter_keys_size;
 		bool filter_keys_accept;
@@ -98,7 +98,7 @@ class text_field_t : public widget_t {
 		void set_autocomplete(string_list_t *_completions);
 		void set_key_filter(key_t *keys, size_t nrOfKeys, bool accept);
 		const std::string *get_text(void) const;
-		const line_t *get_line(void) const;
+		const text_line_t *get_line(void) const;
 		void set_label(smart_label_t *_label);
 		virtual bool is_hotkey(key_t key);
 

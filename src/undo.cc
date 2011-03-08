@@ -181,18 +181,18 @@ undo_type_t undo_t::get_type(void) const { return type; }
 undo_type_t undo_t::get_redo_type(void) const { return redo_map[type]; }
 
 text_coordinate_t undo_t::get_start(void) { return start; }
-line_t *undo_t::get_text(void) { return NULL; }
-line_t *undo_t::get_replacement(void) { return NULL; }
+text_line_t *undo_t::get_text(void) { return NULL; }
+text_line_t *undo_t::get_replacement(void) { return NULL; }
 text_coordinate_t undo_t::get_end(void) const { return text_coordinate_t(-1, -1); }
 text_coordinate_t undo_t::get_new_end(void) const { return text_coordinate_t(-1, -1); }
 
 void undo_single_text_t::add_newline(void) { text.append_char('\n', NULL); }
-line_t *undo_single_text_t::get_text(void) { return &text; }
+text_line_t *undo_single_text_t::get_text(void) { return &text; }
 void undo_single_text_t::minimize(void) { text.minimize(); }
 
 text_coordinate_t undo_single_text_double_coord_t::get_end(void) const { return end; }
 
-line_t *undo_double_text_t::get_replacement(void) { return &replacement; }
+text_line_t *undo_double_text_t::get_replacement(void) { return &replacement; }
 void undo_double_text_t::minimize(void) {
 	undo_single_text_double_coord_t::minimize();
 	replacement.minimize();

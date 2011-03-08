@@ -27,7 +27,7 @@ using namespace std;
 namespace t3_widget {
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _addColon) : add_colon(_addColon) {
-	line_t *line;
+	text_line_t *line;
 	size_t i;
 	size_t spec_length = strlen(spec);
 
@@ -47,7 +47,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _addColon) : add_c
 		text_length--;
 	}
 
-	line = new line_t(text, text_length);
+	line = new text_line_t(text, text_length);
 	underline_length = line->adjust_position(underline_start, 1) - underline_start;
 	delete line;
 

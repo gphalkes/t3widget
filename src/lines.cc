@@ -32,10 +32,10 @@
 using namespace std;
 namespace t3_widget {
 
-char line_t::spaces[MAX_TAB];
-char line_t::dots[16];
-const char *line_t::control_map = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]_^";
-const char *line_t::wrap_symbol = "\xE2\x86\xB5";
+char text_line_t::spaces[MAX_TAB];
+char text_line_t::dots[16];
+const char *text_line_t::control_map = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]_^";
+const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";
 
 /* Meta Information for each character:
   - screen width of character [2 bits]
@@ -51,9 +51,9 @@ const char *line_t::wrap_symbol = "\xE2\x86\xB5";
 #define SPACE_BIT (T3_SPACE_BIT)
 #define BAD_DRAW_BIT (T3_NFC_QC_BIT)
 
-char line_t::conversion_buffer[5];
-int line_t::conversion_length;
-char line_t::conversion_meta_data;
+char text_line_t::conversion_buffer[5];
+int text_line_t::conversion_length;
+char text_line_t::conversion_meta_data;
 
 /* 5 WCS chars should be enough because in any UTF encoding no more
    characters are required than the 5 for the UTF-8 encoding. */
@@ -65,7 +65,7 @@ char line_t::conversion_meta_data;
 
 	This function does not check for high/low surrogates.
 */
-void line_t::convert_key(key_t c) {
+void text_line_t::convert_key(key_t c) {
 	int i;
 
 	conversion_meta_data = t3_get_codepoint_info(c);
@@ -106,11 +106,11 @@ void line_t::convert_key(key_t c) {
 	}
 }
 
-line_t::line_t(int buffersize) : starts_with_combining(false) {
+text_line_t::text_line_t(int buffersize) : starts_with_combining(false) {
 	reserve(buffersize);
 }
 
-void line_t::fill_line(const char *_buffer, int length) {
+void text_line_t::fill_line(const char *_buffer, int length) {
 	size_t char_bytes;
 	key_t next;
 
@@ -127,16 +127,16 @@ void line_t::fill_line(const char *_buffer, int length) {
 	}
 }
 
-line_t::line_t(const char *_buffer, int length) : starts_with_combining(false) {
+text_line_t::text_line_t(const char *_buffer, int length) : starts_with_combining(false) {
 	fill_line(_buffer, length);
 }
 
-line_t::line_t(const string *str) : starts_with_combining(false) {
+text_line_t::text_line_t(const string *str) : starts_with_combining(false) {
 	fill_line(str->data(), str->size());
 }
 
 /* Merge line2 into line1, freeing line2 */
-void line_t::merge(line_t *other) {
+void text_line_t::merge(text_line_t *other) {
 	int buffer_len = buffer.size();
 
 	if (buffer_len == 0 && other->starts_with_combining)
@@ -156,8 +156,8 @@ void line_t::merge(line_t *other) {
 /* Break up 'line' at position 'pos'. This means that the character at 'pos'
    is the first character in the new line. The right part of the line is
    returned the left part remains in 'line' */
-line_t *line_t::break_line(int pos) {
-	line_t *newline;
+text_line_t *text_line_t::break_line(int pos) {
+	text_line_t *newline;
 
 	//FIXME: cut_line and break_line are very similar. Maybe we should combine them!
 
@@ -165,7 +165,7 @@ line_t *line_t::break_line(int pos) {
 	ASSERT(meta_buffer[pos] & WIDTH_MASK);
 
 	/* copy the right part of the string into the new buffer */
-	newline = new line_t(buffer.size() - pos);
+	newline = new text_line_t(buffer.size() - pos);
 	newline->buffer.assign(buffer.data() + pos, buffer.size() - pos);
 	newline->meta_buffer.assign(meta_buffer.data() + pos, meta_buffer.size() - pos);
 
@@ -174,11 +174,11 @@ line_t *line_t::break_line(int pos) {
 	return newline;
 }
 
-line_t *line_t::cut_line(int start, int end) {
-	line_t *retval;
+text_line_t *text_line_t::cut_line(int start, int end) {
+	text_line_t *retval;
 
 	ASSERT((size_t) end == buffer.size() || width_at(end) > 0);
-	//FIXME: special case: if the selection cover a whole line_t (note: not wrapped) we shouldn't copy
+	//FIXME: special case: if the selection cover a whole text_line_t (note: not wrapped) we shouldn't copy
 
 	retval = clone(start, end);
 
@@ -191,8 +191,8 @@ line_t *line_t::cut_line(int start, int end) {
 	return retval;
 }
 
-line_t *line_t::clone(int start, int end) {
-	line_t *retval;
+text_line_t *text_line_t::clone(int start, int end) {
+	text_line_t *retval;
 
 	if (end == -1)
 		end = buffer.size();
@@ -202,9 +202,9 @@ line_t *line_t::clone(int start, int end) {
 	ASSERT(start <= end);
 
 	if (start == end)
-		return new line_t(0);
+		return new text_line_t(0);
 
-	retval = new line_t(end - start);
+	retval = new text_line_t(end - start);
 
 	retval->buffer.assign(buffer.data() + start, end - start);
 	retval->meta_buffer.assign(meta_buffer.data() + start, end - start);
@@ -214,8 +214,8 @@ line_t *line_t::clone(int start, int end) {
 	return retval;
 }
 
-line_t *line_t::break_on_nl(int *startFrom) {
-	line_t *retval;
+text_line_t *text_line_t::break_on_nl(int *startFrom) {
+	text_line_t *retval;
 	int i;
 
 	for (i = *startFrom; (size_t) i < buffer.size(); i++) {
@@ -229,13 +229,13 @@ line_t *line_t::break_on_nl(int *startFrom) {
 	return retval;
 }
 
-void line_t::minimize(void) {
+void text_line_t::minimize(void) {
 	reserve(0);
 }
 
 /* Calculate the screen width of the characters from 'start' to 'pos' with tabsize 'tabsize' */
 /* tabsize == 0 -> tab as control */
-int line_t::calculate_screen_width(int start, int pos, int tabsize) const {
+int text_line_t::calculate_screen_width(int start, int pos, int tabsize) const {
 	int i, total = 0;
 
 	if (starts_with_combining && start == 0 && pos > 0)
@@ -251,9 +251,9 @@ int line_t::calculate_screen_width(int start, int pos, int tabsize) const {
 	return total;
 }
 
-/* Return the line position in line_t associated with screen position 'pos' or
+/* Return the line position in text_line_t associated with screen position 'pos' or
    length if it is outside of 'line'. */
-int line_t::calculate_line_pos(int start, int max, int pos, int tabsize) const {
+int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) const {
 	int i, total = 0;
 
 	if (pos == 0)
@@ -273,7 +273,7 @@ int line_t::calculate_line_pos(int start, int max, int pos, int tabsize) const {
 }
 
 
-void line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr) {
+void text_line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr) {
 	if (todo <= 0)
 		return;
 
@@ -286,7 +286,7 @@ void line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is_prin
 	}
 }
 
-t3_attr_t line_t::get_draw_attrs(int i, const line_t::paint_info_t *info) const {
+t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *info) const {
 	t3_attr_t retval = info->normal_attr;
 
 	if (i >= info->selection_start && i < info->selection_end)
@@ -301,7 +301,7 @@ t3_attr_t line_t::get_draw_attrs(int i, const line_t::paint_info_t *info) const 
 	return retval;
 }
 
-void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) const {
+void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *info) const {
 	int i, j,
 		total = 0,
 		print_from,
@@ -317,7 +317,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 		selection_end = info->selection_end;
 
 	if (info->tabsize == 0)
-		flags |= line_t::TAB_AS_CONTROL;
+		flags |= text_line_t::TAB_AS_CONTROL;
 
 	/* For reverse selections (end before info->start) we swap the info->start and end for rendering */
 	if (selection_start > selection_end) {
@@ -328,7 +328,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 	}
 
 	size += info->leftcol;
-	if (flags & line_t::BREAK)
+	if (flags & text_line_t::BREAK)
 		size--;
 
 	if (starts_with_combining && info->leftcol > 0 && info->start == 0)
@@ -337,7 +337,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 	for (i = info->start; (size_t) i < buffer.size() && i < info->max && total < info->leftcol; i += byte_width_from_first(i)) {
 		selection_attr = get_draw_attrs(i, info);
 
-		if (buffer[i] == '\t' && !(flags & line_t::TAB_AS_CONTROL)) {
+		if (buffer[i] == '\t' && !(flags & text_line_t::TAB_AS_CONTROL)) {
 			tabspaces = info->tabsize - (total % info->tabsize);
 			total += tabspaces;
 			if (total >= size)
@@ -385,7 +385,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 		selection_attr = new_selection_attr;
 
 		new_is_print = is_print(i);
-		if (buffer[i] == '\t' && !(flags & line_t::TAB_AS_CONTROL)) {
+		if (buffer[i] == '\t' && !(flags & text_line_t::TAB_AS_CONTROL)) {
 			/* Calculate the correct number of spaces for a tab character. */
 			paint_part(win, buffer.data() + print_from, _is_print, _is_print ? i - print_from : accumulated, selection_attr);
 			total += accumulated;
@@ -429,7 +429,7 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 	paint_part(win, buffer.data() + print_from, _is_print, _is_print ? i - print_from : accumulated, selection_attr);
 	total += accumulated;
 
-	if ((flags & line_t::PARTIAL_CHAR) && i >= info->max)
+	if ((flags & text_line_t::PARTIAL_CHAR) && i >= info->max)
 		endchars = 1;
 
 	for (j = 0; j < endchars; j++)
@@ -438,21 +438,21 @@ void line_t::paint_line(t3_window_t *win, const line_t::paint_info_t *info) cons
 
 	/* Add a selected space when the selection crosses the end of this line
 	   and this line is not merely a part of a broken line */
-	if (total < size && !(flags & line_t::BREAK)) {
+	if (total < size && !(flags & text_line_t::BREAK)) {
 		if (i <= selection_end || i == info->cursor) {
 			t3_win_addch(win, ' ', get_draw_attrs(i, info));
 			total++;
 		}
 	}
 
-	if (flags & line_t::BREAK) {
+	if (flags & text_line_t::BREAK) {
 		for (; total < size; total++)
 			t3_win_addch(win, ' ', info->normal_attr);
 		t3_win_addnstr(win, wrap_symbol, 3, colors.non_print_attrs);
-	} else if (flags & line_t::SPACECLEAR) {
+	} else if (flags & text_line_t::SPACECLEAR) {
 		for (; total + sizeof(spaces) < (size_t) size; total += sizeof(spaces))
-			t3_win_addnstr(win, spaces, sizeof(spaces), (flags & line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
-		t3_win_addnstr(win, spaces, size - total, (flags & line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
+			t3_win_addnstr(win, spaces, sizeof(spaces), (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
+		t3_win_addnstr(win, spaces, size - total, (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
 	} else {
 		t3_win_clrtoeol(win);
 	}
@@ -466,7 +466,7 @@ Several things need to be done:
   - should control characters break both before and after?
 */
 /* tabsize == 0 -> tab as control */
-break_pos_t line_t::find_next_break_pos(int start, int length, int tabsize) const {
+break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize) const {
 	int i, total = 0;
 	break_pos_t possible_break = { 0, 0 };
 	bool graph_seen = false, last_was_graph = false;
@@ -482,7 +482,7 @@ break_pos_t line_t::find_next_break_pos(int start, int length, int tabsize) cons
 
 		if (total > length && (buffer[i] != '\t' || tabsize == 0)) {
 			if (possible_break.pos == 0)
-				possible_break.flags = line_t::PARTIAL_CHAR;
+				possible_break.flags = text_line_t::PARTIAL_CHAR;
 			break;
 		}
 
@@ -506,7 +506,7 @@ break_pos_t line_t::find_next_break_pos(int start, int length, int tabsize) cons
 	if ((size_t) i < buffer.size()) {
 		if (possible_break.pos == 0)
 			possible_break.pos = i;
-		possible_break.flags |= line_t::BREAK;
+		possible_break.flags |= text_line_t::BREAK;
 		return possible_break;
 	}
 	possible_break.flags = 0;
@@ -521,7 +521,7 @@ enum {
 	CLASS_OTHER
 };
 
-int line_t::get_class(int pos) const {
+int text_line_t::get_class(int pos) const {
 	if (is_space(pos))
 		return CLASS_WHITESPACE;
 	if (is_alnum(pos))
@@ -531,7 +531,7 @@ int line_t::get_class(int pos) const {
 	return CLASS_OTHER;
 }
 
-int line_t::get_next_word(int start) const {
+int text_line_t::get_next_word(int start) const {
 	int i, cclass, newCclass;
 
 	if (start < 0) {
@@ -552,7 +552,7 @@ int line_t::get_next_word(int start) const {
 	return (size_t) i >= buffer.size() ? -1 : i;
 }
 
-int line_t::get_previous_word(int start) const {
+int text_line_t::get_previous_word(int start) const {
 	int i, cclass = CLASS_WHITESPACE, savePos;
 
 	if (start == 0)
@@ -585,7 +585,7 @@ int line_t::get_previous_word(int start) const {
 }
 
 
-void line_t::insert_bytes(int pos, const char *bytes, int space, char meta_data) {
+void text_line_t::insert_bytes(int pos, const char *bytes, int space, char meta_data) {
 	buffer.insert(pos, bytes, space);
 	meta_buffer.insert(pos, space, 0);
 	meta_buffer[pos] = meta_data;
@@ -593,13 +593,13 @@ void line_t::insert_bytes(int pos, const char *bytes, int space, char meta_data)
 
 
 /* Insert character 'c' into 'line' at position 'pos' */
-bool line_t::insert_char(int pos, key_t c, undo_t *undo) {
+bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	convert_key(c);
 
 	reserve(buffer.size() + conversion_length + 1);
 
 	if (undo != NULL) {
-		line_t *undo_text = undo->get_text();
+		text_line_t *undo_text = undo->get_text();
 		undo_text->reserve(undo_text->buffer.size() + conversion_length);
 
 		ASSERT(undo->get_type() == UNDO_ADD);
@@ -620,9 +620,9 @@ bool line_t::insert_char(int pos, key_t c, undo_t *undo) {
 }
 
 /* Overwrite a character with 'c' in 'line' at position 'pos' */
-bool line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
+bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	int oldspace;
-	line_t *undo_text, *replacement_text;
+	text_line_t *undo_text, *replacement_text;
 
 	convert_key(c);
 
@@ -666,7 +666,7 @@ bool line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 }
 
 /* Delete the character at position 'pos' */
-int line_t::delete_char(int pos, undo_t *undo) {
+int text_line_t::delete_char(int pos, undo_t *undo) {
 	int oldspace;
 
 	if (pos < 0 || (size_t) pos >= buffer.size())
@@ -678,7 +678,7 @@ int line_t::delete_char(int pos, undo_t *undo) {
 	oldspace = adjust_position(pos, 1) - pos;
 
 	if (undo != NULL) {
-		line_t *undo_text = undo->get_text();
+		text_line_t *undo_text = undo->get_text();
 		undo_text->reserve(oldspace);
 
 		ASSERT(undo->get_type() == UNDO_DELETE || undo->get_type() == UNDO_BACKSPACE);
@@ -692,12 +692,12 @@ int line_t::delete_char(int pos, undo_t *undo) {
 }
 
 /* Append character 'c' to 'line' */
-bool line_t::append_char(key_t c, undo_t *undo) {
+bool text_line_t::append_char(key_t c, undo_t *undo) {
 	return insert_char(buffer.size(), c, undo);
 }
 
 /* Delete char at 'pos - 1' */
-int line_t::backspace_char(int pos, undo_t *undo) {
+int text_line_t::backspace_char(int pos, undo_t *undo) {
 	if (pos == 0)
 		return -1;
 	return delete_char(adjust_position(pos, -1), undo);
@@ -705,7 +705,7 @@ int line_t::backspace_char(int pos, undo_t *undo) {
 
 #warning FIXME: do we want this here at all?
 /*
-void line_t::write_line_data(FileWriteWrapper *file, bool appendNewline) const {
+void text_line_t::write_line_data(FileWriteWrapper *file, bool appendNewline) const {
 	file->write(buffer.data(), buffer.size());
 
 	if (appendNewline)
@@ -714,7 +714,7 @@ void line_t::write_line_data(FileWriteWrapper *file, bool appendNewline) const {
 */
 
 /** Adjust the line position @a adjust non-zero-width characters.
-	@param line The @a line_t to operate on.
+	@param line The @a text_line_t to operate on.
 	@param pos The starting position.
 	@param adjust How many characters to adjust.
 
@@ -723,7 +723,7 @@ void line_t::write_line_data(FileWriteWrapper *file, bool appendNewline) const {
 	current position and the next non-zero-width character, and repeating for
 	@a adjust times.
 */
-int line_t::adjust_position(int pos, int adjust) const {
+int text_line_t::adjust_position(int pos, int adjust) const {
 	if (adjust > 0) {
 		for (; adjust > 0 && (size_t) pos < buffer.size(); adjust -= (width_at(pos) ? 1 : 0))
 			pos += byte_width_from_first(pos);
@@ -737,11 +737,11 @@ int line_t::adjust_position(int pos, int adjust) const {
 	return pos;
 }
 
-int line_t::get_length(void) const {
+int text_line_t::get_length(void) const {
 	return buffer.size();
 }
 
-int line_t::byte_width_from_first(int pos) const {
+int text_line_t::byte_width_from_first(int pos) const {
 	switch (buffer[pos] & 0xF0) {
 		case 0xF0:
 			return 4;
@@ -755,30 +755,30 @@ int line_t::byte_width_from_first(int pos) const {
 	}
 }
 
-int line_t::width_at(int pos) const { return meta_buffer[pos] & WIDTH_MASK; }
-int line_t::is_print(int pos) const { return (meta_buffer[pos] & (GRAPH_BIT | SPACE_BIT)) != 0; }
-int line_t::is_graph(int pos) const { return meta_buffer[pos] & GRAPH_BIT; }
-int line_t::is_alnum(int pos) const { return meta_buffer[pos] & ALNUM_BIT; }
-int line_t::is_space(int pos) const { return meta_buffer[pos] & SPACE_BIT; }
-int line_t::is_bad_draw(int pos) const { return meta_buffer[pos] & BAD_DRAW_BIT; }
+int text_line_t::width_at(int pos) const { return meta_buffer[pos] & WIDTH_MASK; }
+int text_line_t::is_print(int pos) const { return (meta_buffer[pos] & (GRAPH_BIT | SPACE_BIT)) != 0; }
+int text_line_t::is_graph(int pos) const { return meta_buffer[pos] & GRAPH_BIT; }
+int text_line_t::is_alnum(int pos) const { return meta_buffer[pos] & ALNUM_BIT; }
+int text_line_t::is_space(int pos) const { return meta_buffer[pos] & SPACE_BIT; }
+int text_line_t::is_bad_draw(int pos) const { return meta_buffer[pos] & BAD_DRAW_BIT; }
 
-const string *line_t::get_data(void) {
+const string *text_line_t::get_data(void) {
 	return &buffer;
 }
 
-void line_t::init(void) {
+void text_line_t::init(void) {
 	memset(spaces, ' ', sizeof(spaces));
 	memset(dots, '.', sizeof(dots));
 	if (!t3_term_can_draw(wrap_symbol, strlen(wrap_symbol)))
 		wrap_symbol = "$";
 }
 
-void line_t::reserve(int size) {
+void text_line_t::reserve(int size) {
 	buffer.reserve(size);
 	meta_buffer.reserve(size);
 }
 
-int line_t::callout(pcre_callout_block *block) {
+int text_line_t::callout(pcre_callout_block *block) {
 	find_context_t *context = (find_context_t *) block->callout_data;
 	if (block->pattern_position != context->pattern_length)
 		return 0;
@@ -803,12 +803,12 @@ int line_t::callout(pcre_callout_block *block) {
 	}
 }
 
-bool line_t::check_boundaries(int match_start, int match_end) const {
+bool text_line_t::check_boundaries(int match_start, int match_end) const {
 	return (match_start == 0 || get_class(match_start) != get_class(adjust_position(match_start, -1))) &&
 							(match_end == get_length() || get_class(match_end) != get_class(adjust_position(match_end, 1)));
 }
 
-bool line_t::find(find_context_t *context, find_result_t *result) const {
+bool text_line_t::find(find_context_t *context, find_result_t *result) const {
 	string substr;
 	int curr_char, next_char;
 	int match_result;
@@ -906,7 +906,7 @@ bool line_t::find(find_context_t *context, find_result_t *result) const {
 	}
 }
 
-void line_t::check_bad_draw(int i) {
+void text_line_t::check_bad_draw(int i) {
 	if (t3_term_can_draw(buffer.data() + i, adjust_position(i, 1) - i))
 		meta_buffer[i] &= ~BAD_DRAW_BIT;
 	else

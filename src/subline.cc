@@ -15,12 +15,12 @@
 
 namespace t3_widget {
 
-/* set the start member of the subline_t, and return if it was changed. */
-void subline_t::set_start(int _start) { start = _start; }
-int subline_t::get_start(void) const { return start; }
-line_t *subline_t::get_line(void) const { return line; }
-void subline_t::set_line(line_t *_line) { line = _line; }
-int subline_t::get_flags(void) const { return flags; }
-void subline_t::set_flags(int _flags) { flags = _flags; }
+/* set the start member of the subtext_line_t, and return if it was changed. */
+void subtext_line_t::set_start(int _start) { start = _start; }
+int subtext_line_t::get_start(void) const { return start; }
+text_line_t *subtext_line_t::get_line(void) const { return line; }
+void subtext_line_t::set_line(text_line_t *_line) { line = _line; }
+int subtext_line_t::get_flags(void) const { return flags; }
+void subtext_line_t::set_flags(int _flags) { flags = _flags; }
 
 }; // namespace

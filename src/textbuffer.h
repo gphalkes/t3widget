@@ -28,8 +28,8 @@
 
 namespace t3_widget {
 
-typedef std::vector<line_t *> lines_t;
-typedef std::vector<subline_t *> sublines_t;
+typedef std::vector<text_line_t *> lines_t;
+typedef std::vector<subtext_line_t *> sublines_t;
 
 class edit_window_t;
 
@@ -52,7 +52,7 @@ class text_buffer_t : public bullet_status_t {
 		undo_type_t last_undo_type;
 		undo_t *last_undo;
 		char *name;
-		line_t *name_line;
+		text_line_t *name_line;
 
 		text_coordinate_t cursor, topleft;
 		int ins_mode, last_set_pos;
@@ -73,7 +73,7 @@ class text_buffer_t : public bullet_status_t {
 		int get_max(int line) const;
 		bool rewrap_line(int line);
 		void delete_block(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
-		void insert_block_internal(text_coordinate_t insertAt, line_t *block);
+		void insert_block_internal(text_coordinate_t insertAt, text_line_t *block);
 		int apply_undo_redo(undo_type_t type, undo_t *current);
 		int merge_internal(int line);
 		bool break_line_internal(void);
@@ -116,7 +116,7 @@ class text_buffer_t : public bullet_status_t {
 		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;
 		int calculate_line_pos(int line, int pos) const;
 
-		void paint_line(t3_window_t *win, int line, line_t::paint_info_t *info) const;
+		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const;
 		int get_line_max(int line) const;
 		void get_next_word(void);
 		void get_previous_word(void);
@@ -133,9 +133,9 @@ class text_buffer_t : public bullet_status_t {
 		text_coordinate_t get_selection_start(void) const;
 		text_coordinate_t get_selection_end(void) const;
 		void delete_selection(void);
-		int insert_block(line_t *block);
-		void replace_selection(line_t *block);
-		line_t *convert_selection(void);
+		int insert_block(text_line_t *block);
+		void replace_selection(text_line_t *block);
+		text_line_t *convert_selection(void);
 
 		int apply_undo(void);
 		int apply_redo(void);
@@ -146,7 +146,7 @@ class text_buffer_t : public bullet_status_t {
 
 		bool is_modified(void) { return !undo_list.is_at_mark(); }
 
-		bool find(const std::string *what, int flags, const line_t *replacement);
+		bool find(const std::string *what, int flags, const text_line_t *replacement);
 		void replace(void);
 
 		virtual bool get_bullet_status(void);

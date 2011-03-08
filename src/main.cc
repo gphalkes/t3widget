@@ -63,7 +63,7 @@ namespace t3_widget {
 
 
 static int screen_lines, screen_columns;
-line_t *copy_buffer;
+text_line_t *copy_buffer;
 
 static signal<void, int, int> resize;
 
@@ -147,7 +147,7 @@ int init(main_window_t *main_window) {
 
 	init_log();
 	init_colors();
-	line_t::init();
+	text_line_t::init();
 
 	if ((result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
 		t3_term_restore();
