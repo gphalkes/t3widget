@@ -11,20 +11,7 @@ TODO
 		like calling the insert_char_dialog. Forcing F9 may not be a great idea.
 		On the other hand, enforcing a standard can also be good.
 
-	- TextFile should be renamed TextBuffer and be put in a file named
-		textbuffer.cc/h
-	- lines.cc/h should be renamed line.cc/h
-- figure out which dialogs should be included as defaults, and which should be
-	part of tilde/edit
-- add a test program to check if everything works
-- figure out how to get rid of the bullet_status_t interface
 - rename the multi_string_list_i interface to something ending in _t
-- how should the notification of the resize operation work? Even for the
-	main_window the size may be known, but not how the widgets on it should be
-	resized. So just calling resize on it is probably not such a good idea.
-- create a single header file to be included by users of the library.
-	Furthermore, the library should have its own header file which provides
-	all the other needed functionality (such as "using namespace std")
 - rename main_window_t
 - remove anything not related to the external interface from the externally
 	used header files
@@ -32,8 +19,12 @@ TODO
 IDEAS
 - use a line_factory_t for the text_buffer_t, such that lines with extensions
 	for e.g. syntax highlighting can be created.
+- much of the text_buffer_t interface should be made virtual to allow
+	proper overriding
 - many widgets can be made aggregated types, rather than pointers. This does
 	mean calling the constructor from the initializer list.
+- the current content list stuff and file_pane_t interface are messy. This
+	definately need more work.
 
 THOUGHTS
 - we won't do layout management. For most things the anchoring does what we

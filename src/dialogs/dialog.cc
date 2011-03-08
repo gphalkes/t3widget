@@ -24,7 +24,7 @@ int dialog_t::dialog_depth;
 dialog_t *dialog_t::main_window;
 dummy_widget_t *dialog_t::dummy;
 
-void dialog_t::init(main_window_t *_main_window) {
+void dialog_t::init(main_window_base_t *_main_window) {
 	dummy = new dummy_widget_t();
 
 	main_window = _main_window;
@@ -43,7 +43,7 @@ dialog_t::dialog_t(int height, int width, int top, int left, int depth, const ch
 
 /** Create a new ::dialog_t.
 
-    This constructor should only be called by ::main_window_t.
+    This constructor should only be called by ::main_window_base_t.
 */
 dialog_t::dialog_t(void) : active(false), title(NULL), redraw(false) {}
 

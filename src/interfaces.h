@@ -20,6 +20,7 @@
 #include "keys.h"
 #include "util.h"
 #include "window/window.h"
+
 namespace t3_widget {
 
 class window_component_t {
@@ -37,13 +38,6 @@ class window_component_t {
 class container_t {
 	public:
 		virtual t3_window_t *get_draw_window(void) = 0;
-};
-
-typedef std::list<window_component_t *> window_components_t;
-
-class bullet_status_t {
-	public:
-		virtual bool get_bullet_status(void) = 0;
 };
 
 }; // namespace

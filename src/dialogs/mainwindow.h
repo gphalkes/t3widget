@@ -19,11 +19,11 @@
 
 namespace t3_widget {
 
-class main_window_t : public dialog_t {
+class main_window_base_t : public dialog_t {
 	private:
 		void set_size_real(int height, int width);
 	protected:
-		main_window_t(void);
+		main_window_base_t(void);
 
 	public:
 		virtual bool set_size(optint height, optint width);

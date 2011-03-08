@@ -1519,10 +1519,6 @@ void text_buffer_t::replace(void) {
 	replace_selection(last_find.replacement);
 }
 
-bool text_buffer_t::get_bullet_status(void) {
-	return window != NULL;
-}
-
 const char *text_buffer_t::get_name(void) const {
 	return name;
 }

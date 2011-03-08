@@ -33,7 +33,7 @@ typedef std::vector<subtext_line_t *> sublines_t;
 
 class edit_window_t;
 
-class text_buffer_t : public bullet_status_t {
+class text_buffer_t {
 	friend class edit_window_t;
 	friend class OpenFiles;
 	friend class RecentFiles;
@@ -149,7 +149,6 @@ class text_buffer_t : public bullet_status_t {
 		bool find(const std::string *what, int flags, const text_line_t *replacement);
 		void replace(void);
 
-		virtual bool get_bullet_status(void);
 		const char *get_name(void) const;
 };
 

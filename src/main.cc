@@ -142,7 +142,7 @@ static void terminalSpecificSetup(void) {
 #endif
 
 #warning FIXME: returning the value from t3_term_init is not very useful!
-int init(main_window_t *main_window) {
+int init(main_window_base_t *main_window) {
 	int result;
 
 	init_log();
