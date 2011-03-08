@@ -26,9 +26,9 @@ frame_t::frame_t(container_t *parent, widget_t *_child, frame_dimension_t _dimen
 	set_size(3, 3);
 }
 
-bool frame_t::process_key(key_t key) { (void) key; return false; }
-void frame_t::update_contents(void) {}
-void frame_t::set_focus(bool focus) { (void) focus; }
+bool frame_t::process_key(key_t key) { return child->process_key(key); }
+void frame_t::update_contents(void) { child->update_contents(); }
+void frame_t::set_focus(bool focus) { child->set_focus(focus); }
 
 bool frame_t::set_size(optint height, optint width) {
 	int child_height, child_width;
@@ -63,4 +63,4 @@ t3_window_t *frame_t::get_draw_window(void) {
 	return window;
 }
 
-bool frame_t::accepts_focus(void) { return false; }
+bool frame_t::accepts_focus(void) { return child->accepts_focus(); }

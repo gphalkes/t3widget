@@ -30,7 +30,7 @@ class list_pane_t : public widget_t, public container_t {
 
 		class indicator_widget_t : public widget_t {
 			private:
-				bool has_focus;
+				bool has_focus, redraw;
 			public:
 				indicator_widget_t(container_t *parent);
 				virtual bool process_key(key_t key);
@@ -53,6 +53,8 @@ class list_pane_t : public widget_t, public container_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual bool accepts_enter(void);
+		virtual t3_window_t *get_draw_window(void);
+		virtual void set_anchor(window_component_t *anchor, int relation);
 		void reset(void);
 		void update_positions(void);
 

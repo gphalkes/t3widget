@@ -26,7 +26,7 @@ class frame_t : public widget_t, public container_t {
 			COVER_TOP = 8
 		};
 
-		frame_t(container_t *parent, widget_t *_child, frame_dimension_t _dimension);
+		frame_t(container_t *parent, widget_t *_child, frame_dimension_t _dimension = AROUND_ALL);
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);

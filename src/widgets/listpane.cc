@@ -13,6 +13,7 @@
 */
 #include "colorscheme.h"
 #include "widgets/listpane.h"
+#include "log.h"
 
 using namespace std;
 
@@ -21,9 +22,9 @@ list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1), top
 {
 	/* We temporarily store the clip_window in window, so that we can use set_anchor on
 	   the scrollbar. */
-	if ((clip_window = window = t3_win_new_unbacked(parent->get_draw_window(), height, 3, 0, 0, 0)) == NULL)
+	if ((clip_window = window = t3_win_new_unbacked(parent->get_draw_window(), height, 4, 0, 0, 0)) == NULL)
 		throw bad_alloc();
-	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar.set_size(height, None);
 
 	if ((window = t3_win_new_unbacked(clip_window, 1, 3, 0, 0, 0)) == NULL)
@@ -110,7 +111,7 @@ void list_pane_t::set_position(optint top, optint left) {
 		top = t3_win_get_y(clip_window);
 	if (!left.is_valid())
 		left = t3_win_get_x(clip_window);
-
+lprintf("Moving clip_window to %d %d\n", (int) top, (int) left);
 	t3_win_move(clip_window, top, left);
 }
 
@@ -124,9 +125,11 @@ bool list_pane_t::set_size(optint _height, optint width) {
 		width = t3_win_get_width(clip_window);
 
 	result = t3_win_resize(clip_window, height, width);
-	result &= t3_win_resize(window, t3_win_get_height(window), width);
+	result &= t3_win_resize(window, t3_win_get_height(window), width - 1);
+	if (indicator)
+		result &= indicator_widget->set_size(None, width - 1);
 
-	widget_width = indicator ? (int) width - 2 : (int) width;
+	widget_width = indicator ? (int) width - 3 : (int) width - 1;
 
 	for (widgets_t::iterator iter = widgets.begin();
 			iter != widgets.end(); iter++)
@@ -140,10 +143,12 @@ bool list_pane_t::set_size(optint _height, optint width) {
 
 
 void list_pane_t::update_contents(void) {
-	if (indicator)
+	if (indicator) {
+		indicator_widget->update_contents();
 		indicator_widget->set_position(current, 0);
+	}
 	t3_win_move(window, -top_idx, 0);
-	scrollbar.set_parameters(widgets.size(), top_idx, height);
+	scrollbar.set_parameters(widgets.size(), top_idx, height - 1);
 	scrollbar.update_contents();
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->update_contents();
@@ -154,7 +159,9 @@ void list_pane_t::set_focus(bool focus) {
 	if (widgets.size() == 0)
 		t3_term_hide_cursor();
 	else if (current < widgets.size())
-		widgets[current]->set_focus(has_focus);
+		widgets[current]->set_focus(focus);
+	if (indicator)
+		indicator_widget->set_focus(focus);
 }
 
 bool list_pane_t::accepts_enter(void) { return true; }
@@ -167,26 +174,29 @@ void list_pane_t::reset(void) {
 void list_pane_t::update_positions(void) {
 	widgets_t::iterator iter;
 	size_t idx;
-	int widget_width = t3_win_get_width(clip_window);
-	if (indicator)
-		widget_width -= 2;
 
 	t3_win_resize(window, widgets.size(), t3_win_get_width(clip_window));
-	for (iter = widgets.begin(), idx = 0;
-			iter != widgets.end();
-			iter++, idx++)
-	{
-		(*iter)->set_size(1, widget_width);
+	for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++)
 		(*iter)->set_position(idx, indicator ? 1 : 0);
-	}
+}
+
+t3_window_t *list_pane_t::get_draw_window(void) {
+	return window;
+}
+
+void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
+	t3_win_set_anchor(clip_window, anchor->get_draw_window(), relation);
 }
 
 void list_pane_t::push_back(widget_t *widget) {
+	widget->set_size(1, t3_win_get_width(window) - (indicator ? 2 : 0));
+	widget->set_position(widgets.size(), indicator ? 1 : 0);
 	widgets.push_back(widget);
-	update_positions();
+	t3_win_resize(window, widgets.size(), t3_win_get_width(clip_window));
 }
 
 void list_pane_t::push_front(widget_t *widget) {
+	widget->set_size(1, t3_win_get_width(window) - (indicator ? 2 : 0));
 	widgets.push_front(widget);
 	if (current + 1 < widgets.size())
 		current++;
@@ -202,6 +212,7 @@ void list_pane_t::pop_back(void) {
 		}
 	}
 	widgets.pop_back();
+	t3_win_resize(window, widgets.size(), t3_win_get_width(clip_window));
 }
 
 void list_pane_t::pop_front(void) {
@@ -213,6 +224,7 @@ void list_pane_t::pop_front(void) {
 		current--;
 	}
 	widgets.pop_front();
+	update_positions();
 }
 
 widget_t *list_pane_t::back(void) {
@@ -263,30 +275,34 @@ void list_pane_t::set_current(int idx) {
 
 //=========== Indicator widget ================
 
-list_pane_t::indicator_widget_t::indicator_widget_t(container_t *_parent) : widget_t(_parent, 1, 3), has_focus(false) {
-	t3_win_set_depth(window, 1);
-	set_size(None, 3);
+list_pane_t::indicator_widget_t::indicator_widget_t(container_t *_parent) : widget_t(_parent, 1, 3), has_focus(false), redraw(true) {
+	t3_win_set_depth(window, INT_MAX);
 }
+
 bool list_pane_t::indicator_widget_t::process_key(key_t key) { (void) key; return false; }
-void list_pane_t::indicator_widget_t::update_contents(void) {}
+
+void list_pane_t::indicator_widget_t::update_contents(void) {
+	if (!redraw)
+		return;
+	redraw = false;
+	t3_win_set_paint(window, 0, 0);
+	t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS | (has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs));
+	t3_win_set_paint(window, 0, t3_win_get_width(window) - 1);
+	t3_win_addch(window, T3_ACS_LARROW, T3_ATTR_ACS | (has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs));
+}
 
 void list_pane_t::indicator_widget_t::set_focus(bool focus) {
 	has_focus = focus;
+	redraw = true;
 }
 
 bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
-	bool result;
-
 	(void) _height;
 
 	if (!width.is_valid())
 		return true;
-	result = t3_win_resize(window, 1, width);
-	t3_win_set_paint(window, 0, 0);
-	t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS | (has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs));
-	t3_win_set_paint(window, 0, width - 1);
-	t3_win_addch(window, T3_ACS_LARROW, T3_ATTR_ACS | (has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs));
-	return result;
+	redraw = true;
+	return t3_win_resize(window, 1, width);
 }
 
 t3_window_t *list_pane_t::indicator_widget_t::get_draw_window(void) {
