@@ -1,4 +1,6 @@
 syntax: glob
+src/widget_errors.h
+src/widget_api.h
 src/libt3widget.la
 src/unicode
 src/window
