@@ -21,7 +21,7 @@
 using namespace std;
 namespace t3_widget {
 
-menu_panel_t::menu_panel_t(menu_bar_t *_menu, const char *name) : dialog_t(3, 5, 1, 0, 40, NULL), label(name), menu(_menu) {
+menu_panel_t::menu_panel_t(menu_bar_t *_menu, const char *name) : dialog_t(3, 5, NULL), label(name), menu(_menu) {
 	menu->add_menu(this);
 	t3_win_set_anchor(window, menu->get_draw_window(), 0);
 	width = 5;

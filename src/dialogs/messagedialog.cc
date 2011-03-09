@@ -20,7 +20,7 @@
 using namespace std;
 namespace t3_widget {
 
-message_dialog_base_t::message_dialog_base_t(int width, int top, int left, const char *_title) : dialog_t(5, width, top, left, 0, _title) {
+message_dialog_base_t::message_dialog_base_t(int width, const char *_title) : dialog_t(5, width, _title) {
 	int i;
 	message = NULL;
 	for (i = 0; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1; i++)
@@ -87,7 +87,7 @@ void message_dialog_base_t::set_message(const string *_message) {
 }
 
 
-message_dialog_t::message_dialog_t(int width, int top, int left, const char *_title) : message_dialog_base_t(width, top, left, _title) {
+message_dialog_t::message_dialog_t(int width, const char *_title) : message_dialog_base_t(width, _title) {
 	button = new button_t(this, "_OK;oO", true);
 	button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	button->set_position(-1, (width - button->get_width()) / 2 );
@@ -102,8 +102,8 @@ bool message_dialog_t::set_size(optint _height, optint width) {
 	return result;
 }
 
-question_dialog_t::question_dialog_t(int width, int top, int left, const char *_title,
-		const char *okName, const char *cancelName) : message_dialog_base_t(width, top, left, _title)
+question_dialog_t::question_dialog_t(int width, const char *_title,
+		const char *okName, const char *cancelName) : message_dialog_base_t(width, _title)
 {
 	ok_button = new button_t(this, okName);
 	ok_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));

@@ -33,7 +33,8 @@ static key_t nul = 0;
 #warning FIXME: allow some way to specify that an extra button for options should be present
 	//FIXME: perhaps we should also allow a drop down list, which would require different handling
 #warning FIXME: complete focus moving
-file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, 2, 1, DIALOG_DEPTH, _title), view(NULL) {
+file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, _title), view(NULL) {
+	set_position(2, 1);
 	name_label = new smart_label_t(this, "_Name;nN", true);
 	name_label->set_position(1, 2);
 	name_offset = name_label->get_width() + 2 + 1; // 2 for offset of "Name", 1 for space in ": ["

@@ -22,8 +22,7 @@ namespace t3_widget {
 static key_t accepted_keys[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
 
 goto_dialog_t::goto_dialog_t(void) :
-	dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, (screenLines - GOTO_DIALOG_HEIGHT) / 2,
-		(screenColumns - GOTO_DIALOG_WIDTH) / 2, DIALOG_DEPTH - 10, "Goto text_line_t")
+	dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, 0, 0, "Goto Line")
 {
 	smart_label_t *number_label;
 	button_t *ok_button, *cancel_button;

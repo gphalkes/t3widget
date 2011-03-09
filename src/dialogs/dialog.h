@@ -22,8 +22,6 @@
 
 namespace t3_widget {
 
-#define DIALOG_DEPTH 80
-
 class dialog_t;
 typedef std::list<dialog_t *> dialogs_t;
 class main_window_base_t;
@@ -56,7 +54,7 @@ class dialog_t : public window_component_t, public container_t {
 		widgets_t::iterator current_widget;
 		bool redraw;
 
-		dialog_t(int height, int width, int top, int left, int depth, const char *_title);
+		dialog_t(int height, int width, const char *_title);
 		virtual ~dialog_t();
 		virtual void draw_dialog(void);
 		void focus_next(void);

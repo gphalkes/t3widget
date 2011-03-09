@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_MAIN_H
 #define T3_WIDGET_MAIN_H
 
+#include "util.h"
 #include "dialogs/dialog.h"
 
 namespace t3_widget {

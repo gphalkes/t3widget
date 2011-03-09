@@ -34,7 +34,7 @@ class message_dialog_base_t : public dialog_t {
 		virtual void draw_dialog(void);
 
 	public:
-		message_dialog_base_t(int width, int top, int left, const char *_title);
+		message_dialog_base_t(int width, const char *_title);
 		void set_message(const std::string *_message);
 };
 
@@ -44,7 +44,7 @@ class message_dialog_t : public message_dialog_base_t {
 		button_t *button;
 
 	public:
-		message_dialog_t(int width, int top, int left, const char *_title);
+		message_dialog_t(int width, const char *_title);
 		virtual bool set_size(optint height, optint width);
 };
 
@@ -54,7 +54,7 @@ class question_dialog_t : public message_dialog_base_t {
 		void *data;
 
 	public:
-		question_dialog_t(int width, int top, int left, const char *_title, const char *okName, const char *cancelName);
+		question_dialog_t(int width, const char *_title, const char *okName, const char *cancelName);
 		virtual bool set_size(optint height, optint width);
 
 	T3_WIDET_SIGNAL(ok, void);

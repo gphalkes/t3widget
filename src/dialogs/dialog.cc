@@ -34,8 +34,8 @@ void dialog_t::init(main_window_base_t *_main_window) {
 	main_window->set_focus(true);
 }
 
-dialog_t::dialog_t(int height, int width, int top, int left, int depth, const char *_title) : active(false), title(_title), redraw(true) {
-	if ((window = t3_win_new(NULL, height + 1, width + 1, top, left, depth)) == NULL)
+dialog_t::dialog_t(int height, int width, const char *_title) : active(false), title(_title), redraw(true) {
+	if ((window = t3_win_new(NULL, height + 1, width + 1, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	init_colors();
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
