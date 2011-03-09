@@ -16,9 +16,12 @@
 
 #include "util.h"
 #include "dialogs/dialog.h"
+#include "dialogs/insertchardialog.h"
 
 namespace t3_widget {
 class main_window_base_t;
+
+extern insert_char_dialog_t insert_char_dialog;
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &_slot);
 

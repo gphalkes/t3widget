@@ -15,7 +15,6 @@
 #define T3_WIDGET_DIALOGS_H
 
 #include <list>
-#include "main.h"
 #include "interfaces.h"
 #include "widgets/widget.h"
 #include "widgets/dummywidget.h"

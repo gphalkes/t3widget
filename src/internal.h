@@ -14,6 +14,8 @@
 #ifndef T3_WIDGET_INTERNAL_H
 #define T3_WIDGET_INTERNAL_H
 
+#include <string>
+
 namespace t3_widget {
 
 class text_line_t;
@@ -25,5 +27,10 @@ extern text_line_t *copy_buffer;
 #define ASSERT(_x)
 #endif
 
+#define ESCAPE_UNICODE (1<<29)
+#define ESCAPE_REPLACEMENT (1<<30)
+
+int parse_escape(const std::string &str, const char **error_message, size_t &read_position, size_t max_read_position, bool replacements = false);
+bool parse_escapes(std::string &str, const char **error_message, bool replacements);
 }; // namespace
 #endif

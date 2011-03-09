@@ -32,6 +32,8 @@ namespace t3_widget {
 static int screen_lines, screen_columns;
 static signal<void, int, int> resize;
 
+insert_char_dialog_t insert_char_dialog;
+
 connection connect_resize(const slot<void, int, int> &_slot) {
 	return resize.connect(_slot);
 }

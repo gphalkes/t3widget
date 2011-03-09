@@ -68,16 +68,16 @@ void goto_dialog_t::set_position(optint top, optint left) {
 
 	t3_term_get_size(&height, &width);
 	top = top - GOTO_DIALOG_HEIGHT / 2;
-	if (top + GOTO_DIALOG_HEIGHT > height)
-		top = height - GOTO_DIALOG_HEIGHT;
-	if (top < 0)
-		top = 0;
+	if (top + GOTO_DIALOG_HEIGHT > height - 1)
+		top = height - GOTO_DIALOG_HEIGHT - 1;
+	if (top < 1)
+		top = 1;
 
 	left = left - GOTO_DIALOG_WIDTH / 2;
-	if (left + GOTO_DIALOG_WIDTH > width)
-		left = width - GOTO_DIALOG_WIDTH;
-	if (left < 0)
-		left = 0;
+	if (left + GOTO_DIALOG_WIDTH > width - 1)
+		left = width - GOTO_DIALOG_WIDTH - 1;
+	if (left < 1)
+		left = 1;
 
 	t3_win_move(window, top, left);
 }

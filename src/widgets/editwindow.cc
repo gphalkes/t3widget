@@ -603,8 +603,9 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 */
 		case EKEY_F9:
-			#warning FIXME: insert char dialog should open here
-			//~ executeAction(ActionID::EDIT_INSERT_CHAR);
+			insert_char_dialog.set_position(t3_win_get_abs_y(window) + t3_win_get_height(window) / 2,
+				t3_win_get_abs_x(window) + t3_win_get_width(window) / 2);
+			insert_char_dialog.show();
 			break;
 
 		default:

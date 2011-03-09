@@ -14,6 +14,7 @@
 #include <cstring>
 #include <algorithm>
 
+#include "main.h"
 #include "colorscheme.h"
 #include "internal.h"
 #include "widgets/textfield.h"
@@ -252,8 +253,10 @@ bool text_field_t::process_key(key_t key) {
 
 		case EKEY_F9:
 			dont_select_on_focus = true;
-#warning FIXME: activate InsertCharacter dialog
-			//executeAction(ActionID::EDIT_INSERT_CHAR);
+#warning FIXME: should this be centered on dialog?? And how do we even do that?
+			insert_char_dialog.set_position(t3_win_get_abs_y(window) + t3_win_get_height(window) / 2,
+				t3_win_get_abs_x(window) + t3_win_get_width(window) / 2);
+			insert_char_dialog.show();
 			break;
 
 		case EKEY_HOTKEY:
