@@ -157,6 +157,8 @@ static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
 static charconv_t *conversion_handle;
 
+static int key_timeout = -1;
+
 static key_t decode_sequence(bool outer);
 static void stop_keys(void);
 
@@ -267,7 +269,7 @@ static void *read_keys(void *arg) {
 	}
 }
 
-key_t wreadkey(void) {
+key_t read_key(void) {
 	if (protected_insert) {
 		int c = protected_insert;
 		protected_insert = 0;
@@ -280,15 +282,21 @@ static key_t decode_sequence(bool outer) {
 	int sequence_index = 1;
 	key_t sequence[MAX_SEQUENCE];
 	int c, i, j;
+	bool is_prefix;
 
 	sequence[0] = EKEY_ESC;
 
 	while (sequence_index < MAX_SEQUENCE) {
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
-				if (sequence_index == 1 && outer) {
-					key_t alted = decode_sequence(false);
-					return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
+				if (key_timeout < 0) {
+					if (sequence_index == 1)
+						return EKEY_ESC;
+				} else {
+					if (sequence_index == 1 && outer) {
+						key_t alted = decode_sequence(false);
+						return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
+					}
 				}
 				unget_key(c);
 				break;
@@ -296,23 +304,34 @@ static key_t decode_sequence(bool outer) {
 
 			sequence[sequence_index++] = c;
 
+			is_prefix = false;
 			for (i = 0; i < map_count; i++) {
-				if (sequence_index != (int) map[i].string_length)
+				if (sequence_index > (int) map[i].string_length || (key_timeout >= 0 && sequence_index != (int) map[i].string_length))
 					continue;
+
 				for (j = 0; j < sequence_index; j++)
 					if (sequence[j] != map[i].string[j])
 						goto check_next_sequence;
-				return map[i].key;
+
+				if (j == (int) map[i].string_length)
+					return map[i].key;
+
+				if (j == sequence_index)
+					is_prefix = true;
+
 		check_next_sequence:;
 			}
+			if (key_timeout < 0 && !is_prefix)
+				goto ignore_sequence;
 		}
-		//FIXME: change timeout for new handling
-		if (read_and_convert_keys(100) < 0)
+
+		if (read_and_convert_keys(key_timeout) < 0)
 			break;
 	}
 
+ignore_sequence:
 	if (sequence_index == 2)
-		return ((key_t) sequence[1]) | EKEY_META;
+		return sequence[1] | EKEY_META;
 	else if (sequence_index == 1)
 		return EKEY_ESC;
 
@@ -332,6 +351,7 @@ static void sigwinch_handler(int param) {
 	nosig_write(signal_pipe[1], &winch_signal, 1);
 }
 
+//FIXME: return value can not be a simple int, because of the different ranges of values it needs to support
 #define RETURN_ERROR(_x) do { error = (_x); goto return_error; } while (0)
 /* Initialize the key map */
 int init_keys(void) {
@@ -434,6 +454,7 @@ return_error:
 
 	return error;
 }
+#undef RETURN_ERROR
 
 void deinit_keys(void) {
 	t3_term_putp(leave);
@@ -452,6 +473,10 @@ static void stop_keys(void) {
 #ifdef DEBUG
 	t3_key_free_map(keymap);
 #endif
+}
+
+void set_key_timeout(int msec) {
+	key_timeout = msec;
 }
 
 }; // namespace

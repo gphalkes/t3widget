@@ -23,10 +23,7 @@ typedef long key_t;
 typedef int key_t;
 #endif
 
-int init_keys(void);
-void deinit_keys(void);
-void reinit_keys(void);
-key_t wreadkey(void);
+key_t read_key(void);
 #define EKEY_ESC 27
 #define EKEY_SHIFT 0x40000000
 #define EKEY_META 0x20000000
@@ -64,7 +61,11 @@ enum {
 	EKEY_NOP
 };
 
+int init_keys(void);
+void deinit_keys(void);
+void reinit_keys(void);
 void insert_protected_key(key_t key);
+void set_key_timeout(int msec);
 
 }; // namespace
 #endif
