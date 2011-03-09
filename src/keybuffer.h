@@ -25,14 +25,14 @@ namespace t3_widget {
 
 typedef std::deque<key_t> keys_t;
 
-class KeyBuffer {
+class key_buffer_t {
 	private:
 		keys_t keys;
 		pthread_mutex_t lock;
 		pthread_cond_t cond;
 
 	public:
-		KeyBuffer(void) {
+		key_buffer_t(void) {
 			pthread_mutex_init(&lock, NULL);
 			pthread_cond_init(&cond, NULL);
 		}
@@ -60,7 +60,7 @@ class KeyBuffer {
 			return result;
 		}
 
-		~KeyBuffer(void) {
+		~key_buffer_t(void) {
 			pthread_mutex_destroy(&lock);
 			pthread_cond_destroy(&cond);
 		}

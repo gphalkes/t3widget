@@ -27,6 +27,14 @@ IDEAS
 - For creating a signal that goes through the slots, but stops if one returns
 	true, see here (may be usefull for hotkey bindings):
 	http://library.gnome.org/devel/libsigc++/stable/classsigc_1_1signal_1_1accumulated.html
+- Allow the text_window_t to be set to read-only mode. This way it can also be
+	used for just displaying text (perhaps the bottom line should also be
+	disabled for that use)
+- When changing the colors, the default attributes for several widget types
+	should be changed! Perhaps it is better not to set these in the constructor
+	but just keep on resetting it when we redraw. Then we just need to entirely
+	redraw the interface (for which the redraw paradigm mentioned earlier would
+	be a good idea).
 
 THOUGHTS
 - we won't do layout management. For most things the anchoring does what we

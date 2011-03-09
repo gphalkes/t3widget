@@ -148,7 +148,7 @@ static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
 static key_t protected_insert;
 
-static KeyBuffer key_buffer;
+static key_buffer_t key_buffer;
 static pthread_t read_key_thread;
 
 static char char_buffer[32];
