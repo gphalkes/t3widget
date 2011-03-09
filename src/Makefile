@@ -71,6 +71,7 @@ LDLIBS += -L$(CURDIR)/../src/window/.libs -lt3window
 LDLIBS += -L$(CURDIR)/../src/unicode/.libs -lt3unicode
 LDLIBS += -L$(CURDIR)/../src/charconv/.libs -lcharconv
 LDLIBS += -L$(CURDIR)/../src/key/.libs -lt3key
+LDLIBS += -lpcre
 LDLIBS += `pkg-config --libs sigc++-2.0`
 
 CXX := clang++
