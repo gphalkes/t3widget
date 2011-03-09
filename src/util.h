@@ -84,16 +84,5 @@ _T3_WIDGET_ENUM(find_flags_t,
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
-#ifdef _T3_WIDGET_INTERNAL
-class text_line_t;
-extern text_line_t *copy_buffer;
-
-#ifdef _T3_WIDGET_DEBUG
-#define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)
-#else
-#define ASSERT(_x)
-#endif
-
-#endif // _T3_WIDGET_INTERNAL
 }; // namespace
 #endif

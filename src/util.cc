@@ -15,6 +15,7 @@
 #include <cerrno>
 
 #include "util.h"
+#include "internal.h"
 
 namespace t3_widget {
 

@@ -15,7 +15,7 @@
 #include <algorithm>
 
 #include "colorscheme.h"
-#include "main.h"
+#include "internal.h"
 #include "widgets/textfield.h"
 
 using namespace std;

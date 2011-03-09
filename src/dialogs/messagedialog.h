@@ -20,6 +20,8 @@
 
 namespace t3_widget {
 
+class text_line_t;
+
 #define _T3_WIDGET_MESSAGEDIALOG_MAX_LINES 10
 
 class message_dialog_base_t : public dialog_t {

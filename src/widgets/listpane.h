@@ -14,7 +14,6 @@
 #ifndef T3_WIDGET_LISTPANE_H
 #define T3_WIDGET_LISTPANE_H
 
-#include "window/window.h"
 #include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 

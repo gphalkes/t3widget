@@ -5,15 +5,13 @@ TODO
 		To some extent this can be left to the user, as the most common place
 		for the menu bar is the main window anyway, which has to be overriden
 		anyway.
-	- adding key-bindings can be done through deriving from a class and
-		overriding process_key
 	- perhaps it is a good idea to let the user define short-cuts for things
 		like calling the insert_char_dialog. Forcing F9 may not be a great idea.
-		On the other hand, enforcing a standard can also be good.
-
+		On the other hand, enforcing a standard can also be good. There are only
+		two widgets (currently) for which this makes sense: text_field_t and
+		edit_window_t. But they should share the same shortcut.
 - rename the multi_string_list_i interface to something ending in _t
-- remove anything not related to the external interface from the externally
-	used header files
+- handle FIXME's
 
 IDEAS
 - use a line_factory_t for the text_buffer_t, such that lines with extensions
@@ -23,10 +21,17 @@ IDEAS
 - many widgets can be made aggregated types, rather than pointers. This does
 	mean calling the constructor from the initializer list.
 - the current content list stuff and file_pane_t interface are messy. This
-	definately need more work.
+	definately needs more work.
+- the redraw paradigm in the widgets occurs quite often. It may be good to
+	simply add a redraw member to the widget base class
+- For creating a signal that goes through the slots, but stops if one returns
+	true, see here (may be usefull for hotkey bindings):
+	http://library.gnome.org/devel/libsigc++/stable/classsigc_1_1signal_1_1accumulated.html
 
 THOUGHTS
 - we won't do layout management. For most things the anchoring does what we
 	want. Furthermore, most dialogs don't resize also because the user can not
 	resize windows. So for those few cases where we do actually need it, the
 	programmer can do it by overriding the set_size() call.
+- adding key-bindings can be done through deriving from a class and
+	overriding process_key

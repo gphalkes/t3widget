@@ -31,8 +31,8 @@
 #include "colorscheme.h"
 #include "util.h"
 #include "undo.h"
-#include "main.h"
 #include "widgets/editwindow.h"
+#include "internal.h"
 
 using namespace std;
 namespace t3_widget {

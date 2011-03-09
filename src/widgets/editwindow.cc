@@ -16,7 +16,7 @@
 #include "editwindow.h"
 #include "util.h"
 #include "colorscheme.h"
-#include "main.h"
+#include "internal.h"
 
 using namespace std;
 namespace t3_widget {

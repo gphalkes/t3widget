@@ -16,7 +16,6 @@
 
 #include <deque>
 
-#include "window/window.h"
 #include "interfaces.h"
 #include "colorscheme.h"
 

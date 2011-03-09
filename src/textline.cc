@@ -25,9 +25,9 @@
 #include "textline.h"
 #include "util.h"
 #include "undo.h"
-#include "main.h"
 #include "stringmatcher.h"
 #include "unicode/unicode.h"
+#include "internal.h"
 
 using namespace std;
 namespace t3_widget {

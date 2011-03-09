@@ -18,7 +18,6 @@ namespace t3_widget {
 	class edit_window_t;
 }; // namespace
 
-#include "window/window.h"
 #include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 #include "textbuffer.h"

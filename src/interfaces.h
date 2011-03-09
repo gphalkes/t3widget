@@ -19,7 +19,10 @@
 
 #include "keys.h"
 #include "util.h"
-#include "window/window.h"
+
+extern "C" {
+typedef struct t3_window_t t3_window_t;
+};
 
 namespace t3_widget {
 

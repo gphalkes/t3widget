@@ -14,7 +14,6 @@
 #ifndef T3_WIDGET_FILEPANE_H
 #define T3_WIDGET_FILEPANE_H
 
-#include "window/window.h"
 #include "widgets/widget.h"
 #include "widgets/contentlist.h"
 #include "widgets/scrollbar.h"
