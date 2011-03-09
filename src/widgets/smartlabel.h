@@ -15,7 +15,7 @@
 #define T3_WIDGET_SMARTLABEL_H
 
 #include "widgets/widget.h"
-#include "keys.h"
+#include "key.h"
 
 namespace t3_widget {
 

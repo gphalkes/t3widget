@@ -14,7 +14,7 @@
 
 SOURCES.libt3widget.la := \
 	colorscheme.cc \
-	keys.cc \
+	key.cc \
 	log.cc \
 	main.cc \
 	stringmatcher.cc \

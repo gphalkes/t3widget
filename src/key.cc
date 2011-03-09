@@ -19,8 +19,8 @@
 #include <charconv.h>
 
 #include <window/window.h>
+#include <key/key.h>
 
-#include "keys.h"
 #include "util.h"
 #include "main.h"
 #include "key.h"

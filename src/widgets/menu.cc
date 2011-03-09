@@ -18,7 +18,7 @@
 #include "widgets/menu.h"
 #include "dialogs/menupanel.h"
 #include "main.h"
-#include "keys.h"
+#include "key.h"
 
 using namespace std;
 namespace t3_widget {

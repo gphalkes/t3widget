@@ -23,7 +23,7 @@
 #include <pcre.h>
 #include <window/window.h>
 
-#include "keys.h"
+#include "key.h"
 #include "stringmatcher.h"
 
 namespace t3_widget {

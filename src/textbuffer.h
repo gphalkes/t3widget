@@ -17,7 +17,7 @@
 #include <cstdio>
 #include <vector>
 
-#include "keys.h"
+#include "key.h"
 #include "textline.h"
 #include "subline.h"
 #include "undo.h"

@@ -21,7 +21,7 @@ namespace t3_widget {
 #include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 #include "textbuffer.h"
-#include "keys.h"
+#include "key.h"
 #include "interfaces.h"
 
 namespace t3_widget {
