@@ -14,6 +14,9 @@
 #include <csignal>
 #include <cstring>
 #include <climits>
+#include <stdint.h>
+#include <langinfo.h>
+#include <charconv.h>
 
 #include <window/window.h>
 
@@ -21,19 +24,27 @@
 #include "util.h"
 #include "main.h"
 #include "key.h"
-#ifdef THREADED_KEYS
 #include "keybuffer.h"
-#endif
 
 namespace t3_widget {
 
 #define MAX_SEQUENCE 100
 
+enum {
+	WINCH_SIGNAL,
+	QUIT_SIGNAL
+};
 
 typedef struct {
 	const char *string;
 	key_t code;
 } key_string_t;
+
+typedef struct {
+	const char *string;
+	size_t string_length;
+	key_t key;
+} mapping_t;
 
 key_string_t key_strings[] = {
 	{"home", EKEY_HOME},
@@ -128,41 +139,94 @@ key_string_t key_strings[] = {
 	{NULL, 0}
 };
 
-typedef struct {
-	const char *string;
-	size_t string_length;
-	key_t key;
-} mapping_t;
-
 static mapping_t *map;
 static int map_count;
-static key_t map_single[UCHAR_MAX];
+static key_t map_single[128];
 
 static const char *leave, *enter;
 static const t3_key_node_t *keymap;
-static int signal_pipe[2];
+static int signal_pipe[2] = { -1, -1 };
 static key_t protected_insert;
 
-enum {
-	WINCH_SIGNAL,
-	QUIT_SIGNAL
-};
+static KeyBuffer key_buffer;
+static pthread_t read_key_thread;
+
+static char char_buffer[32];
+static int char_buffer_fill;
+static uint32_t unicode_buffer[16];
+static int unicode_buffer_fill;
+static charconv_t *conversion_handle;
 
 static key_t decode_sequence(bool outer);
 static void stop_keys(void);
 
-void sigwinchhandler(int param) {
-	char winch_signal = WINCH_SIGNAL;
-	(void) param;
-	nosig_write(signal_pipe[1], &winch_signal, 1);
+static key_t get_next_converted_key(void) {
+	if (unicode_buffer_fill > 0) {
+		key_t c = unicode_buffer[0];
+		unicode_buffer_fill--;
+		memmove(unicode_buffer, unicode_buffer + 1, sizeof(unicode_buffer[0]) * unicode_buffer_fill);
+		return c;
+	}
+	return /* FIXME */ -1;
 }
 
-static key_t wreadkey_internal(void) {
-	key_t c = -1;
+static void unget_key(key_t c) {
+	memmove(unicode_buffer + 1, unicode_buffer, sizeof(unicode_buffer[0]) * unicode_buffer_fill);
+	unicode_buffer[0] = c;
+	unicode_buffer_fill++;
+}
 
-	do {
-		int retval;
-		fd_set readset;
+static int read_and_convert_keys(int timeout) {
+	const char *char_buffer_ptr;
+	uint32_t *unicode_buffer_ptr;
+	key_t c;
+
+	c = t3_term_get_keychar(timeout);
+	if (c < 0)
+		return -1;
+
+	char_buffer[char_buffer_fill++] = (char) c;
+	char_buffer_ptr = char_buffer;
+	unicode_buffer_ptr = unicode_buffer;
+
+	while (1) {
+		switch (charconv_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
+				(char **) &unicode_buffer_ptr, (const char *) (&unicode_buffer) + sizeof(unicode_buffer), CHARCONV_ALLOW_FALLBACK))
+		{
+			case CHARCONV_SUCCESS:
+			case CHARCONV_NO_SPACE:
+			case CHARCONV_INCOMPLETE:
+				char_buffer_fill -= char_buffer_ptr - char_buffer;
+				if (char_buffer_fill != 0)
+					memmove(char_buffer, char_buffer_ptr, char_buffer_fill);
+				unicode_buffer_fill = unicode_buffer_ptr - unicode_buffer;
+				return 0;
+
+			case CHARCONV_FALLBACK: // NOTE: we allow fallbacks, so this should not even occur!!!
+
+			case CHARCONV_UNASSIGNED:
+			case CHARCONV_ILLEGAL:
+			case CHARCONV_ILLEGAL_END:
+			case CHARCONV_INTERNAL_ERROR:
+			case CHARCONV_PRIVATE_USE:
+				charconv_to_unicode_skip(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill);
+				break;
+			default:
+				// This shouldn't happen, and we can't really do anything with this.
+				return 0;
+		}
+	}
+}
+
+
+static void *read_keys(void *arg) {
+	int retval;
+	key_t c;
+	fd_set readset;
+
+	(void) arg;
+
+	while (1) {
 		FD_ZERO(&readset);
 		FD_SET(0, &readset);
 		FD_SET(signal_pipe[0], &readset);
@@ -177,50 +241,31 @@ static key_t wreadkey_internal(void) {
 
 			nosig_read(signal_pipe[0], &command, 1);
 			switch (command) {
-#ifdef THREADED_KEYS
 				case QUIT_SIGNAL:
-					pthread_exit(NULL);
-					continue;
-#endif
+					/* Exit thread */
+					return NULL;
 				case WINCH_SIGNAL:
-					return EKEY_RESIZE;
+					key_buffer.push_back(EKEY_RESIZE);
+					break;
 				default:
-					// This should be impossible, but just ignore for now
+					// This should be impossible, so just ignore
 					continue;
 			}
 		}
 
-		if (FD_ISSET(0, &readset)) {
-			c = t3_term_get_keychar(-1);
+		if (FD_ISSET(0, &readset))
+			read_and_convert_keys(-1);
 
+		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
 				c = decode_sequence(true);
-#warning FIXME: decode UTF-8 and other encodings
-/* 			} else if (UTF8mode && c > 0 && (c & 0x80)) {
-				UTF8TermInput input;
-				t3_term_unget_keychar(c);
-				c = getNextUTF8InputChar(&input); */
-			} else if (c > 0 && c < UCHAR_MAX && map_single[c] != 0) {
+			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
+			key_buffer.push_back(c);
 		}
-		// FIXME: check for error conditions other than timeout!
-	} while (c < 0);
-
-	return c;
+	}
 }
-
-#ifdef THREADED_KEYS
-static KeyBuffer key_buffer;
-static pthread_t read_key_thread;
-
-static void *read_keys(void *arg) {
-	(void) arg;
-	while (1)
-		key_buffer.push_back(wreadkey_internal());
-	return NULL;
-}
-#endif
 
 key_t wreadkey(void) {
 	if (protected_insert) {
@@ -228,42 +273,42 @@ key_t wreadkey(void) {
 		protected_insert = 0;
 		return c;
 	}
-#ifdef THREADED_KEYS
 	return key_buffer.pop_front();
-#else
-	return wreadkey_internal();
-#endif
 }
 
 static key_t decode_sequence(bool outer) {
-	size_t sequence_index = 1;
-	int c, i;
-	char sequence[MAX_SEQUENCE];
+	int sequence_index = 1;
+	key_t sequence[MAX_SEQUENCE];
+	int c, i, j;
 
 	sequence[0] = EKEY_ESC;
 
 	while (sequence_index < MAX_SEQUENCE) {
-		c = t3_term_get_keychar(100);
-		/* Check for timeout */
-		if (c < 0) {
-			break;
-		} else if (c == EKEY_ESC) {
-			/* FIXME: we need to change this so we can use alt on UTF-8, and use the
-			   sequences in the library for key+m */
-			if (sequence_index == 1 && outer) {
-				key_t alted = decode_sequence(false);
-				return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
+		while ((c = get_next_converted_key()) >= 0) {
+			if (c == EKEY_ESC) {
+				if (sequence_index == 1 && outer) {
+					key_t alted = decode_sequence(false);
+					return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
+				}
+				unget_key(c);
+				break;
 			}
-			t3_term_unget_keychar(c);
-			break;
-		}
 
-		sequence[sequence_index++] = c;
+			sequence[sequence_index++] = c;
 
-		for (i = 0; i < map_count; i++) {
-			if (sequence_index == map[i].string_length && memcmp(sequence, map[i].string, sequence_index) == 0)
+			for (i = 0; i < map_count; i++) {
+				if (sequence_index != (int) map[i].string_length)
+					continue;
+				for (j = 0; j < sequence_index; j++)
+					if (sequence[j] != map[i].string[j])
+						goto check_next_sequence;
 				return map[i].key;
+		check_next_sequence:;
+			}
 		}
+		//FIXME: change timeout for new handling
+		if (read_and_convert_keys(100) < 0)
+			break;
 	}
 
 	if (sequence_index == 2)
@@ -281,31 +326,53 @@ void insert_protected_key(key_t key) {
 	protected_insert = key | EKEY_PROTECT;
 }
 
+static void sigwinch_handler(int param) {
+	char winch_signal = WINCH_SIGNAL;
+	(void) param;
+	nosig_write(signal_pipe[1], &winch_signal, 1);
+}
 
+#define RETURN_ERROR(_x) do { error = (_x); goto return_error; } while (0)
 /* Initialize the key map */
 int init_keys(void) {
 	struct sigaction sa;
 	sigset_t sigs;
 	const t3_key_node_t *key_node;
 	int i, error, idx;
+	charconv_error_t charconv_error;
+
+	/* Start with things most likely to fail */
+	if ((conversion_handle = charconv_open_convertor(nl_langinfo(CODESET), CHARCONV_UTF32, 0, &charconv_error)) == NULL)
+		RETURN_ERROR(charconv_error); //FIXME: may overlap with t3_key_load_map errors
+
+	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)
+		RETURN_ERROR(error); //FIXME: may overlap with charconv error codes!
 
 	if (pipe(signal_pipe) < 0)
-		return -1;
+		RETURN_ERROR(-1); //FIXME: proper error code please
 
-	sa.sa_handler = sigwinchhandler;
+	sa.sa_handler = sigwinch_handler;
 	sigemptyset(&sa.sa_mask);
 	sigaddset(&sa.sa_mask, SIGWINCH);
 	sa.sa_flags = 0;
 
 	if (sigaction(SIGWINCH, &sa, NULL) < 0)
-		return -1;
+		RETURN_ERROR(-1); //FIXME: proper error code please
+
 	sigemptyset(&sigs);
 	sigaddset(&sigs, SIGWINCH);
 	if (sigprocmask(SIG_UNBLOCK, &sigs, NULL) < 0)
-		return -1;
+		RETURN_ERROR(-1); //FIXME: proper error code please
 
-	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)
-		return error;
+	for (i = 1; i < 26; i++)
+		map_single[i] = EKEY_CTRL | ('a' + i - 1);
+	/* "unmap" TAB */
+	map_single[(int) '\t'] = 0;
+	/* EKEY_ESC is defined as 27, so no need to map */
+	map_single[28] = EKEY_CTRL | '\\';
+	map_single[29] = EKEY_CTRL | ']';
+	map_single[30] = EKEY_CTRL | '_';
+	map_single[31] = EKEY_CTRL | '^';
 
 	/* Add a few default keys which will help on terminals with little information
 	   available. */
@@ -314,31 +381,13 @@ int init_keys(void) {
 	map_single[10] = EKEY_NL;
 	map_single[13] = EKEY_NL;
 
-	/* Add important control keys */
-	map_single[1] = EKEY_CTRL | 'a';
-	map_single[3] = EKEY_CTRL | 'c';
-	map_single[5] = EKEY_META | EKEY_ESC;
-	map_single[6] = EKEY_CTRL | 'f';
-	map_single[7] = EKEY_CTRL | 'g';
-	map_single[14] = EKEY_CTRL | 'n';
-	map_single[15] = EKEY_CTRL | 'o';
-	map_single[17] = EKEY_CTRL | 'q';
-	map_single[18] = EKEY_CTRL | 'r';
-	map_single[19] = EKEY_CTRL | 's';
-	map_single[22] = EKEY_CTRL | 'v';
-	map_single[23] = EKEY_CTRL | 'w';
-	map_single[24] = EKEY_CTRL | 'x';
-	map_single[25] = EKEY_CTRL | 'y';
-	map_single[26] = EKEY_CTRL | 'z';
-
 	if ((key_node = t3_key_get_named_node(keymap, "%enter")) != NULL) {
 		t3_term_putp(key_node->string);
 		enter = key_node->string;
 	}
-	if ((key_node = t3_key_get_named_node(keymap, "%leave")) != NULL) {
+	if ((key_node = t3_key_get_named_node(keymap, "%leave")) != NULL)
 		leave = key_node->string;
-		atexit(stop_keys);
-	}
+
 
 	/* Load all the needed keys from the terminfo database */
 	for (i = 0; key_strings[i].code != 0; i++) {
@@ -350,7 +399,7 @@ int init_keys(void) {
 		}
 	}
 	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == NULL)
-		return T3_ERR_OUT_OF_MEMORY;
+		RETURN_ERROR(T3_ERR_OUT_OF_MEMORY);
 
 	for (i = 0, idx = 0; key_strings[i].code != 0; i++) {
 		for (key_node = t3_key_get_named_node(keymap, key_strings[i].string);
@@ -366,11 +415,24 @@ int init_keys(void) {
 		}
 	}
 
-#ifdef THREADED_KEYS
-	//FIXME: Check return value!
-	pthread_create(&read_key_thread, NULL, read_keys, NULL);
-#endif
+	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
+		RETURN_ERROR(error);
+
+	if (leave != NULL)
+		atexit(stop_keys);
 	return T3_ERR_SUCCESS;
+
+return_error:
+	if (conversion_handle != NULL)
+		charconv_close_convertor(conversion_handle);
+	if (keymap != NULL)
+		t3_key_free_map(keymap);
+	if (signal_pipe[0] != -1) {
+		close(signal_pipe[0]);
+		close(signal_pipe[1]);
+	}
+
+	return error;
 }
 
 void deinit_keys(void) {
@@ -382,12 +444,10 @@ void reinit_keys(void) {
 }
 
 static void stop_keys(void) {
-#ifdef THREADED_KEYS
 	void *retval;
 	char quit_signal = QUIT_SIGNAL;
 	nosig_write(signal_pipe[1], &quit_signal, 1);
 	pthread_join(read_key_thread, &retval);
-#endif
 	t3_term_putp(leave);
 #ifdef DEBUG
 	t3_key_free_map(keymap);

@@ -135,7 +135,7 @@ void iterate(void) {
 
 	t3_term_update();
 	key = wreadkey();
-
+	lprintf("Got key %04X\n", key);
 	switch (key) {
 		case EKEY_RESIZE:
 			do_resize();
