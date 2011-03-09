@@ -110,9 +110,7 @@ void menu_bar_t::update_contents(void) {
 	}
 	if (old_menu != current_menu) {
 		menus[old_menu]->hide();
-		menus[old_menu]->set_focus(false);
 		menus[current_menu]->show();
-		menus[current_menu]->set_focus(true);
 		draw_menu_name(menus[old_menu], colors.menubar_attrs);
 		draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
 	}
