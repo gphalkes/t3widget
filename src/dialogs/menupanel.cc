@@ -12,6 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+
 #include "main.h"
 #include "dialogs/menupanel.h"
 #include "widgets/menuitem.h"

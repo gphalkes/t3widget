@@ -16,13 +16,10 @@
 
 #include <cstdarg>
 #include <list>
+#include <window/window.h>
 
 #include "keys.h"
 #include "util.h"
-
-extern "C" {
-typedef struct t3_window_t t3_window_t;
-};
 
 namespace t3_widget {
 

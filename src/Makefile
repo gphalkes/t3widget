@@ -66,7 +66,13 @@ CXXFLAGS += -I$(CURDIR) -D__STDC_LIMIT_MACROS -D_T3_WIDGET_DEBUG
 CXXFLAGS += -I$(CURDIR)/window -I$(CURDIR)/unicode -I$(CURDIR)/key
 CXXFLAGS += -pthread -DTHREADED_KEYS
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
+
+LDLIBS += -L$(CURDIR)/../src/window/.libs -lt3window
+LDLIBS += -L$(CURDIR)/../src/unicode/.libs -lt3unicode
+LDLIBS += -L$(CURDIR)/../src/charconv/.libs -lcharconv
+LDLIBS += -L$(CURDIR)/../src/key/.libs -lt3key
 LDLIBS += `pkg-config --libs sigc++-2.0`
+
 CXX := clang++
 CXXFLAGS += -fno-caret-diagnostics
 

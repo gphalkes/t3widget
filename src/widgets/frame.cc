@@ -11,6 +11,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "colorscheme.h"
 #include "widgets/frame.h"
 
 namespace t3_widget {

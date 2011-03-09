@@ -15,6 +15,8 @@
 #include <cstring>
 #include <climits>
 
+#include <window/window.h>
+
 #include "keys.h"
 #include "util.h"
 #include "main.h"

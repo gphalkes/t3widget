@@ -17,7 +17,6 @@
 #include <deque>
 
 #include "interfaces.h"
-#include "colorscheme.h"
 
 namespace t3_widget {
 

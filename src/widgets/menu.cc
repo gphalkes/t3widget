@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "colorscheme.h"
 #include "widgets/menu.h"
 #include "dialogs/menupanel.h"
 #include "main.h"

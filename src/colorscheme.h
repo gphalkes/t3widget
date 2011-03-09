@@ -14,7 +14,7 @@
 #ifndef COLORSCHEME_H
 #define COLORSCHEME_H
 
-#include <window.h>
+#include <window/window.h>
 
 namespace t3_widget {
 

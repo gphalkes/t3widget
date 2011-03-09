@@ -20,8 +20,8 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string>
-#include <window.h>
 #include <pcre.h>
+#include <window/window.h>
 
 #include "keys.h"
 #include "stringmatcher.h"
