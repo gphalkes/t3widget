@@ -25,6 +25,7 @@ SOURCES.libt3widget.la := \
 	util.cc \
 	dialogs/dialog.cc \
 	dialogs/filedialog.cc \
+	dialogs/gotodialog.cc \
 	dialogs/mainwindow.cc \
 	dialogs/menupanel.cc \
 	dialogs/messagedialog.cc \
@@ -48,7 +49,6 @@ SOURCES.libt3widget.la := \
 
 #~ dialogs/altmessagedialog.cc \
 #~ dialogs/finddialog.cc \
-#~ dialogs/gotodialog.cc \
 #~ dialogs/insertchardialog.cc \
 
 CXXLTTARGETS := libt3widget.la

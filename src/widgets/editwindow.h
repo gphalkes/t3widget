@@ -18,6 +18,7 @@ namespace t3_widget {
 	class edit_window_t;
 }; // namespace
 
+#include "dialogs/gotodialog.h"
 #include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 #include "textbuffer.h"
@@ -28,6 +29,9 @@ namespace t3_widget {
 
 class edit_window_t : public widget_t {
 	private:
+		static goto_dialog_t goto_dialog;
+		static sigc::connection goto_connection;
+
 		t3_window_t *bottomlinewin;
 		scrollbar_t *scrollbar;
 		text_buffer_t *text;

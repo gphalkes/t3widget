@@ -120,8 +120,8 @@ bool dialog_t::process_key(key_t key) {
 					current_widget = iter;
 					(*current_widget)->set_focus(true);
 				}
-				(*iter)->process_key(EKEY_HOTKEY);
-				return true;
+				if ((*iter)->process_key(EKEY_HOTKEY))
+					return true;
 			}
 		}
 		return false;

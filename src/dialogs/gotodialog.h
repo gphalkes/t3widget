@@ -24,9 +24,13 @@ class goto_dialog_t : public dialog_t {
 		text_field_t *number_line;
 	public:
 		goto_dialog_t(void);
-		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void set_show(bool show);
-		virtual void callback(int action, const void *data = NULL);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
+		virtual void show(void);
+
+		void ok_activate(void);
+
+	T3_WIDET_SIGNAL(activate, void, int);
 };
 
 }; // namespace

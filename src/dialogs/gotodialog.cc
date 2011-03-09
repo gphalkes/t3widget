@@ -12,6 +12,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "dialogs/gotodialog.h"
+#include "widgets/button.h"
+#include "widgets/smartlabel.h"
 #include "main.h"
 
 #define GOTO_DIALOG_WIDTH 30
@@ -22,65 +24,78 @@ namespace t3_widget {
 static key_t accepted_keys[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
 
 goto_dialog_t::goto_dialog_t(void) :
-	dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, 0, 0, "Goto Line")
+	dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, "Goto Line")
 {
 	smart_label_t *number_label;
 	button_t *ok_button, *cancel_button;
 
-	number_label = new smart_label_t(this, 1, 2, "_Goto;gG", true);
-	number_line = new text_field_t(this, number_label, 0, 1, GOTO_DIALOG_WIDTH - number_label->get_width() - 5, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	number_label = new smart_label_t(this, "_Goto;gG", true);
+	number_label->set_position(1, 2);
+	number_line = new text_field_t(this);
+	number_line->set_anchor(number_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	number_line->set_position(0, 1);
+	number_line->set_size(None, GOTO_DIALOG_WIDTH - number_label->get_width() - 5);
 	number_line->set_label(number_label);
-	number_line->set_callback(text_field_t::ENTER, this, OK);
+	number_line->connect_activate(sigc::mem_fun(this, &goto_dialog_t::ok_activate));
 	number_line->set_key_filter(accepted_keys, sizeof(accepted_keys) / sizeof(accepted_keys[0]), true);
-	//FIXME: set key filter
 
-	cancel_button = new button_t(this, this, -1, -1, -2, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT), "_Cancel;cC", false);
-	cancel_button->set_callback(button_t::ENTER, this, CLOSE);
-	cancel_button->set_callback(checkbox_t::MOVE_LEFT, this, FOCUS_PREVIOUS);
+	cancel_button = new button_t(this, "_Cancel;cC", false);
+	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
+	cancel_button->set_position(-2, -3);
+
+	cancel_button->connect_activate(sigc::mem_fun(this, &goto_dialog_t::hide));
+	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
 	/* Nasty trick: registering a callback twice will call the callback twice. We need to do
 	   FOCUS_PREVIOUS twice here to emulate moving up, because the ok_button is in the way. */
-	cancel_button->set_callback(checkbox_t::MOVE_UP, this, FOCUS_PREVIOUS);
-	cancel_button->set_callback(checkbox_t::MOVE_UP, this, FOCUS_PREVIOUS);
-	ok_button = new button_t(this, cancel_button, -1, 0, -2, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT), "_OK;oO", true);
-	ok_button->set_callback(button_t::ENTER, this, OK);
-	ok_button->set_callback(checkbox_t::MOVE_UP, this, FOCUS_PREVIOUS);
-	ok_button->set_callback(checkbox_t::MOVE_RIGHT, this, FOCUS_NEXT);
+	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
+	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
+	ok_button = new button_t(this, "_OK;oO", true);
+	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	ok_button->set_position(0, -2);
 
-	components.push_back(number_label);
-	components.push_back(number_line);
-	components.push_back(ok_button);
-	components.push_back(cancel_button);
+	ok_button->connect_activate(sigc::mem_fun(this, &goto_dialog_t::ok_activate));
+	ok_button->connect_move_focus_up(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
+	ok_button->connect_move_focus_right(sigc::mem_fun(this, &goto_dialog_t::focus_next));
 
-	draw_dialog();
+	widgets.push_back(number_label);
+	widgets.push_back(number_line);
+	widgets.push_back(ok_button);
+	widgets.push_back(cancel_button);
 }
 
-bool goto_dialog_t::resize(optint height, optint width, optint top, optint left) {
+void goto_dialog_t::set_position(optint top, optint left) {
+	int height, width;
+
+	t3_term_get_size(&height, &width);
+	top = top - GOTO_DIALOG_HEIGHT / 2;
+	if (top + GOTO_DIALOG_HEIGHT > height)
+		top = height - GOTO_DIALOG_HEIGHT;
+	if (top < 0)
+		top = 0;
+
+	left = left - GOTO_DIALOG_WIDTH / 2;
+	if (left + GOTO_DIALOG_WIDTH > width)
+		left = width - GOTO_DIALOG_WIDTH;
+	if (left < 0)
+		left = 0;
+
+	t3_win_move(window, top, left);
+}
+
+bool goto_dialog_t::set_size(optint height, optint width) {
 	(void) height;
 	(void) width;
-	(void) top;
-	(void) left;
-	return dialog_t::resize(None, None, (screenLines - GOTO_DIALOG_HEIGHT) /2, (screenColumns - GOTO_DIALOG_WIDTH) / 2);
+	return true;
 }
 
-void goto_dialog_t::set_show(bool show) {
-	dialog_t::set_show(show);
-	if (!show)
-		number_line->set_text("");
+void goto_dialog_t::show() {
+	dialog_t::show();
+	number_line->set_text("");
 }
 
-void goto_dialog_t::callback(int action, const void *data) {
-	switch (action) {
-		case OK: {
-			int value;
-			value = atoi(number_line->get_text()->c_str());
-			deactivate_window();
-			goto_line(value);
-			break;
-		}
-		default:
-			dialog_t::callback(action, data);
-			break;
-	}
+void goto_dialog_t::ok_activate(void) {
+	hide();
+	activate(atoi(number_line->get_text()->c_str()));
 }
 
 }; // namespace

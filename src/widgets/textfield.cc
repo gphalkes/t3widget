@@ -256,6 +256,9 @@ bool text_field_t::process_key(key_t key) {
 			//executeAction(ActionID::EDIT_INSERT_CHAR);
 			break;
 
+		case EKEY_HOTKEY:
+			return true;
+
 		default:
 			if (key < 31)
 				return false;
@@ -266,7 +269,8 @@ bool text_field_t::process_key(key_t key) {
 			if (key > 0x10ffff)
 				return false;
 
-			if (filter_keys != NULL && (find(filter_keys, filter_keys + filter_keys_size, key) == filter_keys + filter_keys_size) == filter_keys_accept)
+			if (filter_keys != NULL &&
+					(find(filter_keys, filter_keys + filter_keys_size, key) == filter_keys + filter_keys_size) == filter_keys_accept)
 				return false;
 
 			if (selection_mode != selection_mode_t::NONE)
@@ -465,10 +469,17 @@ void text_field_t::set_autocomplete(string_list_t *completions) {
 	drop_down_list->set_autocomplete(completions);
 }
 
+void text_field_t::set_label(smart_label_t *_label) {
+	label = _label;
+}
 
-/*==================
+bool text_field_t::is_hotkey(key_t key) {
+	return label == NULL ? false : label->is_hotkey(key);
+}
+
+/*======================
   == drop_down_list_t ==
-  ==================*/
+  ======================*/
 text_field_t::drop_down_list_t::drop_down_list_t(t3_window_t *_parent, t3_window_t *anchor, int _width, text_field_t *_field) :
 	width(_width), field(_field)
 {
@@ -635,14 +646,6 @@ void text_field_t::drop_down_list_t::set_autocomplete(string_list_t *_completion
 
 bool text_field_t::drop_down_list_t::has_items(void) {
 	return view == NULL ? false : view->get_length() > 0;
-}
-
-void text_field_t::set_label(smart_label_t *_label) {
-	label = _label;
-}
-
-bool text_field_t::is_hotkey(key_t key) {
-	return label == NULL ? false : label->is_hotkey(key);
 }
 
 }; // namespace

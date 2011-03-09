@@ -21,6 +21,9 @@
 using namespace std;
 namespace t3_widget {
 
+goto_dialog_t edit_window_t::goto_dialog;
+sigc::connection edit_window_t::goto_connection;
+
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
@@ -30,7 +33,6 @@ edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget
 		throw bad_alloc();
 	}
 	t3_win_set_anchor(bottomlinewin, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-
 
 	scrollbar = new scrollbar_t(parent, true);
 	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -536,8 +538,11 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_CTRL | 'g':
-			#warning FIXME: open goto dialog
-			//~ activate_window(WindowID::GOTO_DIALOG);
+			goto_connection.disconnect();
+			goto_connection = goto_dialog.connect_activate(sigc::mem_fun(this, &edit_window_t::goto_line));
+			goto_dialog.set_position(t3_win_get_abs_y(window) + t3_win_get_height(window) / 2,
+				t3_win_get_abs_x(window) + t3_win_get_width(window) / 2);
+			goto_dialog.show();
 			break;
 
 		case 0: //CTRL-SPACE (and others)
