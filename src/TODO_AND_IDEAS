@@ -14,8 +14,9 @@ TODO
 - handle FIXME's
 - add a separate reset call for dialogs to allow separation of resetting of a
 	dialog and showing/hiding
-- dialogs need separate shadow window, because otherwise the dialog background
-	bleeds to the corners of the window :-(
+- dialogs need to be notified of color change and then call force_redraw. Best
+	done by connecting to signal from constructor and calling disconnect on
+	connection in destructor
 - figure out whether we want to do something about the background color of the
 	main_window_base_t/terminal window
 

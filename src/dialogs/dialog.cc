@@ -34,21 +34,23 @@ void dialog_t::init(main_window_base_t *_main_window) {
 	main_window->set_focus(true);
 }
 
-dialog_t::dialog_t(int height, int width, const char *_title) : active(false), title(_title), redraw(true) {
+dialog_t::dialog_t(int height, int width, const char *_title) : active(false), shadow_window(NULL), title(_title), redraw(true) {
 	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
-	init_colors();
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	if ((shadow_window = t3_win_new(NULL, height, width, 1, 1, 1)) == NULL)
+		throw bad_alloc();
+	t3_win_set_anchor(shadow_window, window, 0);
 }
 
 /** Create a new ::dialog_t.
 
     This constructor should only be called by ::main_window_base_t.
 */
-dialog_t::dialog_t(void) : active(false), title(NULL), redraw(false) {}
+dialog_t::dialog_t(void) : active(false), shadow_window(NULL), title(NULL), redraw(false) {}
 
 dialog_t::~dialog_t() {
 	t3_win_del(window);
+	t3_win_del(shadow_window);
 }
 
 void dialog_t::activate_dialog(void) {
@@ -67,7 +69,9 @@ void dialog_t::activate_dialog(void) {
 
 	this->active = true;
 	this->set_focus(true);
-	t3_win_set_depth(this->window, --dialog_depth);
+	dialog_depth -= 2;
+	t3_win_set_depth(this->window, dialog_depth);
+	t3_win_set_depth(this->shadow_window, dialog_depth + 1);
 	dialogs.push_back(this);
 }
 
@@ -93,7 +97,8 @@ void dialog_t::draw_dialog(void) {
 	int i, x;
 
 	redraw = false;
-	t3_win_box(window, 0, 0, t3_win_get_height(window) - 1, t3_win_get_width(window) - 1, 0);
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 	if (title != NULL) {
 		t3_win_set_paint(window, 0, 2);
 		t3_win_addstr(window, "[ ", 0);
@@ -101,13 +106,13 @@ void dialog_t::draw_dialog(void) {
 		t3_win_addstr(window, " ]", 0);
 	}
 
-	x = t3_win_get_width(window) - 1;
-	for (i = t3_win_get_height(window) - 1; i > 0; i--) {
-		t3_win_set_paint(window, i, x);
-		t3_win_addch(window, ' ', T3_ATTR_REVERSE);
+	x = t3_win_get_width(shadow_window) - 1;
+	for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
+		t3_win_set_paint(shadow_window, i - 1, x);
+		t3_win_addch(shadow_window, ' ', T3_ATTR_REVERSE);
 	}
-	t3_win_set_paint(window, t3_win_get_height(window) - 1, 1);
-	t3_win_addchrep(window, ' ', T3_ATTR_REVERSE, t3_win_get_width(window) - 1);
+	t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
+	t3_win_addchrep(shadow_window, ' ', T3_ATTR_REVERSE, t3_win_get_width(shadow_window));
 }
 
 bool dialog_t::process_key(key_t key) {
@@ -164,7 +169,8 @@ bool dialog_t::set_size(optint height, optint width) {
 	if (!width.is_valid())
 		width = t3_win_get_width(window);
 
-	result &= (t3_win_resize(window, height + 1, width + 1) == 0);
+	result &= (t3_win_resize(window, height, width) == 0);
+	result &= (t3_win_resize(shadow_window, height, width) == 0);
 	return result;
 }
 
@@ -195,11 +201,15 @@ void dialog_t::show(void) {
 	activate_dialog();
 
 	t3_win_show(window);
+	if (shadow_window != NULL)
+		t3_win_show(shadow_window);
 }
 
 void dialog_t::hide(void) {
 	deactivate_dialog();
 	t3_win_hide(window);
+	if (shadow_window != NULL)
+		t3_win_hide(shadow_window);
 	if (widgets.front() == dummy)
 		widgets.pop_front();
 }

@@ -47,7 +47,7 @@ class dialog_t : public window_component_t, public container_t {
 		dialog_t(void);
 
 	protected:
-		t3_window_t *window;
+		t3_window_t *window, *shadow_window;
 		const char *title;
 		widgets_t widgets;
 		widgets_t::iterator current_widget;

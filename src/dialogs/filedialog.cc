@@ -55,7 +55,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 
 	show_hidden_box = new checkbox_t(this, false);
 	show_hidden_box->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	show_hidden_box->set_position(-3, 2);
+	show_hidden_box->set_position(-2, 2);
 	show_hidden_box->connect_toggled(sigc::bind(sigc::mem_fun(this, &file_dialog_t::refresh_view), (const string *) NULL));
 	show_hidden_box->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 
@@ -66,7 +66,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 
 	cancel_button = new button_t(this, "_Cancel;cC");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
-	cancel_button->set_position(-2, -3);
+	cancel_button->set_position(-1, -2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
 	ok_button = new button_t(this, "_OK;oO", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
@@ -76,8 +76,8 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 
 	encoding_button = new button_t(this, "_Encoding;eE");
-	encoding_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
-	encoding_button->set_position(-3, -3);
+	encoding_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
+	//encoding_button->set_position(0, 0);
 	#warning FIXME: this should probably not be here
 	//~ encoding_button->set_callback(button_t::ENTER, this, CHOOSE_ENCODING);
 
