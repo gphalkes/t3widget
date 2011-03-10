@@ -21,14 +21,14 @@ namespace t3_widget {
 class bullet_t : public widget_t {
 	private:
 		const bool *source;
-		bool focus;
+		bool has_focus;
 
 	public:
 		bullet_t(container_t *parent, const bool *_source);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool _focus);
+		virtual void set_focus(bool focus);
 };
 
 }; // namespace

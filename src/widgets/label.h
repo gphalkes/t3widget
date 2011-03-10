@@ -31,7 +31,6 @@ class label_t : public widget_t {
 		const char *text;
 		int width, text_width;
 		align_t align;
-		bool redraw;
 
 	public:
 		label_t(container_t *parent, const char *_text);

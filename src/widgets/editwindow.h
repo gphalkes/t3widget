@@ -36,7 +36,7 @@ class edit_window_t : public widget_t {
 		scrollbar_t *scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
-		bool focus, need_repaint, hard_cursor;
+		bool focus, hard_cursor;
 
 		static const char *insstring[];
 		static bool (text_buffer_t::*proces_char[])(key_t);
@@ -59,7 +59,7 @@ class edit_window_t : public widget_t {
 	public:
 		edit_window_t(container_t *parent, text_buffer_t *_text = NULL);
 		virtual ~edit_window_t(void);
-		virtual void set_text_file(text_buffer_t *_text);
+		virtual void set_text(text_buffer_t *_text);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

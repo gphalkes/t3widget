@@ -33,14 +33,7 @@ class text_field_t : public widget_t {
 			selection_end_pos;
 
 		selection_mode_t selection_mode;
-		bool focus, in_drop_down_list, dont_select_on_focus;
-		enum {
-			NO_REPAINT,
-			REPAINT_EDIT,
-			REPAINT_SET,
-			REPAINT_RESIZE,
-			REPAINT_OTHER
-		} need_repaint;
+		bool focus, in_drop_down_list, dont_select_on_focus, edited;
 
 		text_line_t *line;
 		const key_t *filter_keys;

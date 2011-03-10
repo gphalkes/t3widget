@@ -23,6 +23,8 @@ namespace t3_widget {
 class widget_t : public window_component_t {
 	protected:
 		t3_window_t *window;
+		bool redraw;
+
 		widget_t(container_t *parent, int height, int width);
 		widget_t(void);
 
@@ -37,6 +39,7 @@ class widget_t : public window_component_t {
 		virtual void show(void);
 		virtual void hide(void);
 		virtual void set_anchor(window_component_t *anchor, int relation);
+		virtual void force_redraw(void);
 };
 
 typedef std::deque<widget_t *> widgets_t;

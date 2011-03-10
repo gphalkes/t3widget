@@ -34,7 +34,19 @@ void frame_t::set_child(widget_t *_child) {
 }
 
 bool frame_t::process_key(key_t key) { return child != NULL ? child->process_key(key) : false; }
-void frame_t::update_contents(void) { if (child != NULL) child->update_contents(); }
+void frame_t::update_contents(void) {
+	if (child != NULL)
+		child->update_contents();
+	if (!redraw)
+		return;
+	redraw = false;
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
+
+	t3_win_set_paint(window, 0, 0);
+	t3_win_clrtobot(window);
+	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), colors.dialog_attrs);
+
+}
 void frame_t::set_focus(bool focus) { if (child != NULL) child->set_focus(focus); }
 
 bool frame_t::set_size(optint height, optint width) {
@@ -47,9 +59,7 @@ bool frame_t::set_size(optint height, optint width) {
 		width = t3_win_get_height(window);
 
 	result = t3_win_resize(window, height, width);
-	t3_win_set_paint(window, 0, 0);
-	t3_win_clrtobot(window);
-	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), colors.dialog_attrs);
+	redraw = true;
 
 	if (child != NULL) {
 		child_height = t3_win_get_height(window);

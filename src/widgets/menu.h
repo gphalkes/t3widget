@@ -28,7 +28,7 @@ class menu_bar_t : public widget_t {
 	private:
 		int current_menu, old_menu;
 		int start_col;
-		bool hidden, redraw, has_focus;
+		bool hidden, has_focus;
 
 		std::vector<menu_panel_t *> menus;
 

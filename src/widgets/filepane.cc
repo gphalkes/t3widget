@@ -20,9 +20,8 @@ namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 file_pane_t::file_pane_t(container_t *parent) : widget_t(parent, 3, 3), scrollbar(this, false), height(1),
-	width(1),top_idx(0), current(0), file_list(NULL), focus(false), redraw(true), field(NULL), columns_visible(0)
+	width(1),top_idx(0), current(0), file_list(NULL), focus(false), field(NULL), columns_visible(0)
 {
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	scrollbar.set_position(0, 1);
 }
@@ -158,11 +157,17 @@ void file_pane_t::draw_line(int idx, bool selected) {
 void file_pane_t::update_contents(void) {
 	size_t max_idx, i;
 
-	if (!redraw || file_list == NULL)
+	if (!redraw)
 		return;
+	redraw = false;
+
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
 
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
+
+	if (file_list == NULL)
+		return;
 
 	for (i = top_idx, max_idx = min(top_idx + columns_visible * height, file_list->get_length()); i < max_idx; i++)
 		draw_line(i, focus && i == current);
@@ -200,7 +205,7 @@ void file_pane_t::set_file_list(file_list_t *_file_list) {
 	content_changed_connection = file_list->connect_content_changed(sigc::mem_fun(this, &file_pane_t::content_changed));
 	top_idx = 0;
 	content_changed();
-	update_contents();
+	redraw = true;
 }
 
 void file_pane_t::set_file(size_t idx) {

@@ -29,7 +29,7 @@ class file_pane_t : public widget_t, public container_t {
 		int height, width;
 		size_t top_idx, current;
 		file_list_t *file_list;
-		bool focus, redraw;
+		bool focus;
 		text_field_t *field;
 		int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], column_positions[_T3_WDIGET_FP_MAX_COLUMNS], columns_visible;
 		sigc::connection content_changed_connection;

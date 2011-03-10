@@ -105,6 +105,8 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 	return false;
 }
 
+//======= smart_label_t =======
+
 smart_label_t::smart_label_t(container_t *parent, smart_label_text_t *spec) :
 	smart_label_text_t(spec), widget_t(parent, 1, get_width()) {}
 
@@ -120,8 +122,11 @@ bool smart_label_t::set_size(optint height, optint width) {
 }
 
 void smart_label_t::update_contents(void) {
+	if (!redraw)
+		return;
+	redraw = false;
 	t3_win_set_paint(window, 0, 0);
-	draw(window, 0);
+	draw(window, colors.dialog_attrs);
 }
 
 void smart_label_t::set_focus(bool focus) { (void) focus; }

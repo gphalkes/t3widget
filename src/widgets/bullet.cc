@@ -11,12 +11,13 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "colorscheme.h"
 #include "widgets/bullet.h"
 
 using namespace std;
 namespace t3_widget {
 
-bullet_t::bullet_t(container_t *parent, const bool *_source) : widget_t(parent, 1, 1), source(_source), focus(false) {}
+bullet_t::bullet_t(container_t *parent, const bool *_source) : widget_t(parent, 1, 1), source(_source), has_focus(false) {}
 
 bool bullet_t::set_size(optint height, optint width) {
 	(void) height;
@@ -27,15 +28,16 @@ bool bullet_t::set_size(optint height, optint width) {
 bool bullet_t::process_key(key_t key) { (void) key; return false; }
 
 void bullet_t::update_contents(void) {
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	t3_win_set_paint(window, 0, 0);
 	if (*source)
-		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (focus ? T3_ATTR_REVERSE : 0)); //FIXME: use proper attributes
+		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (has_focus ? T3_ATTR_REVERSE : 0));
 	else
-		t3_win_addch(window, ' ', focus ? T3_ATTR_REVERSE : 0);
+		t3_win_addch(window, ' ', has_focus ? T3_ATTR_REVERSE : 0);
 }
 
-void bullet_t::set_focus(bool _focus) {
-	focus = _focus;
+void bullet_t::set_focus(bool focus) {
+	has_focus = focus;
 }
 
 }; // namespace

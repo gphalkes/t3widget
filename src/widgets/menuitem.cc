@@ -16,6 +16,11 @@
 
 namespace t3_widget {
 
+void menu_item_base_t::set_focus(bool focus) {
+	if (focus)
+		t3_term_hide_cursor();
+}
+
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
 		menu_item_base_t(_parent), label(_label), hotkey(_hotkey), id(_id)
 {
@@ -51,25 +56,27 @@ bool menu_item_t::set_size(optint height, optint _width) {
 
 void menu_item_t::update_contents(void) {
 	t3_window_t *parent_window = parent->get_draw_window();
+	t3_attr_t attrs = has_focus ? colors.dialog_selected_attrs: colors.dialog_attrs;
 	int spaces;
 
 	t3_win_set_paint(parent_window, top, 1);
-	t3_win_addch(parent_window, ' ', has_focus ? colors.dialog_selected_attrs: colors.dialog_attrs);
-	label.draw(parent_window, has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
+	t3_win_addch(parent_window, ' ', attrs);
+	label.draw(parent_window, attrs);
 
 	spaces = width - 2 - label.get_width();
 	if (hotkey != NULL) {
 		spaces -= t3_term_strwidth(hotkey);
-		t3_win_addchrep(parent_window, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs, spaces);
-		t3_win_addstr(parent_window, hotkey, has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
-		t3_win_addch(parent_window, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs);
+		t3_win_addchrep(parent_window, ' ', attrs, spaces);
+		t3_win_addstr(parent_window, hotkey, attrs);
+		t3_win_addch(parent_window, ' ', attrs);
 	} else {
 		spaces++;
-		t3_win_addchrep(parent_window, ' ', has_focus ? colors.dialog_selected_attrs : colors.dialog_attrs, spaces);
+		t3_win_addchrep(parent_window, ' ', attrs, spaces);
 	}
 }
 
 void menu_item_t::set_focus(bool focus) {
+	menu_item_base_t::set_focus(focus);
 	has_focus = focus;
 }
 

@@ -66,6 +66,11 @@ t3_window_t *multi_widget_t::get_draw_window(void) {
 	return window;
 }
 
+void multi_widget_t::force_redraw(void) {
+	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		iter->widget->force_redraw();
+}
+
 /* Width is negative for fixed width widgets, positive for proportion */
 void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys) {
 	item_t item;

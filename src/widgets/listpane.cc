@@ -32,7 +32,6 @@ list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1), top
 		throw bad_alloc();
 
 	t3_win_set_anchor(window, clip_window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	t3_win_show(window);
 	t3_win_show(clip_window);
 
@@ -112,7 +111,6 @@ void list_pane_t::set_position(optint top, optint left) {
 		top = t3_win_get_y(clip_window);
 	if (!left.is_valid())
 		left = t3_win_get_x(clip_window);
-lprintf("Moving clip_window to %d %d\n", (int) top, (int) left);
 	t3_win_move(clip_window, top, left);
 }
 
@@ -148,6 +146,7 @@ void list_pane_t::update_contents(void) {
 		indicator_widget->update_contents();
 		indicator_widget->set_position(current, 0);
 	}
+
 	t3_win_move(window, -top_idx, 0);
 	scrollbar.set_parameters(widgets.size(), top_idx, height - 1);
 	scrollbar.update_contents();
@@ -187,6 +186,13 @@ t3_window_t *list_pane_t::get_draw_window(void) {
 
 void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
 	t3_win_set_anchor(clip_window, anchor->get_draw_window(), relation);
+}
+
+void list_pane_t::force_redraw(void) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		(*iter)->force_redraw();
+	if (indicator)
+		indicator_widget->force_redraw();
 }
 
 void list_pane_t::push_back(widget_t *widget) {
@@ -276,7 +282,7 @@ void list_pane_t::set_current(int idx) {
 
 //=========== Indicator widget ================
 
-list_pane_t::indicator_widget_t::indicator_widget_t(container_t *_parent) : widget_t(_parent, 1, 3), has_focus(false), redraw(true) {
+list_pane_t::indicator_widget_t::indicator_widget_t(container_t *_parent) : widget_t(_parent, 1, 3), has_focus(false) {
 	t3_win_set_depth(window, INT_MAX);
 }
 

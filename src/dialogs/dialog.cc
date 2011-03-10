@@ -35,7 +35,7 @@ void dialog_t::init(main_window_base_t *_main_window) {
 }
 
 dialog_t::dialog_t(int height, int width, const char *_title) : active(false), title(_title), redraw(true) {
-	if ((window = t3_win_new(NULL, height + 1, width + 1, 0, 0, 0)) == NULL)
+	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	init_colors();
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
@@ -173,8 +173,7 @@ void dialog_t::update_contents(void) {
 	if (redraw)
 		draw_dialog();
 
-	for (widgets_t::iterator iter = widgets.begin();
-			iter != widgets.end(); iter++)
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->update_contents();
 }
 
@@ -227,6 +226,11 @@ void dialog_t::focus_previous(void) {
 	} while (!(*current_widget)->accepts_focus());
 
 	(*current_widget)->set_focus(true);
+}
+
+void dialog_t::force_redraw(void) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		(*iter)->force_redraw();
 }
 
 }; // namespace

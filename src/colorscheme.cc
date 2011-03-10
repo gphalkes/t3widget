@@ -34,7 +34,7 @@ void init_colors(void) {
 	colors.attr_selection_cursor2 = T3_ATTR_FG_GREEN | T3_ATTR_BG_DEFAULT;
 	colors.attr_bad_draw = T3_ATTR_BOLD;
 	//~ colors.attr_cursor = T3_ATTR_BG_RED;
-//~ #define DEBUG_COLORS
+#define DEBUG_COLORS
 #ifdef DEBUG_COLORS
 	colors.menubar_attrs = T3_ATTR_BG_YELLOW | T3_ATTR_FG_GREEN;
 	colors.menubar_selected_attrs = T3_ATTR_BG_GREEN | T3_ATTR_FG_BLUE;

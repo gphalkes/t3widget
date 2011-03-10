@@ -11,7 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "checkbox.h"
+#include "colorscheme.h"
+#include "widgets/checkbox.h"
 
 namespace t3_widget {
 
@@ -53,13 +54,20 @@ bool checkbox_t::set_size(optint height, optint width) {
 }
 
 void checkbox_t::update_contents(void) {
+	if (!redraw)
+		return;
+	redraw = false;
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addch(window, '[', 0);
-	t3_win_addch(window, state ? 'X' : ' ', has_focus ? T3_ATTR_REVERSE : 0); //FIXME: allow customization
+	t3_win_addch(window, state ? 'X' : ' ', has_focus ? T3_ATTR_REVERSE : 0);
 	t3_win_addch(window, ']', 0);
 }
 
 void checkbox_t::set_focus(bool focus) {
+	if (has_focus != focus)
+		redraw = true;
+
 	has_focus = focus;
 	if (focus)
 		t3_term_hide_cursor();

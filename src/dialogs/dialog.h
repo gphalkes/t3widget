@@ -69,6 +69,7 @@ class dialog_t : public window_component_t, public container_t {
 		virtual void show(void);
 		virtual void hide(void);
 		virtual t3_window_t *get_draw_window(void) { return window; }
+		virtual void force_redraw(void);
 };
 
 }; // namespace

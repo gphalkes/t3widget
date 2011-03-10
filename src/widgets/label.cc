@@ -14,6 +14,7 @@
 #include "window/window.h"
 #include "widgets/label.h"
 #include "textline.h"
+#include "colorscheme.h"
 #include "log.h"
 
 using namespace std;
@@ -25,7 +26,6 @@ label_t::label_t(container_t *parent, const char *_text) : text(_text), align(AL
 {
 	width = text_width = t3_term_strwidth(text);
 	init_window(parent, 1, width);
-	redraw = true;
 }
 
 
@@ -54,6 +54,7 @@ void label_t::update_contents(void) {
 	text_line_t *line = new text_line_t(text);
 	text_line_t::paint_info_t paint_info;
 
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtoeol(window);
 	t3_win_set_paint(window, 0, width > text_width && (align == ALIGN_RIGHT || align == ALIGN_RIGHT_UNDERFLOW) ? width - text_width : 0);

@@ -37,6 +37,7 @@ text_field_t::text_field_t(container_t *_parent) : widget_t(_parent, 1, 4),
 	focus(false),
 	in_drop_down_list(false),
 	dont_select_on_focus(false),
+	edited(false),
 	line(new text_line_t),
 	filter_keys(NULL),
 	label(NULL),
@@ -55,7 +56,7 @@ void text_field_t::reset_selection(void) {
 	selection_start_pos = -1;
 	selection_end_pos = -1;
 	selection_mode = selection_mode_t::NONE;
-	need_repaint = REPAINT_OTHER;
+	redraw = true;
 }
 
 void text_field_t::set_selection(key_t key) {
@@ -103,7 +104,8 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 	pos = start;
 	ensure_on_cursor_screen();
 	reset_selection();
-	need_repaint = REPAINT_EDIT;
+	redraw = true;
+	edited = true;
 }
 
 bool text_field_t::process_key(key_t key) {
@@ -132,7 +134,8 @@ bool text_field_t::process_key(key_t key) {
 				line->backspace_char(pos, NULL);
 				pos = newpos;
 				ensure_on_cursor_screen();
-				need_repaint = REPAINT_EDIT;
+				redraw = true;
+				edited = true;
 			}
 			break;
 		case EKEY_DEL:
@@ -140,7 +143,8 @@ bool text_field_t::process_key(key_t key) {
 				delete_selection(false);
 			} else if (pos < line->get_length()) {
 				line->delete_char(pos, NULL);
-				need_repaint = REPAINT_EDIT;
+				redraw = true;
+				edited = true;
 			}
 			break;
 		case EKEY_LEFT:
@@ -224,7 +228,8 @@ bool text_field_t::process_key(key_t key) {
 				if (end != NULL)
 					line->merge(end);
 				ensure_on_cursor_screen();
-				need_repaint = REPAINT_EDIT;
+				redraw = true;
+				edited = true;
 			}
 			break;
 
@@ -286,7 +291,8 @@ bool text_field_t::process_key(key_t key) {
 				#warning FIXME: implement overwrite!
 			pos = line->adjust_position(pos, 1);
 			ensure_on_cursor_screen();
-			need_repaint = REPAINT_EDIT;
+			redraw = true;
+			edited = true;
 	}
 	return true;
 }
@@ -302,7 +308,7 @@ bool text_field_t::set_size(optint height, optint _width) {
 
 	ensure_on_cursor_screen();
 
-	need_repaint = REPAINT_RESIZE;
+	redraw = true;
 	//FIXME: use return values from different parts as return value!
 	return true;
 }
@@ -327,7 +333,7 @@ void text_field_t::update_contents(void) {
 	hard_cursor = (selection_mode == selection_mode_t::NONE && colors.attr_cursor == 0) ||
 			(selection_mode != selection_mode_t::NONE && colors.attr_selection_cursor == 0);
 
-	if (need_repaint || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
+	if (redraw || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
 		text_line_t::paint_info_t info;
 
 		t3_win_set_paint(window, 0, 0);
@@ -356,14 +362,15 @@ void text_field_t::update_contents(void) {
 		line->paint_line(window, &info);
 		t3_win_addch(window, ']', 0);
 
-		if (drop_down_list != NULL && need_repaint == REPAINT_EDIT) {
+		if (drop_down_list != NULL && edited) {
 			drop_down_list->update_view();
 			if (drop_down_list->has_items() && line->get_length() > 0)
 				drop_down_list->show();
 			else
 				drop_down_list->hide();
 		}
-		need_repaint = NO_REPAINT;
+		edited = false;
+		redraw = false;
 	}
 
 	if (drop_down_list != NULL && drop_down_list->has_items())
@@ -423,12 +430,12 @@ void text_field_t::ensure_on_cursor_screen(void) {
 
 	if (screen_pos < leftcol) {
 		leftcol = screen_pos;
-		need_repaint = REPAINT_OTHER;
+		redraw = true;
 	}
 
 	if (screen_pos + char_width > leftcol + width - 2) {
 		leftcol = screen_pos - (width - 2) + char_width;
-		need_repaint = REPAINT_OTHER;
+		redraw = true;
 	}
 }
 
@@ -449,7 +456,7 @@ void text_field_t::set_text(const char *text) {
 void text_field_t::set_text_finish(void) {
 	pos = line->get_length();
 	ensure_on_cursor_screen();
-	need_repaint = REPAINT_SET;
+	redraw = true;
 }
 
 void text_field_t::set_key_filter(key_t *keys, size_t nrOfKeys, bool accept) {

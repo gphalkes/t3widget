@@ -24,7 +24,6 @@ button_t::button_t(container_t *parent, const char *_text, bool _isDefault) : te
 	width = text_width + 4;
 
 	init_window(parent, 1, width);
-	t3_win_set_default_attrs(window, colors.button_attrs);
 
 	has_focus = false;
 }
@@ -71,8 +70,15 @@ bool button_t::set_size(optint height, optint _width) {
 }
 
 void button_t::update_contents(void) {
-	int attr = has_focus ? colors.button_selected_attrs : 0;
+	t3_attr_t attr;
 
+	if (!redraw)
+		return;
+	redraw = false;
+
+	attr = has_focus ? colors.button_selected_attrs : 0;
+
+	t3_win_set_default_attrs(window, colors.button_attrs);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addstr(window, is_default ? "[<" : "[ ", attr);
 	if (width > text_width + 4)
@@ -86,6 +92,9 @@ void button_t::update_contents(void) {
 }
 
 void button_t::set_focus(bool focus) {
+	if (focus != has_focus)
+		redraw = true;
+
 	has_focus = focus;
 	if (focus)
 		t3_term_hide_cursor();

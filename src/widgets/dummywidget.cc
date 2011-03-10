@@ -31,7 +31,8 @@ bool dummy_widget_t::resize(optint height, optint width, optint top, optint left
 void dummy_widget_t::update_contents(void) { return; }
 
 void dummy_widget_t::set_focus(bool focus) {
-	(void) focus;
+	if (focus)
+		t3_term_hide_cursor();
 	return;
 }
 

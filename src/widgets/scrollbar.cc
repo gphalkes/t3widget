@@ -34,7 +34,6 @@ scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
 	}
 
 	init_window(parent, height, width);
-	t3_win_set_default_attrs(window, colors.scrollbar_selected_attrs);
 }
 
 bool scrollbar_t::process_key(key_t key) {
@@ -60,8 +59,15 @@ bool scrollbar_t::set_size(optint height, optint width) {
 
 void scrollbar_t::update_contents(void) {
 	int before, slider_size, i;
+	double blocks_per_line;
 
-	double blocks_per_line = (double) (length - 2) / range;
+	if (!redraw)
+		return;
+	redraw = false;
+
+	t3_win_set_default_attrs(window, colors.scrollbar_selected_attrs);
+
+	blocks_per_line = (double) (length - 2) / range;
 	slider_size = blocks_per_line * used;
 	if (slider_size == 0)
 		slider_size = 1;
