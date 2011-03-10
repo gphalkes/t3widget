@@ -130,6 +130,7 @@ void insert_char_dialog_t::ok_activate(void) {
 		lprintf("Inserting key: %d\n", key);
 		insert_protected_key(key);
 	} else {
+		#warning FIXME: show message here
 /*FIXME:
 		string message;
 		printfInto(&message, "Invalid character description: '%s'", description_line->get_text()->c_str());

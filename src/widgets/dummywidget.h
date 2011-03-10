@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class dummy_widget_t : public base_widget_t {
+class dummy_widget_t : public widget_t {
 	public:
 		virtual bool process_key(key_t key);
 		virtual bool resize(optint height, optint width, optint top, optint left);

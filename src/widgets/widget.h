@@ -20,19 +20,7 @@
 
 namespace t3_widget {
 
-class base_widget_t : public window_component_t {
-	protected:
-		bool shown;
-
-		base_widget_t(void) : shown(true) {}
-	public:
-		virtual ~base_widget_t(void);
-		virtual bool is_hotkey(key_t key);
-		virtual bool accepts_focus(void);
-};
-
-
-class widget_t : public base_widget_t {
+class widget_t : public window_component_t {
 	protected:
 		t3_window_t *window;
 		widget_t(container_t *parent, int height, int width);
@@ -42,14 +30,16 @@ class widget_t : public base_widget_t {
 
 	public:
 		virtual ~widget_t(void);
-		virtual void set_anchor(window_component_t *anchor, int relation);
+		virtual bool is_hotkey(key_t key);
+		virtual bool accepts_focus(void);
 		virtual t3_window_t *get_draw_window(void) { return window; }
 		virtual void set_position(optint top, optint left);
 		virtual void show(void);
 		virtual void hide(void);
+		virtual void set_anchor(window_component_t *anchor, int relation);
 };
 
-typedef std::deque<base_widget_t *> widgets_t;
+typedef std::deque<widget_t *> widgets_t;
 
 }; // namespace
 #endif

@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class menu_item_base_t : public base_widget_t {
+class menu_item_base_t : public widget_t {
 	protected:
 		menu_panel_t *parent;
 		int top;
