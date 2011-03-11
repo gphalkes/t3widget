@@ -105,7 +105,7 @@ void dialog_t::draw_dialog(void) {
 		t3_win_addstr(window, title, 0);
 		t3_win_addstr(window, " ]", 0);
 	}
-
+#warning FIXME: ATTR_REVERSE only makes sense in black and white, if the normal attribute is not ATTR_REVERSE!
 	x = t3_win_get_width(shadow_window) - 1;
 	for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
 		t3_win_set_paint(shadow_window, i - 1, x);

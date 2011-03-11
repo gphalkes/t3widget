@@ -40,8 +40,6 @@ void init_colors(void) {
 	colors.menubar_selected_attrs = T3_ATTR_BG_GREEN | T3_ATTR_FG_BLUE;
 	colors.dialog_attrs = T3_ATTR_BG_WHITE | T3_ATTR_FG_BLACK;
 	colors.dialog_selected_attrs = T3_ATTR_BG_GREEN | T3_ATTR_FG_RED;
-	colors.textfield_attrs = T3_ATTR_BG_CYAN | T3_ATTR_FG_BLACK;
-	colors.textfield_selected_attrs = T3_ATTR_BG_RED | T3_ATTR_FG_GREEN;
 	colors.button_attrs = T3_ATTR_BG_BLUE | T3_ATTR_FG_GREEN;
 	colors.button_selected_attrs = T3_ATTR_BG_YELLOW | T3_ATTR_FG_RED;
 	colors.scrollbar_attrs = T3_ATTR_BG_BLACK | T3_ATTR_FG_WHITE;

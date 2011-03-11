@@ -336,6 +336,7 @@ void text_field_t::update_contents(void) {
 	if (redraw || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
 		text_line_t::paint_info_t info;
 
+		t3_win_set_default_attrs(window, colors.dialog_attrs);
 		t3_win_set_paint(window, 0, 0);
 		t3_win_addch(window, '[', 0);
 
@@ -356,8 +357,8 @@ void text_field_t::update_contents(void) {
 			info.selection_end = selection_start_pos;
 		}
 		info.cursor = focus && !hard_cursor ? screen_pos : -1;
-		info.normal_attr = colors.textfield_attrs;
-		info.selected_attr = colors.textfield_selected_attrs;
+		info.normal_attr = colors.text_attrs;
+		info.selected_attr = colors.text_selected_attrs;
 
 		line->paint_line(window, &info);
 		t3_win_addch(window, ']', 0);

@@ -23,6 +23,7 @@ bool checkbox_t::process_key(key_t key) {
 		case ' ':
 		case EKEY_HOTKEY:
 			state ^= true;
+			redraw = true;
 			toggled();
 			update_contents();
 			break;
