@@ -26,6 +26,7 @@
 #include "key.h"
 #include "keybuffer.h"
 
+using namespace std;
 namespace t3_widget {
 
 #define MAX_SEQUENCE 100
@@ -45,6 +46,11 @@ typedef struct {
 	size_t string_length;
 	key_t key;
 } mapping_t;
+
+typedef struct {
+	key_t data[MAX_SEQUENCE];
+	size_t idx;
+} key_sequence_t;
 
 key_string_t key_strings[] = {
 	{ "insert", EKEY_INS },
@@ -109,7 +115,7 @@ static key_t get_next_converted_key(void) {
 		memmove(unicode_buffer, unicode_buffer + 1, sizeof(unicode_buffer[0]) * unicode_buffer_fill);
 		return c;
 	}
-	return /* FIXME */ -1;
+	return -1;
 }
 
 static void unget_key(key_t c) {
@@ -220,22 +226,51 @@ key_t read_key(void) {
 	return key_buffer.pop_front();
 }
 
+//FIXME: move to top
+static bool is_prefix;
+
+static int compare_sequence_with_mapping(const void *key, const void *mapping) {
+	const key_sequence_t *_key;
+	const mapping_t *_mapping;
+	size_t i;
+
+	_key = (const key_sequence_t *) key;
+	_mapping = (const mapping_t *) mapping;
+
+	for (i = 0; i < _key->idx && i < _mapping->string_length; i++) {
+		if (_key->data[i] != _mapping->string[i]) {
+			if ((char) _key->data[i] < _mapping->string[i])
+				return -1;
+			return 1;
+		}
+	}
+
+	if (i < _mapping->string_length) {
+		is_prefix = true;
+		return -1;
+	}
+
+	if (i < _key->idx)
+		return 1;
+	return 0;
+}
+
 static key_t decode_sequence(bool outer) {
-	int sequence_index = 1;
-	key_t sequence[MAX_SEQUENCE];
-	int c, i, j;
-	bool is_prefix;
+	key_sequence_t sequence;
+	mapping_t *matched;
+	int c;
 
-	sequence[0] = EKEY_ESC;
+	sequence.idx = 1;
+	sequence.data[0] = EKEY_ESC;
 
-	while (sequence_index < MAX_SEQUENCE) {
+	while (sequence.idx < MAX_SEQUENCE) {
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
 				if (key_timeout < 0) {
-					if (sequence_index == 1)
+					if (sequence.idx == 1)
 						return EKEY_ESC;
 				} else {
-					if (sequence_index == 1 && outer) {
+					if (sequence.idx == 1 && outer) {
 						key_t alted = decode_sequence(false);
 						return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
 					}
@@ -244,25 +279,12 @@ static key_t decode_sequence(bool outer) {
 				break;
 			}
 
-			sequence[sequence_index++] = c;
+			sequence.data[sequence.idx++] = c;
 
 			is_prefix = false;
-			for (i = 0; i < map_count; i++) {
-				if (sequence_index > (int) map[i].string_length || (key_timeout >= 0 && sequence_index != (int) map[i].string_length))
-					continue;
+			if ((matched = (mapping_t *) bsearch(&sequence, map, map_count, sizeof(mapping_t), compare_sequence_with_mapping)) != NULL)
+				return matched->key;
 
-				for (j = 0; j < sequence_index; j++)
-					if (sequence[j] != map[i].string[j])
-						goto check_next_sequence;
-
-				if (j == (int) map[i].string_length)
-					return map[i].key;
-
-				if (j == sequence_index)
-					is_prefix = true;
-
-		check_next_sequence:;
-			}
 			if (key_timeout < 0 && !is_prefix)
 				goto ignore_sequence;
 		}
@@ -272,9 +294,9 @@ static key_t decode_sequence(bool outer) {
 	}
 
 ignore_sequence:
-	if (sequence_index == 2)
-		return sequence[1] | EKEY_META;
-	else if (sequence_index == 1)
+	if (sequence.idx == 2)
+		return sequence.data[1] | EKEY_META;
+	else if (sequence.idx == 1)
 		return EKEY_ESC;
 
 	/* Something unwanted has happened here: the character sequence we encoutered was not
@@ -291,6 +313,22 @@ static void sigwinch_handler(int param) {
 	char winch_signal = WINCH_SIGNAL;
 	(void) param;
 	nosig_write(signal_pipe[1], &winch_signal, 1);
+}
+
+static int compare_mapping(const void *a, const void *b) {
+	const mapping_t *_a, *_b;
+	int result;
+
+	_a = (const mapping_t *) a;
+	_b = (const mapping_t *) b;
+
+	if ((result = memcmp(_a->string, _b->string, min(_a->string_length, _b->string_length))) != 0)
+		return result;
+	if (_a->string_length < _b->string_length)
+		return -1;
+	else if (_a->string_length > _b->string_length)
+		return 1;
+	return 0;
 }
 
 //FIXME: return value can not be a simple int, because of the different ranges of values it needs to support
@@ -441,6 +479,7 @@ int init_keys(void) {
 			idx++;
 		}
 	}
+	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
 	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
 		RETURN_ERROR(error);
