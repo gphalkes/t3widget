@@ -360,6 +360,7 @@ int init_keys(void) {
 	const t3_key_node_t *key_node;
 	int i, error, idx;
 	charconv_error_t charconv_error;
+	struct sched_param sched_param;
 
 	/* Start with things most likely to fail */
 	if ((conversion_handle = charconv_open_convertor(nl_langinfo(CODESET), CHARCONV_UTF32, 0, &charconv_error)) == NULL)
@@ -437,6 +438,13 @@ int init_keys(void) {
 
 	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
 		RETURN_ERROR(error);
+
+	/* Set the priority for the key reading thread to max, such that we can be sure
+	   that when a key is available it will be able to get it. */
+	sched_param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+	if (sched_param.sched_priority == -1)
+		sched_param.sched_priority = 0;
+	pthread_setschedparam(read_key_thread, SCHED_FIFO, &sched_param);
 
 	if (leave != NULL)
 		atexit(stop_keys);
