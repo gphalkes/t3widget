@@ -132,7 +132,7 @@ void menu_bar_t::hide(void) {
 }
 
 bool menu_bar_t::is_hotkey(key_t key) {
-	if (key == EKEY_MENU) {
+	if (key == EKEY_F10 || key == EKEY_META | '0') {
 		old_menu = current_menu = 0;
 		return true;
 	}

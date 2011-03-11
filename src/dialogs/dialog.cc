@@ -116,7 +116,7 @@ void dialog_t::draw_dialog(void) {
 }
 
 bool dialog_t::process_key(key_t key) {
-	if (key & EKEY_META) {
+	if ((key & EKEY_META) || key == EKEY_F10) {
 		for (widgets_t::iterator iter = widgets.begin();
 				iter != widgets.end(); iter++) {
 			if ((*iter)->is_hotkey(key & ~EKEY_META)) {

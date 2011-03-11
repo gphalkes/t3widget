@@ -47,97 +47,37 @@ typedef struct {
 } mapping_t;
 
 key_string_t key_strings[] = {
-	{"home", EKEY_HOME},
-	{"end", EKEY_END},
-	{"page_up", EKEY_PGUP},
-	{"page_down", EKEY_PGDN},
-	{"left", EKEY_LEFT},
-	{"down", EKEY_DOWN},
-	{"right", EKEY_RIGHT},
-	{"up", EKEY_UP},
-
-	{"home+s", EKEY_HOME | EKEY_SHIFT},
-	{"end+s", EKEY_END | EKEY_SHIFT},
-	{"page_up+s", EKEY_PGUP | EKEY_SHIFT},
-	{"page_down+s", EKEY_PGDN | EKEY_SHIFT},
-	{"left+s", EKEY_LEFT | EKEY_SHIFT},
-	{"down+s", EKEY_DOWN | EKEY_SHIFT},
-	{"right+s", EKEY_RIGHT | EKEY_SHIFT},
-	{"up+s", EKEY_UP | EKEY_SHIFT},
-
-	{"home+c", EKEY_HOME | EKEY_CTRL},
-	{"end+c", EKEY_END | EKEY_CTRL},
-	{"page_up+c", EKEY_PGUP | EKEY_CTRL},
-	{"page_down+c", EKEY_PGDN | EKEY_CTRL},
-	{"left+c", EKEY_LEFT | EKEY_CTRL},
-	{"down+c", EKEY_DOWN | EKEY_CTRL},
-	{"right+c", EKEY_RIGHT | EKEY_CTRL},
-	{"up+c", EKEY_UP | EKEY_CTRL},
-
-	{"home+cs", EKEY_HOME | EKEY_CTRL | EKEY_SHIFT},
-	{"end+cs", EKEY_END | EKEY_CTRL | EKEY_SHIFT},
-	{"page_up+cs", EKEY_PGUP | EKEY_CTRL | EKEY_SHIFT},
-	{"page_down+cs", EKEY_PGDN | EKEY_CTRL | EKEY_SHIFT},
-	{"left+cs", EKEY_LEFT | EKEY_CTRL | EKEY_SHIFT},
-	{"down+cs", EKEY_DOWN | EKEY_CTRL | EKEY_SHIFT},
-	{"right+cs", EKEY_RIGHT | EKEY_CTRL | EKEY_SHIFT},
-	{"up+cs", EKEY_UP | EKEY_CTRL | EKEY_SHIFT},
-
-	{"delete", EKEY_DEL},
-	{"insert", EKEY_INS},
-	{"f1", EKEY_F1},
-	{"f2", EKEY_F2},
-	{"f3", EKEY_F3},
-	{"f4", EKEY_F4},
-	{"f5", EKEY_F5},
-	{"f6", EKEY_F6},
-	{"f7", EKEY_F7},
-	{"f8", EKEY_F8},
-	{"f9", EKEY_F9},
-	{"f10", EKEY_F10},
-	{"f11", EKEY_F11},
-	{"f12", EKEY_F12},
-
-	{"f3+s", EKEY_F3 | EKEY_SHIFT},
-	{"f6+s", EKEY_F6 | EKEY_SHIFT},
-	{"f8+s", EKEY_F8 | EKEY_SHIFT},
-	{"backspace", EKEY_BS},
-
-	{"kp_home", EKEY_HOME},
-	{"kp_end", EKEY_END},
-	{"kp_page_up", EKEY_PGUP},
-	{"kp_page_down", EKEY_PGDN},
-	{"kp_left", EKEY_LEFT},
-	{"kp_down", EKEY_DOWN},
-	{"kp_right", EKEY_RIGHT},
-	{"kp_up", EKEY_UP},
-
-	{"kp_home+s", EKEY_HOME | EKEY_SHIFT},
-	{"kp_end+s", EKEY_END | EKEY_SHIFT},
-	{"kp_page_up+s", EKEY_PGUP | EKEY_SHIFT},
-	{"kp_page_down+s", EKEY_PGDN | EKEY_SHIFT},
-	{"kp_left+s", EKEY_LEFT | EKEY_SHIFT},
-	{"kp_down+s", EKEY_DOWN | EKEY_SHIFT},
-	{"kp_right+s", EKEY_RIGHT | EKEY_SHIFT},
-	{"kp_up+s", EKEY_UP | EKEY_SHIFT},
-
-	{"kp_delete", EKEY_DEL},
-	{"kp_insert", EKEY_INS},
-
-	{"insert+s", EKEY_INS | EKEY_SHIFT},
-	{"kp_insert+s", EKEY_INS | EKEY_SHIFT},
-	{"delete+s", EKEY_DEL | EKEY_SHIFT},
-	{"kp_delete+s", EKEY_INS | EKEY_SHIFT},
-
-	{"insert+c", EKEY_INS | EKEY_CTRL},
-	{"kp_insert+c", EKEY_INS | EKEY_CTRL},
-
-	{"tab", '\t'},
-	{"tab+s", '\t' | EKEY_SHIFT},
-
-	{"kp_enter", EKEY_NL},
-	{NULL, 0}
+	{ "insert", EKEY_INS },
+	{ "delete", EKEY_DEL },
+	{ "home", EKEY_HOME },
+	{ "end", EKEY_END },
+	{ "page_up", EKEY_PGUP },
+	{ "page_down", EKEY_PGDN },
+	{ "up", EKEY_UP },
+	{ "left", EKEY_LEFT },
+	{ "down", EKEY_DOWN },
+	{ "right", EKEY_RIGHT },
+	{ "kp_home", EKEY_HOME },
+	{ "kp_up", EKEY_UP },
+	{ "kp_page_up", EKEY_PGUP },
+	{ "kp_page_down", EKEY_PGDN },
+	{ "kp_left", EKEY_LEFT },
+	{ "kp_center", EKEY_CENTER },
+	{ "kp_right", EKEY_RIGHT },
+	{ "kp_end", EKEY_END },
+	{ "kp_down", EKEY_DOWN },
+	{ "kp_insert", EKEY_INS },
+	{ "kp_delete", EKEY_DEL },
+	{ "kp_enter", EKEY_NL },
+	{ "kp_div", '+' },
+	{ "kp_mul", '*' },
+	{ "kp_minus", '-' },
+	{ "kp_plus", '+' },
+	{ "tab", '\t' },
+	{ "backspace", EKEY_BS }
 };
+
+#define KEY_STRINGS_SIZE ((int) (sizeof(key_strings) / sizeof(key_strings[0])))
 
 static mapping_t *map;
 static int map_count;
@@ -261,6 +201,8 @@ static void *read_keys(void *arg) {
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
 				c = decode_sequence(true);
+				if (c < 0)
+					continue;
 			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
@@ -358,7 +300,7 @@ int init_keys(void) {
 	struct sigaction sa;
 	sigset_t sigs;
 	const t3_key_node_t *key_node;
-	int i, error, idx;
+	int i, j, error, idx;
 	charconv_error_t charconv_error;
 	struct sched_param sched_param;
 
@@ -410,29 +352,93 @@ int init_keys(void) {
 		leave = key_node->string;
 
 
-	/* Load all the needed keys from the terminfo database */
-	for (i = 0; key_strings[i].code != 0; i++) {
-		for (key_node = t3_key_get_named_node(keymap, key_strings[i].string);
-				key_node != NULL; key_node = t3_key_get_named_node(key_node, NULL))
-		{
-			if (key_node->string[0] == 27)
+	/* Load all the known keys from the terminfo database.
+	   - find out how many we actually know
+	   - allocate an appropriate amount of memory
+	   - fill the map
+	   - [TODO] sort the map for quick searching
+	*/
+	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
+		for (i = 0; i < KEY_STRINGS_SIZE; i++) {
+			if (key_node->string[0] != 27)
+				continue;
+
+			for (j = 0; key_strings[i].string[j] == key_node->key[j] && key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++) {}
+			if (key_strings[i].string[j] == 0 && (key_node->key[j] == '+' || key_node->key[j] == 0)) {
 				map_count++;
+				break;
+			}
+		}
+		if (i == KEY_STRINGS_SIZE) {
+			/* First character must be f, second a digit ... */
+			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
+					/* ... third either a digit, + or nothing ... */
+					(!isdigit(key_node->key[2]) && key_node->key[2] != 0 && key_node->key[2] != '+') ||
+					/* ... if there is a second char, then fourth must be a digit. */
+					(key_node->key[2] != 0 && key_node->key[3] != 0 && key_node->key[3] != '+'))
+				continue;
+			map_count++;
 		}
 	}
+
 	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == NULL)
 		RETURN_ERROR(T3_ERR_OUT_OF_MEMORY);
 
-	for (i = 0, idx = 0; key_strings[i].code != 0; i++) {
-		for (key_node = t3_key_get_named_node(keymap, key_strings[i].string);
-				key_node != NULL; key_node = t3_key_get_named_node(key_node, NULL))
-		{
-			if (key_node->string[0] == 27) {
-				map[idx].string = key_node->string;
-				map[idx].string_length = key_node->string_length;
-				map[idx++].key = key_strings[i].code;
-			} else if (strlen(key_node->string) == 1) {
+	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
+		for (i = 0; i < KEY_STRINGS_SIZE; i++) {
+			for (j = 0; key_strings[i].string[j] == key_node->key[j] && key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++) {}
+			if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '+' || key_node->key[j] == 0)))
+				continue;
+
+			if (key_node->string[0] != 27) {
 				map_single[(unsigned char) key_node->string[0]] = key_strings[i].code;
+				continue;
 			}
+
+			map[idx].string = key_node->string;
+			map[idx].string_length = key_node->string_length;
+			map[idx].key = key_strings[i].code;
+			for (; key_node->key[j] != 0; j++) {
+				switch (key_node->key[j]) {
+					case 'c':
+						map[idx].key |= EKEY_CTRL;
+						break;
+					case 'm':
+						map[idx].key |= EKEY_META;
+						break;
+					case 's':
+						map[idx].key |= EKEY_SHIFT;
+						break;
+				}
+			}
+			idx++;
+			break;
+		}
+		if (i == KEY_STRINGS_SIZE) {
+			/* First character must be f, second a digit ... */
+			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
+					/* ... third either a digit, + or nothing ... */
+					(!isdigit(key_node->key[2]) && key_node->key[2] != 0 && key_node->key[2] != '+') ||
+					/* ... if there is a second char, then fourth must be a digit. */
+					(key_node->key[2] != 0 && key_node->key[3] != 0 && key_node->key[3] != '+'))
+				continue;
+			map[idx].string = key_node->string;
+			map[idx].string_length = key_node->string_length;
+			map[idx].key = EKEY_F1 + atoi(key_node->key + 1) - 1;
+			for (j = 3; key_node->key[j] != 0; j++) {
+				switch (key_node->key[j]) {
+					case 'c':
+						map[idx].key |= EKEY_CTRL;
+						break;
+					case 'm':
+						map[idx].key |= EKEY_META;
+						break;
+					case 's':
+						map[idx].key |= EKEY_SHIFT;
+						break;
+				}
+			}
+			idx++;
 		}
 	}
 

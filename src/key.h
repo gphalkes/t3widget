@@ -39,6 +39,7 @@ enum {
 	EKEY_RIGHT,
 	EKEY_UP,
 	EKEY_DOWN,
+	EKEY_CENTER,
 	EKEY_DEL,
 	EKEY_INS,
 	EKEY_BS,
@@ -55,10 +56,34 @@ enum {
 	EKEY_F10,
 	EKEY_F11,
 	EKEY_F12,
-	EKEY_RESIZE,
-	EKEY_HOTKEY,
-	EKEY_MENU,
-	EKEY_NOP
+	EKEY_F13,
+	EKEY_F14,
+	EKEY_F15,
+	EKEY_F16,
+	EKEY_F17,
+	EKEY_F18,
+	EKEY_F19,
+	EKEY_F20,
+	EKEY_F21,
+	EKEY_F22,
+	EKEY_F23,
+	EKEY_F24,
+	EKEY_F25,
+	EKEY_F26,
+	EKEY_F27,
+	EKEY_F28,
+	EKEY_F29,
+	EKEY_F30,
+	EKEY_F31,
+	EKEY_F32,
+	EKEY_F33,
+	EKEY_F34,
+	EKEY_F35,
+	EKEY_F36,
+
+	/* Make sure the synthetic keys are out of the way of future aditions. */
+	EKEY_RESIZE = 0x111000,
+	EKEY_HOTKEY
 };
 
 int init_keys(void);
