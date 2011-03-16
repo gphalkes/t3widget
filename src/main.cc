@@ -45,24 +45,17 @@ connection connect_update_notification(const slot<void> &slot) {
 
 static void do_resize(void) {
 	int new_screen_lines, new_screen_columns;
-	bool need_redraw = false;
 
 	t3_term_resize();
 	t3_term_get_size(&new_screen_lines, &new_screen_columns);
 	if (new_screen_lines == screen_lines && new_screen_columns == screen_columns)
 		return;
 
-	if (new_screen_lines < screen_lines || new_screen_columns < screen_columns)
-		need_redraw = true;
-
 	// Ensure minimal coordinates to maintain sort of sane screen layout
 	screen_lines = new_screen_lines < MIN_LINES ? MIN_LINES : new_screen_lines;
 	screen_columns = new_screen_columns < MIN_COLUMNS? MIN_COLUMNS : new_screen_columns;
 
 	resize(screen_lines, screen_columns);
-
-	if (need_redraw)
-		t3_term_redraw();
 }
 
 enum terminal_code_t {
