@@ -116,6 +116,10 @@ void scrollbar_t::set_focus(bool focus) {
 }
 
 void scrollbar_t::set_parameters(int _range, int _start, int _used) {
+	if (range == _range && start == _start && used == _used)
+		return;
+
+	redraw = true;
 	range = _range;
 	start = _start;
 	used = _used;
