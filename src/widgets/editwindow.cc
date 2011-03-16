@@ -712,10 +712,6 @@ void edit_window_t::set_focus(bool _focus) {
 	}
 }
 
-t3_window_t *edit_window_t::get_draw_window(void) {
-	return window;
-}
-
 /* void edit_window_t::next_buffer(void) {
 	OpenFiles::iterator current;
 	for (current = openFiles.begin(); current != openFiles.end() && *current != text; current++) {}

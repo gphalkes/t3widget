@@ -22,7 +22,6 @@ namespace t3_widget {
 
 class widget_t : public window_component_t {
 	protected:
-		t3_window_t *window;
 		bool redraw;
 
 		widget_t(container_t *parent, int height, int width);
@@ -34,7 +33,6 @@ class widget_t : public window_component_t {
 		virtual ~widget_t(void);
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
-		virtual t3_window_t *get_draw_window(void) { return window; }
 		virtual void set_position(optint top, optint left);
 		virtual void show(void);
 		virtual void hide(void);

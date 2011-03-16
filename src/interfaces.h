@@ -23,7 +23,15 @@
 
 namespace t3_widget {
 
-class window_component_t {
+class abstract_window_component {
+	protected:
+		t3_window_t *window;
+	public:
+		abstract_window_component(void) : window(NULL) {}
+		virtual t3_window_t *get_draw_window(void) { return window; }
+};
+
+class window_component_t : public virtual abstract_window_component {
 	public:
 		virtual bool process_key(key_t key) = 0;
 		virtual void set_position(optint top, optint left) = 0;
@@ -32,12 +40,9 @@ class window_component_t {
 		virtual void set_focus(bool focus) = 0;
 		virtual void show(void) = 0;
 		virtual void hide(void) = 0;
-		virtual t3_window_t *get_draw_window(void) = 0;
 };
 
-class container_t {
-	public:
-		virtual t3_window_t *get_draw_window(void) = 0;
+class container_t : public virtual abstract_window_component {
 };
 
 }; // namespace

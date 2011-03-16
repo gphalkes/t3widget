@@ -47,7 +47,6 @@ class file_pane_t : public widget_t, public container_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 		virtual bool accepts_enter(void);
-		virtual t3_window_t *get_draw_window(void);
 		void reset(void);
 		void set_file_list(file_list_t *_file_list);
 		void set_file(size_t idx);

@@ -64,7 +64,6 @@ class edit_window_t : public widget_t {
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
-		virtual t3_window_t *get_draw_window(void);
 
 /*		void next_buffer(void);
 		void previous_buffer(void);*/

@@ -47,7 +47,7 @@ class dialog_t : public window_component_t, public container_t {
 		dialog_t(void);
 
 	protected:
-		t3_window_t *window, *shadow_window;
+		t3_window_t *shadow_window;
 		const char *title;
 		widgets_t widgets;
 		widgets_t::iterator current_widget;
@@ -68,7 +68,6 @@ class dialog_t : public window_component_t, public container_t {
 		virtual void set_focus(bool focus);
 		virtual void show(void);
 		virtual void hide(void);
-		virtual t3_window_t *get_draw_window(void) { return window; }
 		virtual void force_redraw(void);
 };
 

@@ -190,8 +190,6 @@ void file_pane_t::set_focus(bool _focus) {
 
 bool file_pane_t::accepts_enter(void) { return true; }
 
-t3_window_t *file_pane_t::get_draw_window(void) { return window; }
-
 void file_pane_t::reset(void) {
 	top_idx = 0;
 	current = 0;

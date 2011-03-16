@@ -52,7 +52,6 @@ class text_field_t : public widget_t {
 
 		class drop_down_list_t : public window_component_t {
 			private:
-				t3_window_t *window;
 				int width;
 				size_t current, top_idx;
 				bool focus;
@@ -70,7 +69,6 @@ class text_field_t : public widget_t {
 				virtual void set_focus(bool focus);
 				virtual void show(void);
 				virtual void hide(void);
-				virtual t3_window_t *get_draw_window(void) { return window; }
 				void update_view(void);
 				void set_autocomplete(string_list_t *completions);
 				bool has_items(void);

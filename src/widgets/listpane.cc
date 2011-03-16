@@ -180,10 +180,6 @@ void list_pane_t::update_positions(void) {
 		(*iter)->set_position(idx, indicator ? 1 : 0);
 }
 
-t3_window_t *list_pane_t::get_draw_window(void) {
-	return window;
-}
-
 void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
 	t3_win_set_anchor(clip_window, anchor->get_draw_window(), relation);
 }
@@ -310,10 +306,6 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
 		return true;
 	redraw = true;
 	return t3_win_resize(window, 1, width);
-}
-
-t3_window_t *list_pane_t::indicator_widget_t::get_draw_window(void) {
-	return window;
 }
 
 bool list_pane_t::indicator_widget_t::accepts_focus(void) { return false; }

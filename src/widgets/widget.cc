@@ -28,7 +28,7 @@ widget_t::widget_t(container_t *parent, int height, int width) : redraw(true) {
 	init_window(parent, height, width);
 }
 
-widget_t::widget_t(void) : window(NULL), redraw(true) {}
+widget_t::widget_t(void) : redraw(true) {}
 
 void widget_t::init_window(container_t *parent, int height, int width) {
 	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
