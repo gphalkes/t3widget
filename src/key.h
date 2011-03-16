@@ -83,7 +83,8 @@ enum {
 
 	/* Make sure the synthetic keys are out of the way of future aditions. */
 	EKEY_RESIZE = 0x111000,
-	EKEY_HOTKEY
+	EKEY_HOTKEY,
+	EKEY_EXTERNAL_UPDATE
 };
 
 int init_keys(void);

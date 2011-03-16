@@ -194,7 +194,7 @@ static void *read_keys(void *arg) {
 					/* Exit thread */
 					return NULL;
 				case WINCH_SIGNAL:
-					key_buffer.push_back(EKEY_RESIZE);
+					key_buffer.push_back_unique(EKEY_RESIZE);
 					break;
 				default:
 					// This should be impossible, so just ignore
@@ -549,6 +549,10 @@ static void stop_keys(void) {
 
 void set_key_timeout(int msec) {
 	key_timeout = msec;
+}
+
+void signal_update(void) {
+	key_buffer.push_back_unique(EKEY_EXTERNAL_UPDATE);
 }
 
 }; // namespace

@@ -18,6 +18,7 @@
    mutex. It is implemented by means of a double ended queue.  */
 
 #include <pthread.h>
+#include <algorithm>
 #include <deque>
 
 #include "key.h"
@@ -39,6 +40,25 @@ class key_buffer_t {
 
 		void push_back(key_t key) {
 			pthread_mutex_lock(&lock);
+			// FIXME: Catch appropriate exceptions. For now just catch all to
+			// enusre that unlocking of the mutex is performed.
+			try {
+				keys.push_back(key);
+			} catch (...) {
+			}
+			pthread_cond_signal(&cond);
+			pthread_mutex_unlock(&lock);
+		}
+
+		void push_back_unique(key_t key) {
+			pthread_mutex_lock(&lock);
+
+			// Return without adding if the key is already queued
+			if (find(keys.begin(), keys.end(), key) != keys.end()) {
+				pthread_mutex_unlock(&lock);
+				return;
+			}
+
 			// FIXME: Catch appropriate exceptions. For now just catch all to
 			// enusre that unlocking of the mutex is performed.
 			try {

@@ -31,11 +31,16 @@ namespace t3_widget {
 
 static int screen_lines, screen_columns;
 static signal<void, int, int> resize;
+static signal<void> update_notification;
 
 insert_char_dialog_t insert_char_dialog;
 
-connection connect_resize(const slot<void, int, int> &_slot) {
-	return resize.connect(_slot);
+connection connect_resize(const slot<void, int, int> &slot) {
+	return resize.connect(slot);
+}
+
+connection connect_update_notification(const slot<void> &slot) {
+	return update_notification.connect(slot);
 }
 
 static void do_resize(void) {
@@ -141,6 +146,9 @@ void iterate(void) {
 	switch (key) {
 		case EKEY_RESIZE:
 			do_resize();
+			break;
+		case EKEY_EXTERNAL_UPDATE:
+			update_notification();
 			break;
 		case EKEY_META | EKEY_ESC:
 #warning FIXME: how do we handle the whole alt-message mess?
