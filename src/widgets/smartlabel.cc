@@ -58,9 +58,14 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _addColon) : add_c
 		vector<key_t> hotkey_vector;
 		spec += i;
 
+		spec_length -= i;
+		i = spec_length;
+
 		while (*spec != 0 && (next = t3_getuc(spec, &i)) != 0xFFFD) {
 			hotkey_vector.push_back(next);
 			spec += i;
+			spec_length -= i;
+			i = spec_length;
 		}
 
 		hotkeys = new key_t[hotkey_vector.size() + 1];

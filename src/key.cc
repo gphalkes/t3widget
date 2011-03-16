@@ -25,6 +25,7 @@
 #include "main.h"
 #include "key.h"
 #include "keybuffer.h"
+#include "log.h"
 
 using namespace std;
 namespace t3_widget {
@@ -285,6 +286,13 @@ static key_t decode_sequence(bool outer) {
 			if ((matched = (mapping_t *) bsearch(&sequence, map, map_count, sizeof(mapping_t), compare_sequence_with_mapping)) != NULL)
 				return matched->key;
 
+			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised. */
+			if (sequence.data[1] == '[') {
+				if (sequence.idx > 2 && c >= 0x40 && c < 0x7f)
+					return -1;
+				continue;
+			}
+
 			if (key_timeout < 0 && !is_prefix)
 				goto ignore_sequence;
 		}
@@ -401,12 +409,16 @@ int init_keys(void) {
 			if (key_node->string[0] != 27)
 				continue;
 
-			for (j = 0; key_strings[i].string[j] == key_node->key[j] && key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++) {}
+			for (j = 0; key_strings[i].string[j] == key_node->key[j] &&
+					key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++)
+			{}
+
 			if (key_strings[i].string[j] == 0 && (key_node->key[j] == '+' || key_node->key[j] == 0)) {
 				map_count++;
 				break;
 			}
 		}
+
 		if (i == KEY_STRINGS_SIZE) {
 			/* First character must be f, second a digit ... */
 			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
@@ -422,9 +434,12 @@ int init_keys(void) {
 	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == NULL)
 		RETURN_ERROR(T3_ERR_OUT_OF_MEMORY);
 
-	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
+	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
 		for (i = 0; i < KEY_STRINGS_SIZE; i++) {
-			for (j = 0; key_strings[i].string[j] == key_node->key[j] && key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++) {}
+			for (j = 0; key_strings[i].string[j] == key_node->key[j] &&
+					key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++)
+			{}
+
 			if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '+' || key_node->key[j] == 0)))
 				continue;
 
@@ -446,6 +461,8 @@ int init_keys(void) {
 						break;
 					case 's':
 						map[idx].key |= EKEY_SHIFT;
+						break;
+					default:
 						break;
 				}
 			}
@@ -473,6 +490,8 @@ int init_keys(void) {
 						break;
 					case 's':
 						map[idx].key |= EKEY_SHIFT;
+						break;
+					default:
 						break;
 				}
 			}

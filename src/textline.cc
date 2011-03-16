@@ -120,6 +120,7 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 	reserve(length);
 
 	while (length > 0) {
+		char_bytes = length;
 		next = t3_getuc(_buffer, &char_bytes);
 		append_char(next, NULL);
 		length -= char_bytes;
