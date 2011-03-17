@@ -68,7 +68,7 @@ char text_line_t::conversion_meta_data;
 void text_line_t::convert_key(key_t c) {
 	int i;
 
-	conversion_meta_data = t3_unicode_get_info(c);
+	conversion_meta_data = t3_unicode_get_info(c, INT_MAX);
 	/* Mask out only what we need. */
 	conversion_meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
 
