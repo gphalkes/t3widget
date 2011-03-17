@@ -61,7 +61,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _addColon) : add_c
 		spec_length -= i;
 		i = spec_length;
 
-		while (*spec != 0 && (next = t3_getuc(spec, &i)) != 0xFFFD) {
+		while (*spec != 0 && (next = t3_unicode_get(spec, &i)) != 0xFFFD) {
 			hotkey_vector.push_back(next);
 			spec += i;
 			spec_length -= i;

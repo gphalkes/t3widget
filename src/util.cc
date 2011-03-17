@@ -216,7 +216,7 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 				   \uxxxx is already the as long as the max utf-8 length */
 				char buffer[5];
 				//FIXME: mask anything outside the correct value range
-				t3_putuc(value & ~ESCAPE_UNICODE, buffer);
+				t3_unicode_put(value & ~ESCAPE_UNICODE, buffer);
 				buffer[4] = 0;
 				str.replace(write_position, strlen(buffer), buffer);
 				write_position += strlen(buffer);

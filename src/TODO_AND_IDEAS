@@ -44,6 +44,13 @@ IDEAS
 	redraw the interface (for which the redraw paradigm mentioned earlier would
 	be a good idea).
 
+- From the wikipedia page on Specials (including the replacement character):
+	A better (but harder to implement) design is to preserve the original bytes,
+	including the error, and only convert to the replacement when displaying the
+	text. Another alternative is to make different replacements for each
+	different error byte; one popular replacement is the (otherwise invalid
+	Unicode) U+DC80 through U+DCFF.
+
 THOUGHTS
 - we won't do layout management. For most things the anchoring does what we
 	want. Furthermore, most dialogs don't resize also because the user can not

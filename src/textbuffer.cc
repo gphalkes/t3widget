@@ -1438,7 +1438,7 @@ bool text_buffer_t::find(const string *what, int flags, const text_line_t *repla
 			if (flags & find_flags_t::ICASE) {
 				char *folded;
 				size_t folded_size;
-				folded_size = t3_casefold(searchFor.data(), searchFor.size(), &folded, NULL, t3_false);
+				folded_size = t3_unicode_casefold(searchFor.data(), searchFor.size(), &folded, NULL, t3_false);
 				last_find.matcher = new string_matcher_t(folded, folded_size);
 			} else {
 				last_find.matcher = new string_matcher_t(searchFor);

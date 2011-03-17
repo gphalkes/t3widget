@@ -45,11 +45,11 @@ const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";
   - bad print, i.e. terminal may not be able to draw properly
 */
 
-#define WIDTH_MASK (T3_WIDTH_MASK)
-#define GRAPH_BIT (T3_GRAPH_BIT)
-#define ALNUM_BIT (T3_ALNUM_BIT)
-#define SPACE_BIT (T3_SPACE_BIT)
-#define BAD_DRAW_BIT (T3_NFC_QC_BIT)
+#define WIDTH_MASK (T3_UNICODE_WIDTH_MASK)
+#define GRAPH_BIT (T3_UNICODE_GRAPH_BIT)
+#define ALNUM_BIT (T3_UNICODE_ALNUM_BIT)
+#define SPACE_BIT (T3_UNICODE_SPACE_BIT)
+#define BAD_DRAW_BIT (T3_UNICODE_NFC_QC_BIT)
 
 char text_line_t::conversion_buffer[5];
 int text_line_t::conversion_length;
@@ -68,13 +68,13 @@ char text_line_t::conversion_meta_data;
 void text_line_t::convert_key(key_t c) {
 	int i;
 
-	conversion_meta_data = t3_get_codepoint_info(c);
+	conversion_meta_data = t3_unicode_get_info(c);
 	/* Mask out only what we need. */
 	conversion_meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
 
 	//FIXME: instead of doing a conversion here, would it not be better to change the
 	// rest of the code? On the other hand, the control chars < 32 need special treatment anyway.
-	/* Convert width as returned by t3_get_codepoint_info to what we need locally. */
+	/* Convert width as returned by t3_unicode_get_info to what we need locally. */
 	if ((conversion_meta_data & WIDTH_MASK) == 0) {
 		int width = c < 32 && c != '\t' ? 2 : 1;
 		conversion_meta_data = (conversion_meta_data & ~WIDTH_MASK) | width;
@@ -121,7 +121,7 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 
 	while (length > 0) {
 		char_bytes = length;
-		next = t3_getuc(_buffer, &char_bytes);
+		next = t3_unicode_get(_buffer, &char_bytes);
 		append_char(next, NULL);
 		length -= char_bytes;
 		_buffer += char_bytes;
@@ -865,7 +865,7 @@ bool text_line_t::find(find_context_t *context, find_result_t *result) const {
 			substr.clear();
 			substr = buffer.substr(next_char, curr_char - next_char);
 			if (context->flags & find_flags_t::ICASE) {
-				c_size = t3_casefold(substr.data(), substr.size(), &context->folded, &context->folded_size, t3_false);
+				c_size = t3_unicode_casefold(substr.data(), substr.size(), &context->folded, &context->folded_size, t3_false);
 				c = context->folded;
 			} else {
 				c = substr.data();
@@ -888,7 +888,7 @@ bool text_line_t::find(find_context_t *context, find_result_t *result) const {
 			substr.clear();
 			substr = buffer.substr(curr_char, next_char - curr_char);
 			if (context->flags & find_flags_t::ICASE) {
-				c_size = t3_casefold(substr.data(), substr.size(), &context->folded, &context->folded_size, t3_false);
+				c_size = t3_unicode_casefold(substr.data(), substr.size(), &context->folded, &context->folded_size, t3_false);
 				c = context->folded;
 			} else {
 				c = substr.data();
