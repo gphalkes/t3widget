@@ -91,7 +91,7 @@ bool file_name_list_t::is_dir(const string *current_dir, const char *name) {
 	return !!S_ISDIR(file_info.st_mode);
 }
 
-bool file_name_list_t::sort_entries(file_name_entry_t first, file_name_entry_t second) {
+bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_t second) {
 	if (first.is_dir && !second.is_dir)
 		return true;
 
@@ -115,11 +115,11 @@ bool file_name_list_t::sort_entries(file_name_entry_t first, file_name_entry_t s
 
 
 
-size_t file_name_list_t::get_length(void) const {
+size_t file_name_list_t::size(void) const {
 	return files.size();
 }
 
-const string *file_name_list_t::get_name(int idx) const {
+const string *file_name_list_t::operator[](size_t idx) const {
 	return &files[idx].name;
 }
 
@@ -156,7 +156,7 @@ void file_name_list_t::load_directory(string *dirName) {
 	}
 	closedir(dir);
 
-	sort(files.begin(), files.end(), sort_entries);
+	sort(files.begin(), files.end(), compare_entries);
 	content_changed();
 }
 
@@ -180,11 +180,11 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t& a) {
 file_name_list_t::file_name_list_view_t::file_name_list_view_t(file_name_list_t *_base, bool showHidden, const string *filter) : base(_base) {
 	size_t i;
 
-	if (base->get_length() == 0)
+	if (base->size() == 0)
 		return;
 
-	for (i = 0; i < base->get_length(); i++) {
-		const string *base_name = base->get_name(i);
+	for (i = 0; i < base->size(); i++) {
+		const string *base_name = (*base)[i];
 		if (base_name->compare("..") == 0) {
 			items.push_back(i);
 			continue;
@@ -200,19 +200,19 @@ file_name_list_t::file_name_list_view_t::file_name_list_view_t(file_name_list_t 
 file_name_list_t::file_name_list_view_t::file_name_list_view_t(file_name_list_t *_base, const string *start) : base(_base) {
 	size_t i;
 
-	for (i = 0; i < base->get_length(); i++) {
-		const string *base_name = base->get_name(i);
+	for (i = 0; i < base->size(); i++) {
+		const string *base_name = (*base)[i];
 		if (base_name->compare(0, start->size(), *start, 0, start->size()) == 0)
 			items.push_back(i);
 	}
 }
 
-size_t file_name_list_t::file_name_list_view_t::get_length(void) const {
+size_t file_name_list_t::file_name_list_view_t::size(void) const {
 	return items.size();
 }
 
-const string *file_name_list_t::file_name_list_view_t::get_name(int idx) const {
-	return base->get_name(items[idx]);
+const string *file_name_list_t::file_name_list_view_t::operator[](size_t idx) const {
+	return (*base)[items[idx]];
 }
 
 bool file_name_list_t::file_name_list_view_t::is_dir(int idx) const {
@@ -225,27 +225,9 @@ size_t file_name_list_t::file_name_list_view_t::get_index(const string *name) co
 	if (name == NULL || name->size() == 0)
 		return 0;
 	for (i = 0; i < items.size(); i++)
-		if (name->compare(*base->get_name(items[i])) == 0)
+		if (name->compare(*(*base)[items[i]]) == 0)
 			return i;
 	return 0;
-}
-
-
-multi_string_list_t::multi_string_list_t(int _columns) : columns(_columns), data(new vector<const string *>[columns]) {}
-
-size_t multi_string_list_t::get_length(void) const { return data[0].size(); }
-int multi_string_list_t::get_columns(void) const { return columns; }
-const string *multi_string_list_t::get_item(int idx, int column) const { return data[column][idx]; }
-
-void multi_string_list_t::add_line(const string *first, ...) {
-	va_list args;
-	int i;
-
-	data[0].push_back(first);
-	va_start(args, first);
-	for (i = 1; i < columns; i++)
-		data[i].push_back(va_arg(args, const string *));
-	va_end(args);
 }
 
 }; // namespace

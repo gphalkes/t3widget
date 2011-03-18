@@ -28,15 +28,15 @@ class file_dialog_t : public dialog_t {
 		file_name_list_t::file_name_list_view_t *view;
 		std::string current_dir;
 
-		int name_offset,
-			filter_create_button_offset;
+		int name_offset;
 
 		file_pane_t *file_pane;
 		text_field_t *file_line;
-		//FIXME: many of these are not necessary anymore after the constructor, so they should be moved there.
-		button_t *ok_button, *cancel_button, *encoding_button;
+		button_t *cancel_button, *ok_button;
 		checkbox_t *show_hidden_box;
-		smart_label_t *name_label, *show_hidden_label;
+		smart_label_t *show_hidden_label;
+		bool option_widget_set;
+		sigc::connection cancel_button_up_connection, ok_button_up_connection, ok_button_left_connection;
 
 		file_dialog_t(int height, int width, const char *_title);
 		void ok_callback(void);
@@ -49,6 +49,7 @@ class file_dialog_t : public dialog_t {
 		void change_dir(const std::string *dir);
 		virtual void set_file(const char *file);
 		void refresh_view(const std::string *file);
+		void set_options_widget(widget_t *options);
 
 	T3_WIDET_SIGNAL(file_selected, void, std::string *);
 };

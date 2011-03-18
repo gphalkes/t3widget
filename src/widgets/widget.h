@@ -40,12 +40,23 @@ class widget_t : public virtual window_component_t {
 		virtual void force_redraw(void);
 };
 
-class complex_widget_t : public widget_t {
+class complex_widget_t : public virtual widget_t {
 	protected:
 		window_component_t *center_window;
 	public:
-		complex_widget_t(container_t *parent, int height, int width) : widget_t(parent, height, width), center_window(this) {}
+		complex_widget_t(void) : center_window(this) {}
 		virtual void set_center_window(window_component_t *_center_window) { center_window = _center_window; }
+};
+
+class focus_widget_t : public virtual widget_t {
+	public:
+		focus_widget_t(void) {}
+		focus_widget_t(container_t *parent, int height, int width) : widget_t(parent, height, width) {}
+
+	T3_WIDET_SIGNAL(move_focus_left, void);
+	T3_WIDET_SIGNAL(move_focus_right, void);
+	T3_WIDET_SIGNAL(move_focus_up, void);
+	T3_WIDET_SIGNAL(move_focus_down, void);
 };
 
 typedef std::deque<widget_t *> widgets_t;

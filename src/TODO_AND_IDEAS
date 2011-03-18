@@ -10,7 +10,6 @@ TODO
 		On the other hand, enforcing a standard can also be good. There are only
 		two widgets (currently) for which this makes sense: text_field_t and
 		edit_window_t. But they should share the same shortcut.
-- rename the multi_string_list_i interface to something ending in _t
 - handle FIXME's
 - dialogs need to be notified of color change and then call force_redraw. Best
 	done by connecting to signal from constructor and calling disconnect on

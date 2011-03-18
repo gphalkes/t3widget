@@ -27,7 +27,7 @@ sigc::connection edit_window_t::goto_connection;
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : complex_widget_t(parent, 10, 10) {
+edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget_t(parent, 10, 10) {
 	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 0, 0, 0)) == NULL) {
 		t3_win_del(window);
 		throw bad_alloc();

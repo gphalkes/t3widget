@@ -18,20 +18,21 @@
 
 namespace t3_widget {
 
-class multi_widget_t : public widget_t, public container_t {
+class multi_widget_t : public focus_widget_t, public container_t {
 	private:
 		struct item_t {
 			widget_t *widget;
 			int width;
 			int calculated_width;
 			bool takes_focus;
-			bool send_keys;
 		};
 		std::list<item_t> widgets;
 		int width, fixed_sum, proportion_sum;
+		widget_t *send_key_widget;
 
 	public:
 		multi_widget_t(container_t *parent);
+		virtual ~multi_widget_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
@@ -41,10 +42,6 @@ class multi_widget_t : public widget_t, public container_t {
 
 		/* Width is negative for fixed width widgets, positive for proportion */
 		void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);
-		//FIXME: allow iteration and removal
-		void pop_back(void);
-		widget_t *back(void);
-		bool empty(void);
 		void resize_widgets(void);
 };
 

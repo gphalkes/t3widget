@@ -244,6 +244,20 @@ void dialog_t::focus_previous(void) {
 	(*current_widget)->set_focus(true);
 }
 
+void dialog_t::move_focus(widget_t *target) {
+	if (!target->accepts_focus())
+		return;
+
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if (*iter == target) {
+			(*current_widget)->set_focus(false);
+			current_widget = iter;
+			(*current_widget)->set_focus(true);
+			return;
+		}
+	}
+}
+
 void dialog_t::force_redraw(void) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->force_redraw();

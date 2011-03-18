@@ -16,19 +16,20 @@
 using namespace std;
 namespace t3_widget {
 
-multi_widget_t::multi_widget_t(container_t *parent) :
-	width(1), fixed_sum(0), proportion_sum(0)
-{
+multi_widget_t::multi_widget_t(container_t *parent) : width(1), fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
 	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 }
 
+multi_widget_t::~multi_widget_t(void) {
+	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		delete iter->widget;
+}
+
 bool multi_widget_t::process_key(key_t key) {
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-		if (iter->send_keys)
-			return iter->widget->process_key(key);
-	}
+	if (send_key_widget != NULL)
+		return send_key_widget->process_key(key);
 	return false;
 }
 
@@ -84,30 +85,23 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 	item.widget = widget;
 	item.width = _width;
 	item.takes_focus = takes_focus;
-	item.send_keys = send_keys;
+
+	if (send_keys && send_key_widget == NULL) {
+		focus_widget_t *focus_widget;
+		send_key_widget = widget;
+		if ((focus_widget = dynamic_cast<focus_widget_t *>(widget)) != NULL) {
+			focus_widget->connect_move_focus_left(move_focus_left.make_slot());
+			focus_widget->connect_move_focus_right(move_focus_right.make_slot());
+			focus_widget->connect_move_focus_up(move_focus_up.make_slot());
+			focus_widget->connect_move_focus_down(move_focus_down.make_slot());
+		}
+	}
+
 	if (widgets.size() > 0)
 		widget->set_anchor(widgets.back().widget, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	widget->set_position(0, 0);
 	widgets.push_back(item);
 	resize_widgets();
-}
-
-void multi_widget_t::pop_back(void) {
-	item_t widget = widgets.back();
-	if (widget.width < 0)
-		fixed_sum -= -widget.width;
-	else
-		proportion_sum -= widget.width;
-	widgets.pop_back();
-	resize_widgets();
-}
-
-widget_t *multi_widget_t::back(void) {
-	return widgets.back().widget;
-}
-
-bool multi_widget_t::empty(void) {
-	return widgets.empty();
 }
 
 void multi_widget_t::resize_widgets(void) {

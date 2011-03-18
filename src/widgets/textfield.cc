@@ -29,7 +29,7 @@ namespace t3_widget {
 	- pressing esc in drop-down list should close the list
 */
 
-text_field_t::text_field_t(container_t *_parent) : complex_widget_t(_parent, 1, 4),
+text_field_t::text_field_t(container_t *_parent) : widget_t(_parent, 1, 4),
 	width(4),
 	pos(0),
 	screen_pos(0),
@@ -508,7 +508,7 @@ text_field_t::drop_down_list_t::~drop_down_list_t(void) {
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
 	string_list_t *list = view == NULL ? completions : view;
-	size_t length = list->get_length();
+	size_t length = list->size();
 
 	switch (key) {
 		case EKEY_DOWN:
@@ -516,7 +516,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 				current++;
 				if (current - top_idx > 4)
 					top_idx++;
-				field->set_text(list->get_name(current));
+				field->set_text((*list)[current]);
 			}
 			break;
 		case EKEY_UP:
@@ -524,7 +524,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 				current--;
 				if (top_idx > current)
 					top_idx = current;
-				field->set_text(list->get_name(current));
+				field->set_text((*list)[current]);
 			} else {
 				focus = false;
 				field->in_drop_down_list = false;
@@ -583,9 +583,9 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	t3_win_addch(window, T3_ACS_LLCORNER, T3_ATTR_ACS);
 	t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
 	t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
-	for (i = 0, idx = top_idx; i < 5 && idx < list->get_length(); i++, idx++) {
+	for (i = 0, idx = top_idx; i < 5 && idx < list->size(); i++, idx++) {
 		text_line_t::paint_info_t info;
-		text_line_t fileNameLine(list->get_name(idx));
+		text_line_t fileNameLine((*list)[idx]);
 		bool paint_selected = focus && idx == current;
 
 		t3_win_set_paint(window, i, 1);
@@ -619,7 +619,7 @@ void text_field_t::drop_down_list_t::set_focus(bool _focus) {
 	if (focus) {
 		string_list_t *list = view == NULL ? completions : view;
 		current = 0;
-		field->set_text(list->get_name(current));
+		field->set_text((*list)[current]);
 	}
 }
 
@@ -654,7 +654,7 @@ void text_field_t::drop_down_list_t::set_autocomplete(string_list_t *_completion
 }
 
 bool text_field_t::drop_down_list_t::has_items(void) {
-	return view == NULL ? false : view->get_length() > 0;
+	return view == NULL ? false : view->size() > 0;
 }
 
 }; // namespace

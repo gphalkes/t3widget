@@ -23,7 +23,7 @@
 
 namespace t3_widget {
 
-class text_field_t : public complex_widget_t {
+class text_field_t : public complex_widget_t, public focus_widget_t {
 	protected:
 		int width,
 			pos,
@@ -95,8 +95,6 @@ class text_field_t : public complex_widget_t {
 
 	T3_WIDET_SIGNAL(activate, void);
 	T3_WIDET_SIGNAL(lose_focus, void);
-	T3_WIDET_SIGNAL(move_focus_up, void);
-	T3_WIDET_SIGNAL(move_focus_down, void);
 };
 
 }; // namespace

@@ -21,8 +21,8 @@ namespace t3_widget {
 
 class string_list_t {
 	public:
-		virtual size_t get_length(void) const = 0;
-		virtual const std::string *get_name(int idx) const = 0;
+		virtual size_t size(void) const = 0;
+		virtual const std::string *operator[](size_t idx) const = 0;
 
 	T3_WIDET_SIGNAL(content_changed, void);
 };
@@ -34,21 +34,20 @@ class file_list_t : public string_list_t {
 
 class file_name_list_t : public file_list_t {
 	private:
-		class file_name_entry_t {
-			public:
-				std::string name;
-				bool is_dir;
-				file_name_entry_t(void) : is_dir(false) {}
-				file_name_entry_t(const char *_name, bool _isDir) : name(_name), is_dir(_isDir) {}
+		struct file_name_entry_t {
+			std::string name;
+			bool is_dir;
+			file_name_entry_t(void) : is_dir(false) {}
+			file_name_entry_t(const char *_name, bool _isDir) : name(_name), is_dir(_isDir) {}
 		};
 
 		std::vector<file_name_entry_t> files;
 
-		static bool sort_entries(file_name_entry_t first, file_name_entry_t second);
+		static bool compare_entries(file_name_entry_t first, file_name_entry_t second);
 
 	public:
-		virtual size_t get_length(void) const;
-		virtual const std::string *get_name(int idx) const;
+		virtual size_t size(void) const;
+		virtual const std::string *operator[](size_t idx) const;
 		virtual bool is_dir(int idx) const;
 		void load_directory(std::string *dirName);
 		size_t get_index(const std::string *name) const;
@@ -65,30 +64,11 @@ class file_name_list_t : public file_list_t {
 			public:
 				file_name_list_view_t(file_name_list_t *_base, bool showHidden, const std::string *filter);
 				file_name_list_view_t(file_name_list_t *_base, const std::string *start);
-				virtual size_t get_length(void) const;
-				virtual const std::string *get_name(int idx) const;
+				virtual size_t size(void) const;
+				virtual const std::string *operator[](size_t idx) const;
 				virtual bool is_dir(int idx) const;
 				size_t get_index(const std::string *name) const;
 		};
-};
-
-class multi_string_list_i {
-	public:
-		virtual size_t get_length(void) const = 0;
-		virtual int get_columns(void) const = 0;
-		virtual const std::string *get_item(int idx, int column) const = 0;
-};
-
-class multi_string_list_t : public multi_string_list_i {
-	private:
-		int columns;
-		std::vector<const std::string *> *data;
-	public:
-		multi_string_list_t(int _columns);
-		virtual size_t get_length(void) const;
-		virtual int get_columns(void) const;
-		virtual const std::string *get_item(int idx, int column) const;
-		void add_line(const std::string *first, ...);
 };
 
 }; // namespace

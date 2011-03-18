@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class checkbox_t : public widget_t {
+class checkbox_t : public focus_widget_t {
 	private:
 		bool state, has_focus;
 		smart_label_t *label;
@@ -37,10 +37,6 @@ class checkbox_t : public widget_t {
 
 	T3_WIDET_SIGNAL(activate, void);
 	T3_WIDET_SIGNAL(toggled, void);
-	T3_WIDET_SIGNAL(move_focus_left, void);
-	T3_WIDET_SIGNAL(move_focus_right, void);
-	T3_WIDET_SIGNAL(move_focus_up, void);
-	T3_WIDET_SIGNAL(move_focus_down, void);
 };
 
 }; // namespace
