@@ -149,10 +149,6 @@ void iterate(void) {
 		case EKEY_EXTERNAL_UPDATE:
 			update_notification();
 			break;
-		case EKEY_META | EKEY_ESC:
-#warning FIXME: how do we handle the whole alt-message mess?
-			//activate_window(WindowID::ALTMESSAGE_DIALOG);
-			break;
 		case EKEY_UPDATE_TERMINAL:
 			break;
 		default:
