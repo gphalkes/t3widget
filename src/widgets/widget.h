@@ -20,7 +20,7 @@
 
 namespace t3_widget {
 
-class widget_t : public window_component_t {
+class widget_t : public virtual window_component_t {
 	protected:
 		bool redraw;
 

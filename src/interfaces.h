@@ -23,16 +23,12 @@
 
 namespace t3_widget {
 
-class abstract_window_component {
+class window_component_t {
 	protected:
 		t3_window_t *window;
 	public:
-		abstract_window_component(void) : window(NULL) {}
+		window_component_t(void) : window(NULL) {}
 		virtual t3_window_t *get_draw_window(void) { return window; }
-};
-
-class window_component_t : public virtual abstract_window_component {
-	public:
 		virtual bool process_key(key_t key) = 0;
 		virtual void set_position(optint top, optint left) = 0;
 		virtual bool set_size(optint height, optint width) = 0;
@@ -42,7 +38,9 @@ class window_component_t : public virtual abstract_window_component {
 		virtual void hide(void) = 0;
 };
 
-class container_t : public virtual abstract_window_component {
+class container_t : private virtual window_component_t {
+	public:
+		virtual t3_window_t *get_draw_window(void) { return window_component_t::get_draw_window(); }
 };
 
 }; // namespace

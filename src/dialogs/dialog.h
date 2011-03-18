@@ -25,7 +25,7 @@ class dialog_t;
 typedef std::list<dialog_t *> dialogs_t;
 class main_window_base_t;
 
-class dialog_t : public window_component_t, public container_t {
+class dialog_t : public virtual window_component_t, public container_t {
 	private:
 		friend void iterate(void);
 		friend int init(main_window_base_t *main_window, bool separate_keypad);
