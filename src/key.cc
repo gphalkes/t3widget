@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <langinfo.h>
 #include <charconv.h>
+#include <cerrno>
 
 #include <window/window.h>
 #include <key/key.h>
@@ -127,6 +128,11 @@ static charconv_t *conversion_handle;
 
 static int key_timeout = -1;
 
+/* Used in decode_sequence and comparison routine to communicate whether the current
+   sequence is a prefix of any known sequence. */
+static bool is_prefix;
+
+
 static key_t decode_sequence(bool outer);
 static void stop_keys(void);
 
@@ -190,7 +196,6 @@ static int read_and_convert_keys(int timeout) {
 	}
 }
 
-
 static void *read_keys(void *arg) {
 	int retval;
 	key_t c;
@@ -244,9 +249,6 @@ static void *read_keys(void *arg) {
 key_t read_key(void) {
 	return key_buffer.pop_front();
 }
-
-//FIXME: move to top
-static bool is_prefix;
 
 static int compare_sequence_with_mapping(const void *key, const void *mapping) {
 	const key_sequence_t *_key;
@@ -365,10 +367,10 @@ static int compare_mapping(const void *a, const void *b) {
 	return 0;
 }
 
-//FIXME: return value can not be a simple int, because of the different ranges of values it needs to support
-#define RETURN_ERROR(_x) do { error = (_x); goto return_error; } while (0)
+#define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x); goto return_error; } while (0)
 /* Initialize the key map */
-int init_keys(bool separate_keypad) {
+complex_error_t init_keys(bool separate_keypad) {
+	complex_error_t result;
 	struct sigaction sa;
 	sigset_t sigs;
 	const t3_key_node_t *key_node;
@@ -378,13 +380,13 @@ int init_keys(bool separate_keypad) {
 
 	/* Start with things most likely to fail */
 	if ((conversion_handle = charconv_open_convertor(nl_langinfo(CODESET), CHARCONV_UTF32, 0, &charconv_error)) == NULL)
-		RETURN_ERROR(charconv_error); //FIXME: may overlap with t3_key_load_map errors
+		RETURN_ERROR(complex_error_t::SRC_CHARCONV, charconv_error);
 
 	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)
-		RETURN_ERROR(error); //FIXME: may overlap with charconv error codes!
+		RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
 
 	if (pipe(signal_pipe) < 0)
-		RETURN_ERROR(-1); //FIXME: proper error code please
+		RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
 
 	sa.sa_handler = sigwinch_handler;
 	sigemptyset(&sa.sa_mask);
@@ -392,12 +394,12 @@ int init_keys(bool separate_keypad) {
 	sa.sa_flags = 0;
 
 	if (sigaction(SIGWINCH, &sa, NULL) < 0)
-		RETURN_ERROR(-1); //FIXME: proper error code please
+		RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
 
 	sigemptyset(&sigs);
 	sigaddset(&sigs, SIGWINCH);
 	if (sigprocmask(SIG_UNBLOCK, &sigs, NULL) < 0)
-		RETURN_ERROR(-1); //FIXME: proper error code please
+		RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
 
 	for (i = 1; i < 26; i++)
 		map_single[i] = EKEY_CTRL | ('a' + i - 1);
@@ -458,7 +460,7 @@ int init_keys(bool separate_keypad) {
 	}
 
 	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == NULL)
-		RETURN_ERROR(T3_ERR_OUT_OF_MEMORY);
+		RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
 
 	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
 		for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
@@ -527,7 +529,7 @@ int init_keys(bool separate_keypad) {
 	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
 	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
-		RETURN_ERROR(error);
+		RETURN_ERROR(complex_error_t::SRC_ERRNO, error);
 
 	/* Set the priority for the key reading thread to max, such that we can be sure
 	   that when a key is available it will be able to get it. */
@@ -538,7 +540,7 @@ int init_keys(bool separate_keypad) {
 
 	if (leave != NULL)
 		atexit(stop_keys);
-	return T3_ERR_SUCCESS;
+	return result;
 
 return_error:
 	if (conversion_handle != NULL)
@@ -550,7 +552,7 @@ return_error:
 		close(signal_pipe[1]);
 	}
 
-	return error;
+	return result;
 }
 #undef RETURN_ERROR
 

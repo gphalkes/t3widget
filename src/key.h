@@ -105,8 +105,9 @@ enum {
 	EKEY_UPDATE_TERMINAL
 };
 
+class complex_error_t;
 //FIXME: some of this should be moved to the internal header
-int init_keys(bool separate_keypad);
+complex_error_t init_keys(bool separate_keypad);
 void deinit_keys(void);
 void reinit_keys(void);
 void insert_protected_key(key_t key);

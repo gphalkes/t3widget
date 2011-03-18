@@ -14,6 +14,8 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <key/key.h>
+#include <charconv.h>
 
 #include "main.h"
 #include "log.h"
@@ -39,6 +41,34 @@ insert_char_dialog_t insert_char_dialog;
 #warning FIXME: using _ here does not work because there is no guarantee that the correct calls have been made to set the language.
 #warning FIXME: do we really want to fix the size?
 message_dialog_t message_dialog(MESSAGE_DIALOG_WIDTH, _("Message"));
+
+complex_error_t::complex_error_t(void) : success(true), source(SRC_NONE), error(0) {}
+complex_error_t::complex_error_t(source_t _source, int _error) : success(false), source(_source), error(_error) {}
+
+void complex_error_t::set_error(source_t _source, int _error) {
+	success = false;
+	source = _source;
+	error = _error;
+}
+
+bool complex_error_t::get_success(void) { return success; }
+complex_error_t::source_t complex_error_t::get_source(void) { return source; }
+int complex_error_t::get_error(void) { return error; }
+
+const char *complex_error_t::get_string(void) {
+	switch (source) {
+		case SRC_ERRNO:
+			return strerror(error);
+		case SRC_CHARCONV:
+			return charconv_strerror((charconv_error_t) error);
+		case SRC_T3_KEY:
+			return t3_key_strerror(error);
+		case SRC_T3_WINDOW:
+			return t3_window_strerror(error);
+		default:
+			return strerror(0);
+	}
+}
 
 connection connect_resize(const slot<void, int, int> &slot) {
 	return resize.connect(slot);
@@ -109,16 +139,17 @@ static void terminal_specific_setup(void) {
 	atexit(terminal_specific_restore);
 }
 
-#warning FIXME: returning the value from t3_term_init is not very useful!
-int init(main_window_base_t *main_window, bool separate_keypad) {
-	int result;
+complex_error_t init(main_window_base_t *main_window, bool separate_keypad) {
+	complex_error_t result;
+	int term_init_result;
 
 	init_log();
 	init_colors(); // Probably called somewhere else already, but just to make sure
 	text_line_t::init();
 
-	if ((result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
+	if ((term_init_result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
 		t3_term_restore();
+		result.set_error(complex_error_t::SRC_T3_WINDOW, term_init_result);
 		return result;
 	}
 	atexit(t3_term_restore);
@@ -126,10 +157,12 @@ int init(main_window_base_t *main_window, bool separate_keypad) {
 	terminal_specific_setup();
 	atexit(terminal_specific_restore);
 
-	init_keys(separate_keypad);
+	result = init_keys(separate_keypad);
+	if (!result.get_success())
+		return result;
 	do_resize();
 	dialog_t::init(main_window);
-	return 0;
+	return result;
 }
 
 void iterate(void) {
@@ -152,6 +185,7 @@ void iterate(void) {
 		case EKEY_UPDATE_TERMINAL:
 			break;
 		default:
+			//FIXME: pass unhandled keys to callback?
 			dialog_t::dialogs.back()->process_key(key);
 			break;
 	}

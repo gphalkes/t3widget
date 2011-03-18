@@ -22,6 +22,30 @@
 namespace t3_widget {
 class main_window_base_t;
 
+class complex_error_t {
+	public:
+		enum source_t{
+			SRC_NONE,
+			SRC_ERRNO,
+			SRC_CHARCONV,
+			SRC_T3_KEY,
+			SRC_T3_WINDOW
+		};
+	private:
+		bool success;
+		source_t source;
+		int error;
+
+	public:
+		complex_error_t(void);
+		complex_error_t(source_t _source, int _error);
+		void set_error(source_t _source, int _error);
+		bool get_success(void);
+		source_t get_source(void);
+		int get_error(void);
+		const char *get_string(void);
+};
+
 //FIXME: shouldn't these be internal?
 extern insert_char_dialog_t insert_char_dialog;
 extern message_dialog_t message_dialog;
@@ -29,7 +53,7 @@ extern message_dialog_t message_dialog;
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
 sigc::connection connect_update_notification(const sigc::slot<void> &slot);
 
-int init(main_window_base_t *main_window, bool separate_keypad = false);
+complex_error_t init(main_window_base_t *main_window, bool separate_keypad = false);
 void iterate(void);
 void main_loop(void);
 
