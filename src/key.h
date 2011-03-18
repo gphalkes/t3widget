@@ -39,12 +39,29 @@ enum {
 	EKEY_RIGHT,
 	EKEY_UP,
 	EKEY_DOWN,
-	EKEY_CENTER,
 	EKEY_DEL,
 	EKEY_INS,
 	EKEY_BS,
 	EKEY_NL,
-	EKEY_F1,
+	EKEY_KP_CENTER,
+
+	EKEY_KP_END,
+	EKEY_KP_HOME,
+	EKEY_KP_PGUP,
+	EKEY_KP_PGDN,
+	EKEY_KP_LEFT,
+	EKEY_KP_RIGHT,
+	EKEY_KP_UP,
+	EKEY_KP_DOWN,
+	EKEY_KP_DEL,
+	EKEY_KP_INS,
+	EKEY_KP_NL,
+	EKEY_KP_DIV,
+	EKEY_KP_MUL,
+	EKEY_KP_PLUS,
+	EKEY_KP_MINUS,
+
+	EKEY_F1 = 0x110100,
 	EKEY_F2,
 	EKEY_F3,
 	EKEY_F4,
@@ -87,7 +104,8 @@ enum {
 	EKEY_EXTERNAL_UPDATE
 };
 
-int init_keys(void);
+//FIXME: some of this should be moved to the internal header
+int init_keys(bool separate_keypad);
 void deinit_keys(void);
 void reinit_keys(void);
 void insert_protected_key(key_t key);

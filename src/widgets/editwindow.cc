@@ -88,15 +88,13 @@ void edit_window_t::set_text(text_buffer_t *_text) {
 }
 
 bool edit_window_t::set_size(optint height, optint width) {
-	if (width > t3_win_get_width(window) || height > t3_win_get_height(window) + 1)
+	bool result = true;
+	if (width != t3_win_get_width(window) || height > t3_win_get_height(window) + 1)
 		redraw = true;
 
-	if (!t3_win_resize(window, height - 1, width - 1))
-		return false;
-	if (!t3_win_resize(bottomlinewin, 1, width))
-		return false;
-	if (!scrollbar->set_size(height - 1, None))
-		return false;
+	result &= t3_win_resize(window, height - 1, width - 1);
+	result &= t3_win_resize(bottomlinewin, 1, width);
+	result &= scrollbar->set_size(height - 1, None);
 
 	if (text->get_wrap()) {
 		text->rewrap();
@@ -105,7 +103,6 @@ bool edit_window_t::set_size(optint height, optint width) {
 	ensure_cursor_on_screen();
 	return true;
 }
-
 
 void edit_window_t::ensure_cursor_on_screen(void) {
 	int width;
@@ -633,6 +630,8 @@ void edit_window_t::update_contents(void) {
 	char info[30];
 	int info_width, name_width;
 	text_line_t::paint_info_t paint_info;
+
+	#warning FIXME: this now updates even if a key is pressed and focussed on another widget!
 
 	if (text->selection_mode != selection_mode_t::NONE && text->selection_mode != selection_mode_t::ALL) {
 		text->set_selection_end(text->cursor.line, text->cursor.pos);

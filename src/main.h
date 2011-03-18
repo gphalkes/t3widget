@@ -26,7 +26,7 @@ extern insert_char_dialog_t insert_char_dialog;
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
 sigc::connection connect_update_notification(const sigc::slot<void> &slot);
 
-int init(main_window_base_t *main_window);
+int init(main_window_base_t *main_window, bool separate_keypad = false);
 void iterate(void);
 void main_loop(void);
 

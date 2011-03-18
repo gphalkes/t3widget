@@ -28,7 +28,7 @@ class main_window_base_t;
 class dialog_t : public window_component_t, public container_t {
 	private:
 		friend void iterate(void);
-		friend int init(main_window_base_t *main_window);
+		friend int init(main_window_base_t *main_window, bool separate_keypad);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
 

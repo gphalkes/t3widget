@@ -105,7 +105,7 @@ static void terminal_specific_setup(void) {
 }
 
 #warning FIXME: returning the value from t3_term_init is not very useful!
-int init(main_window_base_t *main_window) {
+int init(main_window_base_t *main_window, bool separate_keypad) {
 	int result;
 
 	init_log();
@@ -121,7 +121,7 @@ int init(main_window_base_t *main_window) {
 	terminal_specific_setup();
 	atexit(terminal_specific_restore);
 
-	init_keys();
+	init_keys(separate_keypad);
 	do_resize();
 	dialog_t::init(main_window);
 	return 0;

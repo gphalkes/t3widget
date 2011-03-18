@@ -53,7 +53,12 @@ typedef struct {
 	size_t idx;
 } key_sequence_t;
 
-key_string_t key_strings[] = {
+typedef struct {
+	key_t kp;
+	key_t mapped;
+} kp_mapping_t;
+
+static const key_string_t key_strings[] = {
 	{ "insert", EKEY_INS },
 	{ "delete", EKEY_DEL },
 	{ "home", EKEY_HOME },
@@ -64,27 +69,44 @@ key_string_t key_strings[] = {
 	{ "left", EKEY_LEFT },
 	{ "down", EKEY_DOWN },
 	{ "right", EKEY_RIGHT },
-	{ "kp_home", EKEY_HOME },
-	{ "kp_up", EKEY_UP },
-	{ "kp_page_up", EKEY_PGUP },
-	{ "kp_page_down", EKEY_PGDN },
-	{ "kp_left", EKEY_LEFT },
-	{ "kp_center", EKEY_CENTER },
-	{ "kp_right", EKEY_RIGHT },
-	{ "kp_end", EKEY_END },
-	{ "kp_down", EKEY_DOWN },
-	{ "kp_insert", EKEY_INS },
-	{ "kp_delete", EKEY_DEL },
-	{ "kp_enter", EKEY_NL },
-	{ "kp_div", '+' },
-	{ "kp_mul", '*' },
-	{ "kp_minus", '-' },
-	{ "kp_plus", '+' },
+	{ "kp_home", EKEY_KP_HOME },
+	{ "kp_up", EKEY_KP_UP },
+	{ "kp_page_up", EKEY_KP_PGUP },
+	{ "kp_page_down", EKEY_KP_PGDN },
+	{ "kp_left", EKEY_KP_LEFT },
+	{ "kp_center", EKEY_KP_CENTER },
+	{ "kp_right", EKEY_KP_RIGHT },
+	{ "kp_end", EKEY_KP_END },
+	{ "kp_down", EKEY_KP_DOWN },
+	{ "kp_insert", EKEY_KP_INS },
+	{ "kp_delete", EKEY_KP_DEL },
+	{ "kp_enter", EKEY_KP_NL },
+	{ "kp_div", EKEY_KP_DIV },
+	{ "kp_mul", EKEY_KP_MUL },
+	{ "kp_minus", EKEY_KP_MINUS },
+	{ "kp_plus", EKEY_KP_PLUS },
 	{ "tab", '\t' },
 	{ "backspace", EKEY_BS }
 };
 
-#define KEY_STRINGS_SIZE ((int) (sizeof(key_strings) / sizeof(key_strings[0])))
+static const kp_mapping_t kp_mappings[] = {
+	{ EKEY_KP_HOME, EKEY_HOME },
+	{ EKEY_KP_PGUP, EKEY_PGUP },
+	{ EKEY_KP_PGDN, EKEY_PGDN },
+	{ EKEY_KP_LEFT, EKEY_LEFT },
+	{ EKEY_KP_RIGHT, EKEY_RIGHT },
+	{ EKEY_KP_UP, EKEY_UP },
+	{ EKEY_KP_DOWN, EKEY_DOWN },
+	{ EKEY_KP_DEL, EKEY_DEL },
+	{ EKEY_KP_INS, EKEY_INS },
+	{ EKEY_KP_NL, EKEY_NL },
+	{ EKEY_KP_DIV, '/' },
+	{ EKEY_KP_MUL, '*' },
+	{ EKEY_KP_PLUS, '+' },
+	{ EKEY_KP_MINUS, '-' }
+};
+
+#define ARRAY_SIZE(_x) ((int) (sizeof(_x) / sizeof(_x[0])))
 
 static mapping_t *map;
 static int map_count;
@@ -323,6 +345,14 @@ static void sigwinch_handler(int param) {
 	nosig_write(signal_pipe[1], &winch_signal, 1);
 }
 
+static key_t map_kp(key_t kp) {
+	size_t i;
+	for (i = 0; i < ARRAY_SIZE(kp_mappings); i++)
+		if (kp_mappings[i].kp == kp)
+			return kp_mappings[i].mapped;
+	return kp;
+}
+
 static int compare_mapping(const void *a, const void *b) {
 	const mapping_t *_a, *_b;
 	int result;
@@ -342,7 +372,7 @@ static int compare_mapping(const void *a, const void *b) {
 //FIXME: return value can not be a simple int, because of the different ranges of values it needs to support
 #define RETURN_ERROR(_x) do { error = (_x); goto return_error; } while (0)
 /* Initialize the key map */
-int init_keys(void) {
+int init_keys(bool separate_keypad) {
 	struct sigaction sa;
 	sigset_t sigs;
 	const t3_key_node_t *key_node;
@@ -405,7 +435,7 @@ int init_keys(void) {
 	   - [TODO] sort the map for quick searching
 	*/
 	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
-		for (i = 0; i < KEY_STRINGS_SIZE; i++) {
+		for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
 			if (key_node->string[0] != 27)
 				continue;
 
@@ -419,7 +449,7 @@ int init_keys(void) {
 			}
 		}
 
-		if (i == KEY_STRINGS_SIZE) {
+		if (i == ARRAY_SIZE(key_strings)) {
 			/* First character must be f, second a digit ... */
 			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
 					/* ... third either a digit, + or nothing ... */
@@ -435,7 +465,7 @@ int init_keys(void) {
 		RETURN_ERROR(T3_ERR_OUT_OF_MEMORY);
 
 	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
-		for (i = 0; i < KEY_STRINGS_SIZE; i++) {
+		for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
 			for (j = 0; key_strings[i].string[j] == key_node->key[j] &&
 					key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++)
 			{}
@@ -450,7 +480,7 @@ int init_keys(void) {
 
 			map[idx].string = key_node->string;
 			map[idx].string_length = key_node->string_length;
-			map[idx].key = key_strings[i].code;
+			map[idx].key = separate_keypad ? key_strings[i].code : map_kp(key_strings[i].code);
 			for (; key_node->key[j] != 0; j++) {
 				switch (key_node->key[j]) {
 					case 'c':
@@ -469,7 +499,7 @@ int init_keys(void) {
 			idx++;
 			break;
 		}
-		if (i == KEY_STRINGS_SIZE) {
+		if (i == ARRAY_SIZE(key_strings)) {
 			/* First character must be f, second a digit ... */
 			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
 					/* ... third either a digit, + or nothing ... */
