@@ -27,7 +27,7 @@ sigc::connection edit_window_t::goto_connection;
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget_t(parent, 10, 10) {
+edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : complex_widget_t(parent, 10, 10) {
 	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 0, 0, 0)) == NULL) {
 		t3_win_del(window);
 		throw bad_alloc();
@@ -529,8 +529,7 @@ bool edit_window_t::process_key(key_t key) {
 		case EKEY_CTRL | 'g':
 			goto_connection.disconnect();
 			goto_connection = goto_dialog.connect_activate(sigc::mem_fun(this, &edit_window_t::goto_line));
-			goto_dialog.set_position(t3_win_get_abs_y(window) + t3_win_get_height(window) / 2,
-				t3_win_get_abs_x(window) + t3_win_get_width(window) / 2);
+			goto_dialog.center_over(center_window);
 			goto_dialog.show();
 			break;
 
@@ -592,8 +591,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 */
 		case EKEY_F9:
-			insert_char_dialog.set_position(t3_win_get_abs_y(window) + t3_win_get_height(window) / 2,
-				t3_win_get_abs_x(window) + t3_win_get_width(window) / 2);
+			insert_char_dialog.center_over(center_window);
 			insert_char_dialog.show();
 			break;
 
@@ -631,7 +629,8 @@ void edit_window_t::update_contents(void) {
 	int info_width, name_width;
 	text_line_t::paint_info_t paint_info;
 
-	#warning FIXME: this now updates even if a key is pressed and focussed on another widget!
+	if (!focus && !redraw)
+		return;
 
 	if (text->selection_mode != selection_mode_t::NONE && text->selection_mode != selection_mode_t::ALL) {
 		text->set_selection_end(text->cursor.line, text->cursor.pos);

@@ -115,7 +115,6 @@ static key_t map_single[128];
 static const char *leave, *enter;
 static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
-static key_t protected_insert;
 
 static key_buffer_t key_buffer;
 static pthread_t read_key_thread;
@@ -243,11 +242,6 @@ static void *read_keys(void *arg) {
 }
 
 key_t read_key(void) {
-	if (protected_insert) {
-		int c = protected_insert;
-		protected_insert = 0;
-		return c;
-	}
 	return key_buffer.pop_front();
 }
 
@@ -338,7 +332,7 @@ ignore_sequence:
 }
 
 void insert_protected_key(key_t key) {
-	protected_insert = key | EKEY_PROTECT;
+	key_buffer.push_back(key | EKEY_PROTECT);
 }
 
 static void sigwinch_handler(int param) {

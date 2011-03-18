@@ -29,7 +29,7 @@ namespace t3_widget {
 	- pressing esc in drop-down list should close the list
 */
 
-text_field_t::text_field_t(container_t *_parent) : widget_t(_parent, 1, 4),
+text_field_t::text_field_t(container_t *_parent) : complex_widget_t(_parent, 1, 4),
 	width(4),
 	pos(0),
 	screen_pos(0),
@@ -258,9 +258,7 @@ bool text_field_t::process_key(key_t key) {
 
 		case EKEY_F9:
 			dont_select_on_focus = true;
-#warning FIXME: should this be centered on dialog?? And how do we even do that?
-			insert_char_dialog.set_position(t3_win_get_abs_y(window) + t3_win_get_height(window) / 2,
-				t3_win_get_abs_x(window) + t3_win_get_width(window) / 2);
+			insert_char_dialog.center_over(center_window);
 			insert_char_dialog.show();
 			break;
 
@@ -288,7 +286,6 @@ bool text_field_t::process_key(key_t key) {
 				line->append_char(key, NULL);
 			else
 				line->insert_char(pos, key, NULL);
-				#warning FIXME: implement overwrite!
 			pos = line->adjust_position(pos, 1);
 			ensure_on_cursor_screen();
 			redraw = true;

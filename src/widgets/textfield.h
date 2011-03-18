@@ -23,7 +23,7 @@
 
 namespace t3_widget {
 
-class text_field_t : public widget_t {
+class text_field_t : public complex_widget_t {
 	protected:
 		int width,
 			pos,

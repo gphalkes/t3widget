@@ -15,6 +15,7 @@
 #include "main.h"
 #include "dialogs/dialog.h"
 #include "dialogs/mainwindow.h"
+#include "internal.h"
 
 using namespace std;
 namespace t3_widget {
@@ -34,12 +35,15 @@ void dialog_t::init(main_window_base_t *_main_window) {
 	main_window->set_focus(true);
 }
 
-dialog_t::dialog_t(int height, int width, const char *_title) : active(false), shadow_window(NULL), title(_title), redraw(true) {
+dialog_t::dialog_t(int height, int width, const char *_title) : active(false), shadow_window(NULL),
+		title(_title), redraw(true), center_window(NULL)
+{
 	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	if ((shadow_window = t3_win_new(NULL, height, width, 1, 1, 1)) == NULL)
 		throw bad_alloc();
 	t3_win_set_anchor(shadow_window, window, 0);
+	t3_win_set_default_attrs(shadow_window, T3_ATTR_REVERSE);
 }
 
 /** Create a new ::dialog_t.
@@ -105,14 +109,14 @@ void dialog_t::draw_dialog(void) {
 		t3_win_addstr(window, title, 0);
 		t3_win_addstr(window, " ]", 0);
 	}
-#warning FIXME: ATTR_REVERSE only makes sense in black and white, if the normal attribute is not ATTR_REVERSE!
+
 	x = t3_win_get_width(shadow_window) - 1;
 	for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
 		t3_win_set_paint(shadow_window, i - 1, x);
-		t3_win_addch(shadow_window, ' ', T3_ATTR_REVERSE);
+		t3_win_addch(shadow_window, ' ', 0);
 	}
 	t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
-	t3_win_addchrep(shadow_window, ' ', T3_ATTR_REVERSE, t3_win_get_width(shadow_window));
+	t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
 }
 
 bool dialog_t::process_key(key_t key) {
@@ -212,6 +216,8 @@ void dialog_t::hide(void) {
 		t3_win_hide(shadow_window);
 	if (widgets.front() == dummy)
 		widgets.pop_front();
+	if (center_window != NULL)
+		center_over(NULL);
 }
 
 void dialog_t::focus_next(void) {
@@ -241,6 +247,48 @@ void dialog_t::focus_previous(void) {
 void dialog_t::force_redraw(void) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->force_redraw();
+}
+
+void dialog_t::center_over(window_component_t *center) {
+	if (center != NULL) {
+		center_window = center->get_draw_window();
+		center_connection = update_centered_positions.connect(sigc::mem_fun(this, &dialog_t::do_center));
+	} else {
+		center_connection.disconnect();
+		center_window = NULL;
+	}
+}
+
+void dialog_t::do_center(void) {
+	int term_height, term_width;
+	int height, width;
+	int x, y;
+
+	t3_term_get_size(&term_height, &term_width);
+	height = t3_win_get_height(window);
+	width = t3_win_get_width(window);
+
+	y = t3_win_get_abs_y(center_window) + t3_win_get_height(center_window) / 2;
+	x = t3_win_get_abs_x(center_window) + t3_win_get_width(center_window) / 2;
+
+	y -= height / 2;
+	/* Check that the dialog doesn't fall of the bottom ... */
+	if (y + height > term_height - 1)
+		y = term_height - height - 1;
+	/* ... or the top. */
+	if (y < 1)
+		y = 1;
+
+	x -= width / 2;
+	/* Check that the dialog doesn't fall of the right ... */
+	if (x + width > term_width - 1)
+		x = term_width - width - 1;
+	/* ... or the left. */
+	if (x < 1)
+		x = 1;
+
+	t3_win_set_anchor(window, NULL, 0);
+	t3_win_move(window, y, x);
 }
 
 }; // namespace

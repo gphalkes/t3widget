@@ -63,25 +63,6 @@ goto_dialog_t::goto_dialog_t(void) :
 	widgets.push_back(cancel_button);
 }
 
-void goto_dialog_t::set_position(optint top, optint left) {
-	int height, width;
-
-	t3_term_get_size(&height, &width);
-	top = top - GOTO_DIALOG_HEIGHT / 2;
-	if (top + GOTO_DIALOG_HEIGHT > height - 1)
-		top = height - GOTO_DIALOG_HEIGHT - 1;
-	if (top < 1)
-		top = 1;
-
-	left = left - GOTO_DIALOG_WIDTH / 2;
-	if (left + GOTO_DIALOG_WIDTH > width - 1)
-		left = width - GOTO_DIALOG_WIDTH - 1;
-	if (left < 1)
-		left = 1;
-
-	t3_win_move(window, top, left);
-}
-
 bool goto_dialog_t::set_size(optint height, optint width) {
 	(void) height;
 	(void) width;

@@ -15,11 +15,13 @@
 #define T3_WIDGET_INTERNAL_H
 
 #include <string>
+#include <sigc++/sigc++.h>
 
 namespace t3_widget {
 
 class text_line_t;
 extern text_line_t *copy_buffer;
+extern sigc::signal<void> update_centered_positions;
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)
@@ -30,7 +32,11 @@ extern text_line_t *copy_buffer;
 #define ESCAPE_UNICODE (1<<29)
 #define ESCAPE_REPLACEMENT (1<<30)
 
+//FIXME: do proper gettext stuff instead of this temporary wrapper
+#define _(_x) _x
+
 int parse_escape(const std::string &str, const char **error_message, size_t &read_position, size_t max_read_position, bool replacements = false);
 bool parse_escapes(std::string &str, const char **error_message, bool replacements);
+
 }; // namespace
 #endif

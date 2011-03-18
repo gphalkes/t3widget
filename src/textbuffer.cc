@@ -1413,7 +1413,7 @@ bool text_buffer_t::find(const string *what, int flags, const text_line_t *repla
 				pcre_flags |= PCRE_CASELESS;
 			last_find.regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, NULL);
 			if (last_find.regex == NULL) {
-				string message;
+				//FIXME: message should be shown by edit window!
 				#warning FIXME: show error message here
 /*				printf_into(&message, "Error in regular expression: %s", error_message);
 				last_find.flags = 0;

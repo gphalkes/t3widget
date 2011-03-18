@@ -13,12 +13,14 @@
 */
 #include <string>
 #include <cstring>
+#include <cerrno>
 
 #include "window/window.h"
 
 #include "dialogs/filedialog.h"
 #include "main.h"
 #include "util.h"
+#include "internal.h"
 
 using namespace std;
 namespace t3_widget {
@@ -182,10 +184,13 @@ void file_dialog_t::change_dir(const string *dir) {
 	try {
 		new_names.load_directory(&new_dir);
 	} catch (int error) {
-		string message;
-#warning FIXME: show error message
-/*		printfInto(&message, "Couldn't change to directory '%s': %s", dir->c_str(), strerror(error));
-		activate_window(WindowID::ERROR_DIALOG, &message);*/
+		string message = _("Couldn't change to directory '");
+		message += dir->c_str();
+		message += "': ";
+		message += strerror(errno);
+		message_dialog.set_message(&message);
+		message_dialog.center_over(this);
+		message_dialog.show();
 		return;
 	}
 

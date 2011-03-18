@@ -40,6 +40,14 @@ class widget_t : public virtual window_component_t {
 		virtual void force_redraw(void);
 };
 
+class complex_widget_t : public widget_t {
+	protected:
+		window_component_t *center_window;
+	public:
+		complex_widget_t(container_t *parent, int height, int width) : widget_t(parent, height, width), center_window(this) {}
+		virtual void set_center_window(window_component_t *_center_window) { center_window = _center_window; }
+};
+
 typedef std::deque<widget_t *> widgets_t;
 
 }; // namespace

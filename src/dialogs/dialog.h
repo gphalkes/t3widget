@@ -53,14 +53,18 @@ class dialog_t : public virtual window_component_t, public container_t {
 		widgets_t::iterator current_widget;
 		bool redraw;
 
+		t3_window_t *center_window;
+		sigc::connection center_connection;
+
+
 		dialog_t(int height, int width, const char *_title);
 		virtual ~dialog_t();
 		virtual void draw_dialog(void);
 		void focus_next(void);
 		void focus_previous(void);
+		void do_center(void);
 
 	public:
-
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
@@ -69,6 +73,7 @@ class dialog_t : public virtual window_component_t, public container_t {
 		virtual void show(void);
 		virtual void hide(void);
 		virtual void force_redraw(void);
+		virtual void center_over(window_component_t *center);
 };
 
 }; // namespace

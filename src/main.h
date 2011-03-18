@@ -17,11 +17,14 @@
 #include "util.h"
 #include "dialogs/dialog.h"
 #include "dialogs/insertchardialog.h"
+#include "dialogs/messagedialog.h"
 
 namespace t3_widget {
 class main_window_base_t;
 
+//FIXME: shouldn't these be internal?
 extern insert_char_dialog_t insert_char_dialog;
+extern message_dialog_t message_dialog;
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
 sigc::connection connect_update_notification(const sigc::slot<void> &slot);

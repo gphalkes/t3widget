@@ -26,7 +26,6 @@ class insert_char_dialog_t : public dialog_t {
 		key_t interpret_key(const std::string *descr);
 	public:
 		insert_char_dialog_t(void);
-		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void show(void);
 
