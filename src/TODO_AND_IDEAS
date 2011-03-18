@@ -14,8 +14,6 @@ TODO
 - dialogs need to be notified of color change and then call force_redraw. Best
 	done by connecting to signal from constructor and calling disconnect on
 	connection in destructor
-- figure out whether we want to do something about the background color of the
-	main_window_base_t/terminal window
 - remove all commented code
 
 IDEAS

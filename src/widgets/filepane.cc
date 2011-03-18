@@ -55,29 +55,35 @@ bool file_pane_t::process_key(key_t key) {
 			if (current + 1 >= file_list->size())
 				return true;
 			current++;
+			redraw = true;
 			break;
 		case EKEY_UP:
 			if (current == 0)
 				return true;
 			current--;
+			redraw = true;
 			break;
 		case EKEY_RIGHT:
 			if (current + height >= file_list->size())
 				current = file_list->size() - 1;
 			else
 				current += height;
+			redraw = true;
 			break;
 		case EKEY_LEFT:
 			if (current < (size_t) height)
 				current = 0;
 			else
 				current -= height;
+			redraw = true;
 			break;
 		case EKEY_END:
 			current = file_list->size() - 1;
+			redraw = true;
 			break;
 		case EKEY_HOME:
 			current = 0;
+			redraw = true;
 			break;
 		case EKEY_PGDN:
 			if (current + 2 * height >= file_list->size()) {
@@ -86,6 +92,7 @@ bool file_pane_t::process_key(key_t key) {
 				current += 2 * height;
 				top_idx += 2 * height;
 			}
+			redraw = true;
 			break;
 		case EKEY_PGUP:
 			if (current < (size_t) 2 * height) {
@@ -94,6 +101,7 @@ bool file_pane_t::process_key(key_t key) {
 				current -= 2 * height;
 				top_idx -= 2 * height;
 			}
+			redraw = true;
 			break;
 		case EKEY_NL:
 			activate((*file_list)[current]);

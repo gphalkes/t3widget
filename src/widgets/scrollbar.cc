@@ -54,6 +54,7 @@ bool scrollbar_t::set_size(optint height, optint width) {
 			result = t3_win_resize(window, 1, length);
 		}
 	}
+	redraw = true;
 	return result;
 }
 
