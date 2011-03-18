@@ -704,7 +704,6 @@ int text_line_t::backspace_char(int pos, undo_t *undo) {
 	return delete_char(adjust_position(pos, -1), undo);
 }
 
-#warning FIXME: do we want this here at all?
 /*
 void text_line_t::write_line_data(FileWriteWrapper *file, bool appendNewline) const {
 	file->write(buffer.data(), buffer.size());

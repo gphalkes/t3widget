@@ -48,7 +48,6 @@ SOURCES.libt3widget.la := \
 	widgets/textfield.cc \
 	widgets/widget.cc
 
-#~ dialogs/altmessagedialog.cc \
 #~ dialogs/finddialog.cc \
 
 CXXLTTARGETS := libt3widget.la

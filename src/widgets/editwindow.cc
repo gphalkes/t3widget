@@ -530,6 +530,7 @@ bool edit_window_t::process_key(key_t key) {
 			goto_connection.disconnect();
 			goto_connection = goto_dialog.connect_activate(sigc::mem_fun(this, &edit_window_t::goto_line));
 			goto_dialog.center_over(center_window);
+			goto_dialog.reset();
 			goto_dialog.show();
 			break;
 
@@ -592,6 +593,7 @@ bool edit_window_t::process_key(key_t key) {
 */
 		case EKEY_F9:
 			insert_char_dialog.center_over(center_window);
+			insert_char_dialog.reset();
 			insert_char_dialog.show();
 			break;
 

@@ -69,8 +69,7 @@ bool goto_dialog_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void goto_dialog_t::show() {
-	dialog_t::show();
+void goto_dialog_t::reset(void) {
 	number_line->set_text("");
 }
 

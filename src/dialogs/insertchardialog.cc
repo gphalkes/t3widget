@@ -70,8 +70,7 @@ bool insert_char_dialog_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void insert_char_dialog_t::show() {
-	dialog_t::show();
+void insert_char_dialog_t::reset(void) {
 	description_line->set_text("");
 }
 

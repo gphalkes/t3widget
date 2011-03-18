@@ -12,13 +12,12 @@ TODO
 		edit_window_t. But they should share the same shortcut.
 - rename the multi_string_list_i interface to something ending in _t
 - handle FIXME's
-- add a separate reset call for dialogs to allow separation of resetting of a
-	dialog and showing/hiding
 - dialogs need to be notified of color change and then call force_redraw. Best
 	done by connecting to signal from constructor and calling disconnect on
 	connection in destructor
 - figure out whether we want to do something about the background color of the
 	main_window_base_t/terminal window
+- remove all commented code
 
 IDEAS
 - use a line_factory_t for the text_buffer_t, such that lines with extensions
@@ -30,19 +29,12 @@ IDEAS
 	mean calling the constructor from the initializer list.
 - the current content list stuff and file_pane_t interface are messy. This
 	definately needs more work.
-- the redraw paradigm in the widgets occurs quite often. It may be good to
-	simply add a redraw member to the widget base class
 - For creating a signal that goes through the slots, but stops if one returns
 	true, see here (may be usefull for hotkey bindings):
 	http://library.gnome.org/devel/libsigc++/stable/classsigc_1_1signal_1_1accumulated.html
 - Allow the text_window_t to be set to read-only mode. This way it can also be
 	used for just displaying text (perhaps the bottom line should also be
 	disabled for that use)
-- When changing the colors, the default attributes for several widget types
-	should be changed! Perhaps it is better not to set these in the constructor
-	but just keep on resetting it when we redraw. Then we just need to entirely
-	redraw the interface (for which the redraw paradigm mentioned earlier would
-	be a good idea).
 
 - From the wikipedia page on Specials (including the replacement character):
 	A better (but harder to implement) design is to preserve the original bytes,

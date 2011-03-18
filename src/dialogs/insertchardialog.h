@@ -27,7 +27,7 @@ class insert_char_dialog_t : public dialog_t {
 	public:
 		insert_char_dialog_t(void);
 		virtual bool set_size(optint height, optint width);
-		virtual void show(void);
+		void reset(void);
 
 		void ok_activate(void);
 };
