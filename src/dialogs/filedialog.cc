@@ -29,12 +29,8 @@ static key_t nul = 0;
 /* FIXME: TODO:
 	- i18n/l10n
 	- ensure consistent naming (isdir vs is_dir)
-	- left-right navigation through buttons etc.
 	- path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
 */
-#warning FIXME: allow some way to specify that an extra button for options should be present
-	//FIXME: perhaps we should also allow a drop down list, which would require different handling
-#warning FIXME: complete focus moving
 file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, _title),
 		view(NULL), option_widget_set(false)
 {
@@ -116,6 +112,9 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 	ok_button_left_connection.disconnect();
 	ok_button_up_connection.disconnect();
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
+	show_hidden_box->connect_move_focus_down(sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), ok_button));
+	dynamic_cast<focus_widget_t *>(*(widgets.end() - 4))->connect_move_focus_down(
+		sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), ok_button));
 
 	if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != NULL) {
 		focus_widget->connect_move_focus_up(sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), file_pane));
