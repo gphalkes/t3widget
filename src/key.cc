@@ -152,8 +152,10 @@ static int read_and_convert_keys(int timeout) {
 	uint32_t *unicode_buffer_ptr;
 	key_t c;
 
-	c = t3_term_get_keychar(timeout);
-	if (c < 0)
+	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL)
+		key_buffer.push_back_unique(EKEY_UPDATE_TERMINAL);
+
+	if (c < T3_WARN_MIN)
 		return -1;
 
 	char_buffer[char_buffer_fill++] = (char) c;

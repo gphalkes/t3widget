@@ -39,6 +39,8 @@ class key_buffer_t {
 		}
 
 		void push_back(key_t key) {
+			if (key < 0)
+				return;
 			pthread_mutex_lock(&lock);
 			// FIXME: Catch appropriate exceptions. For now just catch all to
 			// enusre that unlocking of the mutex is performed.
@@ -51,6 +53,8 @@ class key_buffer_t {
 		}
 
 		void push_back_unique(key_t key) {
+			if (key < 0)
+				return;
 			pthread_mutex_lock(&lock);
 
 			// Return without adding if the key is already queued
