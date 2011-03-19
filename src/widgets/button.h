@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class button_t : public focus_widget_t {
+class button_t : public widget_t, public focus_widget_t {
 	private:
 		int width;
 		smart_label_text_t text;

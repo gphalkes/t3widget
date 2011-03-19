@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class checkbox_t : public focus_widget_t {
+class checkbox_t : public widget_t, public focus_widget_t {
 	private:
 		bool state, has_focus;
 		smart_label_t *label;
