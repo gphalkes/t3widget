@@ -92,6 +92,7 @@ class text_field_t : public widget_t, public complex_widget_t, public focus_widg
 		const text_line_t *get_line(void) const;
 		void set_label(smart_label_t *_label);
 		virtual bool is_hotkey(key_t key);
+		void reset(void);
 
 	T3_WIDET_SIGNAL(activate, void);
 	T3_WIDET_SIGNAL(lose_focus, void);

@@ -45,11 +45,11 @@ class file_dialog_t : public dialog_t {
 
 	public:
 		virtual bool set_size(optint height, optint width);
-		virtual void show(void);
 		void change_dir(const std::string *dir);
 		virtual void set_file(const char *file);
 		void refresh_view(const std::string *file);
 		void set_options_widget(widget_t *options);
+		virtual void reset(void);
 
 	T3_WIDET_SIGNAL(file_selected, void, std::string *);
 };
@@ -65,7 +65,7 @@ class open_file_dialog_t : public file_dialog_t {
 
 	public:
 		open_file_dialog_t(int height, int width);
-		virtual void set_file(const char *file);
+		virtual void reset(void);
 };
 
 

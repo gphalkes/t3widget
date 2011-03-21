@@ -137,12 +137,6 @@ bool file_dialog_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void file_dialog_t::show(void) {
-	#warning FIXME: there used to be a check if the widget was already shown to prevent unwanted resets
-	dialog_t::show();
-	file_pane->reset();
-}
-
 void file_dialog_t::set_file(const char *file) {
 	size_t idx;
 	string file_string;
@@ -162,6 +156,12 @@ void file_dialog_t::set_file(const char *file) {
 	file_line->set_autocomplete(&names);
 	file_line->set_text(&file_string);
 	refresh_view(&file_string);
+}
+
+void file_dialog_t::reset(void) {
+	//FIXME: Clear file line
+	//file_line->
+	file_pane->reset();
 }
 
 void file_dialog_t::ok_callback(void) {
@@ -265,10 +265,10 @@ const string *open_file_dialog_t::get_filter(void) {
 	return filter_line->get_text();
 }
 
-void open_file_dialog_t::set_file(const char *file) {
+void open_file_dialog_t::reset(void) {
 	filter_line->set_text("*");
-	file_dialog_t::set_file(file);
 }
+
 
 string save_as_dialog_t::empty_filter("*");
 
