@@ -19,6 +19,8 @@
 #include "internal.h"
 #include "widgets/textfield.h"
 
+#include "log.h"
+
 using namespace std;
 namespace t3_widget {
 
@@ -266,6 +268,10 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_HOTKEY:
 			return true;
 
+		case EKEY_ESC:
+			#warning FIXME: close drop-down list, instead of closing dialog, if shown
+			return false;
+
 		default:
 			if (key < 31)
 				return false;
@@ -474,7 +480,7 @@ const text_line_t *text_field_t::get_line(void) const {
 
 void text_field_t::set_autocomplete(string_list_t *completions) {
 	if (drop_down_list == NULL)
-		drop_down_list = new drop_down_list_t(parent->get_draw_window(), window, width, this);
+		drop_down_list = new drop_down_list_t(this);
 	drop_down_list->set_autocomplete(completions);
 }
 
@@ -489,26 +495,25 @@ bool text_field_t::is_hotkey(key_t key) {
 /*======================
   == drop_down_list_t ==
   ======================*/
-text_field_t::drop_down_list_t::drop_down_list_t(t3_window_t *_parent, t3_window_t *anchor, int _width, text_field_t *_field) :
-	width(_width), field(_field)
+text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
+	width(t3_win_get_width(_field->get_draw_window())), top_idx(0), field(_field), completions(NULL)
 {
-	if ((window = t3_win_new(_parent, 6, width, 1, 0, -1)) == NULL)
+	if ((window = t3_win_new(NULL, 6, width, 1, 0, INT_MIN)) == NULL)
 		throw(-1);
-	t3_win_set_anchor(window, anchor, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	t3_win_set_anchor(window, field->get_draw_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	focus = false;
-	view = NULL;
 	current = 0;
 }
 
 text_field_t::drop_down_list_t::~drop_down_list_t(void) {
+	if (completions != NULL)
+		delete completions;
 	t3_win_del(window);
 }
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
-	string_list_t *list = view == NULL ? completions : view;
-	size_t length = list->size();
+	size_t length = completions->size();
 
 	switch (key) {
 		case EKEY_DOWN:
@@ -516,7 +521,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 				current++;
 				if (current - top_idx > 4)
 					top_idx++;
-				field->set_text((*list)[current]);
+				field->set_text((*completions)[current]);
 			}
 			break;
 		case EKEY_UP:
@@ -524,7 +529,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 				current--;
 				if (top_idx > current)
 					top_idx = current;
-				field->set_text((*list)[current]);
+				field->set_text((*completions)[current]);
 			} else {
 				focus = false;
 				field->in_drop_down_list = false;
@@ -534,14 +539,16 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 		case EKEY_NL:
 			focus = false;
 			field->in_drop_down_list = false;
-			field->process_key(key);
+			t3_win_hide(window);
+			return field->process_key(key);
+		case EKEY_ESC:
+			field->in_drop_down_list = false;
 			t3_win_hide(window);
 			break;
 		default:
 			focus = false;
 			field->in_drop_down_list = false;
-			field->process_key(key);
-			break;
+			return field->process_key(key);
 	}
 	return true;
 }
@@ -559,18 +566,20 @@ bool text_field_t::drop_down_list_t::set_size(optint height, optint _width) {
 	width = _width;
 
 	result = t3_win_resize(window, 6, width);
-	update_contents();
+	redraw = true;
 	return result;
 }
 
 void text_field_t::drop_down_list_t::update_contents(void) {
 	size_t i, idx;
-//FIXME: make this more general!!!
-	file_list_t *list = view == NULL ? (file_list_t *) completions : view;
+	file_list_t *file_list;
 
-	if (list == NULL)
-			return;
+	if (completions == NULL)
+		return;
 
+	file_list = dynamic_cast<file_list_t *>(completions);
+
+	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 	for (i = 0; i < 5; i++) {
@@ -583,9 +592,9 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	t3_win_addch(window, T3_ACS_LLCORNER, T3_ATTR_ACS);
 	t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
 	t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
-	for (i = 0, idx = top_idx; i < 5 && idx < list->size(); i++, idx++) {
+	for (i = 0, idx = top_idx; i < 5 && idx < completions->size(); i++, idx++) {
 		text_line_t::paint_info_t info;
-		text_line_t fileNameLine((*list)[idx]);
+		text_line_t fileNameLine((*completions)[idx]);
 		bool paint_selected = focus && idx == current;
 
 		t3_win_set_paint(window, i, 1);
@@ -604,7 +613,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 
 		fileNameLine.paint_line(window, &info);
 
-		if (list->is_dir(idx)) {
+		if (file_list != NULL && file_list->is_dir(idx)) {
 			int length = fileNameLine.get_length();
 			if (length < width) {
 				t3_win_set_paint(window, i, length + 1);
@@ -617,9 +626,9 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 void text_field_t::drop_down_list_t::set_focus(bool _focus) {
 	focus = _focus;
 	if (focus) {
-		string_list_t *list = view == NULL ? completions : view;
 		current = 0;
-		field->set_text((*list)[current]);
+		field->set_text((*completions)[current]);
+		t3_term_hide_cursor();
 	}
 }
 
@@ -632,29 +641,28 @@ void text_field_t::drop_down_list_t::hide(void) {
 }
 
 void text_field_t::drop_down_list_t::update_view(void) {
-	file_name_list_t *file_completions = dynamic_cast<file_name_list_t *>(completions);
-
 	top_idx = current = 0;
 
-	if (view != NULL)
-		delete view;
-	if (file_completions != NULL) {
-		view = new file_name_list_t::file_name_list_view_t(file_completions, field->line->get_data());
-	} else {
-		view = NULL;
+	if (completions != NULL) {
+		if (field->line->get_length() == 0)
+			completions->reset_filter();
+		else
+			completions->set_filter(sigc::bind(sigc::ptr_fun(string_compare_filter), field->line->get_data()));
 	}
 }
 
 void text_field_t::drop_down_list_t::set_autocomplete(string_list_t *_completions) {
-	completions = _completions;
-	if (view != NULL) {
-		delete view;
-		view = NULL;
-	}
+	if (completions != NULL)
+		delete completions;
+
+	if (dynamic_cast<file_list_t *>(_completions) != NULL)
+		completions = new filtered_file_list_t((file_list_t *) _completions);
+	else
+		completions = new filtered_string_list_t(_completions);
 }
 
 bool text_field_t::drop_down_list_t::has_items(void) {
-	return view == NULL ? false : view->size() > 0;
+	return completions->size() > 0;
 }
 
 }; // namespace

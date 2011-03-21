@@ -24,8 +24,6 @@
 #include "util.h"
 #include "widgets/contentlist.h"
 
-#warning FIXME: this whole content list thing is very messy, especially the way it is used in file_dialog_t
-
 using namespace std;
 namespace t3_widget {
 
@@ -160,74 +158,27 @@ void file_name_list_t::load_directory(string *dirName) {
 	content_changed();
 }
 
-size_t file_name_list_t::get_index(const string *name) const {
-	size_t i;
-
-	if (name->size() == 0)
-		return 0;
-	for (i = 0; i < files.size(); i++)
-		if (name->compare(files[i].name) == 0)
-			return i;
-	return 0;
-}
-
 file_name_list_t &file_name_list_t::operator=(const file_name_list_t& a) {
 	files.resize(a.files.size());
 	copy(a.files.begin(), a.files.end(), files.begin());
 	return *this;
 }
 
-file_name_list_t::file_name_list_view_t::file_name_list_view_t(file_name_list_t *_base, bool showHidden, const string *filter) : base(_base) {
-	size_t i;
-
-	if (base->size() == 0)
-		return;
-
-	for (i = 0; i < base->size(); i++) {
-		const string *base_name = (*base)[i];
-		if (base_name->compare("..") == 0) {
-			items.push_back(i);
-			continue;
-		}
-		if (!showHidden && (*base_name)[0] == '.')
-			continue;
-		if (!base->is_dir(i) && fnmatch(filter->c_str(), base_name->c_str(), 0) != 0)
-			continue;
-		items.push_back(i);
-	}
+bool string_compare_filter(string_list_t *list, size_t idx, const string *str) {
+	return (*list)[idx]->compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 
-file_name_list_t::file_name_list_view_t::file_name_list_view_t(file_name_list_t *_base, const string *start) : base(_base) {
-	size_t i;
+bool glob_filter(file_list_t *list, size_t idx, const std::string *str, bool show_hidden) {
+	const string *item_name = (*list)[idx];
+	if (item_name->compare("..") == 0)
+		return true;
 
-	for (i = 0; i < base->size(); i++) {
-		const string *base_name = (*base)[i];
-		if (base_name->compare(0, start->size(), *start, 0, start->size()) == 0)
-			items.push_back(i);
-	}
-}
+	if (!show_hidden && (*item_name)[0] == '.')
+		return false;
 
-size_t file_name_list_t::file_name_list_view_t::size(void) const {
-	return items.size();
-}
-
-const string *file_name_list_t::file_name_list_view_t::operator[](size_t idx) const {
-	return (*base)[items[idx]];
-}
-
-bool file_name_list_t::file_name_list_view_t::is_dir(int idx) const {
-	return base->is_dir(items[idx]);
-}
-
-size_t file_name_list_t::file_name_list_view_t::get_index(const string *name) const {
-	size_t i;
-
-	if (name == NULL || name->size() == 0)
-		return 0;
-	for (i = 0; i < items.size(); i++)
-		if (name->compare(*(*base)[items[i]]) == 0)
-			return i;
-	return 0;
+	if (!list->is_dir(idx) && fnmatch(str->c_str(), item_name->c_str(), 0) != 0)
+		return false;
+	return true;
 }
 
 }; // namespace

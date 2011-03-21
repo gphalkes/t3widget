@@ -14,6 +14,8 @@
 #ifndef T3_WIDGET_FILEPANE_H
 #define T3_WIDGET_FILEPANE_H
 
+#include <string>
+
 #include "widgets/widget.h"
 #include "widgets/contentlist.h"
 #include "widgets/scrollbar.h"
@@ -49,7 +51,7 @@ class file_pane_t : public widget_t, public container_t {
 		virtual bool accepts_enter(void);
 		void reset(void);
 		void set_file_list(file_list_t *_file_list);
-		void set_file(size_t idx);
+		void set_file(const std::string *name);
 
 	T3_WIDET_SIGNAL(activate, void, const std::string *);
 };

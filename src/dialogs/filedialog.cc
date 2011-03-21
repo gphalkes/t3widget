@@ -32,7 +32,7 @@ static key_t nul = 0;
 	- path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
 */
 file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, _title),
-		view(NULL), option_widget_set(false)
+		view(&names), option_widget_set(false)
 {
 	smart_label_t *name_label;
 
@@ -46,6 +46,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	file_line->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 	file_line->set_label(name_label);
 	file_line->set_key_filter(&nul, 1, false);
+	file_line->set_autocomplete(&view);
 
 	file_pane = new file_pane_t(this);
 	file_pane->set_size(height - 4, width - 4);
@@ -53,11 +54,12 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	file_pane->set_file_list(&names);
 	file_pane->set_text_field(file_line);
 	file_pane->connect_activate(sigc::mem_fun1(this, &file_dialog_t::ok_callback));
+	file_pane->set_file_list(&view);
 
 	show_hidden_box = new checkbox_t(this, false);
 	show_hidden_box->set_anchor(file_pane, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	show_hidden_box->set_position(0, 0);
-	show_hidden_box->connect_toggled(sigc::bind(sigc::mem_fun(this, &file_dialog_t::refresh_view), (const string *) NULL));
+	show_hidden_box->connect_toggled(sigc::mem_fun(this, &file_dialog_t::refresh_view));
 	show_hidden_box->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
 	show_hidden_box->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	show_hidden_box->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
@@ -155,7 +157,7 @@ void file_dialog_t::set_file(const char *file) {
 
 	file_line->set_autocomplete(&names);
 	file_line->set_text(&file_string);
-	refresh_view(&file_string);
+	refresh_view();
 }
 
 void file_dialog_t::reset(void) {
@@ -224,16 +226,16 @@ void file_dialog_t::change_dir(const string *dir) {
 
 	names = new_names;
 	current_dir = new_dir;
-	file_line->set_autocomplete(&names);
-	refresh_view(&file_string);
+	view.set_filter((filtered_file_list_t::filter_type_t) sigc::bind(sigc::ptr_fun(glob_filter),
+		get_filter(), show_hidden_box->get_state()));
+	file_pane->reset();
 }
 
-void file_dialog_t::refresh_view(const string *file) {
-	if (view != NULL)
-		delete view;
-	view = new file_name_list_t::file_name_list_view_t(&names, show_hidden_box->get_state(), get_filter());
-	file_pane->set_file_list(view);
-	file_pane->set_file(view->get_index(file));
+void file_dialog_t::refresh_view(void) {
+	view.set_filter((filtered_file_list_t::filter_type_t) sigc::bind(sigc::ptr_fun(glob_filter),
+		get_filter(), show_hidden_box->get_state()));
+
+	file_pane->set_file(file_line->get_text());
 }
 
 open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(height, width, "Open File") {
@@ -247,8 +249,8 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	filter_line->set_position(0, 1);
 	filter_line->set_size(None, filter_width);
 	filter_line->set_text("*");
-	filter_line->connect_activate(sigc::bind(sigc::mem_fun(this, &open_file_dialog_t::refresh_view), (const string *) NULL));
-	filter_line->connect_lose_focus(sigc::bind(sigc::mem_fun(this, &open_file_dialog_t::refresh_view), (const string *) NULL));
+	filter_line->connect_activate(sigc::mem_fun(this, &open_file_dialog_t::refresh_view));
+	filter_line->connect_lose_focus(sigc::mem_fun(this, &open_file_dialog_t::refresh_view));
 	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
 	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
 

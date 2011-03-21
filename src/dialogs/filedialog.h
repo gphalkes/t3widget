@@ -25,7 +25,7 @@ namespace t3_widget {
 class file_dialog_t : public dialog_t {
 	protected:
 		file_name_list_t names;
-		file_name_list_t::file_name_list_view_t *view;
+		filtered_file_list_t view;
 		std::string current_dir;
 
 		int name_offset;
@@ -47,7 +47,7 @@ class file_dialog_t : public dialog_t {
 		virtual bool set_size(optint height, optint width);
 		void change_dir(const std::string *dir);
 		virtual void set_file(const char *file);
-		void refresh_view(const std::string *file);
+		void refresh_view(void);
 		void set_options_widget(widget_t *options);
 		virtual void reset(void);
 

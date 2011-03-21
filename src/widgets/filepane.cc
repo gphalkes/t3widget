@@ -214,11 +214,15 @@ void file_pane_t::set_file_list(file_list_t *_file_list) {
 	redraw = true;
 }
 
-void file_pane_t::set_file(size_t idx) {
-	current = idx < file_list->size() ? idx : 0;
+void file_pane_t::set_file(const string *name) {
+	for (current = 0; current < file_list->size(); current++) {
+		if (name->compare(*(*file_list)[current]) == 0)
+			break;
+	}
+	if (current == file_list->size())
+		current = 0;
+
 	ensure_cursor_on_screen();
-	/* if (field)
-		field->set_text(idx == 0 ? "" : (*file_list)[current)->c_str()); */
 }
 
 void file_pane_t::update_column_width(int column, int start) {

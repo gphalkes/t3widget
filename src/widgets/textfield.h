@@ -54,13 +54,12 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 			private:
 				int width;
 				size_t current, top_idx;
-				bool focus;
+				bool focus, redraw;
 				text_field_t *field;
 
-				string_list_t *completions;
-				file_name_list_t::file_name_list_view_t *view;
+				filtered_list_base_t *completions;
 			public:
-				drop_down_list_t(t3_window_t *parent, t3_window_t *anchor, int _width, text_field_t *_field);
+				drop_down_list_t(text_field_t *_field);
 				~drop_down_list_t(void);
 				virtual bool process_key(key_t key);
 				virtual void set_position(optint top, optint left);
