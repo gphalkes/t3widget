@@ -108,9 +108,11 @@ class text_line_t {
 
 	public:
 		text_line_t(int buffersize = BUFFERSIZE);
-		text_line_t(const char *_buffer, int length = -1);
+		text_line_t(const char *_buffer);
+		text_line_t(const char *_buffer, int length);
 		text_line_t(const std::string *str);
 
+		void set_text(const char *_buffer);
 		void set_text(const char *_buffer, size_t length);
 		void set_text(const std::string *str);
 

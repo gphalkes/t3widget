@@ -113,9 +113,6 @@ text_line_t::text_line_t(int buffersize) : starts_with_combining(false) {
 void text_line_t::fill_line(const char *_buffer, int length) {
 	size_t char_bytes;
 	key_t next;
-#warning FIXME: second argument should be size_t not int, so length == -1 should be removed.
-	if (length == -1)
-		length = strlen(_buffer);
 
 	reserve(length);
 
@@ -130,6 +127,10 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 	reserve(length);
 }
 
+text_line_t::text_line_t(const char *_buffer) : starts_with_combining(false) {
+	fill_line(_buffer, strlen(_buffer));
+}
+
 text_line_t::text_line_t(const char *_buffer, int length) : starts_with_combining(false) {
 	fill_line(_buffer, length);
 }
@@ -138,6 +139,12 @@ text_line_t::text_line_t(const string *str) : starts_with_combining(false) {
 	fill_line(str->data(), str->size());
 }
 
+
+void text_line_t::set_text(const char *_buffer) {
+	buffer.clear();
+	meta_buffer.clear();
+	fill_line(_buffer, strlen(_buffer));
+}
 
 void text_line_t::set_text(const char *_buffer, size_t length) {
 	buffer.clear();
