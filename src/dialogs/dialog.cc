@@ -102,6 +102,11 @@ void dialog_t::draw_dialog(void) {
 
 	redraw = false;
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
+
+	/* Just clear the whole thing and redraw */
+	t3_win_set_paint(window, 0, 0);
+	t3_win_clrtobot(window);
+
 	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 	if (title != NULL) {
 		t3_win_set_paint(window, 0, 2);

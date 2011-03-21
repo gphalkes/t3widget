@@ -28,7 +28,6 @@ namespace t3_widget {
 static key_t nul = 0;
 /* FIXME: TODO:
 	- i18n/l10n
-	- ensure consistent naming (isdir vs is_dir)
 	- path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
 */
 file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, _title),
@@ -126,17 +125,12 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 }
 
 bool file_dialog_t::set_size(optint height, optint width) {
-//FIXME: check return values
-	dialog_t::set_size(height, width);
+	bool result = true;
+	result &= dialog_t::set_size(height, width);
 
-	file_line->set_size(None, t3_win_get_width(window) - 3 - name_offset);
-
-	file_pane->set_size(height - 4 - option_widget_set, width - 4);
-
-	/* Just clear the whole thing and redraw */
-	t3_win_set_paint(window, 0, 0);
-	t3_win_clrtobot(window);
-	return true;
+	result &= file_line->set_size(None, t3_win_get_width(window) - 3 - name_offset);
+	result &= file_pane->set_size(height - 4 - option_widget_set, width - 4);
+	return result;
 }
 
 void file_dialog_t::set_file(const char *file) {
@@ -171,10 +165,7 @@ void file_dialog_t::ok_callback(void) {
 }
 
 void file_dialog_t::ok_callback(const string *file) {
-	if ((*file)[0] == '/') {
-		#warning FIXME: this does not seem to make much sense!
-		change_dir(file);
-	} else if (file_name_list_t::is_dir(&current_dir, file->c_str())) {
+	if (file_name_list_t::is_dir(&current_dir, file->c_str())) {
 		change_dir(file);
 		file_line->set_text("");
 	} else {
@@ -192,10 +183,6 @@ void file_dialog_t::change_dir(const string *dir) {
 	if (dir->compare("..") == 0) {
 		size_t idx = current_dir.rfind('/');
 
-		//FIXME: take into account inaccessible directories!
-		/* Check whether we can load the dir. If not, show message and don't change
-		   state. */
-
 		if (idx == string::npos || idx == current_dir.size() - 1)
 			return;
 
@@ -211,6 +198,7 @@ void file_dialog_t::change_dir(const string *dir) {
 		new_dir += *dir;
 	}
 
+	/* Check whether we can load the dir. If not, show message and don't change state. */
 	try {
 		new_names.load_directory(&new_dir);
 	} catch (int error) {
@@ -271,7 +259,6 @@ void open_file_dialog_t::reset(void) {
 	filter_line->set_text("*");
 }
 
-
 string save_as_dialog_t::empty_filter("*");
 
 save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height, width, "Save File As") {
@@ -283,7 +270,7 @@ save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height
 }
 
 void save_as_dialog_t::create_folder(void) {
-	#warning FIXME: create folder here
+	//FIXME: create folder here
 }
 
 }; // namespace
