@@ -113,7 +113,7 @@ text_line_t::text_line_t(int buffersize) : starts_with_combining(false) {
 void text_line_t::fill_line(const char *_buffer, int length) {
 	size_t char_bytes;
 	key_t next;
-
+#warning FIXME: second argument should be size_t not int, so length == -1 should be removed.
 	if (length == -1)
 		length = strlen(_buffer);
 
@@ -126,6 +126,8 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 		length -= char_bytes;
 		_buffer += char_bytes;
 	}
+
+	reserve(length);
 }
 
 text_line_t::text_line_t(const char *_buffer, int length) : starts_with_combining(false) {
@@ -133,6 +135,19 @@ text_line_t::text_line_t(const char *_buffer, int length) : starts_with_combinin
 }
 
 text_line_t::text_line_t(const string *str) : starts_with_combining(false) {
+	fill_line(str->data(), str->size());
+}
+
+
+void text_line_t::set_text(const char *_buffer, size_t length) {
+	buffer.clear();
+	meta_buffer.clear();
+	fill_line(_buffer, length);
+}
+
+void text_line_t::set_text(const string *str) {
+	buffer.clear();
+	meta_buffer.clear();
 	fill_line(str->data(), str->size());
 }
 
@@ -762,7 +777,7 @@ int text_line_t::is_alnum(int pos) const { return meta_buffer[pos] & ALNUM_BIT; 
 int text_line_t::is_space(int pos) const { return meta_buffer[pos] & SPACE_BIT; }
 int text_line_t::is_bad_draw(int pos) const { return meta_buffer[pos] & BAD_DRAW_BIT; }
 
-const string *text_line_t::get_data(void) {
+const string *text_line_t::get_data(void) const {
 	return &buffer;
 }
 

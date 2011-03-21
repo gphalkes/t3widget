@@ -155,8 +155,7 @@ void file_dialog_t::set_file(const char *file) {
 }
 
 void file_dialog_t::reset(void) {
-	//FIXME: Clear file line
-	//file_line->
+	file_line->set_text("");
 	file_pane->reset();
 }
 

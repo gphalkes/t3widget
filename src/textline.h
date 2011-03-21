@@ -111,6 +111,9 @@ class text_line_t {
 		text_line_t(const char *_buffer, int length = -1);
 		text_line_t(const std::string *str);
 
+		void set_text(const char *_buffer, size_t length);
+		void set_text(const std::string *str);
+
 		void merge(text_line_t *other);
 		text_line_t *break_line(int pos);
 		text_line_t *cut_line(int start, int end);
@@ -144,7 +147,7 @@ class text_line_t {
 		int is_space(int pos) const;
 		int is_bad_draw(int pos) const;
 
-		const std::string *get_data(void);
+		const std::string *get_data(void) const;
 		bool find(find_context_t *context, find_result_t *result) const;
 
 		static void init(void);
