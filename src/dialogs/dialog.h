@@ -54,17 +54,12 @@ class dialog_t : public virtual window_component_t, public container_t {
 		widgets_t::iterator current_widget;
 		bool redraw;
 
-		t3_window_t *center_window;
-		sigc::connection center_connection;
-
-
 		dialog_t(int height, int width, const char *_title);
 		virtual ~dialog_t();
 		virtual void draw_dialog(void);
 		void focus_next(void);
 		void focus_previous(void);
 		void move_focus(widget_t *target);
-		void do_center(void);
 
 	public:
 		virtual bool process_key(key_t key);

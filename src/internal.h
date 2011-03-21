@@ -21,7 +21,6 @@ namespace t3_widget {
 
 class text_line_t;
 extern text_line_t *copy_buffer;
-extern sigc::signal<void> update_centered_positions;
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)

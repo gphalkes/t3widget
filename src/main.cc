@@ -35,7 +35,6 @@ namespace t3_widget {
 static int screen_lines, screen_columns;
 static signal<void, int, int> resize;
 static signal<void> update_notification;
-signal<void> update_centered_positions;
 
 insert_char_dialog_t insert_char_dialog;
 #warning FIXME: using _ here does not work because there is no guarantee that the correct calls have been made to set the language.
@@ -171,7 +170,6 @@ void iterate(void) {
 	for (dialogs_t::iterator iter = dialog_t::dialogs.begin(); iter != dialog_t::dialogs.end(); iter++)
 		(*iter)->update_contents();
 
-	update_centered_positions();
 	t3_term_update();
 	key = read_key();
 	lprintf("Got key %04X\n", key);
