@@ -249,8 +249,8 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	filter_line->set_text("*");
 	filter_line->connect_activate(sigc::bind(sigc::mem_fun(this, &open_file_dialog_t::refresh_view), (const string *) NULL));
 	filter_line->connect_lose_focus(sigc::bind(sigc::mem_fun(this, &open_file_dialog_t::refresh_view), (const string *) NULL));
-	filter_line->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
-	filter_line->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
+	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
+	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
 
 	filter_line->set_label(filter_label);
 	filter_line->set_key_filter(&nul, 1, false);

@@ -297,7 +297,7 @@ static key_t decode_sequence(bool outer) {
 					}
 				}
 				unget_key(c);
-				break;
+				goto ignore_sequence;
 			}
 
 			sequence.data[sequence.idx++] = c;
@@ -508,7 +508,7 @@ complex_error_t init_keys(bool separate_keypad) {
 			map[idx].string = key_node->string;
 			map[idx].string_length = key_node->string_length;
 			map[idx].key = EKEY_F1 + atoi(key_node->key + 1) - 1;
-			for (j = 3; key_node->key[j] != 0; j++) {
+			for (j = 2; key_node->key[j] != 0; j++) {
 				switch (key_node->key[j]) {
 					case 'c':
 						map[idx].key |= EKEY_CTRL;
