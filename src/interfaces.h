@@ -43,5 +43,13 @@ class container_t : private virtual window_component_t {
 		virtual t3_window_t *get_draw_window(void) { return window_component_t::get_draw_window(); }
 };
 
+class center_component_t : private virtual window_component_t {
+	protected:
+		window_component_t *center_window;
+	public:
+		center_component_t(void) : center_window(this) {}
+		virtual void set_center_window(window_component_t *_center_window) { center_window = _center_window; }
+};
+
 }; // namespace
 #endif

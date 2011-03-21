@@ -40,14 +40,6 @@ class widget_t : public virtual window_component_t {
 		virtual void force_redraw(void);
 };
 
-class complex_widget_t : public virtual window_component_t {
-	protected:
-		window_component_t *center_window;
-	public:
-		complex_widget_t(void) : center_window(this) {}
-		virtual void set_center_window(window_component_t *_center_window) { center_window = _center_window; }
-};
-
 class focus_widget_t {
 	T3_WIDET_SIGNAL(move_focus_left, void);
 	T3_WIDET_SIGNAL(move_focus_right, void);
