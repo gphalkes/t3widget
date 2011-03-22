@@ -14,6 +14,7 @@
 
 SOURCES.libt3widget.la := \
 	colorscheme.cc \
+	findcontext.cc \
 	key.cc \
 	log.cc \
 	main.cc \

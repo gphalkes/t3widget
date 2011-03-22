@@ -187,6 +187,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 /** Convert a str from the input format to an internally usable str.
 	@param str A @a Token with the str to be converted.
 	@param error_message Location to store the error message if necessary.
+    @param replacements Mark replacment substitutions (\1 .. \9) in the string.
 	@return The length of the resulting str.
 
 	The use of this function processes escape characters. The converted
@@ -215,7 +216,6 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 				/* The conversion won't overwrite subsequent characters because
 				   \uxxxx is already the as long as the max utf-8 length */
 				char buffer[5];
-				//FIXME: mask anything outside the correct value range
 				t3_unicode_put(value & ~ESCAPE_UNICODE, buffer);
 				buffer[4] = 0;
 				str.replace(write_position, strlen(buffer), buffer);
@@ -223,8 +223,11 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 				break;
 			} else if (value & ESCAPE_REPLACEMENT) {
 				//FIXME implement replacements
+				/* The idea is to write a specific invalid UTF-8 string, that we can later recognize. */
 			} else {
-				str[write_position++] = (char) value;
+				//FIXME: handle bytes with values > 0x7f
+				if (value < 0x80)
+					str[write_position++] = (char) value;
 			}
 		} else {
 			str[write_position++] = str[read_position++];

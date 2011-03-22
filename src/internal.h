@@ -23,7 +23,9 @@ class text_line_t;
 extern text_line_t *copy_buffer;
 
 #ifdef _T3_WIDGET_DEBUG
-#define ASSERT(_x) do { if (!(_x)) { fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); }} while (0)
+#define ASSERT(_x) do { if (!(_x)) { \
+	fprintf(stderr, "%s:%d: libt3widget: Assertion failed: %s\n", __FILE__, __LINE__, #_x); abort(); \
+}} while (0)
 #else
 #define ASSERT(_x)
 #endif
@@ -34,8 +36,9 @@ extern text_line_t *copy_buffer;
 //FIXME: do proper gettext stuff instead of this temporary wrapper
 #define _(_x) _x
 
-int parse_escape(const std::string &str, const char **error_message, size_t &read_position, size_t max_read_position, bool replacements = false);
-bool parse_escapes(std::string &str, const char **error_message, bool replacements);
+int parse_escape(const std::string &str, const char **error_message, size_t &read_position,
+	size_t max_read_position, bool replacements = false);
+bool parse_escapes(std::string &str, const char **error_message, bool replacements = false);
 
 }; // namespace
 #endif
