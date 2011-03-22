@@ -28,13 +28,14 @@ class message_dialog_base_t : public dialog_t {
 	private:
 		int break_positions[_T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1];
 		int height;
-		text_line_t *message;
-		const char *title;
+		text_line_t message;
 
 		virtual void draw_dialog(void);
 
 	public:
 		message_dialog_base_t(int width, const char *_title);
+		void set_message(const char *_message, size_t length);
+		void set_message(const char *_message);
 		void set_message(const std::string *_message);
 };
 

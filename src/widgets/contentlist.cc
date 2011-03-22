@@ -158,9 +158,12 @@ void file_name_list_t::load_directory(string *dirName) {
 	content_changed();
 }
 
-file_name_list_t &file_name_list_t::operator=(const file_name_list_t& a) {
-	files.resize(a.files.size());
-	copy(a.files.begin(), a.files.end(), files.begin());
+file_name_list_t &file_name_list_t::operator=(const file_name_list_t& other) {
+	if (&other == this)
+		return *this;
+
+	files.resize(other.files.size());
+	copy(other.files.begin(), other.files.end(), files.begin());
 	return *this;
 }
 

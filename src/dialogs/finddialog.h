@@ -15,13 +15,19 @@
 #define T3_WIDGET_FINDDIALOG_H
 
 #include "dialogs/dialog.h"
+#include "widgets/textfield.h"
+#include "widgets/checkbox.h"
+#include "findcontext.h"
+#include "util.h"
 
 namespace t3_widget {
 
 class replace_buttons_dialog_t;
 
 class find_dialog_t : public dialog_t {
-	private:
+	protected:
+		friend class replace_buttons_dialog_t;
+
 		text_field_t *find_line, *replace_line;
 		checkbox_t *whole_word_checkbox,
 			*match_case_checkbox,
@@ -32,22 +38,25 @@ class find_dialog_t : public dialog_t {
 		int state; // State of all the checkboxes converted to FIND_* flags
 		bool replace;
 
-		enum { REPLACE = DIALOG_ACTION_LAST, REPLACE_ALL, IN_SELECTION, ACTION_LAST };
-
-		friend class replace_buttons_dialog_t;
+		void backward_toggled(void);
+		void icase_toggled(void);
+		void regex_toggled(void);
+		void wrap_toggled(void);
+		void transform_backslash_toggled(void);
+		void whole_word_toggled(void);
+		void find_activated(void);
 
 	public:
 		find_dialog_t(bool _replace = false);
-		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void callback(int action, const void *data = NULL);
+		virtual bool set_size(optint height, optint width);
+
+	T3_WIDET_SIGNAL(activate, void, finder_t *);
 };
 
 class replace_buttons_dialog_t : public dialog_t {
 	public:
 		replace_buttons_dialog_t(void);
 
-		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void callback(int action, const void *data = NULL);
 		virtual void set_show(bool show);
 };
 

@@ -23,11 +23,11 @@
 using namespace std;
 namespace t3_widget {
 
-find_context_t::find_context_t(void) : flags(0), matcher(NULL), regex(NULL), valid(false),
+finder_t::finder_t(void) : flags(0), matcher(NULL), regex(NULL), valid(false),
 		replacement(NULL), folded(NULL), folded_size(0)
 {}
 
-find_context_t::find_context_t(const string *needle, int _flags, const string *_replacement) :
+finder_t::finder_t(const string *needle, int _flags, const string *_replacement) :
 		flags(_flags), matcher(NULL), regex(NULL), valid(true), replacement(NULL), folded(NULL), folded_size(0)
 {
 	const char *error_message;
@@ -78,7 +78,7 @@ find_context_t::find_context_t(const string *needle, int _flags, const string *_
 	}
 }
 
-find_context_t::~find_context_t(void) {
+finder_t::~finder_t(void) {
 	delete matcher;
 	delete replacement;
 	if (regex != NULL)
@@ -86,30 +86,38 @@ find_context_t::~find_context_t(void) {
 	free(folded);
 }
 
-void find_context_t::set_context(const string *needle, int _flags, const string *_replacement) {
-	/* If this initialization fails, it will throw a message pointer. */
-	find_context_t new_context(needle, _flags, _replacement);
+finder_t &finder_t::operator=(finder_t& other) {
+	if (&other == this)
+		return *this;
 
-	/* Reset the search context. */
 	delete matcher;
 	delete replacement;
 	if (regex != NULL)
 		pcre_free(regex);
-	/* Copy this instance's folded buffer to the new_context object, so we can do
-	   a simple bit copy as initialization next. */
-	new_context.folded = folded;
-	new_context.folded_size = folded_size;
 
-	*this = new_context;
+	flags = other.flags;
+	matcher = other.matcher;
+	regex = other.regex;
+	memcpy(ovector, other.ovector, sizeof(ovector));
+	captures = other.captures;
+	pattern_length = other.pattern_length;
+	found = other.found;
+	valid = other.valid;
+	replacement = other.replacement;
 
-	/* Make sure the destruction of the new_context object doesn't delete the things
-	   we point to! */
-	new_context.matcher = NULL;
-	new_context.regex = NULL;
-	new_context.replacement = NULL;
+	other.matcher = NULL;
+	other.regex = NULL;
+	other.replacement = NULL;
+	return *this;
 }
 
-bool find_context_t::match(const string *haystack, find_result_t *result, bool backward) {
+void finder_t::set_context(const string *needle, int _flags, const string *_replacement) {
+	/* If this initialization fails, it will throw a message pointer. */
+	finder_t new_context(needle, _flags, _replacement);
+	*this = new_context;
+}
+
+bool finder_t::match(const string *haystack, finder_result_t *result, bool backward) {
 	int match_result;
 	int start, end;
 
@@ -216,8 +224,8 @@ bool find_context_t::match(const string *haystack, find_result_t *result, bool b
 	}
 }
 
-int find_context_t::callout(pcre_callout_block *block) {
-	find_context_t *context = (find_context_t *) block->callout_data;
+int finder_t::callout(pcre_callout_block *block) {
+	finder_t *context = (finder_t *) block->callout_data;
 	if (block->pattern_position != context->pattern_length)
 		return 0;
 
@@ -243,7 +251,7 @@ int find_context_t::callout(pcre_callout_block *block) {
 
 static inline int is_start_char(int c) { return (c & 0x80) == 0 || (c & 0xc0) == 0x80; }
 
-int find_context_t::adjust_position(const string *str, int pos, int adjust) {
+int finder_t::adjust_position(const string *str, int pos, int adjust) {
 	if (adjust > 0) {
 		for (; adjust > 0 && (size_t) pos < str->size(); adjust -= is_start_char((*str)[pos]))
 			pos++;
@@ -257,12 +265,12 @@ int find_context_t::adjust_position(const string *str, int pos, int adjust) {
 	return pos;
 }
 
-bool find_context_t::check_boundaries(const string *str, int match_start, int match_end) {
+bool finder_t::check_boundaries(const string *str, int match_start, int match_end) {
 	return (match_start == 0 || get_class(str, match_start) != get_class(str, adjust_position(str, match_start, -1))) &&
 							(match_end == (int) str->size() || get_class(str, match_end) != get_class(str, adjust_position(str, match_end, 1)));
 }
 
-int find_context_t::get_class(const string *str, int pos) {
+int finder_t::get_class(const string *str, int pos) {
 	size_t data_len = str->size() - pos;
 	return t3_unicode_get_info(t3_unicode_get(str->data() + pos, &data_len), INT_MAX) &
 		(T3_UNICODE_ALNUM_BIT | T3_UNICODE_GRAPH_BIT | T3_UNICODE_SPACE_BIT);

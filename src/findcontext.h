@@ -21,11 +21,11 @@
 
 namespace t3_widget {
 
-struct find_result_t {
+struct finder_result_t {
 	int start, end;
 };
 
-class find_context_t {
+class finder_t {
 	//FIXME: many members are necessary in other classes
 	private:
 		int flags;
@@ -53,12 +53,13 @@ class find_context_t {
 		static int get_class(const std::string *str, int pos);
 
 	public:
-		find_context_t(void);
-		find_context_t(const std::string *needle, int flags, const std::string *replacement = NULL);
-		~find_context_t(void);
+		finder_t(void);
+		finder_t(const std::string *needle, int flags, const std::string *replacement = NULL);
+		~finder_t(void);
+		finder_t &operator=(finder_t& other);
 
 		void set_context(const std::string *needle, int flags, const std::string *replacement = NULL);
-		bool match(const std::string *haystack, find_result_t *result, bool backward);
+		bool match(const std::string *haystack, finder_result_t *result, bool backward);
 };
 
 }; // namespace

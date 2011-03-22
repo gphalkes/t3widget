@@ -53,7 +53,7 @@ class file_name_list_t : public file_list_t {
 		virtual const std::string *operator[](size_t idx) const;
 		virtual bool is_dir(int idx) const;
 		void load_directory(std::string *dirName);
-		file_name_list_t &operator=(const file_name_list_t& a);
+		file_name_list_t &operator=(const file_name_list_t& other);
 
 		//FIXME: move these to util
 		static std::string get_working_directory(void);

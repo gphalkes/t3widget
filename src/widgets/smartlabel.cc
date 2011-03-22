@@ -26,7 +26,7 @@
 using namespace std;
 namespace t3_widget {
 
-smart_label_text_t::smart_label_text_t(const char *spec, bool _addColon) : add_colon(_addColon) {
+smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_colon(_add_colon) {
 	text_line_t *line;
 	size_t i;
 	size_t spec_length = strlen(spec);
@@ -115,8 +115,8 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 smart_label_t::smart_label_t(container_t *parent, smart_label_text_t *spec) :
 	smart_label_text_t(spec), widget_t(parent, 1, get_width()) {}
 
-smart_label_t::smart_label_t(container_t *parent, const char *spec, bool _addColon) :
-	smart_label_text_t(spec, _addColon), widget_t(parent, 1, get_width()) {}
+smart_label_t::smart_label_t(container_t *parent, const char *spec, bool _add_colon) :
+	smart_label_text_t(spec, _add_colon), widget_t(parent, 1, get_width()) {}
 
 bool smart_label_t::process_key(key_t key) { (void) key; return false; }
 

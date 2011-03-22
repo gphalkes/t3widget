@@ -22,7 +22,6 @@ namespace t3_widget {
 
 message_dialog_base_t::message_dialog_base_t(int width, const char *_title) : dialog_t(5, width, _title) {
 	int i;
-	message = NULL;
 	for (i = 0; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1; i++)
 		break_positions[i] = INT_MAX;
 }
@@ -32,8 +31,6 @@ void message_dialog_base_t::draw_dialog(void) {
 	int i;
 
 	dialog_t::draw_dialog();
-	if (message == NULL)
-		return;
 
 	info.leftcol = 0;
 	info.tabsize = 0;
@@ -45,12 +42,12 @@ void message_dialog_base_t::draw_dialog(void) {
 	info.selected_attr = 0;
 
 	if (break_positions[1] == INT_MAX) {
-		int message_width = message->calculate_screen_width(0, message->get_length(), 0 /* Tab as control */);
+		int message_width = message.calculate_screen_width(0, message.get_length(), 0 /* Tab as control */);
 		info.start = 0;
 		info.max = INT_MAX;
 		info.size = message_width;
 		t3_win_set_paint(window, 1, (t3_win_get_width(window) - message_width) / 2);
-		message->paint_line(window, &info);
+		message.paint_line(window, &info);
 		return;
 	}
 
@@ -60,18 +57,16 @@ void message_dialog_base_t::draw_dialog(void) {
 		info.start = break_positions[i];
 		info.max = break_positions[i + 1];
 		info.size = t3_win_get_width(window) - 4;
-		message->paint_line(window, &info);
+		message.paint_line(window, &info);
 	}
 }
 
-void message_dialog_base_t::set_message(const string *_message) {
+void message_dialog_base_t::set_message(const char *_message, size_t length) {
 	int i;
-	if (message != NULL)
-		delete message;
-	message = new text_line_t(_message);
+	message.set_text(_message, length);
 	break_positions[0] = 0;
 	for (i = 1; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES; i++) {
-		break_pos_t brk = message->find_next_break_pos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
+		break_pos_t brk = message.find_next_break_pos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
 		if (brk.pos > 0) {
 			break_positions[i] = brk.pos;
 		} else {
@@ -84,6 +79,14 @@ void message_dialog_base_t::set_message(const string *_message) {
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 	draw_dialog();
+}
+
+void message_dialog_base_t::set_message(const char *_message) {
+	set_message(_message, strlen(_message));
+}
+
+void message_dialog_base_t::set_message(const string *_message) {
+	set_message(_message->data(), _message->size());
 }
 
 
