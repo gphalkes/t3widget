@@ -22,7 +22,7 @@ namespace t3_widget {
 
 class widget_t : public virtual window_component_t {
 	protected:
-		bool redraw;
+		bool redraw, enabled;
 
 		widget_t(container_t *parent, int height, int width);
 		widget_t(void);
@@ -38,6 +38,8 @@ class widget_t : public virtual window_component_t {
 		virtual void hide(void);
 		virtual void set_anchor(window_component_t *anchor, int relation);
 		virtual void force_redraw(void);
+		virtual void set_enabled(bool enable);
+		virtual bool is_enabled(void);
 };
 
 class focus_widget_t {

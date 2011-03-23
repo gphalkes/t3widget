@@ -108,13 +108,8 @@ void scrollbar_t::update_contents(void) {
 }
 
 
-bool scrollbar_t::accepts_focus(void) {
-	return false;
-}
-
-void scrollbar_t::set_focus(bool focus) {
-	(void) focus;
-}
+bool scrollbar_t::accepts_focus(void) { return false; }
+void scrollbar_t::set_focus(bool focus) { (void) focus; }
 
 void scrollbar_t::set_parameters(int _range, int _start, int _used) {
 	if (range == _range && start == _start && used == _used)

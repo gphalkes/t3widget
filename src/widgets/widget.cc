@@ -22,13 +22,13 @@ bool widget_t::is_hotkey(key_t key) {
 	return false;
 }
 
-bool widget_t::accepts_focus(void) { return true; }
+bool widget_t::accepts_focus(void) { return enabled; }
 
-widget_t::widget_t(container_t *parent, int height, int width) : redraw(true) {
+widget_t::widget_t(container_t *parent, int height, int width) : redraw(true), enabled(true) {
 	init_window(parent, height, width);
 }
 
-widget_t::widget_t(void) : redraw(true) {}
+widget_t::widget_t(void) : redraw(true), enabled(true) {}
 
 void widget_t::init_window(container_t *parent, int height, int width) {
 	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
@@ -63,6 +63,14 @@ void widget_t::hide(void) {
 
 void widget_t::force_redraw(void) {
 	redraw = true;
+}
+
+void widget_t::set_enabled(bool enable) {
+	enabled = enable;
+}
+
+bool widget_t::is_enabled(void) {
+	return enabled;
 }
 
 }; // namespace

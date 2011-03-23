@@ -128,7 +128,7 @@ bool dialog_t::process_key(key_t key) {
 	if ((key & EKEY_META) || key == EKEY_F10) {
 		for (widgets_t::iterator iter = widgets.begin();
 				iter != widgets.end(); iter++) {
-			if ((*iter)->is_hotkey(key & ~EKEY_META)) {
+			if ((*iter)->is_enabled() && (*iter)->is_hotkey(key & ~EKEY_META)) {
 				if ((*iter)->accepts_focus()) {
 					(*current_widget)->set_focus(false);
 					current_widget = iter;

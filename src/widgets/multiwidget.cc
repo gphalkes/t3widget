@@ -57,6 +57,8 @@ void multi_widget_t::set_focus(bool focus) {
 }
 
 bool multi_widget_t::accepts_focus(void) {
+	if (!enabled)
+		return false;
 	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		if (iter->takes_focus)
 			return true;
@@ -141,6 +143,12 @@ void multi_widget_t::resize_widgets(void) {
 			iter->widget->set_size(1, iter->calculated_width);
 		}
 	}
+}
+
+void multi_widget_t::set_enabled(bool enable) {
+	enabled = enable;
+	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		iter->widget->set_enabled(enable);
 }
 
 }; // namespace

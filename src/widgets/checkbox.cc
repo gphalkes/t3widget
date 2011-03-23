@@ -61,7 +61,7 @@ void checkbox_t::update_contents(void) {
 	t3_win_set_default_attrs(window, colors.dialog_attrs);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addch(window, '[', 0);
-	t3_win_addch(window, state ? 'X' : ' ', has_focus ? T3_ATTR_REVERSE : 0);
+	t3_win_addch(window, enabled ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);
 	t3_win_addch(window, ']', 0);
 }
 
@@ -88,6 +88,11 @@ void checkbox_t::set_label(smart_label_t *_label) {
 
 bool checkbox_t::is_hotkey(key_t key) {
 	return label == NULL ? false : label->is_hotkey(key);
+}
+
+void checkbox_t::set_enabled(bool enable) {
+	enabled = enable;
+	redraw = true;
 }
 
 }; // namespace

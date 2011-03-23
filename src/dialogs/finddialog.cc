@@ -196,11 +196,15 @@ void find_dialog_t::set_text(const string *str) {
 #define TOGGLED_CALLBACK(name, flag_name) void find_dialog_t::name##_toggled(void) { state ^= find_flags_t::flag_name; }
 TOGGLED_CALLBACK(backward, BACKWARD)
 TOGGLED_CALLBACK(icase, ICASE)
-TOGGLED_CALLBACK(regex, REGEX)
 TOGGLED_CALLBACK(wrap, WRAP)
 TOGGLED_CALLBACK(transform_backslash, TRANSFROM_BACKSLASH)
 TOGGLED_CALLBACK(whole_word, WHOLE_WORD)
 #undef TOGGLED_CALLBACK
+
+void find_dialog_t::regex_toggled(void) {
+	state ^= find_flags_t::REGEX;
+	transform_backslash_checkbox->set_enabled(!(state & find_flags_t::REGEX));
+}
 
 void find_dialog_t::find_activated(void) {
 	find_activated(find_action_t::FIND);

@@ -39,6 +39,7 @@ class multi_widget_t : public widget_t, public focus_widget_t, public container_
 		virtual void set_focus(bool focus);
 		virtual bool accepts_focus(void);
 		virtual void force_redraw(void);
+		virtual void set_enabled(bool enable);
 
 		/* Width is negative for fixed width widgets, positive for proportion */
 		void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);
