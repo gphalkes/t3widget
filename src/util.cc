@@ -196,6 +196,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 bool parse_escapes(string &str, const char **error_message, bool replacements) {
 	size_t max_read_position = str.size();
 	size_t read_position = 0, write_position = 0;
+	char buffer[5];
 
 	while(read_position < max_read_position) {
 		if (str[read_position] == '\\') {
@@ -208,24 +209,36 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 				return false;
 			}
 			value = parse_escape(str, error_message, read_position, max_read_position, replacements);
-			lprintf("Got value: %d\n", value);
+
 			if (value < 0)
 				return false;
 
 			if (value & ESCAPE_UNICODE) {
 				/* The conversion won't overwrite subsequent characters because
 				   \uxxxx is already the as long as the max utf-8 length */
-				char buffer[5];
-				t3_unicode_put(value & ~ESCAPE_UNICODE, buffer);
-				buffer[4] = 0;
-				str.replace(write_position, strlen(buffer), buffer);
-				write_position += strlen(buffer);
+				value &= ~ESCAPE_UNICODE;
+				if (value == 0) {
+					str[write_position++] = 0;
+				} else {
+					t3_unicode_put(value, buffer);
+					buffer[4] = 0;
+					str.replace(write_position, strlen(buffer), buffer);
+					write_position += strlen(buffer);
+				}
 				break;
 			} else if (value & ESCAPE_REPLACEMENT) {
-				//FIXME implement replacements
-				/* The idea is to write a specific invalid UTF-8 string, that we can later recognize. */
+				/* Write a specific invalid UTF-8 string, that we can later recognize.
+				   For this we use the 0xd901-0xd909 range. */
+				t3_unicode_put(value & ~ESCAPE_REPLACEMENT + 0xd900, buffer);
+				str.replace(write_position, strlen(buffer), buffer);
+				write_position += strlen(buffer);
 			} else {
-				//FIXME: handle bytes with values > 0x7f
+				/*FIXME: handle bytes with values > 0x7f
+				   We should write a value in the range 0xd800-0xd8ff. However, if a
+				   sequence of such bytes forms a valid UTF-8 sequence (taking into account
+				   the validity of the referenced code point), it should be replaced by
+				   the correct UTF-8 sequence.
+				*/
 				if (value < 0x80)
 					str[write_position++] = (char) value;
 			}

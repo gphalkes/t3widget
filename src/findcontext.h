@@ -61,6 +61,7 @@ class finder_t {
 		void set_context(const std::string *needle, int flags, const std::string *replacement = NULL);
 		bool match(const std::string *haystack, find_result_t *result, bool reverse);
 		int get_flags(void);
+		std::string *get_replacement(const std::string *haystack);
 };
 
 }; // namespace

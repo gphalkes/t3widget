@@ -19,6 +19,7 @@
 #include "findcontext.h"
 #include "util.h"
 #include "internal.h"
+#include "log.h"
 
 using namespace std;
 namespace t3_widget {
@@ -75,6 +76,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 			if (!parse_escapes(*replacement, &error_message, (flags & find_flags_t::REGEX) != 0))
 				throw error_message;
 		}
+		flags |= find_flags_t::REPLACEMENT_VALID;
 	}
 	flags |= find_flags_t::VALID;
 }
@@ -129,9 +131,9 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 	if (flags & find_flags_t::REGEX) {
 		pcre_extra extra;
 		int pcre_flags = PCRE_NOTEMPTY;
-		/* FIXME: shouldn't we be using the ovector instead of local_ovector? The main question is
-		   whether the 0 and 1 (the complete match found) is correct. This is most important for
-		   reverse matches. */
+		/* Because of the way we match backwards, we can't directly use the ovector
+		   in context. That gets destroyed by trying to find a further match if none
+		   exists. */
 		int local_ovector[30];
 
 		ovector[0] = -1;
@@ -164,12 +166,11 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 
 		pcre_callout = callout;
 		match_result = pcre_exec(regex, &extra, haystack->data(), end, start, pcre_flags,
-			(int *) local_ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
+			reverse ? local_ovector : ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
 		if (!found)
 			return false;
 		result->start = ovector[0];
 		result->end = ovector[1];
-		//FIXME: save local_ovector results, if we don't use ovector directly
 		return true;
 	} else {
 		string substr;
@@ -250,7 +251,6 @@ int finder_t::callout(pcre_callout_block *block) {
 		}
 		return 1;
 	} else {
-		memcpy(context->ovector, block->offset_vector, block->capture_top * sizeof(int) * 2);
 		context->ovector[0] = block->start_match;
 		context->ovector[1] = block->current_position;
 		context->captures = block->capture_top;
@@ -288,6 +288,45 @@ int finder_t::get_class(const string *str, int pos) {
 
 int finder_t::get_flags(void) {
 	return flags;
+}
+
+#define REPLACE_CAPTURE(x) \
+	case x: \
+		if (captures > x) \
+			retval->replace(pos, 3, haystack->data() + ovector[2 * x], ovector[2 * x + 1] - ovector[2 * x]); \
+		else \
+			retval->erase(pos, 3); \
+		break;
+
+string *finder_t::get_replacement(const string *haystack) {
+	string *retval = new string(*replacement);
+	if (flags & find_flags_t::REGEX) {
+		/* Replace the following strings with the matched items:
+		   EDA481 - EDA489. */
+		size_t pos = 0;
+
+		while ((pos = retval->find("\xed\xa4", pos)) != string::npos) {
+			if (pos + 3 > retval->size()) {
+				retval->erase(pos, 2);
+				break;
+			}
+			switch ((*retval)[pos + 2] & 0x7f) {
+				REPLACE_CAPTURE(1)
+				REPLACE_CAPTURE(2)
+				REPLACE_CAPTURE(3)
+				REPLACE_CAPTURE(4)
+				REPLACE_CAPTURE(5)
+				REPLACE_CAPTURE(6)
+				REPLACE_CAPTURE(7)
+				REPLACE_CAPTURE(8)
+				REPLACE_CAPTURE(9)
+				default:
+					retval->erase(pos, 3);
+					break;
+			}
+		}
+	}
+	return retval;
 }
 
 }; // namespace

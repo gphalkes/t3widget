@@ -79,7 +79,8 @@ _T3_WIDGET_ENUM(find_flags_t,
 	WHOLE_WORD = (1<<6),
 	VALID = (1<<7),
 	NOT_FIRST_FIND = (1<<8),
-	INTERNAL_REVERSE = (1<<9)
+	REPLACEMENT_VALID = (1<<9),
+	INTERNAL_REVERSE = (1<<10)
 );
 
 _T3_WIDGET_ENUM(find_action_t,

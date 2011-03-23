@@ -1386,7 +1386,6 @@ bool text_buffer_t::find(finder_t *finder, bool reverse) {
 
 	// Perform search
 	if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
-		//~ result.start = !(finder->get_flags() & find_flags_t::NOT_FIRST_FIND) && selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
 		result.start = selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
 		result.end = 0;
 		if (finder->match(lines[idx]->get_data(), &result, true)) {
@@ -1444,19 +1443,16 @@ bool text_buffer_t::find(finder_t *finder, bool reverse) {
 	return false;
 }
 
-#if 0
-void text_buffer_t::replace(void) {
-	//~ lprintf("flags: %02X, repl: %s\n", last_find.flags, last_find.replacement == NULL ? (char *) NULL : last_find.replacement->getData()->c_str());
-	if (!(last_find.flags & find_flags_t::VALID) || last_find.replacement == NULL)
-			return;
-
-	#warning FIXME: regexes may have references to found text!!
-	replace_selection(last_find.replacement);
-}
-#endif
-
 void text_buffer_t::replace(finder_t *finder) {
+	if (selection_mode == selection_mode_t::NONE)
+		return;
 
+	size_t idx = get_real_line(cursor.line);
+	string *replacement_str = finder->get_replacement(lines[idx]->get_data());
+	text_line_t replacement(replacement_str);
+	delete replacement_str;
+
+	replace_selection(&replacement);
 }
 
 const char *text_buffer_t::get_name(void) const {

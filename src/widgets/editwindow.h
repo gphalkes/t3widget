@@ -36,6 +36,8 @@ class edit_window_t : public widget_t, public center_component_t {
 		static find_dialog_t global_find_dialog;
 		static sigc::connection global_find_dialog_connection;
 		static finder_t global_finder;
+		static replace_buttons_dialog_t replace_buttons;
+		static sigc::connection replace_buttons_connection;
 
 		t3_window_t *bottomlinewin;
 		scrollbar_t *scrollbar;

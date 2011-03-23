@@ -26,6 +26,8 @@ sigc::connection edit_window_t::goto_connection;
 find_dialog_t edit_window_t::global_find_dialog;
 sigc::connection edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
+replace_buttons_dialog_t edit_window_t::replace_buttons;
+sigc::connection edit_window_t::replace_buttons_connection;
 
 
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
@@ -386,9 +388,20 @@ void edit_window_t::find_activated(int action, finder_t *_finder) {
 		case find_action_t::FIND:
 			if (!text->find(local_finder))
 				goto not_found;
+
+			if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
+				replace_buttons_connection.disconnect();
+				replace_buttons_connection = replace_buttons.connect_activate(
+					sigc::bind(sigc::mem_fun(this, &edit_window_t::find_activated), (finder_t *) NULL));
+				replace_buttons.center_over(center_window);
+				replace_buttons.show();
+			}
 			break;
 		case find_action_t::REPLACE:
 			text->replace(local_finder);
+			if (!text->find(local_finder))
+				goto not_found;
+			replace_buttons.show();
 			break;
 		case find_action_t::REPLACE_ALL: {
 			int replacements;
