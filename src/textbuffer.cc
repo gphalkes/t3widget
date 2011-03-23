@@ -1378,84 +1378,18 @@ void text_buffer_t::set_selection_from_find(int line, find_result_t *result) {
 	selection_mode = selection_mode_t::SHIFT;
 }
 
-bool text_buffer_t::find(const string *what, int flags, const text_line_t *replacement) {
-	find_result_t result;
+bool text_buffer_t::find(finder_t *finder, bool reverse) {
 	size_t start, idx;
-
-	// Prepare state for finding
-	if (what == NULL) {
-		if (!(last_find.flags & find_flags_t::VALID))
-			return true;
-
-		last_find.flags = flags ^ last_find.original_flags; // flags will only contain NEXT and optionally BACKWARD
-	} else {
-		if (last_find.matcher != NULL) {
-			delete last_find.matcher;
-			last_find.matcher = NULL;
-		}
-		if (last_find.regex != NULL) {
-			pcre_free(last_find.regex);
-			last_find.regex = NULL;
-		}
-		if (last_find.replacement != NULL) {
-			delete last_find.replacement;
-			last_find.replacement = NULL;
-		}
-
-		last_find.flags = last_find.original_flags = flags | find_flags_t::VALID;
-		if (flags & find_flags_t::REGEX) {
-			const char *error_message;
-			int error_offset;
-			int pcre_flags = PCRE_UTF8;
-			string pattern = string(flags & find_flags_t::WHOLE_WORD ? "(?:\\b" : "(?:") + *what + string(flags & find_flags_t::WHOLE_WORD ? "\\b)(?C0)" : ")(?C0)");
-
-			if (flags & find_flags_t::ICASE)
-				pcre_flags |= PCRE_CASELESS;
-			last_find.regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, NULL);
-			if (last_find.regex == NULL) {
-				//FIXME: message should be shown by edit window!
-				#warning FIXME: show error message here
-/*				printf_into(&message, "Error in regular expression: %s", error_message);
-				last_find.flags = 0;
-				activate_window(WindowID::ERROR_DIALOG, &message);*/
-				return true;
-			}
-			last_find.pattern_length = pattern.size();
-		} else {
-			string searchFor(*what);
-
-			#warning FIXME: implement transfom_backslash search
-/*			if (flags & find_flags_t::TRANSFROM_BACKSLASH) {
-				const char *error_message;
-				if (!parseEscapes(searchFor, &error_message)) {
-					string message(error_message);
-					last_find.flags = 0;
-					activate_window(WindowID::ERROR_DIALOG, &message);
-					return true;
-				}
-			}*/
-
-			if (flags & find_flags_t::ICASE) {
-				char *folded;
-				size_t folded_size;
-				folded_size = t3_unicode_casefold(searchFor.data(), searchFor.size(), &folded, NULL, t3_false);
-				last_find.matcher = new string_matcher_t(folded, folded_size);
-			} else {
-				last_find.matcher = new string_matcher_t(searchFor);
-			}
-		}
-
-		if (replacement != NULL)
-			last_find.replacement = new text_line_t(*replacement);
-	}
+	find_result_t result;
 
 	start = idx = get_real_line(cursor.line);
 
 	// Perform search
-	if (last_find.flags & find_flags_t::BACKWARD) {
-		result.start = (last_find.flags & find_flags_t::NEXT) && selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
+	if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
+		//~ result.start = !(finder->get_flags() & find_flags_t::NOT_FIRST_FIND) && selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
+		result.start = selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
 		result.end = 0;
-		if (lines[idx]->find(&last_find, &result)) {
+		if (finder->match(lines[idx]->get_data(), &result, true)) {
 			set_selection_from_find(idx, &result);
 			return true;
 		}
@@ -1463,19 +1397,19 @@ bool text_buffer_t::find(const string *what, int flags, const text_line_t *repla
 		result.start = INT_MAX;
 		for (; idx > 0; ) {
 			idx--;
-			if (lines[idx]->find(&last_find, &result)) {
+			if (finder->match(lines[idx]->get_data(), &result, true)) {
 				set_selection_from_find(idx, &result);
 				return true;
 			}
 		}
 
-		if (!(last_find.flags & find_flags_t::WRAP))
+		if (!(finder->get_flags() & find_flags_t::WRAP))
 			return false;
 
 		result.start = INT_MAX;
 		for (idx = lines.size(); idx > start; ) {
 			idx--;
-			if (lines[idx]->find(&last_find, &result)) {
+			if (finder->match(lines[idx]->get_data(), &result, true)) {
 				set_selection_from_find(idx, &result);
 				return true;
 			}
@@ -1483,24 +1417,24 @@ bool text_buffer_t::find(const string *what, int flags, const text_line_t *repla
 	} else {
 		result.start = cursor.pos;
 		result.end = INT_MAX;
-		if (lines[idx]->find(&last_find, &result)) {
+		if (finder->match(lines[idx]->get_data(), &result, false)) {
 			set_selection_from_find(idx, &result);
 			return true;
 		}
 
 		result.start = 0;
 		for (idx++; idx < lines.size(); idx++) {
-			if (lines[idx]->find(&last_find, &result)) {
+			if (finder->match(lines[idx]->get_data(), &result, false)) {
 				set_selection_from_find(idx, &result);
 				return true;
 			}
 		}
 
-		if (!(last_find.flags & find_flags_t::WRAP))
+		if (!(finder->get_flags() & find_flags_t::WRAP))
 			return false;
 
 		for (idx = 0; idx <= start; idx++) {
-			if (lines[idx]->find(&last_find, &result)) {
+			if (finder->match(lines[idx]->get_data(), &result, false)) {
 				set_selection_from_find(idx, &result);
 				return true;
 			}
@@ -1510,6 +1444,7 @@ bool text_buffer_t::find(const string *what, int flags, const text_line_t *repla
 	return false;
 }
 
+#if 0
 void text_buffer_t::replace(void) {
 	//~ lprintf("flags: %02X, repl: %s\n", last_find.flags, last_find.replacement == NULL ? (char *) NULL : last_find.replacement->getData()->c_str());
 	if (!(last_find.flags & find_flags_t::VALID) || last_find.replacement == NULL)
@@ -1517,6 +1452,11 @@ void text_buffer_t::replace(void) {
 
 	#warning FIXME: regexes may have references to found text!!
 	replace_selection(last_find.replacement);
+}
+#endif
+
+void text_buffer_t::replace(finder_t *finder) {
+
 }
 
 const char *text_buffer_t::get_name(void) const {

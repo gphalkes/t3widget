@@ -830,6 +830,7 @@ bool text_line_t::check_boundaries(int match_start, int match_end) const {
 							(match_end == get_length() || get_class(match_end) != get_class(adjust_position(match_end, 1)));
 }
 
+#if 0
 bool text_line_t::find(find_context_t *context, find_result_t *result) const {
 	string substr;
 	int curr_char, next_char;
@@ -927,6 +928,7 @@ bool text_line_t::find(find_context_t *context, find_result_t *result) const {
 		return false;
 	}
 }
+#endif
 
 void text_line_t::check_bad_draw(int i) {
 	if (t3_term_can_draw(buffer.data() + i, adjust_position(i, 1) - i))

@@ -367,6 +367,25 @@ static int compare_mapping(const void *a, const void *b) {
 	return 0;
 }
 
+//FIXME: need to use ascii_isdigit here!
+static bool is_function_key(const char *str) {
+	/* First character must be f, second a digit ... */
+	if (str[0] != 'f' || !isdigit(str[1]))
+		return false;
+
+	/* ... third either a digit, + or nothing ... */
+	if (str[2] == 0 || str[2] == '+')
+		return true;
+	if (!isdigit(str[2]))
+		return false;
+
+	/* ... fourth either + or nothing. */
+	if (str[3] == 0 || str[3] == '+')
+		return true;
+
+	return false;
+}
+
 #define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x); goto return_error; } while (0)
 /* Initialize the key map */
 complex_error_t init_keys(bool separate_keypad) {
@@ -427,35 +446,15 @@ complex_error_t init_keys(bool separate_keypad) {
 
 
 	/* Load all the known keys from the terminfo database.
-	   - find out how many we actually know
+	   - find out how many sequences there are
 	   - allocate an appropriate amount of memory
 	   - fill the map
-	   - [TODO] sort the map for quick searching
+	   - sort the map for quick searching
 	*/
 	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
 		for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
-			if (key_node->string[0] != 27)
-				continue;
-
-			for (j = 0; key_strings[i].string[j] == key_node->key[j] &&
-					key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++)
-			{}
-
-			if (key_strings[i].string[j] == 0 && (key_node->key[j] == '+' || key_node->key[j] == 0)) {
+			if (key_node->string[0] == 27)
 				map_count++;
-				break;
-			}
-		}
-
-		if (i == ARRAY_SIZE(key_strings)) {
-			/* First character must be f, second a digit ... */
-			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
-					/* ... third either a digit, + or nothing ... */
-					(!isdigit(key_node->key[2]) && key_node->key[2] != 0 && key_node->key[2] != '+') ||
-					/* ... if there is a second char, then fourth must be a digit. */
-					(key_node->key[2] != 0 && key_node->key[3] != 0 && key_node->key[3] != '+'))
-				continue;
-			map_count++;
 		}
 	}
 
@@ -463,7 +462,13 @@ complex_error_t init_keys(bool separate_keypad) {
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
 
 	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
+		if (key_node->string[0] == 27) {
+			map[idx].string = key_node->string;
+			map[idx].string_length = key_node->string_length;
+		}
+
 		for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
+			/* Check if this is a sequence we know. */
 			for (j = 0; key_strings[i].string[j] == key_node->key[j] &&
 					key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++)
 			{}
@@ -473,11 +478,9 @@ complex_error_t init_keys(bool separate_keypad) {
 
 			if (key_node->string[0] != 27) {
 				map_single[(unsigned char) key_node->string[0]] = key_strings[i].code;
-				continue;
+				break;
 			}
 
-			map[idx].string = key_node->string;
-			map[idx].string_length = key_node->string_length;
 			map[idx].key = separate_keypad ? key_strings[i].code : map_kp(key_strings[i].code);
 			for (; key_node->key[j] != 0; j++) {
 				switch (key_node->key[j]) {
@@ -494,37 +497,38 @@ complex_error_t init_keys(bool separate_keypad) {
 						break;
 				}
 			}
-			idx++;
 			break;
 		}
+
 		if (i == ARRAY_SIZE(key_strings)) {
-			/* First character must be f, second a digit ... */
-			if (key_node->key[0] != 'f' || !isdigit(key_node->key[1]) ||
-					/* ... third either a digit, + or nothing ... */
-					(!isdigit(key_node->key[2]) && key_node->key[2] != 0 && key_node->key[2] != '+') ||
-					/* ... if there is a second char, then fourth must be a digit. */
-					(key_node->key[2] != 0 && key_node->key[3] != 0 && key_node->key[3] != '+'))
-				continue;
-			map[idx].string = key_node->string;
-			map[idx].string_length = key_node->string_length;
-			map[idx].key = EKEY_F1 + atoi(key_node->key + 1) - 1;
-			for (j = 2; key_node->key[j] != 0; j++) {
-				switch (key_node->key[j]) {
-					case 'c':
-						map[idx].key |= EKEY_CTRL;
-						break;
-					case 'm':
-						map[idx].key |= EKEY_META;
-						break;
-					case 's':
-						map[idx].key |= EKEY_SHIFT;
-						break;
-					default:
-						break;
+			if (is_function_key(key_node->key)) {
+				key_t key = EKEY_F1 + atoi(key_node->key + 1) - 1;
+				for (j = 2; key_node->key[j] != 0; j++) {
+					switch (key_node->key[j]) {
+						case 'c':
+							key |= EKEY_CTRL;
+							break;
+						case 'm':
+							key |= EKEY_META;
+							break;
+						case 's':
+							key |= EKEY_SHIFT;
+							break;
+						default:
+							break;
+					}
 				}
+				if (key_node->string[0] == 27)
+					map[idx].key = key;
+				else
+					map_single[(unsigned char) key_node->string[0]] = key;
+			} else {
+				if (key_node->string[0] == 27)
+					map[idx].key = EKEY_IGNORE;
 			}
-			idx++;
 		}
+		if (key_node->string[0] == 27)
+			idx++;
 	}
 	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 

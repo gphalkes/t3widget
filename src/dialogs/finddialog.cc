@@ -239,7 +239,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	find_button = new button_t(this, "_Find;fF");
 	find_button->set_anchor(replace_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	find_button->set_position(0, 2);
-	find_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::FIND_NEXT));
+	find_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::FIND));
 	find_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 	find_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
 

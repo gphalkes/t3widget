@@ -23,12 +23,12 @@
 using namespace std;
 namespace t3_widget {
 
-finder_t::finder_t(void) : flags(0), matcher(NULL), regex(NULL), valid(false),
+finder_t::finder_t(void) : flags(0), matcher(NULL), regex(NULL),
 		replacement(NULL), folded(NULL), folded_size(0)
 {}
 
 finder_t::finder_t(const string *needle, int _flags, const string *_replacement) :
-		flags(_flags), matcher(NULL), regex(NULL), valid(true), replacement(NULL), folded(NULL), folded_size(0)
+		flags(_flags & ~find_flags_t::NOT_FIRST_FIND), matcher(NULL), regex(NULL), replacement(NULL), folded(NULL), folded_size(0)
 {
 	const char *error_message;
 	if (flags & find_flags_t::REGEX) {
@@ -76,6 +76,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 				throw error_message;
 		}
 	}
+	flags |= find_flags_t::VALID;
 }
 
 finder_t::~finder_t(void) {
@@ -102,7 +103,6 @@ finder_t &finder_t::operator=(finder_t& other) {
 	captures = other.captures;
 	pattern_length = other.pattern_length;
 	found = other.found;
-	valid = other.valid;
 	replacement = other.replacement;
 
 	other.matcher = NULL;
@@ -117,23 +117,28 @@ void finder_t::set_context(const string *needle, int _flags, const string *_repl
 	*this = new_context;
 }
 
-bool finder_t::match(const string *haystack, finder_result_t *result, bool backward) {
+bool finder_t::match(const string *haystack, find_result_t *result, bool reverse) {
 	int match_result;
 	int start, end;
+
+	if (!(flags & find_flags_t::VALID))
+		return false;
+
+	flags |= find_flags_t::NOT_FIRST_FIND;
 
 	if (flags & find_flags_t::REGEX) {
 		pcre_extra extra;
 		int pcre_flags = PCRE_NOTEMPTY;
 		/* FIXME: shouldn't we be using the ovector instead of local_ovector? The main question is
 		   whether the 0 and 1 (the complete match found) is correct. This is most important for
-		   backward matches. */
+		   reverse matches. */
 		int local_ovector[30];
 
 		ovector[0] = -1;
 		ovector[1] = -1;
 		found = false;
 
-		if (backward) {
+		if (reverse) {
 			start = result->end;
 			end = result->start;
 		} else {
@@ -141,9 +146,14 @@ bool finder_t::match(const string *haystack, finder_result_t *result, bool backw
 			end = result->end;
 		}
 
+		if (reverse)
+			flags |= find_flags_t::INTERNAL_REVERSE;
+		else
+			flags &= ~find_flags_t::INTERNAL_REVERSE;
+
 		extra.flags = PCRE_EXTRA_CALLOUT_DATA;
 		extra.callout_data = this;
-		//FIXME: doesn't work for backward!
+
 		if ((size_t) end >= haystack->size())
 			end = haystack->size();
 		else
@@ -170,7 +180,7 @@ bool finder_t::match(const string *haystack, finder_result_t *result, bool backw
 		start = result->start >= 0 && (size_t) result->start > haystack->size() ? haystack->size() : result->start;
 		curr_char = start;
 
-		if (backward) {
+		if (reverse) {
 			matcher->reset();
 			while((size_t) curr_char > 0) {
 				next_char = adjust_position(haystack, curr_char, -1);
@@ -229,7 +239,7 @@ int finder_t::callout(pcre_callout_block *block) {
 	if (block->pattern_position != context->pattern_length)
 		return 0;
 
-	if (context->flags & find_flags_t::BACKWARD) {
+	if (context->flags & find_flags_t::INTERNAL_REVERSE) {
 		if (block->start_match > context->ovector[0] ||
 				(block->start_match == context->ovector[0] && block->current_position > context->ovector[1])) {
 			memcpy(context->ovector, block->offset_vector, block->capture_top * sizeof(int) * 2);
@@ -274,6 +284,10 @@ int finder_t::get_class(const string *str, int pos) {
 	size_t data_len = str->size() - pos;
 	return t3_unicode_get_info(t3_unicode_get(str->data() + pos, &data_len), INT_MAX) &
 		(T3_UNICODE_ALNUM_BIT | T3_UNICODE_GRAPH_BIT | T3_UNICODE_SPACE_BIT);
+}
+
+int finder_t::get_flags(void) {
+	return flags;
 }
 
 }; // namespace

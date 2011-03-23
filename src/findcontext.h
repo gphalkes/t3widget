@@ -21,7 +21,7 @@
 
 namespace t3_widget {
 
-struct finder_result_t {
+struct find_result_t {
 	int start, end;
 };
 
@@ -59,7 +59,8 @@ class finder_t {
 		finder_t &operator=(finder_t& other);
 
 		void set_context(const std::string *needle, int flags, const std::string *replacement = NULL);
-		bool match(const std::string *haystack, finder_result_t *result, bool backward);
+		bool match(const std::string *haystack, find_result_t *result, bool reverse);
+		int get_flags(void);
 };
 
 }; // namespace

@@ -23,6 +23,7 @@
 #include "undo.h"
 #include "main.h"
 #include "interfaces.h"
+#include "findcontext.h"
 //#include "charactersets.h"
 //#include "filestate.h"
 
@@ -146,8 +147,10 @@ class text_buffer_t {
 
 		bool is_modified(void) { return !undo_list.is_at_mark(); }
 
-		bool find(const std::string *what, int flags, const text_line_t *replacement);
-		void replace(void);
+		//~ bool find(const std::string *what, int flags, const text_line_t *replacement);
+		bool find(finder_t *finder, bool reverse = false);
+		//~ void replace(void);
+		void replace(finder_t *finder);
 
 		const char *get_name(void) const;
 };

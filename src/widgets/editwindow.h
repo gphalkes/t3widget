@@ -19,24 +19,31 @@ namespace t3_widget {
 }; // namespace
 
 #include "dialogs/gotodialog.h"
+#include "dialogs/finddialog.h"
 #include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 #include "textbuffer.h"
+#include "findcontext.h"
 #include "key.h"
 #include "interfaces.h"
 
 namespace t3_widget {
 
 class edit_window_t : public widget_t, public center_component_t {
-	private:
+	protected:
 		static goto_dialog_t goto_dialog;
 		static sigc::connection goto_connection;
+		static find_dialog_t global_find_dialog;
+		static sigc::connection global_find_dialog_connection;
+		static finder_t global_finder;
 
 		t3_window_t *bottomlinewin;
 		scrollbar_t *scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
 		bool focus, hard_cursor;
+		find_dialog_t *find_dialog;
+		finder_t *finder;
 
 		static const char *insstring[];
 		static bool (text_buffer_t::*proces_char[])(key_t);
@@ -56,6 +63,8 @@ class edit_window_t : public widget_t, public center_component_t {
 		void set_selection_mode(key_t key);
 		void delete_selection(void);
 
+		void find_activated(int action, finder_t *finder);
+
 	public:
 		edit_window_t(container_t *parent, text_buffer_t *_text = NULL);
 		virtual ~edit_window_t(void);
@@ -74,8 +83,8 @@ class edit_window_t : public widget_t, public center_component_t {
 		void close(bool force);
 		void goto_line(int line);
 
-		bool find(const std::string *what, int flags, const text_line_t *replacement);
-		void replace(void);
+		//~ bool find(const std::string *what, int flags, const text_line_t *replacement);
+		//~ void replace(void);
 		void get_dimensions(int *height, int *width, int *top, int *left);
 		bool get_selection_lines(int *top, int *bottom);
 

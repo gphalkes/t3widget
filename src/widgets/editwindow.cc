@@ -23,11 +23,15 @@ namespace t3_widget {
 
 goto_dialog_t edit_window_t::goto_dialog;
 sigc::connection edit_window_t::goto_connection;
+find_dialog_t edit_window_t::global_find_dialog;
+sigc::connection edit_window_t::global_find_dialog_connection;
+finder_t edit_window_t::global_finder;
+
 
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget_t(parent, 10, 10) {
+edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget_t(parent, 10, 10), find_dialog(NULL), finder(NULL) {
 	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 0, 0, 0)) == NULL) {
 		t3_win_del(window);
 		throw bad_alloc();
@@ -134,7 +138,7 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 		redraw = true;
 	}
 }
-
+#if 0
 bool edit_window_t::find(const string *what, int flags, const text_line_t *replacement) {
 	int start_screen_pos;
 
@@ -161,7 +165,7 @@ void edit_window_t::replace(void) {
 	ensure_cursor_on_screen();
 	text->last_set_pos = screen_pos;
 }
-
+#endif
 void edit_window_t::repaint_screen(void) {
 	text_coordinate_t current_start, current_end;
 	text_line_t::paint_info_t info;
@@ -371,6 +375,46 @@ void edit_window_t::delete_selection(void) {
 	reset_selection();
 }
 
+void edit_window_t::find_activated(int action, finder_t *_finder) {
+	finder_t *local_finder;
+
+	local_finder = finder == NULL ? &global_finder : finder;
+	if (_finder != NULL)
+		*local_finder = *_finder;
+
+	switch (action) {
+		case find_action_t::FIND:
+			if (!text->find(local_finder))
+				goto not_found;
+			break;
+		case find_action_t::REPLACE:
+			text->replace(local_finder);
+			break;
+		case find_action_t::REPLACE_ALL: {
+			int replacements;
+
+			for (replacements = 0; text->find(local_finder); replacements++)
+				text->replace(local_finder);
+
+			if (replacements == 0)
+				goto not_found;
+			break;
+		}
+		case find_action_t::REPLACE_IN_SELECTION:
+			//FIXME: do the replacement
+			break;
+		default:
+			break;
+	}
+	return;
+
+not_found:
+	//FIXME: show search string
+	message_dialog.set_message("Search string not found");
+	message_dialog.center_over(center_window);
+	message_dialog.show();
+}
+
 //FIXME: make every action into a separate function for readability
 bool edit_window_t::process_key(key_t key) {
 	set_selection_mode(key);
@@ -573,21 +617,38 @@ bool edit_window_t::process_key(key_t key) {
 		case EKEY_CTRL | 'n':
 			executeAction(ActionID::FILE_NEW);
 			break;
-
-		case EKEY_CTRL | 'f':
-			executeAction(ActionID::SEARCH_SEARCH);
+*/
+		case EKEY_CTRL | 'f': {
+			find_dialog_t *dialog;
+			if (find_dialog == NULL) {
+				global_find_dialog_connection.disconnect();
+				global_find_dialog_connection = global_find_dialog.connect_activate(
+					sigc::mem_fun(this, &edit_window_t::find_activated));
+				dialog = &global_find_dialog;
+			} else {
+				dialog = find_dialog;
+			}
+			dialog->center_over(center_window);
+			//FIXME: set selected text in dialog
+			//dialog->set_text(get_se);
+			dialog->show();
 			break;
+		}
 		case EKEY_CTRL | 'r':
-			executeAction(ActionID::SEARCH_REPLACE);
-			break;
-		case EKEY_F3:
-			executeAction(ActionID::SEARCH_AGAIN);
-			break;
-		case EKEY_F3 | EKEY_SHIFT:
-			executeAction(ActionID::SEARCH_AGAIN_BACKWARD);
+			//FIXME: show replace dialog
 			break;
 
-		case EKEY_CTRL | 'w':
+		case EKEY_F3:
+		case EKEY_F3 | EKEY_SHIFT:
+			if (!text->find(finder != NULL ? finder : &global_finder, (key & EKEY_SHIFT) != 0)) {
+				//FIXME: show search string
+				message_dialog.set_message("Search string not found");
+				message_dialog.center_over(center_window);
+				message_dialog.show();
+			}
+			break;
+
+/*		case EKEY_CTRL | 'w':
 			executeAction(ActionID::FILE_CLOSE);
 			break;
 */

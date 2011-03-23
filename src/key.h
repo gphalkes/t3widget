@@ -31,6 +31,8 @@ key_t read_key(void);
 #define EKEY_PROTECT 0x08000000
 
 enum {
+	EKEY_IGNORE = (key_t) -1,
+
 	EKEY_END = 0x110000,
 	EKEY_HOME,
 	EKEY_PGUP,
@@ -102,7 +104,7 @@ enum {
 	EKEY_RESIZE = 0x111000,
 	EKEY_HOTKEY,
 	EKEY_EXTERNAL_UPDATE,
-	EKEY_UPDATE_TERMINAL
+	EKEY_UPDATE_TERMINAL,
 };
 
 class complex_error_t;
