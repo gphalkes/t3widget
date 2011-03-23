@@ -79,6 +79,14 @@ _T3_WIDGET_ENUM(find_flags_t,
 	WHOLE_WORD = (1<<6),
 	VALID = (1<<7)
 );
+
+_T3_WIDGET_ENUM(find_action_t,
+	FIND,
+	FIND_NEXT,
+	REPLACE,
+	REPLACE_ALL,
+	REPLACE_IN_SELECTION
+);
 #undef _T3_WIDGET_ENUM
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes);

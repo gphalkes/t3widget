@@ -247,7 +247,7 @@ void dialog_t::focus_previous(void) {
 	(*current_widget)->set_focus(true);
 }
 
-void dialog_t::move_focus(widget_t *target) {
+void dialog_t::focus_set(widget_t *target) {
 	if (!target->accepts_focus())
 		return;
 

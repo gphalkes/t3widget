@@ -14,6 +14,8 @@
 #ifndef T3_WIDGET_FINDDIALOG_H
 #define T3_WIDGET_FINDDIALOG_H
 
+#include <string>
+
 #include "dialogs/dialog.h"
 #include "widgets/textfield.h"
 #include "widgets/checkbox.h"
@@ -45,19 +47,21 @@ class find_dialog_t : public dialog_t {
 		void transform_backslash_toggled(void);
 		void whole_word_toggled(void);
 		void find_activated(void);
+		void find_activated(find_action_t);
 
 	public:
 		find_dialog_t(bool _replace = false);
 		virtual bool set_size(optint height, optint width);
+		virtual void set_text(const std::string *str);
 
-	T3_WIDET_SIGNAL(activate, void, finder_t *);
+	T3_WIDET_SIGNAL(activate, void, find_action_t, finder_t *);
 };
 
 class replace_buttons_dialog_t : public dialog_t {
 	public:
 		replace_buttons_dialog_t(void);
 
-		virtual void set_show(bool show);
+	T3_WIDET_SIGNAL(activate, void, find_action_t);
 };
 
 }; // namespace

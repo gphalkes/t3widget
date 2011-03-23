@@ -74,7 +74,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	cancel_button_up_connection = cancel_button->connect_move_focus_up(
-		sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), file_pane));
+		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
 	ok_button = new button_t(this, "_OK;oO", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
@@ -82,7 +82,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	ok_button_left_connection = ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 	ok_button_up_connection = ok_button->connect_move_focus_up(
-		sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), file_pane));
+		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
 
 	widgets.push_back(name_label);
 	widgets.push_back(file_line);
@@ -113,12 +113,12 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 	ok_button_left_connection.disconnect();
 	ok_button_up_connection.disconnect();
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
-	show_hidden_box->connect_move_focus_down(sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), ok_button));
+	show_hidden_box->connect_move_focus_down(sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), ok_button));
 	dynamic_cast<focus_widget_t *>(*(widgets.end() - 4))->connect_move_focus_down(
-		sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), ok_button));
+		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), ok_button));
 
 	if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != NULL) {
-		focus_widget->connect_move_focus_up(sigc::bind(sigc::mem_fun(this, &file_dialog_t::move_focus), file_pane));
+		focus_widget->connect_move_focus_up(sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
 		focus_widget->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 		focus_widget->connect_move_focus_down(sigc::mem_fun(this, &file_dialog_t::focus_next));
 	}

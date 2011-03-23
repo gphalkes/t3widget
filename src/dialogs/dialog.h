@@ -59,7 +59,7 @@ class dialog_t : public virtual window_component_t, public container_t {
 		virtual void draw_dialog(void);
 		void focus_next(void);
 		void focus_previous(void);
-		void move_focus(widget_t *target);
+		void focus_set(widget_t *target);
 
 	public:
 		virtual bool process_key(key_t key);
