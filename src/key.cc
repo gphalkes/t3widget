@@ -303,7 +303,8 @@ static key_t decode_sequence(bool outer) {
 			sequence.data[sequence.idx++] = c;
 
 			is_prefix = false;
-			if ((matched = (mapping_t *) bsearch(&sequence, map, map_count, sizeof(mapping_t), compare_sequence_with_mapping)) != NULL)
+			if ((matched = (mapping_t *) bsearch(&sequence, map, map_count,
+					sizeof(mapping_t), compare_sequence_with_mapping)) != NULL)
 				return matched->key;
 
 			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised. */
@@ -420,7 +421,7 @@ complex_error_t init_keys(bool separate_keypad) {
 	if (sigprocmask(SIG_UNBLOCK, &sigs, NULL) < 0)
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
 
-	for (i = 1; i < 26; i++)
+	for (i = 1; i <= 26; i++)
 		map_single[i] = EKEY_CTRL | ('a' + i - 1);
 	/* "unmap" TAB */
 	map_single[(int) '\t'] = 0;

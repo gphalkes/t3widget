@@ -854,6 +854,7 @@ void edit_window_t::get_dimensions(int *height, int *width, int *top, int *left)
 //FIXME split and remove
 void edit_window_t::undo(void) {
 	if (text->apply_undo() == 0) {
+		reset_selection();
 		redraw = true;
 		ensure_cursor_on_screen();
 		text->last_set_pos = screen_pos;
@@ -862,6 +863,7 @@ void edit_window_t::undo(void) {
 
 void edit_window_t::redo(void) {
 	if (text->apply_redo() == 0) {
+		reset_selection();
 		redraw = true;
 		ensure_cursor_on_screen();
 		text->last_set_pos = screen_pos;

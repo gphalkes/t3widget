@@ -13,6 +13,7 @@ High Priority
 	done by connecting to signal from constructor and calling disconnect on
 	connection in destructor
 - remove all commented code
+- add widgets to container automatically
 
 Low Priority
 ------------
