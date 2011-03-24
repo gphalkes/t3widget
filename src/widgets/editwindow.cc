@@ -377,7 +377,7 @@ void edit_window_t::delete_selection(void) {
 	reset_selection();
 }
 
-void edit_window_t::find_activated(int action, finder_t *_finder) {
+void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 	finder_t *local_finder;
 
 	local_finder = finder == NULL ? &global_finder : finder;
@@ -389,6 +389,8 @@ void edit_window_t::find_activated(int action, finder_t *_finder) {
 			if (!text->find(local_finder))
 				goto not_found;
 
+			ensure_cursor_on_screen();
+			redraw = true;
 			if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
 				replace_buttons_connection.disconnect();
 				replace_buttons_connection = replace_buttons.connect_activate(
@@ -399,9 +401,15 @@ void edit_window_t::find_activated(int action, finder_t *_finder) {
 			break;
 		case find_action_t::REPLACE:
 			text->replace(local_finder);
-			if (!text->find(local_finder))
+			redraw = true;
+		case find_action_t::SKIP:
+			if (!text->find(local_finder)) {
+				ensure_cursor_on_screen();
 				goto not_found;
-			replace_buttons.show();
+			}
+			redraw = true;
+			ensure_cursor_on_screen();
+			replace_buttons.reshow(action);
 			break;
 		case find_action_t::REPLACE_ALL: {
 			int replacements;
@@ -411,6 +419,7 @@ void edit_window_t::find_activated(int action, finder_t *_finder) {
 
 			if (replacements == 0)
 				goto not_found;
+			redraw = true;
 			break;
 		}
 		case find_action_t::REPLACE_IN_SELECTION:

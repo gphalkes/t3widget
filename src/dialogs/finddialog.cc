@@ -262,17 +262,19 @@ void find_dialog_t::set_state(int _state) {
 //============= replace_buttons_dialog_t ===============
 
 replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Replace") {
-	button_t *find_button, *cancel_button, *replace_all_button, *replace_button;
+	button_t *cancel_button, *replace_all_button;
 	int dialog_width;
 
 	replace_all_button = new button_t(this, "_All;aA");
 	replace_all_button->set_position(1, 2);
+	replace_all_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
 	replace_all_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::REPLACE_ALL));
 	replace_all_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
 
 	replace_button = new button_t(this, "_Replace;rR");
 	replace_button->set_anchor(replace_all_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	replace_button->set_position(0, 2);
+	replace_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
 	replace_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::REPLACE));
 	replace_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 	replace_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
@@ -280,7 +282,8 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	find_button = new button_t(this, "_Find;fF");
 	find_button->set_anchor(replace_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	find_button->set_position(0, 2);
-	find_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::FIND));
+	find_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
+	find_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::SKIP));
 	find_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 	find_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
 
@@ -298,6 +301,20 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	dialog_width = replace_all_button->get_width() + replace_button->get_width() +
 		find_button->get_width() + cancel_button->get_width() + 10;
 	dialog_t::set_size(None, dialog_width);
+}
+
+void replace_buttons_dialog_t::reshow(find_action_t button) {
+	show();
+	switch (button) {
+		case find_action_t::REPLACE:
+			focus_set(replace_button);
+			break;
+		case find_action_t::SKIP:
+			focus_set(find_button);
+			break;
+		default:
+			break;
+	}
 }
 
 }; // namespace

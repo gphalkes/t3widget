@@ -63,8 +63,12 @@ class find_dialog_t : public dialog_t {
 };
 
 class replace_buttons_dialog_t : public dialog_t {
+	protected:
+		button_t *find_button, *replace_button;
+
 	public:
 		replace_buttons_dialog_t(void);
+		virtual void reshow(find_action_t button);
 
 	T3_WIDET_SIGNAL(activate, void, find_action_t);
 };

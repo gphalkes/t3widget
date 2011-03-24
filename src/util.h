@@ -85,6 +85,7 @@ _T3_WIDGET_ENUM(find_flags_t,
 
 _T3_WIDGET_ENUM(find_action_t,
 	FIND,
+	SKIP,
 	REPLACE,
 	REPLACE_ALL,
 	REPLACE_IN_SELECTION

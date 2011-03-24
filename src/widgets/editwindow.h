@@ -65,7 +65,7 @@ class edit_window_t : public widget_t, public center_component_t {
 		void set_selection_mode(key_t key);
 		void delete_selection(void);
 
-		void find_activated(int action, finder_t *finder);
+		void find_activated(find_action_t action, finder_t *finder);
 
 	public:
 		edit_window_t(container_t *parent, text_buffer_t *_text = NULL);
