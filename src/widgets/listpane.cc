@@ -164,8 +164,6 @@ void list_pane_t::set_focus(bool focus) {
 		indicator_widget->set_focus(focus);
 }
 
-bool list_pane_t::accepts_enter(void) { return true; }
-
 void list_pane_t::reset(void) {
 	top_idx = 0;
 	current = 0;

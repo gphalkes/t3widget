@@ -196,8 +196,6 @@ void file_pane_t::set_focus(bool _focus) {
 	}
 }
 
-bool file_pane_t::accepts_enter(void) { return true; }
-
 void file_pane_t::reset(void) {
 	top_idx = 0;
 	current = 0;

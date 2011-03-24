@@ -48,7 +48,6 @@ class file_pane_t : public widget_t, public container_t {
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
-		virtual bool accepts_enter(void);
 		void reset(void);
 		void set_file_list(file_list_t *_file_list);
 		void set_file(const std::string *name);
