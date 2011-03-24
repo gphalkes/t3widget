@@ -229,9 +229,14 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 			} else if (value & ESCAPE_REPLACEMENT) {
 				/* Write a specific invalid UTF-8 string, that we can later recognize.
 				   For this we use the 0xd901-0xd909 range. */
-				t3_unicode_put(value & ~ESCAPE_REPLACEMENT + 0xd900, buffer);
-				str.replace(write_position, strlen(buffer), buffer);
+				t3_unicode_put((value & ~ESCAPE_REPLACEMENT) + 0xd900, buffer);
+				str.replace(write_position, 2, buffer);
+				/* Unfortunately, the expanded escape sequence doesn't fit in the previously
+				   allocated space, so we have to adjust the read_position and max_read_position
+				   as well as the write_position. */
 				write_position += strlen(buffer);
+				read_position += strlen(buffer) - 2;
+				max_read_position = str.size();
 			} else {
 				/*FIXME: handle bytes with values > 0x7f
 				   We should write a value in the range 0xd800-0xd8ff. However, if a

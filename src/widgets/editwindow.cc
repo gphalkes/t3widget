@@ -140,34 +140,7 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 		redraw = true;
 	}
 }
-#if 0
-bool edit_window_t::find(const string *what, int flags, const text_line_t *replacement) {
-	int start_screen_pos;
 
-	if (!text->find(what, flags, replacement))
-		return false;
-
-	start_screen_pos = text->calculate_screen_pos(&text->selection_start);
-	if (text->topleft.pos > start_screen_pos) {
-		text->topleft.pos = start_screen_pos;
-		redraw = true;
-	}
-	if (text->topleft.line > text->selection_start.line) {
-		text->topleft.line = text->selection_start.line;
-		redraw = true;
-	}
-	ensure_cursor_on_screen();
-	text->last_set_pos = screen_pos;
-	return true;
-}
-
-void edit_window_t::replace(void) {
-	text->replace();
-	reset_selection();
-	ensure_cursor_on_screen();
-	text->last_set_pos = screen_pos;
-}
-#endif
 void edit_window_t::repaint_screen(void) {
 	text_coordinate_t current_start, current_end;
 	text_line_t::paint_info_t info;
