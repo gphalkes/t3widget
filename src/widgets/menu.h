@@ -47,7 +47,6 @@ class menu_bar_t : public widget_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void show(void);
-		virtual void hide(void);
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
 		void draw(void);

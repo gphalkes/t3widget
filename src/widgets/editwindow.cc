@@ -632,6 +632,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 */
 		case EKEY_CTRL | 'f': {
+		case EKEY_CTRL | 'r':
 			find_dialog_t *dialog;
 			if (find_dialog == NULL) {
 				global_find_dialog_connection.disconnect();
@@ -642,12 +643,12 @@ bool edit_window_t::process_key(key_t key) {
 				dialog = find_dialog;
 			}
 			dialog->center_over(center_window);
+			dialog->set_replace(key == (EKEY_CTRL | 'r'));
 			//FIXME: set selected text in dialog
 			//dialog->set_text(get_se);
 			dialog->show();
 			break;
 		}
-		case EKEY_CTRL | 'r':
 			//FIXME: show replace dialog
 			break;
 

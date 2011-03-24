@@ -123,12 +123,9 @@ void menu_bar_t::set_focus(bool focus) {
 }
 
 void menu_bar_t::show(void) {
+	shown = true;
 	if (!hidden || has_focus)
 		t3_win_show(window);
-}
-
-void menu_bar_t::hide(void) {
-	t3_win_hide(window);
 }
 
 bool menu_bar_t::is_hotkey(key_t key) {

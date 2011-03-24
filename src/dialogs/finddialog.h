@@ -19,6 +19,7 @@
 #include "dialogs/dialog.h"
 #include "widgets/textfield.h"
 #include "widgets/checkbox.h"
+#include "widgets/button.h"
 #include "findcontext.h"
 #include "util.h"
 
@@ -30,6 +31,7 @@ class find_dialog_t : public dialog_t {
 	protected:
 		friend class replace_buttons_dialog_t;
 
+		smart_label_t *replace_label;
 		text_field_t *find_line, *replace_line;
 		checkbox_t *whole_word_checkbox,
 			*match_case_checkbox,
@@ -37,8 +39,9 @@ class find_dialog_t : public dialog_t {
 			*wrap_checkbox,
 			*transform_backslash_checkbox,
 			*reverse_direction_checkbox;
+		button_t *in_selection_button, *replace_all_button;
+		sigc::connection find_button_up_connection;
 		int state; // State of all the checkboxes converted to FIND_* flags
-		bool replace;
 
 		void backward_toggled(void);
 		void icase_toggled(void);
@@ -50,9 +53,11 @@ class find_dialog_t : public dialog_t {
 		void find_activated(find_action_t);
 
 	public:
-		find_dialog_t(bool _replace = false);
+		find_dialog_t(int _state = find_flags_t::ICASE | find_flags_t::WRAP);
 		virtual bool set_size(optint height, optint width);
 		virtual void set_text(const std::string *str);
+		virtual void set_replace(bool _replace);
+		virtual void set_state(int _state);
 
 	T3_WIDET_SIGNAL(activate, void, find_action_t, finder_t *);
 };
