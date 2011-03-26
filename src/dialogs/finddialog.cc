@@ -218,9 +218,9 @@ void find_dialog_t::find_activated(find_action_t action) {
 		hide();
 		activate(action, &context);
 	} catch (const char *message) {
-		message_dialog.set_message(message);
-		message_dialog.center_over(this);
-		message_dialog.show();
+		message_dialog->set_message(message);
+		message_dialog->center_over(this);
+		message_dialog->show();
 	}
 }
 

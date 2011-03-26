@@ -37,10 +37,8 @@ static int screen_lines, screen_columns;
 static signal<void, int, int> resize;
 static signal<void> update_notification;
 
-insert_char_dialog_t insert_char_dialog;
-#warning FIXME: using _ here does not work because there is no guarantee that the correct calls have been made to set the language.
-#warning FIXME: do we really want to fix the size?
-message_dialog_t message_dialog(MESSAGE_DIALOG_WIDTH, _("Message"));
+insert_char_dialog_t *insert_char_dialog;
+message_dialog_t *message_dialog;
 
 complex_error_t::complex_error_t(void) : success(true), source(SRC_NONE), error(0) {}
 complex_error_t::complex_error_t(source_t _source, int _error) : success(false), source(_source), error(_error) {}
@@ -83,10 +81,12 @@ static signal<void> &on_init() {
 	return *on_init_obj;
 }
 
-connection connect_on_init(const slot<void> &slot) {
-	return on_init().connect(slot);
+/* We let connect_on_init return a bool, because we don't care about the actual
+   sigc::connection and a bool takes less space. */
+bool connect_on_init(const slot<void> &slot) {
+	on_init().connect(slot);
+	return true;
 }
-
 
 static void do_resize(void) {
 	int new_screen_lines, new_screen_columns;
@@ -172,6 +172,10 @@ complex_error_t init(bool separate_keypad) {
 		return result;
 	do_resize();
 	try {
+		/* Construct these here, such that the locale is set correctly and
+		   gettext therefore returns the correctly localized strings. */
+		message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"));
+		insert_char_dialog = new insert_char_dialog_t();
 		on_init()();
 	} catch (bad_alloc &ba) {
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);

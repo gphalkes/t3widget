@@ -36,7 +36,7 @@ class dialog_t : public virtual window_component_t, public container_t {
 		static dummy_widget_t *dummy;
 
 		static void init(void);
-		static sigc::connection init_connection;
+		static bool init_connected;
 
 		void activate_dialog(void);
 		void deactivate_dialog(void);

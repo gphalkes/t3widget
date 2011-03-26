@@ -205,9 +205,9 @@ void file_dialog_t::change_dir(const string *dir) {
 		message += dir->c_str();
 		message += "': ";
 		message += strerror(errno);
-		message_dialog.set_message(&message);
-		message_dialog.center_over(this);
-		message_dialog.show();
+		message_dialog->set_message(&message);
+		message_dialog->center_over(this);
+		message_dialog->show();
 		return;
 	}
 

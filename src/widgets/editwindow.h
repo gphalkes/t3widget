@@ -31,13 +31,14 @@ namespace t3_widget {
 
 class edit_window_t : public widget_t, public center_component_t {
 	protected:
-		static goto_dialog_t goto_dialog;
+		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;
-		static find_dialog_t global_find_dialog;
+		static find_dialog_t *global_find_dialog;
 		static sigc::connection global_find_dialog_connection;
 		static finder_t global_finder;
-		static replace_buttons_dialog_t replace_buttons;
+		static replace_buttons_dialog_t *replace_buttons;
 		static sigc::connection replace_buttons_connection;
+		static bool init_connected;
 
 		t3_window_t *bottomlinewin;
 		scrollbar_t *scrollbar;
@@ -47,6 +48,7 @@ class edit_window_t : public widget_t, public center_component_t {
 		find_dialog_t *find_dialog;
 		finder_t *finder;
 
+		static void init(void);
 		static const char *insstring[];
 		static bool (text_buffer_t::*proces_char[])(key_t);
 

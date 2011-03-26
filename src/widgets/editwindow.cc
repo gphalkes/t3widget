@@ -21,17 +21,25 @@
 using namespace std;
 namespace t3_widget {
 
-goto_dialog_t edit_window_t::goto_dialog;
+goto_dialog_t *edit_window_t::goto_dialog;
 sigc::connection edit_window_t::goto_connection;
-find_dialog_t edit_window_t::global_find_dialog;
+find_dialog_t *edit_window_t::global_find_dialog;
 sigc::connection edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
-replace_buttons_dialog_t edit_window_t::replace_buttons;
+replace_buttons_dialog_t *edit_window_t::replace_buttons;
 sigc::connection edit_window_t::replace_buttons_connection;
-
+bool edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(edit_window_t::init));
 
 const char *edit_window_t::insstring[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
+
+void edit_window_t::init(void) {
+	/* Construct these from t3_widget::init, such that the locale is set correctly and
+	   gettext therefore returns the correctly localized strings. */
+	goto_dialog = new goto_dialog_t();
+	global_find_dialog = new find_dialog_t();
+	replace_buttons = new replace_buttons_dialog_t();
+}
 
 edit_window_t::edit_window_t(container_t *parent, text_buffer_t *_text) : widget_t(parent, 10, 10), find_dialog(NULL), finder(NULL) {
 	if ((bottomlinewin = t3_win_new(parent->get_draw_window(), 1, 11, 0, 0, 0)) == NULL) {
@@ -366,10 +374,10 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			redraw = true;
 			if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
 				replace_buttons_connection.disconnect();
-				replace_buttons_connection = replace_buttons.connect_activate(
+				replace_buttons_connection = replace_buttons->connect_activate(
 					sigc::bind(sigc::mem_fun(this, &edit_window_t::find_activated), (finder_t *) NULL));
-				replace_buttons.center_over(center_window);
-				replace_buttons.show();
+				replace_buttons->center_over(center_window);
+				replace_buttons->show();
 			}
 			break;
 		case find_action_t::REPLACE:
@@ -382,7 +390,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			}
 			redraw = true;
 			ensure_cursor_on_screen();
-			replace_buttons.reshow(action);
+			replace_buttons->reshow(action);
 			break;
 		case find_action_t::REPLACE_ALL: {
 			int replacements;
@@ -405,9 +413,9 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
 not_found:
 	//FIXME: show search string
-	message_dialog.set_message("Search string not found");
-	message_dialog.center_over(center_window);
-	message_dialog.show();
+	message_dialog->set_message("Search string not found");
+	message_dialog->center_over(center_window);
+	message_dialog->show();
 }
 
 //FIXME: make every action into a separate function for readability
@@ -567,10 +575,10 @@ bool edit_window_t::process_key(key_t key) {
 
 		case EKEY_CTRL | 'g':
 			goto_connection.disconnect();
-			goto_connection = goto_dialog.connect_activate(sigc::mem_fun(this, &edit_window_t::goto_line));
-			goto_dialog.center_over(center_window);
-			goto_dialog.reset();
-			goto_dialog.show();
+			goto_connection = goto_dialog->connect_activate(sigc::mem_fun(this, &edit_window_t::goto_line));
+			goto_dialog->center_over(center_window);
+			goto_dialog->reset();
+			goto_dialog->show();
 			break;
 
 		case 0: //CTRL-SPACE (and others)
@@ -618,9 +626,9 @@ bool edit_window_t::process_key(key_t key) {
 			find_dialog_t *dialog;
 			if (find_dialog == NULL) {
 				global_find_dialog_connection.disconnect();
-				global_find_dialog_connection = global_find_dialog.connect_activate(
+				global_find_dialog_connection = global_find_dialog->connect_activate(
 					sigc::mem_fun(this, &edit_window_t::find_activated));
-				dialog = &global_find_dialog;
+				dialog = global_find_dialog;
 			} else {
 				dialog = find_dialog;
 			}
@@ -638,9 +646,9 @@ bool edit_window_t::process_key(key_t key) {
 		case EKEY_F3 | EKEY_SHIFT:
 			if (!text->find(finder != NULL ? finder : &global_finder, (key & EKEY_SHIFT) != 0)) {
 				//FIXME: show search string
-				message_dialog.set_message("Search string not found");
-				message_dialog.center_over(center_window);
-				message_dialog.show();
+				message_dialog->set_message("Search string not found");
+				message_dialog->center_over(center_window);
+				message_dialog->show();
 			}
 			break;
 
@@ -649,9 +657,9 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 */
 		case EKEY_F9:
-			insert_char_dialog.center_over(center_window);
-			insert_char_dialog.reset();
-			insert_char_dialog.show();
+			insert_char_dialog->center_over(center_window);
+			insert_char_dialog->reset();
+			insert_char_dialog->show();
 			break;
 
 		default:

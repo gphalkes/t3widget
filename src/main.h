@@ -47,12 +47,12 @@ class complex_error_t {
 };
 
 //FIXME: shouldn't these be internal?
-extern insert_char_dialog_t insert_char_dialog;
-extern message_dialog_t message_dialog;
+extern insert_char_dialog_t *insert_char_dialog;
+extern message_dialog_t *message_dialog;
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
 sigc::connection connect_update_notification(const sigc::slot<void> &slot);
-sigc::connection connect_on_init(const sigc::slot<void> &slot);
+bool connect_on_init(const sigc::slot<void> &slot);
 
 complex_error_t init(bool separate_keypad = false);
 void iterate(void);

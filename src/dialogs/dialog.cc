@@ -23,7 +23,7 @@ namespace t3_widget {
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
 dummy_widget_t *dialog_t::dummy;
-sigc::connection dialog_t::init_connection = connect_on_init(sigc::ptr_fun(dialog_t::init));
+bool dialog_t::init_connected = connect_on_init(sigc::ptr_fun(dialog_t::init));
 
 void dialog_t::init(void) {
 	dummy = new dummy_widget_t();

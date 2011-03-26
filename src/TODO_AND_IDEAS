@@ -33,6 +33,9 @@ Low Priority
 - Allow the text_window_t to be set to read-only mode. This way it can also be
 	used for just displaying text (perhaps the bottom line should also be
 	disabled for that use)
+- perhaps it would be nice to let connect_on_init return a bool, because we
+	don't really care about the return value anyway. That way, it takes less
+	space.
 
 New Functionality
 -----------------

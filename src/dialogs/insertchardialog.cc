@@ -113,9 +113,9 @@ void insert_char_dialog_t::ok_activate(void) {
 		string message = _("Invalid character description: '");
 		message += description_line->get_text()->c_str();
 		message += '\'';
-		message_dialog.set_message(&message);
-		message_dialog.center_over(this);
-		message_dialog.show();
+		message_dialog->set_message(&message);
+		message_dialog->center_over(this);
+		message_dialog->show();
 	}
 }
 
