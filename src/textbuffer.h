@@ -24,8 +24,6 @@
 #include "main.h"
 #include "interfaces.h"
 #include "findcontext.h"
-//#include "charactersets.h"
-//#include "filestate.h"
 
 namespace t3_widget {
 
@@ -53,7 +51,7 @@ class text_buffer_t {
 		undo_type_t last_undo_type;
 		undo_t *last_undo;
 		char *name;
-		text_line_t *name_line;
+		text_line_t name_line;
 
 		text_coordinate_t cursor, topleft;
 		int ins_mode, last_set_pos;
@@ -79,18 +77,12 @@ class text_buffer_t {
 		int merge_internal(int line);
 		bool break_line_internal(void);
 
-		/* static char *resolve_links(const char *startName);
-		static char *canonicalize_path(const char *name); */
-
 		void set_selection_from_find(int line, find_result_t *result);
 	public:
 		text_buffer_t(void);
 		text_buffer_t(const char *_name);
 		void common_init(void);
 		virtual ~text_buffer_t(void);
-
-/*		RWResult load(LoadState *load);
-		RWResult save(SaveState *state);*/
 
 		int get_used_lines(void) const;
 		void set_tabsize(int tabsize);
@@ -102,15 +94,7 @@ class text_buffer_t {
 		bool append_char(key_t c);
 		int delete_char(void);
 		int backspace_char(void);
-		// FIXME: these functions are not used yet
-		//~ int insertString(int line, int pos, char *string);
-		//~ int appendString(int line, char *string);
-		//~ int deleteString(int line, int pos, int n);
-		//~ int searchString(int line, int pos, char *string);
-		//~ int isearchString(int line, int pos, char *string);
-		//~ int replaceString(int line, int pos, int n, char *string);
 		int merge(bool backspace);
-
 
 		bool break_line(void);
 		void new_line(void);
@@ -142,19 +126,12 @@ class text_buffer_t {
 		int apply_undo(void);
 		int apply_redo(void);
 
-/* 		#ifdef DEBUG
-		void dump_undo(void) { undo_list.dump(); }
-		#endif */
-
 		bool is_modified(void) { return !undo_list.is_at_mark(); }
 
-		//~ bool find(const std::string *what, int flags, const text_line_t *replacement);
 		bool find(finder_t *finder, bool reverse = false);
-		//~ void replace(void);
 		void replace(finder_t *finder);
 
 		const char *get_name(void) const;
-
 };
 
 }; // namespace

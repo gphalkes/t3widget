@@ -41,7 +41,9 @@ void edit_window_t::init(void) {
 	replace_buttons = new replace_buttons_dialog_t();
 }
 
-edit_window_t::edit_window_t(text_buffer_t *_text) : find_dialog(NULL), finder(NULL) {
+edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_line_window(NULL), scrollbar(true),
+		find_dialog(NULL), finder(NULL)
+{
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
 		throw bad_alloc();
@@ -54,10 +56,9 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : find_dialog(NULL), finder(N
 	t3_win_set_anchor(bottom_line_window, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	t3_win_show(bottom_line_window);
 
-	scrollbar = new scrollbar_t(true);
-	set_widget_parent(scrollbar);
-	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	scrollbar->set_size(10, None);
+	set_widget_parent(&scrollbar);
+	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	scrollbar.set_size(10, None);
 
 	if (_text == NULL)
 		text = new text_buffer_t();
@@ -74,30 +75,13 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : find_dialog(NULL), finder(N
 }
 
 edit_window_t::~edit_window_t(void) {
-/* 	#ifdef DEBUG
-	text->dump_undo();
-	#endif */
-	//~ unshow_file();
 	t3_win_del(edit_window);
 	t3_win_del(bottom_line_window);
-	delete scrollbar;
-	//FIXME: implement proper clean-up
 }
 
 void edit_window_t::set_text(text_buffer_t *_text) {
 	if (text == _text)
 		return;
-
-/*	unshow_file();
-	if (_text->window != NULL) {
-		text->window = NULL;
-		text = NULL;
-		_text->window->next_buffer();
-		if (_text->window != NULL) {
-			text_buffer_t *replacement = new text_buffer_t();
-			_text->window->set_text_file(replacement);
-		}
-	}*/
 
 	text = _text;
 	text->window = this;
@@ -115,7 +99,7 @@ bool edit_window_t::set_size(optint height, optint width) {
 	result &= t3_win_resize(window, height, width);
 	result &= t3_win_resize(edit_window, height - 1, width - 1);
 	result &= t3_win_resize(bottom_line_window, 1, width);
-	result &= scrollbar->set_size(height - 1, None);
+	result &= scrollbar.set_size(height - 1, None);
 
 	if (text->get_wrap()) {
 		text->rewrap();
@@ -548,14 +532,7 @@ bool edit_window_t::process_key(key_t key) {
 				delete_selection();
 			}
 			break;
-/*
-		case EKEY_CTRL | 'q':
-			executeAction(ActionID::FILE_EXIT);
-			break;
-		case EKEY_CTRL | 'o':
-			executeAction(ActionID::FILE_OPEN);
-			break;
-*/
+
 		case EKEY_CTRL | 'c':
 		case EKEY_INS | EKEY_CTRL:
 			cut_copy(false);
@@ -611,23 +588,7 @@ bool edit_window_t::process_key(key_t key) {
 			if (text->selection_mode == selection_mode_t::MARK)
 				reset_selection();
 			break;
-/*
-		case EKEY_CTRL | 's':
-			//executeAction(FILE_SAVE);
-			save(); // Spare the trip through all the components, and just call save here
-			break;
 
-		case EKEY_F6:
-			next_buffer();
-			break;
-		case EKEY_F6 | EKEY_SHIFT:
-			previous_buffer();
-			break;
-
-		case EKEY_CTRL | 'n':
-			executeAction(ActionID::FILE_NEW);
-			break;
-*/
 		case EKEY_CTRL | 'f': {
 		case EKEY_CTRL | 'r':
 			find_dialog_t *dialog;
@@ -642,12 +603,10 @@ bool edit_window_t::process_key(key_t key) {
 			dialog->center_over(center_window);
 			dialog->set_replace(key == (EKEY_CTRL | 'r'));
 			//FIXME: set selected text in dialog
-			//dialog->set_text(get_se);
+			//dialog->set_text(text->get_selected_text());
 			dialog->show();
 			break;
 		}
-			//FIXME: show replace dialog
-			break;
 
 		case EKEY_F3:
 		case EKEY_F3 | EKEY_SHIFT:
@@ -659,10 +618,6 @@ bool edit_window_t::process_key(key_t key) {
 			}
 			break;
 
-/*		case EKEY_CTRL | 'w':
-			executeAction(ActionID::FILE_CLOSE);
-			break;
-*/
 		case EKEY_F9:
 			insert_char_dialog->center_over(center_window);
 			insert_char_dialog->reset();
@@ -729,9 +684,9 @@ void edit_window_t::update_contents(void) {
 	t3_win_set_paint(bottom_line_window, 0, 0);
 	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
 
-	scrollbar->set_parameters(max(text->get_used_lines(), text->topleft.line + t3_win_get_height(edit_window)),
+	scrollbar.set_parameters(max(text->get_used_lines(), text->topleft.line + t3_win_get_height(edit_window)),
 		text->topleft.line, t3_win_get_height(edit_window));
-	scrollbar->update_contents();
+	scrollbar.update_contents();
 
 	text->get_line_info(&logical_cursor_pos);
 	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1, text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
@@ -740,9 +695,9 @@ void edit_window_t::update_contents(void) {
 
 	/* FIXME: is it really necessary to do this on each key stroke??? */
 	t3_win_set_paint(bottom_line_window, 0, 0);
-	if (text->name_line->calculate_screen_width(0, text->name_line->get_length(), 1) > name_width) {
+	if (text->name_line.calculate_screen_width(0, text->name_line.get_length(), 1) > name_width) {
 		t3_win_addstr(bottom_line_window, "..", colors.dialog_attrs);
-		paint_info.start = text->name_line->adjust_position(text->name_line->get_length(), -(name_width - 2));
+		paint_info.start = text->name_line.adjust_position(text->name_line.get_length(), -(name_width - 2));
 		paint_info.size = name_width - 2;
 	} else {
 		paint_info.start = 0;
@@ -758,7 +713,7 @@ void edit_window_t::update_contents(void) {
 	paint_info.normal_attr = 0;
 	paint_info.selected_attr = 0;
 
-	text->name_line->paint_line(bottom_line_window, &paint_info);
+	text->name_line.paint_line(bottom_line_window, &paint_info);
 
 	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);
 	t3_win_addstr(bottom_line_window, info, 0);
@@ -784,44 +739,6 @@ void edit_window_t::set_focus(bool _focus) {
 	}
 }
 
-/* void edit_window_t::next_buffer(void) {
-	OpenFiles::iterator current;
-	for (current = openFiles.begin(); current != openFiles.end() && *current != text; current++) {}
-
-	for (OpenFiles::iterator iter = current; iter != openFiles.end(); iter++) {
-		if ((*iter)->window == NULL) {
-			set_text_file(*iter);
-			return;
-		}
-	}
-
-	for (OpenFiles::iterator iter = openFiles.begin(); iter != current; iter++) {
-		if ((*iter)->window == NULL) {
-			set_text_file(*iter);
-			return;
-		}
-	}
-}
-
-void edit_window_t::previous_buffer(void) {
-	OpenFiles::reverse_iterator current;
-	for (current = openFiles.rbegin(); current != openFiles.rend() && *current != text; current++) {}
-
-	for (OpenFiles::reverse_iterator iter = current; iter != openFiles.rend(); iter++) {
-		if ((*iter)->window == NULL) {
-			set_text_file(*iter);
-			return;
-		}
-	}
-
-	for (OpenFiles::reverse_iterator iter = openFiles.rbegin(); iter != current; iter++) {
-		if ((*iter)->window == NULL) {
-			set_text_file(*iter);
-			return;
-		}
-	}
-} */
-
 void edit_window_t::get_dimensions(int *height, int *width, int *top, int *left) {
 	*height = t3_win_get_height(edit_window) + 1;
 	*width = t3_win_get_width(edit_window);
@@ -829,17 +746,7 @@ void edit_window_t::get_dimensions(int *height, int *width, int *top, int *left)
 	*left = t3_win_get_x(edit_window);
 }
 
-/*void edit_window_t::unshow_file(void) {
-	text->window = NULL;
-	if (text->name == NULL && !text->is_modified() && is_backup_file) {
-		OpenFiles::iterator current;
-		for (current = openFiles.begin(); current != openFiles.end() && *current != text; current++) {}
-		openFiles.erase(current);
-		delete text;
-	}
-}*/
 
-//FIXME split and remove
 void edit_window_t::undo(void) {
 	if (text->apply_undo() == 0) {
 		reset_selection();
@@ -869,13 +776,6 @@ void edit_window_t::cut_copy(bool cut) {
 			delete copy_buffer;
 
 		copy_buffer = text->convert_selection();
-/*		#ifdef DEBUG
-		lprintf("Copy buffer contents: '");
-		ldumpstr(copy_buffer->getData()->data(), copy_buffer->get_length());
-		lprintf("'\n");
-		#else
-		lprintf("Copy buffer contents ommited because not compiled in debug mode\n");
-		#endif*/
 
 		if (cut)
 			delete_selection();
@@ -904,45 +804,7 @@ void edit_window_t::select_all(void) {
 	text->set_selection_end(text->get_used_lines() - 1, text->get_line_max(text->get_used_lines() - 1));
 	redraw = true;
 }
-/*
-void edit_window_t::save(void) {
-	//FIXME: check mem alloc errors
-	(*new SaveState(text))();
-}
 
-void edit_window_t::save_as(const string *name, Encoding *encoding) {
-	//FIXME: check mem alloc errors (also strdup!)
-	(*new SaveState(text, strdup(name->c_str()), encoding))();
-}
-
-void edit_window_t::close(bool force) {
-	OpenFiles::iterator current, closed;
-
-	if (text->is_modified() && !force) {
-		activate_window(WindowID::CLOSE_CONFIRM, text->name);
-		return;
-	}
-
-	for (current = openFiles.begin(); current != openFiles.end() && *current != text; current++) {}
-	recentFiles.push_front(*current);
-	closed = openFiles.erase(current);
-
-	for (current = closed; current != openFiles.end() && (*current)->window != NULL; current++) {}
-	//FIXME: go back, rather than to front if we reached the end
-	if (current == openFiles.end())
-		for (current = openFiles.begin(); current != closed && (*current)->window != NULL; current++) {}
-	if (current != openFiles.end() && (*current)->window == NULL) {
-		(*current)->window = this;
-		this->text = *current;
-	} else {
-		text = new text_buffer_t();
-		text->window = this;
-		is_backup_file = true;
-	}
-	ensure_cursor_on_screen();
-	redraw = true;
-}
-*/
 void edit_window_t::goto_line(int line) {
 	if (line < 1)
 		return;
@@ -964,6 +826,14 @@ bool edit_window_t::get_selection_lines(int *top, int *bottom) {
 
 const text_buffer_t *edit_window_t::get_text_file(void) {
 	return text;
+}
+
+void edit_window_t::set_find_dialog(find_dialog_t *_find_dialog) {
+	find_dialog = _find_dialog;
+}
+
+void edit_window_t::set_finder(finder_t *_finder) {
+	finder = _finder;
 }
 
 }; // namespace

@@ -68,81 +68,21 @@ text_buffer_t::~text_buffer_t(void) {
     /* Free all the text_line_t structs */
     for (i = 0; (size_t) i < lines.size(); i++)
 		delete lines[i];
-	//free(name);
+	free(name);
 }
 
 /* Read 'file' into memory. Returns NULL on failure or an initialized
    text_buffer_t struct on succes */
-text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79), name_line(NULL) {
+text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79) {
 	if ((name = strdup(_name)) == NULL)
 		throw bad_alloc();
 }
-
-#if 0
-RWResult text_buffer_t::load(LoadState *state) {
-	string *line;
-
-	if (state->file != this)
-		PANIC();
-
-	switch (state->state) {
-		case LoadState::INITIAL: {
-			char *_name;
-
-			if ((_name = canonicalize_path(name)) == NULL)
-				return RWResult(RWResult::ERRNO_ERROR, errno);
-
-			free(name);
-			name = _name;
-
-			if ((state->fd = open(name, O_RDONLY)) < 0)
-				return RWResult(RWResult::ERRNO_ERROR, errno);
-
-			try {
-				name_line = new text_line_t(name);
-				state->wrapper = new FileReadWrapper(state->fd, encoding->getHandle());
-			} catch (bad_alloc &ba) {
-				return RWResult(RWResult::ERRNO_ERROR, ENOMEM);
-			}
-			state->state = LoadState::READING;
-		}
-		case LoadState::READING:
-			try {
-				while ((line = state->wrapper->readLine()) != NULL) {
-					if (lines.size() == 0 && line->size() >= 3 && encoding->get_index() == utf8CharacterSetIndex &&
-							memcmp(line->c_str(), BOM_STRING, 3) == 0)
-					{
-						file_has_bom = true;
-						line->erase(0, 3);
-					}
-
-					/* Allocate a new text_line_t struct and initialize it with the newly read line */
-					try {
-						lines.push_back(new text_line_t(line));
-					} catch (...) {
-						delete line;
-						return RWResult(RWResult::ERRNO_ERROR, ENOMEM);
-					}
-					delete line;
-				}
-			} catch (RWResult &result) {
-				return result;
-			}
-			break;
-		default:
-			PANIC();
-	}
-	common_init();
-	return RWResult(RWResult::SUCCESS);
-}
-#endif
 
 /* Create a new, 'empty' text_buffer_t structure */
 text_buffer_t::text_buffer_t(void) : wrap_width(79), name(NULL) {
 	/* Allocate a new, empty line */
 	lines.push_back(new text_line_t());
 	common_init();
-	name_line = new text_line_t("");
 }
 
 void text_buffer_t::common_init(void) {
@@ -165,152 +105,7 @@ void text_buffer_t::common_init(void) {
 	window = NULL;
 	file_has_bom = false;
 }
-#if 0
-char *text_buffer_t::resolve_links(const char *startName) {
-	long buffer_max = pathconf("/", _PC_PATH_MAX);
 
-	if (buffer_max < PATH_MAX)
-		buffer_max = PATH_MAX;
-
-	char buffer[buffer_max + 1];
-	ssize_t retval;
-
-	while ((retval = readlink(startName, buffer, buffer_max)) > 0) {
-		if (retval == buffer_max)
-			return NULL;
-		buffer[retval] = 0;
-		startName = buffer;
-	}
-	return strdup(startName);
-}
-
-char *text_buffer_t::canonicalize_path(const char *path) {
-	string result;
-
-	if (path[0] != '/') {
-		result = get_working_directory();
-		result += "/";
-	}
-
-	result += path;
-
-	/* TODO:
-		- remove all occurences of // and /./
-	    - remove all occurences of ^/..
-		- remove all occurences of XXX/../
-	*/
-	return strdup(result.c_str());
-}
-
-RWResult text_buffer_t::save(SaveState *state) {
-	size_t idx;
-	const char *save_name;
-	charconv_t *handle;
-
-	if (state->file != this)
-		PANIC();
-
-	switch (state->state) {
-		case SaveState::INITIAL:
-			if (state->name == NULL) {
-				if (name == NULL)
-					PANIC();
-				save_name = name;
-			} else {
-				save_name = state->name;
-			}
-
-			if ((state->realName = resolve_links(save_name)) == NULL)
-				return RWResult(RWResult::ERRNO_ERROR, ENAMETOOLONG);
-
-			if (stat(state->realName, &state->file_info) < 0) {
-				if (errno == ENOENT) {
-					if ((state->fd = creat(state->realName, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)) < 0)
-						return RWResult(RWResult::ERRNO_ERROR, errno);
-				} else {
-					return RWResult(RWResult::ERRNO_ERROR, errno);
-				}
-			} else {
-				state->state = SaveState::ALLOW_OVERWRITE;
-				if (state->name != NULL)
-					return RWResult(RWResult::FILE_EXISTS);
-		case SaveState::ALLOW_OVERWRITE:
-				string temp_name_str = state->realName;
-
-				if ((idx = temp_name_str.rfind('/')) == string::npos)
-					idx = 0;
-				else
-					idx++;
-
-				temp_name_str.erase(idx);
-				try {
-					temp_name_str.append(".tildeXXXXXX");
-				} catch (bad_alloc &ba) {
-					return RWResult(RWResult::ERRNO_ERROR, ENOMEM);
-				}
-
-				/* Unfortunately, we can't pass the c_str result to mkstemp as we are not allowed
-				   to change that string. So we'll just have to strdup it :-( */
-				if ((state->tempName = strdup(temp_name_str.c_str())) == NULL)
-					return RWResult(RWResult::ERRNO_ERROR, errno);
-
-				if ((state->fd = mkstemp(state->tempName)) < 0)
-					return RWResult(RWResult::ERRNO_ERROR, errno);
-
-				// Preserve ownership and attributes
-				fchmod(state->fd, state->file_info.st_mode);
-				fchown(state->fd, -1, state->file_info.st_gid);
-				fchown(state->fd, state->file_info.st_uid, -1);
-			}
-
-			if (state->encoding != NULL)
-				handle = state->encoding->getHandle();
-			else if (encoding != NULL)
-				handle = encoding->getHandle();
-			else
-				handle = NULL;
-			state->wrapper = new FileWriteWrapper(state->fd, handle);
-			state->i = 0;
-			state->state = SaveState::WRITING;
-		case SaveState::WRITING:
-			try {
-				if (file_has_bom && state->i == 0)
-					state->wrapper->write(BOM_STRING, 3);
-
-				if (state->i != 0)
-					state->wrapper->write("\n", 1);
-
-				for (; state->i < lines.size(); state->i++)
-					lines[state->i]->writeLineData(state->wrapper, state->i < lines.size() - 1);
-			} catch (RWResult error) {
-				return error;
-			}
-
-			fsync(state->fd);
-			close(state->fd);
-			state->fd = -1;
-			if (state->tempName != NULL) {
-				if (rename(state->tempName, state->realName) < 0)
-					return RWResult(RWResult::ERRNO_ERROR, errno);
-			}
-
-			if (state->newName != NULL) {
-				free(name);
-				delete name_line;
-				name = state->newName;
-				name_line = state->newNameLine;
-				state->newName = NULL;
-				state->newNameLine = NULL;
-			}
-			undo_list.setMark();
-			last_undo_type = UNDO_NONE;
-			break;
-		default:
-			PANIC();
-	}
-	return RWResult(RWResult::SUCCESS);
-}
-#endif
 int text_buffer_t::get_used_lines(void) const {
 	return wrap ? wraplines.size() : lines.size();
 }
@@ -456,14 +251,6 @@ int text_buffer_t::backspace_char(void) {
 	last_undo_position = cursor;
 	return retval;
 }
-
-// FIXME: these functions are not used yet
-//~ int text_buffer_t::insertString(int line, int pos, char *string);
-//~ int text_buffer_t::appendString(int line, char *string);
-//~ int text_buffer_t::deleteString(int line, int pos, int n);
-//~ int text_buffer_t::searchString(int line, int pos, char *string);
-//~ int text_buffer_t::isearchString(int line, int pos, char *string);
-//~ int text_buffer_t::replaceString(int line, int pos, int n, char *string);
 
 int text_buffer_t::find_line(int idx) const {
 	text_line_t *line = wraplines[idx]->get_line();

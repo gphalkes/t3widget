@@ -41,7 +41,7 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		static bool init_connected;
 
 		t3_window_t *edit_window, *bottom_line_window;
-		scrollbar_t *scrollbar;
+		scrollbar_t scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
 		bool focus, hard_cursor;
@@ -77,17 +77,9 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 
-/*		void next_buffer(void);
-		void previous_buffer(void);*/
-
-/*		void save(void);
-		void save_as(const std::string *name, Encoding *encoding);*/
-
 		void close(bool force);
 		void goto_line(int line);
 
-		//~ bool find(const std::string *what, int flags, const text_line_t *replacement);
-		//~ void replace(void);
 		void get_dimensions(int *height, int *width, int *top, int *left);
 		bool get_selection_lines(int *top, int *bottom);
 
@@ -97,6 +89,8 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		void paste(void);
 		void select_all(void);
 		const text_buffer_t *get_text_file(void);
+		void set_find_dialog(find_dialog_t *_find_dialog);
+		void set_finder(finder_t *_finder);
 };
 
 }; // namespace
