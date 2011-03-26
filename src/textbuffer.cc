@@ -71,7 +71,6 @@ text_buffer_t::~text_buffer_t(void) {
 	//free(name);
 }
 
-#warning FIXME: make constructors with edit_window_t parameter such that rewrapping will not be necessary
 /* Read 'file' into memory. Returns NULL on failure or an initialized
    text_buffer_t struct on succes */
 text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79), name_line(NULL) {
@@ -147,12 +146,8 @@ text_buffer_t::text_buffer_t(void) : wrap_width(79), name(NULL) {
 }
 
 void text_buffer_t::common_init(void) {
-	#warning FIXME: there is no way to set wrap or tabsize now!
 	tabsize = 8;
 	wrap = false;
-
-	if (wrap)
-		init_wrap_lines();
 
 	selection_start.pos = -1;
 	selection_start.line = 0;
@@ -169,7 +164,6 @@ void text_buffer_t::common_init(void) {
 	last_undo_type = UNDO_NONE;
 	window = NULL;
 	file_has_bom = false;
-	//~ openFiles.push_back(this);
 }
 #if 0
 char *text_buffer_t::resolve_links(const char *startName) {
@@ -1457,6 +1451,28 @@ void text_buffer_t::replace(finder_t *finder) {
 
 const char *text_buffer_t::get_name(void) const {
 	return name;
+}
+
+void text_buffer_t::set_tabsize(int _tabsize) {
+	if (tabsize < 1 || tabsize > 32)
+		return;
+	tabsize = _tabsize;
+	if (wrap)
+		rewrap();
+	if (window != NULL)
+		window->force_redraw();
+}
+
+void text_buffer_t::set_wrap(bool _wrap) {
+	wrap = _wrap;
+	if (wrap) {
+		init_wrap_lines();
+	} else {
+		wraplines.clear();
+		wraplines.reserve(0);
+	}
+	if (window != NULL)
+		window->force_redraw();
 }
 
 }; // namespace

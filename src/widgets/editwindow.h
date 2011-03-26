@@ -40,7 +40,7 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		static sigc::connection replace_buttons_connection;
 		static bool init_connected;
 
-		t3_window_t *edit_window, *bottomlinewin;
+		t3_window_t *edit_window, *bottom_line_window;
 		scrollbar_t *scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
@@ -49,7 +49,7 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		finder_t *finder;
 
 		static void init(void);
-		static const char *insstring[];
+		static const char *ins_string[];
 		static bool (text_buffer_t::*proces_char[])(key_t);
 
 		void ensure_cursor_on_screen(void);

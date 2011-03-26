@@ -18,8 +18,6 @@
 #include "colorscheme.h"
 #include "internal.h"
 
-#warning FIXME: some clean up of the variable names is required (see .h file)
-
 using namespace std;
 namespace t3_widget {
 
@@ -32,7 +30,7 @@ replace_buttons_dialog_t *edit_window_t::replace_buttons;
 sigc::connection edit_window_t::replace_buttons_connection;
 bool edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(edit_window_t::init));
 
-const char *edit_window_t::insstring[] = {"INS", "OVR"};
+const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
 void edit_window_t::init(void) {
@@ -49,12 +47,12 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : find_dialog(NULL), finder(N
 		throw bad_alloc();
 	t3_win_show(edit_window);
 
-	if ((bottomlinewin = t3_win_new(window, 1, 11, 0, 0, 0)) == NULL) {
+	if ((bottom_line_window = t3_win_new(window, 1, 11, 0, 0, 0)) == NULL) {
 		t3_win_del(edit_window);
 		throw bad_alloc();
 	}
-	t3_win_set_anchor(bottomlinewin, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	t3_win_show(bottomlinewin);
+	t3_win_set_anchor(bottom_line_window, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+	t3_win_show(bottom_line_window);
 
 	scrollbar = new scrollbar_t(true);
 	set_widget_parent(scrollbar);
@@ -81,7 +79,7 @@ edit_window_t::~edit_window_t(void) {
 	#endif */
 	//~ unshow_file();
 	t3_win_del(edit_window);
-	t3_win_del(bottomlinewin);
+	t3_win_del(bottom_line_window);
 	delete scrollbar;
 	//FIXME: implement proper clean-up
 }
@@ -116,7 +114,7 @@ bool edit_window_t::set_size(optint height, optint width) {
 
 	result &= t3_win_resize(window, height, width);
 	result &= t3_win_resize(edit_window, height - 1, width - 1);
-	result &= t3_win_resize(bottomlinewin, 1, width);
+	result &= t3_win_resize(bottom_line_window, 1, width);
 	result &= scrollbar->set_size(height - 1, None);
 
 	if (text->get_wrap()) {
@@ -727,23 +725,23 @@ void edit_window_t::update_contents(void) {
 	}
 
 	t3_win_set_default_attrs(edit_window, colors.text_attrs);
-	t3_win_set_default_attrs(bottomlinewin, colors.menubar_attrs);
-	t3_win_set_paint(bottomlinewin, 0, 0);
-	t3_win_addchrep(bottomlinewin, ' ', 0, t3_win_get_width(bottomlinewin));
+	t3_win_set_default_attrs(bottom_line_window, colors.menubar_attrs);
+	t3_win_set_paint(bottom_line_window, 0, 0);
+	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
 
 	scrollbar->set_parameters(max(text->get_used_lines(), text->topleft.line + t3_win_get_height(edit_window)),
 		text->topleft.line, t3_win_get_height(edit_window));
 	scrollbar->update_contents();
 
 	text->get_line_info(&logical_cursor_pos);
-	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1, text->is_modified() ? '*' : ' ', insstring[text->ins_mode]);
+	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1, text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
 	info_width = t3_term_strwidth(info);
-	name_width = t3_win_get_width(bottomlinewin) - info_width - 3;
+	name_width = t3_win_get_width(bottom_line_window) - info_width - 3;
 
 	/* FIXME: is it really necessary to do this on each key stroke??? */
-	t3_win_set_paint(bottomlinewin, 0, 0);
+	t3_win_set_paint(bottom_line_window, 0, 0);
 	if (text->name_line->calculate_screen_width(0, text->name_line->get_length(), 1) > name_width) {
-		t3_win_addstr(bottomlinewin, "..", colors.dialog_attrs);
+		t3_win_addstr(bottom_line_window, "..", colors.dialog_attrs);
 		paint_info.start = text->name_line->adjust_position(text->name_line->get_length(), -(name_width - 2));
 		paint_info.size = name_width - 2;
 	} else {
@@ -760,10 +758,10 @@ void edit_window_t::update_contents(void) {
 	paint_info.normal_attr = 0;
 	paint_info.selected_attr = 0;
 
-	text->name_line->paint_line(bottomlinewin, &paint_info);
+	text->name_line->paint_line(bottom_line_window, &paint_info);
 
-	t3_win_set_paint(bottomlinewin, 0, t3_win_get_width(bottomlinewin) - strlen(info) - 1);
-	t3_win_addstr(bottomlinewin, info, 0);
+	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);
+	t3_win_addstr(bottom_line_window, info, 0);
 	if (focus) {
 		if (hard_cursor) {
 			t3_win_set_cursor(edit_window, text->cursor.line - text->topleft.line, screen_pos - text->topleft.pos);

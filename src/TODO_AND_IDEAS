@@ -12,9 +12,7 @@ High Priority
 - dialogs need to be notified of color change and then call force_redraw. Best
 	done by connecting to signal from constructor and calling disconnect on
 	connection in destructor
-- remove all commented code
-- editwindow should be a single t3_window to the outside to make sure it behaves
-	as expected
+- remove all commented code [include #if 0!!!]
 
 Low Priority
 ------------

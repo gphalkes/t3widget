@@ -126,6 +126,7 @@ class text_buffer_t {
 		void adjust_position(int adjust);
 		void rewrap(void);
 		bool get_wrap(void) const;
+		void set_wrap(bool _wrap);
 		int width_at_cursor(void) const;
 
 		void set_selection_start(int line, int pos);
@@ -153,6 +154,7 @@ class text_buffer_t {
 		void replace(finder_t *finder);
 
 		const char *get_name(void) const;
+
 };
 
 }; // namespace
