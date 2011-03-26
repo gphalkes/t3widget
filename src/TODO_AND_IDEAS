@@ -13,7 +13,10 @@ High Priority
 	done by connecting to signal from constructor and calling disconnect on
 	connection in destructor
 - remove all commented code
-- add widgets to container automatically
+- remove parent setting from widget constructor; use temporary hidden unbacked
+	parent; set parent on add to container; remove container_t interface
+- editwindow should be a single t3_window to the outside to make sure it behaves
+	as expected
 
 Low Priority
 ------------
@@ -24,8 +27,6 @@ Low Priority
 	proper overriding
 - many widgets can be made aggregated types, rather than pointers. This does
 	mean calling the constructor from the initializer list.
-- the current content list stuff and file_pane_t interface are messy. This
-	definately needs more work.
 - dialog destructors must be tested. With the constructors of the different
 	widgets being called separately, we have to make sure we delete all of them
 	even if the constructor is stopped half way.

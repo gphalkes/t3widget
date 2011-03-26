@@ -23,22 +23,20 @@ namespace t3_widget {
 
 class dialog_t;
 typedef std::list<dialog_t *> dialogs_t;
-class main_window_base_t;
 class complex_error_t;
 
 class dialog_t : public virtual window_component_t, public container_t {
 	private:
 		friend void iterate(void);
-		friend complex_error_t init(main_window_base_t *main_window, bool separate_keypad);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
 
 		static dialogs_t dialogs;
 		static int dialog_depth;
-		static dialog_t *main_window;
 		static dummy_widget_t *dummy;
 
-		static void init(main_window_base_t *_main_window);
+		static void init(void);
+		static sigc::connection init_connection;
 
 		void activate_dialog(void);
 		void deactivate_dialog(void);

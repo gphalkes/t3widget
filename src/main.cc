@@ -16,6 +16,7 @@
 #include <cstring>
 #include <key/key.h>
 #include <charconv.h>
+#include <cerrno>
 
 #include "main.h"
 #include "log.h"
@@ -76,6 +77,16 @@ connection connect_resize(const slot<void, int, int> &slot) {
 connection connect_update_notification(const slot<void> &slot) {
 	return update_notification.connect(slot);
 }
+
+static signal<void> &on_init() {
+	static signal<void> *on_init_obj = new signal<void>();
+	return *on_init_obj;
+}
+
+connection connect_on_init(const slot<void> &slot) {
+	return on_init().connect(slot);
+}
+
 
 static void do_resize(void) {
 	int new_screen_lines, new_screen_columns;
@@ -138,7 +149,7 @@ static void terminal_specific_setup(void) {
 	atexit(terminal_specific_restore);
 }
 
-complex_error_t init(main_window_base_t *main_window, bool separate_keypad) {
+complex_error_t init(bool separate_keypad) {
 	complex_error_t result;
 	int term_init_result;
 
@@ -160,7 +171,11 @@ complex_error_t init(main_window_base_t *main_window, bool separate_keypad) {
 	if (!result.get_success())
 		return result;
 	do_resize();
-	dialog_t::init(main_window);
+	try {
+		on_init()();
+	} catch (bad_alloc &ba) {
+		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
+	}
 	return result;
 }
 

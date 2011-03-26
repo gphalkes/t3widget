@@ -22,17 +22,11 @@ namespace t3_widget {
 
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
-dialog_t *dialog_t::main_window;
 dummy_widget_t *dialog_t::dummy;
+sigc::connection dialog_t::init_connection = connect_on_init(sigc::ptr_fun(dialog_t::init));
 
-void dialog_t::init(main_window_base_t *_main_window) {
+void dialog_t::init(void) {
 	dummy = new dummy_widget_t();
-
-	main_window = _main_window;
-	dialogs.push_back(main_window);
-	main_window->active = true;
-	main_window->show();
-	main_window->set_focus(true);
 }
 
 dialog_t::dialog_t(int height, int width, const char *_title) : active(false), shadow_window(NULL),
@@ -58,24 +52,27 @@ dialog_t::~dialog_t() {
 }
 
 void dialog_t::activate_dialog(void) {
-	if (this == dialogs.back())
-		return;
+	if (!dialogs.empty()) {
+		if (this == dialogs.back())
+			return;
 
-	dialogs.back()->set_focus(false);
-	if (this->active) {
-		for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
-			if (*iter == this) {
-				dialogs.erase(iter);
-				break;
+		dialogs.back()->set_focus(false);
+		if (active) {
+			for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+				if (*iter == this) {
+					dialogs.erase(iter);
+					break;
+				}
 			}
 		}
 	}
 
-	this->active = true;
-	this->set_focus(true);
+	active = true;
+	set_focus(true);
 	dialog_depth -= 2;
-	t3_win_set_depth(this->window, dialog_depth);
-	t3_win_set_depth(this->shadow_window, dialog_depth + 1);
+	t3_win_set_depth(window, dialog_depth);
+	if (shadow_window != NULL)
+		t3_win_set_depth(shadow_window, dialog_depth + 1);
 	dialogs.push_back(this);
 }
 
