@@ -24,7 +24,7 @@ class bullet_t : public widget_t {
 		bool has_focus;
 
 	public:
-		bullet_t(container_t *parent, const bool *_source);
+		bullet_t(const bool *_source);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

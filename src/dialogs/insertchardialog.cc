@@ -33,16 +33,16 @@ insert_char_dialog_t::insert_char_dialog_t(void) :
 	smart_label_t *description_label;
 	button_t *ok_button, *cancel_button;
 
-	description_label = new smart_label_t(this, "C_haracter;hH", true);
+	description_label = new smart_label_t("C_haracter;hH", true);
 	description_label->set_position(1, 2);
-	description_line = new text_field_t(this);
+	description_line = new text_field_t();
 	description_line->set_anchor(description_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	description_line->set_position(0, 1);
 	description_line->set_size(1, INSERT_CHAR_DIALOG_WIDTH - description_label->get_width() - 5);
 	description_line->set_label(description_label);
 	description_line->connect_activate(sigc::mem_fun(this, &insert_char_dialog_t::ok_activate));
 
-	cancel_button = new button_t(this, "_Cancel;cC", false);
+	cancel_button = new button_t("_Cancel;cC", false);
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &insert_char_dialog_t::hide));
@@ -51,17 +51,17 @@ insert_char_dialog_t::insert_char_dialog_t(void) :
 	   focus_previous twice here to emulate moving up, because the ok_button is in the way. */
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &insert_char_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &insert_char_dialog_t::focus_previous));
-	ok_button = new button_t(this, "_OK;oO", true);
+	ok_button = new button_t("_OK;oO", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun(this, &insert_char_dialog_t::ok_activate));
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &insert_char_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &insert_char_dialog_t::focus_next));
 
-	widgets.push_back(description_label);
-	widgets.push_back(description_line);
-	widgets.push_back(ok_button);
-	widgets.push_back(cancel_button);
+	push_back(description_label);
+	push_back(description_line);
+	push_back(ok_button);
+	push_back(cancel_button);
 }
 
 bool insert_char_dialog_t::set_size(optint height, optint width) {

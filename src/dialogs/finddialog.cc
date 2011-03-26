@@ -38,18 +38,18 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 		*reverse_direction_label;
 	button_t *find_button, *cancel_button;
 
-	find_label = new smart_label_t(this, "S_earch for;eE", true);
+	find_label = new smart_label_t("S_earch for;eE", true);
 	find_label->set_position(1, 2);
-	find_line = new text_field_t(this);
+	find_line = new text_field_t();
 	find_line->set_anchor(find_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	find_line->set_size(None, FIND_DIALOG_WIDTH - find_label->get_width() - 5);
 	find_line->set_position(0, 1);
 	find_line->set_label(find_label);
 	find_line->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
 
-	replace_label = new smart_label_t(this, "Re_place with;pP", true);
+	replace_label = new smart_label_t("Re_place with;pP", true);
 	replace_label->set_position(2, 2);
-	replace_line = new text_field_t(this);
+	replace_line = new text_field_t();
 	replace_line->set_anchor(replace_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	replace_line->set_size(None, FIND_DIALOG_WIDTH - replace_label->get_width() - 5);
 	replace_line->set_position(0, 1);
@@ -58,9 +58,9 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	replace_label->hide();
 	replace_line->hide();
 
-	whole_word_checkbox = new checkbox_t(this);
+	whole_word_checkbox = new checkbox_t();
 	whole_word_checkbox->set_position(2, 2);
-	whole_word_label = new smart_label_t(this, "Match whole word _only;oO");
+	whole_word_label = new smart_label_t("Match whole word _only;oO");
 	whole_word_label->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	whole_word_label->set_position(0, 1);
 	whole_word_checkbox->set_label(whole_word_label);
@@ -68,10 +68,10 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	whole_word_checkbox->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	whole_word_checkbox->connect_move_focus_down(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	whole_word_checkbox->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
-	match_case_checkbox = new checkbox_t(this);
+	match_case_checkbox = new checkbox_t();
 	match_case_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	match_case_checkbox->set_position(0, 0);
-	match_case_label = new smart_label_t(this, "_Match case;mM");
+	match_case_label = new smart_label_t("_Match case;mM");
 	match_case_label->set_anchor(match_case_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	match_case_label->set_position(0, 1);
 	match_case_checkbox->set_label(match_case_label);
@@ -79,10 +79,10 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	match_case_checkbox->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	match_case_checkbox->connect_move_focus_down(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	match_case_checkbox->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
-	regex_checkbox = new checkbox_t(this);
+	regex_checkbox = new checkbox_t();
 	regex_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	regex_checkbox->set_position(1, 0);
-	regex_label = new smart_label_t(this, "Regular e_xpression;xX");
+	regex_label = new smart_label_t("Regular e_xpression;xX");
 	regex_label->set_anchor(regex_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	regex_label->set_position(0, 1);
 	regex_checkbox->set_label(regex_label);
@@ -90,10 +90,10 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	regex_checkbox->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	regex_checkbox->connect_move_focus_down(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	regex_checkbox->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
-	wrap_checkbox = new checkbox_t(this);
+	wrap_checkbox = new checkbox_t();
 	wrap_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	wrap_checkbox->set_position(2, 0);
-	wrap_label = new smart_label_t(this, "_Wrap;wW");
+	wrap_label = new smart_label_t("_Wrap;wW");
 	wrap_label->set_anchor(wrap_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	wrap_label->set_position(0, 1);
 	wrap_checkbox->set_label(wrap_label);
@@ -101,10 +101,10 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	wrap_checkbox->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	wrap_checkbox->connect_move_focus_down(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	wrap_checkbox->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
-	transform_backslash_checkbox = new checkbox_t(this);
+	transform_backslash_checkbox = new checkbox_t();
 	transform_backslash_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	transform_backslash_checkbox->set_position(3, 0);
-	transform_backslash_label = new smart_label_t(this, "_Transform backslash expressions;tT");
+	transform_backslash_label = new smart_label_t("_Transform backslash expressions;tT");
 	transform_backslash_label->set_anchor(transform_backslash_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	transform_backslash_label->set_position(0, 1);
 	transform_backslash_checkbox->set_label(transform_backslash_label);
@@ -112,10 +112,10 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	transform_backslash_checkbox->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	transform_backslash_checkbox->connect_move_focus_down(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	transform_backslash_checkbox->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
-	reverse_direction_checkbox = new checkbox_t(this);
+	reverse_direction_checkbox = new checkbox_t();
 	reverse_direction_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	reverse_direction_checkbox->set_position(4, 0);
-	reverse_direction_label = new smart_label_t(this, "Re_verse direction;vV");
+	reverse_direction_label = new smart_label_t("Re_verse direction;vV");
 	reverse_direction_label->set_anchor(reverse_direction_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	reverse_direction_label->set_position(0, 1);
 	reverse_direction_checkbox->set_label(reverse_direction_label);
@@ -124,14 +124,14 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	reverse_direction_checkbox->connect_move_focus_down(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	reverse_direction_checkbox->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
 
-	cancel_button = new button_t(this, "_Cancel;cC");
+	cancel_button = new button_t("_Cancel;cC");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &find_dialog_t::focus_previous));
-	find_button = new button_t(this, "_Find;fF", true);
+	find_button = new button_t("_Find;fF", true);
 	find_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	find_button->set_position(0, -2);
 	find_button->connect_activate(sigc::mem_fun0(this, &find_dialog_t::find_activated));
@@ -140,7 +140,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	find_button_up_connection = find_button->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	find_button_up_connection.block();
 
-	replace_all_button = new button_t(this, "_All;aA");
+	replace_all_button = new button_t("_All;aA");
 	replace_all_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	replace_all_button->set_position(-2, -2);
 	replace_all_button->connect_activate(sigc::bind(sigc::mem_fun1(this, &find_dialog_t::find_activated), find_action_t::REPLACE_ALL));
@@ -151,7 +151,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	replace_all_button->connect_move_focus_left(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	replace_all_button->hide();
 
-	in_selection_button = new button_t(this, "In _Selection;sS");
+	in_selection_button = new button_t("In _Selection;sS");
 	in_selection_button->set_anchor(replace_all_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	in_selection_button->set_position(0, -1);
 	in_selection_button->connect_activate(sigc::bind(sigc::mem_fun1(this, &find_dialog_t::find_activated), find_action_t::REPLACE_IN_SELECTION));
@@ -161,26 +161,26 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	in_selection_button->connect_move_focus_right(sigc::mem_fun(this, &find_dialog_t::focus_next));
 	in_selection_button->hide();
 
-	widgets.push_back(find_label);
-	widgets.push_back(find_line);
-	widgets.push_back(replace_label);
-	widgets.push_back(replace_line);
-	widgets.push_back(whole_word_checkbox);
-	widgets.push_back(whole_word_label);
-	widgets.push_back(match_case_label);
-	widgets.push_back(match_case_checkbox);
-	widgets.push_back(regex_label);
-	widgets.push_back(regex_checkbox);
-	widgets.push_back(wrap_label);
-	widgets.push_back(wrap_checkbox);
-	widgets.push_back(transform_backslash_label);
-	widgets.push_back(transform_backslash_checkbox);
-	widgets.push_back(reverse_direction_label);
-	widgets.push_back(reverse_direction_checkbox);
-	widgets.push_back(in_selection_button);
-	widgets.push_back(replace_all_button);
-	widgets.push_back(find_button);
-	widgets.push_back(cancel_button);
+	push_back(find_label);
+	push_back(find_line);
+	push_back(replace_label);
+	push_back(replace_line);
+	push_back(whole_word_checkbox);
+	push_back(whole_word_label);
+	push_back(match_case_label);
+	push_back(match_case_checkbox);
+	push_back(regex_label);
+	push_back(regex_checkbox);
+	push_back(wrap_label);
+	push_back(wrap_checkbox);
+	push_back(transform_backslash_label);
+	push_back(transform_backslash_checkbox);
+	push_back(reverse_direction_label);
+	push_back(reverse_direction_checkbox);
+	push_back(in_selection_button);
+	push_back(replace_all_button);
+	push_back(find_button);
+	push_back(cancel_button);
 
 	set_state(_state);
 }
@@ -265,13 +265,13 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	button_t *cancel_button, *replace_all_button;
 	int dialog_width;
 
-	replace_all_button = new button_t(this, "_All;aA");
+	replace_all_button = new button_t("_All;aA");
 	replace_all_button->set_position(1, 2);
 	replace_all_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
 	replace_all_button->connect_activate(sigc::bind(activate.make_slot(), find_action_t::REPLACE_ALL));
 	replace_all_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
 
-	replace_button = new button_t(this, "_Replace;rR");
+	replace_button = new button_t("_Replace;rR");
 	replace_button->set_anchor(replace_all_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	replace_button->set_position(0, 2);
 	replace_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
@@ -279,7 +279,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	replace_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 	replace_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
 
-	find_button = new button_t(this, "_Find;fF");
+	find_button = new button_t("_Find;fF");
 	find_button->set_anchor(replace_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	find_button->set_position(0, 2);
 	find_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
@@ -287,16 +287,16 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	find_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 	find_button->connect_move_focus_right(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_next));
 
-	cancel_button = new button_t(this, "_Cancel;cC");
+	cancel_button = new button_t("_Cancel;cC");
 	cancel_button->set_anchor(find_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	cancel_button->set_position(0, 2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 
-	widgets.push_back(replace_all_button);
-	widgets.push_back(replace_button);
-	widgets.push_back(find_button);
-	widgets.push_back(cancel_button);
+	push_back(replace_all_button);
+	push_back(replace_button);
+	push_back(find_button);
+	push_back(cancel_button);
 
 	dialog_width = replace_all_button->get_width() + replace_button->get_width() +
 		find_button->get_width() + cancel_button->get_width() + 10;

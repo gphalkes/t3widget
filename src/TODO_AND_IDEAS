@@ -13,8 +13,6 @@ High Priority
 	done by connecting to signal from constructor and calling disconnect on
 	connection in destructor
 - remove all commented code
-- remove parent setting from widget constructor; use temporary hidden unbacked
-	parent; set parent on add to container; remove container_t interface
 - editwindow should be a single t3_window to the outside to make sure it behaves
 	as expected
 

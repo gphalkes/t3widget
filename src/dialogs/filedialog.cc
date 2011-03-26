@@ -35,10 +35,10 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 {
 	smart_label_t *name_label;
 
-	name_label = new smart_label_t(this, "_Name;nN", true);
+	name_label = new smart_label_t("_Name;nN", true);
 	name_label->set_position(1, 2);
 	name_offset = name_label->get_width() + 2 + 1; // 2 for offset of "Name", 1 for space in ": ["
-	file_line = new text_field_t(this);
+	file_line = new text_field_t();
 	file_line->set_anchor(name_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	file_line->set_position(0, 1);
 	file_line->set_size(None, width - 2 - name_offset);
@@ -47,7 +47,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	file_line->set_key_filter(&nul, 1, false);
 	file_line->set_autocomplete(&view);
 
-	file_pane = new file_pane_t(this);
+	file_pane = new file_pane_t();
 	file_pane->set_size(height - 4, width - 4);
 	file_pane->set_position(2, 2);
 	file_pane->set_file_list(&names);
@@ -55,7 +55,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	file_pane->connect_activate(sigc::mem_fun1(this, &file_dialog_t::ok_callback));
 	file_pane->set_file_list(&view);
 
-	show_hidden_box = new checkbox_t(this, false);
+	show_hidden_box = new checkbox_t(false);
 	show_hidden_box->set_anchor(file_pane, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	show_hidden_box->set_position(0, 0);
 	show_hidden_box->connect_toggled(sigc::mem_fun(this, &file_dialog_t::refresh_view));
@@ -63,19 +63,19 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	show_hidden_box->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	show_hidden_box->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 
-	show_hidden_label = new smart_label_t(this, "_Show hidden;sS");
+	show_hidden_label = new smart_label_t("_Show hidden;sS");
 	show_hidden_label->set_anchor(show_hidden_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	show_hidden_label->set_position(0, 1);
 	show_hidden_box->set_label(show_hidden_label);
 
-	cancel_button = new button_t(this, "_Cancel;cC");
+	cancel_button = new button_t("_Cancel;cC");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	cancel_button_up_connection = cancel_button->connect_move_focus_up(
 		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
-	ok_button = new button_t(this, "_OK;oO", true);
+	ok_button = new button_t("_OK;oO", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
@@ -84,13 +84,13 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	ok_button_up_connection = ok_button->connect_move_focus_up(
 		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
 
-	widgets.push_back(name_label);
-	widgets.push_back(file_line);
-	widgets.push_back(file_pane);
-	widgets.push_back(show_hidden_box);
-	widgets.push_back(show_hidden_label);
-	widgets.push_back(ok_button);
-	widgets.push_back(cancel_button);
+	push_back(name_label);
+	push_back(file_line);
+	push_back(file_pane);
+	push_back(show_hidden_box);
+	push_back(show_hidden_label);
+	push_back(ok_button);
+	push_back(cancel_button);
 }
 
 void file_dialog_t::set_options_widget(widget_t *options) {
@@ -99,6 +99,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 	if (option_widget_set)
 		return;
 
+	set_widget_parent(options);
 	/* Make the file pane one line less high. */
 	file_pane->set_size(t3_win_get_height(window) - 5, None);
 
@@ -226,12 +227,14 @@ void file_dialog_t::refresh_view(void) {
 }
 
 open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(height, width, "Open File") {
-	filter_label = new smart_label_t(this, "_Filter;fF", true);
+	filter_label = new smart_label_t("_Filter;fF", true);
+	set_widget_parent(filter_label);
 	filter_label->set_anchor(show_hidden_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	filter_label->set_position(0, 2);
 	filter_offset = filter_label->get_width() + 1;
 	filter_width = 10;
-	filter_line = new text_field_t(this);
+	filter_line = new text_field_t();
+	set_widget_parent(filter_line);
 	filter_line->set_anchor(filter_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	filter_line->set_position(0, 1);
 	filter_line->set_size(None, filter_width);
@@ -261,7 +264,8 @@ void open_file_dialog_t::reset(void) {
 string save_as_dialog_t::empty_filter("*");
 
 save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height, width, "Save File As") {
-	create_button = new button_t(this, "Create Folder");
+	create_button = new button_t("Create Folder");
+	set_widget_parent(create_button);
 	create_button->set_anchor(show_hidden_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	create_button->set_position(0, 2);
 	create_button->connect_activate(sigc::mem_fun(this, &save_as_dialog_t::create_folder));

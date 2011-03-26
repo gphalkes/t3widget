@@ -42,7 +42,7 @@ class file_pane_t : public widget_t, public container_t {
 		void update_column_widths(void);
 		void content_changed(void);
 	public:
-		file_pane_t(container_t *_parent);
+		file_pane_t(void);
 		void set_text_field(text_field_t *_field);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

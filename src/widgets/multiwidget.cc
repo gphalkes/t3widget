@@ -16,10 +16,8 @@
 using namespace std;
 namespace t3_widget {
 
-multi_widget_t::multi_widget_t(container_t *parent) : width(1), fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
-	if ((window = t3_win_new_unbacked(parent->get_draw_window(), 1, width, 0, 0, 0)) == NULL)
-		throw bad_alloc();
-	t3_win_show(window);
+multi_widget_t::multi_widget_t(void) : width(1), fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
+	init_unbacked_window(1, width);
 }
 
 multi_widget_t::~multi_widget_t(void) {
@@ -99,6 +97,7 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 		}
 	}
 
+	set_widget_parent(widget);
 	if (widgets.size() > 0)
 		widget->set_anchor(widgets.back().widget, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	widget->set_position(0, 0);

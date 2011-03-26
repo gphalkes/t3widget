@@ -31,7 +31,7 @@ class multi_widget_t : public widget_t, public focus_widget_t, public container_
 		widget_t *send_key_widget;
 
 	public:
-		multi_widget_t(container_t *parent);
+		multi_widget_t(void);
 		virtual ~multi_widget_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

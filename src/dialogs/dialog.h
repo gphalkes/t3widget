@@ -58,6 +58,7 @@ class dialog_t : public virtual window_component_t, public container_t {
 		void focus_next(void);
 		void focus_previous(void);
 		void focus_set(widget_t *target);
+		void push_back(widget_t *widget);
 
 	public:
 		virtual bool process_key(key_t key);

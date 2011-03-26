@@ -17,6 +17,8 @@
 using namespace std;
 namespace t3_widget {
 
+t3_window_t * widget_t::default_parent = t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0);
+
 bool widget_t::is_hotkey(key_t key) {
 	(void) key;
 	return false;
@@ -24,14 +26,20 @@ bool widget_t::is_hotkey(key_t key) {
 
 bool widget_t::accepts_focus(void) { return enabled && shown; }
 
-widget_t::widget_t(container_t *parent, int height, int width) : redraw(true), enabled(true), shown(true) {
-	init_window(parent, height, width);
+widget_t::widget_t(int height, int width) : redraw(true), enabled(true), shown(true) {
+	init_window(height, width);
 }
 
 widget_t::widget_t(void) : redraw(true), enabled(true), shown(true) {}
 
-void widget_t::init_window(container_t *parent, int height, int width) {
-	if ((window = t3_win_new(parent->get_draw_window(), height, width, 0, 0, 0)) == NULL)
+void widget_t::init_window(int height, int width) {
+	if ((window = t3_win_new(default_parent, height, width, 0, 0, 0)) == NULL)
+		throw bad_alloc();
+	t3_win_show(window);
+}
+
+void widget_t::init_unbacked_window(int height, int width) {
+	if ((window = t3_win_new_unbacked(default_parent, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 }

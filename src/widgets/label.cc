@@ -22,10 +22,10 @@ namespace t3_widget {
 
 //FIXME: maybe we should allow scrolling with the left and right keys
 
-label_t::label_t(container_t *parent, const char *_text) : text(_text), align(ALIGN_LEFT)
+label_t::label_t(const char *_text) : text(_text), align(ALIGN_LEFT)
 {
 	width = text_width = t3_term_strwidth(text);
-	init_window(parent, 1, width);
+	init_window(1, width);
 }
 
 

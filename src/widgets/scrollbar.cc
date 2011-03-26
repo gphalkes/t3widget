@@ -20,7 +20,7 @@
 
 namespace t3_widget {
 
-scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
+scrollbar_t::scrollbar_t(bool _vertical) :
 	length(3), range(1), start(0), used(1), vertical(_vertical)
 {
 	int width, height;
@@ -33,7 +33,7 @@ scrollbar_t::scrollbar_t(container_t *parent, bool _vertical) :
 		height = 1;
 	}
 
-	init_window(parent, height, width);
+	init_window(height, width);
 }
 
 bool scrollbar_t::process_key(key_t key) {

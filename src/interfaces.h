@@ -27,11 +27,11 @@ class window_component_t {
 	protected:
 		t3_window_t *window;
 	public:
-		window_component_t(void) : window(NULL) {}
+		window_component_t(void);
 		/* Virtual destructor is required for proper functioning of the delete
 		   operator in multiple-inheritance situations. */
-		virtual ~window_component_t(void) {}
-		virtual t3_window_t *get_draw_window(void) { return window; }
+		virtual ~window_component_t(void);
+		virtual t3_window_t *get_draw_window(void);
 		virtual bool process_key(key_t key) = 0;
 		virtual void set_position(optint top, optint left) = 0;
 		virtual bool set_size(optint height, optint width) = 0;
@@ -41,17 +41,19 @@ class window_component_t {
 		virtual void hide(void) = 0;
 };
 
+class widget_t;
 class container_t : private virtual window_component_t {
-	public:
-		virtual t3_window_t *get_draw_window(void) { return window_component_t::get_draw_window(); }
+	protected:
+		bool set_widget_parent(widget_t *widget);
+		void unset_widget_parent(widget_t *widget);
 };
 
 class center_component_t : private virtual window_component_t {
 	protected:
 		window_component_t *center_window;
 	public:
-		center_component_t(void) : center_window(this) {}
-		virtual void set_center_window(window_component_t *_center_window) { center_window = _center_window; }
+		center_component_t(void);
+		virtual void set_center_window(window_component_t *_center_window);
 };
 
 }; // namespace

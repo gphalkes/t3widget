@@ -19,9 +19,10 @@ using namespace std;
 namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
-file_pane_t::file_pane_t(container_t *parent) : widget_t(parent, 3, 3), scrollbar(this, false), height(1),
+file_pane_t::file_pane_t(void) : widget_t(3, 3), scrollbar(false), height(1),
 	width(1),top_idx(0), current(0), file_list(NULL), focus(false), field(NULL), columns_visible(0)
 {
+	set_widget_parent(&scrollbar);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	scrollbar.set_position(0, 1);
 }

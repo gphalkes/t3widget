@@ -258,6 +258,12 @@ void dialog_t::focus_set(widget_t *target) {
 	}
 }
 
+void dialog_t::push_back(widget_t *widget) {
+	if (!set_widget_parent(widget))
+		return;
+	widgets.push_back(widget);
+}
+
 void dialog_t::force_redraw(void) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->force_redraw();

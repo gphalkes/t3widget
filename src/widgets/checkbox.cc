@@ -16,7 +16,7 @@
 
 namespace t3_widget {
 
-checkbox_t::checkbox_t(container_t *parent, bool _state) : widget_t(parent, 1, 3), state(_state), has_focus(false), label(NULL) {}
+checkbox_t::checkbox_t(bool _state) : widget_t(1, 3), state(_state), has_focus(false), label(NULL) {}
 
 bool checkbox_t::process_key(key_t key) {
 	switch (key) {

@@ -33,7 +33,7 @@ class label_t : public widget_t {
 		align_t align;
 
 	public:
-		label_t(container_t *parent, const char *_text);
+		label_t(const char *_text);
 
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

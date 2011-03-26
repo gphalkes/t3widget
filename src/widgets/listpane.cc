@@ -18,25 +18,28 @@
 using namespace std;
 namespace t3_widget {
 
-list_pane_t::list_pane_t(container_t *_parent, bool _indicator) : height(1), top_idx(0), current(0), parent(_parent),
-		widgets(NULL), has_focus(false), scrollbar(_parent, true), indicator(_indicator)
+list_pane_t::list_pane_t(bool _indicator) : height(1), top_idx(0), current(0),
+		widgets(NULL), has_focus(false), scrollbar(true), indicator(_indicator)
 {
-	/* We temporarily store the clip_window in window, so that we can use set_anchor on
-	   the scrollbar. */
-	if ((clip_window = window = t3_win_new_unbacked(parent->get_draw_window(), height, 4, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+	init_unbacked_window(height, 4);
+	/* We temporarily store the clip_window in window, so that we can use
+	   set_widget_parent and set_anchor on the scrollbar. */
+	set_widget_parent(&scrollbar);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar.set_size(height, None);
 
-	if ((window = t3_win_new_unbacked(clip_window, 1, 3, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+	clip_window = window;
+
+	init_unbacked_window(height, 3);
+	t3_win_set_parent(window, clip_window);
 
 	t3_win_set_anchor(window, clip_window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	t3_win_show(window);
-	t3_win_show(clip_window);
 
-	if (indicator)
-		indicator_widget = new indicator_widget_t(this);
+	if (indicator) {
+		indicator_widget = new indicator_widget_t();
+		set_widget_parent(indicator_widget);
+	}
 }
 
 list_pane_t::~list_pane_t(void) {
@@ -276,7 +279,7 @@ void list_pane_t::set_current(int idx) {
 
 //=========== Indicator widget ================
 
-list_pane_t::indicator_widget_t::indicator_widget_t(container_t *_parent) : widget_t(_parent, 1, 3), has_focus(false) {
+list_pane_t::indicator_widget_t::indicator_widget_t(void) : widget_t(1, 3), has_focus(false) {
 	t3_win_set_depth(window, INT_MAX);
 }
 

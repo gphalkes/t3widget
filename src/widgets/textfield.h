@@ -41,7 +41,6 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 		bool filter_keys_accept;
 
 		smart_label_t *label;
-		container_t *parent;
 
 		void reset_selection(void);
 		void set_selection(key_t key);
@@ -75,7 +74,7 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 		drop_down_list_t *drop_down_list;
 
 	public:
-		text_field_t(container_t *_parent);
+		text_field_t(void);
 		virtual ~text_field_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

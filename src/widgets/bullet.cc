@@ -17,7 +17,7 @@
 using namespace std;
 namespace t3_widget {
 
-bullet_t::bullet_t(container_t *parent, const bool *_source) : widget_t(parent, 1, 1), source(_source), has_focus(false) {}
+bullet_t::bullet_t(const bool *_source) : widget_t(1, 1), source(_source), has_focus(false) {}
 
 bool bullet_t::set_size(optint height, optint width) {
 	(void) height;

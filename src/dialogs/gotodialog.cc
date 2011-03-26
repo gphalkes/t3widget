@@ -29,9 +29,9 @@ goto_dialog_t::goto_dialog_t(void) :
 	smart_label_t *number_label;
 	button_t *ok_button, *cancel_button;
 
-	number_label = new smart_label_t(this, "_Goto;gG", true);
+	number_label = new smart_label_t("_Goto;gG", true);
 	number_label->set_position(1, 2);
-	number_line = new text_field_t(this);
+	number_line = new text_field_t();
 	number_line->set_anchor(number_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	number_line->set_position(0, 1);
 	number_line->set_size(None, GOTO_DIALOG_WIDTH - number_label->get_width() - 5);
@@ -39,7 +39,7 @@ goto_dialog_t::goto_dialog_t(void) :
 	number_line->connect_activate(sigc::mem_fun(this, &goto_dialog_t::ok_activate));
 	number_line->set_key_filter(accepted_keys, sizeof(accepted_keys) / sizeof(accepted_keys[0]), true);
 
-	cancel_button = new button_t(this, "_Cancel;cC", false);
+	cancel_button = new button_t("_Cancel;cC", false);
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
 
@@ -49,7 +49,7 @@ goto_dialog_t::goto_dialog_t(void) :
 	   FOCUS_PREVIOUS twice here to emulate moving up, because the ok_button is in the way. */
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
-	ok_button = new button_t(this, "_OK;oO", true);
+	ok_button = new button_t("_OK;oO", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
 
@@ -57,10 +57,10 @@ goto_dialog_t::goto_dialog_t(void) :
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &goto_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &goto_dialog_t::focus_next));
 
-	widgets.push_back(number_label);
-	widgets.push_back(number_line);
-	widgets.push_back(ok_button);
-	widgets.push_back(cancel_button);
+	push_back(number_label);
+	push_back(number_line);
+	push_back(ok_button);
+	push_back(cancel_button);
 }
 
 bool goto_dialog_t::set_size(optint height, optint width) {

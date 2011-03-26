@@ -37,8 +37,8 @@ class smart_label_text_t {
 
 class smart_label_t : public smart_label_text_t, public widget_t {
 	public:
-		smart_label_t(container_t *parent, smart_label_text_t *spec);
-		smart_label_t(container_t *parent, const char *spec, bool _addColon = false);
+		smart_label_t(smart_label_text_t *spec);
+		smart_label_t(const char *spec, bool _addColon = false);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

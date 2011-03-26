@@ -17,6 +17,7 @@
 #include <key/key.h>
 #include <charconv.h>
 #include <cerrno>
+#include <new>
 
 #include "main.h"
 #include "log.h"

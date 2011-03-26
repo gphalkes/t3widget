@@ -21,13 +21,18 @@
 namespace t3_widget {
 
 class widget_t : public virtual window_component_t {
+	private:
+		friend class container_t;
+		static t3_window_t *default_parent;
+
 	protected:
 		bool redraw, enabled, shown;
 
-		widget_t(container_t *parent, int height, int width);
+		widget_t(int height, int width);
 		widget_t(void);
 
-		void init_window(container_t *parent, int height, int width);
+		void init_window(int height, int width);
+		void init_unbacked_window(int height, int width);
 
 	public:
 		virtual ~widget_t(void);
@@ -41,6 +46,7 @@ class widget_t : public virtual window_component_t {
 		virtual void set_enabled(bool enable);
 		virtual bool is_enabled(void);
 		virtual bool is_shown(void);
+
 };
 
 class focus_widget_t {

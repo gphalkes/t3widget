@@ -19,11 +19,11 @@
 using namespace std;
 namespace t3_widget {
 
-button_t::button_t(container_t *parent, const char *_text, bool _isDefault) : text(_text), is_default(_isDefault) {
+button_t::button_t(const char *_text, bool _isDefault) : text(_text), is_default(_isDefault) {
 	text_width = text.get_width();
 	width = text_width + 4;
 
-	init_window(parent, 1, width);
+	init_window(1, width);
 
 	has_focus = false;
 }

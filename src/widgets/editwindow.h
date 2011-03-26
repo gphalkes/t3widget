@@ -29,7 +29,7 @@ namespace t3_widget {
 
 namespace t3_widget {
 
-class edit_window_t : public widget_t, public center_component_t {
+class edit_window_t : public widget_t, public center_component_t, public container_t {
 	protected:
 		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;
@@ -40,7 +40,7 @@ class edit_window_t : public widget_t, public center_component_t {
 		static sigc::connection replace_buttons_connection;
 		static bool init_connected;
 
-		t3_window_t *bottomlinewin;
+		t3_window_t *edit_window, *bottomlinewin;
 		scrollbar_t *scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
@@ -52,7 +52,6 @@ class edit_window_t : public widget_t, public center_component_t {
 		static const char *insstring[];
 		static bool (text_buffer_t::*proces_char[])(key_t);
 
-		void setActive(bool _active);
 		void ensure_cursor_on_screen(void);
 		void repaint_screen(void);
 		void inc_x(void);
@@ -70,7 +69,7 @@ class edit_window_t : public widget_t, public center_component_t {
 		void find_activated(find_action_t action, finder_t *finder);
 
 	public:
-		edit_window_t(container_t *parent, text_buffer_t *_text = NULL);
+		edit_window_t(text_buffer_t *_text = NULL);
 		virtual ~edit_window_t(void);
 		virtual void set_text(text_buffer_t *_text);
 		virtual bool process_key(key_t key);

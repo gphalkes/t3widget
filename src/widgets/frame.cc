@@ -16,7 +16,7 @@
 
 namespace t3_widget {
 
-frame_t::frame_t(container_t *parent, frame_dimension_t _dimension) : widget_t(parent, 3, 3),
+frame_t::frame_t(frame_dimension_t _dimension) : widget_t(3, 3),
 		dimension(_dimension), child(NULL) {}
 
 void frame_t::set_child(widget_t *_child) {
@@ -28,6 +28,7 @@ void frame_t::set_child(widget_t *_child) {
 		child_top = 0;
 	if (dimension & COVER_LEFT)
 		child_left = 0;
+	set_widget_parent(child);
 	child->set_anchor(this, 0);
 	child->set_position(child_top, child_left);
 	set_size(None, None);

@@ -23,7 +23,6 @@ class list_pane_t : public widget_t, public container_t {
 	private:
 		int height;
 		size_t top_idx, current;
-		container_t *parent;
 		t3_window_t *clip_window;
 		widgets_t widgets;
 		bool has_focus;
@@ -34,7 +33,7 @@ class list_pane_t : public widget_t, public container_t {
 			private:
 				bool has_focus;
 			public:
-				indicator_widget_t(container_t *parent);
+				indicator_widget_t(void);
 				virtual bool process_key(key_t key);
 				virtual void update_contents(void);
 				virtual void set_focus(bool focus);
@@ -46,7 +45,7 @@ class list_pane_t : public widget_t, public container_t {
 
 		void ensure_cursor_on_screen(void);
 	public:
-		list_pane_t(container_t *_parent, bool _indicator);
+		list_pane_t(bool _indicator);
 		virtual ~list_pane_t(void);
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
