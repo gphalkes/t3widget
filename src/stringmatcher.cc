@@ -138,44 +138,4 @@ int string_matcher_t::previous_char(const char *c, size_t c_size) {
 	}
 }
 
-
-#if 0
-#include <cstdio>
-#include <cstdlib>
-
-#define CHAR_SIZE 2
-
-int main(int argc, char *argv[]) {
-	//string needle = "abcdabde";
-	//~ string needle = "abc";
-	string needle = "abcd";
-					/* 012345678901234567890123 */
-	string haystack = "abc abcdab  abcdabcdabdefgcdabdef";
-	string_matcher_t matcher(needle);
-	int start = 0, i;
-#if 1
-	printf("Searching forward:\n");
-	for (i = start; (size_t) i < haystack.size(); i += CHAR_SIZE) {
-		string substr = haystack.substr(i, CHAR_SIZE);
-		int result = matcher.next_char(&substr);
-		if (result >= 0) {
-			printf("Found substring at %d, %d (%.*s)\n", result * CHAR_SIZE + start, i, (int) needle.size(), haystack.c_str() + result * CHAR_SIZE + start);
-			//~ exit(1);
-		}
-	}
-	matcher.reset();
-#endif
-	int begin = haystack.size() - CHAR_SIZE - (haystack.size() % CHAR_SIZE);
-	printf("Searching backward:\n");
-	for (i = begin; i >= start; i -= CHAR_SIZE) {
-		string substr = haystack.substr(i, CHAR_SIZE);
-		int result = matcher.previous_char(&substr);
-		if (result >= 0) {
-			printf("Found substring at %d, %d (%.*s)\n", begin - result * CHAR_SIZE, i, (int) needle.size(), haystack.c_str() + i);
-			//~ exit(1);
-		}
-	}
-}
-#endif
-
 }; // namespace

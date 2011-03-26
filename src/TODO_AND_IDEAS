@@ -9,7 +9,8 @@ High Priority
 	two widgets (currently) for which this makes sense: text_field_t and
 	edit_window_t. But they should share the same shortcut.
 - handle FIXME's
-- remove all commented code [include #if 0!!!]
+- file names must be converted from local character set!
+- figure out how to override attributes on a per-widget basis
 
 Low Priority
 ------------
@@ -26,6 +27,8 @@ Low Priority
 - Allow the text_window_t to be set to read-only mode. This way it can also be
 	used for just displaying text (perhaps the bottom line should also be
 	disabled for that use)
+- create a (scrollable) text display widget. This should then be used in
+	the message dialog, but can also be used for showing help texts etc.
 - perhaps it would be nice to let connect_on_init return a bool, because we
 	don't really care about the return value anyway. That way, it takes less
 	space.
@@ -53,3 +56,7 @@ IDEAS
 	text. Another alternative is to make different replacements for each
 	different error byte; one popular replacement is the (otherwise invalid
 	Unicode) U+DC80 through U+DCFF.
+- it looks like we may be able to use the source-highlight library for doing
+	syntax high-lighting. If we do, then we should use boost-regex (because
+	we would indirectly depend on it anyway) instead of libpcre.
+	[ http://www.gnu.org/software/src-highlite/ ]

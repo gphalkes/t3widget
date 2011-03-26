@@ -37,10 +37,6 @@ struct break_pos_t {
 	int flags;
 };
 
-//~ struct find_result_t {
-	//~ int start, end;
-//~ };
-
 class text_line_t;
 
 struct find_context_t {
@@ -150,7 +146,6 @@ class text_line_t {
 		int is_bad_draw(int pos) const;
 
 		const std::string *get_data(void) const;
-		//~ bool find(find_context_t *context, find_result_t *result) const;
 
 		static void init(void);
 
