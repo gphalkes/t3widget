@@ -155,7 +155,6 @@ complex_error_t init(bool separate_keypad) {
 	int term_init_result;
 
 	init_log();
-	init_colors(); // Probably called somewhere else already, but just to make sure
 	text_line_t::init();
 
 	if ((term_init_result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
@@ -171,6 +170,8 @@ complex_error_t init(bool separate_keypad) {
 	result = init_keys(separate_keypad);
 	if (!result.get_success())
 		return result;
+
+	init_colors();
 	do_resize();
 	try {
 		/* Construct these here, such that the locale is set correctly and
@@ -187,7 +188,8 @@ complex_error_t init(bool separate_keypad) {
 void iterate(void) {
 	key_t key;
 
-	for (dialogs_t::iterator iter = dialog_t::dialogs.begin(); iter != dialog_t::dialogs.end(); iter++)
+	for (dialogs_t::iterator iter = dialog_t::active_dialogs.begin();
+			iter != dialog_t::active_dialogs.end(); iter++)
 		(*iter)->update_contents();
 
 	t3_term_update();
@@ -204,7 +206,7 @@ void iterate(void) {
 			break;
 		default:
 			//FIXME: pass unhandled keys to callback?
-			dialog_t::dialogs.back()->process_key(key);
+			dialog_t::active_dialogs.back()->process_key(key);
 			break;
 	}
 }

@@ -82,12 +82,13 @@ smart_label_text_t::smart_label_text_t(smart_label_text_t *other):
 	delete other;
 }
 
-void smart_label_text_t::draw(t3_window_t *window, int attr) {
+void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
 	if (underline_start > text_length) {
 		t3_win_addnstr(window, text, text_length, attr);
 	} else {
 		t3_win_addnstr(window, text, underline_start, attr);
-		t3_win_addnstr(window, text + underline_start, underline_length, t3_term_combine_attrs(colors.highlight_attrs, attr));
+		t3_win_addnstr(window, text + underline_start, underline_length,
+			selected ? attr : t3_term_combine_attrs(attributes.highlight, attr));
 		t3_win_addnstr(window, text + underline_start + underline_length, text_length - underline_start - underline_length, attr);
 	}
 	if (add_colon)
@@ -131,7 +132,7 @@ void smart_label_t::update_contents(void) {
 		return;
 	redraw = false;
 	t3_win_set_paint(window, 0, 0);
-	draw(window, colors.dialog_attrs);
+	draw(window, attributes.dialog);
 }
 
 void smart_label_t::set_focus(bool focus) { (void) focus; }

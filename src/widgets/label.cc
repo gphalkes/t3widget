@@ -54,7 +54,7 @@ void label_t::update_contents(void) {
 	text_line_t *line = new text_line_t(text);
 	text_line_t::paint_info_t paint_info;
 
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtoeol(window);
 	t3_win_set_paint(window, 0, width > text_width && (align == ALIGN_RIGHT || align == ALIGN_RIGHT_UNDERFLOW) ? width - text_width : 0);

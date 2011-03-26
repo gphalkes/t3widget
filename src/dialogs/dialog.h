@@ -31,6 +31,7 @@ class dialog_t : public virtual window_component_t, public container_t {
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
 
+		static dialogs_t active_dialogs;
 		static dialogs_t dialogs;
 		static int dialog_depth;
 		static dummy_widget_t *dummy;
@@ -70,6 +71,8 @@ class dialog_t : public virtual window_component_t, public container_t {
 		virtual void hide(void);
 		virtual void force_redraw(void);
 		virtual void center_over(window_component_t *center);
+
+		static void force_redraw_all(void);
 };
 
 }; // namespace

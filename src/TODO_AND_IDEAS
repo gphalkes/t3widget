@@ -9,9 +9,6 @@ High Priority
 	two widgets (currently) for which this makes sense: text_field_t and
 	edit_window_t. But they should share the same shortcut.
 - handle FIXME's
-- dialogs need to be notified of color change and then call force_redraw. Best
-	done by connecting to signal from constructor and calling disconnect on
-	connection in destructor
 - remove all commented code [include #if 0!!!]
 
 Low Priority

@@ -56,12 +56,12 @@ bool menu_item_t::set_size(optint height, optint _width) {
 
 void menu_item_t::update_contents(void) {
 	t3_window_t *parent_window = parent->get_draw_window();
-	t3_attr_t attrs = has_focus ? colors.dialog_selected_attrs: colors.dialog_attrs;
+	t3_attr_t attrs = has_focus ? attributes.dialog_selected: attributes.dialog;
 	int spaces;
 
 	t3_win_set_paint(parent_window, top, 1);
 	t3_win_addch(parent_window, ' ', attrs);
-	label.draw(parent_window, attrs);
+	label.draw(parent_window, attrs, has_focus);
 
 	spaces = width - 2 - label.get_width();
 	if (hotkey != NULL) {
@@ -118,7 +118,7 @@ bool menu_separator_t::set_size(optint height, optint width) {
 void menu_separator_t::update_contents(void) {
 	t3_window_t *parent_window = parent->get_draw_window();
 	t3_win_set_paint(parent_window, top, 1);
-	t3_win_addchrep(parent_window, T3_ACS_HLINE, T3_ATTR_ACS | colors.dialog_attrs, t3_win_get_width(parent_window) - 3);
+	t3_win_addchrep(parent_window, T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, t3_win_get_width(parent_window) - 3);
 }
 
 void menu_separator_t::set_focus(bool focus) {

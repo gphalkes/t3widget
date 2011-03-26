@@ -66,7 +66,7 @@ void scrollbar_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	t3_win_set_default_attrs(window, colors.scrollbar_selected_attrs);
+	t3_win_set_default_attrs(window, attributes.scrollbar_selected);
 
 	blocks_per_line = (double) (length - 2) / range;
 	slider_size = blocks_per_line * used;
@@ -84,7 +84,7 @@ void scrollbar_t::update_contents(void) {
 		before = length - 3;
 
 	t3_win_set_paint(window, 0, 0);
-	t3_win_addch(window, vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | colors.scrollbar_attrs);
+	t3_win_addch(window, vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | attributes.scrollbar);
 
 	for (i = 1; i < length - 1 && i < before + 1; i++) {
 		if (vertical)
@@ -104,7 +104,7 @@ void scrollbar_t::update_contents(void) {
 
 	if (vertical)
 		t3_win_set_paint(window, length - 1, 0);
-	t3_win_addch(window, vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | colors.scrollbar_attrs);
+	t3_win_addch(window, vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | attributes.scrollbar);
 }
 
 

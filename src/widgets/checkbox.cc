@@ -58,7 +58,7 @@ void checkbox_t::update_contents(void) {
 	if (!redraw)
 		return;
 	redraw = false;
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addch(window, '[', 0);
 	t3_win_addch(window, enabled ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);

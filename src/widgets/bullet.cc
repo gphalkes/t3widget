@@ -28,7 +28,7 @@ bool bullet_t::set_size(optint height, optint width) {
 bool bullet_t::process_key(key_t key) { (void) key; return false; }
 
 void bullet_t::update_contents(void) {
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	if (*source)
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (has_focus ? T3_ATTR_REVERSE : 0));

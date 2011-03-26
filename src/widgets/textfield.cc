@@ -331,13 +331,13 @@ void text_field_t::update_contents(void) {
 	if (selection_mode != selection_mode_t::NONE)
 		update_selection();
 
-	hard_cursor = (selection_mode == selection_mode_t::NONE && colors.attr_cursor == 0) ||
-			(selection_mode != selection_mode_t::NONE && colors.attr_selection_cursor == 0);
+	hard_cursor = (selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
+			(selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0);
 
 	if (redraw || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
 		text_line_t::paint_info_t info;
 
-		t3_win_set_default_attrs(window, colors.dialog_attrs);
+		t3_win_set_default_attrs(window, attributes.dialog);
 		t3_win_set_paint(window, 0, 0);
 		t3_win_addch(window, '[', 0);
 
@@ -358,8 +358,8 @@ void text_field_t::update_contents(void) {
 			info.selection_end = selection_start_pos;
 		}
 		info.cursor = focus && !hard_cursor ? screen_pos : -1;
-		info.normal_attr = colors.text_attrs;
-		info.selected_attr = colors.text_selected_attrs;
+		info.normal_attr = attributes.text;
+		info.selected_attr = attributes.text;
 
 		line.paint_line(window, &info);
 		t3_win_addch(window, ']', 0);
@@ -572,7 +572,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 
 	file_list = dynamic_cast<file_list_t *>(completions);
 
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 	for (i = 0; i < 5; i++) {
@@ -602,7 +602,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 		info.selection_end = paint_selected ? INT_MAX : -1;
 		info.cursor = -1;
 		info.normal_attr = 0;
-		info.selected_attr = colors.dialog_selected_attrs;
+		info.selected_attr = attributes.dialog;
 
 		fileNameLine.paint_line(window, &info);
 

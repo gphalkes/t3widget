@@ -146,7 +146,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 	idx %= height;
 
 	t3_win_set_paint(window, idx + 1, column_positions[column] + 1);
-	t3_win_addch(window, is_dir ? '/' : ' ', selected ? colors.dialog_selected_attrs : 0);
+	t3_win_addch(window, is_dir ? '/' : ' ', selected ? attributes.dialog_selected : 0);
 
 	info.start = 0;
 	info.leftcol = 0;
@@ -157,8 +157,8 @@ void file_pane_t::draw_line(int idx, bool selected) {
 	info.selection_start = -1;
 	info.selection_end = selected ? INT_MAX : -1;
 	info.cursor = -1;
-	info.normal_attr = colors.dialog_attrs;
-	info.selected_attr = colors.dialog_selected_attrs;
+	info.normal_attr = attributes.dialog;
+	info.selected_attr = attributes.dialog_selected;
 
 	line.paint_line(window, &info);
 }
@@ -170,7 +170,7 @@ void file_pane_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);

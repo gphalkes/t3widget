@@ -20,6 +20,7 @@
 using namespace std;
 namespace t3_widget {
 
+dialogs_t dialog_t::active_dialogs;
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
 dummy_widget_t *dialog_t::dummy;
@@ -38,29 +39,38 @@ dialog_t::dialog_t(int height, int width, const char *_title) : active(false), s
 		throw bad_alloc();
 	t3_win_set_anchor(shadow_window, window, 0);
 	t3_win_set_default_attrs(shadow_window, T3_ATTR_REVERSE);
+	dialogs.push_back(this);
 }
 
 /** Create a new ::dialog_t.
 
     This constructor should only be called by ::main_window_base_t.
 */
-dialog_t::dialog_t(void) : active(false), shadow_window(NULL), title(NULL), redraw(false) {}
+dialog_t::dialog_t(void) : active(false), shadow_window(NULL), title(NULL), redraw(false) {
+	dialogs.push_back(this);
+}
 
 dialog_t::~dialog_t() {
 	t3_win_del(window);
 	t3_win_del(shadow_window);
+	for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+		if ((*iter) == this) {
+			dialogs.erase(iter);
+			break;
+		}
+	}
 }
 
 void dialog_t::activate_dialog(void) {
-	if (!dialogs.empty()) {
-		if (this == dialogs.back())
+	if (!active_dialogs.empty()) {
+		if (this == active_dialogs.back())
 			return;
 
-		dialogs.back()->set_focus(false);
+		active_dialogs.back()->set_focus(false);
 		if (active) {
-			for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+			for (dialogs_t::iterator iter = active_dialogs.begin(); iter != active_dialogs.end(); iter++) {
 				if (*iter == this) {
-					dialogs.erase(iter);
+					active_dialogs.erase(iter);
 					break;
 				}
 			}
@@ -73,22 +83,22 @@ void dialog_t::activate_dialog(void) {
 	t3_win_set_depth(window, dialog_depth);
 	if (shadow_window != NULL)
 		t3_win_set_depth(shadow_window, dialog_depth + 1);
-	dialogs.push_back(this);
+	active_dialogs.push_back(this);
 }
 
 void dialog_t::deactivate_dialog(void) {
 	this->active = false;
-	if (this == dialogs.back()) {
+	if (this == active_dialogs.back()) {
 		this->set_focus(false);
-		dialogs.pop_back();
-		dialogs.back()->set_focus(true);
-		dialog_depth = t3_win_get_depth(dialogs.back()->window);
+		active_dialogs.pop_back();
+		active_dialogs.back()->set_focus(true);
+		dialog_depth = t3_win_get_depth(active_dialogs.back()->window);
 		return;
 	}
 
-	for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
+	for (dialogs_t::iterator iter = active_dialogs.begin(); iter != active_dialogs.end(); iter++) {
 		if (*iter == this) {
-			dialogs.erase(iter);
+			active_dialogs.erase(iter);
 			break;
 		}
 	}
@@ -98,7 +108,7 @@ void dialog_t::draw_dialog(void) {
 	int i, x;
 
 	redraw = false;
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 
 	/* Just clear the whole thing and redraw */
 	t3_win_set_paint(window, 0, 0);
@@ -272,6 +282,11 @@ void dialog_t::force_redraw(void) {
 void dialog_t::center_over(window_component_t *center) {
 	t3_win_set_anchor(window, center->get_draw_window(), T3_PARENT(T3_ANCHOR_CENTER) | T3_CHILD(T3_ANCHOR_CENTER));
 	t3_win_move(window, 0, 0);
+}
+
+void dialog_t::force_redraw_all(void) {
+	for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++)
+		(*iter)->force_redraw();
 }
 
 }; // namespace

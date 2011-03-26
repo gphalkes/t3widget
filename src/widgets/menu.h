@@ -32,7 +32,7 @@ class menu_bar_t : public widget_t {
 
 		std::vector<menu_panel_t *> menus;
 
-		void draw_menu_name(menu_panel_t *menu, int attr);
+		void draw_menu_name(menu_panel_t *menu, bool selected);
 
 		void add_menu(menu_panel_t *menu);
 		void close(void);

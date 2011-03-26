@@ -76,14 +76,14 @@ void button_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	attr = has_focus ? colors.button_selected_attrs : 0;
+	attr = has_focus ? attributes.button_selected : 0;
 
-	t3_win_set_default_attrs(window, colors.button_attrs);
+	t3_win_set_default_attrs(window, attributes.button);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addstr(window, is_default ? "[<" : "[ ", attr);
 	if (width > text_width + 4)
 		t3_win_addchrep(window, ' ', attr, (width - 4 - text_width) / 2);
-	text.draw(window, attr);
+	text.draw(window, attr, has_focus);
 	if (width > text_width + 4)
 		t3_win_addchrep(window, ' ', attr, (width - 4 - text_width + 1) / 2);
 	else if (width > 0)

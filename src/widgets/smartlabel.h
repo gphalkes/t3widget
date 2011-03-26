@@ -30,7 +30,7 @@ class smart_label_text_t {
 	public:
 		smart_label_text_t(const char *spec, bool _addColon = false);
 		smart_label_text_t(smart_label_text_t *other);
-		void draw(t3_window_t *win, int attr);
+		void draw(t3_window_t *win, int attr, bool selected = false);
 		int get_width(void);
 		bool is_hotkey(key_t key);
 };

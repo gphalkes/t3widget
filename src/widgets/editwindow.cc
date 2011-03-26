@@ -157,7 +157,7 @@ void edit_window_t::repaint_screen(void) {
 	info.leftcol = text->topleft.pos;
 	info.size = t3_win_get_width(edit_window) - 1;
 	info.normal_attr = 0;
-	info.selected_attr = colors.text_selected_attrs;
+	info.selected_attr = attributes.text_selected;
 	for (i = 0; i < t3_win_get_height(edit_window) && (i + text->topleft.line) < text->get_used_lines(); i++) {
 		t3_win_set_paint(edit_window, i, 0);
 
@@ -173,7 +173,7 @@ void edit_window_t::repaint_screen(void) {
 			info.selection_end = -1;
 		}
 
-		info.cursor = text->topleft.line + i == text->cursor.line && !hard_cursor ? text->cursor.pos : -1;
+		info.cursor = focus && text->topleft.line + i == text->cursor.line && !hard_cursor ? text->cursor.pos : -1;
 		text->paint_line(edit_window, text->topleft.line + i, &info);
 	}
 
@@ -670,8 +670,8 @@ void edit_window_t::update_contents(void) {
 		}
 	}
 
-	hard_cursor = (text->selection_mode == selection_mode_t::NONE && colors.attr_cursor == 0) ||
-			(text->selection_mode != selection_mode_t::NONE && colors.attr_selection_cursor == 0);
+	hard_cursor = (text->selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
+			(text->selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0);
 
 	//FIXME: don't want to fully repaint on every key when selecting!!
 	if (redraw || text->selection_mode != selection_mode_t::NONE || !hard_cursor) {
@@ -679,8 +679,8 @@ void edit_window_t::update_contents(void) {
 		repaint_screen();
 	}
 
-	t3_win_set_default_attrs(edit_window, colors.text_attrs);
-	t3_win_set_default_attrs(bottom_line_window, colors.menubar_attrs);
+	t3_win_set_default_attrs(edit_window, attributes.text);
+	t3_win_set_default_attrs(bottom_line_window, attributes.menubar);
 	t3_win_set_paint(bottom_line_window, 0, 0);
 	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
 
@@ -696,7 +696,7 @@ void edit_window_t::update_contents(void) {
 	/* FIXME: is it really necessary to do this on each key stroke??? */
 	t3_win_set_paint(bottom_line_window, 0, 0);
 	if (text->name_line.calculate_screen_width(0, text->name_line.get_length(), 1) > name_width) {
-		t3_win_addstr(bottom_line_window, "..", colors.dialog_attrs);
+		t3_win_addstr(bottom_line_window, "..", attributes.dialog);
 		paint_info.start = text->name_line.adjust_position(text->name_line.get_length(), -(name_width - 2));
 		paint_info.size = name_width - 2;
 	} else {
@@ -734,8 +734,11 @@ void edit_window_t::set_focus(bool _focus) {
 			t3_win_set_cursor(edit_window, text->cursor.line - text->topleft.line, screen_pos - text->topleft.pos);
 			t3_term_show_cursor();
 		} else {
-			repaint_screen(); //Only for removing cursor
+			repaint_screen(); //FXIME: Only for removing cursor
 		}
+	} else {
+		if (!hard_cursor)
+			repaint_screen(); //FXIME: Only for removing cursor
 	}
 }
 

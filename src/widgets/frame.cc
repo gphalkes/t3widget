@@ -41,11 +41,11 @@ void frame_t::update_contents(void) {
 	if (!redraw)
 		return;
 	redraw = false;
-	t3_win_set_default_attrs(window, colors.dialog_attrs);
+	t3_win_set_default_attrs(window, attributes.dialog);
 
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
-	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), colors.dialog_attrs);
+	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 
 }
 void frame_t::set_focus(bool focus) { if (child != NULL) child->set_focus(focus); }

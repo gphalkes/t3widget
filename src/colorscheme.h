@@ -14,33 +14,38 @@
 #ifndef COLORSCHEME_H
 #define COLORSCHEME_H
 
-#include <window/window.h>
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
 
+#include <window/window.h>
+#include "util.h"
 namespace t3_widget {
 
 typedef struct {
-	t3_attr_t non_print_attrs;
-	t3_attr_t attr_selection_cursor;
-	t3_attr_t attr_selection_cursor2;
-	t3_attr_t attr_bad_draw;
-	t3_attr_t attr_cursor;
+	/* Text related attributes. */
+	t3_attr_t non_print;
+	t3_attr_t selection_cursor;
+	t3_attr_t selection_cursor2;
+	t3_attr_t bad_draw;
+	t3_attr_t text_cursor;
+	t3_attr_t text;
+	t3_attr_t text_selected;
+	/* High-light attributes for hot keys. */
+	t3_attr_t highlight;
+	t3_attr_t highlight_selected;
 
-	t3_attr_t dialog_attrs;
-	t3_attr_t dialog_selected_attrs;
-	t3_attr_t textfield_attrs;
-	t3_attr_t textfield_selected_attrs;
-	t3_attr_t button_attrs;
-	t3_attr_t button_selected_attrs;
-	t3_attr_t scrollbar_attrs;
-	t3_attr_t scrollbar_selected_attrs;
-	t3_attr_t text_attrs;
-	t3_attr_t text_selected_attrs;
-	t3_attr_t highlight_attrs;
-	t3_attr_t menubar_attrs;
-	t3_attr_t menubar_selected_attrs;
-} color_scheme_t;
+	t3_attr_t dialog;
+	t3_attr_t dialog_selected;
+	t3_attr_t button;
+	t3_attr_t button_selected;
+	t3_attr_t scrollbar;
+	t3_attr_t scrollbar_selected;
+	t3_attr_t menubar;
+	t3_attr_t menubar_selected;
+} attributes_t;
 
-extern color_scheme_t colors;
+extern attributes_t attributes;
 void init_colors(void);
 
 }; // namespace

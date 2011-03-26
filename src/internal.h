@@ -14,6 +14,10 @@
 #ifndef T3_WIDGET_INTERNAL_H
 #define T3_WIDGET_INTERNAL_H
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 #include <string>
 #include <sigc++/sigc++.h>
 

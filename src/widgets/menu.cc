@@ -36,10 +36,11 @@ menu_bar_t::~menu_bar_t(void) {
 	t3_win_del(window);
 }
 
-void menu_bar_t::draw_menu_name(menu_panel_t *menu, int attr) {
+void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
+	int attr = selected ? attributes.menubar_selected : attributes.menubar;
 	t3_win_set_paint(window, 0, t3_win_get_x(menu->get_draw_window()) + 1);
 	t3_win_addch(window, ' ', attr);
-	menu->label.draw(window, attr);
+	menu->label.draw(window, attr, selected);
 	t3_win_addch(window, ' ', attr);
 }
 
@@ -54,7 +55,7 @@ void menu_bar_t::close(void) {
 	has_focus = false;
 	if (hidden)
 		t3_win_hide(window);
-	draw_menu_name(menus[current_menu], colors.menubar_attrs);
+	draw_menu_name(menus[current_menu], false);
 	menus[current_menu]->hide();
 }
 
@@ -78,7 +79,7 @@ bool menu_bar_t::process_key(key_t key) {
 			has_focus = true;
 			if (hidden)
 				t3_win_show(window);
-			draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+			draw_menu_name(menus[current_menu], true);
 			menus[current_menu]->show();
 			return true;
 		default:
@@ -98,7 +99,7 @@ void menu_bar_t::update_contents(void) {
 	if (redraw) {
 		draw();
 		if (has_focus)
-			draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+			draw_menu_name(menus[current_menu], true);
 	}
 
 	if (!has_focus)
@@ -111,8 +112,8 @@ void menu_bar_t::update_contents(void) {
 	if (old_menu != current_menu) {
 		menus[old_menu]->hide();
 		menus[current_menu]->show();
-		draw_menu_name(menus[old_menu], colors.menubar_attrs);
-		draw_menu_name(menus[current_menu], colors.menubar_selected_attrs);
+		draw_menu_name(menus[old_menu], false);
+		draw_menu_name(menus[current_menu], true);
 	}
 	old_menu = current_menu;
 	menus[current_menu]->update_contents();
@@ -148,9 +149,9 @@ bool menu_bar_t::accepts_focus(void) { return false; }
 void menu_bar_t::draw(void) {
 	redraw = false;
 	t3_win_set_paint(window, 0, 0);
-	t3_win_addchrep(window, ' ', colors.menubar_attrs, t3_win_get_width(window));
+	t3_win_addchrep(window, ' ', attributes.menubar, t3_win_get_width(window));
 	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
-		draw_menu_name(*iter, colors.menubar_attrs);
+		draw_menu_name(*iter, false);
 }
 
 }; // namespace
