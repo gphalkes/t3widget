@@ -15,7 +15,6 @@
 #include <cstring>
 #include <climits>
 #include <stdint.h>
-#include <langinfo.h>
 #include <charconv.h>
 #include <cerrno>
 
@@ -399,7 +398,7 @@ complex_error_t init_keys(bool separate_keypad) {
 	struct sched_param sched_param;
 
 	/* Start with things most likely to fail */
-	if ((conversion_handle = charconv_open_convertor(nl_langinfo(CODESET), CHARCONV_UTF32, 0, &charconv_error)) == NULL)
+	if ((conversion_handle = charconv_open_convertor(charconv_get_codeset(), CHARCONV_UTF32, 0, &charconv_error)) == NULL)
 		RETURN_ERROR(complex_error_t::SRC_CHARCONV, charconv_error);
 
 	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)

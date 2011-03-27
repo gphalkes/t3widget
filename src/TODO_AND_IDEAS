@@ -57,6 +57,7 @@ IDEAS
 	different error byte; one popular replacement is the (otherwise invalid
 	Unicode) U+DC80 through U+DCFF.
 - it looks like we may be able to use the source-highlight library for doing
-	syntax high-lighting. If we do, then we should use boost-regex (because
-	we would indirectly depend on it anyway) instead of libpcre.
-	[ http://www.gnu.org/software/src-highlite/ ]
+	syntax high-lighting. [ http://www.gnu.org/software/src-highlite/ ]
+	However, using boost-regex (which source-highlight does) introduces a
+	(optional) dependency on libicu, which I wanted to avoid.
+
