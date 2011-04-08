@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <key/key.h>
-#include <charconv.h>
+#include <transcript.h>
 #include <cerrno>
 #include <new>
 
@@ -58,8 +58,8 @@ const char *complex_error_t::get_string(void) {
 	switch (source) {
 		case SRC_ERRNO:
 			return strerror(error);
-		case SRC_CHARCONV:
-			return charconv_strerror((charconv_error_t) error);
+		case SRC_TRANSCRIPT:
+			return transcript_strerror((transcript_error_t) error);
 		case SRC_T3_KEY:
 			return t3_key_strerror(error);
 		case SRC_T3_WINDOW:

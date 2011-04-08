@@ -70,13 +70,13 @@ CXXFLAGS += -I$(CURDIR)
 CXXFLAGS += -I$(CURDIR)/window
 CXXFLAGS += -I$(CURDIR)/unicode
 CXXFLAGS += -I$(CURDIR)/key
-CXXFLAGS += -I$(CURDIR)/charconv
+CXXFLAGS += -I$(CURDIR)/transcript
 CXXFLAGS += -pthread -DTHREADED_KEYS
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 
 LDLIBS += -L$(CURDIR)/../src/window/.libs -lt3window
 LDLIBS += -L$(CURDIR)/../src/unicode/.libs -lt3unicode
-LDLIBS += -L$(CURDIR)/../src/charconv/.libs -lcharconv
+LDLIBS += -L$(CURDIR)/../src/transcript/.libs -ltranscript
 LDLIBS += -L$(CURDIR)/../src/key/.libs -lt3key
 LDLIBS += -lpcre
 LDLIBS += `pkg-config --libs sigc++-2.0`
@@ -86,7 +86,7 @@ CXXFLAGS += -fno-caret-diagnostics
 
 links:
 	@[ -L unicode ] || ln -s ../../unicode/src unicode
-	@[ -L charconv ] || ln -s ../../../charconv/src charconv
+	@[ -L transcript ] || ln -s ../../../transcript/src transcript
 	@[ -L window ] || ln -s ../../window/src window
 	@[ -L key ] || ln -s ../../key/src key
 

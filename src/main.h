@@ -27,7 +27,7 @@ class complex_error_t {
 		enum source_t{
 			SRC_NONE,
 			SRC_ERRNO,
-			SRC_CHARCONV,
+			SRC_TRANSCRIPT,
 			SRC_T3_KEY,
 			SRC_T3_WINDOW
 		};

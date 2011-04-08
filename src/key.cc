@@ -15,7 +15,7 @@
 #include <cstring>
 #include <climits>
 #include <stdint.h>
-#include <charconv.h>
+#include <transcript.h>
 #include <cerrno>
 
 #include <window/window.h>
@@ -123,7 +123,7 @@ static char char_buffer[32];
 static int char_buffer_fill;
 static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
-static charconv_t *conversion_handle;
+static transcript_t *conversion_handle;
 
 static int key_timeout = -1;
 
@@ -156,6 +156,7 @@ static int read_and_convert_keys(int timeout) {
 	uint32_t *unicode_buffer_ptr;
 	key_t c;
 
+	#warning FIXME: retrieve the new character set and if it is not equal, update the current convertor
 	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL)
 		key_buffer.push_back_unique(EKEY_UPDATE_TERMINAL);
 
@@ -167,26 +168,26 @@ static int read_and_convert_keys(int timeout) {
 	unicode_buffer_ptr = unicode_buffer;
 
 	while (1) {
-		switch (charconv_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
-				(char **) &unicode_buffer_ptr, (const char *) (&unicode_buffer) + sizeof(unicode_buffer), CHARCONV_ALLOW_FALLBACK))
+		switch (transcript_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
+				(char **) &unicode_buffer_ptr, (const char *) (&unicode_buffer) + sizeof(unicode_buffer), TRANSCRIPT_ALLOW_FALLBACK))
 		{
-			case CHARCONV_SUCCESS:
-			case CHARCONV_NO_SPACE:
-			case CHARCONV_INCOMPLETE:
+			case TRANSCRIPT_SUCCESS:
+			case TRANSCRIPT_NO_SPACE:
+			case TRANSCRIPT_INCOMPLETE:
 				char_buffer_fill -= char_buffer_ptr - char_buffer;
 				if (char_buffer_fill != 0)
 					memmove(char_buffer, char_buffer_ptr, char_buffer_fill);
 				unicode_buffer_fill = unicode_buffer_ptr - unicode_buffer;
 				return 0;
 
-			case CHARCONV_FALLBACK: // NOTE: we allow fallbacks, so this should not even occur!!!
+			case TRANSCRIPT_FALLBACK: // NOTE: we allow fallbacks, so this should not even occur!!!
 
-			case CHARCONV_UNASSIGNED:
-			case CHARCONV_ILLEGAL:
-			case CHARCONV_ILLEGAL_END:
-			case CHARCONV_INTERNAL_ERROR:
-			case CHARCONV_PRIVATE_USE:
-				charconv_to_unicode_skip(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill);
+			case TRANSCRIPT_UNASSIGNED:
+			case TRANSCRIPT_ILLEGAL:
+			case TRANSCRIPT_ILLEGAL_END:
+			case TRANSCRIPT_INTERNAL_ERROR:
+			case TRANSCRIPT_PRIVATE_USE:
+				transcript_to_unicode_skip(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill);
 				break;
 			default:
 				// This shouldn't happen, and we can't really do anything with this.
@@ -394,12 +395,12 @@ complex_error_t init_keys(bool separate_keypad) {
 	sigset_t sigs;
 	const t3_key_node_t *key_node;
 	int i, j, error, idx;
-	charconv_error_t charconv_error;
+	transcript_error_t transcript_error;
 	struct sched_param sched_param;
 
 	/* Start with things most likely to fail */
-	if ((conversion_handle = charconv_open_convertor(charconv_get_codeset(), CHARCONV_UTF32, 0, &charconv_error)) == NULL)
-		RETURN_ERROR(complex_error_t::SRC_CHARCONV, charconv_error);
+	if ((conversion_handle = transcript_open_convertor(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)
+		RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
 
 	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)
 		RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
@@ -548,7 +549,7 @@ complex_error_t init_keys(bool separate_keypad) {
 
 return_error:
 	if (conversion_handle != NULL)
-		charconv_close_convertor(conversion_handle);
+		transcript_close_convertor(conversion_handle);
 	if (keymap != NULL)
 		t3_key_free_map(keymap);
 	if (signal_pipe[0] != -1) {
