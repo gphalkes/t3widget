@@ -4,7 +4,7 @@ src/widget_api.h
 src/libt3widget.la
 src/unicode
 src/window
-src/charconv
+src/transcript
 src/key
 src/.deps
 src/.objects

@@ -178,7 +178,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		size_t c_size;
 		const char *c;
 
-		start = result->start >= 0 && (size_t) result->start > haystack->size() ? haystack->size() : result->start;
+		start = result->start >= 0 && (size_t) result->start > haystack->size() ? haystack->size() : (size_t) result->start;
 		curr_char = start;
 
 		if (reverse) {

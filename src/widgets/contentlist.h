@@ -130,7 +130,7 @@ typedef filtered_list<string_list_t> filtered_string_list_t;
 class filtered_file_list_t : public filtered_list<file_list_t> {
 	public:
 		filtered_file_list_t(file_list_t *list) : filtered_list<file_list_t>(list) {}
-		virtual bool is_dir(int idx) const { return base->is_dir(test.empty() ? idx : items[idx]); }
+		virtual bool is_dir(int idx) const { return base->is_dir(test.empty() ? idx : (int) items[idx]); }
 };
 
 bool string_compare_filter(string_list_t *list, size_t idx, const std::string *str);
