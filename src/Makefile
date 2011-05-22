@@ -48,6 +48,7 @@ SOURCES.libt3widget.la := \
 	widgets/multiwidget.cc \
 	widgets/scrollbar.cc \
 	widgets/smartlabel.cc \
+	widgets/split.cc \
 	widgets/textfield.cc \
 	widgets/widget.cc
 

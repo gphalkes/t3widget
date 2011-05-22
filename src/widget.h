@@ -37,6 +37,7 @@
 #include "widgets/multiwidget.h"
 #include "widgets/scrollbar.h"
 #include "widgets/smartlabel.h"
+#include "widgets/split.h"
 #include "widgets/textfield.h"
 
 #endif
