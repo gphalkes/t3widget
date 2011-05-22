@@ -31,9 +31,6 @@ Low Priority
 	disabled for that use)
 - create a (scrollable) text display widget. This should then be used in
 	the message dialog, but can also be used for showing help texts etc.
-- perhaps it would be nice to let connect_on_init return a bool, because we
-	don't really care about the return value anyway. That way, it takes less
-	space.
 
 New Functionality
 -----------------
