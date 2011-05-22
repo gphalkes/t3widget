@@ -96,7 +96,6 @@ class text_buffer_t {
 		int merge(bool backspace);
 
 		bool break_line(void);
-		void new_line(void);
 		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;
 		int calculate_line_pos(int line, int pos) const;
 

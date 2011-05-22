@@ -339,31 +339,34 @@ bool text_buffer_t::break_line_internal(void) {
 
 	insert = lines[lineindex]->break_line(cursor.pos);
 	lines.insert(lines.begin() + lineindex + 1, insert);
+	cursor.line++;
+	cursor.pos = 0;
+
 	if (wrap) {
 		int nextline;
 
-		wraplines[cursor.line]->set_flags(0);
+		wraplines[cursor.line - 1]->set_flags(0);
 
-		for (nextline = cursor.line + 1; (size_t) nextline < wraplines.size() &&
-				wraplines[cursor.line]->get_line() == wraplines[nextline]->get_line();
+		for (nextline = cursor.line; (size_t) nextline < wraplines.size() &&
+				wraplines[cursor.line - 1]->get_line() == wraplines[nextline]->get_line();
 				nextline++) {}
 
-		if (nextline > cursor.line + 1) {
-			wraplines[cursor.line + 1]->set_line(insert);
-			wraplines[cursor.line + 1]->set_start(0);
-			wraplines[cursor.line + 1]->set_flags(0);
-			if (nextline > cursor.line + 2)
-				wraplines.erase(wraplines.begin() + cursor.line + 2, wraplines.begin() + nextline);
+		if (nextline > cursor.line) {
+			wraplines[cursor.line]->set_line(insert);
+			wraplines[cursor.line]->set_start(0);
+			wraplines[cursor.line]->set_flags(0);
+			if (nextline > cursor.line + 1)
+				wraplines.erase(wraplines.begin() + cursor.line + 1, wraplines.begin() + nextline);
 		} else {
 			subtext_line_t *next = new subtext_line_t(insert, 0);
 			if (next == NULL)
 				return false;
 
-			wraplines.insert(wraplines.begin() + cursor.line + 1, next);
+			wraplines.insert(wraplines.begin() + cursor.line, next);
 		}
 
-		rewrap_line(cursor.line + 1);
 		rewrap_line(cursor.line);
+		rewrap_line(cursor.line - 1);
 	}
 	return true;
 }
@@ -371,20 +374,6 @@ bool text_buffer_t::break_line_internal(void) {
 bool text_buffer_t::break_line(void) {
 	get_undo(UNDO_ADD_NEWLINE);
 	return break_line_internal();
-}
-
-void text_buffer_t::new_line(void) {
-	int lineindex;
-	text_line_t *insert = new text_line_t();
-
-	get_undo(UNDO_ADD_NEWLINE);
-
-	lineindex = get_real_line(cursor.line + 1);
-	lines.insert(lines.begin() + lineindex, insert);
-	if (wrap) {
-		subtext_line_t *next = new subtext_line_t(insert, 0);
-		wraplines.insert(wraplines.begin() + cursor.line + 1, next);
-	}
 }
 
 int text_buffer_t::calculate_screen_pos(const text_coordinate_t *where) const {
@@ -1097,8 +1086,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 		case UNDO_BACKSPACE_NEWLINE:
 			cursor = get_wrap_line(current->get_start());
 			break_line_internal();
-			cursor.line++;
-			cursor.pos = 0;
 			break;
 		case UNDO_DELETE_NEWLINE:
 			cursor = get_wrap_line(current->get_start());

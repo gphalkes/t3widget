@@ -505,15 +505,9 @@ bool edit_window_t::process_key(key_t key) {
 			if (text->selection_mode != selection_mode_t::NONE)
 				delete_selection();
 
-			if (text->cursor.pos == text->get_line_max(text->cursor.line))
-				text->new_line();
-			else
-				text->break_line();
-
-			text->cursor.line++;
-			text->cursor.pos = 0;
+			text->break_line();
 			ensure_cursor_on_screen();
-			text->last_set_pos = 0;
+			text->last_set_pos = screen_pos;
 			redraw = true;
 			break;
 
@@ -562,11 +556,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_CTRL | 'g':
-			goto_connection.disconnect();
-			goto_connection = goto_dialog->connect_activate(sigc::mem_fun(this, &edit_window_t::goto_line));
-			goto_dialog->center_over(center_window);
-			goto_dialog->reset();
-			goto_dialog->show();
+			goto_line();
 			break;
 
 		case 0: //CTRL-SPACE (and others)
@@ -623,9 +613,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_F9:
-			insert_char_dialog->center_over(center_window);
-			insert_char_dialog->reset();
-			insert_char_dialog->show();
+			insert_special();
 			break;
 
 		default:
@@ -814,6 +802,20 @@ void edit_window_t::select_all(void) {
 	redraw = true;
 }
 
+void edit_window_t::insert_special(void) {
+	insert_char_dialog->center_over(center_window);
+	insert_char_dialog->reset();
+	insert_char_dialog->show();
+}
+
+void edit_window_t::goto_line(void) {
+	goto_connection.disconnect();
+	goto_connection = goto_dialog->connect_activate(sigc::mem_fun1(this, &edit_window_t::goto_line));
+	goto_dialog->center_over(center_window);
+	goto_dialog->reset();
+	goto_dialog->show();
+}
+
 void edit_window_t::goto_line(int line) {
 	if (line < 1)
 		return;
@@ -821,8 +823,8 @@ void edit_window_t::goto_line(int line) {
 	text->cursor.line = (line > text->get_used_lines() ? text->get_used_lines() : line) - 1;
 	if (text->cursor.pos > text->get_line_max(text->cursor.line))
 		text->cursor.pos = text->get_line_max(text->cursor.line);
-	text->last_set_pos = text->cursor.pos;
 	ensure_cursor_on_screen();
+	text->last_set_pos = screen_pos;
 }
 
 bool edit_window_t::get_selection_lines(int *top, int *bottom) {
