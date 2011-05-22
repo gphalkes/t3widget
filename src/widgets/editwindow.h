@@ -88,7 +88,7 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		void cut_copy(bool cut);
 		void paste(void);
 		void select_all(void);
-		const text_buffer_t *get_text_file(void);
+		const text_buffer_t *get_text(void);
 		void set_find_dialog(find_dialog_t *_find_dialog);
 		void set_finder(finder_t *_finder);
 };

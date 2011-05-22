@@ -79,8 +79,7 @@ class text_buffer_t {
 
 		void set_selection_from_find(int line, find_result_t *result);
 	public:
-		text_buffer_t(void);
-		text_buffer_t(const char *_name);
+		text_buffer_t(const char *_name = NULL);
 		void common_init(void);
 		virtual ~text_buffer_t(void);
 
@@ -132,6 +131,7 @@ class text_buffer_t {
 		void replace(finder_t *finder);
 
 		const char *get_name(void) const;
+		bool has_window(void) const;
 };
 
 }; // namespace

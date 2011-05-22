@@ -71,15 +71,11 @@ text_buffer_t::~text_buffer_t(void) {
 	free(name);
 }
 
-/* Read 'file' into memory. Returns NULL on failure or an initialized
-   text_buffer_t struct on succes */
-text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79) {
-	if ((name = strdup(_name)) == NULL)
-		throw bad_alloc();
-}
-
-/* Create a new, 'empty' text_buffer_t structure */
-text_buffer_t::text_buffer_t(void) : wrap_width(79), name(NULL) {
+text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79), name(NULL) {
+	if (name != NULL) {
+		if ((name = strdup(_name)) == NULL)
+			throw bad_alloc();
+	}
 	/* Allocate a new, empty line */
 	lines.push_back(new text_line_t());
 	common_init();
@@ -1260,6 +1256,10 @@ void text_buffer_t::set_wrap(bool _wrap) {
 	}
 	if (window != NULL)
 		window->force_redraw();
+}
+
+bool text_buffer_t::has_window(void) const {
+	return window != NULL;
 }
 
 }; // namespace

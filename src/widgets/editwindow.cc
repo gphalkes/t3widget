@@ -19,6 +19,7 @@
 #include "internal.h"
 
 #warning FIXME: last column of edit window is not used!
+#warning FIXME: set name_line to a useful value
 
 using namespace std;
 namespace t3_widget {
@@ -85,6 +86,7 @@ void edit_window_t::set_text(text_buffer_t *_text) {
 	if (text == _text)
 		return;
 
+	text->window = NULL;
 	text = _text;
 	text->window = this;
 	if (text->get_wrap())
@@ -831,7 +833,7 @@ bool edit_window_t::get_selection_lines(int *top, int *bottom) {
 	return true;
 }
 
-const text_buffer_t *edit_window_t::get_text_file(void) {
+const text_buffer_t *edit_window_t::get_text(void) {
 	return text;
 }
 
