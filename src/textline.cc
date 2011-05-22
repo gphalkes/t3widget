@@ -354,6 +354,9 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	if (flags & text_line_t::BREAK)
 		size--;
 
+	if (size < 0)
+		return;
+
 	if (starts_with_combining && info->leftcol > 0 && info->start == 0)
 		total++;
 
