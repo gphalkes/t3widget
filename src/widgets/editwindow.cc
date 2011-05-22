@@ -18,6 +18,8 @@
 #include "colorscheme.h"
 #include "internal.h"
 
+#warning FIXME: last column of edit window is not used!
+
 using namespace std;
 namespace t3_widget {
 

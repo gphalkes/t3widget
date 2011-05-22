@@ -18,7 +18,10 @@ using namespace std;
 namespace t3_widget {
 
 main_window_base_t::main_window_base_t(void) : dialog_t() {
-	if ((window = t3_win_new_unbacked(NULL, 25, 80, 0, 0, INT_MAX)) == NULL)
+	int height, width;
+	t3_term_get_size(&height, &width);
+
+	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MAX)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
 	connect_resize(sigc::mem_fun(this, &main_window_base_t::set_size_real));
