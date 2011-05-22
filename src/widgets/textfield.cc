@@ -359,7 +359,7 @@ void text_field_t::update_contents(void) {
 		}
 		info.cursor = focus && !hard_cursor ? screen_pos : -1;
 		info.normal_attr = attributes.text;
-		info.selected_attr = attributes.text;
+		info.selected_attr = attributes.text_selected;
 
 		line.paint_line(window, &info);
 		t3_win_addch(window, ']', 0);
