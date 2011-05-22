@@ -57,7 +57,7 @@ bool frame_t::set_size(optint height, optint width) {
 	if (!height.is_valid())
 		height = t3_win_get_height(window);
 	if (!width.is_valid())
-		width = t3_win_get_height(window);
+		width = t3_win_get_width(window);
 
 	result = t3_win_resize(window, height, width);
 	redraw = true;

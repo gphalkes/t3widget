@@ -695,27 +695,29 @@ void edit_window_t::update_contents(void) {
 	info_width = t3_term_strwidth(info);
 	name_width = t3_win_get_width(bottom_line_window) - info_width - 3;
 
-	/* FIXME: is it really necessary to do this on each key stroke??? */
-	t3_win_set_paint(bottom_line_window, 0, 0);
-	if (text->name_line.calculate_screen_width(0, text->name_line.get_length(), 1) > name_width) {
-		t3_win_addstr(bottom_line_window, "..", attributes.dialog);
-		paint_info.start = text->name_line.adjust_position(text->name_line.get_length(), -(name_width - 2));
-		paint_info.size = name_width - 2;
-	} else {
-		paint_info.start = 0;
-		paint_info.size = name_width;
-	}
-	paint_info.leftcol = 0;
-	paint_info.max = INT_MAX;
-	paint_info.tabsize = 1;
-	paint_info.flags = text_line_t::TAB_AS_CONTROL | text_line_t::SPACECLEAR;
-	paint_info.selection_start = -1;
-	paint_info.selection_end = -1;
-	paint_info.cursor = -1;
-	paint_info.normal_attr = 0;
-	paint_info.selected_attr = 0;
+	if (name_width > 3) {
+		/* FIXME: is it really necessary to do this on each key stroke??? */
+		t3_win_set_paint(bottom_line_window, 0, 0);
+		if (text->name_line.calculate_screen_width(0, text->name_line.get_length(), 1) > name_width) {
+			t3_win_addstr(bottom_line_window, "..", attributes.dialog);
+			paint_info.start = text->name_line.adjust_position(text->name_line.get_length(), -(name_width - 2));
+			paint_info.size = name_width - 2;
+		} else {
+			paint_info.start = 0;
+			paint_info.size = name_width;
+		}
+		paint_info.leftcol = 0;
+		paint_info.max = INT_MAX;
+		paint_info.tabsize = 1;
+		paint_info.flags = text_line_t::TAB_AS_CONTROL | text_line_t::SPACECLEAR;
+		paint_info.selection_start = -1;
+		paint_info.selection_end = -1;
+		paint_info.cursor = -1;
+		paint_info.normal_attr = 0;
+		paint_info.selected_attr = 0;
 
-	text->name_line.paint_line(bottom_line_window, &paint_info);
+		text->name_line.paint_line(bottom_line_window, &paint_info);
+	}
 
 	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);
 	t3_win_addstr(bottom_line_window, info, 0);
