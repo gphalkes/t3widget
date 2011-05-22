@@ -399,7 +399,7 @@ complex_error_t init_keys(bool separate_keypad) {
 	struct sched_param sched_param;
 
 	/* Start with things most likely to fail */
-	if ((conversion_handle = transcript_open_convertor(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)
+	if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)
 		RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
 
 	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)
@@ -549,7 +549,7 @@ complex_error_t init_keys(bool separate_keypad) {
 
 return_error:
 	if (conversion_handle != NULL)
-		transcript_close_convertor(conversion_handle);
+		transcript_close_converter(conversion_handle);
 	if (keymap != NULL)
 		t3_key_free_map(keymap);
 	if (signal_pipe[0] != -1) {
