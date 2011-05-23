@@ -17,7 +17,7 @@
 using namespace std;
 namespace t3_widget {
 
-bullet_t::bullet_t(const bool *_source) : widget_t(1, 1), source(_source), has_focus(false) {}
+bullet_t::bullet_t(const sigc::slot<bool> &_source) : widget_t(1, 1), source(_source), has_focus(false) {}
 
 bool bullet_t::set_size(optint height, optint width) {
 	(void) height;
@@ -30,7 +30,7 @@ bool bullet_t::process_key(key_t key) { (void) key; return false; }
 void bullet_t::update_contents(void) {
 	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
-	if (*source)
+	if (source())
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (has_focus ? T3_ATTR_REVERSE : 0));
 	else
 		t3_win_addch(window, ' ', has_focus ? T3_ATTR_REVERSE : 0);
