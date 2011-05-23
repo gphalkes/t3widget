@@ -21,6 +21,13 @@ main_window_base_t::main_window_base_t(void) : dialog_t() {
 	int height, width;
 	t3_term_get_size(&height, &width);
 
+	/* If the main window was created before init, we may get funny results. To
+	   prevent crashes, correct them here. */
+	if (height <= 0 || width <= 0) {
+		height = 24;
+		width = 80;
+	}
+
 	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MAX)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
