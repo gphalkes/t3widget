@@ -19,13 +19,13 @@
 namespace t3_widget {
 
 class split_t : public widget_t, public container_t {
-	private:
+	protected:
 		widgets_t widgets;
 		widgets_t::iterator current;
 		bool horizontal, focus;
 
-		bool next(void);
-		bool previous(void);
+		bool next_recurse(void);
+		bool previous_recurse(void);
 		void set_to_begin(void);
 		void set_to_end(void);
 		bool unsplit(widget_t **widget);
@@ -40,6 +40,8 @@ class split_t : public widget_t, public container_t {
 
 		void split(widget_t *widget, bool _horizontal);
 		widget_t *unsplit(void);
+		void next(void);
+		void previous(void);
 		widget_t *get_current(void);
 };
 
