@@ -247,8 +247,6 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	filter_line->set_label(filter_label);
 	filter_line->set_key_filter(&nul, 1, false);
 
-	title = "Open File";
-
 	widgets.insert(widgets.end() - 2, filter_label);
 	widgets.insert(widgets.end() - 2, filter_line);
 }

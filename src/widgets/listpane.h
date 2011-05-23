@@ -23,7 +23,7 @@ class list_pane_t : public widget_t, public container_t {
 	private:
 		int height;
 		size_t top_idx, current;
-		t3_window_t *clip_window;
+		t3_window_t *widgets_window;
 		widgets_t widgets;
 		bool has_focus;
 		scrollbar_t scrollbar;
@@ -44,6 +44,10 @@ class list_pane_t : public widget_t, public container_t {
 		indicator_widget_t *indicator_widget;
 
 		void ensure_cursor_on_screen(void);
+
+	protected:
+		virtual bool set_widget_parent(widget_t *widget);
+
 	public:
 		list_pane_t(bool _indicator);
 		virtual ~list_pane_t(void);

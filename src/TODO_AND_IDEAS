@@ -13,6 +13,7 @@ High Priority
 - figure out how to override attributes on a per-widget basis
 - match SciTE search dialog again (or choose another editor's search dialog as
 	template)
+- gettext for titles of dialogs etc.
 
 Low Priority
 ------------

@@ -34,8 +34,6 @@ class edit_window_t;
 
 class text_buffer_t {
 	friend class edit_window_t;
-	friend class OpenFiles;
-	friend class RecentFiles;
 
 	private:
 		lines_t lines;

@@ -21,20 +21,16 @@ namespace t3_widget {
 list_pane_t::list_pane_t(bool _indicator) : height(1), top_idx(0), current(0),
 		widgets(NULL), has_focus(false), scrollbar(true), indicator(_indicator)
 {
+	init_unbacked_window(height, 3);
+	widgets_window = window;
+
 	init_unbacked_window(height, 4);
-	/* We temporarily store the clip_window in window, so that we can use
-	   set_widget_parent and set_anchor on the scrollbar. */
-	set_widget_parent(&scrollbar);
+	t3_win_set_parent(widgets_window, window);
+	t3_win_set_anchor(widgets_window, window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+
+	t3_win_set_parent(scrollbar.get_draw_window(), window);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar.set_size(height, None);
-
-	clip_window = window;
-
-	init_unbacked_window(height, 3);
-	t3_win_set_parent(window, clip_window);
-
-	t3_win_set_anchor(window, clip_window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	t3_win_show(window);
 
 	if (indicator) {
 		indicator_widget = new indicator_widget_t();
@@ -43,7 +39,11 @@ list_pane_t::list_pane_t(bool _indicator) : height(1), top_idx(0), current(0),
 }
 
 list_pane_t::~list_pane_t(void) {
-	t3_win_del(clip_window);
+	t3_win_del(widgets_window);
+}
+
+bool list_pane_t::set_widget_parent(widget_t *widget) {
+	return t3_win_set_parent(widget->get_draw_window(), widgets_window);
 }
 
 void list_pane_t::ensure_cursor_on_screen(void) {
@@ -111,10 +111,10 @@ bool list_pane_t::process_key(key_t key) {
 
 void list_pane_t::set_position(optint top, optint left) {
 	if (!top.is_valid())
-		top = t3_win_get_y(clip_window);
+		top = t3_win_get_y(window);
 	if (!left.is_valid())
-		left = t3_win_get_x(clip_window);
-	t3_win_move(clip_window, top, left);
+		left = t3_win_get_x(window);
+	t3_win_move(window, top, left);
 }
 
 bool list_pane_t::set_size(optint _height, optint width) {
@@ -124,10 +124,10 @@ bool list_pane_t::set_size(optint _height, optint width) {
 	if (_height.is_valid())
 		height = _height;
 	if (!width.is_valid())
-		width = t3_win_get_width(clip_window);
+		width = t3_win_get_width(window);
 
-	result = t3_win_resize(clip_window, height, width);
-	result &= t3_win_resize(window, t3_win_get_height(window), width - 1);
+	result = t3_win_resize(window, height, width);
+	result &= t3_win_resize(widgets_window, t3_win_get_height(widgets_window), width - 1);
 	if (indicator)
 		result &= indicator_widget->set_size(None, width - 1);
 
@@ -150,7 +150,7 @@ void list_pane_t::update_contents(void) {
 		indicator_widget->set_position(current, 0);
 	}
 
-	t3_win_move(window, -top_idx, 0);
+	t3_win_move(widgets_window, -top_idx, 0);
 	scrollbar.set_parameters(widgets.size(), top_idx, height - 1);
 	scrollbar.update_contents();
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
@@ -176,13 +176,13 @@ void list_pane_t::update_positions(void) {
 	widgets_t::iterator iter;
 	size_t idx;
 
-	t3_win_resize(window, widgets.size(), t3_win_get_width(clip_window));
+	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(window));
 	for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++)
 		(*iter)->set_position(idx, indicator ? 1 : 0);
 }
 
 void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
-	t3_win_set_anchor(clip_window, anchor->get_draw_window(), relation);
+	t3_win_set_anchor(window, anchor->get_draw_window(), relation);
 }
 
 void list_pane_t::force_redraw(void) {
@@ -193,14 +193,16 @@ void list_pane_t::force_redraw(void) {
 }
 
 void list_pane_t::push_back(widget_t *widget) {
-	widget->set_size(1, t3_win_get_width(window) - (indicator ? 2 : 0));
+	widget->set_size(1, t3_win_get_width(widgets_window) - (indicator ? 2 : 0));
 	widget->set_position(widgets.size(), indicator ? 1 : 0);
+	set_widget_parent(widget);
 	widgets.push_back(widget);
-	t3_win_resize(window, widgets.size(), t3_win_get_width(clip_window));
+	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(window));
 }
 
 void list_pane_t::push_front(widget_t *widget) {
-	widget->set_size(1, t3_win_get_width(window) - (indicator ? 2 : 0));
+	widget->set_size(1, t3_win_get_width(widgets_window) - (indicator ? 2 : 0));
+	set_widget_parent(widget);
 	widgets.push_front(widget);
 	if (current + 1 < widgets.size())
 		current++;
@@ -215,8 +217,9 @@ void list_pane_t::pop_back(void) {
 			widgets[current]->set_focus(has_focus);
 		}
 	}
+	unset_widget_parent(widgets.back());
 	widgets.pop_back();
-	t3_win_resize(window, widgets.size(), t3_win_get_width(clip_window));
+	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(window));
 }
 
 void list_pane_t::pop_front(void) {
@@ -227,6 +230,7 @@ void list_pane_t::pop_front(void) {
 	} else {
 		current--;
 	}
+	unset_widget_parent(widgets.front());
 	widgets.pop_front();
 	update_positions();
 }
@@ -252,6 +256,7 @@ list_pane_t::iterator list_pane_t::erase(list_pane_t::iterator position) {
 		if (current != 0)
 			current--;
 	}
+	unset_widget_parent(widgets[position]);
 	widgets.erase(widgets.begin() + position);
 	update_positions();
 	return position;

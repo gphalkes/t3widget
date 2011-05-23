@@ -44,8 +44,8 @@ class window_component_t {
 class widget_t;
 class container_t : private virtual window_component_t {
 	protected:
-		bool set_widget_parent(widget_t *widget);
-		void unset_widget_parent(widget_t *widget);
+		virtual bool set_widget_parent(widget_t *widget);
+		virtual void unset_widget_parent(widget_t *widget);
 };
 
 class center_component_t : private virtual window_component_t {
