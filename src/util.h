@@ -13,6 +13,7 @@
 */
 #ifndef T3_WIDGET_UTIL_H
 #define T3_WIDGET_UTIL_H
+#include <string>
 #include <unistd.h>
 #include <sigc++/sigc++.h>
 
@@ -116,6 +117,10 @@ _T3_WIDGET_ENUM(attribute_t,
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 ssize_t nosig_read(int fd, char *buffer, size_t bytes);
+
+std::string get_working_directory(void);
+std::string get_directory(const char *directory);
+bool is_dir(const std::string *current_dir, const char *name);
 
 }; // namespace
 #endif

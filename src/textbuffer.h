@@ -35,7 +35,7 @@ class edit_window_t;
 class text_buffer_t {
 	friend class edit_window_t;
 
-	private:
+	protected:
 		lines_t lines;
 		sublines_t wraplines;
 		bool wrap;

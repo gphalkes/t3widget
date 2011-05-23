@@ -138,7 +138,7 @@ void file_dialog_t::set_file(const char *file) {
 	size_t idx;
 	string file_string;
 
-	current_dir = file_name_list_t::get_directory(file);
+	current_dir = get_directory(file);
 
 	if (file == NULL)
 		file_string.clear();
@@ -165,7 +165,7 @@ void file_dialog_t::ok_callback(void) {
 }
 
 void file_dialog_t::ok_callback(const string *file) {
-	if (file_name_list_t::is_dir(&current_dir, file->c_str())) {
+	if (is_dir(&current_dir, file->c_str())) {
 		change_dir(file);
 		file_line->set_text("");
 	} else {

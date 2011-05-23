@@ -41,7 +41,6 @@ namespace t3_widget {
 */
 
 #define LINESINC 64
-#define BOM_STRING "\xEF\xBB\xBF"
 
 /*FIXME-REFACTOR: adjust_position in line is often called with same argument as
   where the return value is stored. Check whether this is always the case. If
@@ -72,7 +71,7 @@ text_buffer_t::~text_buffer_t(void) {
 }
 
 text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79), name(NULL) {
-	if (name != NULL) {
+	if (_name != NULL) {
 		if ((name = strdup(_name)) == NULL)
 			throw bad_alloc();
 	}

@@ -17,6 +17,8 @@
 #include <limits.h>
 #include <cstring>
 #include <unicode/unicode.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "log.h"
 #include "util.h"
@@ -254,6 +256,68 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 	/* Terminate str. */
 	str.erase(write_position);
 	return true;
+}
+
+string get_working_directory(void) {
+	size_t buffer_max = 511;
+	char *buffer = NULL, *result;
+
+	do {
+		result = (char *) realloc(buffer, buffer_max);
+		if (result == NULL) {
+			free(buffer);
+			throw ENOMEM;
+		}
+		buffer = result;
+		if ((result = getcwd(buffer, buffer_max)) == NULL) {
+			if (errno != ERANGE) {
+				int error_save = errno;
+				free(buffer);
+				throw error_save;
+			}
+
+			if (SIZE_MAX / 2 < buffer_max) {
+				free(buffer);
+				throw ENOMEM;
+			}
+		}
+	} while (result == NULL);
+
+	string retval(buffer);
+	free(buffer);
+	return retval;
+}
+
+string get_directory(const char *directory) {
+	string dirstring;
+
+	if (directory == NULL) {
+		dirstring = get_working_directory();
+	} else {
+		struct stat dir_info;
+		dirstring = directory;
+		if (stat(directory, &dir_info) < 0 || !S_ISDIR(dir_info.st_mode)) {
+			size_t idx = dirstring.rfind('/');
+			if (idx == string::npos) {
+				dirstring = get_working_directory();
+			} else {
+				dirstring.erase(idx);
+				if (stat(dirstring.c_str(), &dir_info) < 0)
+					throw errno;
+			}
+		}
+	}
+	return dirstring;
+}
+
+bool is_dir(const string *current_dir, const char *name) {
+	string file = *current_dir + "/" + name;
+	struct stat file_info;
+
+	if (stat(file.c_str(), &file_info) < 0)
+		//This would be weird, but still we have to do something
+		return false;
+	return !!S_ISDIR(file_info.st_mode);
 }
 
 }; // namespace

@@ -54,12 +54,6 @@ class file_name_list_t : public file_list_t {
 		virtual bool is_dir(int idx) const;
 		void load_directory(std::string *dirName);
 		file_name_list_t &operator=(const file_name_list_t& other);
-
-		//FIXME: move these to util
-		static std::string get_working_directory(void);
-		static std::string get_directory(const char *directory);
-		static bool is_dir(const std::string *current_dir, const char *name);
-
 };
 
 class filtered_list_base_t : public virtual string_list_base_t {

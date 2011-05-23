@@ -14,8 +14,6 @@
 #include <cerrno>
 #include <cstring>
 #include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fnmatch.h>
 #include <algorithm>
 #include <cstdarg>
@@ -26,68 +24,6 @@
 
 using namespace std;
 namespace t3_widget {
-
-string file_name_list_t::get_working_directory(void) {
-	size_t buffer_max = 511;
-	char *buffer = NULL, *result;
-
-	do {
-		result = (char *) realloc(buffer, buffer_max);
-		if (result == NULL) {
-			free(buffer);
-			throw ENOMEM;
-		}
-		buffer = result;
-		if ((result = getcwd(buffer, buffer_max)) == NULL) {
-			if (errno != ERANGE) {
-				int error_save = errno;
-				free(buffer);
-				throw error_save;
-			}
-
-			if (SIZE_MAX / 2 < buffer_max) {
-				free(buffer);
-				throw ENOMEM;
-			}
-		}
-	} while (result == NULL);
-
-	string retval(buffer);
-	free(buffer);
-	return retval;
-}
-
-string file_name_list_t::get_directory(const char *directory) {
-	string dirstring;
-
-	if (directory == NULL) {
-		dirstring = get_working_directory();
-	} else {
-		struct stat dir_info;
-		dirstring = directory;
-		if (stat(directory, &dir_info) < 0 || !S_ISDIR(dir_info.st_mode)) {
-			size_t idx = dirstring.rfind('/');
-			if (idx == string::npos) {
-				dirstring = get_working_directory();
-			} else {
-				dirstring.erase(idx);
-				if (stat(dirstring.c_str(), &dir_info) < 0)
-					throw errno;
-			}
-		}
-	}
-	return dirstring;
-}
-
-bool file_name_list_t::is_dir(const string *current_dir, const char *name) {
-	string file = *current_dir + "/" + name;
-	struct stat file_info;
-
-	if (stat(file.c_str(), &file_info) < 0)
-		//This would be weird, but still we have to do something
-		return false;
-	return !!S_ISDIR(file_info.st_mode);
-}
 
 bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_t second) {
 	if (first.is_dir && !second.is_dir)
@@ -141,7 +77,7 @@ void file_name_list_t::load_directory(string *dirName) {
 	while ((entry = readdir(dir)) != NULL) {
 		if (strcmp(entry->d_name, ".") == 0 || (dirName->compare("/") == 0 && strcmp(entry->d_name, "..") == 0))
 			continue;
-		files.push_back(file_name_entry_t(entry->d_name, is_dir(dirName, entry->d_name)));
+		files.push_back(file_name_entry_t(entry->d_name, t3_widget::is_dir(dirName, entry->d_name)));
 		// Make sure errno is clear on EOF
 		errno = 0;
 	}
