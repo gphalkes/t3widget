@@ -243,6 +243,10 @@ int text_buffer_t::backspace_char(void) {
 	return retval;
 }
 
+bool text_buffer_t::is_modified(void) const {
+	return !undo_list.is_at_mark();
+}
+
 int text_buffer_t::find_line(int idx) const {
 	text_line_t *line = wraplines[idx]->get_line();
 

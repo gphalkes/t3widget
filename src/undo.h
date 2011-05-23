@@ -57,7 +57,7 @@ class undo_list_t {
 		undo_t *back(void);
 		undo_t *forward(void);
 		void set_mark(void);
-		bool is_at_mark(void);
+		bool is_at_mark(void) const;
 
 		#ifdef DEBUG
 		void dump(void);

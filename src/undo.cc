@@ -105,7 +105,7 @@ void undo_list_t::set_mark(void) {
 	mark = current;
 }
 
-bool undo_list_t::is_at_mark(void) {
+bool undo_list_t::is_at_mark(void) const {
 	return mark_is_valid && mark == current;
 }
 

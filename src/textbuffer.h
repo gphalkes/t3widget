@@ -120,7 +120,7 @@ class text_buffer_t {
 		int apply_undo(void);
 		int apply_redo(void);
 
-		bool is_modified(void) { return !undo_list.is_at_mark(); }
+		bool is_modified(void) const;
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);
