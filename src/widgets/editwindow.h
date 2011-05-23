@@ -90,6 +90,8 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		void select_all(void);
 		void insert_special(void);
 		void goto_line(void);
+		void find_replace(bool replace);
+		void find_next(bool backward);
 		const text_buffer_t *get_text(void);
 		void set_find_dialog(find_dialog_t *_find_dialog);
 		void set_finder(finder_t *_finder);

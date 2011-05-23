@@ -583,33 +583,14 @@ bool edit_window_t::process_key(key_t key) {
 				reset_selection();
 			break;
 
-		case EKEY_CTRL | 'f': {
+		case EKEY_CTRL | 'f':
 		case EKEY_CTRL | 'r':
-			find_dialog_t *dialog;
-			if (find_dialog == NULL) {
-				global_find_dialog_connection.disconnect();
-				global_find_dialog_connection = global_find_dialog->connect_activate(
-					sigc::mem_fun(this, &edit_window_t::find_activated));
-				dialog = global_find_dialog;
-			} else {
-				dialog = find_dialog;
-			}
-			dialog->center_over(center_window);
-			dialog->set_replace(key == (EKEY_CTRL | 'r'));
-			//FIXME: set selected text in dialog
-			//dialog->set_text(text->get_selected_text());
-			dialog->show();
+			find_replace(key == (EKEY_CTRL | 'r'));
 			break;
-		}
 
 		case EKEY_F3:
 		case EKEY_F3 | EKEY_SHIFT:
-			if (!text->find(finder != NULL ? finder : &global_finder, (key & EKEY_SHIFT) != 0)) {
-				//FIXME: show search string
-				message_dialog->set_message("Search string not found");
-				message_dialog->center_over(center_window);
-				message_dialog->show();
-			}
+			find_next(key == (EKEY_F3 | EKEY_SHIFT));
 			break;
 
 		case EKEY_F9:
@@ -820,11 +801,38 @@ void edit_window_t::goto_line(int line) {
 	if (line < 1)
 		return;
 
+	reset_selection();
 	text->cursor.line = (line > text->get_used_lines() ? text->get_used_lines() : line) - 1;
 	if (text->cursor.pos > text->get_line_max(text->cursor.line))
 		text->cursor.pos = text->get_line_max(text->cursor.line);
 	ensure_cursor_on_screen();
 	text->last_set_pos = screen_pos;
+}
+
+void edit_window_t::find_replace(bool replace) {
+	find_dialog_t *dialog;
+	if (find_dialog == NULL) {
+		global_find_dialog_connection.disconnect();
+		global_find_dialog_connection = global_find_dialog->connect_activate(
+			sigc::mem_fun(this, &edit_window_t::find_activated));
+		dialog = global_find_dialog;
+	} else {
+		dialog = find_dialog;
+	}
+	dialog->center_over(center_window);
+	dialog->set_replace(replace);
+	//FIXME: set selected text in dialog
+	//dialog->set_text(text->get_selected_text());
+	dialog->show();
+}
+
+void edit_window_t::find_next(bool backward) {
+	if (!text->find(finder != NULL ? finder : &global_finder, backward)) {
+		//FIXME: show search string
+		message_dialog->set_message("Search string not found");
+		message_dialog->center_over(center_window);
+		message_dialog->show();
+	}
 }
 
 bool edit_window_t::get_selection_lines(int *top, int *bottom) {
