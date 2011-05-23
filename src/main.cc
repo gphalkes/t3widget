@@ -18,6 +18,7 @@
 #include <transcript.h>
 #include <cerrno>
 #include <new>
+#include <signal.h>
 
 #include "main.h"
 #include "log.h"
@@ -157,6 +158,7 @@ complex_error_t init(bool separate_keypad) {
 	init_log();
 	text_line_t::init();
 
+	#warning FIXME: allow setting of terminal string
 	if ((term_init_result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
 		t3_term_restore();
 		result.set_error(complex_error_t::SRC_T3_WINDOW, term_init_result);
@@ -215,6 +217,18 @@ void main_loop(void) {
 	while (true) {
 		iterate();
 	}
+}
+
+void suspend(void) {
+	//FIXME: check return values!
+	deinit_keys();
+	terminal_specific_restore();
+	t3_term_restore();
+	kill(getpid(), SIGSTOP);
+	t3_term_init(-1, NULL);
+	terminal_specific_setup();
+	reinit_keys();
+	do_resize();
 }
 
 }; // namespace
