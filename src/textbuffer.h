@@ -39,7 +39,6 @@ class text_buffer_t {
 		lines_t lines;
 		sublines_t wraplines;
 		bool wrap;
-		bool file_has_bom;
 		int tabsize;
 		int wrap_width;
 		text_coordinate_t selection_start;
@@ -78,7 +77,6 @@ class text_buffer_t {
 		void set_selection_from_find(int line, find_result_t *result);
 	public:
 		text_buffer_t(const char *_name = NULL);
-		void common_init(void);
 		virtual ~text_buffer_t(void);
 
 		int get_used_lines(void) const;

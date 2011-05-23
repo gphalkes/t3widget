@@ -78,10 +78,7 @@ text_buffer_t::text_buffer_t(const char *_name) : wrap_width(79), name(NULL) {
 	}
 	/* Allocate a new, empty line */
 	lines.push_back(new text_line_t());
-	common_init();
-}
 
-void text_buffer_t::common_init(void) {
 	tabsize = 8;
 	wrap = false;
 
@@ -99,7 +96,6 @@ void text_buffer_t::common_init(void) {
 	last_undo = NULL;
 	last_undo_type = UNDO_NONE;
 	window = NULL;
-	file_has_bom = false;
 }
 
 int text_buffer_t::get_used_lines(void) const {
