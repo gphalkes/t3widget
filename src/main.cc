@@ -231,4 +231,9 @@ void suspend(void) {
 	do_resize();
 }
 
+void redraw(void) {
+	do_resize();
+	t3_term_redraw();
+}
+
 }; // namespace

@@ -58,6 +58,7 @@ complex_error_t init(bool separate_keypad = false);
 void iterate(void);
 void main_loop(void);
 void suspend(void);
+void redraw(void);
 
 void set_color_mode(bool on);
 void set_attribute(attribute_t attribute, t3_attr_t value);
