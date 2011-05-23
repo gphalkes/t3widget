@@ -40,6 +40,7 @@ dialog_t::dialog_t(int height, int width, const char *_title) : active(false), s
 	t3_win_set_anchor(shadow_window, window, 0);
 	t3_win_set_default_attrs(shadow_window, T3_ATTR_REVERSE);
 	dialogs.push_back(this);
+	t3_win_set_restrict(window, NULL);
 }
 
 /** Create a new ::dialog_t.
