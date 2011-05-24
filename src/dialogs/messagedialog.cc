@@ -112,11 +112,13 @@ question_dialog_t::question_dialog_t(int width, const char *_title,
 	ok_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	ok_button->connect_activate(sigc::mem_fun(this, &question_dialog_t::hide));
 	ok_button->connect_activate(ok.make_slot());
+	ok_button->connect_move_focus_right(sigc::mem_fun(this, &question_dialog_t::focus_next));
 	cancel_button = new button_t(cancelName);
 	cancel_button->set_anchor(ok_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	cancel_button->set_position(0, 2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &question_dialog_t::hide));
 	cancel_button->connect_activate(cancel.make_slot());
+	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &question_dialog_t::focus_previous));
 	ok_button->set_position(-1, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2 );
 
 	push_back(ok_button);
@@ -126,7 +128,7 @@ question_dialog_t::question_dialog_t(int width, const char *_title,
 bool question_dialog_t::set_size(optint _height, optint width) {
 	bool result;
 	result = message_dialog_base_t::set_size(_height, width);
-	ok_button->set_size(None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2);
+	ok_button->set_position(None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2);
 	return result;
 }
 
