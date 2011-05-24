@@ -18,8 +18,6 @@
 #include "colorscheme.h"
 #include "internal.h"
 
-#warning FIXME: set name_line to a useful value
-
 using namespace std;
 namespace t3_widget {
 
@@ -842,7 +840,7 @@ bool edit_window_t::get_selection_lines(int *top, int *bottom) {
 	return true;
 }
 
-const text_buffer_t *edit_window_t::get_text(void) {
+text_buffer_t *edit_window_t::get_text(void) {
 	return text;
 }
 
