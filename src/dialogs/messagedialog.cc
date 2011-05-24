@@ -20,13 +20,34 @@
 using namespace std;
 namespace t3_widget {
 
-message_dialog_base_t::message_dialog_base_t(int width, const char *_title) : dialog_t(5, width, _title) {
-	int i;
-	for (i = 0; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1; i++)
+message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_t(5, width, _title), total_width(0) {
+	va_list ap;
+	button_t *button;
+	const char *button_name;
+
+	for (int i = 0; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1; i++)
 		break_positions[i] = INT_MAX;
+
+	va_start(ap, _title);
+	while ((button_name = va_arg(ap, const char *)) != NULL) {
+		button = new button_t(button_name, widgets.empty());
+		button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
+		total_width += button->get_width();
+		if (widgets.empty()) {
+			button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+		} else {
+			button->set_anchor(widgets.back(), T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+			button->set_position(0, 2);
+			((button_t *) widgets.back())->connect_move_focus_right(sigc::mem_fun(this, &message_dialog_t::focus_next));
+			button->connect_move_focus_left(sigc::mem_fun(this, &message_dialog_t::focus_previous));
+			total_width += 2;
+		}
+		push_back(button);
+	}
+	widgets.front()->set_position(-1, (width - total_width) / 2 );
 }
 
-void message_dialog_base_t::draw_dialog(void) {
+void message_dialog_t::draw_dialog(void) {
 	text_line_t::paint_info_t info;
 	int i;
 
@@ -61,7 +82,7 @@ void message_dialog_base_t::draw_dialog(void) {
 	}
 }
 
-void message_dialog_base_t::set_message(const char *_message, size_t length) {
+void message_dialog_t::set_message(const char *_message, size_t length) {
 	int i;
 	message.set_text(_message, length);
 	break_positions[0] = 0;
@@ -81,55 +102,24 @@ void message_dialog_base_t::set_message(const char *_message, size_t length) {
 	draw_dialog();
 }
 
-void message_dialog_base_t::set_message(const char *_message) {
+void message_dialog_t::set_message(const char *_message) {
 	set_message(_message, strlen(_message));
 }
 
-void message_dialog_base_t::set_message(const string *_message) {
+void message_dialog_t::set_message(const string *_message) {
 	set_message(_message->data(), _message->size());
-}
-
-
-message_dialog_t::message_dialog_t(int width, const char *_title) : message_dialog_base_t(width, _title) {
-	button = new button_t("_OK;oO", true);
-	button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	button->set_position(-1, (width - button->get_width()) / 2 );
-	button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
-	push_back(button);
 }
 
 bool message_dialog_t::set_size(optint _height, optint width) {
 	bool result;
-	result = message_dialog_base_t::set_size(_height, width);
-	button->set_position(None, (t3_win_get_width(window) - button->get_width()) / 2);
+	result = dialog_t::set_size(_height, width);
+	widgets.front()->set_position(None, (width - total_width) / 2 );
 	return result;
 }
 
-question_dialog_t::question_dialog_t(int width, const char *_title,
-		const char *okName, const char *cancelName) : message_dialog_base_t(width, _title)
-{
-	ok_button = new button_t(okName);
-	ok_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	ok_button->connect_activate(sigc::mem_fun(this, &question_dialog_t::hide));
-	ok_button->connect_activate(ok.make_slot());
-	ok_button->connect_move_focus_right(sigc::mem_fun(this, &question_dialog_t::focus_next));
-	cancel_button = new button_t(cancelName);
-	cancel_button->set_anchor(ok_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	cancel_button->set_position(0, 2);
-	cancel_button->connect_activate(sigc::mem_fun(this, &question_dialog_t::hide));
-	cancel_button->connect_activate(cancel.make_slot());
-	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &question_dialog_t::focus_previous));
-	ok_button->set_position(-1, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2 );
-
-	push_back(ok_button);
-	push_back(cancel_button);
-}
-
-bool question_dialog_t::set_size(optint _height, optint width) {
-	bool result;
-	result = message_dialog_base_t::set_size(_height, width);
-	ok_button->set_position(None, (width - ok_button->get_width() - cancel_button->get_width() - 2) / 2);
-	return result;
+sigc::connection message_dialog_t::connect_activate(const sigc::slot<void> &_slot, size_t idx) {
+	//FIXME: check whether idx is valid and return something useful if not
+	return ((button_t *) widgets[idx])->connect_activate(_slot);
 }
 
 }; // namespace

@@ -24,42 +24,23 @@ class text_line_t;
 
 #define _T3_WIDGET_MESSAGEDIALOG_MAX_LINES 10
 
-class message_dialog_base_t : public dialog_t {
+class message_dialog_t : public dialog_t {
 	private:
 		int break_positions[_T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1];
 		int height;
 		text_line_t message;
+		int total_width;
 
 		virtual void draw_dialog(void);
 
 	public:
-		message_dialog_base_t(int width, const char *_title);
+		message_dialog_t(int width, const char *_title, ...);
+		virtual bool set_size(optint height, optint width);
 		void set_message(const char *_message, size_t length);
 		void set_message(const char *_message);
 		void set_message(const std::string *_message);
-};
 
-
-class message_dialog_t : public message_dialog_base_t {
-	private:
-		button_t *button;
-
-	public:
-		message_dialog_t(int width, const char *_title);
-		virtual bool set_size(optint height, optint width);
-};
-
-class question_dialog_t : public message_dialog_base_t {
-	private:
-		button_t *ok_button, *cancel_button;
-		void *data;
-
-	public:
-		question_dialog_t(int width, const char *_title, const char *okName, const char *cancelName);
-		virtual bool set_size(optint height, optint width);
-
-	T3_WIDET_SIGNAL(ok, void);
-	T3_WIDET_SIGNAL(cancel, void);
+		sigc::connection connect_activate(const sigc::slot<void> &_slot, size_t idx);
 };
 
 }; // namespace

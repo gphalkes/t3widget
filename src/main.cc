@@ -178,7 +178,7 @@ complex_error_t init(bool separate_keypad) {
 	try {
 		/* Construct these here, such that the locale is set correctly and
 		   gettext therefore returns the correctly localized strings. */
-		message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"));
+		message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Ok;oO"), NULL);
 		insert_char_dialog = new insert_char_dialog_t();
 		on_init()();
 	} catch (bad_alloc &ba) {
