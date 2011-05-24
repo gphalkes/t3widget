@@ -18,7 +18,6 @@
 #include "colorscheme.h"
 #include "internal.h"
 
-#warning FIXME: last column of edit window is not used!
 #warning FIXME: set name_line to a useful value
 
 using namespace std;
@@ -138,8 +137,8 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 		redraw = true;
 	}
 
-	if (screen_pos + width > text->topleft.pos + t3_win_get_width(edit_window) - 1) {
-		text->topleft.pos = screen_pos + width - t3_win_get_width(edit_window) + 1;
+	if (screen_pos + width > text->topleft.pos + t3_win_get_width(edit_window)) {
+		text->topleft.pos = screen_pos + width - t3_win_get_width(edit_window);
 		redraw = true;
 	}
 }
@@ -159,7 +158,7 @@ void edit_window_t::repaint_screen(void) {
 	}
 
 	info.leftcol = text->topleft.pos;
-	info.size = t3_win_get_width(edit_window) - 1;
+	info.size = t3_win_get_width(edit_window);
 	info.normal_attr = 0;
 	info.selected_attr = attributes.text_selected;
 	for (i = 0; i < t3_win_get_height(edit_window) && (i + text->topleft.line) < text->get_used_lines(); i++) {
