@@ -36,7 +36,7 @@ class button_t : public widget_t, public focus_widget_t {
 		int get_width(void);
 		virtual bool is_hotkey(key_t key);
 
-	T3_WIDET_SIGNAL(activate, void);
+	T3_WIDGET_SIGNAL(activate, void);
 };
 
 }; // namespace

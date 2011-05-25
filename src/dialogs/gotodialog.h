@@ -29,7 +29,7 @@ class goto_dialog_t : public dialog_t {
 
 		void ok_activate(void);
 
-	T3_WIDET_SIGNAL(activate, void, int);
+	T3_WIDGET_SIGNAL(activate, void, int);
 };
 
 }; // namespace

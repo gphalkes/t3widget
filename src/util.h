@@ -42,7 +42,7 @@ struct text_coordinate_t {
 	int pos;
 };
 
-#define T3_WIDET_SIGNAL(_name, ...) \
+#define T3_WIDGET_SIGNAL(_name, ...) \
 protected: \
 	sigc::signal<__VA_ARGS__> _name; \
 public: \

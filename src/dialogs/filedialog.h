@@ -51,7 +51,7 @@ class file_dialog_t : public dialog_t {
 		void set_options_widget(widget_t *options);
 		virtual void reset(void);
 
-	T3_WIDET_SIGNAL(file_selected, void, std::string *);
+	T3_WIDGET_SIGNAL(file_selected, void, std::string *);
 };
 
 class open_file_dialog_t : public file_dialog_t {

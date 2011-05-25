@@ -50,10 +50,10 @@ class widget_t : public virtual window_component_t {
 };
 
 class focus_widget_t {
-	T3_WIDET_SIGNAL(move_focus_left, void);
-	T3_WIDET_SIGNAL(move_focus_right, void);
-	T3_WIDET_SIGNAL(move_focus_up, void);
-	T3_WIDET_SIGNAL(move_focus_down, void);
+	T3_WIDGET_SIGNAL(move_focus_left, void);
+	T3_WIDGET_SIGNAL(move_focus_right, void);
+	T3_WIDGET_SIGNAL(move_focus_up, void);
+	T3_WIDGET_SIGNAL(move_focus_down, void);
 };
 
 typedef std::deque<widget_t *> widgets_t;

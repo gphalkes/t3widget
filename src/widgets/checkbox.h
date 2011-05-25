@@ -36,8 +36,8 @@ class checkbox_t : public widget_t, public focus_widget_t {
 		virtual bool is_hotkey(key_t key);
 		virtual void set_enabled(bool enable);
 
-	T3_WIDET_SIGNAL(activate, void);
-	T3_WIDET_SIGNAL(toggled, void);
+	T3_WIDGET_SIGNAL(activate, void);
+	T3_WIDGET_SIGNAL(toggled, void);
 };
 
 }; // namespace

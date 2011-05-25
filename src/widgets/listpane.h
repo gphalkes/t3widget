@@ -79,8 +79,8 @@ class list_pane_t : public widget_t, public container_t {
 		int get_current(void);
 		void set_current(int idx);
 
-	T3_WIDET_SIGNAL(activate, void);
-	T3_WIDET_SIGNAL(selection_changed, void);
+	T3_WIDGET_SIGNAL(activate, void);
+	T3_WIDGET_SIGNAL(selection_changed, void);
 };
 
 }; // namespace

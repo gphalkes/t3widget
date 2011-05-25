@@ -27,7 +27,7 @@ class string_list_base_t {
 };
 
 class string_list_t : public virtual string_list_base_t {
-	T3_WIDET_SIGNAL(content_changed, void);
+	T3_WIDGET_SIGNAL(content_changed, void);
 };
 
 class file_list_t : public string_list_t {

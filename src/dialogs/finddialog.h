@@ -59,7 +59,7 @@ class find_dialog_t : public dialog_t {
 		virtual void set_replace(bool _replace);
 		virtual void set_state(int _state);
 
-	T3_WIDET_SIGNAL(activate, void, find_action_t, finder_t *);
+	T3_WIDGET_SIGNAL(activate, void, find_action_t, finder_t *);
 };
 
 class replace_buttons_dialog_t : public dialog_t {
@@ -70,7 +70,7 @@ class replace_buttons_dialog_t : public dialog_t {
 		replace_buttons_dialog_t(void);
 		virtual void reshow(find_action_t button);
 
-	T3_WIDET_SIGNAL(activate, void, find_action_t);
+	T3_WIDGET_SIGNAL(activate, void, find_action_t);
 };
 
 }; // namespace
