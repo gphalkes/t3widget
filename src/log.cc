@@ -28,7 +28,7 @@ static void close_log(void) {
 
 void init_log(void) {
 	if (log_file == NULL) {
-		log_file = fopen("log.txt", "a");
+		log_file = fopen("t3widgetlog.txt", "a");
 		if (log_file)
 			atexit(close_log);
 	}
