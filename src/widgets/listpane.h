@@ -76,8 +76,8 @@ class list_pane_t : public widget_t, public container_t {
 		iterator begin(void);
 		iterator end(void);
 
-		int get_current(void);
-		void set_current(int idx);
+		size_t get_current(void);
+		void set_current(size_t idx);
 
 	T3_WIDGET_SIGNAL(activate, void);
 	T3_WIDGET_SIGNAL(selection_changed, void);

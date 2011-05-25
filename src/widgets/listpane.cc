@@ -270,12 +270,12 @@ list_pane_t::iterator list_pane_t::end(void) {
 	return widgets.size();
 }
 
-int list_pane_t::get_current(void) {
+size_t list_pane_t::get_current(void) {
 	return current;
 }
 
-void list_pane_t::set_current(int idx) {
-	if (idx < 0 || idx >= (int) widgets.size())
+void list_pane_t::set_current(size_t idx) {
+	if (idx >= widgets.size())
 		return;
 
 	current = idx;
