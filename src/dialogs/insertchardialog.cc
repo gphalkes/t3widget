@@ -45,7 +45,7 @@ insert_char_dialog_t::insert_char_dialog_t(void) :
 	cancel_button = new button_t("_Cancel;cC", false);
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
-	cancel_button->connect_activate(sigc::mem_fun(this, &insert_char_dialog_t::hide));
+	cancel_button->connect_activate(sigc::mem_fun(this, &insert_char_dialog_t::close));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &insert_char_dialog_t::focus_previous));
 	/* Nasty trick: registering a callback twice will call the callback twice. We need to do
 	   focus_previous twice here to emulate moving up, because the ok_button is in the way. */

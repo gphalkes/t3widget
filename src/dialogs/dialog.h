@@ -60,6 +60,7 @@ class dialog_t : public virtual window_component_t, public container_t {
 		void focus_previous(void);
 		void focus_set(widget_t *target);
 		void push_back(widget_t *widget);
+		virtual void close(void);
 
 	public:
 		virtual bool process_key(key_t key);
@@ -73,6 +74,8 @@ class dialog_t : public virtual window_component_t, public container_t {
 		virtual void center_over(window_component_t *center);
 
 		static void force_redraw_all(void);
+
+	T3_WIDGET_SIGNAL(closed, void);
 };
 
 }; // namespace

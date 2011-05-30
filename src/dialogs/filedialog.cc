@@ -71,7 +71,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	cancel_button = new button_t("_Cancel;cC");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
-	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::hide));
+	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::close));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	cancel_button_up_connection = cancel_button->connect_move_focus_up(
 		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));

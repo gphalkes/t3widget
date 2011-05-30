@@ -126,7 +126,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	cancel_button = new button_t("_Cancel;cC");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
-	cancel_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
+	cancel_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::close));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &find_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &find_dialog_t::focus_previous));
@@ -289,7 +289,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Repl
 	cancel_button = new button_t("_Cancel;cC");
 	cancel_button->set_anchor(find_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	cancel_button->set_position(0, 2);
-	cancel_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::hide));
+	cancel_button->connect_activate(sigc::mem_fun(this, &find_dialog_t::close));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &replace_buttons_dialog_t::focus_previous));
 
 	push_back(replace_all_button);

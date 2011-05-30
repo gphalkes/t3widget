@@ -154,7 +154,7 @@ bool dialog_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_ESC:
-			hide();
+			close();
 			break;
 		case '\t':
 			focus_next();
@@ -229,6 +229,11 @@ void dialog_t::hide(void) {
 		t3_win_hide(shadow_window);
 	if (widgets.front() == dummy)
 		widgets.pop_front();
+}
+
+void dialog_t::close(void) {
+	hide();
+	closed();
 }
 
 void dialog_t::focus_next(void) {
