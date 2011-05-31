@@ -61,3 +61,272 @@ IDEAS
 	However, using boost-regex (which source-highlight does) introduces a
 	(optional) dependency on libicu, which I wanted to avoid.
 
+From the original TODO_AND_IDEAS file
+-------------------------------------
+
+HIGH PRIORITY
+=============
+- convert filenames from locale to UTF-8 internally
+- add destructors to all classes
+- check what happens when we insert a zero-width non-combining character
+	before a combining char
+- line and column numbers may be larger than space reserved!
+- INT_MAX is used where SIZE_MAX is probably meant
+- casts to size_t should be avoided and loop variables should be converted to
+  size_t! Otherwise we could get into trouble with sizes larger than an int
+  Main issue: if we use size_t we don't have an invalid value anymore :-(
+- add exception handling for all modifications of vectors and strings which
+  can cause the object to grow (and therefore throw bad_alloc)
+- implement append by using the append function of string, as it is about twice
+  as fast as the insert we are using now. That should take care of most
+  performance issues on load.
+- maintain a single character in view left and right of the cursor at all times
+  This helps because you can at least see what character you are deleting or
+  backspacing [maybe even two for double width chars]
+
+MEDIUM PRIORITY
+===============
+- add const to all methods that do not change the object
+- indicate symlinks in open/save dialogs and broken symlinks such that the
+  "no such file or directory" error makes sense
+- should the depth of the widgets all be set to 0, or should they be set from the
+  arguments of the constructor
+- Do normalization on strings before find. This makes finding the correct
+	position more difficult, but does give more intuitive results
+- regex matching:
+	- does case insensitive matching work the same as our own (no, seems to use
+	  only simple case folding)?
+- use case-folding functionality for hotkeys, so no capitals have to be specified
+  anymore (only simple folding)
+- file dialog does not work completely as desired yet
+    - drop-down list should autocomplete for contents of subdirectories as well
+- check unicode chapter "Implementation guidelines" on newlines, paragraph
+  separator and others. We may consider more complex end of line interpretation
+- Ligature thing (see mined paper) may cause problems if we don't take into
+  account that certain terminals use less wide representation. Similar issue
+  exists for some indic spacing combining character which may combine with
+  each other, resulting in a less wide representation
+- regex replace with \1 etc
+- transform backslash in search/replace
+- add an indication that the current display is not at the left margin (right
+  margin too?)
+- add a scrollbar in the status bar to show where you are in the text. There may
+  not be enough screen columns to do this if the user splits the screen...
+- right to left language support? or even bidi?
+- Zero width space should be a line-break point, while zero-width no-break
+  space shouldn't. Perhaps reading the Unicode standard on how to break lines
+  would be a good read. This would however require quite a bit of information
+  on Unicode (and its linebreaking properties) and not all of it is practically
+  applicable within the context of a console editor. For now we can stick to
+  our simple algorithm, which we can extend for non-break spaces later.
+- check return values for all functions and handle cleanly
+- don't create the metadata buffers until actually needed, and clean them when
+  no longer necessary. This exchanges CPU power for memory, and is usefull for
+  large files. Note that this should only be done for editWindow lines.
+- Add X11 (XQueryPointer) and linux console (TIOCLINUX, linux/tiocl.h) modifier
+  grabbing as backup. To determine whether this backup is necessary, check the
+  keys we get from libckey, and the terminal type (linux). May not be
+  sufficient because many terminals report as xterm, but are not and do need the
+  backup.
+- show the value (unicode codepoint or byte value) of the character under the
+  cursor in the status bar (no space because of file name; create dialog to ask
+  for this info, which can then also show different combining chars and allow
+  reordering)
+- we want gettext to return all messages in UTF-8. The function
+  bind_textdomain_codeset can be used for that (rather than manipulating
+  LC_CTYPE).
+
+LOW PRIORITY
+============
+- Perhaps we should re-evaluate how we handle zero-width control characters
+  elsewhere in the text.
+  The main issue I guess is the difference between combining and non-combining
+  characters. For non-combining characters we could actually insert them. However
+  removing them afterwards would be impossible. It might be useful to print things
+  like zero-width non-breaking space as control characters of some sort such that
+  the user can actually manipulate them and see them.
+
+- if possible we should try to use another editor's syntax highlighting
+  patterns. That could save a lot of work [http://projects.gnome.org/gtksourceview/
+  seems like a good choice because it implements the most. However, it does allow
+  for more than we may be able to match (newlines!) and is difficult to implement.
+  Perhaps we can suffice with a simpler syntax highlighting scheme given the
+  limited scope of the editor]
+- look at Common User Access (CUA) for guidance on how stuff should work, key
+  bindings etc. Also look at the Windows Consistent User Interface standard
+- to find out which attributes are supported by a terminal, we can ask curses
+  for the strings to enter the different modes, such as smul. See the terminfo
+  page in the Opengroup curses document. We should also check whether the same
+  string isn't used for multiple modes. For example the linux terminal uses
+  the same string for reverse video (rev) and standout (smso). However, that is
+  not foolproof as the strings for underline (smul) and bold (bold) are not
+  equal but give the same visual result.
+- rewrite the line allocation code such that it will try to free as much memory
+  as possible from the existing line structs if it runs out of memory. This way
+  when long lines have been chopped into pieces we actually can reduce the
+  memory used. Also, we may consider not doubling but simply adding beyond a
+  certain line size.
+- try disabling 8-bit output for terminals which do this (xterm implemented)
+  [km resource and smm/rmm, but maybe we should implement this in libtewindow]
+- Combining multiple PCRE patterns should be done through '(?|' ... ')'. To
+  use a callout after a pattern, that patterns should be enclosed in '(?:' and
+  ')'
+
+OTHER INFORMATION
+=================
+- terminfo information (which strings exist etc) can be found in man 5 terminfo
+  and also the opengroup curses documentation.
+
+From the opengroup curses standard:
+-----------------------------------
+cbreak Mode: Characters typed by the user are immediately available to the
+application and Curses does not perform special processing on either the erase
+character or the kill character. An application can select cbreak mode to do
+its own line editing but to let the abort character be used to abort the task.
+This mode achieves the same effect as non-canonical-mode, Case B input
+processing (with MIN set to 1 and ICRNL cleared) as specified in the XBD
+specification. The state of the ISIG and IXON flags are not changed upon
+entering this mode.
+
+Half-Delay Mode: The effect is the same as cbreak, except that input functions
+wait until a character is available or an interval defined by the application
+elapses, whichever comes first. This mode achieves the same effect as
+non-canonical-mode, Case C input processing (with TIME set to the value
+specified by the application) as specified in the XBD specification. The state
+of the ISIG and IXON flags are not changed upon entering this mode.
+
+Raw Mode: Raw mode gives the application maximum control over terminal input.
+The application sees each character as it is typed. This achieves the same
+effect as non-canonical mode, Case D input processing as specified in the XBD
+specification. The ISIG and IXON flags are cleared upon entering this mode.
+
+---
+Echo Processing
+Echo mode determines whether Curses echoes typed characters to the screen. The
+effect of Echo mode is analogous to the effect of the ECHO flag in the local
+mode field of the termios structure associated with the terminal device
+connected to the window. However, Curses always clears the ECHO flag when
+invoked, to inhibit the operating system from performing echoing. The method of
+echoing characters is not identical to the operating system's method of echoing
+characters, because Curses performs additional processing of terminal input.
+
+
+
+From the utio library:
+ 112 /// Enters UI mode.
+ 113 ///
+ 114 /// This turns off various command-line stuff, like buffering, echoing,
+ 115 /// scroll lock, shift-pgup/dn, etc., which can be very ugly or annoying
+ 116 /// in a GUI application.
+ 117 ///
+ 118 void CKeyboard::EnterUIMode (void)
+ 119 {
+ 120     if (s_bTermInUIMode)
+ 121         return;
+ 122     if (!isatty (STDIN_FILENO))
+ 123         throw domain_error ("This application only works on a tty.");
+ 124
+ 125     int flag;
+ 126     if ((flag = fcntl (STDIN_FILENO, F_GETFL)) < 0)
+ 127         throw file_exception ("F_GETFL", "stdin");
+ 128     if (fcntl (STDIN_FILENO, F_SETFL, flag | O_NONBLOCK))
+ 129         throw file_exception ("F_SETFL", "stdin");
+ 130
+ 131     if (-1 == tcgetattr (STDIN_FILENO, &m_InitialTermios))
+ 132         throw libc_exception ("tcgetattr");
+ 133     struct termios tios (m_InitialTermios);
+ 134     tios.c_lflag &= ~(ICANON | ECHO);   // No by-line buffering, no echo.
+ 135     tios.c_iflag &= ~(IXON | IXOFF);    // No ^s scroll lock (whose dumb idea was it?)
+ 136     tios.c_cc[VMIN] = 1;                // Read at least 1 character on each read().
+ 137     tios.c_cc[VTIME] = 0;               // Disable time-based preprocessing (Esc sequences)
+ 138     tios.c_cc[VQUIT] = 0xFF;            // Disable ^\. Root window will handle.
+ 139     tios.c_cc[VSUSP] = 0xFF;            // Disable ^z. Suspends in UI mode result in garbage.
+ 140
+ 141     if (-1 == tcflush (STDIN_FILENO, TCIFLUSH)) // Flush the input queue; who knows what was pressed.
+ 142         throw libc_exception ("tcflush");
+ 143
+ 144     s_bTermInUIMode = true;             // Cleanup is needed after the next statement.
+ 145     if (-1 == tcsetattr (STDIN_FILENO, TCSAFLUSH, &tios))
+ 146         throw libc_exception ("tcsetattr");
+ 147 }
+
+
+Xterm (and rxvt as well) lets us determine the rgb values of colors:
+\e]4;<color number>;?\007
+and the default foreground
+\e]10;?\007
+and background
+\e]11;?\007
+
+konsole on the otherhand doesn't understand these sequences (nor does putty)
+
+
+From the Unicode standard, section 5.13, which contains a description of
+fall-back rendering including show-hidden (gnome-terminal) and simple-overlap
+(xterm):
+
+A note for programmers of text mode applications:
+text or is separated from its base character by a line separator, paragraph
+separator, or other format character that causes a positional separation. This
+result is called a defective combining character sequence (see Section 3.6,
+Combination). Defective combining character sequences should be rendered as if
+they had a no-break space as a base character. (See Section 7.9, Combining
+Marks.)
+
+With support for CJK ideographs and combining characters, the output of xterm
+behaves a little bit more like with a proportional font, because a
+Latin/Greek/Cyrillic/etc. character requires one column position, a CJK
+ideograph two, and a combining character zero.
+
+The Open Group's Single UNIX Specification specifies the two C functions
+wcwidth() and wcswidth() that allow an application to test how many column
+positions a character will occupy:
+  #include <wchar.h>
+  int wcwidth(wchar_t wc);
+  int wcswidth(const wchar_t *pwcs, size_t n);
+
+Markus Kuhn's free wcwidth() implementation can be used by applications on
+platforms where the C library does not yet provide a suitable function.
+
+Xterm will for the foreseeable future probably not support the following
+functionality, which you might expect from a more sophisticated full Unicode
+rendering engine: bidirectional output of Hebrew and Arabic characters
+substitution of Arabic presentation forms substitution of Indic/Syriac
+ligatures arbitrary stacks of combining characters
+
+Hebrew and Arabic users will therefore have to use application programs that
+reverse and left-pad Hebrew and Arabic strings before sending them to the
+terminal. In other words, the bidirectional processing has to be done by the
+application and not by xterm. The situation for Hebrew and Arabic improves over
+ISO 8859 at least in the form of the availability of precomposed glyphs and
+presentation forms. It is far from clear at the moment, whether bidirectional
+support should really go into xterm and how precisely this should work. Both
+ISO 6429 = ECMA-48 and the Unicode bidi algorithm provide alternative starting
+points. See also ECMA Technical Report TR/53.
+
+If you plan to support bidirectional text output in your application, have a
+look at either Dov Grobgeld's FriBidi or Mark Leisher's Pretty Good Bidi
+Algorithm, two free implementations of the Unicode bidi algorithm.
+
+Xterm currently does not support the Arabic, Syriac, or Indic text formatting
+algorithms, although Robert Brady has published some experimental patches
+towards bidi support. It is still unclear whether it is feasible or preferable
+to do this in a VT100 emulator at all. Applications can apply the Arabic and
+Hangul formatting algorithms themselves easily, because xterm allows them to
+output the necessary presentation forms. For Hangul, Unicode contains the
+presentation forms needed for modern (post-1933) Korean orthography. For Indic
+scripts, the X font mechanism at the moment does not even support the encoding
+of the necessary ligature variants, so there is little xterm could offer
+anyway. Applications requiring Indic or Syriac output should better use a
+proper Unicode X11 rendering library such as Pango instead of a VT100 emulator
+like xterm.
+
+
+
+IDEAS:
+======
+- draw characters which should have combining characters but the terminal can't
+	display them properly with a special attribute and add some kind of
+	pop-up that can tell the user exactly what characters are associated with
+	a cell. That way the user can see what is going on (use
+	CharacterNameList.txt from the unicode data for this!)

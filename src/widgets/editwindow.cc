@@ -70,8 +70,9 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_l
 		text->rewrap();
 
 	screen_pos = 0;
-	focus = 0;
-
+	focus = false;
+	hard_cursor = (text->selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
+			(text->selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0);
 }
 
 edit_window_t::~edit_window_t(void) {

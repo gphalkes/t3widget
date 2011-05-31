@@ -453,10 +453,8 @@ complex_error_t init_keys(bool separate_keypad) {
 	   - sort the map for quick searching
 	*/
 	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
-		for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
-			if (key_node->string[0] == 27)
-				map_count++;
-		}
+		if (key_node->string[0] == 27)
+			map_count++;
 	}
 
 	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == NULL)
@@ -531,6 +529,7 @@ complex_error_t init_keys(bool separate_keypad) {
 		if (key_node->string[0] == 27)
 			idx++;
 	}
+	lprintf("map_count: %d, idx: %d\n", map_count, idx);
 	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
 	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
