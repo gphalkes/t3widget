@@ -35,9 +35,9 @@ Low Priority
 
 New Functionality
 -----------------
-- add a suspend and resume call, much like we implemented it in tilde/edit.
 - create a dialog which shows the message about the key timeout vs. waiting for
 	key thing.
+- make hooks to allow thread-safe interaction with the display thread
 
 IDEAS
 =====

@@ -32,6 +32,7 @@ class message_dialog_t : public dialog_t {
 		int total_width;
 
 		virtual void draw_dialog(void);
+		virtual bool process_key(key_t key);
 
 	public:
 		message_dialog_t(int width, const char *_title, ...);
@@ -39,6 +40,7 @@ class message_dialog_t : public dialog_t {
 		void set_message(const char *_message, size_t length);
 		void set_message(const char *_message);
 		void set_message(const std::string *_message);
+
 
 		sigc::connection connect_activate(const sigc::slot<void> &_slot, size_t idx);
 };

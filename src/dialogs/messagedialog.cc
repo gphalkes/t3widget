@@ -110,6 +110,12 @@ void message_dialog_t::set_message(const string *_message) {
 	set_message(_message->data(), _message->size());
 }
 
+bool message_dialog_t::process_key(key_t key) {
+	if (key >= 0x20 && key < 0x10ffff)
+		key |= EKEY_META;
+	return dialog_t::process_key(key);
+}
+
 bool message_dialog_t::set_size(optint _height, optint width) {
 	bool result;
 	result = dialog_t::set_size(_height, width);
