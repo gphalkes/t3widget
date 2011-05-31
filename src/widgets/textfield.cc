@@ -38,6 +38,7 @@ text_field_t::text_field_t(void) : widget_t(1, 4),
 	leftcol(0),
 	focus(false),
 	in_drop_down_list(false),
+	drop_down_list_shown(false),
 	dont_select_on_focus(false),
 	edited(false),
 	filter_keys(NULL),
@@ -117,7 +118,9 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_DOWN:
 			if (drop_down_list != NULL && drop_down_list->has_items() && line.get_length() > 0) {
 				in_drop_down_list = true;
+				drop_down_list_shown = true;
 				drop_down_list->set_focus(true);
+				drop_down_list->show();
 			} else {
 				move_focus_down();
 			}
@@ -266,7 +269,11 @@ bool text_field_t::process_key(key_t key) {
 			return true;
 
 		case EKEY_ESC:
-			#warning FIXME: close drop-down list, instead of closing dialog, if shown
+			if (drop_down_list_shown) {
+				drop_down_list_shown = false;
+				drop_down_list->hide();
+				return true;
+			}
 			return false;
 
 		default:
@@ -295,6 +302,7 @@ bool text_field_t::process_key(key_t key) {
 			redraw = true;
 			edited = true;
 	}
+
 	return true;
 }
 
@@ -331,8 +339,8 @@ void text_field_t::update_contents(void) {
 	if (selection_mode != selection_mode_t::NONE)
 		update_selection();
 
-	hard_cursor = (selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
-			(selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0);
+	hard_cursor = !in_drop_down_list && ((selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
+			(selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0));
 
 	if (redraw || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
 		text_line_t::paint_info_t info;
@@ -357,7 +365,7 @@ void text_field_t::update_contents(void) {
 			info.selection_start = selection_end_pos;
 			info.selection_end = selection_start_pos;
 		}
-		info.cursor = focus && !hard_cursor ? screen_pos : -1;
+		info.cursor = focus && !hard_cursor && !in_drop_down_list ? screen_pos : -1;
 		info.normal_attr = attributes.text;
 		info.selected_attr = attributes.text_selected;
 
@@ -366,10 +374,13 @@ void text_field_t::update_contents(void) {
 
 		if (drop_down_list != NULL && edited) {
 			drop_down_list->update_view();
-			if (drop_down_list->has_items() && line.get_length() > 0)
+			if (drop_down_list->has_items() && line.get_length() > 0) {
+				drop_down_list_shown = true;
 				drop_down_list->show();
-			else
+			} else {
+				drop_down_list_shown = false;
 				drop_down_list->hide();
+			}
 		}
 		edited = false;
 		redraw = false;
@@ -402,6 +413,7 @@ void text_field_t::set_focus(bool _focus) {
 	} else {
 		if (drop_down_list != NULL) {
 			drop_down_list->set_focus(false);
+			drop_down_list_shown = false;
 			drop_down_list->hide();
 		}
 		in_drop_down_list = false;
@@ -415,8 +427,10 @@ void text_field_t::show(void) {
 }
 
 void text_field_t::hide(void) {
-	if (drop_down_list != NULL)
+	if (drop_down_list != NULL) {
+		drop_down_list_shown = false;
 		drop_down_list->hide();
+	}
 	widget_t::hide();
 }
 
@@ -602,7 +616,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 		info.selection_end = paint_selected ? INT_MAX : -1;
 		info.cursor = -1;
 		info.normal_attr = 0;
-		info.selected_attr = attributes.dialog;
+		info.selected_attr = attributes.dialog_selected;
 
 		fileNameLine.paint_line(window, &info);
 
@@ -610,7 +624,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 			int length = fileNameLine.get_length();
 			if (length < width) {
 				t3_win_set_paint(window, i, length + 1);
-				t3_win_addch(window, '/', paint_selected ? T3_ATTR_REVERSE : 0);
+				t3_win_addch(window, '/', paint_selected ? attributes.dialog_selected : 0);
 			}
 		}
 	}

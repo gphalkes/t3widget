@@ -33,7 +33,7 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 			selection_end_pos;
 
 		selection_mode_t selection_mode;
-		bool focus, in_drop_down_list, dont_select_on_focus, edited;
+		bool focus, in_drop_down_list, drop_down_list_shown, dont_select_on_focus, edited;
 
 		text_line_t line;
 		const key_t *filter_keys;
