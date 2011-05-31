@@ -31,6 +31,7 @@ class label_t : public widget_t {
 		const char *text;
 		int width, text_width;
 		align_t align;
+		bool focus;
 
 	public:
 		label_t(const char *_text);
@@ -38,7 +39,7 @@ class label_t : public widget_t {
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(bool _focus);
 
 
 		void set_align(align_t _align);

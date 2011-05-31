@@ -550,6 +550,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 			return field->process_key(key);
 		case EKEY_ESC:
 			field->in_drop_down_list = false;
+			field->drop_down_list_shown = false;
 			t3_win_hide(window);
 			break;
 		default:
