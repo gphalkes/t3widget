@@ -156,6 +156,8 @@ static void terminal_specific_setup(void) {
 
 void restore(void) {
 	switch (init_level) {
+		case 3:
+			cleanup_keys();
 		case 2:
 			terminal_specific_restore();
 		case 1:
@@ -203,6 +205,7 @@ complex_error_t init(const char *term, bool separate_keypad) {
 		restore();
 		return result;
 	}
+	init_level++;
 
 	init_colors();
 	do_resize();

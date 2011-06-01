@@ -110,6 +110,7 @@ enum {
 class complex_error_t;
 //FIXME: some of this should be moved to the internal header
 complex_error_t init_keys(const char *term, bool separate_keypad);
+void cleanup_keys(void);
 void deinit_keys(void);
 void reinit_keys(void);
 void insert_protected_key(key_t key);

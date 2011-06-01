@@ -220,6 +220,11 @@ static void *read_keys(void *arg) {
 			switch (command) {
 				case QUIT_SIGNAL:
 					/* Exit thread */
+					close(signal_pipe[0]);
+					close(signal_pipe[1]);
+					signal_pipe[0] = -1;
+					signal_pipe[1] = -1;
+					leave = NULL;
 					return NULL;
 				case WINCH_SIGNAL:
 					key_buffer.push_back_unique(EKEY_RESIZE);
@@ -547,15 +552,14 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	return result;
 
 return_error:
-	if (conversion_handle != NULL)
-		transcript_close_converter(conversion_handle);
-	if (keymap != NULL)
-		t3_key_free_map(keymap);
+	cleanup_keys();
+	leave = NULL;
 	if (signal_pipe[0] != -1) {
 		close(signal_pipe[0]);
 		close(signal_pipe[1]);
+		signal_pipe[0] = -1;
+		signal_pipe[1] = -1;
 	}
-
 	return result;
 }
 #undef RETURN_ERROR
@@ -568,15 +572,30 @@ void reinit_keys(void) {
 	t3_term_putp(enter);
 }
 
+void cleanup_keys(void) {
+	if (conversion_handle != NULL) {
+		transcript_close_converter(conversion_handle);
+		conversion_handle = NULL;
+	}
+	if (keymap != NULL) {
+		t3_key_free_map(keymap);
+		keymap = NULL;
+	}
+	if (map != NULL) {
+		free(map);
+		map = NULL;
+	}
+	memset(map_single, 0, sizeof(map_single));
+	leave = NULL;
+	enter = NULL;
+}
+
 static void stop_keys(void) {
 	void *retval;
 	char quit_signal = QUIT_SIGNAL;
 	nosig_write(signal_pipe[1], &quit_signal, 1);
 	pthread_join(read_key_thread, &retval);
 	t3_term_putp(leave);
-#ifdef DEBUG
-	t3_key_free_map(keymap);
-#endif
 }
 
 void set_key_timeout(int msec) {
