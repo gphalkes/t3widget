@@ -118,7 +118,7 @@ bool menu_separator_t::set_size(optint height, optint width) {
 void menu_separator_t::update_contents(void) {
 	t3_window_t *parent_window = parent->get_draw_window();
 	t3_win_set_paint(parent_window, top, 1);
-	t3_win_addchrep(parent_window, T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, t3_win_get_width(parent_window) - 3);
+	t3_win_addchrep(parent_window, T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, t3_win_get_width(parent_window) - 2);
 }
 
 void menu_separator_t::set_focus(bool focus) {
