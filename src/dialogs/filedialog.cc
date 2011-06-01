@@ -35,7 +35,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 {
 	smart_label_t *name_label;
 
-	name_label = new smart_label_t("_Name;nN", true);
+	name_label = new smart_label_t("_Name", true);
 	name_label->set_position(1, 2);
 	name_offset = name_label->get_width() + 2 + 1; // 2 for offset of "Name", 1 for space in ": ["
 	file_line = new text_field_t();
@@ -63,19 +63,19 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	show_hidden_box->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	show_hidden_box->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 
-	show_hidden_label = new smart_label_t("_Show hidden;sS");
+	show_hidden_label = new smart_label_t("_Show hidden");
 	show_hidden_label->set_anchor(show_hidden_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	show_hidden_label->set_position(0, 1);
 	show_hidden_box->set_label(show_hidden_label);
 
-	cancel_button = new button_t("_Cancel;cC");
+	cancel_button = new button_t("_Cancel");
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::close));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	cancel_button_up_connection = cancel_button->connect_move_focus_up(
 		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
-	ok_button = new button_t("_OK;oO", true);
+	ok_button = new button_t("_OK", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
@@ -227,7 +227,7 @@ void file_dialog_t::refresh_view(void) {
 }
 
 open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(height, width, "Open File") {
-	filter_label = new smart_label_t("_Filter;fF", true);
+	filter_label = new smart_label_t("_Filter", true);
 	set_widget_parent(filter_label);
 	filter_label->set_anchor(show_hidden_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	filter_label->set_position(0, 2);

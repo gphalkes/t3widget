@@ -738,15 +738,6 @@ int text_line_t::backspace_char(int pos, undo_t *undo) {
 	return delete_char(adjust_position(pos, -1), undo);
 }
 
-/*
-void text_line_t::write_line_data(FileWriteWrapper *file, bool appendNewline) const {
-	file->write(buffer.data(), buffer.size());
-
-	if (appendNewline)
-		file->write("\n", 1);
-}
-*/
-
 /** Adjust the line position @a adjust non-zero-width characters.
 	@param line The @a text_line_t to operate on.
 	@param pos The starting position.

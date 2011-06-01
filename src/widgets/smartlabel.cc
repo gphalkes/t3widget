@@ -15,6 +15,7 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <stdint.h>
 #include "unicode.h"
 #include "widgets/widget.h"
 #include "widgets/smartlabel.h"
@@ -26,64 +27,44 @@
 using namespace std;
 namespace t3_widget {
 
-smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_colon(_add_colon) {
+smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_colon(_add_colon), underlined(false), hotkey(0) {
 	text_line_t *line;
-	size_t i;
-	size_t spec_length = strlen(spec);
+	char *underline_ptr;
 
-	underline_start = spec_length;
-	for (i = 0; i < spec_length; i++) {
-		if (spec[i] == '_')
-			underline_start = i;
-		if (spec[i] == ';')
-			break;
-	}
-	text_length = i;
-	text = new char[text_length + 1];
-	strncpy(text, spec, text_length);
-	text[text_length] = 0;
-	if (underline_start < text_length) {
-		memmove(text + underline_start, text + underline_start + 1, text_length - underline_start);
+	text_length = strlen(spec);
+	if ((text = strdup(spec)) == NULL)
+		throw bad_alloc();
+
+	if ((underline_ptr = strchr(text, '_')) != NULL) {
+		size_t src_size;
+
+		underlined = true;
+		underline_start = underline_ptr - text;
+		memmove(underline_ptr, underline_ptr + 1, text_length - underline_start);
 		text_length--;
-	}
 
-	line = new text_line_t(text, text_length);
-	underline_length = line->adjust_position(underline_start, 1) - underline_start;
-	delete line;
+		hotkey = t3_unicode_casefold_simple(t3_unicode_get(underline_ptr, &src_size));
 
-	hotkeys = NULL;
-	i++;
-	if (i < spec_length) {
-		key_t next;
-		vector<key_t> hotkey_vector;
-		spec += i;
-
-		spec_length -= i;
-		i = spec_length;
-
-		while (*spec != 0 && (next = t3_unicode_get(spec, &i)) != 0xFFFD) {
-			hotkey_vector.push_back(next);
-			spec += i;
-			spec_length -= i;
-			i = spec_length;
-		}
-
-		hotkeys = new key_t[hotkey_vector.size() + 1];
-		copy(hotkey_vector.begin(), hotkey_vector.end(), hotkeys);
-		hotkeys[hotkey_vector.size()] = 0;
+		line = new text_line_t(text, text_length);
+		underline_length = line->adjust_position(underline_start, 1) - underline_start;
+		delete line;
 	}
 }
 
 smart_label_text_t::smart_label_text_t(smart_label_text_t *other):
 	add_colon(other->add_colon), text(other->text), underline_start(other->underline_start),
 	underline_length(other->underline_length), text_length(other->text_length), underlined(other->underlined),
-	hotkeys(other->hotkeys)
+	hotkey(other->hotkey)
 {
 	delete other;
 }
 
+smart_label_text_t::~smart_label_text_t(void) {
+	free(text);
+}
+
 void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
-	if (underline_start > text_length) {
+	if (!underlined) {
 		t3_win_addnstr(window, text, text_length, attr);
 	} else {
 		t3_win_addnstr(window, text, underline_start, attr);
@@ -100,15 +81,10 @@ int smart_label_text_t::get_width(void) {
 }
 
 bool smart_label_text_t::is_hotkey(key_t key) {
-	int i;
-
-	if (hotkeys == NULL)
+	if (hotkey == 0)
 		return false;
 
-	for (i = 0; hotkeys[i] != 0; i++)
-		if (key == hotkeys[i])
-			return true;
-	return false;
+	return (key_t) t3_unicode_casefold_simple(key & UINT32_C(0x1fffff)) == hotkey;
 }
 
 //======= smart_label_t =======

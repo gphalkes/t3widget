@@ -213,7 +213,7 @@ complex_error_t init(const char *term, bool separate_keypad) {
 		/* Construct these here, such that the locale is set correctly and
 		   gettext therefore returns the correctly localized strings. */
 		if (message_dialog == NULL)
-			message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Ok;oO"), NULL);
+			message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Ok"), NULL);
 		if (insert_char_dialog == NULL)
 			insert_char_dialog = new insert_char_dialog_t();
 		on_init()();

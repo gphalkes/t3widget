@@ -64,7 +64,7 @@ T3NAME := widget
 include ../../t3shared/rules.mk
 #================================================#
 
-CXXFLAGS += -D__STDC_LIMIT_MACROS
+CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
 CXXFLAGS += -D_T3_WIDGET_DEBUG
 CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -I$(CURDIR)
