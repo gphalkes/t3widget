@@ -854,4 +854,9 @@ void edit_window_t::set_finder(finder_t *_finder) {
 	finder = _finder;
 }
 
+void edit_window_t::force_redraw(void) {
+	widget_t::force_redraw();
+	ensure_cursor_on_screen();
+}
+
 }; // namespace

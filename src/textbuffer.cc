@@ -564,9 +564,10 @@ bool text_buffer_t::rewrap_line(int line) {
 			wraplines[line]->get_line() == wraplines[lastline + 1]->get_line())
 		lastline++;
 
-	if (lastline > line)
+	if (lastline > line) {
+		#warning FIXME: this causes a big memory leak!
 		wraplines.erase(wraplines.begin() + line + 1, wraplines.begin() + lastline + 1);
-
+	}
 	return true;
 }
 
@@ -1233,10 +1234,13 @@ void text_buffer_t::set_tabsize(int _tabsize) {
 }
 
 void text_buffer_t::set_wrap(bool _wrap) {
+	if (wrap == _wrap)
+		return;
 	wrap = _wrap;
 	if (wrap) {
 		init_wrap_lines();
 	} else {
+		#warning FIXME: this causes a huge memory leak!
 		wraplines.clear();
 		wraplines.reserve(0);
 	}
