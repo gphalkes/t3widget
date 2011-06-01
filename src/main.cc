@@ -35,6 +35,8 @@ namespace t3_widget {
 #define MIN_LINES 16
 #define MIN_COLUMNS 60
 
+static int init_level;
+static char *term_string;
 static int screen_lines, screen_columns;
 static signal<void, int, int> resize;
 static signal<void> update_notification;
@@ -134,11 +136,12 @@ static void terminal_specific_restore(void) {
 }
 
 static void terminal_specific_setup(void) {
-	const char *term;
 	int i;
 
-	term = getenv("TERM");
-	for (i = 0; terminal_mapping[i].name != NULL && strcmp(terminal_mapping[i].name, term) != 0; i++) {}
+	if (term_string == NULL)
+		return;
+
+	for (i = 0; terminal_mapping[i].name != NULL && strcmp(terminal_mapping[i].name, term_string) != 0; i++) {}
 	terminal = terminal_mapping[i].code;
 
 	switch (terminal) {
@@ -151,37 +154,68 @@ static void terminal_specific_setup(void) {
 	atexit(terminal_specific_restore);
 }
 
-complex_error_t init(bool separate_keypad) {
+void restore(void) {
+	switch (init_level) {
+		case 2:
+			terminal_specific_restore();
+		case 1:
+			/* Eat up all keys/terminal replies, before restoring the terminal. */
+			while (t3_term_get_keychar(100) >= 0) {}
+			t3_term_restore();
+		case 0:
+			free(term_string);
+			term_string = NULL;
+			break;
+	}
+	init_level = 0;
+}
+
+complex_error_t init(const char *term, bool separate_keypad) {
 	complex_error_t result;
 	int term_init_result;
 
 	init_log();
 	text_line_t::init();
 
-	#warning FIXME: allow setting of terminal string
-	if ((term_init_result = t3_term_init(-1, NULL)) != T3_ERR_SUCCESS) {
-		t3_term_restore();
+	if (term == NULL) {
+		const char *term_env = getenv("TERM");
+		/* If term_env == NULL, t3_term_init will abort anyway, so we ignore
+		   that case. */
+		if (term_env != NULL)
+			term_string = strdup(term_env);
+	} else {
+		term_string = strdup(term);
+	}
+
+	atexit(restore);
+	if ((term_init_result = t3_term_init(-1, term)) != T3_ERR_SUCCESS) {
+		restore();
 		result.set_error(complex_error_t::SRC_T3_WINDOW, term_init_result);
 		return result;
 	}
-	atexit(t3_term_restore);
+	init_level++;
 
 	terminal_specific_setup();
-	atexit(terminal_specific_restore);
+	init_level++;
 
-	result = init_keys(separate_keypad);
-	if (!result.get_success())
+	result = init_keys(term, separate_keypad);
+	if (!result.get_success()) {
+		restore();
 		return result;
+	}
 
 	init_colors();
 	do_resize();
 	try {
 		/* Construct these here, such that the locale is set correctly and
 		   gettext therefore returns the correctly localized strings. */
-		message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Ok;oO"), NULL);
-		insert_char_dialog = new insert_char_dialog_t();
+		if (message_dialog == NULL)
+			message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Ok;oO"), NULL);
+		if (insert_char_dialog == NULL)
+			insert_char_dialog = new insert_char_dialog_t();
 		on_init()();
 	} catch (bad_alloc &ba) {
+		restore();
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
 	return result;

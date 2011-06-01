@@ -54,7 +54,8 @@ sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
 sigc::connection connect_update_notification(const sigc::slot<void> &slot);
 bool connect_on_init(const sigc::slot<void> &slot);
 
-complex_error_t init(bool separate_keypad = false);
+complex_error_t init(const char *term = NULL, bool separate_keypad = false);
+void restore(void);
 void iterate(void);
 void main_loop(void);
 void suspend(void);

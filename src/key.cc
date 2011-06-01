@@ -389,7 +389,7 @@ static bool is_function_key(const char *str) {
 
 #define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x); goto return_error; } while (0)
 /* Initialize the key map */
-complex_error_t init_keys(bool separate_keypad) {
+complex_error_t init_keys(const char *term, bool separate_keypad) {
 	complex_error_t result;
 	struct sigaction sa;
 	sigset_t sigs;
@@ -402,7 +402,7 @@ complex_error_t init_keys(bool separate_keypad) {
 	if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)
 		RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
 
-	if ((keymap = t3_key_load_map(NULL, NULL, &error)) == NULL)
+	if ((keymap = t3_key_load_map(term, NULL, &error)) == NULL)
 		RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
 
 	if (pipe(signal_pipe) < 0)
