@@ -832,6 +832,7 @@ void edit_window_t::find_next(bool backward) {
 		message_dialog->center_over(center_window);
 		message_dialog->show();
 	}
+	ensure_cursor_on_screen();
 }
 
 bool edit_window_t::get_selection_lines(int *top, int *bottom) {

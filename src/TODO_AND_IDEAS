@@ -96,8 +96,6 @@ MEDIUM PRIORITY
 - regex matching:
 	- does case insensitive matching work the same as our own (no, seems to use
 	  only simple case folding)?
-- use case-folding functionality for hotkeys, so no capitals have to be specified
-  anymore (only simple folding)
 - file dialog does not work completely as desired yet
     - drop-down list should autocomplete for contents of subdirectories as well
 - check unicode chapter "Implementation guidelines" on newlines, paragraph
