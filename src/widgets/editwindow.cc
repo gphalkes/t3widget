@@ -147,6 +147,8 @@ void edit_window_t::repaint_screen(void) {
 	text_line_t::paint_info_t info;
 	int i;
 
+	t3_win_set_default_attrs(edit_window, attributes.text);
+
 	current_start = text->get_selection_start();
 	current_end = text->get_selection_end();
 
@@ -650,7 +652,6 @@ void edit_window_t::update_contents(void) {
 		repaint_screen();
 	}
 
-	t3_win_set_default_attrs(edit_window, attributes.text);
 	t3_win_set_default_attrs(bottom_line_window, attributes.menubar);
 	t3_win_set_paint(bottom_line_window, 0, 0);
 	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
