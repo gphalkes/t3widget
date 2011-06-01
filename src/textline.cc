@@ -421,7 +421,14 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 			tabspaces = info->tabsize - (total % info->tabsize);
 			if (total + tabspaces >= size)
 				tabspaces = size - total;
-			t3_win_addnstr(win, spaces, tabspaces, selection_attr);
+			if (i == info->cursor) {
+				t3_win_addch(win, ' ', selection_attr);
+				tabspaces--;
+				total++;
+				selection_attr = i >= info->selection_start && i < info->selection_end ? info->selected_attr : info->normal_attr;
+			}
+			if (tabspaces > 0)
+				t3_win_addnstr(win, spaces, tabspaces, selection_attr);
 			total += tabspaces;
 			print_from = i + 1;
 		} else if ((unsigned char) buffer[i] < 32) {
