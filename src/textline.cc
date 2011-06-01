@@ -532,7 +532,7 @@ break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize)
 			possible_break.pos = adjust_position(i, 1);
 			last_was_graph = false;
 		} else if (is_graph(i) || buffer[i] < 32) {
-			if (last_was_graph && !is_alnum(i))
+			if (last_was_graph && !is_alnum(i) && buffer[i] != '_')
 				possible_break.pos = adjust_position(i, 1);
 			last_was_graph = true;
 		}
