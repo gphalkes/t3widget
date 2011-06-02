@@ -38,8 +38,8 @@ namespace t3_widget {
 static int init_level;
 static char *term_string;
 static int screen_lines, screen_columns;
-static signal<void, int, int> resize;
-static signal<void> update_notification;
+static sigc::signal<void, int, int> resize;
+static sigc::signal<void> update_notification;
 
 insert_char_dialog_t *insert_char_dialog;
 message_dialog_t *message_dialog;
@@ -80,8 +80,8 @@ connection connect_update_notification(const slot<void> &slot) {
 	return update_notification.connect(slot);
 }
 
-static signal<void> &on_init() {
-	static signal<void> *on_init_obj = new signal<void>();
+static sigc::signal<void> &on_init() {
+	static sigc::signal<void> *on_init_obj = new sigc::signal<void>();
 	return *on_init_obj;
 }
 

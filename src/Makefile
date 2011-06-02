@@ -55,7 +55,6 @@ SOURCES.libt3widget.la := \
 
 
 CXXLTTARGETS := libt3widget.la
-
 #================================================#
 # NO RULES SHOULD BE DEFINED BEFORE THIS INCLUDE #
 #================================================#
@@ -82,9 +81,6 @@ LDLIBS += -L$(CURDIR)/../src/transcript/.libs -ltranscript
 LDLIBS += -L$(CURDIR)/../src/key/.libs -lt3key
 LDLIBS += -lpcre
 LDLIBS += `pkg-config --libs sigc++-2.0`
-
-CXX := clang++
-CXXFLAGS += -fno-caret-diagnostics
 
 links:
 	@[ -L unicode ] || ln -s ../../unicode/src unicode
