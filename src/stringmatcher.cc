@@ -26,9 +26,10 @@ namespace t3_widget {
    version. */
 
 string_matcher_t::string_matcher_t(const string &_needle) {
-	if ((needle = (char *) malloc(_needle.size())) == NULL)
+	needle_size = _needle.size();
+	if ((needle = (char *) malloc(needle_size)) == NULL)
 		throw bad_alloc();
-	memcpy(needle, _needle.data(), _needle.size());
+	memcpy(needle, _needle.data(), needle_size);
 	init();
 }
 
