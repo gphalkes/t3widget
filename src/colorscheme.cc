@@ -42,7 +42,7 @@ void set_color_mode(bool on) {
 		attributes.button = attributes.dialog;
 		attributes.button_selected = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
 		attributes.scrollbar = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
-		attributes.scrollbar_selected = T3_ATTR_FG_BLACK | T3_ATTR_BG_WHITE;
+		attributes.scrollbar_selected = T3_ATTR_FG_BLACK | T3_ATTR_BG_BLACK;
 		attributes.menubar = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
 		attributes.menubar_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
 		t3_win_set_default_attrs(NULL, attributes.dialog);

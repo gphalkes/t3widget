@@ -66,8 +66,6 @@ void scrollbar_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	t3_win_set_default_attrs(window, attributes.scrollbar_selected);
-
 	blocks_per_line = (double) (length - 2) / range;
 	slider_size = blocks_per_line * used;
 	if (slider_size == 0)
@@ -89,17 +87,17 @@ void scrollbar_t::update_contents(void) {
 	for (i = 1; i < length - 1 && i < before + 1; i++) {
 		if (vertical)
 			t3_win_set_paint(window, i, 0);
-		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS);
+		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
 	}
 	for (; i < length - 1 && i < before + slider_size + 1; i++) {
 		if (vertical)
 			t3_win_set_paint(window, i, 0);
-		t3_win_addch(window, ' ', 0);
+		t3_win_addch(window, ' ', attributes.scrollbar_selected);
 	}
 	for (; i < length - 1; i++) {
 		if (vertical)
 			t3_win_set_paint(window, i, 0);
-		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS);
+		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
 	}
 
 	if (vertical)
