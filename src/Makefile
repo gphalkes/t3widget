@@ -50,7 +50,8 @@ SOURCES.libt3widget.la := \
 	widgets/smartlabel.cc \
 	widgets/split.cc \
 	widgets/textfield.cc \
-	widgets/widget.cc
+	widgets/widget.cc \
+	widgets/separator.cc
 
 
 CXXLTTARGETS := libt3widget.la
