@@ -141,12 +141,15 @@ bool split_t::unsplit(widget_t **widget) {
 		if (widgets.size() == 1)
 			return true;
 	} else {
-		if (current_window->unsplit()) {
+		if (current_window->unsplit(widget)) {
 			*current = current_window->widgets.front();
+			set_widget_parent(*current);
+			(*current)->set_anchor(this, 0);
 			current_window->widgets.clear();
 			delete current_window;
 			if (focus)
 				(*current)->set_focus(true);
+			set_size(None, None);
 		}
 	}
 	return false;
