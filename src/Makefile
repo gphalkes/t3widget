@@ -72,7 +72,7 @@ CXXFLAGS += -I$(CURDIR)/window
 CXXFLAGS += -I$(CURDIR)/unicode
 CXXFLAGS += -I$(CURDIR)/key
 CXXFLAGS += -I$(CURDIR)/transcript
-CXXFLAGS += -pthread -DTHREADED_KEYS
+CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 
 LDLIBS += -L$(CURDIR)/../src/window/.libs -lt3window

@@ -169,7 +169,7 @@ static int read_and_convert_keys(int timeout) {
 
 	while (1) {
 		switch (transcript_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
-				(char **) &unicode_buffer_ptr, (const char *) (&unicode_buffer) + sizeof(unicode_buffer), TRANSCRIPT_ALLOW_FALLBACK))
+				(char **) &unicode_buffer_ptr, ((const char *) unicode_buffer) + sizeof(unicode_buffer), TRANSCRIPT_ALLOW_FALLBACK))
 		{
 			case TRANSCRIPT_SUCCESS:
 			case TRANSCRIPT_NO_SPACE:
