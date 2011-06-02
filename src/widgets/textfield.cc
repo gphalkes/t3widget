@@ -366,8 +366,8 @@ void text_field_t::update_contents(void) {
 			info.selection_end = selection_start_pos;
 		}
 		info.cursor = focus && !hard_cursor && !in_drop_down_list ? screen_pos : -1;
-		info.normal_attr = attributes.text;
-		info.selected_attr = attributes.text_selected;
+		info.normal_attr = attributes.dialog;
+		info.selected_attr = attributes.dialog_selected;
 
 		line.paint_line(window, &info);
 		t3_win_addch(window, ']', 0);
