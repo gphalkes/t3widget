@@ -3,6 +3,9 @@ TODO
 
 High Priority
 -------------
+- on finishing of terminal detection, re-check everything for bad-draw
+	characters and redraw the contents of all lines which changed because of
+	this
 - perhaps it is a good idea to let the user define short-cuts for things
 	like calling the insert_char_dialog. Forcing F9 may not be a great idea.
 	On the other hand, enforcing a standard can also be good. There are only

@@ -38,7 +38,6 @@ dialog_t::dialog_t(int height, int width, const char *_title) : active(false), s
 	if ((shadow_window = t3_win_new(NULL, height, width, 1, 1, 1)) == NULL)
 		throw bad_alloc();
 	t3_win_set_anchor(shadow_window, window, 0);
-	t3_win_set_default_attrs(shadow_window, T3_ATTR_REVERSE);
 	dialogs.push_back(this);
 	t3_win_set_restrict(window, NULL);
 }
@@ -110,6 +109,7 @@ void dialog_t::draw_dialog(void) {
 
 	redraw = false;
 	t3_win_set_default_attrs(window, attributes.dialog);
+	t3_win_set_default_attrs(shadow_window, attributes.shadow);
 
 	/* Just clear the whole thing and redraw */
 	t3_win_set_paint(window, 0, 0);

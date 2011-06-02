@@ -43,6 +43,8 @@ typedef struct {
 	t3_attr_t scrollbar_selected;
 	t3_attr_t menubar;
 	t3_attr_t menubar_selected;
+
+	t3_attr_t shadow;
 } attributes_t;
 
 extern attributes_t attributes;
