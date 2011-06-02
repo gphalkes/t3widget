@@ -251,7 +251,7 @@ void find_dialog_t::set_replace(bool replace) {
 void find_dialog_t::set_state(int _state) {
 	state = _state;
 	whole_word_checkbox->set_state(state & find_flags_t::WHOLE_WORD);
-	match_case_checkbox->set_state(state & find_flags_t::ICASE);
+	match_case_checkbox->set_state(!(state & find_flags_t::ICASE));
 	regex_checkbox->set_state(state & find_flags_t::REGEX);
 	wrap_checkbox->set_state(state & find_flags_t::WRAP);
 	transform_backslash_checkbox->set_state(state & find_flags_t::TRANSFROM_BACKSLASH);
