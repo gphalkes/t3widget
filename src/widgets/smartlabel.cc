@@ -43,7 +43,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 		memmove(underline_ptr, underline_ptr + 1, text_length - underline_start);
 		text_length--;
 
-		hotkey = t3_unicode_casefold_simple(t3_unicode_get(underline_ptr, &src_size));
+		hotkey = t3_unicode_casefold_single(t3_unicode_get(underline_ptr, &src_size));
 
 		line = new text_line_t(text, text_length);
 		underline_length = line->adjust_position(underline_start, 1) - underline_start;
@@ -84,7 +84,7 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 	if (hotkey == 0)
 		return false;
 
-	return (key_t) t3_unicode_casefold_simple(key & UINT32_C(0x1fffff)) == hotkey;
+	return (key_t) t3_unicode_casefold_single(key & UINT32_C(0x1fffff)) == hotkey;
 }
 
 //======= smart_label_t =======
