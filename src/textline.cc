@@ -649,7 +649,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	}
 
 	insert_bytes(pos, conversion_buffer, conversion_length, conversion_meta_data);
-	check_bad_draw(adjust_position(pos, 0));
+	check_bad_draw(width_at(pos) == 0 ? adjust_position(pos, -1) : pos);
 
 	return true;
 }

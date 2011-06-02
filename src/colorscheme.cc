@@ -31,7 +31,7 @@ void set_color_mode(bool on) {
 		attributes.non_print = T3_ATTR_UNDERLINE;
 		attributes.selection_cursor = T3_ATTR_BG_CYAN;
 		attributes.selection_cursor2 = T3_ATTR_BG_GREEN;
-		attributes.bad_draw = T3_ATTR_BOLD;
+		attributes.bad_draw = T3_ATTR_FG_RED;
 		attributes.text_cursor = T3_ATTR_BG_CYAN;
 		attributes.text = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLUE;
 		attributes.text_selected = T3_ATTR_FG_BLUE | T3_ATTR_BG_WHITE;
