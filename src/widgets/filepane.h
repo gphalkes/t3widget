@@ -33,7 +33,7 @@ class file_pane_t : public widget_t, public container_t {
 		file_list_t *file_list;
 		bool focus;
 		text_field_t *field;
-		int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], column_positions[_T3_WDIGET_FP_MAX_COLUMNS], columns_visible;
+		int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], column_positions[_T3_WDIGET_FP_MAX_COLUMNS], columns_visible, scrollbar_range;
 		sigc::connection content_changed_connection;
 
 		void ensure_cursor_on_screen(void);

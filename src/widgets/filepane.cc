@@ -20,7 +20,7 @@ namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 file_pane_t::file_pane_t(void) : widget_t(3, 3), scrollbar(false), height(1),
-	width(1),top_idx(0), current(0), file_list(NULL), focus(false), field(NULL), columns_visible(0)
+	width(1),top_idx(0), current(0), file_list(NULL), focus(false), field(NULL), columns_visible(0), scrollbar_range(height)
 {
 	set_widget_parent(&scrollbar);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
@@ -46,7 +46,8 @@ void file_pane_t::ensure_cursor_on_screen(void) {
 	if (top_idx != old_top_idx) {
 		update_column_widths();
 		ensure_cursor_on_screen();
-		scrollbar.set_parameters(file_list->size(), top_idx, columns_visible * height);
+		lprintf("setting scrollbar params: %d, %zd, %d\n", scrollbar_range, top_idx, columns_visible * height);
+		scrollbar.set_parameters(scrollbar_range, top_idx, columns_visible * height);
 	}
 }
 
@@ -124,10 +125,13 @@ bool file_pane_t::set_size(optint _height, optint _width) {
 		width = _width - 2;
 	result = t3_win_resize(window, height + 2, width + 2);
 	result &= scrollbar.set_size(None, width);
-	update_column_widths();
-	ensure_cursor_on_screen();
-	if (file_list != NULL)
-		scrollbar.set_parameters(file_list->size(), top_idx, columns_visible * height);
+
+	if (file_list != NULL) {
+		update_column_widths();
+		scrollbar_range = ((file_list->size() + height - 1) / height) * height;
+		ensure_cursor_on_screen();
+		scrollbar.set_parameters(scrollbar_range, top_idx, columns_visible * height);
+	}
 	redraw = true;
 	return result;
 }
@@ -269,7 +273,8 @@ void file_pane_t::update_column_widths(void) {
 void file_pane_t::content_changed(void) {
 	top_idx = 0;
 	update_column_widths();
-	scrollbar.set_parameters(file_list->size(), 0, columns_visible * height);
+	scrollbar_range = ((file_list->size() + height - 1) / height) * height;
+	scrollbar.set_parameters(scrollbar_range, 0, columns_visible * height);
 	redraw = true;
 }
 
