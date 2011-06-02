@@ -178,6 +178,8 @@ void edit_window_t::repaint_screen(void) {
 		}
 
 		info.cursor = focus && text->topleft.line + i == text->cursor.line && !hard_cursor ? text->cursor.pos : -1;
+		t3_win_set_paint(edit_window, i, 0);
+		t3_win_clrtoeol(edit_window);
 		text->paint_line(edit_window, text->topleft.line + i, &info);
 	}
 
