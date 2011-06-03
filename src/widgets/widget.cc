@@ -87,4 +87,6 @@ bool widget_t::is_shown(void) {
 	return shown;
 }
 
+void widget_t::set_focus(bool focus) { (void) focus; return; }
+
 }; // namespace

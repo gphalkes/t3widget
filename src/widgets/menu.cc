@@ -75,7 +75,6 @@ bool menu_bar_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_HOTKEY:
-			t3_term_hide_cursor();
 			has_focus = true;
 			if (hidden)
 				t3_win_show(window);

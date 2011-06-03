@@ -152,6 +152,7 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_LEFT:
 		case EKEY_LEFT | EKEY_SHIFT:
 			if (pos > 0) {
+				redraw = true;
 				pos = line.adjust_position(pos, -1);
 				ensure_on_cursor_screen();
 			}
@@ -159,6 +160,7 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_RIGHT:
 		case EKEY_RIGHT | EKEY_SHIFT:
 			if (pos < line.get_length()) {
+				redraw = true;
 				pos = line.adjust_position(pos, 1);
 				ensure_on_cursor_screen();
 			}
@@ -166,6 +168,7 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_RIGHT | EKEY_CTRL:
 		case EKEY_RIGHT | EKEY_CTRL | EKEY_SHIFT:
 			if (pos < line.get_length()) {
+				redraw = true;
 				pos = line.get_next_word(pos);
 				if (pos < 0)
 					pos = line.get_length();
@@ -175,6 +178,7 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_LEFT | EKEY_CTRL:
 		case EKEY_LEFT | EKEY_CTRL | EKEY_SHIFT:
 			if (pos > 0) {
+				redraw = true;
 				pos = line.get_previous_word(pos);
 				if (pos < 0)
 					pos = 0;
@@ -183,11 +187,13 @@ bool text_field_t::process_key(key_t key) {
 			break;
 		case EKEY_HOME:
 		case EKEY_HOME | EKEY_SHIFT:
+			redraw = true;
 			pos = 0;
 			ensure_on_cursor_screen();
 			break;
 		case EKEY_END:
 		case EKEY_END | EKEY_SHIFT:
+			redraw = true;
 			pos = line.get_length();
 			ensure_on_cursor_screen();
 			break;
@@ -334,15 +340,10 @@ void text_field_t::update_selection(void) {
 }
 
 void text_field_t::update_contents(void) {
-	bool hard_cursor;
-
 	if (selection_mode != selection_mode_t::NONE)
 		update_selection();
 
-	hard_cursor = !in_drop_down_list && ((selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
-			(selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0));
-
-	if (redraw || (selection_mode != selection_mode_t::NONE && focus) || !hard_cursor) {
+	if (redraw) {
 		text_line_t::paint_info_t info;
 
 		t3_win_set_default_attrs(window, attributes.dialog);
@@ -365,7 +366,7 @@ void text_field_t::update_contents(void) {
 			info.selection_start = selection_end_pos;
 			info.selection_end = selection_start_pos;
 		}
-		info.cursor = focus && !hard_cursor && !in_drop_down_list ? screen_pos : -1;
+		info.cursor = focus && !in_drop_down_list ? screen_pos : -1;
 		info.normal_attr = attributes.dialog;
 		info.selected_attr = attributes.dialog_selected;
 
@@ -388,19 +389,11 @@ void text_field_t::update_contents(void) {
 
 	if (drop_down_list != NULL && drop_down_list->has_items())
 		drop_down_list->update_contents();
-
-	if (focus) {
-		if (hard_cursor) {
-			t3_term_show_cursor();
-			t3_win_set_cursor(window, 0, screen_pos - leftcol + 1);
-		} else {
-			t3_term_hide_cursor();
-		}
-	}
 }
 
 void text_field_t::set_focus(bool _focus) {
 	focus = _focus;
+	redraw = true;
 	if (focus) {
 		if (!dont_select_on_focus) {
 			selection_end_pos = pos = line.get_length();

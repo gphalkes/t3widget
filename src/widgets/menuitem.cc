@@ -16,11 +16,6 @@
 
 namespace t3_widget {
 
-void menu_item_base_t::set_focus(bool focus) {
-	if (focus)
-		t3_term_hide_cursor();
-}
-
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
 		menu_item_base_t(_parent), label(_label), hotkey(_hotkey), id(_id)
 {

@@ -70,8 +70,6 @@ void checkbox_t::set_focus(bool focus) {
 		redraw = true;
 
 	has_focus = focus;
-	if (focus)
-		t3_term_hide_cursor();
 }
 
 bool checkbox_t::get_state(void) {

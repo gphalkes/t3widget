@@ -96,8 +96,6 @@ void button_t::set_focus(bool focus) {
 		redraw = true;
 
 	has_focus = focus;
-	if (focus)
-		t3_term_hide_cursor();
 }
 
 int button_t::get_width(void) {

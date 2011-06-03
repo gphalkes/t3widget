@@ -191,14 +191,8 @@ void file_pane_t::update_contents(void) {
 
 void file_pane_t::set_focus(bool _focus) {
 	focus = _focus;
-	if (focus) {
-		t3_term_hide_cursor();
-		if (file_list != NULL)
-			draw_line(current, true);
-	} else {
-		if (file_list != NULL)
-			draw_line(current, false);
-	}
+	if (file_list != NULL)
+		draw_line(current, focus);
 }
 
 void file_pane_t::reset(void) {

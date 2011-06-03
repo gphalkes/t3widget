@@ -223,6 +223,7 @@ complex_error_t init(const char *term, bool separate_keypad) {
 		restore();
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
+	t3_term_hide_cursor();
 	return result;
 }
 
@@ -268,6 +269,7 @@ void suspend(void) {
 	terminal_specific_setup();
 	reinit_keys();
 	do_resize();
+	t3_term_hide_cursor();
 }
 
 void redraw(void) {

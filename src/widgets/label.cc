@@ -84,8 +84,6 @@ void label_t::update_contents(void) {
 void label_t::set_focus(bool _focus) {
 	redraw = true;
 	focus = _focus;
-	if (focus)
-		t3_term_hide_cursor();
 }
 
 void label_t::set_align(label_t::align_t _align) {

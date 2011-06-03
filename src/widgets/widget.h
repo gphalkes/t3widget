@@ -46,7 +46,7 @@ class widget_t : public virtual window_component_t {
 		virtual void set_enabled(bool enable);
 		virtual bool is_enabled(void);
 		virtual bool is_shown(void);
-
+		virtual void set_focus(bool focus);
 };
 
 class focus_widget_t {

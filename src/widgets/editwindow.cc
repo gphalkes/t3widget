@@ -71,8 +71,6 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_l
 
 	screen_pos = 0;
 	focus = false;
-	hard_cursor = (text->selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
-			(text->selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0);
 }
 
 edit_window_t::~edit_window_t(void) {
@@ -177,7 +175,7 @@ void edit_window_t::repaint_screen(void) {
 			info.selection_end = -1;
 		}
 
-		info.cursor = focus && text->topleft.line + i == text->cursor.line && !hard_cursor ? text->cursor.pos : -1;
+		info.cursor = focus && text->topleft.line + i == text->cursor.line ? text->cursor.pos : -1;
 		t3_win_set_paint(edit_window, i, 0);
 		t3_win_clrtoeol(edit_window);
 		text->paint_line(edit_window, text->topleft.line + i, &info);
@@ -645,14 +643,9 @@ void edit_window_t::update_contents(void) {
 		}
 	}
 
-	hard_cursor = (text->selection_mode == selection_mode_t::NONE && attributes.text_cursor == 0) ||
-			(text->selection_mode != selection_mode_t::NONE && attributes.selection_cursor == 0);
-
 	//FIXME: don't want to fully repaint on every key when selecting!!
-	if (redraw || text->selection_mode != selection_mode_t::NONE || !hard_cursor) {
-		redraw = false;
-		repaint_screen();
-	}
+	redraw = false;
+	repaint_screen();
 
 	t3_win_set_default_attrs(bottom_line_window, attributes.menubar);
 	t3_win_set_paint(bottom_line_window, 0, 0);
@@ -693,29 +686,11 @@ void edit_window_t::update_contents(void) {
 
 	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);
 	t3_win_addstr(bottom_line_window, info, 0);
-	if (focus) {
-		if (hard_cursor) {
-			t3_win_set_cursor(edit_window, text->cursor.line - text->topleft.line, screen_pos - text->topleft.pos);
-			t3_term_show_cursor();
-		} else {
-			t3_term_hide_cursor();
-		}
-	}
 }
 
 void edit_window_t::set_focus(bool _focus) {
 	focus = _focus;
-	if (focus) {
-		if (hard_cursor) {
-			t3_win_set_cursor(edit_window, text->cursor.line - text->topleft.line, screen_pos - text->topleft.pos);
-			t3_term_show_cursor();
-		} else {
-			repaint_screen(); //FXIME: Only for removing cursor
-		}
-	} else {
-		if (!hard_cursor)
-			repaint_screen(); //FXIME: Only for removing cursor
-	}
+	redraw = true; //FXIME: Only for painting/removing cursor
 }
 
 void edit_window_t::get_dimensions(int *height, int *width, int *top, int *left) {

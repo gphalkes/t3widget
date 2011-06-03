@@ -44,7 +44,7 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		scrollbar_t scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
-		bool focus, hard_cursor;
+		bool focus;
 		find_dialog_t *find_dialog;
 		finder_t *finder;
 

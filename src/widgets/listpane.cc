@@ -159,9 +159,7 @@ void list_pane_t::update_contents(void) {
 
 void list_pane_t::set_focus(bool focus) {
 	has_focus = focus;
-	if (widgets.size() == 0)
-		t3_term_hide_cursor();
-	else if (current < widgets.size())
+	if (current < widgets.size())
 		widgets[current]->set_focus(focus);
 	if (indicator)
 		indicator_widget->set_focus(focus);
