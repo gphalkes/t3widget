@@ -45,6 +45,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 
 		hotkey = t3_unicode_casefold_single(t3_unicode_get(underline_ptr, &src_size));
 
+		//FIXME: an alloc error here will cause a leak of the allocated 'text' var
 		line = new text_line_t(text, text_length);
 		underline_length = line->adjust_position(underline_start, 1) - underline_start;
 		delete line;

@@ -940,4 +940,10 @@ void text_line_t::check_bad_draw(int i) {
 		meta_buffer[i] |= BAD_DRAW_BIT;
 }
 
+void text_line_t::recheck_bad_draw(void) {
+	int i;
+	for (i = 0; i < buffer.size(); i = adjust_position(i, 1))
+		check_bad_draw(i);
+}
+
 }; // namespace

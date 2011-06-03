@@ -161,8 +161,10 @@ void restore(void) {
 		case 2:
 			terminal_specific_restore();
 		case 1:
-			/* Eat up all keys/terminal replies, before restoring the terminal. */
-			while (t3_term_get_keychar(100) >= 0) {}
+			if (init_level < 3) {
+				/* Eat up all keys/terminal replies, before restoring the terminal. */
+				while (t3_term_get_keychar(100) >= 0) {}
+			}
 			t3_term_restore();
 		case 0:
 			free(term_string);
