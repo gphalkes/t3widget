@@ -52,7 +52,7 @@ void set_color_mode(bool on) {
 		attributes.selection_cursor = T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
 		attributes.selection_cursor2 = T3_ATTR_UNDERLINE | T3_ATTR_REVERSE | T3_ATTR_BLINK;
 		attributes.bad_draw = T3_ATTR_BOLD;
-		attributes.text_cursor = 0; // Use hardware cursor by default
+		attributes.text_cursor = T3_ATTR_REVERSE;
 		attributes.text = 0;
 		attributes.text_selected = T3_ATTR_REVERSE;
 		attributes.highlight = T3_ATTR_UNDERLINE;
