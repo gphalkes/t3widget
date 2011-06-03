@@ -40,5 +40,6 @@
 #include "widgets/smartlabel.h"
 #include "widgets/split.h"
 #include "widgets/textfield.h"
+#include "widgets/textwindow.h"
 
 #endif

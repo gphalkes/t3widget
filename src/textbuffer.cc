@@ -330,6 +330,21 @@ int text_buffer_t::merge(bool backspace) {
 	}
 }
 
+bool text_buffer_t::append_line(const char *text) {
+	return append_line(text, strlen(text));
+}
+
+bool text_buffer_t::append_line(const char *text, size_t size) {
+	text_coordinate_t at(get_used_lines() - 1, INT_MAX);
+	text_line_t *append = new text_line_t(text, size);
+	insert_block_internal(at, append);
+	return true;
+}
+
+bool text_buffer_t::append_line(const string *text) {
+	return append_line(text->data(), text->size());
+}
+
 bool text_buffer_t::break_line_internal(void) {
 	int lineindex;
 	text_line_t *insert;

@@ -51,7 +51,8 @@ SOURCES.libt3widget.la := \
 	widgets/split.cc \
 	widgets/textfield.cc \
 	widgets/widget.cc \
-	widgets/separator.cc
+	widgets/separator.cc \
+	widgets/textwindow.cc
 
 
 CXXLTTARGETS := libt3widget.la

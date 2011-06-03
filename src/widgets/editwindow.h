@@ -29,7 +29,7 @@ namespace t3_widget {
 
 namespace t3_widget {
 
-class edit_window_t : public widget_t, public center_component_t, public container_t {
+class edit_window_t : public text_buffer_window_t, public center_component_t, public container_t {
 	protected:
 		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;

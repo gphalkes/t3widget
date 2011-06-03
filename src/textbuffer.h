@@ -16,6 +16,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <string>
 
 #include "key.h"
 #include "textline.h"
@@ -31,9 +32,18 @@ typedef std::vector<text_line_t *> lines_t;
 typedef std::vector<subtext_line_t *> sublines_t;
 
 class edit_window_t;
+class text_window_t;
+
+class text_buffer_window_t : public widget_t {
+	public:
+		text_buffer_window_t(void) : widget_t() {}
+		text_buffer_window_t(int height, int width) : widget_t(height, width) {}
+		virtual void get_dimensions(int *height, int *width, int *top, int *left) = 0;
+};
 
 class text_buffer_t {
 	friend class edit_window_t;
+	friend class text_window_t;
 
 	protected:
 		lines_t lines;
@@ -53,7 +63,7 @@ class text_buffer_t {
 		text_coordinate_t cursor, topleft;
 		int ins_mode, last_set_pos;
 		selection_mode_t selection_mode;
-		edit_window_t *window;
+		text_buffer_window_t *window;
 
 		static find_context_t last_find;
 
@@ -90,6 +100,9 @@ class text_buffer_t {
 		int delete_char(void);
 		int backspace_char(void);
 		int merge(bool backspace);
+		bool append_line(const char *text);
+		bool append_line(const char *text, size_t size);
+		bool append_line(const std::string *text);
 
 		bool break_line(void);
 		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;
