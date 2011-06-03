@@ -78,7 +78,6 @@ class edit_window_t : public widget_t, public center_component_t, public contain
 		virtual void set_focus(bool focus);
 		virtual void force_redraw(void);
 
-		void close(bool force);
 		void goto_line(int line);
 
 		void get_dimensions(int *height, int *width, int *top, int *left);

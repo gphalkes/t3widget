@@ -106,7 +106,7 @@ bool edit_window_t::set_size(optint height, optint width) {
 		redraw = true;
 	}
 	ensure_cursor_on_screen();
-	return true;
+	return result;
 }
 
 void edit_window_t::ensure_cursor_on_screen(void) {
@@ -161,8 +161,6 @@ void edit_window_t::repaint_screen(void) {
 	info.normal_attr = 0;
 	info.selected_attr = attributes.text_selected;
 	for (i = 0; i < t3_win_get_height(edit_window) && (i + text->topleft.line) < text->get_used_lines(); i++) {
-		t3_win_set_paint(edit_window, i, 0);
-
 		info.selection_start = text->topleft.line + i == current_start.line ? current_start.pos : -1;
 		if (text->topleft.line + i >= current_start.line) {
 			if (text->topleft.line + i < current_end.line)
