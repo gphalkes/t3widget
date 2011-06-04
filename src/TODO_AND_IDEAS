@@ -40,7 +40,12 @@ New Functionality
 -----------------
 - create a dialog which shows the message about the key timeout vs. waiting for
 	key thing.
-- make hooks to allow thread-safe interaction with the display thread
+
+
+Done
+----
+- make hooks to allow thread-safe interaction with the display thread [use
+	signal_update, and connect_update_notification for that!]
 
 IDEAS
 =====

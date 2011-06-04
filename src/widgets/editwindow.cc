@@ -28,7 +28,7 @@ sigc::connection edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
 sigc::connection edit_window_t::replace_buttons_connection;
-bool edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(edit_window_t::init));
+sigc::connection edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(edit_window_t::init));
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};

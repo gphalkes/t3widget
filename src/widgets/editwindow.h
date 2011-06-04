@@ -38,7 +38,7 @@ class edit_window_t : public text_buffer_window_t, public center_component_t, pu
 		static finder_t global_finder;
 		static replace_buttons_dialog_t *replace_buttons;
 		static sigc::connection replace_buttons_connection;
-		static bool init_connected;
+		static sigc::connection init_connected;
 
 		t3_window_t *edit_window, *bottom_line_window;
 		scrollbar_t scrollbar;

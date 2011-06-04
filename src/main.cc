@@ -85,11 +85,8 @@ static sigc::signal<void> &on_init() {
 	return *on_init_obj;
 }
 
-/* We let connect_on_init return a bool, because we don't care about the actual
-   sigc::connection and a bool takes less space. */
-bool connect_on_init(const slot<void> &slot) {
-	on_init().connect(slot);
-	return true;
+sigc::connection connect_on_init(const slot<void> &slot) {
+	return on_init().connect(slot);
 }
 
 static void do_resize(void) {
