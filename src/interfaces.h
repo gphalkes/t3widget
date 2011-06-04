@@ -14,9 +14,8 @@
 #ifndef T3_WIDGET_INTERFACES_H
 #define T3_WIDGET_INTERFACES_H
 
-#include <cstdarg>
 #include <list>
-#include <window/window.h>
+#include <window.h>
 
 #include "key.h"
 #include "util.h"
@@ -54,6 +53,19 @@ class center_component_t : private virtual window_component_t {
 	public:
 		center_component_t(void);
 		virtual void set_center_window(window_component_t *_center_window);
+};
+
+class bad_draw_recheck_t {
+	private:
+		static std::list<bad_draw_recheck_t *> to_signal;
+		static sigc::connection initialized;
+		static void bad_draw_recheck_all(void);
+
+	public:
+		bad_draw_recheck_t(void);
+		virtual ~bad_draw_recheck_t(void);
+
+		virtual void bad_draw_recheck(void) = 0;
 };
 
 }; // namespace

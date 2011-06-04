@@ -492,6 +492,11 @@ bool text_field_t::is_hotkey(key_t key) {
 	return label == NULL ? false : label->is_hotkey(key);
 }
 
+void text_field_t::bad_draw_recheck(void) {
+	line.bad_draw_recheck();
+	redraw = true;
+}
+
 /*======================
   == drop_down_list_t ==
   ======================*/

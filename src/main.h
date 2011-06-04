@@ -53,6 +53,7 @@ extern message_dialog_t *message_dialog;
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
 sigc::connection connect_update_notification(const sigc::slot<void> &slot);
 sigc::connection connect_on_init(const sigc::slot<void> &slot);
+sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot);
 
 complex_error_t init(const char *term = NULL, bool separate_keypad = false);
 void restore(void);

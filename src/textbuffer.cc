@@ -1267,4 +1267,11 @@ bool text_buffer_t::has_window(void) const {
 	return window != NULL;
 }
 
+void text_buffer_t::bad_draw_recheck(void) {
+	for (lines_t::iterator iter = lines.begin(); iter != lines.end(); iter++)
+		(*iter)->bad_draw_recheck();
+	name_line.bad_draw_recheck();
+	window->force_redraw();
+}
+
 }; // namespace

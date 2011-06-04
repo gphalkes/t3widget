@@ -41,7 +41,7 @@ class text_buffer_window_t : public widget_t {
 		virtual void get_dimensions(int *height, int *width, int *top, int *left) = 0;
 };
 
-class text_buffer_t {
+class text_buffer_t : public bad_draw_recheck_t {
 	friend class edit_window_t;
 	friend class text_window_t;
 
@@ -140,6 +140,8 @@ class text_buffer_t {
 
 		const char *get_name(void) const;
 		bool has_window(void) const;
+
+		virtual void bad_draw_recheck(void);
 };
 
 }; // namespace

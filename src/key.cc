@@ -157,8 +157,10 @@ static int read_and_convert_keys(int timeout) {
 	key_t c;
 
 	#warning FIXME: retrieve the new character set and if it is not equal, update the current convertor
-	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL)
+	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL) {
+		lprintf("New codeset: %s\n", t3_term_get_codeset());
 		key_buffer.push_back_unique(EKEY_UPDATE_TERMINAL);
+	}
 
 	if (c < T3_WARN_MIN)
 		return -1;

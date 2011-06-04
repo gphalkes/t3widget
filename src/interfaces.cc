@@ -13,6 +13,8 @@
 */
 #include "interfaces.h"
 #include "widgets/widget.h"
+#include "main.h"
+using namespace std;
 
 namespace t3_widget {
 
@@ -30,5 +32,28 @@ void container_t::unset_widget_parent(widget_t *widget) {
 
 center_component_t::center_component_t(void) : center_window(this) {}
 void center_component_t::set_center_window(window_component_t *_center_window) { center_window = _center_window; }
+
+
+list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
+sigc::connection bad_draw_recheck_t::initialized =
+	connect_terminal_settings_changed(sigc::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
+
+void bad_draw_recheck_t::bad_draw_recheck_all(void) {
+	for (list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++)
+		(*iter)->bad_draw_recheck();
+}
+
+bad_draw_recheck_t::bad_draw_recheck_t(void) {
+	to_signal.push_back(this);
+}
+
+bad_draw_recheck_t::~bad_draw_recheck_t(void) {
+	for (list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++) {
+		if (*iter == this) {
+			to_signal.erase(iter);
+			return;
+		}
+	}
+}
 
 }; // namespace

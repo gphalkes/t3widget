@@ -28,7 +28,6 @@
 #include "internal.h"
 
 using namespace std;
-using namespace sigc;
 
 namespace t3_widget {
 #define MESSAGE_DIALOG_WIDTH 50
@@ -72,11 +71,11 @@ const char *complex_error_t::get_string(void) {
 	}
 }
 
-connection connect_resize(const slot<void, int, int> &slot) {
+sigc::connection connect_resize(const sigc::slot<void, int, int> &slot) {
 	return resize.connect(slot);
 }
 
-connection connect_update_notification(const slot<void> &slot) {
+sigc::connection connect_update_notification(const sigc::slot<void> &slot) {
 	return update_notification.connect(slot);
 }
 
@@ -85,8 +84,17 @@ static sigc::signal<void> &on_init() {
 	return *on_init_obj;
 }
 
-sigc::connection connect_on_init(const slot<void> &slot) {
+sigc::connection connect_on_init(const sigc::slot<void> &slot) {
 	return on_init().connect(slot);
+}
+
+static sigc::signal<void> &terminal_settings_changed() {
+	static sigc::signal<void> *terminal_settings_changed_obj = new sigc::signal<void>();
+	return *terminal_settings_changed_obj;
+}
+
+sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot) {
+	return terminal_settings_changed().connect(slot);
 }
 
 static void do_resize(void) {
@@ -242,6 +250,7 @@ void iterate(void) {
 			update_notification();
 			break;
 		case EKEY_UPDATE_TERMINAL:
+			terminal_settings_changed()();
 			break;
 		default:
 			//FIXME: pass unhandled keys to callback?

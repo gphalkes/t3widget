@@ -146,6 +146,7 @@ class text_line_t {
 		int is_bad_draw(int pos) const;
 
 		const std::string *get_data(void) const;
+		void bad_draw_recheck(void);
 
 		static void init(void);
 

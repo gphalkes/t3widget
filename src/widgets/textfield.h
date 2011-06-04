@@ -23,7 +23,7 @@
 
 namespace t3_widget {
 
-class text_field_t : public widget_t, public center_component_t, public focus_widget_t {
+class text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
 	protected:
 		int width,
 			pos,
@@ -91,6 +91,8 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 		void set_label(smart_label_t *_label);
 		virtual bool is_hotkey(key_t key);
 		void reset(void);
+
+		virtual void bad_draw_recheck(void);
 
 	T3_WIDGET_SIGNAL(activate, void);
 	T3_WIDGET_SIGNAL(lose_focus, void);
