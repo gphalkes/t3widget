@@ -18,6 +18,8 @@
 
 #include "dialogs/dialog.h"
 #include "dialogs/filedialog.h"
+#include "dialogs/inputselectiondialog.h"
+#include "dialogs/insertchardialog.h"
 #include "dialogs/mainwindow.h"
 #include "dialogs/menupanel.h"
 #include "dialogs/messagedialog.h"

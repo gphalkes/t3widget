@@ -33,6 +33,7 @@ SOURCES.libt3widget.la := \
 	dialogs/mainwindow.cc \
 	dialogs/menupanel.cc \
 	dialogs/messagedialog.cc \
+	dialogs/inputselectiondialog.cc \
 	widgets/bullet.cc \
 	widgets/button.cc \
 	widgets/checkbox.cc \

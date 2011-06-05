@@ -549,7 +549,7 @@ bool text_buffer_t::init_wrap_lines(void) {
 /* rewrap a real line starting with wrapped line 'line' */
 bool text_buffer_t::rewrap_line(int line) {
 	int lastline;
-	break_pos_t breakpos = wraplines[line]->get_line()->find_next_break_pos(wraplines[line]->get_start(), wrap_width - 1, tabsize);
+	break_pos_t breakpos = wraplines[line]->get_line()->find_next_break_pos(wraplines[line]->get_start(), wrap_width, tabsize);
 
 	/* First simply rewrap the existing sublines_t */
 	while (breakpos.pos >= 0 && (size_t) line < wraplines.size() - 1 &&
@@ -558,7 +558,7 @@ bool text_buffer_t::rewrap_line(int line) {
 		wraplines[line]->set_flags(breakpos.flags);
 		line++;
 		wraplines[line]->set_start(breakpos.pos);
-		breakpos = wraplines[line]->get_line()->find_next_break_pos(breakpos.pos, wrap_width - 1, tabsize);
+		breakpos = wraplines[line]->get_line()->find_next_break_pos(breakpos.pos, wrap_width, tabsize);
 	}
 
 	while (breakpos.pos >= 0) {
@@ -570,7 +570,7 @@ bool text_buffer_t::rewrap_line(int line) {
 
 		line++;
 		wraplines.insert(wraplines.begin() + line, next);
-		breakpos = wraplines[line]->get_line()->find_next_break_pos(breakpos.pos, wrap_width - 1, tabsize);
+		breakpos = wraplines[line]->get_line()->find_next_break_pos(breakpos.pos, wrap_width, tabsize);
 	}
 	wraplines[line]->set_flags(0);
 
@@ -609,6 +609,8 @@ void text_buffer_t::rewrap(void) {
 	if (window != NULL) {
 		int discard, width;
 		window->get_dimensions(&discard, &width, &discard, &discard);
+		if (width < 2)
+			width = 2;
 		wrap_width = width - 1;
 	}
 

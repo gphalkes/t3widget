@@ -503,7 +503,7 @@ Several things need to be done:
 /* tabsize == 0 -> tab as control */
 break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize) const {
 	int i, total = 0;
-	break_pos_t possible_break = { 0, 0 };
+	break_pos_t possible_break = { start, 0 };
 	bool graph_seen = false, last_was_graph = false;
 
 	if (starts_with_combining && start == 0)
@@ -525,9 +525,8 @@ break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize)
 			if (is_graph(i) || buffer[i] < 32) {
 				graph_seen = true;
 				last_was_graph = true;
-			} else {
-				possible_break.pos = i;
 			}
+			possible_break.pos = i;
 		} else if (is_space(i) && last_was_graph) {
 			possible_break.pos = adjust_position(i, 1);
 			last_was_graph = false;
@@ -539,7 +538,7 @@ break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize)
 	}
 
 	if ((size_t) i < buffer.size()) {
-		if (possible_break.pos == 0)
+		if (possible_break.pos == start)
 			possible_break.pos = i;
 		possible_break.flags |= text_line_t::BREAK;
 		return possible_break;

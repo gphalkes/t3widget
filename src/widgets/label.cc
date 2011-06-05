@@ -22,9 +22,11 @@ namespace t3_widget {
 
 //FIXME: maybe we should allow scrolling with the left and right keys
 
-label_t::label_t(const char *_text) : text(_text), align(ALIGN_LEFT), focus(false)
+label_t::label_t(const char *_text) : text(_text), align(ALIGN_LEFT), focus(false), can_focus(true)
 {
-	width = text_width = t3_term_strwidth(text);
+	width = text_width = t3_term_strwidth(text.c_str());
+	if (width == 0)
+		width = 1;
 	init_window(1, width);
 }
 
@@ -51,7 +53,7 @@ void label_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	text_line_t *line = new text_line_t(text);
+	text_line_t *line = new text_line_t(&text);
 	text_line_t::paint_info_t paint_info;
 
 	t3_win_set_default_attrs(window, focus ? attributes.dialog_selected : attributes.dialog);
@@ -89,5 +91,13 @@ void label_t::set_focus(bool _focus) {
 void label_t::set_align(label_t::align_t _align) {
 	align = _align;
 }
+
+void label_t::set_text(const char *_text) {
+	text = _text;
+	redraw = true;
+}
+
+void label_t::set_accepts_focus(bool _can_focus) { can_focus = _can_focus; }
+bool label_t::accepts_focus(void) { return can_focus; }
 
 }; // namespace
