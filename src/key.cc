@@ -126,6 +126,7 @@ static int unicode_buffer_fill;
 static transcript_t *conversion_handle;
 
 static int key_timeout = -1;
+static bool drop_single_esc = true;
 
 /* Used in decode_sequence and comparison routine to communicate whether the current
    sequence is a prefix of any known sequence. */
@@ -254,6 +255,8 @@ static void *read_keys(void *arg) {
 				c = decode_sequence(true);
 				if (c < 0)
 					continue;
+				else if (drop_single_esc && c == (EKEY_ESC | EKEY_META))
+					c = EKEY_ESC;
 			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
@@ -305,7 +308,7 @@ static key_t decode_sequence(bool outer) {
 			if (c == EKEY_ESC) {
 				if (sequence.idx == 1 && outer) {
 					key_t alted = decode_sequence(false);
-					return alted >= 0 && !(key_timeout < 0 && alted == EKEY_ESC) ? alted | EKEY_META : EKEY_ESC;
+					return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
 				}
 				unget_key(c);
 				goto unknown_sequence;
@@ -336,7 +339,7 @@ static key_t decode_sequence(bool outer) {
 unknown_sequence:
 	if (sequence.idx == 2)
 		return sequence.data[1] | EKEY_META;
-	else if (sequence.idx == 1)
+	else if (sequence.idx == 1 && !drop_single_esc)
 		return EKEY_ESC;
 
 	/* Something unwanted has happened here: the character sequence we encoutered was not
@@ -605,7 +608,16 @@ static void stop_keys(void) {
 }
 
 void set_key_timeout(int msec) {
-	key_timeout = msec;
+	if (msec == 0) {
+		key_timeout = -1;
+		drop_single_esc = true;
+	} else if (msec < 0) {
+		key_timeout = -msec;
+		drop_single_esc = true;
+	} else {
+		key_timeout = msec;
+		drop_single_esc = false;
+	}
 }
 
 void signal_update(void) {
