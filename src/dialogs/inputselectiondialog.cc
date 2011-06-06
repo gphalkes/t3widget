@@ -98,22 +98,30 @@ bool input_selection_dialog_t::process_key(key_t key) {
 	}
 	switch (key) {
 		case EKEY_ESC:
+		case EKEY_ESC | EKEY_META:
 			return true;
 		case EKEY_F2:
+		case EKEY_F2 | EKEY_META:
 			close();
 			set_key_timeout(100);
 			intuitive_activated();
 			return true;
 		case EKEY_F3:
+		case EKEY_F3 | EKEY_META:
 			close();
 			set_key_timeout(-1000);
 			compromise_activated();
 			return true;
 		case EKEY_F4:
+		case EKEY_F4 | EKEY_META:
 			close();
 			set_key_timeout(0);
 			no_timeout_activated();
 			return true;
+		case '\t' | EKEY_META:
+		case EKEY_RIGHT | EKEY_META:
+		case EKEY_LEFT | EKEY_META:
+			return dialog_t::process_key(key & ~EKEY_META);
 		default:
 			return dialog_t::process_key(key);
 	}
