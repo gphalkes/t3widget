@@ -156,8 +156,17 @@ static int read_and_convert_keys(int timeout) {
 	uint32_t *unicode_buffer_ptr;
 	key_t c;
 
-	#warning FIXME: retrieve the new character set and if it is not equal, update the current convertor
 	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL) {
+		transcript_t *new_conversion_handle;
+		transcript_error_t transcript_error;
+		/* Open new conversion handle, but make sure we actually succeed in opening it,
+		   before we close the old one. */
+		if ((new_conversion_handle = transcript_open_converter(t3_term_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) != NULL) {
+			transcript_close_converter(conversion_handle);
+			conversion_handle = new_conversion_handle;
+		} else {
+			lprintf("Error opening new convertor '%s': %s\n", t3_term_get_codeset(), transcript_strerror(transcript_error));
+		}
 		lprintf("New codeset: %s\n", t3_term_get_codeset());
 		key_buffer.push_back_unique(EKEY_UPDATE_TERMINAL);
 	}
