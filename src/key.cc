@@ -303,17 +303,12 @@ static key_t decode_sequence(bool outer) {
 	while (sequence.idx < MAX_SEQUENCE) {
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
-				if (key_timeout < 0) {
-					if (sequence.idx == 1)
-						return EKEY_ESC;
-				} else {
-					if (sequence.idx == 1 && outer) {
-						key_t alted = decode_sequence(false);
-						return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
-					}
+				if (sequence.idx == 1 && outer) {
+					key_t alted = decode_sequence(false);
+					return alted >= 0 && !(key_timeout < 0 && alted == EKEY_ESC) ? alted | EKEY_META : EKEY_ESC;
 				}
 				unget_key(c);
-				goto ignore_sequence;
+				goto unknown_sequence;
 			}
 
 			sequence.data[sequence.idx++] = c;
@@ -331,14 +326,14 @@ static key_t decode_sequence(bool outer) {
 			}
 
 			if (key_timeout < 0 && !is_prefix)
-				goto ignore_sequence;
+				goto unknown_sequence;
 		}
 
-		if (read_and_convert_keys(key_timeout) < 0)
+		if (read_and_convert_keys(outer ? key_timeout : 50) < 0)
 			break;
 	}
 
-ignore_sequence:
+unknown_sequence:
 	if (sequence.idx == 2)
 		return sequence.data[1] | EKEY_META;
 	else if (sequence.idx == 1)
