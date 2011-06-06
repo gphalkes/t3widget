@@ -610,10 +610,7 @@ bool edit_window_t::process_key(key_t key) {
 					local_insmode = 0;
 				}
 
-				if (text->cursor.pos == text->get_line_max(text->cursor.line))
-					text->append_char(key);
-				else
-					(text->*proces_char[local_insmode])(key);
+				(text->*proces_char[local_insmode])(key);
 				ensure_cursor_on_screen();
 				redraw = true;
 				text->last_set_pos = screen_pos;
@@ -662,7 +659,7 @@ void edit_window_t::update_contents(void) {
 		/* FIXME: is it really necessary to do this on each key stroke??? */
 		t3_win_set_paint(bottom_line_window, 0, 0);
 		if (text->name_line.calculate_screen_width(0, text->name_line.get_length(), 1) > name_width) {
-			t3_win_addstr(bottom_line_window, "..", attributes.dialog);
+			t3_win_addstr(bottom_line_window, "..", 0);
 			paint_info.start = text->name_line.adjust_position(text->name_line.get_length(), -(name_width - 2));
 			paint_info.size = name_width - 2;
 		} else {
