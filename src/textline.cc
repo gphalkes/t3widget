@@ -516,7 +516,7 @@ break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize)
 			total += width_at(i);
 
 		if (total > length && (buffer[i] != '\t' || tabsize == 0)) {
-			if (possible_break.pos == 0)
+			if (possible_break.pos == start)
 				possible_break.flags = text_line_t::PARTIAL_CHAR;
 			break;
 		}
@@ -531,8 +531,11 @@ break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize)
 			possible_break.pos = adjust_position(i, 1);
 			last_was_graph = false;
 		} else if (is_graph(i) || buffer[i] < 32) {
-			if (last_was_graph && !is_alnum(i) && buffer[i] != '_')
-				possible_break.pos = adjust_position(i, 1);
+/* 			if (last_was_graph && !is_alnum(i) && buffer[i] != '_') {
+				size_t next_pos = adjust_position(i, 1);
+				if (!is_space(next_pos))
+					possible_break.pos = next_pos;
+			} */
 			last_was_graph = true;
 		}
 	}

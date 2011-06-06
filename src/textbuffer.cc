@@ -599,8 +599,8 @@ void text_buffer_t::rewrap(void) {
 	if (window != NULL) {
 		int discard, width;
 		window->get_dimensions(&discard, &width, &discard, &discard);
-		if (width < 2)
-			width = 2;
+		if (width < 3)
+			width = 3;
 		wrap_width = width - 1;
 	}
 
