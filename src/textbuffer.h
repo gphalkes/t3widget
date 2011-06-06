@@ -29,7 +29,7 @@
 namespace t3_widget {
 
 typedef std::vector<text_line_t *> lines_t;
-typedef std::vector<subtext_line_t *> sublines_t;
+typedef std::vector<subtext_line_t> sublines_t;
 
 class edit_window_t;
 class text_window_t;

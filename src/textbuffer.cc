@@ -106,18 +106,18 @@ void text_buffer_t::locate_pos(void) {
 }
 
 void text_buffer_t::locate_pos(text_coordinate_t *coord) const {
-	if (coord->pos < wraplines[coord->line]->get_start()) {
+	if (coord->pos < wraplines[coord->line].get_start()) {
 		do {
 			coord->line--;
 			ASSERT(coord->line >= 0);
-			ASSERT(wraplines[coord->line]->get_line() == wraplines[coord->line + 1]->get_line());
-		} while (coord->pos < wraplines[coord->line]->get_start());
+			ASSERT(wraplines[coord->line].get_line() == wraplines[coord->line + 1].get_line());
+		} while (coord->pos < wraplines[coord->line].get_start());
 		return;
 	}
 
 	while ((size_t) coord->line + 1 < wraplines.size() &&
-			wraplines[coord->line]->get_line() == wraplines[coord->line + 1]->get_line() &&
-			wraplines[coord->line + 1]->get_start() <= coord->pos)
+			wraplines[coord->line].get_line() == wraplines[coord->line + 1].get_line() &&
+			wraplines[coord->line + 1].get_start() <= coord->pos)
 		coord->line++;
 }
 
@@ -126,13 +126,13 @@ bool text_buffer_t::insert_char(key_t c) {
 
 	if (wrap) {
 		//FIXME: maybe we should undo the insert action if the wrap fails
-		retval = wraplines[cursor.line]->get_line()->insert_char(cursor.pos, c, get_undo(UNDO_ADD));
+		retval = wraplines[cursor.line].get_line()->insert_char(cursor.pos, c, get_undo(UNDO_ADD));
 		if (retval) {
-			if (cursor.line > 0 && wraplines[cursor.line - 1]->get_line() == wraplines[cursor.line]->get_line())
+			if (cursor.line > 0 && wraplines[cursor.line - 1].get_line() == wraplines[cursor.line].get_line())
 				rewrap_line(cursor.line - 1);
 			else
 				rewrap_line(cursor.line);
-			cursor.pos = wraplines[cursor.line]->get_line()->adjust_position(cursor.pos, 1);
+			cursor.pos = wraplines[cursor.line].get_line()->adjust_position(cursor.pos, 1);
 			locate_pos();
 		}
 	} else {
@@ -151,13 +151,13 @@ bool text_buffer_t::overwrite_char(key_t c) {
 
 	if (wrap) {
 		//FIXME: maybe we should undo the overwrite action if the wrap fails
-		retval = wraplines[cursor.line]->get_line()->overwrite_char(cursor.pos, c, get_undo(UNDO_OVERWRITE));
+		retval = wraplines[cursor.line].get_line()->overwrite_char(cursor.pos, c, get_undo(UNDO_OVERWRITE));
 		if (retval) {
-			if (cursor.line > 0 && wraplines[cursor.line - 1]->get_line() == wraplines[cursor.line]->get_line())
+			if (cursor.line > 0 && wraplines[cursor.line - 1].get_line() == wraplines[cursor.line].get_line())
 				rewrap_line(cursor.line - 1);
 			else
 				rewrap_line(cursor.line);
-			cursor.pos = wraplines[cursor.line]->get_line()->adjust_position(cursor.pos, 1);
+			cursor.pos = wraplines[cursor.line].get_line()->adjust_position(cursor.pos, 1);
 			locate_pos(&cursor);
 		}
 	} else {
@@ -178,16 +178,16 @@ bool text_buffer_t::append_char(key_t c) {
 
 	if (wrap) {
 		//FIXME: maybe we should undo the append/insert action if the wrap fails
-		if ((size_t) cursor.line == wraplines.size() - 1 || wraplines[cursor.line]->get_line() != wraplines[cursor.line + 1]->get_line()) {
-			cursor.pos = wraplines[cursor.line]->get_line()->get_length();
-			retval = wraplines[cursor.line]->get_line()->append_char(c, get_undo(UNDO_ADD));
+		if ((size_t) cursor.line == wraplines.size() - 1 || wraplines[cursor.line].get_line() != wraplines[cursor.line + 1].get_line()) {
+			cursor.pos = wraplines[cursor.line].get_line()->get_length();
+			retval = wraplines[cursor.line].get_line()->append_char(c, get_undo(UNDO_ADD));
 			if (retval)
-				cursor.pos = wraplines[cursor.line]->get_line()->get_length();
+				cursor.pos = wraplines[cursor.line].get_line()->get_length();
 		} else {
-			cursor.pos = wraplines[cursor.line]->get_line()->adjust_position(wraplines[cursor.line + 1]->get_start(), -1);
-			retval = wraplines[cursor.line]->get_line()->insert_char(cursor.pos, c, get_undo(UNDO_ADD));
+			cursor.pos = wraplines[cursor.line].get_line()->adjust_position(wraplines[cursor.line + 1].get_start(), -1);
+			retval = wraplines[cursor.line].get_line()->insert_char(cursor.pos, c, get_undo(UNDO_ADD));
 			if (retval)
-				cursor.pos = wraplines[cursor.line]->get_line()->adjust_position(cursor.pos, 1);
+				cursor.pos = wraplines[cursor.line].get_line()->adjust_position(cursor.pos, 1);
 		}
 
 		if (retval) {
@@ -208,8 +208,8 @@ bool text_buffer_t::append_char(key_t c) {
 
 int text_buffer_t::delete_char(void) {
 	if (wrap) {
-		int retval = wraplines[cursor.line]->get_line()->delete_char(cursor.pos, get_undo(UNDO_DELETE));
-		if (cursor.line > 0 && wraplines[cursor.line - 1]->get_line() == wraplines[cursor.line]->get_line())
+		int retval = wraplines[cursor.line].get_line()->delete_char(cursor.pos, get_undo(UNDO_DELETE));
+		if (cursor.line > 0 && wraplines[cursor.line - 1].get_line() == wraplines[cursor.line].get_line())
 			rewrap_line(cursor.line - 1);
 		else
 			rewrap_line(cursor.line);
@@ -225,9 +225,9 @@ int text_buffer_t::backspace_char(void) {
 	int newpos;
 
 	if (wrap) {
-		newpos = wraplines[cursor.line]->get_line()->adjust_position(cursor.pos, -1);
-		retval = wraplines[cursor.line]->get_line()->backspace_char(cursor.pos, get_undo(UNDO_BACKSPACE));
-		if (cursor.line > 0 && wraplines[cursor.line - 1]->get_line() == wraplines[cursor.line]->get_line())
+		newpos = wraplines[cursor.line].get_line()->adjust_position(cursor.pos, -1);
+		retval = wraplines[cursor.line].get_line()->backspace_char(cursor.pos, get_undo(UNDO_BACKSPACE));
+		if (cursor.line > 0 && wraplines[cursor.line - 1].get_line() == wraplines[cursor.line].get_line())
 			cursor.line--;
 
 		cursor.pos = newpos;
@@ -248,7 +248,7 @@ bool text_buffer_t::is_modified(void) const {
 }
 
 int text_buffer_t::find_line(int idx) const {
-	text_line_t *line = wraplines[idx]->get_line();
+	text_line_t *line = wraplines[idx].get_line();
 
 	if ((size_t) idx >= lines.size())
 		idx = lines.size() - 1;
@@ -262,10 +262,10 @@ int text_buffer_t::find_line(int idx) const {
 
 void text_buffer_t::find_wrap_line(text_coordinate_t *coord) const {
 	text_line_t *line = lines[coord->line];
-	while (wraplines[coord->line]->get_line() != line && (size_t) coord->line < wraplines.size())
+	while (wraplines[coord->line].get_line() != line && (size_t) coord->line < wraplines.size())
 		coord->line++;
 
-	ASSERT(wraplines[coord->line]->get_line() == line);
+	ASSERT(wraplines[coord->line].get_line() == line);
 	locate_pos(coord);
 }
 
@@ -285,24 +285,24 @@ int text_buffer_t::merge_internal(int line) {
 		text_line_t *replace_line, *replace_with;
 
 		cursor.line = line;
-		cursor.pos = wraplines[line]->get_line()->get_length();
+		cursor.pos = wraplines[line].get_line()->get_length();
 
-		replace_with = wraplines[line]->get_line();
-		replace_line = wraplines[line + 1]->get_line();
+		replace_with = wraplines[line].get_line();
+		replace_line = wraplines[line + 1].get_line();
 
-		wraplines[line]->get_line()->merge(wraplines[line + 1]->get_line());
+		wraplines[line].get_line()->merge(wraplines[line + 1].get_line());
 
 		lines.erase(lines.begin() + find_line(line + 1));
 
 		for (otherline = line + 1; (size_t) otherline < wraplines.size() &&
-				wraplines[otherline]->get_line() == replace_line; otherline++)
+				wraplines[otherline].get_line() == replace_line; otherline++)
 		{
-			wraplines[otherline]->set_line(replace_with);
-			wraplines[otherline]->set_start(-1);
-			wraplines[otherline]->set_flags(0);
+			wraplines[otherline].set_line(replace_with);
+			wraplines[otherline].set_start(-1);
+			wraplines[otherline].set_flags(0);
 		}
 
-		if (line > 0 && wraplines[line - 1]->get_line() == wraplines[line]->get_line())
+		if (line > 0 && wraplines[line - 1].get_line() == wraplines[line].get_line())
 			rewrap_line(line - 1);
 		else
 			rewrap_line(line);
@@ -318,14 +318,14 @@ int text_buffer_t::merge_internal(int line) {
 
 int text_buffer_t::merge(bool backspace) {
 	if (backspace) {
-		if (wrap && wraplines[cursor.line]->get_line() == wraplines[cursor.line - 1]->get_line())
+		if (wrap && wraplines[cursor.line].get_line() == wraplines[cursor.line - 1].get_line())
 			return backspace_char();
-		get_undo(UNDO_BACKSPACE_NEWLINE, cursor.line - 1, (wrap ? wraplines[cursor.line - 1]->get_line() : lines[cursor.line - 1])->get_length());
+		get_undo(UNDO_BACKSPACE_NEWLINE, cursor.line - 1, (wrap ? wraplines[cursor.line - 1].get_line() : lines[cursor.line - 1])->get_length());
 		return merge_internal(cursor.line - 1);
 	} else {
-		if (wrap && wraplines[cursor.line]->get_line() == wraplines[cursor.line + 1]->get_line())
+		if (wrap && wraplines[cursor.line].get_line() == wraplines[cursor.line + 1].get_line())
 			return delete_char();
-		get_undo(UNDO_DELETE_NEWLINE, cursor.line, (wrap ? wraplines[cursor.line]->get_line() : lines[cursor.line])->get_length());
+		get_undo(UNDO_DELETE_NEWLINE, cursor.line, (wrap ? wraplines[cursor.line].get_line() : lines[cursor.line])->get_length());
 		return merge_internal(cursor.line);
 	}
 }
@@ -359,24 +359,20 @@ bool text_buffer_t::break_line_internal(void) {
 	if (wrap) {
 		int nextline;
 
-		wraplines[cursor.line - 1]->set_flags(0);
+		wraplines[cursor.line - 1].set_flags(0);
 
 		for (nextline = cursor.line; (size_t) nextline < wraplines.size() &&
-				wraplines[cursor.line - 1]->get_line() == wraplines[nextline]->get_line();
+				wraplines[cursor.line - 1].get_line() == wraplines[nextline].get_line();
 				nextline++) {}
 
 		if (nextline > cursor.line) {
-			wraplines[cursor.line]->set_line(insert);
-			wraplines[cursor.line]->set_start(0);
-			wraplines[cursor.line]->set_flags(0);
+			wraplines[cursor.line].set_line(insert);
+			wraplines[cursor.line].set_start(0);
+			wraplines[cursor.line].set_flags(0);
 			if (nextline > cursor.line + 1)
 				wraplines.erase(wraplines.begin() + cursor.line + 1, wraplines.begin() + nextline);
 		} else {
-			subtext_line_t *next = new subtext_line_t(insert, 0);
-			if (next == NULL)
-				return false;
-
-			wraplines.insert(wraplines.begin() + cursor.line, next);
+			wraplines.insert(wraplines.begin() + cursor.line, subtext_line_t(insert, 0));
 		}
 
 		rewrap_line(cursor.line);
@@ -394,14 +390,14 @@ int text_buffer_t::calculate_screen_pos(const text_coordinate_t *where) const {
 	if (where == NULL)
 		where = &cursor;
 	return wrap ?
-		wraplines[where->line]->get_line()->calculate_screen_width(wraplines[where->line]->get_start(), where->pos, tabsize)
+		wraplines[where->line].get_line()->calculate_screen_width(wraplines[where->line].get_start(), where->pos, tabsize)
 		: lines[where->line]->calculate_screen_width(0, where->pos, tabsize);
 }
 
 int text_buffer_t::get_max(int line) const {
 	return (size_t) line == wraplines.size() - 1 ||
-		wraplines[line]->get_line() != wraplines[line + 1]->get_line() ?
-		INT_MAX : wraplines[line + 1]->get_start();
+		wraplines[line].get_line() != wraplines[line + 1].get_line() ?
+		INT_MAX : wraplines[line + 1].get_start();
 }
 
 int text_buffer_t::calculate_line_pos(int line, int pos) const {
@@ -415,7 +411,7 @@ int text_buffer_t::calculate_line_pos(int line, int pos) const {
 		if (max < INT_MAX)
 			max--;
 
-		retval = wraplines[line]->get_line()->calculate_line_pos(wraplines[line]->get_start(),
+		retval = wraplines[line].get_line()->calculate_line_pos(wraplines[line].get_start(),
 			max, pos, tabsize);
 
 		return retval;
@@ -427,10 +423,10 @@ int text_buffer_t::calculate_line_pos(int line, int pos) const {
 void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const {
 	info->tabsize = tabsize;
 	if (wrap) {
-		info->start = wraplines[line]->get_start();
+		info->start = wraplines[line].get_start();
 		info->max = get_max(line);
-		info->flags = wraplines[line]->get_flags();
-		wraplines[line]->get_line()->paint_line(win, info);
+		info->flags = wraplines[line].get_flags();
+		wraplines[line].get_line()->paint_line(win, info);
 	} else {
 		info->start = 0;
 		info->max = INT_MAX;
@@ -441,9 +437,9 @@ void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_in
 
 int text_buffer_t::get_line_max(int line) const {
 	if (wrap) {
-		if ((size_t) line == wraplines.size() - 1 || wraplines[line]->get_line() != wraplines[line + 1]->get_line())
-			return wraplines[line]->get_line()->get_length();
-		return wraplines[line + 1]->get_line()->adjust_position(wraplines[line + 1]->get_start(), - 1);
+		if ((size_t) line == wraplines.size() - 1 || wraplines[line].get_line() != wraplines[line + 1].get_line())
+			return wraplines[line].get_line()->get_length();
+		return wraplines[line + 1].get_line()->adjust_position(wraplines[line + 1].get_start(), - 1);
 	} else {
 		return lines[line]->get_length();
 	}
@@ -453,7 +449,7 @@ void text_buffer_t::get_next_word(void) {
 	text_line_t *line;
 
 	if (wrap)
-		line = wraplines[cursor.line]->get_line();
+		line = wraplines[cursor.line].get_line();
 	else
 		line = lines[cursor.line];
 
@@ -468,12 +464,12 @@ void text_buffer_t::get_next_word(void) {
 	/* Keep skipping to next line if no word can be found */
 	while (cursor.pos < 0) {
 		if (wrap) {
-			while ((size_t) cursor.line + 1 < wraplines.size() && line == wraplines[cursor.line + 1]->get_line())
+			while ((size_t) cursor.line + 1 < wraplines.size() && line == wraplines[cursor.line + 1].get_line())
 				cursor.line++;
 			if ((size_t) cursor.line + 1 >= wraplines.size())
 				break;
 			cursor.line++;
-			line = wraplines[cursor.line]->get_line();
+			line = wraplines[cursor.line].get_line();
 		} else {
 			if ((size_t) cursor.line + 1 >= lines.size())
 				break;
@@ -488,8 +484,8 @@ void text_buffer_t::get_next_word(void) {
 
 	if (wrap) {
 		while ((size_t) cursor.line + 1 < wraplines.size() &&
-				wraplines[cursor.line + 1]->get_line() == line &&
-				wraplines[cursor.line + 1]->get_start() <= cursor.pos)
+				wraplines[cursor.line + 1].get_line() == line &&
+				wraplines[cursor.line + 1].get_start() <= cursor.pos)
 		{
 			cursor.line++;
 		}
@@ -500,7 +496,7 @@ void text_buffer_t::get_previous_word(void) {
 	text_line_t *line;
 
 	if (wrap)
-		line = wraplines[cursor.line]->get_line();
+		line = wraplines[cursor.line].get_line();
 	else
 		line = lines[cursor.line];
 
@@ -509,11 +505,11 @@ void text_buffer_t::get_previous_word(void) {
 	/* Keep skipping to next line if no word can be found */
 	while (cursor.pos < 0 && cursor.line > 0) {
 		if (wrap) {
-			while (cursor.line > 0 && line == wraplines[cursor.line - 1]->get_line())
+			while (cursor.line > 0 && line == wraplines[cursor.line - 1].get_line())
 				cursor.line--;
 			if (cursor.line == 0)
 				break;
-			line = wraplines[--cursor.line]->get_line();
+			line = wraplines[--cursor.line].get_line();
 		} else {
 			line = lines[--cursor.line];
 		}
@@ -525,7 +521,7 @@ void text_buffer_t::get_previous_word(void) {
 		cursor.pos = 0;
 
 	if (wrap) {
-		while (wraplines[cursor.line]->get_start() > cursor.pos)
+		while (wraplines[cursor.line].get_start() > cursor.pos)
 			cursor.line--;
 	}
 }
@@ -538,8 +534,8 @@ bool text_buffer_t::init_wrap_lines(void) {
 
 		do {
 			if (breakpos.pos != 0)
-				wraplines[wraplines.size() - 1]->set_flags(breakpos.flags);
-			wraplines.push_back(new subtext_line_t(lines[i], breakpos.pos));
+				wraplines[wraplines.size() - 1].set_flags(breakpos.flags);
+			wraplines.push_back(subtext_line_t(lines[i], breakpos.pos));
 		} while ((breakpos = lines[i]->find_next_break_pos(breakpos.pos, wrap_width - 1, tabsize)).pos >= 0);
 	}
 
@@ -549,40 +545,34 @@ bool text_buffer_t::init_wrap_lines(void) {
 /* rewrap a real line starting with wrapped line 'line' */
 bool text_buffer_t::rewrap_line(int line) {
 	int lastline;
-	break_pos_t breakpos = wraplines[line]->get_line()->find_next_break_pos(wraplines[line]->get_start(), wrap_width, tabsize);
+	break_pos_t breakpos = wraplines[line].get_line()->find_next_break_pos(wraplines[line].get_start(), wrap_width, tabsize);
 
 	/* First simply rewrap the existing sublines_t */
 	while (breakpos.pos >= 0 && (size_t) line < wraplines.size() - 1 &&
-			wraplines[line]->get_line() == wraplines[line + 1]->get_line())
+			wraplines[line].get_line() == wraplines[line + 1].get_line())
 	{
-		wraplines[line]->set_flags(breakpos.flags);
+		wraplines[line].set_flags(breakpos.flags);
 		line++;
-		wraplines[line]->set_start(breakpos.pos);
-		breakpos = wraplines[line]->get_line()->find_next_break_pos(breakpos.pos, wrap_width, tabsize);
+		wraplines[line].set_start(breakpos.pos);
+		breakpos = wraplines[line].get_line()->find_next_break_pos(breakpos.pos, wrap_width, tabsize);
 	}
 
 	while (breakpos.pos >= 0) {
-		subtext_line_t *next;
+		wraplines[line].set_flags(breakpos.flags);
 
-		wraplines[line]->set_flags(breakpos.flags);
-		if ((next = new subtext_line_t(wraplines[line]->get_line(), breakpos.pos)) == NULL)
-			return false;
-
+		wraplines.insert(wraplines.begin() + line + 1, subtext_line_t(wraplines[line].get_line(), breakpos.pos));
 		line++;
-		wraplines.insert(wraplines.begin() + line, next);
-		breakpos = wraplines[line]->get_line()->find_next_break_pos(breakpos.pos, wrap_width, tabsize);
+		breakpos = wraplines[line].get_line()->find_next_break_pos(breakpos.pos, wrap_width, tabsize);
 	}
-	wraplines[line]->set_flags(0);
+	wraplines[line].set_flags(0);
 
 	lastline = line;
 	while ((size_t) lastline < wraplines.size() - 1 &&
-			wraplines[line]->get_line() == wraplines[lastline + 1]->get_line())
+			wraplines[line].get_line() == wraplines[lastline + 1].get_line())
 		lastline++;
 
-	if (lastline > line) {
-		#warning FIXME: this causes a big memory leak!
+	if (lastline > line)
 		wraplines.erase(wraplines.begin() + line + 1, wraplines.begin() + lastline + 1);
-	}
 	return true;
 }
 
@@ -596,7 +586,7 @@ void text_buffer_t::adjust_position(int adjust) {
 	   not happen given the checks in the caller) */
 
 	if (wrap) {
-		cursor.pos = wraplines[cursor.line]->get_line()->adjust_position(cursor.pos, adjust);
+		cursor.pos = wraplines[cursor.line].get_line()->adjust_position(cursor.pos, adjust);
 	} else {
 		cursor.pos = lines[cursor.line]->adjust_position(cursor.pos, adjust);
 	}
@@ -614,10 +604,10 @@ void text_buffer_t::rewrap(void) {
 		wrap_width = width - 1;
 	}
 
-	base_line = wraplines[cursor.line]->get_line();
+	base_line = wraplines[cursor.line].get_line();
 
 	for (i = 0; (size_t) i < lines.size(); i++) {
-		while (lines[i] != wraplines[wrap_index]->get_line()) wrap_index++;
+		while (lines[i] != wraplines[wrap_index].get_line()) wrap_index++;
 		if (!rewrap_line(wrap_index))
 			break;
 		if (base_line == lines[i])
@@ -633,7 +623,7 @@ bool text_buffer_t::get_wrap(void) const {
 
 int text_buffer_t::width_at_cursor(void) const {
 	if (wrap)
-		return wraplines[cursor.line]->get_line()->width_at(cursor.pos);
+		return wraplines[cursor.line].get_line()->width_at(cursor.pos);
 	else
 		return lines[cursor.line]->width_at(cursor.pos);
 }
@@ -672,11 +662,11 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 	}
 
 	if (start.line == end.line ||
-			(wrap && wraplines[start.line]->get_line() == wraplines[end.line]->get_line())) {
+			(wrap && wraplines[start.line].get_line() == wraplines[end.line].get_line())) {
 		text_line_t *selected_text;
 		if (wrap) {
-			selected_text = wraplines[start.line]->get_line()->cut_line(start.pos, end.pos);
-			if (start.line > 0 && wraplines[start.line]->get_line() == wraplines[start.line - 1]->get_line())
+			selected_text = wraplines[start.line].get_line()->cut_line(start.pos, end.pos);
+			if (start.line > 0 && wraplines[start.line].get_line() == wraplines[start.line - 1].get_line())
 				rewrap_line(start.line - 1);
 			else
 				rewrap_line(start.line);
@@ -697,19 +687,14 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 		wrapped_start_line = start.line;
 		start.line = find_line(wrapped_start_line);
 		/* Find first wrapped line that points to the starting text_line_t * */
-		while (wrapped_start_line > 0 && wraplines[wrapped_start_line - 1]->get_line() == wraplines[start.line]->get_line())
+		while (wrapped_start_line > 0 && wraplines[wrapped_start_line - 1].get_line() == wraplines[start.line].get_line())
 			wrapped_start_line--;
 
-		end_line = wraplines[end.line]->get_line();
+		end_line = wraplines[end.line].get_line();
 		/* Find first wrapped line that points to the text_line_t * after the ending line */
 		for (wrapped_end_line = end.line;
-				(size_t) wrapped_end_line < wraplines.size() && wraplines[wrapped_end_line]->get_line() == end_line;
+				(size_t) wrapped_end_line < wraplines.size() && wraplines[wrapped_end_line].get_line() == end_line;
 				wrapped_end_line++) {}
-
-		/* Throw away all the wrapping information for all the lines that won't exist after
-		   we delete the lines */
-		for (i = wrapped_start_line + 1; i < wrapped_end_line; i++)
-			delete wraplines[i];
 
 		wraplines.erase(wraplines.begin() + wrapped_start_line + 1, wraplines.begin() + wrapped_end_line);
 
@@ -762,9 +747,9 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 			lines[start.line] = end_part;
 			/* For wrapped text we need to change the pointer in the wrapped lines as well. */
 			if (wrap) {
-				wraplines[wrapped_start_line]->set_line(lines[start.line]);
-				wraplines[wrapped_start_line]->set_start(0);
-				wraplines[wrapped_start_line]->set_flags(0);
+				wraplines[wrapped_start_line].set_line(lines[start.line]);
+				wraplines[wrapped_start_line].set_start(0);
+				wraplines[wrapped_start_line].set_flags(0);
 			}
 		} else {
 			if (undo != NULL)
@@ -860,32 +845,30 @@ void text_buffer_t::insert_block_internal(text_coordinate_t insertAt, text_line_
 		int wrap_start, wrap_end;
 
 		for (wrap_start = insertAt.line; wrap_start > 0 &&
-			wraplines[wrap_start]->get_line() == wraplines[wrap_start - 1]->get_line(); wrap_start--) {}
+			wraplines[wrap_start].get_line() == wraplines[wrap_start - 1].get_line(); wrap_start--) {}
 		for (wrap_end = insertAt.line; (size_t) wrap_end < wraplines.size() - 1 &&
-			wraplines[wrap_end]->get_line() == wraplines[wrap_end + 1]->get_line(); wrap_end++) {}
+			wraplines[wrap_end].get_line() == wraplines[wrap_end + 1].get_line(); wrap_end++) {}
 
  		if (wrap_end - wrap_start < unwrapped_line - saved_line) {
 			int needed_sublines = unwrapped_line - saved_line + 1;
 			int available_sublines = wrap_end - wrap_start + 1;
 
 			wraplines.reserve(wraplines.size() + needed_sublines - available_sublines);
-			wraplines.insert(wraplines.begin() + wrap_end + 1, needed_sublines - available_sublines, (subtext_line_t *) NULL);
+			wraplines.insert(wraplines.begin() + wrap_end + 1, needed_sublines - available_sublines, subtext_line_t(NULL, 0));
 
-			for (i = wrap_end + 1; i <= wrap_start + unwrapped_line - saved_line; i++)
-				wraplines[i] = new subtext_line_t(NULL, 0);
 			wrap_end = wrap_start + unwrapped_line - saved_line;
 		}
 
 		for (i = unwrapped_line, j = wrap_end; i > saved_line; i--, j--) {
-			wraplines[j]->set_line(lines[i]);
-			wraplines[j]->set_start(0);
-			wraplines[j]->set_flags(0);
+			wraplines[j].set_line(lines[i]);
+			wraplines[j].set_start(0);
+			wraplines[j].set_flags(0);
 			rewrap_line(j);
 		}
 
 		rewrap_line(wrap_start);
 
-		for (cursor.line = wrap_end; wraplines[cursor.line]->get_line() != lines[unwrapped_line] &&
+		for (cursor.line = wrap_end; wraplines[cursor.line].get_line() != lines[unwrapped_line] &&
 			(size_t) cursor.line < wraplines.size(); cursor.line++) {}
 		ASSERT((size_t) cursor.line < wraplines.size());
 		locate_pos();
@@ -1257,7 +1240,6 @@ void text_buffer_t::set_wrap(bool _wrap) {
 	if (wrap) {
 		init_wrap_lines();
 	} else {
-		#warning FIXME: this causes a huge memory leak!
 		wraplines.clear();
 		wraplines.reserve(0);
 	}
