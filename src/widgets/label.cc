@@ -59,7 +59,21 @@ void label_t::update_contents(void) {
 	t3_win_set_default_attrs(window, focus ? attributes.dialog_selected : attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtoeol(window);
-	t3_win_set_paint(window, 0, width > text_width && (align == ALIGN_RIGHT || align == ALIGN_RIGHT_UNDERFLOW) ? width - text_width : 0);
+	int x = 0;
+	if (width > text_width) {
+		switch (align) {
+			default:
+				break;
+			case ALIGN_RIGHT:
+			case ALIGN_RIGHT_UNDERFLOW:
+				x = width - text_width;
+				break;
+			case ALIGN_CENTER:
+				x = (width - text_width) / 2;
+				break;
+		}
+	}
+	t3_win_set_paint(window, 0, x);
 
 	paint_info.start = 0;
 	if (width < text_width && (align == ALIGN_LEFT_UNDERFLOW || align == ALIGN_RIGHT_UNDERFLOW)) {
@@ -94,6 +108,7 @@ void label_t::set_align(label_t::align_t _align) {
 
 void label_t::set_text(const char *_text) {
 	text = _text;
+	text_width = t3_term_strwidth(text.c_str());
 	redraw = true;
 }
 

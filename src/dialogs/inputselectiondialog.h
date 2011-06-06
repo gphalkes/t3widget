@@ -25,17 +25,22 @@ namespace t3_widget {
 
 class input_selection_dialog_t : public dialog_t {
 	private:
+		text_buffer_t *text;
 		frame_t *text_frame, *label_frame;
 		text_window_t *text_window;
 		label_t *key_label;
-		button_t *conservative_button, *timeout_button;
+		button_t *intuitive_button, *compromise_button, *no_timeout_button;
 	public:
-		input_selection_dialog_t(int height, int width);
+		input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
+		~input_selection_dialog_t(void);
 		virtual bool set_size(optint height, optint width);
 		virtual bool process_key(key_t key);
 
-	T3_WIDGET_SIGNAL(conservative_activated, void);
-	T3_WIDGET_SIGNAL(timeout_activated, void);
+		static text_buffer_t *get_default_text(void);
+
+	T3_WIDGET_SIGNAL(intuitive_activated, void);
+	T3_WIDGET_SIGNAL(compromise_activated, void);
+	T3_WIDGET_SIGNAL(no_timeout_activated, void);
 };
 
 }; // namespace

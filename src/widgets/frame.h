@@ -29,6 +29,7 @@ class frame_t : public widget_t, public container_t {
 		};
 
 		frame_t(frame_dimension_t _dimension = AROUND_ALL);
+		~frame_t(void);
 		void set_child(widget_t *_child);
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);

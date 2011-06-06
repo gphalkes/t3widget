@@ -24,7 +24,8 @@ class label_t : public widget_t {
 			ALIGN_LEFT,
 			ALIGN_RIGHT,
 			ALIGN_LEFT_UNDERFLOW,
-			ALIGN_RIGHT_UNDERFLOW
+			ALIGN_RIGHT_UNDERFLOW,
+			ALIGN_CENTER
 		};
 
 	private:

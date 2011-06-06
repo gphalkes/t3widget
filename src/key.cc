@@ -328,7 +328,7 @@ static key_t decode_sequence(bool outer) {
 				continue;
 			}
 
-			if (key_timeout < 0 && !is_prefix)
+			if (drop_single_esc && !is_prefix)
 				goto unknown_sequence;
 		}
 
