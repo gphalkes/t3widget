@@ -92,7 +92,7 @@ void scrollbar_t::update_contents(void) {
 	for (; i < length - 1 && i < before + slider_size + 1; i++) {
 		if (vertical)
 			t3_win_set_paint(window, i, 0);
-		t3_win_addch(window, ' ', attributes.scrollbar_selected);
+		t3_win_addch(window, ' ', attributes.scrollbar);
 	}
 	for (; i < length - 1; i++) {
 		if (vertical)

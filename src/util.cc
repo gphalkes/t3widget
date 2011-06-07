@@ -67,7 +67,13 @@ ssize_t nosig_read(int fd, char *buffer, size_t bytes) {
 	return bytes_read;
 }
 
+static bool is_hex_digit(int c) {
+	return strchr("abcdefABCDEF0123456789", c) != NULL;
+}
 
+static int to_lower(int c) {
+	return 'a' + (c - 'A');
+}
 
 int parse_escape(const string &str, const char **error_message, size_t &read_position, size_t max_read_position, bool replacements) {
 	size_t i;
@@ -99,13 +105,12 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 			/* Hexadecimal escapes */
 			int value = 0;
 			/* Read at most two characters, or as many as are valid. */
-			for (i = 0; i < 2 && (read_position + i) < max_read_position && isxdigit(str[read_position + i]); i++) {
+			for (i = 0; i < 2 && (read_position + i) < max_read_position && is_hex_digit(str[read_position + i]); i++) {
 				value <<= 4;
-				//FIXME: isdigit doesn't necessarily do what we want, because it is locale dependent
-				if (isdigit(str[read_position + i]))
+				if (str[read_position + i] >= '0' && str[read_position + i] <= '9')
 					value += (int) (str[read_position + i] - '0');
 				else
-					value += (int) (tolower(str[read_position + i]) - 'a') + 10;
+					value += (int) (to_lower(str[read_position + i]) - 'a') + 10;
 				if (value > UCHAR_MAX) {
 					*error_message = "Invalid hexadecimal escape sequence";
 					return false;
@@ -134,7 +139,8 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 				/* Octal escapes */
 				int value = (int)(str[read_position - 1] - '0');
 				size_t max_idx = str[read_position - 1] < '4' ? 2 : 1;
-				for (i = 0; i < max_idx && read_position + i < max_read_position && str[read_position + i] >= '0' && str[read_position + i] <= '7'; i++)
+				for (i = 0; i < max_idx && read_position + i < max_read_position && str[read_position + i] >= '0' &&
+						str[read_position + i] <= '7'; i++)
 					value = value * 8 + (int)(str[read_position + i] - '0');
 
 				read_position += i;
@@ -151,8 +157,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 			}
 		case 'u':
 		case 'U': {
-			//FIXME: int is not necessarily large enough!
-			int value = 0;
+			uint32_t value = 0;
 			size_t chars = str[read_position - 1] == 'U' ? 8 : 4;
 
 			if (max_read_position < read_position + chars) {
@@ -160,14 +165,12 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 				return -1;
 			}
 			for (i = 0; i < chars; i++) {
-				//FIXME: isxdigit doesn't necessarily do what we want, because it is locale dependent
-				if (!isxdigit(str[read_position + i])) {
+				if (!is_hex_digit(str[read_position + i])) {
 					*error_message = str[read_position - 1] == 'U' ? "Too short \\U escape" : "Too short \\u escape";
 					return -1;
 				}
 				value <<= 4;
-				//FIXME: isdigit doesn't necessarily do what we want, because it is locale dependent
-				if (isdigit(str[read_position + i]))
+				if (str[read_position + i] >= '0' && str[read_position + i] <= '9')
 					value += (int) (str[read_position + i] - '0');
 				else
 					value += (int) (tolower(str[read_position + i]) - 'a') + 10;

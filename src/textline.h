@@ -30,7 +30,7 @@ namespace t3_widget {
 
 class undo_t;
 
-#define MAX_TAB 80
+#define _T3_MAX_TAB 80
 
 struct break_pos_t {
 	int pos;
@@ -86,7 +86,7 @@ class text_line_t {
 		std::string buffer, meta_buffer;
 		bool starts_with_combining;
 
-		static char spaces[MAX_TAB];
+		static char spaces[_T3_MAX_TAB];
 		static char dots[16];
 		static const char *control_map;
 		static const char *wrap_symbol;

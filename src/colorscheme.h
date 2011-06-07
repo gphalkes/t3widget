@@ -40,7 +40,6 @@ typedef struct {
 	t3_attr_t button;
 	t3_attr_t button_selected;
 	t3_attr_t scrollbar;
-	t3_attr_t scrollbar_selected;
 	t3_attr_t menubar;
 	t3_attr_t menubar_selected;
 

@@ -32,7 +32,7 @@
 using namespace std;
 namespace t3_widget {
 
-char text_line_t::spaces[MAX_TAB];
+char text_line_t::spaces[_T3_MAX_TAB];
 char text_line_t::dots[16];
 const char *text_line_t::control_map = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]_^";
 const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";

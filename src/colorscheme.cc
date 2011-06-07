@@ -42,7 +42,6 @@ void set_color_mode(bool on) {
 		attributes.button = attributes.dialog;
 		attributes.button_selected = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
 		attributes.scrollbar = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
-		attributes.scrollbar_selected = T3_ATTR_FG_BLACK | T3_ATTR_BG_BLACK;
 		attributes.menubar = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
 		attributes.menubar_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
 		attributes.shadow = T3_ATTR_BG_BLACK;
@@ -56,12 +55,12 @@ void set_color_mode(bool on) {
 		attributes.text = 0;
 		attributes.text_selected = T3_ATTR_REVERSE;
 		attributes.highlight = T3_ATTR_UNDERLINE;
+		attributes.highlight_selected = 0;
 		attributes.dialog = 0;
 		attributes.dialog_selected = T3_ATTR_REVERSE;
 		attributes.button = 0;
 		attributes.button_selected = T3_ATTR_REVERSE;
 		attributes.scrollbar = T3_ATTR_REVERSE;
-		attributes.scrollbar_selected = T3_ATTR_REVERSE;
 		attributes.menubar = T3_ATTR_REVERSE;
 		attributes.menubar_selected = 0;
 		attributes.shadow = T3_ATTR_REVERSE;
@@ -96,6 +95,9 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 		case attribute_t::HIGHLIGHT:
 			attributes.highlight = value;
 			break;
+		case attribute_t::HIGHLIGHT_SELECTED:
+			attributes.highlight_selected = value;
+			break;
 		case attribute_t::DIALOG:
 			attributes.dialog = value;
 			break;
@@ -111,9 +113,6 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 		case attribute_t::SCROLLBAR:
 			attributes.scrollbar = value;
 			break;
-		case attribute_t::SCROLLBAR_SELECTED:
-			attributes.scrollbar_selected = value;
-			break;
 		case attribute_t::MENUBAR:
 			attributes.menubar = value;
 			break;
@@ -122,8 +121,12 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 			break;
 		case attribute_t::BACKGROUND:
 			t3_win_set_default_attrs(NULL, value);
-		default:
 			break;
+		case attribute_t::SHADOW:
+			attributes.shadow = value;
+			break;
+		default:
+			return;
 	}
 
 	dialog_t::force_redraw_all();

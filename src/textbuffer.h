@@ -100,9 +100,9 @@ class text_buffer_t : public bad_draw_recheck_t {
 		int delete_char(void);
 		int backspace_char(void);
 		int merge(bool backspace);
-		bool append_line(const char *text);
-		bool append_line(const char *text, size_t size);
-		bool append_line(const std::string *text);
+		bool append_text(const char *text);
+		bool append_text(const char *text, size_t size);
+		bool append_text(const std::string *text);
 
 		bool break_line(void);
 		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;

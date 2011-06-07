@@ -40,7 +40,7 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	key_label->set_align(label_t::ALIGN_CENTER);
 	label_frame->set_child(key_label);
 
-	intuitive_button = new button_t(_("Most intuitive (F2)"), true);
+	intuitive_button = new button_t(_("Most intuitive (F2)"));
 	intuitive_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMCENTER));
 	intuitive_button->set_position(-2, -intuitive_button->get_width() / 2 - 1);
 	intuitive_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::close));
@@ -130,23 +130,23 @@ bool input_selection_dialog_t::process_key(key_t key) {
 text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 	text_buffer_t *default_text = new text_buffer_t();
 
-	default_text->append_line(_("This program tries to provide an intuitive interface. For example, it allows "
+	default_text->append_text(_("This program tries to provide an intuitive interface. For example, it allows "
 		"you to use Meta-<letter> combinations to open menus and jump to items on your "
 		"screen. However, not all terminals and terminal emulators handle the Meta key "
 		"the same way. The result is that this program can not reliably handle the "
 		"Meta-<letter> combinations on all terminals. While this dialog is open, the box "
 		"below will show which keys you pressed, allowing you to test whether the Meta "
 		"key is fully functional.\n\n"));
-	default_text->append_line(_("If pressing Meta-<letter> combination does not result in the box below "
+	default_text->append_text(_("If pressing Meta-<letter> combination does not result in the box below "
 		"displaying the combination, you can simulate the Meta-<letter> combinations by "
 		"pressing Escape followed by <letter>. Furthermore, for some terminals (e.g. "
 		"gnome-terminal), pressing Meta-Shift-<letter> will result in the combination "
 		"being displayed in the box below.\n\n"));
-	default_text->append_line(_("After you have verified whether pressing Meta-<letter> works as expected, you "
+	default_text->append_text(_("After you have verified whether pressing Meta-<letter> works as expected, you "
 		"can select the best interaction method given your terminal's capabilities. "
 		"Selecting \"Most intuitive\" will allow you to use a single press of the Escape "
 		"button to close dialogs, but requires that Meta-<letter> combinations work.\n\n"));
-	default_text->append_line(_("Selecting \"Compromise\" or \"No time-out\" will require you to press the Escape "
+	default_text->append_text(_("Selecting \"Compromise\" or \"No time-out\" will require you to press the Escape "
 		"key twice to close a dialog. When \"Compromise\" is selected you have one second "
 		"to press the <letter> key to simulate the Meta-<letter> combination. After this "
 		"second, the fact that you pressed the Escape key will be ignored. When \"No time-out\" "
