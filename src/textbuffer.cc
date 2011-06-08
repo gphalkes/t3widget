@@ -632,14 +632,8 @@ bool text_buffer_t::selection_empty(void) const {
 	return selection_start.line == selection_end.line && selection_start.pos == selection_end.pos;
 }
 
-void text_buffer_t::set_selection_start(int line, int pos) {
-	selection_start.line = get_real_line(line);
-	selection_start.pos = pos;
-}
-
-void text_buffer_t::set_selection_end(int line, int pos)  {
-	selection_end.line = get_real_line(line);
-	selection_end.pos = pos;
+void text_buffer_t::set_selection_end(void)  {
+	selection_end = text_coordinate_t(get_real_line(cursor.line), cursor.pos);
 }
 
 text_coordinate_t text_buffer_t::get_selection_start(void) const { return selection_start.pos < 0 ? selection_start : get_wrap_line(selection_start); }
@@ -1256,6 +1250,30 @@ void text_buffer_t::bad_draw_recheck(void) {
 		(*iter)->bad_draw_recheck();
 	name_line.bad_draw_recheck();
 	window->force_redraw();
+}
+
+void text_buffer_t::set_selection_mode(selection_mode_t mode) {
+	switch (mode) {
+		case selection_mode_t::NONE:
+			selection_start = text_coordinate_t(0, -1);
+			selection_end = text_coordinate_t(0, -1);
+			break;
+		case selection_mode_t::ALL:
+			selection_start = text_coordinate_t(0, 0);
+			selection_end = text_coordinate_t(get_real_line(get_used_lines() - 1), get_line_max(get_used_lines() - 1));
+			break;
+		default:
+			if (selection_mode == selection_mode_t::ALL || selection_mode == selection_mode_t::NONE) {
+				selection_start = text_coordinate_t(get_real_line(cursor.line), cursor.pos);
+				selection_end = text_coordinate_t(get_real_line(cursor.line), cursor.pos);
+			}
+			break;
+	}
+	selection_mode = mode;
+}
+
+selection_mode_t text_buffer_t::get_selection_mode(void) const {
+	return selection_mode;
 }
 
 }; // namespace

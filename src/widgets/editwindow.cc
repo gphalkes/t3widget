@@ -302,13 +302,12 @@ void edit_window_t::pgup(void) {
 }
 
 void edit_window_t::reset_selection(void) {
-	text->selection_mode = selection_mode_t::NONE;
-	text->set_selection_start(0, -1);
-	text->set_selection_end(0, -1);
+	text->set_selection_mode(selection_mode_t::NONE);
 	redraw = true;
 }
 
 void edit_window_t::set_selection_mode(key_t key) {
+	selection_mode_t selection_mode = text->get_selection_mode();
 	switch (key & ~(EKEY_CTRL | EKEY_META | EKEY_SHIFT)) {
 		case EKEY_END:
 		case EKEY_HOME:
@@ -318,13 +317,10 @@ void edit_window_t::set_selection_mode(key_t key) {
 		case EKEY_RIGHT:
 		case EKEY_UP:
 		case EKEY_DOWN:
-			if ((text->selection_mode == selection_mode_t::SHIFT || text->selection_mode == selection_mode_t::ALL) && !(key & EKEY_SHIFT)) {
+			if ((selection_mode == selection_mode_t::SHIFT || selection_mode == selection_mode_t::ALL) && !(key & EKEY_SHIFT)) {
 				reset_selection();
-			} else if ((text->selection_mode == selection_mode_t::NONE || text->selection_mode == selection_mode_t::ALL) &&
-					(key & EKEY_SHIFT)) {
-				text->set_selection_start(text->cursor.line, text->cursor.pos);
-				text->set_selection_end(text->cursor.line, text->cursor.pos);
-				text->selection_mode = selection_mode_t::SHIFT;
+			} else if ((key & EKEY_SHIFT) && selection_mode != selection_mode_t::MARK) {
+				text->set_selection_mode(selection_mode_t::SHIFT);
 			}
 			break;
 		default:
@@ -482,7 +478,7 @@ bool edit_window_t::process_key(key_t key) {
 
 		/* Below this line all the keys modify the text. */
 		case EKEY_DEL:
-			if (text->selection_mode == selection_mode_t::NONE) {
+			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				if (text->cursor.pos != text->get_line_max(text->cursor.line)) {
 					text->delete_char();
 					if (text->get_wrap())
@@ -500,7 +496,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_NL:
-			if (text->selection_mode != selection_mode_t::NONE)
+			if (text->get_selection_mode() != selection_mode_t::NONE)
 				delete_selection();
 
 			text->break_line();
@@ -510,7 +506,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_BS:
-			if (text->selection_mode == selection_mode_t::NONE) {
+			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				if (text->cursor.pos <= text->get_line_max(text->cursor.line)) {
 					if (text->cursor.pos != 0) {
 						text->backspace_char();
@@ -558,17 +554,14 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case 0: //CTRL-SPACE (and others)
-			switch (text->selection_mode) {
+			switch (text->get_selection_mode()) {
 				case selection_mode_t::MARK:
 					reset_selection();
 					break;
 				case selection_mode_t::NONE:
 				case selection_mode_t::ALL:
-					text->set_selection_start(text->cursor.line, text->cursor.pos);
-					text->set_selection_end(text->cursor.line, text->cursor.pos);
-				/* FALLTHROUGH */
 				case selection_mode_t::SHIFT:
-					text->selection_mode = selection_mode_t::MARK;
+					text->set_selection_mode(selection_mode_t::MARK);
 					break;
 				default:
 					/* Should not happen, but just try to get back to a sane state. */
@@ -577,7 +570,7 @@ bool edit_window_t::process_key(key_t key) {
 			}
 			break;
 		case EKEY_ESC:
-			if (text->selection_mode == selection_mode_t::MARK)
+			if (text->get_selection_mode() == selection_mode_t::MARK)
 				reset_selection();
 			break;
 
@@ -605,7 +598,7 @@ bool edit_window_t::process_key(key_t key) {
 
 			if (key < 0x110000) {
 				int local_insmode = text->ins_mode;
-				if (text->selection_mode != selection_mode_t::NONE) {
+				if (text->get_selection_mode() != selection_mode_t::NONE) {
 					delete_selection();
 					local_insmode = 0;
 				}
@@ -625,14 +618,16 @@ void edit_window_t::update_contents(void) {
 	char info[30];
 	int info_width, name_width;
 	text_line_t::paint_info_t paint_info;
+	selection_mode_t selection_mode;
 
 	if (!focus && !redraw)
 		return;
 
-	if (text->selection_mode != selection_mode_t::NONE && text->selection_mode != selection_mode_t::ALL) {
-		text->set_selection_end(text->cursor.line, text->cursor.pos);
+	selection_mode = text->get_selection_mode();
+	if (selection_mode != selection_mode_t::NONE && selection_mode != selection_mode_t::ALL) {
+		text->set_selection_end();
 
-		if (text->selection_mode == selection_mode_t::SHIFT) {
+		if (selection_mode == selection_mode_t::SHIFT) {
 			if (text->selection_empty())
 				reset_selection();
 		}
@@ -715,7 +710,7 @@ void edit_window_t::redo(void) {
 }
 
 void edit_window_t::cut_copy(bool cut) {
-	if (text->selection_mode != selection_mode_t::NONE) {
+	if (text->get_selection_mode() != selection_mode_t::NONE) {
 		if (text->selection_empty()) {
 			reset_selection();
 			return;
@@ -728,14 +723,14 @@ void edit_window_t::cut_copy(bool cut) {
 
 		if (cut)
 			delete_selection();
-		else if (text->selection_mode == selection_mode_t::MARK)
+		else if (text->get_selection_mode() == selection_mode_t::MARK)
 			reset_selection();
 	}
 }
 
 void edit_window_t::paste(void) {
 	if (copy_buffer != NULL) {
-		if (text->selection_mode == selection_mode_t::NONE) {
+		if (text->get_selection_mode() == selection_mode_t::NONE) {
 			text->insert_block(copy_buffer);
 		} else {
 			text->replace_selection(copy_buffer);
@@ -748,9 +743,7 @@ void edit_window_t::paste(void) {
 }
 
 void edit_window_t::select_all(void) {
-	text->selection_mode = selection_mode_t::ALL;
-	text->set_selection_start(0, 0);
-	text->set_selection_end(text->get_used_lines() - 1, text->get_line_max(text->get_used_lines() - 1));
+	text->set_selection_mode(selection_mode_t::ALL);
 	redraw = true;
 }
 
@@ -805,14 +798,6 @@ void edit_window_t::find_next(bool backward) {
 		message_dialog->show();
 	}
 	ensure_cursor_on_screen();
-}
-
-bool edit_window_t::get_selection_lines(int *top, int *bottom) {
-	if (text->selection_mode == selection_mode_t::NONE)
-		return false;
-	*top = text->selection_start.line - text->topleft.line;
-	*bottom = text->selection_end.line - text->topleft.line;
-	return true;
 }
 
 text_buffer_t *edit_window_t::get_text(void) {

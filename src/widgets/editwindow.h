@@ -81,7 +81,6 @@ class edit_window_t : public text_buffer_window_t, public center_component_t, pu
 		void goto_line(int line);
 
 		void get_dimensions(int *height, int *width, int *top, int *left);
-		bool get_selection_lines(int *top, int *bottom);
 
 		void undo(void);
 		void redo(void);

@@ -120,15 +120,17 @@ class text_buffer_t : public bad_draw_recheck_t {
 		void set_wrap(bool _wrap);
 		int width_at_cursor(void) const;
 
-		void set_selection_start(int line, int pos);
-		void set_selection_end(int line, int pos);
+		void set_selection_end(void);
+		void set_selection_mode(selection_mode_t mode);
+		selection_mode_t get_selection_mode(void) const;
 		bool selection_empty(void) const;
 		text_coordinate_t get_selection_start(void) const;
 		text_coordinate_t get_selection_end(void) const;
 		void delete_selection(void);
-		int insert_block(text_line_t *block);
 		void replace_selection(text_line_t *block);
 		text_line_t *convert_selection(void);
+
+		int insert_block(text_line_t *block);
 
 		int apply_undo(void);
 		int apply_redo(void);
