@@ -1276,4 +1276,8 @@ selection_mode_t text_buffer_t::get_selection_mode(void) const {
 	return selection_mode;
 }
 
+const text_line_t *text_buffer_t::get_name_line(void) const {
+	return &name_line;
+}
+
 }; // namespace

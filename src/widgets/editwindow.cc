@@ -651,11 +651,12 @@ void edit_window_t::update_contents(void) {
 	name_width = t3_win_get_width(bottom_line_window) - info_width - 3;
 
 	if (name_width > 3) {
+		const text_line_t *name_line = text->get_name_line();
 		/* FIXME: is it really necessary to do this on each key stroke??? */
 		t3_win_set_paint(bottom_line_window, 0, 0);
-		if (text->name_line.calculate_screen_width(0, text->name_line.get_length(), 1) > name_width) {
+		if (name_line->calculate_screen_width(0, name_line->get_length(), 1) > name_width) {
 			t3_win_addstr(bottom_line_window, "..", 0);
-			paint_info.start = text->name_line.adjust_position(text->name_line.get_length(), -(name_width - 2));
+			paint_info.start = name_line->adjust_position(name_line->get_length(), -(name_width - 2));
 			paint_info.size = name_width - 2;
 		} else {
 			paint_info.start = 0;
@@ -671,7 +672,7 @@ void edit_window_t::update_contents(void) {
 		paint_info.normal_attr = 0;
 		paint_info.selected_attr = 0;
 
-		text->name_line.paint_line(bottom_line_window, &paint_info);
+		name_line->paint_line(bottom_line_window, &paint_info);
 	}
 
 	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);

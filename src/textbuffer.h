@@ -42,9 +42,6 @@ class text_buffer_window_t : public widget_t {
 };
 
 class text_buffer_t : public bad_draw_recheck_t {
-	friend class edit_window_t;
-	friend class text_window_t;
-
 	protected:
 		lines_t lines;
 		sublines_t wraplines;
@@ -60,10 +57,7 @@ class text_buffer_t : public bad_draw_recheck_t {
 		char *name;
 		text_line_t name_line;
 
-		text_coordinate_t cursor, topleft;
-		int ins_mode, last_set_pos;
 		selection_mode_t selection_mode;
-		text_buffer_window_t *window;
 
 		static find_context_t last_find;
 
@@ -141,9 +135,14 @@ class text_buffer_t : public bad_draw_recheck_t {
 		void replace(finder_t *finder);
 
 		const char *get_name(void) const;
+		const text_line_t *get_name_line(void) const;
 		bool has_window(void) const;
 
 		virtual void bad_draw_recheck(void);
+
+		text_coordinate_t cursor, topleft;
+		int ins_mode, last_set_pos;
+		text_buffer_window_t *window;
 };
 
 }; // namespace
