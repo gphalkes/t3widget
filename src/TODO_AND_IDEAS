@@ -3,16 +3,12 @@ TODO
 
 High Priority
 -------------
-- on finishing of terminal detection, re-check everything for bad-draw
-	characters and redraw the contents of all lines which changed because of
-	this
 - perhaps it is a good idea to let the user define short-cuts for things
 	like calling the insert_char_dialog. Forcing F9 may not be a great idea.
 	On the other hand, enforcing a standard can also be good. There are only
 	two widgets (currently) for which this makes sense: text_field_t and
 	edit_window_t. But they should share the same shortcut.
 - handle FIXME's
-- file names must be converted from local character set!
 - figure out how to override attributes on a per-widget basis
 - match SciTE search dialog again (or choose another editor's search dialog as
 	template)
@@ -21,8 +17,7 @@ High Priority
 Low Priority
 ------------
 - use a line_factory_t for the text_buffer_t, such that lines with extensions
-	for e.g. syntax highlighting can be created. Also needed for text_buffer_t
-	itself for the edit_window_t
+	for e.g. syntax highlighting can be created
 - much of the widget and dialog interfaces should be made virtual to allow
 	proper overriding
 - many widgets can be made aggregated types, rather than pointers. This does
@@ -33,14 +28,13 @@ Low Priority
 - Allow the text_window_t to be set to read-only mode. This way it can also be
 	used for just displaying text (perhaps the bottom line should also be
 	disabled for that use)
-- create a (scrollable) text display widget. This should then be used in
-	the message dialog, but can also be used for showing help texts etc.
+- file names must be converted from local character set. However, doing so
+	causes other problems: to-unicode fallbacks may cause a file to show up in
+	the file list, but be untypable and therefore unopenable. And there are
+	annoying issues with combining characters/normalization.
 
 New Functionality
 -----------------
-- create a dialog which shows the message about the key timeout vs. waiting for
-	key thing.
-
 
 Done
 ----

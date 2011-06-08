@@ -366,7 +366,7 @@ void text_field_t::update_contents(void) {
 			info.selection_start = selection_end_pos;
 			info.selection_end = selection_start_pos;
 		}
-		info.cursor = focus && !in_drop_down_list ? screen_pos : -1;
+		info.cursor = focus && !in_drop_down_list ? pos : -1;
 		info.normal_attr = attributes.dialog;
 		info.selected_attr = attributes.dialog_selected;
 
