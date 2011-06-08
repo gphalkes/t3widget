@@ -20,14 +20,14 @@ namespace t3_widget {
 
 window_component_t::window_component_t(void) : window(NULL) {}
 window_component_t::~window_component_t(void) {}
-t3_window_t *window_component_t::get_draw_window(void) { return window; }
+t3_window_t *window_component_t::get_base_window(void) { return window; }
 
 bool container_t::set_widget_parent(widget_t *widget) {
-	return t3_win_set_parent(widget->get_draw_window(), window);
+	return t3_win_set_parent(widget->get_base_window(), window);
 }
 
 void container_t::unset_widget_parent(widget_t *widget) {
-	t3_win_set_parent(widget->get_draw_window(), widget_t::default_parent);
+	t3_win_set_parent(widget->get_base_window(), widget_t::default_parent);
 }
 
 center_component_t::center_component_t(void) : center_window(this) {}

@@ -501,11 +501,11 @@ void text_field_t::bad_draw_recheck(void) {
   == drop_down_list_t ==
   ======================*/
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
-	width(t3_win_get_width(_field->get_draw_window())), top_idx(0), field(_field), completions(NULL)
+	width(t3_win_get_width(_field->get_base_window())), top_idx(0), field(_field), completions(NULL)
 {
 	if ((window = t3_win_new(NULL, 6, width, 1, 0, INT_MIN)) == NULL)
 		throw(-1);
-	t3_win_set_anchor(window, field->get_draw_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	t3_win_set_anchor(window, field->get_base_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
 	focus = false;
 	current = 0;

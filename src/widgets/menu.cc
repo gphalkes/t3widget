@@ -38,7 +38,7 @@ menu_bar_t::~menu_bar_t(void) {
 
 void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
 	int attr = selected ? attributes.menubar_selected : attributes.menubar;
-	t3_win_set_paint(window, 0, t3_win_get_x(menu->get_draw_window()) + 1);
+	t3_win_set_paint(window, 0, t3_win_get_x(menu->get_base_window()) + 1);
 	t3_win_addch(window, ' ', attr);
 	menu->label.draw(window, attr, selected);
 	t3_win_addch(window, ' ', attr);

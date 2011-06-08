@@ -286,7 +286,7 @@ void dialog_t::force_redraw(void) {
 }
 
 void dialog_t::center_over(window_component_t *center) {
-	t3_win_set_anchor(window, center->get_draw_window(), T3_PARENT(T3_ANCHOR_CENTER) | T3_CHILD(T3_ANCHOR_CENTER));
+	t3_win_set_anchor(window, center->get_base_window(), T3_PARENT(T3_ANCHOR_CENTER) | T3_CHILD(T3_ANCHOR_CENTER));
 	t3_win_move(window, 0, 0);
 }
 

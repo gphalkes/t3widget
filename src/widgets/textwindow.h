@@ -38,7 +38,7 @@ class text_window_t : public text_buffer_window_t, public center_component_t, pu
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 
-		virtual void get_dimensions(int *height, int *width, int *top, int *left);
+		virtual int get_text_width(void);
 		text_buffer_t *get_text(void);
 };
 

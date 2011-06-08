@@ -646,7 +646,8 @@ void edit_window_t::update_contents(void) {
 	scrollbar.update_contents();
 
 	text->get_line_info(&logical_cursor_pos);
-	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1, text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
+	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1,
+		text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
 	info_width = t3_term_strwidth(info);
 	name_width = t3_win_get_width(bottom_line_window) - info_width - 3;
 
@@ -684,13 +685,9 @@ void edit_window_t::set_focus(bool _focus) {
 	redraw = true; //FXIME: Only for painting/removing cursor
 }
 
-void edit_window_t::get_dimensions(int *height, int *width, int *top, int *left) {
-	*height = t3_win_get_height(edit_window) + 1;
-	*width = t3_win_get_width(edit_window);
-	*top = t3_win_get_y(edit_window);
-	*left = t3_win_get_x(edit_window);
+int edit_window_t::get_text_width(void) {
+	return t3_win_get_width(edit_window);
 }
-
 
 void edit_window_t::undo(void) {
 	if (text->apply_undo() == 0) {

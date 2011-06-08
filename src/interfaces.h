@@ -30,7 +30,7 @@ class window_component_t {
 		/* Virtual destructor is required for proper functioning of the delete
 		   operator in multiple-inheritance situations. */
 		virtual ~window_component_t(void);
-		virtual t3_window_t *get_draw_window(void);
+		virtual t3_window_t *get_base_window(void);
 		virtual bool process_key(key_t key) = 0;
 		virtual void set_position(optint top, optint left) = 0;
 		virtual bool set_size(optint height, optint width) = 0;

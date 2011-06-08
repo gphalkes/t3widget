@@ -28,7 +28,7 @@ list_pane_t::list_pane_t(bool _indicator) : height(1), top_idx(0), current(0),
 	t3_win_set_parent(widgets_window, window);
 	t3_win_set_anchor(widgets_window, window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
-	t3_win_set_parent(scrollbar.get_draw_window(), window);
+	t3_win_set_parent(scrollbar.get_base_window(), window);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar.set_size(height, None);
 
@@ -43,7 +43,7 @@ list_pane_t::~list_pane_t(void) {
 }
 
 bool list_pane_t::set_widget_parent(widget_t *widget) {
-	return t3_win_set_parent(widget->get_draw_window(), widgets_window);
+	return t3_win_set_parent(widget->get_base_window(), widgets_window);
 }
 
 void list_pane_t::ensure_cursor_on_screen(void) {
@@ -180,7 +180,7 @@ void list_pane_t::update_positions(void) {
 }
 
 void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
-	t3_win_set_anchor(window, anchor->get_draw_window(), relation);
+	t3_win_set_anchor(window, anchor->get_base_window(), relation);
 }
 
 void list_pane_t::force_redraw(void) {

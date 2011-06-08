@@ -171,11 +171,8 @@ void text_window_t::update_contents(void) {
 	scrollbar.update_contents();
 }
 
-void text_window_t::get_dimensions(int *height, int *width, int *top, int *left) {
-	*height = t3_win_get_height(window) + 1;
-	*width = t3_win_get_width(window);
-	*top = t3_win_get_y(window);
-	*left = t3_win_get_x(window);
+int text_window_t::get_text_width(void) {
+	return t3_win_get_width(window);
 }
 
 text_buffer_t *text_window_t::get_text(void) {

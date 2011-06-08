@@ -28,7 +28,7 @@ class dummy_widget_t : public widget_t {
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 
-		virtual t3_window_t *get_draw_window(void);
+		virtual t3_window_t *get_base_window(void);
 };
 
 }; // namespace

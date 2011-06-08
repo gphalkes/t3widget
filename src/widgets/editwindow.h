@@ -80,7 +80,7 @@ class edit_window_t : public text_buffer_window_t, public center_component_t, pu
 
 		void goto_line(int line);
 
-		void get_dimensions(int *height, int *width, int *top, int *left);
+		virtual int get_text_width(void);
 
 		void undo(void);
 		void redo(void);

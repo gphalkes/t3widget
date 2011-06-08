@@ -49,7 +49,7 @@ widget_t::~widget_t(void) {
 }
 
 void widget_t::set_anchor(window_component_t *anchor, int relation) {
-	t3_win_set_anchor(window, anchor->get_draw_window(), relation);
+	t3_win_set_anchor(window, anchor->get_base_window(), relation);
 }
 
 void widget_t::set_position(optint top, optint left) {

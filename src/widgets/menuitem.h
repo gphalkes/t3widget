@@ -26,7 +26,7 @@ class menu_item_base_t : public widget_t {
 
 	public:
 		menu_item_base_t(menu_panel_t *_parent) : parent(_parent), top(0) {}
-		virtual t3_window_t *get_draw_window(void) { return parent->get_draw_window(); }
+		virtual t3_window_t *get_base_window(void) { return parent->get_base_window(); }
 };
 
 class menu_item_t : public menu_item_base_t {

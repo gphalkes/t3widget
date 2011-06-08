@@ -45,7 +45,7 @@ bool dummy_widget_t::set_size(optint height, optint width) {
 	return true;
 }
 
-t3_window_t *dummy_widget_t::get_draw_window(void) {
+t3_window_t *dummy_widget_t::get_base_window(void) {
 	return NULL;
 }
 
