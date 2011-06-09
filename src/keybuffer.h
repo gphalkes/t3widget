@@ -42,8 +42,9 @@ class key_buffer_t {
 			if (key < 0)
 				return;
 			pthread_mutex_lock(&lock);
-			// FIXME: Catch appropriate exceptions. For now just catch all to
-			// enusre that unlocking of the mutex is performed.
+			/* Catch all exceptions, to enusre that unlocking of the mutex is
+			   performed. The only real exception that can occur here is bad_alloc,
+			   and there is not much we can do about that anyway. */
 			try {
 				keys.push_back(key);
 			} catch (...) {
@@ -63,8 +64,9 @@ class key_buffer_t {
 				return;
 			}
 
-			// FIXME: Catch appropriate exceptions. For now just catch all to
-			// enusre that unlocking of the mutex is performed.
+			/* Catch all exceptions, to enusre that unlocking of the mutex is
+			   performed. The only real exception that can occur here is bad_alloc,
+			   and there is not much we can do about that anyway. */
 			try {
 				keys.push_back(key);
 			} catch (...) {

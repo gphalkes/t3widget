@@ -25,6 +25,7 @@
 #include "main.h"
 #include "key.h"
 #include "keybuffer.h"
+#include "internal.h"
 #include "log.h"
 
 using namespace std;

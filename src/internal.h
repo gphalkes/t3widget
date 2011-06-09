@@ -44,5 +44,13 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
 	size_t max_read_position, bool replacements = false);
 bool parse_escapes(std::string &str, const char **error_message, bool replacements = false);
 
+/* Key handling routines. */
+class complex_error_t;
+complex_error_t init_keys(const char *term, bool separate_keypad);
+void cleanup_keys(void);
+void deinit_keys(void);
+void reinit_keys(void);
+void insert_protected_key(key_t key);
+
 }; // namespace
 #endif
