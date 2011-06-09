@@ -271,7 +271,7 @@ save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height
 }
 
 void save_as_dialog_t::create_folder(void) {
-	#warning FIXME: create folder here
+	// FIXME: create folder here
 }
 
 }; // namespace

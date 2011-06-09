@@ -24,7 +24,7 @@ namespace t3_widget {
 #define FIND_DIALOG_WIDTH 50
 #define FIND_DIALOG_HEIGHT 10
 
-#warning FIXME: keep (limited) history
+// FIXME: keep (limited) history
 
 find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIALOG_WIDTH, "Find")
 {

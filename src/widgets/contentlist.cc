@@ -115,6 +115,7 @@ bool glob_filter(file_list_t *list, size_t idx, const std::string *str, bool sho
 	if (!show_hidden && (*item_name)[0] == '.')
 		return false;
 
+	//FIXME: fnmatch discards strings which are not valid in the current encoding
 	if (!list->is_dir(idx) && fnmatch(str->c_str(), item_name->c_str(), 0) != 0)
 		return false;
 	return true;

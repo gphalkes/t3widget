@@ -32,6 +32,11 @@ Low Priority
 	causes other problems: to-unicode fallbacks may cause a file to show up in
 	the file list, but be untypable and therefore unopenable. And there are
 	annoying issues with combining characters/normalization.
+	The GTK/Gnome open dialog solves this whole issue by first checking if the
+	name is valid UTF-8. If so, it shows that. If not, then it tries to convert
+	it from the current locale. If that fails, it shows it with replacement
+	characters and the string "(invalid encoding)" appended. The only way to
+	open it, is to select it in the file list.
 
 New Functionality
 -----------------

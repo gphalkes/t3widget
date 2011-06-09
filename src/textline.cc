@@ -183,7 +183,7 @@ text_line_t *text_line_t::break_line(int pos) {
 	text_line_t *newline;
 
 	//FIXME: cut_line and break_line are very similar. Maybe we should combine them!
-	if (pos == buffer.size())
+	if ((size_t) pos == buffer.size())
 		return new text_line_t();
 
 	/* Only allow line breaks at non-combining marks. */
@@ -944,7 +944,7 @@ void text_line_t::check_bad_draw(int i) {
 
 void text_line_t::bad_draw_recheck(void) {
 	int i;
-	for (i = 0; i < buffer.size(); i = adjust_position(i, 1))
+	for (i = 0; (size_t) i < buffer.size(); i = adjust_position(i, 1))
 		check_bad_draw(i);
 }
 

@@ -34,7 +34,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 		button->connect_activate(sigc::mem_fun(this, &message_dialog_t::close));
 		total_width += button->get_width();
 		if (widgets.empty()) {
-			button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+			button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 		} else {
 			button->set_anchor(widgets.back(), T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 			button->set_position(0, 2);
@@ -44,7 +44,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 		}
 		push_back(button);
 	}
-	widgets.front()->set_position(-1, (width - total_width) / 2 );
+	widgets.front()->set_position(-1, -total_width / 2 );
 }
 
 void message_dialog_t::draw_dialog(void) {
@@ -116,15 +116,9 @@ bool message_dialog_t::process_key(key_t key) {
 	return dialog_t::process_key(key);
 }
 
-bool message_dialog_t::set_size(optint _height, optint width) {
-	bool result;
-	result = dialog_t::set_size(_height, width);
-	widgets.front()->set_position(None, (width - total_width) / 2 );
-	return result;
-}
-
 sigc::connection message_dialog_t::connect_activate(const sigc::slot<void> &_slot, size_t idx) {
-	//FIXME: check whether idx is valid and return something useful if not
+	if (idx > widgets.size())
+		return sigc::connection();
 	return ((button_t *) widgets[idx])->connect_activate(_slot);
 }
 

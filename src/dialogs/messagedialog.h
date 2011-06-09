@@ -36,7 +36,6 @@ class message_dialog_t : public dialog_t {
 
 	public:
 		message_dialog_t(int width, const char *_title, ...);
-		virtual bool set_size(optint height, optint width);
 		void set_message(const char *_message, size_t length);
 		void set_message(const char *_message);
 		void set_message(const std::string *_message);
