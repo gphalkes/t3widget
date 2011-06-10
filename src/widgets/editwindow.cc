@@ -722,7 +722,7 @@ void edit_window_t::cut_copy(bool cut) {
 		if (cut)
 			delete_selection();
 		else if (text->get_selection_mode() == selection_mode_t::MARK)
-			reset_selection();
+			text->set_selection_mode(selection_mode_t::SHIFT);
 	}
 }
 

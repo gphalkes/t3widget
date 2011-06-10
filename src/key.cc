@@ -223,7 +223,7 @@ static void *read_keys(void *arg) {
 
 		retval = select(signal_pipe[0] + 1, &readset, NULL, NULL, NULL);
 
-		if (retval < 0) //FIXME: prevent infinite looping on error condition
+		if (retval < 0)
 			continue;
 
 		if (FD_ISSET(signal_pipe[0], &readset)) {
@@ -383,16 +383,15 @@ static int compare_mapping(const void *a, const void *b) {
 	return 0;
 }
 
-//FIXME: need to use ascii_isdigit here!
 static bool is_function_key(const char *str) {
 	/* First character must be f, second a digit ... */
-	if (str[0] != 'f' || !isdigit(str[1]))
+	if (str[0] != 'f' || !(str[1] >= '0' && str[1] <= '9'))
 		return false;
 
 	/* ... third either a digit, + or nothing ... */
 	if (str[2] == 0 || str[2] == '+')
 		return true;
-	if (!isdigit(str[2]))
+	if (!(str[2] >= '0' && str[2] <= '9'))
 		return false;
 
 	/* ... fourth either + or nothing. */
