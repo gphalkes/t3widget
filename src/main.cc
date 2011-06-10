@@ -19,6 +19,7 @@
 #include <cerrno>
 #include <new>
 #include <signal.h>
+#include <pthread.h>
 
 #include "main.h"
 #include "log.h"
@@ -39,6 +40,7 @@ static char *term_string;
 static int screen_lines, screen_columns;
 static sigc::signal<void, int, int> resize;
 static sigc::signal<void> update_notification;
+static pthread_mutex_t transcript_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 insert_char_dialog_t *insert_char_dialog;
 message_dialog_t *message_dialog;
@@ -206,6 +208,8 @@ complex_error_t init(const char *term, bool separate_keypad) {
 
 	terminal_specific_setup();
 	init_level++;
+
+	transcript_set_lock_callbacks((void (*)(void *)) pthread_mutex_lock, (void (*)(void *)) pthread_mutex_unlock, &transcript_mutex);
 
 	result = init_keys(term, separate_keypad);
 	if (!result.get_success()) {
