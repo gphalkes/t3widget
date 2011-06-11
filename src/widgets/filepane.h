@@ -17,7 +17,7 @@
 #include <string>
 
 #include "widgets/widget.h"
-#include "widgets/contentlist.h"
+#include "contentlist.h"
 #include "widgets/scrollbar.h"
 #include "widgets/textfield.h"
 

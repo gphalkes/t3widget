@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 #include "util.h"
-#include "widgets/contentlist.h"
+#include "contentlist.h"
 #include "main.h"
 
 using namespace std;

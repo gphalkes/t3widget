@@ -28,6 +28,7 @@ namespace t3_widget {
 static key_t nul = 0;
 /* FIXME: TODO:
 	- path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
+	- optimize the case where filter is "*"
 */
 file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, _title),
 		view(&names), option_widget_set(false)

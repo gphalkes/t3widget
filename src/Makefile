@@ -14,6 +14,7 @@
 
 SOURCES.libt3widget.la := \
 	colorscheme.cc \
+	contentlist.cc \
 	findcontext.cc \
 	interfaces.cc \
 	key.cc \
@@ -37,7 +38,6 @@ SOURCES.libt3widget.la := \
 	widgets/bullet.cc \
 	widgets/button.cc \
 	widgets/checkbox.cc \
-	widgets/contentlist.cc \
 	widgets/dummywidget.cc \
 	widgets/editwindow.cc \
 	widgets/filepane.cc \
