@@ -72,9 +72,9 @@ void text_line_t::convert_key(key_t c) {
 	/* Mask out only what we need. */
 	conversion_meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
 
-	//FIXME: instead of doing a conversion here, would it not be better to change the
-	// rest of the code? On the other hand, the control chars < 32 need special treatment anyway.
-	/* Convert width as returned by t3_unicode_get_info to what we need locally. */
+	/* Convert width as returned by t3_unicode_get_info to what we need locally.
+	   Note: the width returned in conversion_meta_data is actually the width + 1.
+	   So a with of 0 actually means -1, i.e. a control character. */
 	if ((conversion_meta_data & WIDTH_MASK) == 0) {
 		int width = c < 32 && c != '\t' ? 2 : 1;
 		conversion_meta_data = (conversion_meta_data & ~WIDTH_MASK) | width;

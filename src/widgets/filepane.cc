@@ -106,7 +106,7 @@ bool file_pane_t::process_key(key_t key) {
 			redraw = true;
 			break;
 		case EKEY_NL:
-			activate((*file_list)[current]);
+			activate(file_list->get_fs_name(current));
 			return true;
 		default:
 			return false;

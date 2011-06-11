@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+struct transcript_t;
+
 namespace t3_widget {
 
 class string_list_base_t {
@@ -32,26 +34,30 @@ class string_list_t : public virtual string_list_base_t {
 
 class file_list_t : public string_list_t {
 	public:
-		virtual bool is_dir(int idx) const = 0;
+		virtual const std::string *get_fs_name(size_t idx) const = 0;
+		virtual bool is_dir(size_t idx) const = 0;
 };
 
 class file_name_list_t : public file_list_t {
-	private:
-		struct file_name_entry_t {
-			std::string name;
+	protected:
+		class file_name_entry_t {
+			public:
+			std::string name, utf8_name, file_name_entry_t::*display_name;
 			bool is_dir;
-			file_name_entry_t(void) : is_dir(false) {}
-			file_name_entry_t(const char *_name, bool _isDir) : name(_name), is_dir(_isDir) {}
+			file_name_entry_t(void);
+			file_name_entry_t(const char *_name, const std::string &_utf8_name, bool _is_dir);
+			file_name_entry_t(const file_name_entry_t &other);
 		};
 
-		std::vector<file_name_entry_t> files;
-
 		static bool compare_entries(file_name_entry_t first, file_name_entry_t second);
+
+		std::vector<file_name_entry_t> files;
 
 	public:
 		virtual size_t size(void) const;
 		virtual const std::string *operator[](size_t idx) const;
-		virtual bool is_dir(int idx) const;
+		virtual const std::string *get_fs_name(size_t idx) const;
+		virtual bool is_dir(size_t idx) const;
 		void load_directory(std::string *dirName);
 		file_name_list_t &operator=(const file_name_list_t& other);
 };
@@ -124,7 +130,8 @@ typedef filtered_list<string_list_t> filtered_string_list_t;
 class filtered_file_list_t : public filtered_list<file_list_t> {
 	public:
 		filtered_file_list_t(file_list_t *list) : filtered_list<file_list_t>(list) {}
-		virtual bool is_dir(int idx) const { return base->is_dir(test.empty() ? idx : (int) items[idx]); }
+		virtual const std::string *get_fs_name(size_t idx) const { return base->get_fs_name(test.empty() ? idx : items[idx]); }
+		virtual bool is_dir(size_t idx) const { return base->is_dir(test.empty() ? idx : items[idx]); }
 };
 
 bool string_compare_filter(string_list_t *list, size_t idx, const std::string *str);

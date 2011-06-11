@@ -161,7 +161,9 @@ void file_dialog_t::reset(void) {
 }
 
 void file_dialog_t::ok_callback(void) {
-	ok_callback(file_line->get_text());
+	string pass_result;
+	convert_lang_codeset(file_line->get_text(), &pass_result, false);
+	ok_callback(&pass_result);
 }
 
 void file_dialog_t::ok_callback(const string *file) {
@@ -220,8 +222,9 @@ void file_dialog_t::change_dir(const string *dir) {
 }
 
 void file_dialog_t::refresh_view(void) {
+	convert_lang_codeset(get_filter(), &lang_codeset_filter, false);
 	view.set_filter((filtered_file_list_t::filter_type_t) sigc::bind(sigc::ptr_fun(glob_filter),
-		get_filter(), show_hidden_box->get_state()));
+		&lang_codeset_filter, show_hidden_box->get_state()));
 
 	file_pane->set_file(file_line->get_text());
 }
@@ -240,6 +243,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	filter_line->set_size(None, filter_width);
 	filter_line->set_text("*");
 	filter_line->connect_activate(sigc::mem_fun(this, &open_file_dialog_t::refresh_view));
+	#warning FIXME: implement this by overriding process_key and drop lose_focus signal
 	filter_line->connect_lose_focus(sigc::mem_fun(this, &open_file_dialog_t::refresh_view));
 	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
 	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));

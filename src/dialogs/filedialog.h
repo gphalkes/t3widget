@@ -26,7 +26,7 @@ class file_dialog_t : public dialog_t {
 	protected:
 		file_name_list_t names;
 		filtered_file_list_t view;
-		std::string current_dir;
+		std::string current_dir, lang_codeset_filter;
 
 		int name_offset;
 

@@ -16,16 +16,24 @@
 #include <string>
 #include <limits.h>
 #include <cstring>
-#include <unicode/unicode.h>
+#include <unicode.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <transcript.h>
 
 #include "log.h"
 #include "util.h"
 #include "internal.h"
+#include "main.h"
 
 using namespace std;
 namespace t3_widget {
+
+static void lang_codeset_init(void);
+
+static sigc::connection lang_codeset_init_connection = connect_on_init(sigc::ptr_fun(lang_codeset_init));
+static transcript_t *lang_codeset_handle;
+static bool lang_codeset_is_utf8;
 
 const optint None;
 text_line_t *copy_buffer;
@@ -321,6 +329,50 @@ bool is_dir(const string *current_dir, const char *name) {
 		//This would be weird, but still we have to do something
 		return false;
 	return !!S_ISDIR(file_info.st_mode);
+}
+
+void lang_codeset_init(void) {
+	transcript_error_t error;
+	const char *codeset = transcript_get_codeset();
+
+	if (lang_codeset_handle == NULL) {
+		lang_codeset_handle = transcript_open_converter(codeset,
+			TRANSCRIPT_UTF8, TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SUBST_UNASSIGNED | TRANSCRIPT_SUBST_ILLEGAL, &error);
+		if (transcript_equal("UTF-8", codeset))
+			lang_codeset_is_utf8 = true;
+	}
+}
+
+void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from) {
+	char output_buffer[1024], *output_buffer_ptr;
+	const char *str_ptr = str;
+	transcript_error_t conversion_result;
+	transcript_error_t (*convert)(transcript_t *, const char **, const char *, char **, const char *, int) =
+		from ? transcript_to_unicode : transcript_from_unicode;
+
+	result->clear();
+	if (!from && lang_codeset_is_utf8) {
+		result->append(str, len);
+		return;
+	}
+
+	while (true) {
+		output_buffer_ptr = output_buffer;
+
+		conversion_result = convert(lang_codeset_handle, &str_ptr, str + len, &output_buffer_ptr, output_buffer + sizeof(output_buffer),
+				str_ptr == str ? TRANSCRIPT_FILE_START | TRANSCRIPT_END_OF_TEXT : TRANSCRIPT_END_OF_TEXT);
+		result->append(output_buffer, output_buffer_ptr - output_buffer);
+		if (conversion_result != TRANSCRIPT_NO_SPACE)
+			return;
+	}
+}
+
+void convert_lang_codeset(const char *str, std::string *result, bool from) {
+	convert_lang_codeset(str, strlen(str), result, from);
+}
+
+void convert_lang_codeset(const std::string *str, std::string *result, bool from) {
+	convert_lang_codeset(str->c_str(), str->size(), result, from);
 }
 
 }; // namespace

@@ -123,5 +123,9 @@ std::string get_working_directory(void);
 std::string get_directory(const char *directory);
 bool is_dir(const std::string *current_dir, const char *name);
 
+void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from);
+void convert_lang_codeset(const char *str, std::string *result, bool from);
+void convert_lang_codeset(const std::string *str, std::string *result, bool from);
+
 }; // namespace
 #endif
