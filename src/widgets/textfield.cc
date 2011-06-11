@@ -410,7 +410,6 @@ void text_field_t::set_focus(bool _focus) {
 			drop_down_list->hide();
 		}
 		in_drop_down_list = false;
-		lose_focus();
 	}
 }
 

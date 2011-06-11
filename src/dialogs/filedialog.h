@@ -55,10 +55,16 @@ class file_dialog_t : public dialog_t {
 };
 
 class open_file_dialog_t : public file_dialog_t {
-	private:
+	protected:
+		class filter_text_field_t : public text_field_t {
+			public:
+				virtual void set_focus(bool _focus);
+			T3_WIDGET_SIGNAL(lose_focus, void);
+		};
+
 		int filter_offset,
 			filter_width;
-		text_field_t *filter_line;
+		filter_text_field_t *filter_line;
 		smart_label_t *filter_label;
 
 		virtual const std::string *get_filter(void);
@@ -70,7 +76,7 @@ class open_file_dialog_t : public file_dialog_t {
 
 
 class save_as_dialog_t : public file_dialog_t {
-	private:
+	protected:
 		button_t *create_button;
 		static std::string empty_filter;
 

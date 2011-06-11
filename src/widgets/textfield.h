@@ -95,7 +95,6 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 		virtual void bad_draw_recheck(void);
 
 	T3_WIDGET_SIGNAL(activate, void);
-	T3_WIDGET_SIGNAL(lose_focus, void);
 };
 
 }; // namespace

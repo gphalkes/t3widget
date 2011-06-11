@@ -27,7 +27,6 @@ namespace t3_widget {
 
 static key_t nul = 0;
 /* FIXME: TODO:
-	- i18n/l10n
 	- path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
 */
 file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog_t(height, width, _title),
@@ -229,6 +228,13 @@ void file_dialog_t::refresh_view(void) {
 	file_pane->set_file(file_line->get_text());
 }
 
+void open_file_dialog_t::filter_text_field_t::set_focus(bool _focus) {
+	bool old_focus = focus;
+	text_field_t::set_focus(_focus);
+	if (old_focus && !focus)
+		lose_focus();
+}
+
 open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(height, width, "Open File") {
 	filter_label = new smart_label_t("_Filter", true);
 	set_widget_parent(filter_label);
@@ -236,14 +242,13 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	filter_label->set_position(0, 2);
 	filter_offset = filter_label->get_width() + 1;
 	filter_width = 10;
-	filter_line = new text_field_t();
+	filter_line = new filter_text_field_t();
 	set_widget_parent(filter_line);
 	filter_line->set_anchor(filter_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	filter_line->set_position(0, 1);
 	filter_line->set_size(None, filter_width);
 	filter_line->set_text("*");
 	filter_line->connect_activate(sigc::mem_fun(this, &open_file_dialog_t::refresh_view));
-	#warning FIXME: implement this by overriding process_key and drop lose_focus signal
 	filter_line->connect_lose_focus(sigc::mem_fun(this, &open_file_dialog_t::refresh_view));
 	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
 	filter_line->connect_move_focus_up(sigc::mem_fun(this, &open_file_dialog_t::focus_previous));
