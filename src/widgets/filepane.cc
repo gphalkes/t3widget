@@ -66,10 +66,13 @@ bool file_pane_t::process_key(key_t key) {
 			redraw = true;
 			break;
 		case EKEY_RIGHT:
-			if (current + height >= file_list->size())
+			if (current + height >= file_list->size()) {
+				if (file_list->size() != 0)
+					return true;
 				current = file_list->size() - 1;
-			else
+			} else {
 				current += height;
+			}
 			redraw = true;
 			break;
 		case EKEY_LEFT:
@@ -111,9 +114,11 @@ bool file_pane_t::process_key(key_t key) {
 		default:
 			return false;
 	}
-	if (field)
-		field->set_text((*file_list)[current]->c_str());
-	ensure_cursor_on_screen();
+	if (file_list->size() != 0) {
+		if (field)
+			field->set_text((*file_list)[current]->c_str());
+		ensure_cursor_on_screen();
+	}
 	return true;
 }
 
@@ -126,7 +131,7 @@ bool file_pane_t::set_size(optint _height, optint _width) {
 	result = t3_win_resize(window, height + 2, width + 2);
 	result &= scrollbar.set_size(None, width);
 
-	if (file_list != NULL) {
+	if (file_list != NULL && file_list->size() != 0) {
 		update_column_widths();
 		scrollbar_range = ((file_list->size() + height - 1) / height) * height;
 		ensure_cursor_on_screen();
