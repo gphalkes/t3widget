@@ -13,6 +13,7 @@
 */
 #include <climits>
 #include <cstring>
+#include <cstdarg>
 #include "main.h"
 #include "dialogs/messagedialog.h"
 #include "textline.h"

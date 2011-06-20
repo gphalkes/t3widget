@@ -163,6 +163,7 @@ static void terminal_specific_setup(void) {
 
 void restore(void) {
 	switch (init_level) {
+		default:
 		case 3:
 			cleanup_keys();
 		case 2:
@@ -285,6 +286,10 @@ void suspend(void) {
 void redraw(void) {
 	do_resize();
 	t3_term_redraw();
+}
+
+long get_version(void) {
+	return T3_WIDGET_VERSION;
 }
 
 }; // namespace

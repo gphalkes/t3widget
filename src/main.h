@@ -20,6 +20,22 @@
 #include "dialogs/messagedialog.h"
 
 namespace t3_widget {
+
+/** The version of libt3widget encoded as a single integer.
+
+    The least significant 8 bits represent the patch level.
+    The second 8 bits represent the minor version.
+    The third 8 bits represent the major version.
+
+	At runtime, the value of T3_WIDGET_VERSION can be retrieved by calling
+	t3_widget::get_version.
+
+    @internal
+    The value 0 is an invalid value which should be replaced by the script
+    that builds the release package.
+*/
+#define T3_WIDGET_VERSION 0
+
 class main_window_base_t;
 
 class complex_error_t {
@@ -64,7 +80,7 @@ void redraw(void);
 
 void set_color_mode(bool on);
 void set_attribute(attribute_t attribute, t3_attr_t value);
-
+long get_version(void);
 }; // namespace
 
 #endif
