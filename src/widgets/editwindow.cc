@@ -580,8 +580,11 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_F3:
+			find_next(false);
+			break;
+		case EKEY_F15:
 		case EKEY_F3 | EKEY_SHIFT:
-			find_next(key == (EKEY_F3 | EKEY_SHIFT));
+			find_next(true);
 			break;
 
 		case EKEY_F9:
