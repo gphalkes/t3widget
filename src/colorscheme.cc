@@ -27,6 +27,13 @@ void init_colors(void) {
 }
 
 void set_color_mode(bool on) {
+	/* Only actually switch to color mode if the terminal supports (sufficient) color. */
+	if (on) {
+		t3_term_caps_t terminal_caps;
+		t3_term_get_caps(&terminal_caps);
+		on = terminal_caps.colors >= 8;
+	}
+
 	if (on) {
 		attributes.non_print = T3_ATTR_UNDERLINE;
 		attributes.selection_cursor = T3_ATTR_BG_CYAN;
