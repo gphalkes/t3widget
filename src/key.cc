@@ -411,6 +411,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	int i, j, error, idx;
 	transcript_error_t transcript_error;
 	struct sched_param sched_param;
+	const char *shiftfn;
 
 	/* Start with things most likely to fail */
 	if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)
@@ -458,7 +459,8 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	}
 	if ((key_node = t3_key_get_named_node(keymap, "%leave")) != NULL)
 		leave = key_node->string;
-
+	if ((key_node = t3_key_get_named_node(keymap, "%shiftfn")) != NULL)
+		shiftfn = key_node->string;
 
 	/* Load all the known keys from the terminfo database.
 	   - find out how many sequences there are
@@ -467,6 +469,8 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	   - sort the map for quick searching
 	*/
 	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
+		if (key_node->key[0] == '%')
+			continue;
 		if (key_node->string[0] == 27)
 			map_count++;
 	}
@@ -475,6 +479,9 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
 
 	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
+		if (key_node->key[0] == '%')
+			continue;
+
 		if (key_node->string[0] == 27) {
 			map[idx].string = key_node->string;
 			map[idx].string_length = key_node->string_length;
@@ -530,6 +537,10 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 						default:
 							break;
 					}
+				}
+				if (shiftfn != NULL && key >= EKEY_F1 + shiftfn[2] - 1 && key < EKEY_F1 + shiftfn[2] + shiftfn[1] - shiftfn[0]) {
+					key -= shiftfn[2] - 1;
+					key |= EKEY_SHIFT;
 				}
 				if (key_node->string[0] == 27)
 					map[idx].key = key;
