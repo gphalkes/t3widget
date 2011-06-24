@@ -1,0 +1,260 @@
+# Copyright (C) 2011 G.P. Halkes
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext"
+LTSHARED=1
+DEFAULT_LINGUAS=nl
+
+test_select() {
+	DESC="$1"
+	shift
+	clean_cxx
+	for HEADER in "$@"
+	do
+		echo "#include <${HEADER}>"
+	done > .configcxx.cc
+	cat >> .configcxx.cc <<EOF
+#include <stdlib.h>
+
+int main(int argc, char *argv[]) {
+	fd_set test;
+	FD_ZERO(&test);
+	FD_SET(0, &test);
+	if (FD_ISSET(0, &test))
+		FD_CLR(0, &test);
+	select(1, &test, NULL, NULL, NULL);
+	return 0;
+}
+EOF
+	test_link_cxx "${DESC}"
+}
+
+
+test_link() {
+	mv .config.c .configcxx.cc
+	test_link_cxx "$@"
+}
+
+test_compile() {
+	test_compile_cxx "$@"
+}
+
+clean_c() {
+	clean .config.c
+	clean_cxx
+}
+
+config() {
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <sigc++/sigc++.h>
+sigc::connection conn;
+sigc::signal<void, int> sig;
+
+void f(int x) { x++; }
+
+int main(int argc, char *argv[]) {
+	conn = sig.connect(sigc::ptr_fun(f));
+	return 0;
+}
+EOF
+	pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx || error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <transcript/transcript.h>
+
+int main(int argc, char *argv[]) {
+	transcript_get_version();
+	return 0;
+}
+EOF
+	pkgconfig libtranscript LIBTRANSCRIPT test_link_cxx || error "!! Can not find libtranscript. libtranscript is required to compile libt3widget."
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <unicode.h>
+
+int main(int argc, char *argv[]) {
+	t3_unicode_get_version();
+	return 0;
+}
+EOF
+	pkgconfig libt3unicode LIBT3UNICODE test_link_cxx || error "!! Can not find libt3unicode. libt3unicode is required to compile libt3widget."
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <window.h>
+#include <terminal.h>
+
+int main(int argc, char *argv[]) {
+	t3_window_get_version();
+	return 0;
+}
+EOF
+	pkgconfig libt3window LIBT3WINDOW test_link_cxx || error "!! Can not find libt3window. libt3window is required to compile libt3widget."
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <key.h>
+
+int main(int argc, char *argv[]) {
+	t3_key_get_version();
+	return 0;
+}
+EOF
+	pkgconfig libt3key LIBT3KEY test_link_cxx || error "!! Can not find libt3key. libt3key is required to compile libt3widget."
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <pcre.h>
+
+int callout(pcre_callout_block *block) { (void) block; return 0; }
+
+int main(int argc, char *argv[]) {
+	const char *err;
+	int err_offset;
+	pcre *pcre = pcre_compile("pattern", PCRE_UTF8 | PCRE_CASELESS, &err, &err_offset, NULL);
+	pcre_callout = callout;
+	return 0;
+}
+EOF
+	pkgconfig libpcre LIBPCRE test_link_cxx || error "!! Can not find libpcre. libpcre is required to compile libt3widget."
+
+	if test_select "select in <sys/select.h>" "sys/select.h" ; then
+		CONFIGFLAGS="${CONFIGFLAGS} -DHAS_SELECT_H"
+	else
+		test_select "select in <unistd.h>" "sys/time.h" "sys/types.h" "unistd.h" || error "!! Can not find required select function."
+	fi
+
+	clean_cxx
+	unset PTHREADFLAGS PTHREADLIBS
+	cat > .configcxx.cc <<EOF
+#include <pthread.h>
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond;
+pthread_t thread;
+
+void *thread_func(void *) {
+	return NULL;
+}
+
+int main(int argc, char *argv[]) {
+	void *result;
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
+	pthread_mutex_lock(&mutex);
+	pthread_mutex_unlock(&mutex);
+	pthread_cond_signal(&cond);
+	pthread_cond_wait(&cond, &mutex);
+	pthread_mutex_destroy(&mutex);
+	pthread_cond_destroy(&cond);
+	pthread_create(&thread, NULL, thread_func, NULL);
+	pthread_join(thread, &result);
+	pthread_cancel(thread);
+	return 0;
+}
+EOF
+	test_compile_cxx "pthreads"  || error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
+	test_compile_cxx "-pthread flag" && PTHREADFLAGS=-pthread
+	if test_link_cxx "pthreads in ${PTHREADFLAGS-standard library}" "TESTLIBS=${PTHREADFLAGS}" ; then
+		PTHREADLIBS="${PTHREADFLAGS}"
+	elif test_link_cxx "pthreads in -lpthread" TESTLIBS=-pthread ; then
+		PTHREADLIBS=-lpthread
+	else
+		error "!! Can not find required linker flags for pthreads. Pthreads are required to compile libt3widget. See config.log for compile details."
+	fi
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <sched.h>
+#include <pthread.h>
+
+int main(int argc, char *argv[]) {
+	struct sched_param sched_param;
+	pthread_t thread;
+	sched_param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+	if (sched_param.sched_priority == -1)
+		sched_param.sched_priority = 0;
+	pthread_setschedparam(thread, SCHED_FIFO, &sched_param);
+	return 0;
+}
+EOF
+	test_link_cxx "scheduling priority functions" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_SCHED_FUNCS"
+
+	cat > .configcxx.cc <<EOF
+#include <math.h>
+int main(int argc, char *argv[]) {
+	ceil((double) argc);
+	return 0;
+}
+EOF
+	test_link_cxx "ceil in standard library" || {
+		if test_link_cxx "ceil in -lm" TESTLIBS=-lm ; then
+			CONFIGLIBS="${CONFIGLIBS} -lm"
+		else
+			error "!! Can not find required linker flags for ceil function. See config.log for details."
+		fi
+	}
+
+	cat > .configcxx.cc <<EOF
+#include <stdlib.h>
+#include <stdio.h>
+#include <signal.h>
+#include <fnmatch.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+int main(int argc, char *argv[]) {
+	struct sigaction sa;
+	struct stat stat;
+	int fds[2];
+	char buffer[100];
+	DIR *dir;
+	struct dirent *entry;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGWINCH);
+	sigaction(SIGWINCH, &sa, NULL);
+	sigprocmask(SIG_UNBLOCK, &sa.sa_mask, NULL);
+	fnmatch("a", "b", 0);
+	stat("file", &stat);
+	pipe(fds);
+	close(fds[0]);
+	read(fds[0], buffer, sizeof(buffer));
+	write(fds[0], buffer, sizeof(buffer));
+	snprintf(buffer, sizeof(buffer), "foo");
+	kill(getpid(), SIGWINCH);
+	dir = opendir("foo");
+	entry = readdir(dir);
+	closedir(dir);
+	getcwd(buffer, sizeof(buffer));
+	return 0;
+}
+EOF
+	test_link_cxx "other required common Un*x functions" || error "!! A required Un*x function was not found. See config.log for details."
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+	strdup(argv[0]);
+	return 0;
+}
+EOF
+	test_link_cxx "strdup" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRDUP"
+
+	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBTRANSCRIPT_FLAGS} ${LIBT3UNICODE_FLAGS} ${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
+		"CONFIGLIBS=${CONFIGLIBS} ${LIBTRANSCRIPT_LIBS} ${LIBT3UNICODE_LIBS} ${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}"
+}

@@ -10,9 +10,8 @@ High Priority
 	edit_window_t. But they should share the same shortcut.
 - handle FIXME's
 - figure out how to override attributes on a per-widget basis
-- match SciTE search dialog again (or choose another editor's search dialog as
-	template)
 - gettext for titles of dialogs etc.
+- make tab indent if text selection crosses line boundary
 
 Low Priority
 ------------
@@ -58,6 +57,8 @@ IDEAS
 	syntax high-lighting. [ http://www.gnu.org/software/src-highlite/ ]
 	However, using boost-regex (which source-highlight does) introduces a
 	(optional) dependency on libicu, which I wanted to avoid.
+- provide a way to specify the %shiftfn stuff externally. This could be
+	necessary for pterm to work correctly.
 
 From the original TODO_AND_IDEAS file
 -------------------------------------

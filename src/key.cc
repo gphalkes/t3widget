@@ -18,7 +18,12 @@
 #include <transcript.h>
 #include <cerrno>
 
-#include <window/window.h>
+#ifdef HAS_SCHED_FUNCS
+#include <sched.h>
+#endif
+
+#include <window.h>
+//FIXME: having both a local and a "system" key.h is not working well
 #include <key/key.h>
 
 #include "util.h"
@@ -410,7 +415,9 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	const t3_key_node_t *key_node;
 	int i, j, error, idx;
 	transcript_error_t transcript_error;
+#ifdef HAS_SCHED_FUNCS
 	struct sched_param sched_param;
+#endif
 	const char *shiftfn;
 
 	/* Start with things most likely to fail */
@@ -560,12 +567,14 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, error);
 
+#ifdef HAS_SCHED_FUNCS
 	/* Set the priority for the key reading thread to max, such that we can be sure
 	   that when a key is available it will be able to get it. */
 	sched_param.sched_priority = sched_get_priority_max(SCHED_FIFO);
 	if (sched_param.sched_priority == -1)
 		sched_param.sched_priority = 0;
 	pthread_setschedparam(read_key_thread, SCHED_FIFO, &sched_param);
+#endif
 
 	if (leave != NULL)
 		atexit(stop_keys);
