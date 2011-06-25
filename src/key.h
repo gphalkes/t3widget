@@ -29,6 +29,7 @@ key_t read_key(void);
 #define EKEY_META 0x20000000
 #define EKEY_CTRL 0x10000000
 #define EKEY_PROTECT 0x08000000
+#define EKEY_KEY_MASK 0x1fffff
 
 enum {
 	EKEY_IGNORE = (key_t) -1,

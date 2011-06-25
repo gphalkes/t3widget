@@ -262,6 +262,8 @@ static void *read_keys(void *arg) {
 					continue;
 				else if (drop_single_esc && c == (EKEY_ESC | EKEY_META))
 					c = EKEY_ESC;
+				else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0)
+					c = (c & ~EKEY_KEY_MASK) | map_single[c & EKEY_KEY_MASK];
 			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
@@ -560,7 +562,6 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 		if (key_node->string[0] == 27)
 			idx++;
 	}
-	lprintf("map_count: %d, idx: %d\n", map_count, idx);
 	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
 	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
