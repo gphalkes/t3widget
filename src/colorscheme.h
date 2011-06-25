@@ -18,7 +18,7 @@
 #error This header file is for internal use _only_!!
 #endif
 
-#include <window/window.h>
+#include <t3window/window.h>
 #include "util.h"
 namespace t3_widget {
 

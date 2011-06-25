@@ -21,8 +21,8 @@
 #include <pcre.h>
 
 #include <new>
-#include <window.h>
-#include <unicode.h>
+#include <t3window/window.h>
+#include <t3unicode/unicode.h>
 
 #include "textbuffer.h"
 #include "textline.h"

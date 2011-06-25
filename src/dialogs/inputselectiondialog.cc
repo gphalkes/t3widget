@@ -12,7 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
-#include <unicode.h>
+#include <t3unicode/unicode.h>
 #include "dialogs/inputselectiondialog.h"
 #include "internal.h"
 

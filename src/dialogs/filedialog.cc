@@ -15,7 +15,7 @@
 #include <cstring>
 #include <cerrno>
 
-#include "window/window.h"
+#include <t3window/window.h>
 
 #include "dialogs/filedialog.h"
 #include "main.h"

@@ -14,12 +14,12 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <key/key.h>
-#include <transcript.h>
 #include <cerrno>
 #include <new>
 #include <signal.h>
 #include <pthread.h>
+#include <t3key/key.h>
+#include <transcript/transcript.h>
 
 #include "main.h"
 #include "log.h"

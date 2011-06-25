@@ -70,24 +70,20 @@ CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
 CXXFLAGS += -D_T3_WIDGET_DEBUG
 CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -I$(CURDIR)
-CXXFLAGS += -I$(CURDIR)/window
-CXXFLAGS += -I$(CURDIR)/unicode
-CXXFLAGS += -I$(CURDIR)/key
-CXXFLAGS += -I$(CURDIR)/transcript
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 
-LDLIBS += -L$(CURDIR)/../src/window/.libs -lt3window
-LDLIBS += -L$(CURDIR)/../src/unicode/.libs -lt3unicode
-LDLIBS += -L$(CURDIR)/../src/transcript/.libs -ltranscript
-LDLIBS += -L$(CURDIR)/../src/key/.libs -lt3key
+LDLIBS += -L$(CURDIR)/t3window/.libs -lt3window
+LDLIBS += -L$(CURDIR)/t3unicode/.libs -lt3unicode
+LDLIBS += -L$(CURDIR)/transcript/.libs -ltranscript
+LDLIBS += -L$(CURDIR)/t3key/.libs -lt3key
 LDLIBS += -lpcre
 LDLIBS += `pkg-config --libs sigc++-2.0`
 
 links:
-	@[ -L unicode ] || ln -s ../../unicode/src unicode
+	@[ -L t3unicode ] || ln -s ../../unicode/src t3unicode
 	@[ -L transcript ] || ln -s ../../../transcript/src transcript
-	@[ -L window ] || ln -s ../../window/src window
-	@[ -L key ] || ln -s ../../key/src key
+	@[ -L t3window ] || ln -s ../../window/src t3window
+	@[ -L t3key ] || ln -s ../../key/src t3key
 
 .PHONY: links

@@ -12,8 +12,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+#include <t3window/window.h>
 #include "colorscheme.h"
-#include "window/window.h"
 #include "dialogs/dialog.h"
 #include "main.h"
 

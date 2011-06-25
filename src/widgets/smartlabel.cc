@@ -16,12 +16,12 @@
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
-#include "unicode.h"
+#include <t3unicode/unicode.h>
+#include <t3window/window.h>
 #include "widgets/widget.h"
 #include "widgets/smartlabel.h"
 #include "textline.h"
 #include "util.h"
-#include "window.h"
 #include "colorscheme.h"
 
 using namespace std;

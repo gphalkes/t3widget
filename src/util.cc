@@ -16,10 +16,10 @@
 #include <string>
 #include <limits.h>
 #include <cstring>
-#include <unicode.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <transcript.h>
+#include <t3unicode/unicode.h>
+#include <transcript/transcript.h>
 
 #include "log.h"
 #include "util.h"

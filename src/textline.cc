@@ -20,13 +20,13 @@
 #include <cctype>
 #include <cerrno>
 #include <unistd.h>
+#include <t3unicode/unicode.h>
 
 #include "colorscheme.h"
 #include "textline.h"
 #include "util.h"
 #include "undo.h"
 #include "stringmatcher.h"
-#include "unicode/unicode.h"
 #include "internal.h"
 
 using namespace std;

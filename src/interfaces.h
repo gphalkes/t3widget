@@ -15,7 +15,7 @@
 #define T3_WIDGET_INTERFACES_H
 
 #include <list>
-#include <window.h>
+#include <t3window/window.h>
 
 #include "key.h"
 #include "util.h"

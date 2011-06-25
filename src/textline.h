@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string>
 #include <pcre.h>
-#include <window/window.h>
+#include <t3window/window.h>
 
 #include "key.h"
 #include "stringmatcher.h"

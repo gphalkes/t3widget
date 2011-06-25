@@ -15,16 +15,15 @@
 #include <cstring>
 #include <climits>
 #include <stdint.h>
-#include <transcript.h>
+#include <transcript/transcript.h>
 #include <cerrno>
 
 #ifdef HAS_SCHED_FUNCS
 #include <sched.h>
 #endif
 
-#include <window.h>
-//FIXME: having both a local and a "system" key.h is not working well
-#include <key/key.h>
+#include <t3window/window.h>
+#include <t3key/key.h>
 
 #include "util.h"
 #include "main.h"
