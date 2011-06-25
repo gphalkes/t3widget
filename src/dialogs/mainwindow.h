@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class main_window_base_t : public dialog_t {
+class T3_WIDGET_API main_window_base_t : public dialog_t {
 	private:
 		void set_size_real(int height, int width);
 	protected:

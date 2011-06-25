@@ -34,14 +34,14 @@ struct find_result_t;
 class finder_t;
 
 /** Interface definition for widgets displaying a text_buffer_t. */
-class text_buffer_window_t : public widget_t {
+class T3_WIDGET_API text_buffer_window_t : public widget_t {
 	public:
 		text_buffer_window_t(void) : widget_t() {}
 		text_buffer_window_t(int height, int width) : widget_t(height, width) {}
 		virtual int get_text_width(void) = 0;
 };
 
-class text_buffer_t : public bad_draw_recheck_t {
+class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 	protected:
 		lines_t lines;
 		sublines_t wraplines;

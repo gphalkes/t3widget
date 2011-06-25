@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class split_t : public widget_t, public container_t {
+class T3_WIDGET_API split_t : public widget_t, public container_t {
 	protected:
 		widgets_t widgets;
 		widgets_t::iterator current;

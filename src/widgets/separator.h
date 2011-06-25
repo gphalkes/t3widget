@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class separator_t : public widget_t {
+class T3_WIDGET_API separator_t : public widget_t {
 	private:
 		bool horizontal;
 

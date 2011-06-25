@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class frame_t : public widget_t, public container_t {
+class T3_WIDGET_API frame_t : public widget_t, public container_t {
 	public:
 		enum frame_dimension_t {
 			AROUND_ALL = 0,

@@ -72,6 +72,8 @@ CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -I$(CURDIR)
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
+# Set default visibility to hidden, so we find out when we forgot to export something
+CXXFLAGS += -fvisibility=hidden
 
 LDLIBS += -L$(CURDIR)/t3window/.libs -lt3window
 LDLIBS += -L$(CURDIR)/t3unicode/.libs -lt3unicode

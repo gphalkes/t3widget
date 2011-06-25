@@ -23,6 +23,7 @@
 #include <pcre.h>
 #include <t3window/window.h>
 
+#include "widget_api.h"
 #include "key.h"
 
 namespace t3_widget {
@@ -31,7 +32,7 @@ class undo_t;
 
 #define _T3_MAX_TAB 80
 
-class text_line_t {
+class T3_WIDGET_API text_line_t {
 	public:
 		enum {
 			BREAK = (1<<0),

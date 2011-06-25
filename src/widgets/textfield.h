@@ -23,7 +23,7 @@
 
 namespace t3_widget {
 
-class text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
+class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
 	protected:
 		int width,
 			pos,
@@ -49,7 +49,7 @@ class text_field_t : public widget_t, public center_component_t, public focus_wi
 		void update_selection(void);
 		void set_text_finish(void);
 
-		class drop_down_list_t : public window_component_t {
+		class T3_WIDGET_API drop_down_list_t : public window_component_t {
 			private:
 				int width;
 				size_t current, top_idx;

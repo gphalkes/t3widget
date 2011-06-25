@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class bullet_t : public widget_t {
+class T3_WIDGET_API bullet_t : public widget_t {
 	private:
 		sigc::slot<bool> source;
 		bool has_focus;

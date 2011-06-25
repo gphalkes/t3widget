@@ -20,7 +20,7 @@
 
 namespace t3_widget {
 
-class widget_t : public virtual window_component_t {
+class T3_WIDGET_API widget_t : public virtual window_component_t {
 	private:
 		friend class container_t;
 		static t3_window_t *default_parent;
@@ -49,7 +49,7 @@ class widget_t : public virtual window_component_t {
 		virtual void set_focus(bool focus);
 };
 
-class focus_widget_t {
+class T3_WIDGET_API focus_widget_t {
 	T3_WIDGET_SIGNAL(move_focus_left, void);
 	T3_WIDGET_SIGNAL(move_focus_right, void);
 	T3_WIDGET_SIGNAL(move_focus_up, void);

@@ -17,10 +17,12 @@
 #include <unistd.h>
 #include <sigc++/sigc++.h>
 
+#include "widget_api.h"
+
 namespace t3_widget {
 
 /* Class defining integers with a separate validity check. */
-class optint {
+class T3_WIDGET_API optint {
 	private:
 		int value;
 		bool initialized;
@@ -33,9 +35,9 @@ class optint {
 		optint & operator=(const optint &other) { initialized = other.initialized; value = other.value; return *this; }
 		optint & operator=(const int other) { initialized = true; value = other; return *this; }
 };
-extern const optint None;
+T3_WIDGET_API extern const optint None;
 
-struct text_coordinate_t {
+struct T3_WIDGET_API text_coordinate_t {
 	text_coordinate_t(void) {}
 	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
 	int line;
@@ -116,16 +118,16 @@ _T3_WIDGET_ENUM(attribute_t,
 
 #undef _T3_WIDGET_ENUM
 
-ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
-ssize_t nosig_read(int fd, char *buffer, size_t bytes);
+T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
+T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
-std::string get_working_directory(void);
-std::string get_directory(const char *directory);
-bool is_dir(const std::string *current_dir, const char *name);
+T3_WIDGET_API std::string get_working_directory(void);
+T3_WIDGET_API std::string get_directory(const char *directory);
+T3_WIDGET_API bool is_dir(const std::string *current_dir, const char *name);
 
-void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from);
-void convert_lang_codeset(const char *str, std::string *result, bool from);
-void convert_lang_codeset(const std::string *str, std::string *result, bool from);
+T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from);
+T3_WIDGET_API void convert_lang_codeset(const char *str, std::string *result, bool from);
+T3_WIDGET_API void convert_lang_codeset(const std::string *str, std::string *result, bool from);
 
 }; // namespace
 #endif

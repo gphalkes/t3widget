@@ -36,9 +36,7 @@ namespace t3_widget {
 */
 #define T3_WIDGET_VERSION 0
 
-class main_window_base_t;
-
-class complex_error_t {
+class T3_WIDGET_API complex_error_t {
 	public:
 		enum source_t{
 			SRC_NONE,
@@ -63,24 +61,24 @@ class complex_error_t {
 };
 
 //FIXME: shouldn't these be internal?
-extern insert_char_dialog_t *insert_char_dialog;
-extern message_dialog_t *message_dialog;
+T3_WIDGET_API extern insert_char_dialog_t *insert_char_dialog;
+T3_WIDGET_API extern message_dialog_t *message_dialog;
 
-sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
-sigc::connection connect_update_notification(const sigc::slot<void> &slot);
-sigc::connection connect_on_init(const sigc::slot<void> &slot);
-sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot);
+T3_WIDGET_API sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
+T3_WIDGET_API sigc::connection connect_update_notification(const sigc::slot<void> &slot);
+T3_WIDGET_API sigc::connection connect_on_init(const sigc::slot<void> &slot);
+T3_WIDGET_API sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot);
 
-complex_error_t init(const char *term = NULL, bool separate_keypad = false);
-void restore(void);
-void iterate(void);
-void main_loop(void);
-void suspend(void);
-void redraw(void);
+T3_WIDGET_API complex_error_t init(const char *term = NULL, bool separate_keypad = false);
+T3_WIDGET_API void restore(void);
+T3_WIDGET_API void iterate(void);
+T3_WIDGET_API void main_loop(void);
+T3_WIDGET_API void suspend(void);
+T3_WIDGET_API void redraw(void);
 
-void set_color_mode(bool on);
-void set_attribute(attribute_t attribute, t3_attr_t value);
-long get_version(void);
+T3_WIDGET_API void set_color_mode(bool on);
+T3_WIDGET_API void set_attribute(attribute_t attribute, t3_attr_t value);
+T3_WIDGET_API long get_version(void);
 }; // namespace
 
 #endif

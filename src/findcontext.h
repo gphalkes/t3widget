@@ -17,11 +17,12 @@
 #include <string>
 #include <pcre.h>
 
+#include "widget_api.h"
+#include "stringmatcher.h"
+
 #ifndef _T3_WIDGET_INTERNAL
 #error This header file is for internal use _only_!!
 #endif
-
-#include "stringmatcher.h"
 
 namespace t3_widget {
 
@@ -31,7 +32,7 @@ struct find_result_t {
 
 class text_line_t;
 
-class finder_t {
+class T3_WIDGET_LOCAL finder_t {
 	friend class text_line_t;
 	//FIXME: many members are necessary in other classes
 	private:

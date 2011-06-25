@@ -25,7 +25,7 @@
 
 namespace t3_widget {
 
-class file_pane_t : public widget_t, public container_t {
+class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 	private:
 		scrollbar_t scrollbar;
 		int height, width;

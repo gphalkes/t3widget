@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class label_t : public widget_t {
+class T3_WIDGET_API label_t : public widget_t {
 	public:
 		enum align_t {
 			ALIGN_LEFT,

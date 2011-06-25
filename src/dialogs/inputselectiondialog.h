@@ -23,7 +23,7 @@
 
 namespace t3_widget {
 
-class input_selection_dialog_t : public dialog_t {
+class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 	private:
 		text_buffer_t *text;
 		frame_t *text_frame, *label_frame;

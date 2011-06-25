@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class smart_label_text_t {
+class T3_WIDGET_API smart_label_text_t {
 	protected:
 		bool add_colon;
 		char *text;
@@ -36,7 +36,7 @@ class smart_label_text_t {
 		bool is_hotkey(key_t key);
 };
 
-class smart_label_t : public smart_label_text_t, public widget_t {
+class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
 	public:
 		smart_label_t(smart_label_text_t *spec);
 		smart_label_t(const char *spec, bool _addColon = false);

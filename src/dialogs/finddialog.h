@@ -27,7 +27,7 @@ namespace t3_widget {
 class replace_buttons_dialog_t;
 class finder_t;
 
-class find_dialog_t : public dialog_t {
+class T3_WIDGET_API find_dialog_t : public dialog_t {
 	protected:
 		friend class replace_buttons_dialog_t;
 
@@ -62,7 +62,7 @@ class find_dialog_t : public dialog_t {
 	T3_WIDGET_SIGNAL(activate, void, find_action_t, finder_t *);
 };
 
-class replace_buttons_dialog_t : public dialog_t {
+class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
 	protected:
 		button_t *find_button, *replace_button;
 

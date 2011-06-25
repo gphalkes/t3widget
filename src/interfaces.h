@@ -22,7 +22,7 @@
 
 namespace t3_widget {
 
-class window_component_t {
+class T3_WIDGET_API window_component_t {
 	protected:
 		t3_window_t *window;
 	public:
@@ -41,13 +41,13 @@ class window_component_t {
 };
 
 class widget_t;
-class container_t : private virtual window_component_t {
+class T3_WIDGET_API container_t : private virtual window_component_t {
 	protected:
 		virtual bool set_widget_parent(widget_t *widget);
 		virtual void unset_widget_parent(widget_t *widget);
 };
 
-class center_component_t : private virtual window_component_t {
+class T3_WIDGET_API center_component_t : private virtual window_component_t {
 	protected:
 		window_component_t *center_window;
 	public:
@@ -55,7 +55,7 @@ class center_component_t : private virtual window_component_t {
 		virtual void set_center_window(window_component_t *_center_window);
 };
 
-class bad_draw_recheck_t {
+class T3_WIDGET_API bad_draw_recheck_t {
 	private:
 		static std::list<bad_draw_recheck_t *> to_signal;
 		static sigc::connection initialized;

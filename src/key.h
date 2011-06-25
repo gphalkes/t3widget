@@ -15,6 +15,8 @@
 #define T3_WIDGET_KEYS_H
 
 #include <climits>
+#include "widget_api.h"
+
 namespace t3_widget {
 
 #if INT_MAX < 2147483647L
@@ -108,7 +110,7 @@ enum {
 	EKEY_UPDATE_TERMINAL,
 };
 
-void set_key_timeout(int msec);
+T3_WIDGET_API void set_key_timeout(int msec);
 
 }; // namespace
 #endif

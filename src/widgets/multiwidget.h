@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class multi_widget_t : public widget_t, public focus_widget_t, public container_t {
+class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, public container_t {
 	private:
 		struct item_t {
 			widget_t *widget;

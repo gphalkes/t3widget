@@ -20,11 +20,12 @@
 
 #include <string>
 #include <sigc++/sigc++.h>
+#include "widget_api.h"
 
 namespace t3_widget {
 
 class text_line_t;
-extern text_line_t *copy_buffer;
+T3_WIDGET_LOCAL extern text_line_t *copy_buffer;
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { \
@@ -40,17 +41,17 @@ extern text_line_t *copy_buffer;
 //FIXME: do proper gettext stuff instead of this temporary wrapper
 #define _(_x) _x
 
-int parse_escape(const std::string &str, const char **error_message, size_t &read_position,
+T3_WIDGET_LOCAL int parse_escape(const std::string &str, const char **error_message, size_t &read_position,
 	size_t max_read_position, bool replacements = false);
-bool parse_escapes(std::string &str, const char **error_message, bool replacements = false);
+T3_WIDGET_LOCAL bool parse_escapes(std::string &str, const char **error_message, bool replacements = false);
 
 /* Key handling routines. */
 class complex_error_t;
-complex_error_t init_keys(const char *term, bool separate_keypad);
-void cleanup_keys(void);
-void deinit_keys(void);
-void reinit_keys(void);
-void insert_protected_key(key_t key);
+T3_WIDGET_LOCAL complex_error_t init_keys(const char *term, bool separate_keypad);
+T3_WIDGET_LOCAL void cleanup_keys(void);
+T3_WIDGET_LOCAL void deinit_keys(void);
+T3_WIDGET_LOCAL void reinit_keys(void);
+T3_WIDGET_LOCAL void insert_protected_key(key_t key);
 
 }; // namespace
 #endif

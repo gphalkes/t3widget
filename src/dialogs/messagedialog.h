@@ -24,7 +24,7 @@ class text_line_t;
 
 #define _T3_WIDGET_MESSAGEDIALOG_MAX_LINES 10
 
-class message_dialog_t : public dialog_t {
+class T3_WIDGET_API message_dialog_t : public dialog_t {
 	private:
 		int break_positions[_T3_WIDGET_MESSAGEDIALOG_MAX_LINES + 1];
 		int height;
@@ -39,7 +39,6 @@ class message_dialog_t : public dialog_t {
 		void set_message(const char *_message, size_t length);
 		void set_message(const char *_message);
 		void set_message(const std::string *_message);
-
 
 		sigc::connection connect_activate(const sigc::slot<void> &_slot, size_t idx);
 };

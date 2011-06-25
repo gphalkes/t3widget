@@ -25,7 +25,7 @@ class dialog_t;
 typedef std::list<dialog_t *> dialogs_t;
 class complex_error_t;
 
-class dialog_t : public virtual window_component_t, public container_t {
+class T3_WIDGET_API dialog_t : public virtual window_component_t, public container_t {
 	private:
 		friend void iterate(void);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
@@ -39,6 +39,8 @@ class dialog_t : public virtual window_component_t, public container_t {
 		static void init(void);
 		static bool init_connected;
 
+		t3_window_t *shadow_window;
+
 		void activate_dialog(void);
 		void deactivate_dialog(void);
 
@@ -47,7 +49,6 @@ class dialog_t : public virtual window_component_t, public container_t {
 		dialog_t(void);
 
 	protected:
-		t3_window_t *shadow_window;
 		const char *title;
 		widgets_t widgets;
 		widgets_t::iterator current_widget;

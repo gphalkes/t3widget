@@ -19,7 +19,10 @@
 #endif
 
 #include <t3window/window.h>
+
+#include "widget_api.h"
 #include "util.h"
+
 namespace t3_widget {
 
 typedef struct {
@@ -46,8 +49,8 @@ typedef struct {
 	t3_attr_t shadow;
 } attributes_t;
 
-extern attributes_t attributes;
-void init_colors(void);
+T3_WIDGET_LOCAL extern attributes_t attributes;
+T3_WIDGET_LOCAL void init_colors(void);
 
 }; // namespace
 

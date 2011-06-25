@@ -22,7 +22,7 @@
 
 namespace t3_widget {
 
-class file_dialog_t : public dialog_t {
+class T3_WIDGET_API file_dialog_t : public dialog_t {
 	protected:
 		file_name_list_t names;
 		filtered_file_list_t view;
@@ -54,9 +54,9 @@ class file_dialog_t : public dialog_t {
 	T3_WIDGET_SIGNAL(file_selected, void, const std::string *);
 };
 
-class open_file_dialog_t : public file_dialog_t {
+class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 	protected:
-		class filter_text_field_t : public text_field_t {
+		class T3_WIDGET_API filter_text_field_t : public text_field_t {
 			public:
 				virtual void set_focus(bool _focus);
 			T3_WIDGET_SIGNAL(lose_focus, void);
@@ -75,7 +75,7 @@ class open_file_dialog_t : public file_dialog_t {
 };
 
 
-class save_as_dialog_t : public file_dialog_t {
+class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
 	protected:
 		button_t *create_button;
 		static std::string empty_filter;

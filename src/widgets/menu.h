@@ -22,7 +22,7 @@ namespace t3_widget {
 
 class menu_panel_t;
 
-class menu_bar_t : public widget_t {
+class T3_WIDGET_API menu_bar_t : public widget_t {
 	friend class menu_panel_t;
 
 	private:

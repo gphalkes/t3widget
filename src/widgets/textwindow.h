@@ -21,7 +21,7 @@
 
 namespace t3_widget {
 
-class text_window_t : public text_buffer_window_t, public center_component_t, public container_t {
+class T3_WIDGET_API text_window_t : public text_buffer_window_t, public center_component_t, public container_t {
 	protected:
 		scrollbar_t scrollbar;
 		text_buffer_t *text;

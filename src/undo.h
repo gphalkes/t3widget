@@ -41,7 +41,7 @@ enum undo_type_t {
 	UNDO_OVERWRITE_REDO
 };
 
-class undo_list_t {
+class T3_WIDGET_API undo_list_t {
 	private:
 		undo_t *head, *tail, *current, *mark;
 		bool mark_is_valid;
@@ -61,7 +61,7 @@ class undo_list_t {
 		#endif
 };
 
-class undo_t {
+class T3_WIDGET_API undo_t {
 	private:
 		static undo_type_t redo_map[];
 
@@ -85,7 +85,7 @@ class undo_t {
 		virtual text_coordinate_t get_new_end(void) const;
 };
 
-class undo_single_text_t : public undo_t {
+class T3_WIDGET_API undo_single_text_t : public undo_t {
 	private:
 		text_line_t text;
 
@@ -96,7 +96,7 @@ class undo_single_text_t : public undo_t {
 		virtual void minimize(void);
 };
 
-class undo_single_text_double_coord_t : public undo_single_text_t {
+class T3_WIDGET_API undo_single_text_double_coord_t : public undo_single_text_t {
 	private:
 		text_coordinate_t end;
 
@@ -106,7 +106,7 @@ class undo_single_text_double_coord_t : public undo_single_text_t {
 		virtual text_coordinate_t get_end(void) const;
 };
 
-class undo_double_text_t : public undo_single_text_double_coord_t {
+class T3_WIDGET_API undo_double_text_t : public undo_single_text_double_coord_t {
 	private:
 		text_line_t replacement;
 
@@ -118,7 +118,7 @@ class undo_double_text_t : public undo_single_text_double_coord_t {
 		virtual void minimize(void);
 };
 
-class undo_double_text_triple_coord_t : public undo_double_text_t {
+class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t {
 	private:
 		text_coordinate_t new_end;
 

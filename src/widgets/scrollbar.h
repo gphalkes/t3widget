@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-class scrollbar_t : public widget_t {
+class T3_WIDGET_API scrollbar_t : public widget_t {
 	private:
 		int length;
 		int range, start, used;

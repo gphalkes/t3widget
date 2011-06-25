@@ -30,7 +30,7 @@ void dialog_t::init(void) {
 	dummy = new dummy_widget_t();
 }
 
-dialog_t::dialog_t(int height, int width, const char *_title) : active(false), shadow_window(NULL),
+dialog_t::dialog_t(int height, int width, const char *_title) : shadow_window(NULL), active(false),
 		title(_title), redraw(true)
 {
 	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
@@ -46,7 +46,7 @@ dialog_t::dialog_t(int height, int width, const char *_title) : active(false), s
 
     This constructor should only be called by ::main_window_base_t.
 */
-dialog_t::dialog_t(void) : active(false), shadow_window(NULL), title(NULL), redraw(false) {
+dialog_t::dialog_t(void) : shadow_window(NULL), active(false), title(NULL), redraw(false) {
 	dialogs.push_back(this);
 }
 

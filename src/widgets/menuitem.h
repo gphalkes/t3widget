@@ -19,7 +19,7 @@
 
 namespace t3_widget {
 
-class menu_item_base_t : public widget_t {
+class T3_WIDGET_API menu_item_base_t : public widget_t {
 	protected:
 		menu_panel_t *parent;
 		int top;
@@ -29,7 +29,7 @@ class menu_item_base_t : public widget_t {
 		virtual t3_window_t *get_base_window(void) { return parent->get_base_window(); }
 };
 
-class menu_item_t : public menu_item_base_t {
+class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 	private:
 		smart_label_text_t label;
 		const char *hotkey;
@@ -50,7 +50,7 @@ class menu_item_t : public menu_item_base_t {
 		int get_hotkey_width(void);
 };
 
-class menu_separator_t : public menu_item_base_t {
+class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
 	public:
 		menu_separator_t(menu_panel_t *_parent);
 		virtual bool process_key(key_t key);
