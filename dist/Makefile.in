@@ -1,0 +1,94 @@
+# Copyright (C) 2011 G.P. Halkes
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.POSIX:
+
+# C++-compiler flags
+CXXFLAGS=-O2
+
+CONFIGFLAGS=
+CONFIGLIBS=
+
+# Gettext configuration
+# GETTEXTFLAGS should contain -DUSE_GETTEXT to enable gettext translations
+# GETTEXTLIBS should contain all link flags to allow linking with gettext, if
+# it has been enabled. The GNU libc already contains the gettext library, so
+# there is no need to add any flags. Otherwise, -lintl is usually required, and
+# sometimes -liconv as well.
+# LOCALEDIR: the directory where the locale dependant files should be installed.
+# LINGUAS: translations to be installed. Look in po directory for available
+#  translations.
+GETTEXTFLAGS=
+GETTEXTLIBS=
+LOCALEDIR=$(prefix)/share/locale
+LINGUAS=
+
+# The libtool executable
+LIBTOOL=libtool
+
+# Installation prefix
+prefix=/usr/local
+
+# Install program to use (should be BSD install compatible)
+INSTALL=install
+
+# Miscelaneous install paths
+libdir=$(prefix)/lib
+docdir=$(prefix)/share/doc/libt3widget-<VERSION>
+includedir=$(prefix)/include
+pkgconfigdir=$(libdir)/pkgconfig
+
+SILENCELT=--silent
+SILENTCXXLT=@echo '[CXXLT]' $< ;
+SILENTLDLT=@echo '[LDLT]' $@ ;
+
+OBJECTS=<OBJECTS>
+
+all: src/libt3widget.la
+
+.PHONY: all clean dist-clean install uninstall
+.SUFFIXES: .c .o .lo .la .mo .po
+.IGNORE: uninstall
+
+clean:
+	rm -rf src/*.lo src/generated/*.lo src/.libs src/generated/.libs src/libt3widget.la
+
+dist-clean: clean
+	rm -rf Makefile config.log libt3widget.pc
+
+.c.lo:
+	$(SILENTCXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CFLAGS) $(CONFIGFLAGS) $(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -c -o $@ $<
+
+src/libt3widget.la: $(OBJECTS)
+	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -lltdl -rpath $(libdir)
+
+libt3widget.pc: libt3widget.pc.in
+	@echo '/^prefix=/c\' > .sedscript
+	@echo 'prefix=$(prefix)' >> .sedscript
+	sed -f .sedscript $< > $@
+
+install: all libt3widget.pc
+	$(LIBTOOL) --mode=install $(INSTALL) -s src/libt3widget.la $(libdir)
+	chmod 0644 $(libdir)/libt3widget.la
+	$(INSTALL) -d $(includedir)/t3/widget/t3widget
+	$(INSTALL) -m0644 src/widget.h src/widget_api.h src/widget_infobits.h $(includedir)/t3/widget/t3widget
+	$(INSTALL) -d $(docdir)/API/search
+	( cd doc ; find doc/API -type f ) | xargs -IX $(INSTALL) -m0644 doc/X $(docdir)/X
+	$(INSTALL) -m0644 COPYING $(docdir)
+	$(INSTALL) -d $(pkgconfigdir)
+	$(INSTALL) -m0644 libt3widget.pc $(pkgconfigdir)
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm $(libdir)/libt3widget.la
+	rm -rf $(includedir)/t3/widget
+	rm -rf $(docdir)
+	rm -f $(pkgconfigdir)/libt3widget.pc
