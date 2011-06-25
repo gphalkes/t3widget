@@ -39,7 +39,37 @@ EOF
 	test_link_cxx "${DESC}"
 }
 
+checkfunction_internal() {
+	clean_cxx
 
+	FUNC="$1"
+	CHECKFOR="$2"
+	CODE="$3"
+	shift 3
+	{
+		for INCLUDE
+		do
+			echo "#include ${INCLUDE}"
+		done
+		cat <<EOF
+int main(int argc, char *argv[]) {
+	${CODE}
+	return 0;
+}
+EOF
+	} > .configcxx.cc
+
+	"${FUNC}" "${CHECKFOR}"
+}
+
+checkfunction() {
+	checkfunction_internal test_link_cxx "$@"
+}
+checkfunction_compile() {
+	checkfunction_internal test_compile_cxx "$@"
+}
+
+# Make these functions available for the gettext extension
 test_link() {
 	mv .config.c .configcxx.cc
 	test_link_cxx "$@"
@@ -68,7 +98,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx || error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
+	pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx || \
+		test_and_set test_link_cxx "sigc++-2.0" LIBSIGCPP "-I/usr/include/sigc++-2.0 -I/usr/lib/sigc++-2.0/include" "-lsigc-2.0" || \
+		test_and_set test_link_cxx "sigc++-2.0" LIBSIGCPP "-I/usr/local/include/sigc++-2.0 -I/usr/local/lib/sigc++-2.0/include" "-L/usr/loca/lib -lsigc-2.0" || \
+		error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -79,7 +112,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libtranscript LIBTRANSCRIPT test_link_cxx || error "!! Can not find libtranscript. libtranscript is required to compile libt3widget."
+	pkgconfig libtranscript LIBTRANSCRIPT test_link_cxx || \
+		test_and_set test_link_cxx "libtranscript" LIBTRANSCRIPT "-I/usr/include/transcript" "-ltranscript" || \
+		test_and_set test_link_cxx "libtranscript" LIBTRANSCRIPT "-I/usr/local/include/transcript" "-L/usr/local/lib -ltranscript" || \
+		error "!! Can not find libtranscript. libtranscript is required to compile libt3widget."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -90,7 +126,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libt3unicode LIBT3UNICODE test_link_cxx || error "!! Can not find libt3unicode. libt3unicode is required to compile libt3widget."
+	pkgconfig libt3unicode LIBT3UNICODE test_link_cxx || \
+		test_and_set test_link_cxx "libt3unicode" LIBT3UNICODE "-I/usr/include/t3/unicode" "-lt3unicode" || \
+		test_and_set test_link_cxx "libt3unicode" LIBT3UNICODE "-I/usr/local/include/t3/unicode" "-L/usr/local/lib -lt3unicode" || \
+		error "!! Can not find libt3unicode. libt3unicode is required to compile libt3widget."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -102,7 +141,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libt3window LIBT3WINDOW test_link_cxx || error "!! Can not find libt3window. libt3window is required to compile libt3widget."
+	pkgconfig libt3window LIBT3WINDOW test_link_cxx || \
+		test_and_set test_link_cxx "libt3window" LIBT3window "-I/usr/include/t3/window" "-lt3window" || \
+		test_and_set test_link_cxx "libt3window" LIBT3window "-I/usr/local/include/t3/window" "-L/usr/local/lib -lt3window" || \
+		error "!! Can not find libt3window. libt3window is required to compile libt3widget."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -113,7 +155,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libt3key LIBT3KEY test_link_cxx || error "!! Can not find libt3key. libt3key is required to compile libt3widget."
+	pkgconfig libt3key LIBT3KEY test_link_cxx || \
+		test_and_set test_link_cxx "libt3key" LIBT3key "-I/usr/include/t3/key" "-lt3key" || \
+		test_and_set test_link_cxx "libt3key" LIBT3key "-I/usr/local/include/t3/key" "-L/usr/local/lib -lt3key" || \
+		error "!! Can not find libt3key. libt3key is required to compile libt3widget."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -129,7 +174,25 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libpcre LIBPCRE test_link_cxx || error "!! Can not find libpcre. libpcre is required to compile libt3widget."
+
+	pkgconfig libpcre LIBPCRE test_link_cxx || {
+			check_message "Checking for pcre-config..."
+			echo "Running: pcre-config --cflags" >> config.log
+			if pcre-config --cflags >> config.log 2>&1 ; then
+				check_message_result "yes"
+				if test_link_cxx "libpcre compile" "TESTFLAGS=`pcre-config --cflags`" "TESTLIBS=`pcre-config --libs`" ; then
+					LIBPCRE_FLAGS="`pcre-config --cflags`"
+					LIBPCRE_LIBS="`pcre-config --libs`"
+					true
+				fi
+			else
+				check_message_result "no"
+				false
+			fi
+		} || \
+		test_and_set test_link_cxx "libpcre" LIBT3key "" "-lpcre" || \
+		test_and_set test_link_cxx "libpcre" LIBT3key "-I/usr/local/include" "-L/usr/local/lib -lpcre" || \
+		error "!! Can not find libpcre. libpcre is required to compile libt3widget."
 
 	if test_select "select in <sys/select.h>" "sys/select.h" ; then
 		CONFIGFLAGS="${CONFIGFLAGS} -DHAS_SELECT_H"
@@ -140,6 +203,7 @@ EOF
 	clean_cxx
 	unset PTHREADFLAGS PTHREADLIBS
 	cat > .configcxx.cc <<EOF
+#include <stdlib.h>
 #include <pthread.h>
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond;
@@ -165,7 +229,37 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	test_compile_cxx "pthreads"  || error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
+	test_compile_cxx "pthreads"  || {
+		if checkfunction_compile "pthread.h" "" "<pthread.h>" ; then
+			check_message_result "Testing required functions seperatly for debugging purposes"
+
+			clean_cxx
+			cat > .configcxx.cc <<EOF
+#include <stdlib.h>
+#include <pthread.h>
+pthread_t thread;
+void *thread_func(void *) {
+	return NULL;
+}
+int main(int argc, char *argv[]) {
+	pthread_create(&thread, NULL, thread_func, NULL);
+}
+EOF
+			test_compile_cxx "pthread_create"
+			checkfunction_compile "pthread static mutex initializer" "pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;" "<pthread.h>"
+			checkfunction_compile "pthread_mutex_init" 'pthread_mutex_t mutex; pthread_mutex_init(&mutex, NULL);' "<stdlib.h>" "<pthread.h>"
+			checkfunction_compile "pthread_mutex_destroy" 'pthread_mutex_t mutex; pthread_mutex_destroy(&mutex);' "<pthread.h>"
+			checkfunction_compile "pthread_mutex_lock" 'pthread_mutex_t mutex; pthread_mutex_lock(&mutex);' "<pthread.h>"
+			checkfunction_compile "pthread_mutex_unlock" 'pthread_mutex_t mutex; pthread_mutex_unlock(&mutex);' "<pthread.h>"
+			checkfunction_compile "pthread_cond_init" 'pthread_cond_t cond; pthread_cond_init(&cond, NULL);' "<stdlib.h>" "<pthread.h>"
+			checkfunction_compile "pthread_cond_destroy" 'pthread_cond_t cond; pthread_cond_destroy(&cond);' "<pthread.h>"
+			checkfunction_compile "pthread_cond_signal" 'pthread_cond_t cond; pthread_cond_signal(&cond);' "<pthread.h>"
+			checkfunction_compile "pthread_cond_wait" 'pthread_mutex_t mutex; pthread_cond_t cond; pthread_cond_wait(&cond, &mutex);' "<pthread.h>"
+			checkfunction_compile "pthread_join" 'pthread_t thread; void *result; pthread_join(thread, &result);' "<pthread.h>"
+			checkfunction_compile "pthread_cancel" 'pthread_t thread; pthread_cancel(thread);' "<pthread.h>"
+		fi
+		error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
+	}
 	test_compile_cxx "-pthread flag" && PTHREADFLAGS=-pthread
 	if test_link_cxx "pthreads in ${PTHREADFLAGS-standard library}" "TESTLIBS=${PTHREADFLAGS}" ; then
 		PTHREADLIBS="${PTHREADFLAGS}"
@@ -184,8 +278,6 @@ int main(int argc, char *argv[]) {
 	struct sched_param sched_param;
 	pthread_t thread;
 	sched_param.sched_priority = sched_get_priority_max(SCHED_FIFO);
-	if (sched_param.sched_priority == -1)
-		sched_param.sched_priority = 0;
 	pthread_setschedparam(thread, SCHED_FIFO, &sched_param);
 	return 0;
 }
@@ -207,6 +299,7 @@ EOF
 		fi
 	}
 
+	clean_cxx
 	cat > .configcxx.cc <<EOF
 #include <stdlib.h>
 #include <stdio.h>
@@ -218,7 +311,7 @@ EOF
 #include <dirent.h>
 int main(int argc, char *argv[]) {
 	struct sigaction sa;
-	struct stat stat;
+	struct stat statbuf;
 	int fds[2];
 	char buffer[100];
 	DIR *dir;
@@ -228,13 +321,14 @@ int main(int argc, char *argv[]) {
 	sigaction(SIGWINCH, &sa, NULL);
 	sigprocmask(SIG_UNBLOCK, &sa.sa_mask, NULL);
 	fnmatch("a", "b", 0);
-	stat("file", &stat);
+	stat("file", &statbuf);
 	pipe(fds);
 	close(fds[0]);
 	read(fds[0], buffer, sizeof(buffer));
 	write(fds[0], buffer, sizeof(buffer));
 	snprintf(buffer, sizeof(buffer), "foo");
-	kill(getpid(), SIGWINCH);
+	kill(0, SIGWINCH);
+	getpid();
 	dir = opendir("foo");
 	entry = readdir(dir);
 	closedir(dir);
@@ -242,7 +336,28 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	test_link_cxx "other required common Un*x functions" || error "!! A required Un*x function was not found. See config.log for details."
+	test_link_cxx "other required common Un*x functions" || {
+		check_message_result "Testing required functions seperatly for debugging purposes"
+
+		checkfunction "sigemptyset" "struct sigaction sa; sigemptyset(&sa.sa_mask);" "<signal.h>"
+		checkfunction "sigaddset" "struct sigaction sa; sigaddset(&sa.sa_mask, SIGWINCH);" "<signal.h>"
+		checkfunction "sigaction" "struct sigaction sa; sigaction(SIGWINCH, &sa, NULL);" "<stdlib.h>" "<signal.h>"
+		checkfunction "sigprocmask" "struct sigaction sa; sigprocmask(SIG_UNBLOCK, &sa.sa_mask, NULL);" "<stdlib.h>" "<signal.h>"
+		checkfunction "fnmatch" 'fnmatch("a", "b", 0);' "<fnmatch.h>"
+		checkfunction "stat" 'struct stat statbuf; stat("file", &statbuf);' "<sys/types.h>" "<sys/stat.h>" "<unistd.h>"
+		checkfunction "pipe" 'int fds[2]; pipe(fds);' "<unistd.h>"
+		checkfunction "close" 'int fd; close(fd);'  "<unistd.h>"
+		checkfunction "read" 'char buffer[100]; int fd; read(fd, buffer, sizeof(buffer));' "<unistd.h>"
+		checkfunction "write" 'char buffer[100]; int fd; read(fd, buffer, sizeof(buffer));' "<unistd.h>"
+		checkfunction "snprintf" 'char buffer[100]; snprintf(buffer, sizeof(buffer), "foo");' "<stdio.h>"
+		checkfunction "kill" 'kill(0, SIGWINCH);' "<sys/types.h>" "<signal.h>"
+		checkfunction "getpid" 'getpid();' "<sys/types.h>" "<unistd.h>"
+		checkfunction "opendir" 'DIR *dir = opendir("foo");' "<sys/types.h>" "<dirent.h>"
+		checkfunction "readdir" 'DIR *dir; struct dirent *entry = readdir(dir);' "<sys/types.h>" "<dirent.h>"
+		checkfunction "closedir" 'DIR *dir; closedir(dir);'  "<sys/types.h>" "<dirent.h>"
+		checkfunction "getcwd" 'char buffer[100]; getcwd(buffer, sizeof(buffer));' "<unistd.h>"
+		error "!! A required Un*x function was not found. See config.log for details."
+	}
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
