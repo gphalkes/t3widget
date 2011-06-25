@@ -25,7 +25,6 @@ typedef long key_t;
 typedef int key_t;
 #endif
 
-key_t read_key(void);
 #define EKEY_ESC 27
 #define EKEY_SHIFT 0x40000000
 #define EKEY_META 0x20000000
@@ -110,6 +109,7 @@ enum {
 	EKEY_UPDATE_TERMINAL,
 };
 
+T3_WIDGET_API key_t read_key(void);
 T3_WIDGET_API void set_key_timeout(int msec);
 
 }; // namespace

@@ -51,7 +51,7 @@ public: \
 	sigc::connection connect_##_name(const sigc::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
 
 #define _T3_WIDGET_ENUM(_name, ...) \
-class _name { \
+class T3_WIDGET_API _name { \
 	public: \
 		enum _values { \
 			__VA_ARGS__ \
