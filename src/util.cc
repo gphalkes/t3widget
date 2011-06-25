@@ -287,7 +287,7 @@ string get_working_directory(void) {
 				throw error_save;
 			}
 
-			if (SIZE_MAX / 2 < buffer_max) {
+			if (((size_t) -1) / 2 < buffer_max) {
 				free(buffer);
 				throw ENOMEM;
 			}

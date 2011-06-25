@@ -119,7 +119,7 @@ EOF
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
-#include <unicode.h>
+#include <t3unicode/unicode.h>
 
 int main(int argc, char *argv[]) {
 	t3_unicode_get_version();
@@ -133,8 +133,8 @@ EOF
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
-#include <window.h>
-#include <terminal.h>
+#include <t3window/window.h>
+#include <t3window/terminal.h>
 
 int main(int argc, char *argv[]) {
 	t3_window_get_version();
@@ -148,7 +148,7 @@ EOF
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
-#include <key.h>
+#include <t3key/key.h>
 
 int main(int argc, char *argv[]) {
 	t3_key_get_version();
@@ -370,6 +370,6 @@ int main(int argc, char *argv[]) {
 EOF
 	test_link_cxx "strdup" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRDUP"
 
-	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBTRANSCRIPT_FLAGS} ${LIBT3UNICODE_FLAGS} ${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
-		"CONFIGLIBS=${CONFIGLIBS} ${LIBTRANSCRIPT_LIBS} ${LIBT3UNICODE_LIBS} ${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}"
+	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} ${LIBT3UNICODE_FLAGS} ${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
+		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} ${LIBT3UNICODE_LIBS} ${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}"
 }

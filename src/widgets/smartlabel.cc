@@ -15,7 +15,6 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
-#include <stdint.h>
 #include <t3unicode/unicode.h>
 #include <t3window/window.h>
 #include "widgets/widget.h"
@@ -85,7 +84,7 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 	if (hotkey == 0)
 		return false;
 
-	return (key_t) t3_unicode_casefold_single(key & UINT32_C(0x1fffff)) == hotkey;
+	return (key_t) t3_unicode_casefold_single(key & 0x1fffffl) == hotkey;
 }
 
 //======= smart_label_t =======

@@ -56,17 +56,17 @@ OBJECTS=<OBJECTS>
 all: src/libt3widget.la
 
 .PHONY: all clean dist-clean install uninstall
-.SUFFIXES: .c .o .lo .la .mo .po
+.SUFFIXES: .cc .o .lo .la .mo .po
 .IGNORE: uninstall
 
 clean:
-	rm -rf src/*.lo src/generated/*.lo src/.libs src/generated/.libs src/libt3widget.la
+	rm -rf src/*.lo src/.libs src/libt3widget.la
 
 dist-clean: clean
 	rm -rf Makefile config.log libt3widget.pc
 
-.c.lo:
-	$(SILENTCXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CFLAGS) $(CONFIGFLAGS) $(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -c -o $@ $<
+.cc.lo:
+	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CFLAGS) $(CONFIGFLAGS) $(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL -c -o $@ $<
 
 src/libt3widget.la: $(OBJECTS)
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -lltdl -rpath $(libdir)
