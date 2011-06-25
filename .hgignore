@@ -2,10 +2,10 @@ syntax: glob
 src/widget_errors.h
 src/widget_api.h
 src/libt3widget.la
-src/unicode
-src/window
+src/t3unicode
+src/t3window
 src/transcript
-src/key
+src/t3key
 src/.deps
 src/.objects
 src/.libs
