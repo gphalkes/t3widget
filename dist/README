@@ -1,0 +1,58 @@
+Introduction
+============
+
+The libt3widget library provides a C++ dialog toolkit. It provides objects for
+dialogs and widgets like buttons, text fields, check boxes etc., to facilitate
+easy construction of dialog based programs for Un*x terminals.
+
+libt3widget is part of the Tilde Terminal Toolkit (T3)
+[http://os.ghalkes.nl/t3/]
+
+
+Prerequisites and installation
+==============================
+
+libt3widget requires the libtool utility to be compiled. Furthermore, it
+requires libtranscript, libt3unicode, libt3key and libt3window.
+
+There are two ways in which to compile libt3widget:
+
+Using the configure script:
+---
+
+$ ./configure
+or
+$ ./configure --prefix=/usr
+(see ./configure --help for more tuning options)
+$ make all
+$ make install
+(assumes working install program)
+
+Manually editing the Makefile to suit your computer:
+---
+
+$ cp Makefile.in Makefile
+
+Edit the values for the different variables, using the comments in the
+Makefile for guidance, to suit your environment.
+
+$ make all
+$ make install
+(assumes working install program)
+
+The Makefile in the distribution should work on all POSIX compatible make's.
+It has been tested using both GNU make and BSD make.
+
+
+Reporting bugs
+==============
+
+If you think you have found a bug, please check that you are using the latest
+version of libt3widget [http://os.ghalkes.nl/t3/libt3widget.html]. When
+reporting bugs, please include a minimal example that demonstrates the problem.
+
+
+Author
+======
+
+Gertjan Halkes <libt3widget@ghalkes.nl>
