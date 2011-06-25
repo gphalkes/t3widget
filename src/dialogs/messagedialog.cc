@@ -88,7 +88,7 @@ void message_dialog_t::set_message(const char *_message, size_t length) {
 	message.set_text(_message, length);
 	break_positions[0] = 0;
 	for (i = 1; i < _T3_WIDGET_MESSAGEDIALOG_MAX_LINES; i++) {
-		break_pos_t brk = message.find_next_break_pos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
+		text_line_t::break_pos_t brk = message.find_next_break_pos(break_positions[i - 1], t3_win_get_width(window) - 4, 0);
 		if (brk.pos > 0) {
 			break_positions[i] = brk.pos;
 		} else {

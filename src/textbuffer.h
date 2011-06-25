@@ -24,16 +24,16 @@
 #include "undo.h"
 #include "main.h"
 #include "interfaces.h"
-#include "findcontext.h"
 
 namespace t3_widget {
 
 typedef std::vector<text_line_t *> lines_t;
 typedef std::vector<subtext_line_t> sublines_t;
 
-class edit_window_t;
-class text_window_t;
+struct find_result_t;
+class finder_t;
 
+/** Interface definition for widgets displaying a text_buffer_t. */
 class text_buffer_window_t : public widget_t {
 	public:
 		text_buffer_window_t(void) : widget_t() {}
@@ -58,8 +58,6 @@ class text_buffer_t : public bad_draw_recheck_t {
 		text_line_t name_line;
 
 		selection_mode_t selection_mode;
-
-		static find_context_t last_find;
 
 		undo_t *get_undo(undo_type_t type);
 		undo_t *get_undo(undo_type_t type, int line, int pos);

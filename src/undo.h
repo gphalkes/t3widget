@@ -14,12 +14,9 @@
 #ifndef T3_WIDGET_UNDO_H
 #define T3_WIDGET_UNDO_H
 
-namespace t3_widget {
-	class undo_t;
-};
-
 #include "textline.h"
 #include "util.h"
+
 namespace t3_widget {
 
 #define TEXT_START_SIZE 32

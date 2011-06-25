@@ -32,6 +32,7 @@
 #include "undo.h"
 #include "widgets/editwindow.h"
 #include "internal.h"
+#include "findcontext.h"
 
 using namespace std;
 namespace t3_widget {
@@ -55,8 +56,6 @@ namespace t3_widget {
   set_selection_start/set_selection_end need refactoring. However, there should also
   be a reset_selection call such that we can avoid any arguments.
 */
-
-find_context_t text_buffer_t::last_find;
 
 /* Free all memory used by 'text' */
 text_buffer_t::~text_buffer_t(void) {
@@ -529,7 +528,7 @@ bool text_buffer_t::init_wrap_lines(void) {
 	int i;
 
 	for (i = 0; (size_t) i < lines.size(); i++) {
-		break_pos_t breakpos = { 0, 0 };
+		text_line_t::break_pos_t breakpos = { 0, 0 };
 
 		do {
 			if (breakpos.pos != 0)
@@ -544,7 +543,8 @@ bool text_buffer_t::init_wrap_lines(void) {
 /* rewrap a real line starting with wrapped line 'line' */
 bool text_buffer_t::rewrap_line(int line) {
 	int lastline;
-	break_pos_t breakpos = wraplines[line].get_line()->find_next_break_pos(wraplines[line].get_start(), wrap_width, tabsize);
+	text_line_t::break_pos_t breakpos = wraplines[line].get_line()->
+		find_next_break_pos(wraplines[line].get_start(), wrap_width, tabsize);
 
 	/* First simply rewrap the existing sublines_t */
 	while (breakpos.pos >= 0 && (size_t) line < wraplines.size() - 1 &&

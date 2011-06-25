@@ -24,36 +24,12 @@
 #include <t3window/window.h>
 
 #include "key.h"
-#include "stringmatcher.h"
 
 namespace t3_widget {
 
 class undo_t;
 
 #define _T3_MAX_TAB 80
-
-struct break_pos_t {
-	int pos;
-	int flags;
-};
-
-class text_line_t;
-
-struct find_context_t {
-	int flags, original_flags;
-
-	string_matcher_t *matcher;
-
-	// PCRE context and data
-	pcre *regex;
-	int ovector[30];
-	int captures;
-	int pattern_length;
-	bool found;
-	text_line_t *replacement;
-	char *folded;
-	size_t folded_size;
-};
 
 class text_line_t {
 	public:
@@ -80,6 +56,11 @@ class text_line_t {
 			int cursor; // Location of cursor in bytes
 			t3_attr_t normal_attr, selected_attr; // Attributes to be used for normal an selected texts
 			//string highlighting;
+		};
+
+		struct break_pos_t {
+			int pos;
+			int flags;
 		};
 
 	private:

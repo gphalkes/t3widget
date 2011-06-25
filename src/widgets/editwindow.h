@@ -23,11 +23,12 @@ namespace t3_widget {
 #include "widgets/widget.h"
 #include "widgets/scrollbar.h"
 #include "textbuffer.h"
-#include "findcontext.h"
 #include "key.h"
 #include "interfaces.h"
 
 namespace t3_widget {
+
+class finder_t;
 
 class edit_window_t : public text_buffer_window_t, public center_component_t, public container_t {
 	protected:

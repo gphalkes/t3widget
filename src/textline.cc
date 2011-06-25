@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <t3unicode/unicode.h>
 
+#include "findcontext.h"
 #include "colorscheme.h"
 #include "textline.h"
 #include "util.h"
@@ -501,7 +502,7 @@ Several things need to be done:
   - should control characters break both before and after?
 */
 /* tabsize == 0 -> tab as control */
-break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize) const {
+text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize) const {
 	int i, total = 0;
 	break_pos_t possible_break = { start, 0 };
 	bool graph_seen = false, last_was_graph = false;
@@ -806,7 +807,7 @@ void text_line_t::reserve(int size) {
 }
 
 int text_line_t::callout(pcre_callout_block *block) {
-	find_context_t *context = (find_context_t *) block->callout_data;
+	finder_t *context = (finder_t *) block->callout_data;
 	if (block->pattern_position != context->pattern_length)
 		return 0;
 

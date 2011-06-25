@@ -17,6 +17,7 @@
 #include "util.h"
 #include "colorscheme.h"
 #include "internal.h"
+#include "findcontext.h"
 
 using namespace std;
 namespace t3_widget {

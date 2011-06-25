@@ -20,12 +20,12 @@
 #include "widgets/textfield.h"
 #include "widgets/checkbox.h"
 #include "widgets/button.h"
-#include "findcontext.h"
 #include "util.h"
 
 namespace t3_widget {
 
 class replace_buttons_dialog_t;
+class finder_t;
 
 class find_dialog_t : public dialog_t {
 	protected:

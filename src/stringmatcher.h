@@ -16,6 +16,10 @@
 
 #include <string>
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 namespace t3_widget {
 
 class string_matcher_t {
