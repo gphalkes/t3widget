@@ -86,13 +86,13 @@ bool file_name_list_t::is_dir(size_t idx) const {
 	return files[idx].is_dir;
 }
 
-void file_name_list_t::load_directory(string *dirName) {
+void file_name_list_t::load_directory(string *dir_name) {
 	struct dirent *entry;
 	DIR *dir;
 
 	files.clear();
 
-	if ((dir = opendir(dirName->c_str())) == NULL) {
+	if ((dir = opendir(dir_name->c_str())) == NULL) {
 		content_changed();
 		throw errno;
 	}
@@ -102,13 +102,13 @@ void file_name_list_t::load_directory(string *dirName) {
 	while ((entry = readdir(dir)) != NULL) {
 		string utf8_name;
 
-		if (strcmp(entry->d_name, ".") == 0 || (dirName->compare("/") == 0 && strcmp(entry->d_name, "..") == 0))
+		if (strcmp(entry->d_name, ".") == 0 || (dir_name->compare("/") == 0 && strcmp(entry->d_name, "..") == 0))
 			continue;
 
 		convert_lang_codeset(entry->d_name, &utf8_name, true);
 		if (strcmp(entry->d_name, utf8_name.c_str()) == 0)
 			utf8_name.clear();
-		files.push_back(file_name_entry_t(entry->d_name, utf8_name, t3_widget::is_dir(dirName, entry->d_name)));
+		files.push_back(file_name_entry_t(entry->d_name, utf8_name, t3_widget::is_dir(dir_name, entry->d_name)));
 
 		// Make sure errno is clear on EOF
 		errno = 0;

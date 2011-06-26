@@ -11,12 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef COLORSCHEME_H
-#define COLORSCHEME_H
-
-#ifndef _T3_WIDGET_INTERNAL
-#error This header file is for internal use _only_!!
-#endif
+#ifndef T3_WIDGET_COLORSCHEME_H
+#define T3_WIDGET_COLORSCHEME_H
 
 #include <t3window/window.h>
 
@@ -25,6 +21,7 @@
 
 namespace t3_widget {
 
+/** A struct containing all the attribute settings for the different display elements. */
 typedef struct {
 	/* Text related attributes. */
 	t3_attr_t non_print;
@@ -49,8 +46,12 @@ typedef struct {
 	t3_attr_t shadow;
 } attributes_t;
 
+/** The default attributes for the different display elements. */
 T3_WIDGET_LOCAL extern attributes_t attributes;
+
+#ifdef _T3_WIDGET_INTERNAL
 T3_WIDGET_LOCAL void init_colors(void);
+#endif
 
 }; // namespace
 

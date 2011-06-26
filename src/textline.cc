@@ -742,7 +742,6 @@ int text_line_t::backspace_char(int pos, undo_t *undo) {
 }
 
 /** Adjust the line position @a adjust non-zero-width characters.
-	@param line The @a text_line_t to operate on.
 	@param pos The starting position.
 	@param adjust How many characters to adjust.
 
