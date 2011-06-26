@@ -9,4 +9,5 @@ src/t3key
 src/.deps
 src/.objects
 src/.libs
+doc/API
 tmp/
