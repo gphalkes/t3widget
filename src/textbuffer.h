@@ -138,6 +138,10 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 
 		virtual void bad_draw_recheck(void);
 
+		/* These are public members, because they store data that is not used
+		   by the text_buffer_t class (except cursor), but are stored here
+		   because the data are associated with a text bufffer and not with
+		   a window displaying the text buffer. */
 		text_coordinate_t cursor, topleft;
 		int ins_mode, last_set_pos;
 		text_buffer_window_t *window;
