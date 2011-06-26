@@ -14,34 +14,34 @@
 #ifndef T3_WIDGET_H
 #define T3_WIDGET_H
 
-#include "main.h"
+#include <t3widget/main.h>
 
-#include "dialogs/dialog.h"
-#include "dialogs/filedialog.h"
-#include "dialogs/inputselectiondialog.h"
-#include "dialogs/insertchardialog.h"
-#include "dialogs/mainwindow.h"
-#include "dialogs/menupanel.h"
-#include "dialogs/messagedialog.h"
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/dialogs/filedialog.h>
+#include <t3widget/dialogs/inputselectiondialog.h>
+#include <t3widget/dialogs/insertchardialog.h>
+#include <t3widget/dialogs/mainwindow.h>
+#include <t3widget/dialogs/menupanel.h>
+#include <t3widget/dialogs/messagedialog.h>
 
-#include "widgets/widget.h"
-#include "widgets/bullet.h"
-#include "widgets/button.h"
-#include "widgets/checkbox.h"
-#include "widgets/dummywidget.h"
-#include "widgets/editwindow.h"
-#include "widgets/filepane.h"
-#include "widgets/frame.h"
-#include "widgets/label.h"
-#include "widgets/listpane.h"
-#include "widgets/menu.h"
-#include "widgets/menuitem.h"
-#include "widgets/multiwidget.h"
-#include "widgets/scrollbar.h"
-#include "widgets/separator.h"
-#include "widgets/smartlabel.h"
-#include "widgets/split.h"
-#include "widgets/textfield.h"
-#include "widgets/textwindow.h"
+#include <t3widget/widgets/widget.h>
+#include <t3widget/widgets/bullet.h>
+#include <t3widget/widgets/button.h>
+#include <t3widget/widgets/checkbox.h>
+#include <t3widget/widgets/dummywidget.h>
+#include <t3widget/widgets/editwindow.h>
+#include <t3widget/widgets/filepane.h>
+#include <t3widget/widgets/frame.h>
+#include <t3widget/widgets/label.h>
+#include <t3widget/widgets/listpane.h>
+#include <t3widget/widgets/menu.h>
+#include <t3widget/widgets/menuitem.h>
+#include <t3widget/widgets/multiwidget.h>
+#include <t3widget/widgets/scrollbar.h>
+#include <t3widget/widgets/separator.h>
+#include <t3widget/widgets/smartlabel.h>
+#include <t3widget/widgets/split.h>
+#include <t3widget/widgets/textfield.h>
+#include <t3widget/widgets/textwindow.h>
 
 #endif

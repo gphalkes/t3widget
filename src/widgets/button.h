@@ -14,8 +14,8 @@
 #ifndef T3_WIDGET_BUTTON_H
 #define T3_WIDGET_BUTTON_H
 
-#include "widgets/widget.h"
-#include "widgets/smartlabel.h"
+#include <t3widget/widgets/widget.h>
+#include <t3widget/widgets/smartlabel.h>
 
 namespace t3_widget {
 

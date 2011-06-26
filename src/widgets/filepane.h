@@ -16,10 +16,10 @@
 
 #include <string>
 
-#include "widgets/widget.h"
-#include "contentlist.h"
-#include "widgets/scrollbar.h"
-#include "widgets/textfield.h"
+#include <t3widget/widgets/widget.h>
+#include <t3widget/contentlist.h>
+#include <t3widget/widgets/scrollbar.h>
+#include <t3widget/widgets/textfield.h>
 
 #define _T3_WDIGET_FP_MAX_COLUMNS 8
 

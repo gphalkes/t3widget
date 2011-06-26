@@ -15,11 +15,11 @@
 #define T3_WIDGET_INPUTSELECTIONDIALOG_H
 
 #include <string>
-#include "dialogs/dialog.h"
-#include "widgets/frame.h"
-#include "widgets/label.h"
-#include "widgets/button.h"
-#include "widgets/textwindow.h"
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/frame.h>
+#include <t3widget/widgets/label.h>
+#include <t3widget/widgets/button.h>
+#include <t3widget/widgets/textwindow.h>
 
 namespace t3_widget {
 

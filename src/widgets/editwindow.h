@@ -18,13 +18,13 @@ namespace t3_widget {
 	class edit_window_t;
 }; // namespace
 
-#include "dialogs/gotodialog.h"
-#include "dialogs/finddialog.h"
-#include "widgets/widget.h"
-#include "widgets/scrollbar.h"
-#include "textbuffer.h"
-#include "key.h"
-#include "interfaces.h"
+#include <t3widget/dialogs/gotodialog.h>
+#include <t3widget/dialogs/finddialog.h>
+#include <t3widget/widgets/widget.h>
+#include <t3widget/widgets/scrollbar.h>
+#include <t3widget/textbuffer.h>
+#include <t3widget/key.h>
+#include <t3widget/interfaces.h>
 
 namespace t3_widget {
 

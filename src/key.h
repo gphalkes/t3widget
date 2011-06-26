@@ -15,7 +15,7 @@
 #define T3_WIDGET_KEYS_H
 
 #include <climits>
-#include "widget_api.h"
+#include <t3widget/widget_api.h>
 
 namespace t3_widget {
 

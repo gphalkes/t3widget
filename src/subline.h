@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_SUBLINE_H
 #define T3_WIDGET_SUBLINE_H
 
-#include "textline.h"
+#include <t3widget/textline.h>
 
 namespace t3_widget {
 

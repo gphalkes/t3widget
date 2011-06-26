@@ -17,8 +17,8 @@
 #include <string>
 #include <pcre.h>
 
-#include "widget_api.h"
-#include "stringmatcher.h"
+#include <t3widget/widget_api.h>
+#include <t3widget/stringmatcher.h>
 
 #ifndef _T3_WIDGET_INTERNAL
 #error This header file is for internal use _only_!!

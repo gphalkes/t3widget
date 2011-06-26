@@ -14,8 +14,8 @@
 #ifndef T3_WIDGET_UNDO_H
 #define T3_WIDGET_UNDO_H
 
-#include "textline.h"
-#include "util.h"
+#include <t3widget/textline.h>
+#include <t3widget/util.h>
 
 namespace t3_widget {
 

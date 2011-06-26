@@ -23,8 +23,8 @@
 #include <pcre.h>
 #include <t3window/window.h>
 
-#include "widget_api.h"
-#include "key.h"
+#include <t3widget/widget_api.h>
+#include <t3widget/key.h>
 
 namespace t3_widget {
 

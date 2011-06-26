@@ -17,8 +17,8 @@
 #include <list>
 #include <t3window/window.h>
 
-#include "key.h"
-#include "util.h"
+#include <t3widget/key.h>
+#include <t3widget/util.h>
 
 namespace t3_widget {
 

@@ -14,8 +14,8 @@
 #ifndef T3_WIDGET_GOTODIALOG_H
 #define T3_WIDGET_GOTODIALOG_H
 
-#include "dialogs/dialog.h"
-#include "widgets/textfield.h"
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/textfield.h>
 
 namespace t3_widget {
 

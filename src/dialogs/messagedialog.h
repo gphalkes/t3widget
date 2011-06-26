@@ -15,8 +15,8 @@
 #define T3_WIDGET_MESSAGEDIALOG_H
 
 #include <string>
-#include "dialogs/dialog.h"
-#include "widgets/button.h"
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/button.h>
 
 namespace t3_widget {
 

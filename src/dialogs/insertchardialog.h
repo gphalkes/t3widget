@@ -15,8 +15,8 @@
 #define T3_WIDGET_INSERTCHARDIALOG_H
 
 #include <string>
-#include "dialogs/dialog.h"
-#include "widgets/textfield.h"
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/textfield.h>
 
 namespace t3_widget {
 

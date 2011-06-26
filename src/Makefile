@@ -87,5 +87,6 @@ links:
 	@[ -L transcript ] || ln -s ../../../transcript/src transcript
 	@[ -L t3window ] || ln -s ../../window/src t3window
 	@[ -L t3key ] || ln -s ../../key/src t3key
+	@[ -L t3widget ] || ln -s . t3widget
 
 .PHONY: links

@@ -16,11 +16,11 @@
 
 #include <string>
 
-#include "dialogs/dialog.h"
-#include "widgets/textfield.h"
-#include "widgets/checkbox.h"
-#include "widgets/button.h"
-#include "util.h"
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/textfield.h>
+#include <t3widget/widgets/checkbox.h>
+#include <t3widget/widgets/button.h>
+#include <t3widget/util.h>
 
 namespace t3_widget {
 

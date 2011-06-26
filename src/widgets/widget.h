@@ -16,7 +16,7 @@
 
 #include <deque>
 
-#include "interfaces.h"
+#include <t3widget/interfaces.h>
 
 namespace t3_widget {
 

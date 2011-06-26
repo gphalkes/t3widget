@@ -20,8 +20,8 @@
 
 #include <t3window/window.h>
 
-#include "widget_api.h"
-#include "util.h"
+#include <t3widget/widget_api.h>
+#include <t3widget/util.h>
 
 namespace t3_widget {
 

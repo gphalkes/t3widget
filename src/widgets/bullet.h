@@ -14,7 +14,7 @@
 #ifndef T3_WIDGET_BULLET_H
 #define T3_WIDGET_BULLET_H
 
-#include "widgets/widget.h"
+#include <t3widget/widgets/widget.h>
 
 namespace t3_widget {
 

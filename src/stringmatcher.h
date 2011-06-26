@@ -15,7 +15,7 @@
 #define T3_WIDGET_STRINGMATCHER_H
 
 #include <string>
-#include "widget_api.h"
+#include <t3widget/widget_api.h>
 
 #ifndef _T3_WIDGET_INTERNAL
 #error This header file is for internal use _only_!!

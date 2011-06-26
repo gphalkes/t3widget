@@ -16,10 +16,10 @@
 
 #include <string>
 
-#include "widgets/widget.h"
-#include "textline.h"
-#include "contentlist.h"
-#include "widgets/smartlabel.h"
+#include <t3widget/widgets/widget.h>
+#include <t3widget/textline.h>
+#include <t3widget/contentlist.h>
+#include <t3widget/widgets/smartlabel.h>
 
 namespace t3_widget {
 

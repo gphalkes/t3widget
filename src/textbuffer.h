@@ -18,12 +18,12 @@
 #include <vector>
 #include <string>
 
-#include "key.h"
-#include "textline.h"
-#include "subline.h"
-#include "undo.h"
-#include "main.h"
-#include "interfaces.h"
+#include <t3widget/key.h>
+#include <t3widget/textline.h>
+#include <t3widget/subline.h>
+#include <t3widget/undo.h>
+#include <t3widget/main.h>
+#include <t3widget/interfaces.h>
 
 namespace t3_widget {
 

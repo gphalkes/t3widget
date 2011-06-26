@@ -15,8 +15,8 @@
 #define T3_WIDGET_MENU_H
 
 #include <vector>
-#include "interfaces.h"
-#include "widgets/smartlabel.h"
+#include <t3widget/interfaces.h>
+#include <t3widget/widgets/smartlabel.h>
 
 namespace t3_widget {
 

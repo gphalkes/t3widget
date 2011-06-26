@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <sigc++/sigc++.h>
 
-#include "widget_api.h"
+#include <t3widget/widget_api.h>
 
 namespace t3_widget {
 

@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <deque>
 
-#include "key.h"
+#include <t3widget/key.h>
 namespace t3_widget {
 
 typedef std::deque<key_t> keys_t;

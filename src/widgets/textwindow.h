@@ -14,10 +14,10 @@
 #ifndef T3_WIDGET_TEXTWINDOW_H
 #define T3_WIDGET_TEXTWINDOW_H
 
-#include "widgets/widget.h"
-#include "widgets/scrollbar.h"
-#include "textbuffer.h"
-#include "interfaces.h"
+#include <t3widget/widgets/widget.h>
+#include <t3widget/widgets/scrollbar.h>
+#include <t3widget/textbuffer.h>
+#include <t3widget/interfaces.h>
 
 namespace t3_widget {
 

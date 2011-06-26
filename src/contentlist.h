@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "widget_api.h"
+#include <t3widget/widget_api.h>
 struct transcript_t;
 
 namespace t3_widget {

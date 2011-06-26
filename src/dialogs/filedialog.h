@@ -14,11 +14,11 @@
 #ifndef T3_WIDGET_FILEDIALOG_H
 #define T3_WIDGET_FILEDIALOG_H
 
-#include "interfaces.h"
-#include "dialogs/dialog.h"
-#include "widgets/filepane.h"
-#include "widgets/button.h"
-#include "widgets/checkbox.h"
+#include <t3widget/interfaces.h>
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/filepane.h>
+#include <t3widget/widgets/button.h>
+#include <t3widget/widgets/checkbox.h>
 
 namespace t3_widget {
 

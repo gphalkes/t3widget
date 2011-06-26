@@ -14,10 +14,10 @@
 #ifndef T3_WIDGET_MAIN_H
 #define T3_WIDGET_MAIN_H
 
-#include "util.h"
-#include "dialogs/dialog.h"
-#include "dialogs/insertchardialog.h"
-#include "dialogs/messagedialog.h"
+#include <t3widget/util.h>
+#include <t3widget/dialogs/dialog.h>
+#include <t3widget/dialogs/insertchardialog.h>
+#include <t3widget/dialogs/messagedialog.h>
 
 namespace t3_widget {
 
