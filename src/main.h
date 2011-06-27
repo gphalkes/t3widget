@@ -130,11 +130,11 @@ T3_WIDGET_API void redraw(void);
 */
 T3_WIDGET_API void set_color_mode(bool on);
 /** Change the setting of a default attribute.
-    See the #attribute_t enum for possible values.
+    See the @ref attribute_t enum for possible values.
 */
 T3_WIDGET_API void set_attribute(attribute_t attribute, t3_attr_t value);
 /** Retrieve the setting of a default attribute.
-    See the #attribute_t enum for possible values.
+    See the @ref attribute_t enum for possible values.
 */
 T3_WIDGET_API t3_attr_t get_attribute(attribute_t attribute);
 /** Get the version of the libt3widget library used at runtime. */

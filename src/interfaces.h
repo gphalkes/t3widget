@@ -48,8 +48,8 @@ class T3_WIDGET_API window_component_t {
 		    Note that the position is relative to the anchor point. */
 		virtual void set_position(optint top, optint left) = 0;
 		/** Set the size of this window_component_t.
-		    @param height The new height of the window_component_t, or None if it should remain unchanged.
-		    @param width The new width of the window_component_t, or None if it should remain unchanged.
+		    @param height The new height of the window_component_t in cells, or #None if it should remain unchanged.
+		    @param width The new width of the window_component_t in cells, or #None if it should remain unchanged.
 			@return A boolean indicating whether all allocations required for the resize
 		        operation succeeded.
 		*/

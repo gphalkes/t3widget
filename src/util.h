@@ -21,11 +21,11 @@
 
 namespace t3_widget {
 
-/* Class defining integers with a separate validity check. */
+/** Class defining integers with a separate validity check. */
 class T3_WIDGET_API optint {
 	private:
-		int value;
-		bool initialized;
+		int value; /**< Integer value, if #initialized is @c true. */
+		bool initialized; /**< Boolean indicating whether #value has been initialized. */
 
 	public:
 		optint(void) : value(0), initialized(false) {}
@@ -35,6 +35,7 @@ class T3_WIDGET_API optint {
 		optint & operator=(const optint &other) { initialized = other.initialized; value = other.value; return *this; }
 		optint & operator=(const int other) { initialized = true; value = other; return *this; }
 };
+/** Standard uninitialized @ref optint value. */
 T3_WIDGET_API extern const optint None;
 
 struct T3_WIDGET_API text_coordinate_t {
@@ -115,8 +116,15 @@ _T3_WIDGET_ENUM(attribute_t,
 	BACKGROUND,
 	SHADOW
 );
-
-
+/** @var attribute_t::NON_PRINT
+    Attribute specifier for non-printable characters. */
+/** @var attribute_t::SELECTION_CURSOR
+    Attribute specifier for cursor when selecting text. */
+/** @var attribute_t::SELECTION_CURSOR2
+    Attribute specifier for cursor when selecting text in reverse direction. */
+/** @var attribute_t::BAD_DRAW
+    Attribute specifier for text which the terminal is not able to draw correctly. */
+//FIXME: list other attributes
 #undef _T3_WIDGET_ENUM
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
