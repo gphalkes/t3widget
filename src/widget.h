@@ -15,7 +15,6 @@
 #define T3_WIDGET_H
 
 #include <t3widget/main.h>
-#include <t3widget/colorscheme.h>
 
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/dialogs/filedialog.h>

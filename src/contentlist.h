@@ -43,6 +43,9 @@ class T3_WIDGET_API string_list_base_t {
     will not always be the same.
 */
 class T3_WIDGET_API string_list_t : public virtual string_list_base_t {
+	/** @fn sigc::connection connect_content_changed(const sigc::slot<void> &_slot)
+	    Connect to signal emitted when the content of the list changed.*/
+	/** Signal emitted when the content of the list changed. */
 	T3_WIDGET_SIGNAL(content_changed, void);
 };
 
@@ -66,7 +69,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 		class file_name_entry_t {
 			public:
 				std::string name, /**< The name of the file as written on disk. */
-					utf8_name, /**< The name of the file converted to UTF-8 (or empty if the same as file_name_entry_t::name). */
+					utf8_name, /**< The name of the file converted to UTF-8 (or empty if the same as #name). */
 					file_name_entry_t::*display_name; /**< Pointer to member to the name to use for dispay purposes. */
 				bool is_dir; /**< Boolean indicating whether this name represents a directory. */
 				/** Make a new file_name_entry_t. Implemented specifically to allow use in std::vector<file_name_entry_t>. */

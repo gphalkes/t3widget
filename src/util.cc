@@ -197,10 +197,10 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 	}
 }
 
-/** Convert a str from the input format to an internally usable str.
+/** Convert a string from the input format to an internally usable string.
 	@param str A @a Token with the str to be converted.
 	@param error_message Location to store the error message if necessary.
-    @param replacements Mark replacment substitutions (\1 .. \9) in the string.
+    @param replacements Mark replacment substitutions (\\1 .. \\9) in the string.
 	@return The length of the resulting str.
 
 	The use of this function processes escape characters. The converted

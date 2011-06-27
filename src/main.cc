@@ -219,7 +219,7 @@ complex_error_t init(const char *term, bool separate_keypad) {
 	}
 	init_level++;
 
-	init_colors();
+	init_attributes();
 	do_resize();
 	try {
 		/* Construct these here, such that the locale is set correctly and

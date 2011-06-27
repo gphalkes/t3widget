@@ -21,7 +21,7 @@ namespace t3_widget {
 
 attributes_t attributes;
 
-void init_colors(void) {
+void init_attributes(void) {
 	memset(&attributes, 0, sizeof(attributes));
 	set_color_mode(true);
 }
@@ -52,7 +52,6 @@ void set_color_mode(bool on) {
 		attributes.menubar = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
 		attributes.menubar_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
 		attributes.shadow = T3_ATTR_BG_BLACK;
-		t3_win_set_default_attrs(NULL, attributes.dialog);
 	} else {
 		attributes.non_print = T3_ATTR_UNDERLINE;
 		attributes.selection_cursor = T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
@@ -71,8 +70,9 @@ void set_color_mode(bool on) {
 		attributes.menubar = T3_ATTR_REVERSE;
 		attributes.menubar_selected = 0;
 		attributes.shadow = T3_ATTR_REVERSE;
-		t3_win_set_default_attrs(NULL, 0);
 	}
+	attributes.background = attributes.dialog;
+	t3_win_set_default_attrs(NULL, attributes.background);
 	dialog_t::force_redraw_all();
 }
 
@@ -127,6 +127,7 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 			attributes.menubar_selected = value;
 			break;
 		case attribute_t::BACKGROUND:
+			attributes.background = value;
 			t3_win_set_default_attrs(NULL, value);
 			break;
 		case attribute_t::SHADOW:
@@ -137,6 +138,49 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 	}
 
 	dialog_t::force_redraw_all();
+}
+
+t3_attr_t get_attribute(attribute_t attribute) {
+	switch (attribute) {
+		case attribute_t::NON_PRINT:
+			return attributes.non_print;
+		case attribute_t::SELECTION_CURSOR:
+			return attributes.selection_cursor;
+		case attribute_t::SELECTION_CURSOR2:
+			return attributes.selection_cursor2;
+		case attribute_t::BAD_DRAW:
+			return attributes.bad_draw;
+		case attribute_t::TEXT_CURSOR:
+			return attributes.text_cursor;
+		case attribute_t::TEXT:
+			return attributes.text;
+		case attribute_t::TEXT_SELECTED:
+			return attributes.text_selected;
+		case attribute_t::HIGHLIGHT:
+			return attributes.highlight;
+		case attribute_t::HIGHLIGHT_SELECTED:
+			return attributes.highlight_selected;
+		case attribute_t::DIALOG:
+			return attributes.dialog;
+		case attribute_t::DIALOG_SELECTED:
+			return attributes.dialog_selected;
+		case attribute_t::BUTTON:
+			return attributes.button;
+		case attribute_t::BUTTON_SELECTED:
+			return attributes.button_selected;
+		case attribute_t::SCROLLBAR:
+			return attributes.scrollbar;
+		case attribute_t::MENUBAR:
+			return attributes.menubar;
+		case attribute_t::MENUBAR_SELECTED:
+			return attributes.menubar_selected;
+		case attribute_t::BACKGROUND:
+			return attributes.background;
+		case attribute_t::SHADOW:
+			return attributes.shadow;
+		default:
+			return 0;
+	}
 }
 
 }; // namespace

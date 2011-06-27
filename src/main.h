@@ -78,6 +78,7 @@ T3_WIDGET_API void redraw(void);
 
 T3_WIDGET_API void set_color_mode(bool on);
 T3_WIDGET_API void set_attribute(attribute_t attribute, t3_attr_t value);
+T3_WIDGET_API t3_attr_t get_attribute(attribute_t attribute);
 T3_WIDGET_API long get_version(void);
 }; // namespace
 

@@ -14,6 +14,10 @@
 #ifndef T3_WIDGET_COLORSCHEME_H
 #define T3_WIDGET_COLORSCHEME_H
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 #include <t3window/window.h>
 
 #include <t3widget/widget_api.h>
@@ -21,7 +25,7 @@
 
 namespace t3_widget {
 
-/** A struct containing all the attribute settings for the different display elements. */
+/** @internal A struct containing all the attribute settings for the different display elements. */
 typedef struct {
 	/* Text related attributes. */
 	t3_attr_t non_print;
@@ -44,14 +48,13 @@ typedef struct {
 	t3_attr_t menubar_selected;
 
 	t3_attr_t shadow;
+	t3_attr_t background;
 } attributes_t;
 
-/** The default attributes for the different display elements. */
+/** @internal The default attributes for the different display elements. */
 T3_WIDGET_LOCAL extern attributes_t attributes;
-
-#ifdef _T3_WIDGET_INTERNAL
-T3_WIDGET_LOCAL void init_colors(void);
-#endif
+/** @internal Initialize the default attributes. */
+T3_WIDGET_LOCAL void init_attributes(void);
 
 }; // namespace
 
