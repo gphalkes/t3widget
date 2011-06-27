@@ -174,7 +174,7 @@ class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
 
 /** Specialized filtered list template for string_list_t.
 
-    See also filtered_string_list_t.
+    A typedef named #filtered_string_list_t is provided for convenience.
 */
 template <>
 class T3_WIDGET_API filtered_list_t<string_list_t> : public filtered_list_internal_t<string_list_t> {

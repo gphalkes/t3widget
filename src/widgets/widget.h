@@ -20,39 +20,74 @@
 
 namespace t3_widget {
 
+/** Base class for widgets. */
 class T3_WIDGET_API widget_t : public virtual window_component_t {
 	private:
 		friend class container_t;
+		/** Default parent for widgets, making them invisible. */
 		static t3_window_t *default_parent;
 
 	protected:
-		bool redraw, enabled, shown;
+		bool redraw, /**< Widget requires redrawing on next #update_contents call. */
+			enabled, /**< Widget is enabled. */
+			shown; /**< Widget is shown. */
 
+		/** Constructor which creates a default @c t3_window_t with @p height and @p width. */
 		widget_t(int height, int width);
+		/** Constructor which does not create a default t3_window_t.
+		    This constructor should only rarely be necessary. Widgets using this
+		    constructor should call either #init_window, or #init_unbacked_window.
+		*/
 		widget_t(void);
 
+		/** Initialize the #window with a @c t3_window_t with @p height and @p width. */
 		void init_window(int height, int width);
+		/** Initialize the #window with an unbacked @c t3_window_t with @p height and @p width. */
 		void init_unbacked_window(int height, int width);
 
 	public:
+		/** Destructor. */
 		virtual ~widget_t(void);
+		/** Query whether key is a hotkey for this widget. */
 		virtual bool is_hotkey(key_t key);
+		/** Query whether this widget accepts focus. */
 		virtual bool accepts_focus(void);
 		virtual void set_position(optint top, optint left);
 		virtual void show(void);
 		virtual void hide(void);
+		/** Set this widget's anchor.
+		    Use @p anchor to position this window. See libt3window's
+		    t3_win_set_anchor for details on the @p relation parameter.
+		*/
 		virtual void set_anchor(window_component_t *anchor, int relation);
+		/** Request that this widget be completely redrawn. */
 		virtual void force_redraw(void);
+		/** Set the enabled status of this widget. */
 		virtual void set_enabled(bool enable);
+		/** Query the enabled status of this widget. */
 		virtual bool is_enabled(void);
+		/** Query the visibility status of this widget. */
 		virtual bool is_shown(void);
 		virtual void set_focus(bool focus);
 };
 
+/** Base class for widgets that take focus. */
 class T3_WIDGET_API focus_widget_t {
+	/** @fn sigc::connection connect_move_focus_left(const sigc::slot<void> &_slot)
+	    Connect a callback to be called on emission of the move_focus_left_signal. */
+	/** Signal emitted when the user pressed the left arrow key and focus should move. */
 	T3_WIDGET_SIGNAL(move_focus_left, void);
+	/** @fn sigc::connection connect_move_focus_right(const sigc::slot<void> &_slot)
+	    Connect a callback to be called on emission of the move_focus_right_signal. */
+	/** Signal emitted when the user pressed the right arrow key and focus should move. */
 	T3_WIDGET_SIGNAL(move_focus_right, void);
+	/** @fn sigc::connection connect_move_focus_up(const sigc::slot<void> &_slot)
+	    Connect a callback to be called on emission of the move_focus_up_signal. */
+	/** Signal emitted when the user pressed the up arrow key and focus should move. */
 	T3_WIDGET_SIGNAL(move_focus_up, void);
+	/** @fn sigc::connection connect_move_focus_down(const sigc::slot<void> &_slot)
+	    Connect a callback to be called on emission of the move_focus_down_signal. */
+	/** Signal emitted when the user pressed the down arrow key and focus should move. */
 	T3_WIDGET_SIGNAL(move_focus_down, void);
 };
 

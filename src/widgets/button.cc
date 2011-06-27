@@ -19,7 +19,7 @@
 using namespace std;
 namespace t3_widget {
 
-button_t::button_t(const char *_text, bool _isDefault) : text(_text), is_default(_isDefault) {
+button_t::button_t(const char *_text, bool _is_default) : text(_text), is_default(_is_default) {
 	text_width = text.get_width();
 	width = text_width + 4;
 
