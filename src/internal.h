@@ -25,6 +25,7 @@
 namespace t3_widget {
 
 class text_line_t;
+/** text_line_t holding the copy buffer. */
 T3_WIDGET_LOCAL extern text_line_t *copy_buffer;
 
 #ifdef _T3_WIDGET_DEBUG
@@ -35,22 +36,40 @@ T3_WIDGET_LOCAL extern text_line_t *copy_buffer;
 #define ASSERT(_x)
 #endif
 
+/** Mask for return values of #parse_escape, indicating that the escape value was a Unicode character. */
 #define ESCAPE_UNICODE (1<<29)
+/** Mask for return values of #parse_escape, indicating that the escape value was a replacement marker. */
 #define ESCAPE_REPLACEMENT (1<<30)
 
 //FIXME: do proper gettext stuff instead of this temporary wrapper
 #define _(_x) _x
 
+/** Parse a single escape sequence in a string.
+    @param str The string to parse the escape from.
+    @param error_message Pointer to storage for an error message.
+    @param read_position The index in @p str to start reading, updated by parse_escape.
+	@param replacements A boolean indicating whether replacement markers should be parsed as such.
+*/
 T3_WIDGET_LOCAL int parse_escape(const std::string &str, const char **error_message, size_t &read_position,
-	size_t max_read_position, bool replacements = false);
+	bool replacements = false);
+/** Convert escapes in a string to associated values.
+    @param str The string to parse, updated by this function.
+    @param error_message Pointer to storage for an error message.
+	@param replacements A boolean indicating whether replacement markers should be parsed as such.
+*/
 T3_WIDGET_LOCAL bool parse_escapes(std::string &str, const char **error_message, bool replacements = false);
 
 /* Key handling routines. */
 class complex_error_t;
+/** Initialize the key handling code. */
 T3_WIDGET_LOCAL complex_error_t init_keys(const char *term, bool separate_keypad);
+/** Clean-up any data allocated for the key handling code. */
 T3_WIDGET_LOCAL void cleanup_keys(void);
+/** Switch to the default keypad mode to allow other applications to function. */
 T3_WIDGET_LOCAL void deinit_keys(void);
+/** Switch back to best keypad mode after using #deinit_keys. */
 T3_WIDGET_LOCAL void reinit_keys(void);
+/** Insert a key to the queue, marked to ensure it is not interpreted by any widget except text widgets. */
 T3_WIDGET_LOCAL void insert_protected_key(key_t key);
 
 }; // namespace

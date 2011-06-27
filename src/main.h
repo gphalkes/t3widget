@@ -28,7 +28,7 @@ namespace t3_widget {
     The third 8 bits represent the major version.
 
 	At runtime, the value of T3_WIDGET_VERSION can be retrieved by calling
-	t3_widget::get_version.
+	t#get_version.
 
     @internal
     The value 0 is an invalid value which should be replaced by the script
@@ -36,6 +36,7 @@ namespace t3_widget {
 */
 #define T3_WIDGET_VERSION 0
 
+/** A class representing an error from one of the supporting libraries. */
 class T3_WIDGET_API complex_error_t {
 	public:
 		enum source_t{
@@ -61,24 +62,82 @@ class T3_WIDGET_API complex_error_t {
 };
 
 //FIXME: shouldn't these be internal?
+/** Global insert_char_dialog_t dialog. */
 T3_WIDGET_API extern insert_char_dialog_t *insert_char_dialog;
+/** Global message_dialog_t dialog. */
 T3_WIDGET_API extern message_dialog_t *message_dialog;
 
+/** Connect a callback to the @c resize signal. */
 T3_WIDGET_API sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
+/** Connect a callback to the @c update_notification signal.
+    The @c update_notification signal is sent in response to #signal_update function.
+*/
 T3_WIDGET_API sigc::connection connect_update_notification(const sigc::slot<void> &slot);
+/** Connect a callback to the @c on_init signal.
+    The @c on_init signal is emitted after initialization is complete. The signal
+    is provided to allow initialization of global variables after initialization
+    is complete, but without knowledge of when #init is called.
+*/
 T3_WIDGET_API sigc::connection connect_on_init(const sigc::slot<void> &slot);
+/** Connect a callback to the @c terminal_settings_changed signal.
+    The @c terminal_settings_changed signal is emitted when the libt3window
+    library has completed the terminal capability detection.
+*/
 T3_WIDGET_API sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot);
 
+/** Initialize the libt3widget library.
+
+    This function should be called before any other function in the libt3widget
+    library. The @p separate_keypad parameter determines whether keypad keys
+    are returned as separate from the regular cursor control keys. If @c false,
+    there will be no distinction between the user pressing e.g. left arrow and
+    keypad left arrow. This is the recommended behavior.
+*/
 T3_WIDGET_API complex_error_t init(const char *term = NULL, bool separate_keypad = false);
+/** Function to restore the terminal to the original settings.
+    This function is called automatically on program termination by use of
+    @c atexit(3).
+*/
 T3_WIDGET_API void restore(void);
+/** Perform a single iteration of the main loop.
+    This function updates the contents of the terminal, waits for a key press
+	and sends it to the currently focussed dialog. Called repeatedly from
+    #main_loop.
+*/
 T3_WIDGET_API void iterate(void);
+/** Run the main event loop of the libt3widget library.
+    This function does not return.
+*/
 T3_WIDGET_API void main_loop(void);
+/** Suspend execution of this program by sending a @c SIGSTOP signal.
+    Before sending the @c SIGSTOP signal, the terminal is reset to its original
+    state. This allows the parent process (usually the shell) to continue
+    running, while the current program is temporarily suspended.
+*/
 T3_WIDGET_API void suspend(void);
+/** Force a complete redraw of the terminal contents.
+    The terminal contents may get corrupted due to the output from other
+    processes. The only remedy is to clear the terminal and redraw it, which is
+    exactly what this function does.
+*/
 T3_WIDGET_API void redraw(void);
 
+/** Control the color mode.
+    libt3widget by default starts in black and white mode, as most terminals
+    support the limited attributes required. This function allows switching to
+    and from color mode. If the terminal does not support (enough) colors,
+    switching to color mode will not do anything.
+*/
 T3_WIDGET_API void set_color_mode(bool on);
+/** Change the setting of a default attribute.
+    See the #attribute_t enum for possible values.
+*/
 T3_WIDGET_API void set_attribute(attribute_t attribute, t3_attr_t value);
+/** Retrieve the setting of a default attribute.
+    See the #attribute_t enum for possible values.
+*/
 T3_WIDGET_API t3_attr_t get_attribute(attribute_t attribute);
+/** Get the version of the libt3widget library used at runtime. */
 T3_WIDGET_API long get_version(void);
 }; // namespace
 

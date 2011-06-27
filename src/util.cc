@@ -83,7 +83,7 @@ static int to_lower(int c) {
 	return 'a' + (c - 'A');
 }
 
-int parse_escape(const string &str, const char **error_message, size_t &read_position, size_t max_read_position, bool replacements) {
+int parse_escape(const string &str, const char **error_message, size_t &read_position, bool replacements) {
 	size_t i;
 
 	switch(str[read_position++]) {
@@ -113,7 +113,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 			/* Hexadecimal escapes */
 			int value = 0;
 			/* Read at most two characters, or as many as are valid. */
-			for (i = 0; i < 2 && (read_position + i) < max_read_position && is_hex_digit(str[read_position + i]); i++) {
+			for (i = 0; i < 2 && (read_position + i) < str.size() && is_hex_digit(str[read_position + i]); i++) {
 				value <<= 4;
 				if (str[read_position + i] >= '0' && str[read_position + i] <= '9')
 					value += (int) (str[read_position + i] - '0');
@@ -147,7 +147,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 				/* Octal escapes */
 				int value = (int)(str[read_position - 1] - '0');
 				size_t max_idx = str[read_position - 1] < '4' ? 2 : 1;
-				for (i = 0; i < max_idx && read_position + i < max_read_position && str[read_position + i] >= '0' &&
+				for (i = 0; i < max_idx && read_position + i < str.size() && str[read_position + i] >= '0' &&
 						str[read_position + i] <= '7'; i++)
 					value = value * 8 + (int)(str[read_position + i] - '0');
 
@@ -168,7 +168,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 			uint32_t value = 0;
 			size_t chars = str[read_position - 1] == 'U' ? 8 : 4;
 
-			if (max_read_position < read_position + chars) {
+			if (str.size() < read_position + chars) {
 				*error_message = str[read_position - 1] == 'U' ? "Too short \\U escape" : "Too short \\u escape";
 				return -1;
 			}
@@ -207,21 +207,20 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 	characters are written in the original str.
 */
 bool parse_escapes(string &str, const char **error_message, bool replacements) {
-	size_t max_read_position = str.size();
 	size_t read_position = 0, write_position = 0;
 	char buffer[5];
 
-	while(read_position < max_read_position) {
+	while(read_position < str.size()) {
 		if (str[read_position] == '\\') {
 			int value;
 
 			read_position++;
 
-			if (read_position == max_read_position) {
+			if (read_position == str.size()) {
 				*error_message = "Single backslash at end of string";
 				return false;
 			}
-			value = parse_escape(str, error_message, read_position, max_read_position, replacements);
+			value = parse_escape(str, error_message, read_position, replacements);
 
 			if (value < 0)
 				return false;
@@ -245,11 +244,10 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 				t3_unicode_put((value & ~ESCAPE_REPLACEMENT) + 0xd900, buffer);
 				str.replace(write_position, 2, buffer);
 				/* Unfortunately, the expanded escape sequence doesn't fit in the previously
-				   allocated space, so we have to adjust the read_position and max_read_position
+				   allocated space, so we have to adjust the read_position
 				   as well as the write_position. */
 				write_position += strlen(buffer);
 				read_position += strlen(buffer) - 2;
-				max_read_position = str.size();
 			} else {
 				/*FIXME: handle bytes with values > 0x7f
 				   We should write a value in the range 0xd800-0xd8ff. However, if a

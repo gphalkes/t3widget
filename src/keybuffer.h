@@ -14,6 +14,10 @@
 #ifndef T3_WIDGET_KEYBUFFER_H
 #define T3_WIDGET_KEYBUFFER_H
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 /* Buffer for storing keys that ensures thread-safe operation by means of a
    mutex. It is implemented by means of a double ended queue.  */
 
@@ -26,18 +30,24 @@ namespace t3_widget {
 
 typedef std::deque<key_t> keys_t;
 
+/** Class implmementing a mutex-protected queue of key symbols. */
 class key_buffer_t {
 	private:
+		/** The list of key symbols. */
 		keys_t keys;
+		/** The mutex used for the critical section. */
 		pthread_mutex_t lock;
+		/** The condition variable used to signal addition to the #keys list. */
 		pthread_cond_t cond;
 
 	public:
+		/** Create a new key_buffer_t. */
 		key_buffer_t(void) {
 			pthread_mutex_init(&lock, NULL);
 			pthread_cond_init(&cond, NULL);
 		}
 
+		/** Append a #key_t to the list. */
 		void push_back(key_t key) {
 			if (key < 0)
 				return;
@@ -53,6 +63,7 @@ class key_buffer_t {
 			pthread_mutex_unlock(&lock);
 		}
 
+		/** Append a #key_t to the list, but only if it is not already in the queue. */
 		void push_back_unique(key_t key) {
 			if (key < 0)
 				return;
@@ -75,6 +86,7 @@ class key_buffer_t {
 			pthread_mutex_unlock(&lock);
 		}
 
+		/** Retrieve and remove the #key_t at the front of the queue. */
 		key_t pop_front(void) {
 			key_t result;
 			pthread_mutex_lock(&lock);
@@ -86,6 +98,7 @@ class key_buffer_t {
 			return result;
 		}
 
+		/** Destroy the key_buffer_t. */
 		~key_buffer_t(void) {
 			pthread_mutex_destroy(&lock);
 			pthread_cond_destroy(&cond);

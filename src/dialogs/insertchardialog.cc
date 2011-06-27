@@ -92,7 +92,7 @@ key_t insert_char_dialog_t::interpret_key(const string *descr) {
 
 		size_t readposition = 0;
 		const char *error_message;
-		result = parse_escape(codepoint, &error_message, readposition, strlen(codepoint));
+		result = parse_escape(codepoint, &error_message, readposition);
 		if (result < 0 || readposition != strlen(codepoint))
 			return -1;
 		if (result & ESCAPE_UNICODE)

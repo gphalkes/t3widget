@@ -94,6 +94,7 @@ _T3_WIDGET_ENUM(find_action_t,
 	REPLACE_IN_SELECTION
 );
 
+/** Constants for indicating which attribute to change/retrieve. */
 _T3_WIDGET_ENUM(attribute_t,
 	NON_PRINT,
 	SELECTION_CURSOR,
