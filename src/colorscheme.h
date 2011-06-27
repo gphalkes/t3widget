@@ -26,7 +26,7 @@
 namespace t3_widget {
 
 /** @internal A struct containing all the attribute settings for the different display elements. */
-typedef struct {
+struct attributes_t {
 	/* Text related attributes. */
 	t3_attr_t non_print;
 	t3_attr_t selection_cursor;
@@ -49,7 +49,7 @@ typedef struct {
 
 	t3_attr_t shadow;
 	t3_attr_t background;
-} attributes_t;
+};
 
 /** @internal The default attributes for the different display elements. */
 T3_WIDGET_LOCAL extern attributes_t attributes;

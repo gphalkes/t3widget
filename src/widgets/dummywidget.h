@@ -18,6 +18,11 @@
 
 namespace t3_widget {
 
+/** A widget that does not actually show anything on screen.
+
+    This widget exists mainly to allow dialogs to be written such that there is
+    always a widget available, even if no proper widget has been added.
+*/
 class T3_WIDGET_API dummy_widget_t : public widget_t {
 	public:
 		virtual bool process_key(key_t key);
