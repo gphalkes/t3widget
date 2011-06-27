@@ -24,7 +24,7 @@ dialogs_t dialog_t::active_dialogs;
 dialogs_t dialog_t::dialogs;
 int dialog_t::dialog_depth;
 dummy_widget_t *dialog_t::dummy;
-bool dialog_t::init_connected = connect_on_init(sigc::ptr_fun(dialog_t::init));
+sigc::connection dialog_t::init_connected = connect_on_init(sigc::ptr_fun(dialog_t::init));
 
 void dialog_t::init(void) {
 	dummy = new dummy_widget_t();
@@ -59,6 +59,8 @@ dialog_t::~dialog_t() {
 			break;
 		}
 	}
+	for (widgets_t::iterator widget_iter = widgets.begin(); widget_iter != widgets.end(); widget_iter++)
+		delete *widget_iter;
 }
 
 void dialog_t::activate_dialog(void) {
@@ -102,34 +104,6 @@ void dialog_t::deactivate_dialog(void) {
 			break;
 		}
 	}
-}
-
-void dialog_t::draw_dialog(void) {
-	int i, x;
-
-	redraw = false;
-	t3_win_set_default_attrs(window, attributes.dialog);
-	t3_win_set_default_attrs(shadow_window, attributes.shadow);
-
-	/* Just clear the whole thing and redraw */
-	t3_win_set_paint(window, 0, 0);
-	t3_win_clrtobot(window);
-
-	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
-	if (title != NULL) {
-		t3_win_set_paint(window, 0, 2);
-		t3_win_addstr(window, "[ ", 0);
-		t3_win_addstr(window, title, 0);
-		t3_win_addstr(window, " ]", 0);
-	}
-
-	x = t3_win_get_width(shadow_window) - 1;
-	for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
-		t3_win_set_paint(shadow_window, i - 1, x);
-		t3_win_addch(shadow_window, ' ', 0);
-	}
-	t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
-	t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
 }
 
 bool dialog_t::process_key(key_t key) {
@@ -193,8 +167,33 @@ bool dialog_t::set_size(optint height, optint width) {
 
 
 void dialog_t::update_contents(void) {
-	if (redraw)
-		draw_dialog();
+	if (redraw) {
+		int i, x;
+
+		redraw = false;
+		t3_win_set_default_attrs(window, attributes.dialog);
+		t3_win_set_default_attrs(shadow_window, attributes.shadow);
+
+		/* Just clear the whole thing and redraw */
+		t3_win_set_paint(window, 0, 0);
+		t3_win_clrtobot(window);
+
+		t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
+		if (title != NULL) {
+			t3_win_set_paint(window, 0, 2);
+			t3_win_addstr(window, "[ ", 0);
+			t3_win_addstr(window, title, 0);
+			t3_win_addstr(window, " ]", 0);
+		}
+
+		x = t3_win_get_width(shadow_window) - 1;
+		for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
+			t3_win_set_paint(shadow_window, i - 1, x);
+			t3_win_addch(shadow_window, ' ', 0);
+		}
+		t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
+		t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
+	}
 
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->update_contents();

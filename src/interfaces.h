@@ -67,6 +67,8 @@ class T3_WIDGET_API window_component_t {
 		virtual void show(void) = 0;
 		/** Hide the window_component_t. */
 		virtual void hide(void) = 0;
+		/** Request that this window_component_t be completely redrawn. */
+		virtual void force_redraw(void) = 0;
 };
 
 class widget_t;

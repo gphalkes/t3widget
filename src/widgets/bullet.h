@@ -18,12 +18,24 @@
 
 namespace t3_widget {
 
+/** Class implementing a bullet driven by a boolean valued callback.
+
+    The main use of this class is to show boolean information about an item in
+    a list. An example is the list of open buffers in the Tilde text editor,
+    where a bullet is used to indicate whether a buffer is currently shown in
+    an edit window.
+*/
 class T3_WIDGET_API bullet_t : public widget_t {
 	private:
+		/** Callback to determine required display state. */
 		sigc::slot<bool> source;
+		/** Boolean indicating whether this widget should be drawn as focuessed. */
 		bool has_focus;
 
 	public:
+		/** Create a new bullet_t.
+		    @param _source Callback to determine required display state.
+		*/
 		bullet_t(const sigc::slot<bool> &_source);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

@@ -60,9 +60,10 @@ class T3_WIDGET_API widget_t : public virtual window_component_t {
 		    t3_win_set_anchor for details on the @p relation parameter.
 		*/
 		virtual void set_anchor(window_component_t *anchor, int relation);
-		/** Request that this widget be completely redrawn. */
 		virtual void force_redraw(void);
-		/** Set the enabled status of this widget. */
+		/** Set the enabled status of this widget.
+		    When a widget is not enabled, it will not accept focus.
+		*/
 		virtual void set_enabled(bool enable);
 		/** Query the enabled status of this widget. */
 		virtual bool is_enabled(void);

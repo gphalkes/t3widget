@@ -48,11 +48,15 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	widgets.front()->set_position(-1, -total_width / 2 );
 }
 
-void message_dialog_t::draw_dialog(void) {
+void message_dialog_t::update_contents(void) {
 	text_line_t::paint_info_t info;
+	bool should_redraw = redraw;
 	int i;
 
-	dialog_t::draw_dialog();
+	dialog_t::update_contents();
+
+	if (!should_redraw)
+		return;
 
 	info.leftcol = 0;
 	info.tabsize = 0;
@@ -100,7 +104,7 @@ void message_dialog_t::set_message(const char *_message, size_t length) {
 	set_size(height, t3_win_get_width(window));
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
-	draw_dialog();
+	update_contents();
 }
 
 void message_dialog_t::set_message(const char *_message) {

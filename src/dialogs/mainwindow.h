@@ -19,10 +19,22 @@
 
 namespace t3_widget {
 
+/** Base class for the application's main window.
+
+    An application's main window is a special type of dialog. It can not be
+    resized by calling the #set_size member, but is instead resize by a call to
+    the #set_size_real function initiated from the @c resize signal. The
+    #set_size function is called on a resize however, and should be overriden
+    to perform resizing of child widgets.
+*/
 class T3_WIDGET_API main_window_base_t : public dialog_t {
 	private:
+		/** Resize the main_window_base_t.
+		    Called from the @c resize signal.
+		*/
 		void set_size_real(int height, int width);
 	protected:
+		/** Construct a new main_window_base_t. */
 		main_window_base_t(void);
 
 	public:

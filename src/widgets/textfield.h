@@ -67,6 +67,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				virtual void set_focus(bool focus);
 				virtual void show(void);
 				virtual void hide(void);
+				virtual void force_redraw(void);
 				void update_view(void);
 				void set_autocomplete(string_list_t *completions);
 				bool has_items(void);

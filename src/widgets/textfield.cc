@@ -584,6 +584,8 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 
 	file_list = dynamic_cast<file_list_t *>(completions);
 
+	/* We don't optimize for the case when nothing changes, because almost all
+	   update_contents calls will happen when something has changed. */
 	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
@@ -669,5 +671,7 @@ void text_field_t::drop_down_list_t::set_autocomplete(string_list_t *_completion
 bool text_field_t::drop_down_list_t::has_items(void) {
 	return completions->size() > 0;
 }
+
+void text_field_t::drop_down_list_t::force_redraw(void) {}
 
 }; // namespace
