@@ -419,7 +419,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 #ifdef HAS_SCHED_FUNCS
 	struct sched_param sched_param;
 #endif
-	const char *shiftfn;
+	const char *shiftfn = NULL;
 
 	/* Start with things most likely to fail */
 	if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)

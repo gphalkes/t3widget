@@ -18,7 +18,7 @@ using namespace std;
 
 namespace t3_widget {
 
-split_t::split_t(widget_t *widget, bool _horizontal) : horizontal(_horizontal) {
+split_t::split_t(widget_t *widget) : horizontal(true) {
 	init_unbacked_window(3, 3);
 	set_widget_parent(widget);
 	widget->set_anchor(this, 0);
@@ -98,7 +98,8 @@ void split_t::split(widget_t *widget, bool _horizontal) {
 
 	if (current_window != NULL) {
 		current_window->split(widget, _horizontal);
-	} else if (_horizontal == horizontal) {
+	} else if (widgets.size() == 1 || _horizontal == horizontal) {
+		horizontal = _horizontal;
 		set_widget_parent(widget);
 		widget->set_anchor(this, 0);
 		widget->show();
@@ -113,7 +114,7 @@ void split_t::split(widget_t *widget, bool _horizontal) {
 		/* Create a new split_t with the current widget as its contents. Then
 		   add split that split_t to splice in the requested widget. */
 		(*current)->set_focus(false);
-		current_window = new split_t(*current, _horizontal);
+		current_window = new split_t(*current);
 		set_widget_parent(current_window);
 		current_window->set_focus(focus);
 		current_window->split(widget, _horizontal);
@@ -133,8 +134,14 @@ bool split_t::unsplit(widget_t **widget) {
 			return true;
 		*widget = *current;
 		current = widgets.erase(current);
-		if (current == widgets.end())
+		if (current == widgets.end()) {
 			current--;
+			if ((current_window = dynamic_cast<split_t *>(*current)) != NULL)
+				current_window->set_to_end();
+		} else {
+			if ((current_window = dynamic_cast<split_t *>(*current)) != NULL)
+				current_window->set_to_begin();
+		}
 		if (focus)
 			(*current)->set_focus(true);
 		set_size(None, None);
