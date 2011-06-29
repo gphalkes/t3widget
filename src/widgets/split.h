@@ -29,13 +29,13 @@ namespace t3_widget {
 class T3_WIDGET_API split_t : public widget_t, public container_t {
 	protected:
 		widgets_t widgets; /**< The list of widgets contained by this split_t. */
-		widgets_t::iterator current; /**< The widget that currently has the input focus. */
+		widgets_t::iterator current; /**< The currently active widget. */
 		bool horizontal, /**< Boolean indicating whether to divide the space horizontally or vertically. */
 			focus; /**< Boolean indicating whether this split_t (or rather, one of its children) has the input focus. */
 
 		/** Make the next widget the current widget (internal).
 		    Because split_t widgets may be nested, calling #next on this widget
-		    may actually need to tell a nested split_t to focus the next widget.
+		    may actually need to tell a nested split_t to activate the next widget.
 		    This needs slightly different handling than the generic #next call,
 		    and needs to report whether the end of the list was reached. In the
 		    latter case, the return value shall be @c false.
@@ -45,11 +45,11 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		    See #next_recurse for details.
 		*/
 		bool previous_recurse(void);
-		/** Make the first widget the current widget. */
+		/** Make the first widget the active widget. */
 		void set_to_begin(void);
-		/** Make the last widget the current widget. */
+		/** Make the last widget the active widget. */
 		void set_to_end(void);
-		/** Remove the currently focussed widget from the split_t (internal).
+		/** Remove the currently activated widget from the split_t (internal).
 		    This function takes into account that split_t widgets may be nested,
 		    and if it finds the the widget to remove is in fact a split_t it will
 		    ask that to remove its current widget instead. If that leaves only
@@ -59,17 +59,36 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		bool unsplit(widget_t **widget);
 
 	public:
+		/** Create a new split_t. */
 		split_t(widget_t *widget);
+		/** Destroy a split_t.
+		    Deletes all contained widgets as well.
+		*/
 		virtual ~split_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 
+		/** Divide the available screen space over one more widget.
+		    @param widget The widget to add.
+		    @param _horizontal Whether to split the space horizontally or vertically.
+
+		    This function may create a new nested split_t, if the current split_t
+		    is split horizontally and a vertical split is requested or vice versa.
+		    Note that if the current split_t is already a nested split_t, it may
+		    nest even further.
+		*/
 		void split(widget_t *widget, bool _horizontal);
+		/** Remove the current widget from the split_t (or a nested split_t).
+		    @return The widget that was removed.
+		*/
 		widget_t *unsplit(void);
+		/** Make the next widget the active widget. */
 		void next(void);
+		/** Make the previous widget the active widget. */
 		void previous(void);
+		/** Get the currently active widget. */
 		widget_t *get_current(void);
 };
 
