@@ -115,7 +115,7 @@ bool text_field_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_DOWN:
-			if (drop_down_list != NULL && drop_down_list->has_items() && line.get_length() > 0) {
+			if (drop_down_list != NULL && !drop_down_list->empty() && line.get_length() > 0) {
 				in_drop_down_list = true;
 				drop_down_list_shown = true;
 				drop_down_list->set_focus(true);
@@ -373,7 +373,7 @@ void text_field_t::update_contents(void) {
 
 		if (drop_down_list != NULL && edited) {
 			drop_down_list->update_view();
-			if (drop_down_list->has_items() && line.get_length() > 0) {
+			if (!drop_down_list->empty() && line.get_length() > 0) {
 				drop_down_list_shown = true;
 				drop_down_list->show();
 			} else {
@@ -385,7 +385,7 @@ void text_field_t::update_contents(void) {
 		redraw = false;
 	}
 
-	if (drop_down_list != NULL && drop_down_list->has_items())
+	if (drop_down_list != NULL && !drop_down_list->empty())
 		drop_down_list->update_contents();
 }
 
@@ -447,33 +447,28 @@ void text_field_t::ensure_on_cursor_screen(void) {
 }
 
 void text_field_t::set_text(const string *text) {
-	line.set_text(text);
-	set_text_finish();
+	set_text(text->data(), text->size());
 }
 
 void text_field_t::set_text(const char *text) {
-	line.set_text(text, strlen(text));
-	set_text_finish();
+	set_text(text, strlen(text));
 }
 
-void text_field_t::set_text_finish(void) {
+void text_field_t::set_text(const char *text, size_t size) {
+	line.set_text(text, size);
 	pos = line.get_length();
 	ensure_on_cursor_screen();
 	redraw = true;
 }
 
-void text_field_t::set_key_filter(key_t *keys, size_t nrOfKeys, bool accept) {
+void text_field_t::set_key_filter(key_t *keys, size_t nr_of_keys, bool accept) {
 	filter_keys = keys;
-	filter_keys_size = nrOfKeys;
+	filter_keys_size = nr_of_keys;
 	filter_keys_accept = accept;
 }
 
 const string *text_field_t::get_text(void) const {
 	return line.get_data();
-}
-
-const text_line_t *text_field_t::get_line(void) const {
-	return &line;
 }
 
 void text_field_t::set_autocomplete(string_list_t *completions) {
@@ -667,8 +662,8 @@ void text_field_t::drop_down_list_t::set_autocomplete(string_list_t *_completion
 		completions = new filtered_string_list_t(_completions);
 }
 
-bool text_field_t::drop_down_list_t::has_items(void) {
-	return completions->size() > 0;
+bool text_field_t::drop_down_list_t::empty(void) {
+	return completions->size() == 0;
 }
 
 void text_field_t::drop_down_list_t::force_redraw(void) {}

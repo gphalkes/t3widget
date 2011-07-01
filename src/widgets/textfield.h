@@ -25,36 +25,55 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
 	protected:
-		int pos,
-			screen_pos,
-			leftcol,
-			selection_start_pos,
-			selection_end_pos;
+		int pos, /**< Cursor position in bytes. */
+			screen_pos, /**< Cursor position in screen cells. */
+			leftcol, /**< The first (left-most) shown column in screen cells. */
+			selection_start_pos, /**< Selection start postion, or -1 if not applicable. */
+			selection_end_pos; /**< Selection end postion, or -1 if not applicable. */
 
-		selection_mode_t selection_mode;
-		bool focus, in_drop_down_list, drop_down_list_shown, dont_select_on_focus, edited;
+		selection_mode_t selection_mode; /**< Selection mode. */
+		bool focus, /**< Boolean indicating whether this text_field_t has the input focus. */
+			in_drop_down_list, /**< Boolean indicating whether the "cursor" is in the drop-down list. */
+			drop_down_list_shown, /**< Boolean indicating whether the drop-down list is currently shown. */
+			/** Boolean indicating whether not to select the whole text on regaining focus.
+			    This boolean exists mostly to facilitate the "Insert Character" dialog. When
+			    the text_field_t regains focus after the dialog closes, it should not select
+			    the whole contents like it normally does on regaining focus.
+			*/
+			dont_select_on_focus,
+			/** Boolean indicating whether the contents has changed since the last redraw.
+			    Used only for optimization purposes.
+			*/
+			edited;
 
-		text_line_t line;
-		const key_t *filter_keys;
-		size_t filter_keys_size;
-		bool filter_keys_accept;
+		text_line_t line; /**< Variable containing the current text. */
+		const key_t *filter_keys; /**< List of keys to accept or reject. */
+		size_t filter_keys_size; /**< Size of #filter_keys. */
+		bool filter_keys_accept; /**< Boolean indicating whether the keys in #filter_keys should be accepted or rejected. */
 
-		smart_label_t *label;
+		smart_label_t *label; /**< Label associated with this text_field_t. */
 
+		/** Reset the selection. */
 		void reset_selection(void);
+		/** Change the current selection mode, based on @p key. */
 		void set_selection(key_t key);
-		void delete_selection(bool saveToCopybuffer);
+		/** Delete the current selection. */
+		void delete_selection(bool save_to_copy_buffer);
+		/** Make sure the text in the text_field_t is aligned such that the cursor is visible. */
 		void ensure_on_cursor_screen(void);
+		/** Update the end of the selection. */
 		void update_selection(void);
-		void set_text_finish(void);
 
+		/** Drop-down list implementation for text_field_t. */
 		class T3_WIDGET_API drop_down_list_t : public window_component_t {
 			private:
-				size_t current, top_idx;
-				bool focus, redraw;
-				text_field_t *field;
+				size_t current, /**< Index of the currently selected item. */
+					top_idx; /**< Index of the top-most displayed item. */
+				bool focus, /**< Boolean indicating whether this drop_down_list_t has the input focus. */
+					redraw; /**< Boolean indicating whether this drop_down_list_t needs to be redrawn. */
+				text_field_t *field; /**< text_field_t this drop-down list is created for. */
 
-				filtered_list_base_t *completions;
+				filtered_list_base_t *completions; /**< List of possible selections. */
 			public:
 				drop_down_list_t(text_field_t *_field);
 				~drop_down_list_t(void);
@@ -66,9 +85,12 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				virtual void show(void);
 				virtual void hide(void);
 				virtual void force_redraw(void);
+				/** Request that the drop-down is filtered based on the contents of the text_field_t it is asscociated with. */
 				void update_view(void);
+				/** Set the list of autocompletion options. */
 				void set_autocomplete(string_list_t *completions);
-				bool has_items(void);
+				/** Return whether the autocompletion list is empty. */
+				bool empty(void);
 		};
 		drop_down_list_t *drop_down_list;
 
@@ -81,15 +103,29 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual void set_focus(bool _focus);
 		virtual void show(void);
 		virtual void hide(void);
+		/** Set the text of the text_field_t. */
 		void set_text(const std::string *text);
+		/** Set the text of the text_field_t. */
 		void set_text(const char *text);
+		/** Set the text of the text_field_t. */
+		void set_text(const char *text, size_t size);
+		/** Set the autocompletion list. */
 		void set_autocomplete(string_list_t *_completions);
-		void set_key_filter(key_t *keys, size_t nrOfKeys, bool accept);
+		/** Set the list of keys to accept or reject.
+		    @param keys The list of keys to accept or reject.
+		    @param nr_of_keys The size of @p keys.
+		    @param accept Boolean indicating whether the keys in @p keys should be accepted or rejected.
+		*/
+		void set_key_filter(key_t *keys, size_t nr_of_keys, bool accept);
+		/** Retrieve the text shown by the text_field_t. */
 		const std::string *get_text(void) const;
-		const text_line_t *get_line(void) const;
+		/** Associate a label with this text_field_t.
+		    The reason to associate a smart_label_t with a text_field_t is that it
+		    allows the use of a hotkey to jump to the text_field_t. The #is_hotkey
+		    function will report the result of smart_label_t::is_hotkey.
+		*/
 		void set_label(smart_label_t *_label);
 		virtual bool is_hotkey(key_t key);
-		void reset(void);
 
 		virtual void bad_draw_recheck(void);
 
