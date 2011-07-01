@@ -61,8 +61,6 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		void delete_selection(bool save_to_copy_buffer);
 		/** Make sure the text in the text_field_t is aligned such that the cursor is visible. */
 		void ensure_on_cursor_screen(void);
-		/** Update the end of the selection. */
-		void update_selection(void);
 
 		/** Drop-down list implementation for text_field_t. */
 		class T3_WIDGET_API drop_down_list_t : public window_component_t {

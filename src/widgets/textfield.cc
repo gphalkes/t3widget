@@ -28,7 +28,9 @@ namespace t3_widget {
 	auto-completion
 	- when typing directories, the entries in the dir should complete as well
 	- pgup pgdn should take steps in the drop-down list
-	- pressing esc in drop-down list should close the list
+	- the first autocompletion option should be filled in, in the text field itself.
+	  However, this text should be selected, and it should only be appended if the
+	  user added characters.
 */
 
 text_field_t::text_field_t(void) : widget_t(1, 4),
@@ -326,67 +328,62 @@ bool text_field_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void text_field_t::update_selection(void) {
-	if (selection_mode == selection_mode_t::SHIFT) {
-		if (selection_start_pos == pos) {
-			reset_selection();
-			return;
-		}
-	}
-
-	selection_end_pos = pos;
-}
-
 void text_field_t::update_contents(void) {
-	if (selection_mode != selection_mode_t::NONE)
-		update_selection();
 
-	if (redraw) {
-		text_line_t::paint_info_t info;
-
-		t3_win_set_default_attrs(window, attributes.dialog);
-		t3_win_set_paint(window, 0, 0);
-		t3_win_addch(window, '[', 0);
-
-		info.start = 0;
-		info.leftcol = leftcol;
-		info.max = INT_MAX;
-		info.size = t3_win_get_width(window) - 2;
-		info.tabsize = 0;
-		info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL;
-		if (!focus) {
-			info.selection_start = -1;
-			info.selection_end = -1;
-		} else if (selection_start_pos < selection_end_pos) {
-			info.selection_start = selection_start_pos;
-			info.selection_end = selection_end_pos;
+	if (drop_down_list != NULL && edited) {
+		drop_down_list->update_view();
+		if (!drop_down_list->empty() && line.get_length() > 0) {
+			drop_down_list_shown = true;
+			drop_down_list->show();
 		} else {
-			info.selection_start = selection_end_pos;
-			info.selection_end = selection_start_pos;
+			drop_down_list_shown = false;
+			drop_down_list->hide();
 		}
-		info.cursor = focus && !in_drop_down_list ? pos : -1;
-		info.normal_attr = attributes.dialog;
-		info.selected_attr = attributes.dialog_selected;
-
-		line.paint_line(window, &info);
-		t3_win_addch(window, ']', 0);
-
-		if (drop_down_list != NULL && edited) {
-			drop_down_list->update_view();
-			if (!drop_down_list->empty() && line.get_length() > 0) {
-				drop_down_list_shown = true;
-				drop_down_list->show();
-			} else {
-				drop_down_list_shown = false;
-				drop_down_list->hide();
-			}
-		}
-		edited = false;
-		redraw = false;
 	}
 
 	if (drop_down_list != NULL && !drop_down_list->empty())
 		drop_down_list->update_contents();
+
+	if (!redraw)
+		return;
+	edited = false;
+	redraw = false;
+
+	if (selection_mode != selection_mode_t::NONE) {
+		if (selection_mode == selection_mode_t::SHIFT && selection_start_pos == pos)
+			reset_selection();
+		else
+			selection_end_pos = pos;
+	}
+
+	text_line_t::paint_info_t info;
+
+	t3_win_set_default_attrs(window, attributes.dialog);
+	t3_win_set_paint(window, 0, 0);
+	t3_win_addch(window, '[', 0);
+
+	info.start = 0;
+	info.leftcol = leftcol;
+	info.max = INT_MAX;
+	info.size = t3_win_get_width(window) - 2;
+	info.tabsize = 0;
+	info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL;
+	if (!focus) {
+		info.selection_start = -1;
+		info.selection_end = -1;
+	} else if (selection_start_pos < selection_end_pos) {
+		info.selection_start = selection_start_pos;
+		info.selection_end = selection_end_pos;
+	} else {
+		info.selection_start = selection_end_pos;
+		info.selection_end = selection_start_pos;
+	}
+	info.cursor = focus && !in_drop_down_list ? pos : -1;
+	info.normal_attr = attributes.dialog;
+	info.selected_attr = attributes.dialog_selected;
+
+	line.paint_line(window, &info);
+	t3_win_addch(window, ']', 0);
 }
 
 void text_field_t::set_focus(bool _focus) {
@@ -531,6 +528,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 			} else {
 				focus = false;
 				field->in_drop_down_list = false;
+				field->redraw = true;
 				update_contents();
 			}
 			break;
