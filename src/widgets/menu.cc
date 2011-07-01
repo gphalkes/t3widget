@@ -46,9 +46,40 @@ void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
 
 void menu_bar_t::add_menu(menu_panel_t *menu) {
 	menus.push_back(menu);
+	menu->set_menu_bar(this);
 	menu->set_position(None, start_col);
 	start_col += menu->label.get_width() + 2;
 	redraw = true;
+}
+
+void menu_bar_t::remove_menu(menu_panel_t *menu) {
+	int idx = 0;
+	for (std::vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++, idx++) {
+		if (*iter == menu) {
+			menu->set_menu_bar(NULL);
+
+			if (current_menu == idx) {
+				if (has_focus) {
+					(*iter)->hide();
+					next_menu();
+					menus[current_menu]->show();
+				}
+			} else if (current_menu > idx) {
+				current_menu--;
+			}
+			old_menu = 0; // Make sure old_menu isn't out of bounds
+
+			start_col = t3_win_get_x((*iter)->get_base_window());
+			iter = menus.erase(iter);
+			/* Move all the remaining menus to their new position. */
+			for (; iter != menus.end(); iter++) {
+				(*iter)->set_position(None, start_col);
+				start_col += (*iter)->label.get_width() + 2;
+			}
+			redraw = true;
+			return;
+		}
+	}
 }
 
 void menu_bar_t::close(void) {
@@ -99,6 +130,7 @@ void menu_bar_t::update_contents(void) {
 		draw();
 		if (has_focus)
 			draw_menu_name(menus[current_menu], true);
+		old_menu = current_menu;
 	}
 
 	if (!has_focus)
@@ -108,12 +140,10 @@ void menu_bar_t::update_contents(void) {
 		menus[current_menu]->update_contents();
 		return;
 	}
-	if (old_menu != current_menu) {
-		menus[old_menu]->hide();
-		menus[current_menu]->show();
-		draw_menu_name(menus[old_menu], false);
-		draw_menu_name(menus[current_menu], true);
-	}
+	menus[old_menu]->hide();
+	menus[current_menu]->show();
+	draw_menu_name(menus[old_menu], false);
+	draw_menu_name(menus[current_menu], true);
 	old_menu = current_menu;
 	menus[current_menu]->update_contents();
 }

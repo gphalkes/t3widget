@@ -22,6 +22,7 @@ namespace t3_widget {
 
 class menu_panel_t;
 
+/** Class implementing a menu bar. */
 class T3_WIDGET_API menu_bar_t : public widget_t {
 	friend class menu_panel_t;
 
@@ -34,7 +35,6 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 
 		void draw_menu_name(menu_panel_t *menu, bool selected);
 
-		void add_menu(menu_panel_t *menu);
 		void close(void);
 		void next_menu(void);
 		void previous_menu(void);
@@ -50,8 +50,8 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
 		void draw(void);
-
-		//FIXME: allow removal of menu_panel_t's to allow dynamic menus
+		void add_menu(menu_panel_t *menu);
+		void remove_menu(menu_panel_t *menu);
 
 	T3_WIDGET_SIGNAL(activate, void, int);
 };

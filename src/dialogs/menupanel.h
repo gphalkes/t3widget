@@ -24,23 +24,26 @@ class menu_item_t;
 
 class T3_WIDGET_API menu_panel_t : public dialog_t {
 	friend class menu_bar_t;
+	friend class menu_item_t;
 	private:
 		int width, label_width, hotkey_width;
 		smart_label_text_t label;
-		menu_bar_t *menu;
+		menu_bar_t *menu_bar;
+
+		void signal(int id);
+		void close(void);
+		void set_menu_bar(menu_bar_t *_menu_bar);
 
 	public:
-		menu_panel_t(menu_bar_t *_menu, const char *name);
+		menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
-		void close(void);
 		menu_item_base_t *add_item(const char *label, const char *hotkey, int id);
 		menu_item_base_t *add_item(menu_item_t *item);
 		menu_item_base_t *add_separator(void);
 		void remove_item(menu_item_base_t *item);
 
-		void signal(int id);
 };
 
 }; // namespace

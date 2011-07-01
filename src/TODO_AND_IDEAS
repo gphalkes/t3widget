@@ -1,6 +1,11 @@
 TODO
 ====
 
+Bugs
+----
+If a list_pane_t is empty, it will show the first line with terminal default
+attribute, rather than doing something sane (see open-recent in tilde).
+
 High Priority
 -------------
 - perhaps it is a good idea to let the user define short-cuts for things

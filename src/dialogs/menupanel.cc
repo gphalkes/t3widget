@@ -21,21 +21,23 @@
 using namespace std;
 namespace t3_widget {
 
-menu_panel_t::menu_panel_t(menu_bar_t *_menu, const char *name) : dialog_t(3, 5, NULL), label(name), menu(_menu) {
-	menu->add_menu(this);
-	t3_win_set_anchor(window, menu->get_base_window(), 0);
+menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar) : dialog_t(3, 5, NULL), label(name), menu_bar(NULL) {
 	width = 5;
 	label_width = 1;
 	hotkey_width = 0;
+	if (_menu_bar != NULL)
+		_menu_bar->add_menu(this);
 }
 
 bool menu_panel_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_LEFT:
-			menu->previous_menu();
+			if (menu_bar != NULL)
+				menu_bar->previous_menu();
 			break;
 		case EKEY_RIGHT:
-			menu->next_menu();
+			if (menu_bar != NULL)
+				menu_bar->next_menu();
 			break;
 		case EKEY_UP:
 			focus_previous();
@@ -58,7 +60,8 @@ bool menu_panel_t::process_key(key_t key) {
 		case EKEY_SHIFT | '\t':
 			break;
 		case EKEY_ESC:
-			menu->close();
+			if (menu_bar != NULL)
+				menu_bar->close();
 			break;
 		case EKEY_NL:
 		case ' ':
@@ -98,7 +101,8 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 }
 
 void menu_panel_t::close(void) {
-	menu->close();
+	if (menu_bar != NULL)
+		menu_bar->close();
 }
 
 menu_item_base_t *menu_panel_t::add_item(const char *_label, const char *hotkey, int id) {
@@ -156,7 +160,23 @@ resize_panel:
 }
 
 void menu_panel_t::signal(int id) {
-	menu->activate(id);
+	if (menu_bar != NULL)
+		menu_bar->activate(id);
+}
+
+void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
+	if (menu_bar == _menu_bar)
+		return;
+
+	if (_menu_bar == NULL) {
+		menu_bar = NULL;
+		t3_win_set_anchor(window, NULL, 0);
+	} else {
+		if (menu_bar != NULL)
+			menu_bar->remove_menu(this);
+		menu_bar = _menu_bar;
+		t3_win_set_anchor(window, menu_bar->get_base_window(), 0);
+	}
 }
 
 }; // namespace
