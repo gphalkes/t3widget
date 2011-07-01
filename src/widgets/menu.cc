@@ -183,4 +183,12 @@ void menu_bar_t::draw(void) {
 		draw_menu_name(*iter, false);
 }
 
+void menu_bar_t::set_hidden(bool _hidden) {
+	hidden = _hidden;
+	if (hidden)
+		t3_win_hide(window);
+	else
+		t3_win_show(window);
+}
+
 }; // namespace
