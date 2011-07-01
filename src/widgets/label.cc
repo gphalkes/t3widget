@@ -24,7 +24,7 @@ namespace t3_widget {
 
 label_t::label_t(const char *_text) : text(_text), align(ALIGN_LEFT), focus(false), can_focus(true)
 {
-	width = text_width = t3_term_strwidth(text.c_str());
+	int width = text_width = t3_term_strwidth(text.c_str());
 	if (width == 0)
 		width = 1;
 	init_window(1, width);
@@ -36,12 +36,11 @@ bool label_t::process_key(key_t key) {
 	return false;
 }
 
-bool label_t::set_size(optint height, optint _width) {
+bool label_t::set_size(optint height, optint width) {
 	bool result = true;
 
 	(void) height;
-	if (_width.is_valid() && width != _width) {
-		width = _width;
+	if (width.is_valid() && t3_win_get_width(window) != width) {
 		result = t3_win_resize(window, 1, width);
 		redraw = true;
 	}
@@ -49,10 +48,13 @@ bool label_t::set_size(optint height, optint _width) {
 }
 
 void label_t::update_contents(void) {
+	int width;
+
 	if (!redraw)
 		return;
 	redraw = false;
 
+	width = t3_win_get_width(window);
 	text_line_t *line = new text_line_t(&text);
 	text_line_t::paint_info_t paint_info;
 

@@ -21,9 +21,8 @@ namespace t3_widget {
 
 button_t::button_t(const char *_text, bool _is_default) : text(_text), is_default(_is_default) {
 	text_width = text.get_width();
-	width = text_width + 4;
 
-	init_window(1, width);
+	init_window(1, text_width + 4);
 
 	has_focus = false;
 }
@@ -53,16 +52,14 @@ bool button_t::process_key(key_t key) {
 	return true;
 }
 
-bool button_t::set_size(optint height, optint _width) {
+bool button_t::set_size(optint height, optint width) {
 	(void) height;
 
-	if (_width.is_valid()) {
-		if (_width <= 0) {
-			if (text_width + 4 == width)
+	if (width.is_valid()) {
+		if (width <= 0) {
+			if (text_width + 4 == t3_win_get_width(window))
 				return true;
 			width = text_width + 4;
-		} else {
-			width = _width;
 		}
 		return t3_win_resize(window, 1, width);
 	}
@@ -71,12 +68,15 @@ bool button_t::set_size(optint height, optint _width) {
 
 void button_t::update_contents(void) {
 	t3_attr_t attr;
+	int width;
 
 	if (!redraw)
 		return;
 	redraw = false;
 
 	attr = has_focus ? attributes.button_selected : 0;
+
+	width = t3_win_get_width(window);
 
 	t3_win_set_default_attrs(window, attributes.button);
 	t3_win_set_paint(window, 0, 0);
@@ -99,7 +99,7 @@ void button_t::set_focus(bool focus) {
 }
 
 int button_t::get_width(void) {
-	return width;
+	return t3_win_get_width(window);
 }
 
 bool button_t::is_hotkey(key_t key) {

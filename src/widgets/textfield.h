@@ -25,8 +25,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
 	protected:
-		int width,
-			pos,
+		int pos,
 			screen_pos,
 			leftcol,
 			selection_start_pos,
@@ -51,7 +50,6 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 		class T3_WIDGET_API drop_down_list_t : public window_component_t {
 			private:
-				int width;
 				size_t current, top_idx;
 				bool focus, redraw;
 				text_field_t *field;

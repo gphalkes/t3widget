@@ -27,7 +27,7 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
 			bool takes_focus;
 		};
 		std::list<item_t> widgets;
-		int width, fixed_sum, proportion_sum;
+		int fixed_sum, proportion_sum;
 		widget_t *send_key_widget;
 
 	public:

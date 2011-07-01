@@ -16,8 +16,8 @@
 using namespace std;
 namespace t3_widget {
 
-multi_widget_t::multi_widget_t(void) : width(1), fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
-	init_unbacked_window(1, width);
+multi_widget_t::multi_widget_t(void) : fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
+	init_unbacked_window(1, 1);
 }
 
 multi_widget_t::~multi_widget_t(void) {
@@ -31,10 +31,9 @@ bool multi_widget_t::process_key(key_t key) {
 	return false;
 }
 
-bool multi_widget_t::set_size(optint height, optint _width) {
+bool multi_widget_t::set_size(optint height, optint width) {
 	(void) height;
-	if (_width.is_valid() && width != _width) {
-		width = _width;
+	if (width.is_valid() && t3_win_get_width(window) != width) {
 		t3_win_resize(window, 1, width);
 		resize_widgets();
 	}
@@ -107,6 +106,7 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 
 void multi_widget_t::resize_widgets(void) {
 	if (proportion_sum > 0) {
+		int width = t3_win_get_width(window);
 		double scale = (double) (width - fixed_sum) / proportion_sum;
 		int size;
 

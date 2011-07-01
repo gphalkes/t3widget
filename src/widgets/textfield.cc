@@ -32,7 +32,6 @@ namespace t3_widget {
 */
 
 text_field_t::text_field_t(void) : widget_t(1, 4),
-	width(4),
 	pos(0),
 	screen_pos(0),
 	leftcol(0),
@@ -312,10 +311,9 @@ bool text_field_t::process_key(key_t key) {
 	return true;
 }
 
-bool text_field_t::set_size(optint height, optint _width) {
+bool text_field_t::set_size(optint height, optint width) {
 	(void) height;
-	if (_width.is_valid() && width != _width) {
-		width = _width;
+	if (width.is_valid() && t3_win_get_width(window) != width) {
 		t3_win_resize(window, 1, width);
 		if (drop_down_list != NULL)
 			drop_down_list->set_size(None, width);
@@ -353,7 +351,7 @@ void text_field_t::update_contents(void) {
 		info.start = 0;
 		info.leftcol = leftcol;
 		info.max = INT_MAX;
-		info.size = width - 2;
+		info.size = t3_win_get_width(window) - 2;
 		info.tabsize = 0;
 		info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL;
 		if (!focus) {
@@ -427,7 +425,7 @@ void text_field_t::hide(void) {
 }
 
 void text_field_t::ensure_on_cursor_screen(void) {
-	int char_width;
+	int width, char_width;
 
 	if (pos == line.get_length())
 		char_width = 1;
@@ -441,6 +439,7 @@ void text_field_t::ensure_on_cursor_screen(void) {
 		redraw = true;
 	}
 
+	width = t3_win_get_width(window);
 	if (screen_pos + char_width > leftcol + width - 2) {
 		leftcol = screen_pos - (width - 2) + char_width;
 		redraw = true;
@@ -500,9 +499,9 @@ void text_field_t::bad_draw_recheck(void) {
   == drop_down_list_t ==
   ======================*/
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
-	width(t3_win_get_width(_field->get_base_window())), top_idx(0), field(_field), completions(NULL)
+		top_idx(0), field(_field), completions(NULL)
 {
-	if ((window = t3_win_new(NULL, 6, width, 1, 0, INT_MIN)) == NULL)
+	if ((window = t3_win_new(NULL, 6, t3_win_get_width(_field->get_base_window()), 1, 0, INT_MIN)) == NULL)
 		throw(-1);
 	t3_win_set_anchor(window, field->get_base_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
@@ -563,12 +562,10 @@ void text_field_t::drop_down_list_t::set_position(optint top, optint left) {
 	(void) left;
 }
 
-bool text_field_t::drop_down_list_t::set_size(optint height, optint _width) {
+bool text_field_t::drop_down_list_t::set_size(optint height, optint width) {
 	bool result;
 
 	(void) height;
-
-	width = _width;
 
 	result = t3_win_resize(window, 6, width);
 	redraw = true;
@@ -578,11 +575,13 @@ bool text_field_t::drop_down_list_t::set_size(optint height, optint _width) {
 void text_field_t::drop_down_list_t::update_contents(void) {
 	size_t i, idx;
 	file_list_t *file_list;
+	int width;
 
 	if (completions == NULL)
 		return;
 
 	file_list = dynamic_cast<file_list_t *>(completions);
+	width = t3_win_get_width(window);
 
 	/* We don't optimize for the case when nothing changes, because almost all
 	   update_contents calls will happen when something has changed. */

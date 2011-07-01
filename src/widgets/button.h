@@ -22,8 +22,6 @@ namespace t3_widget {
 /** Button widget. */
 class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 	private:
-		/** Width of the button. */
-		int width;
 		/** Text to display on the button. */
 		smart_label_text_t text;
 

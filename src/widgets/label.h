@@ -45,8 +45,7 @@ class T3_WIDGET_API label_t : public widget_t {
 
 	private:
 		std::string text; /**< Text currently displayed. */
-		int width, /**< Current display width. */
-			text_width; /**< Width of the text if displayed in full. */
+		int text_width; /**< Width of the text if displayed in full. */
 		align_t align; /**< Text alignment. Default is #ALIGN_LEFT. */
 		bool focus, /**< Boolean indicating whether this label_t has the input focus. */
 			can_focus; /**< Boolean indicating whether this label_t will accept the input focus. Default is @c true. */
