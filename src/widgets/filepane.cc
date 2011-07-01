@@ -18,6 +18,9 @@
 using namespace std;
 namespace t3_widget {
 
+#warning FIXME: this should not draw its own box (use frame for that)
+#warning FIXME: width and height can be retrieved from window
+
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 file_pane_t::file_pane_t(void) : widget_t(3, 3), scrollbar(false), height(1),
 	width(1),top_idx(0), current(0), file_list(NULL), focus(false), field(NULL), columns_visible(0), scrollbar_range(height)

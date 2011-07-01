@@ -39,8 +39,7 @@ namespace t3_widget {
 /* FIXME: TODO
 	- check rewrap_line return values!
 */
-
-#define LINESINC 64
+#warning FIXME: all coordinates should be saved non-wrapped, and wrapping information should be saved differently
 
 /*FIXME-REFACTOR: adjust_position in line is often called with same argument as
   where the return value is stored. Check whether this is always the case. If

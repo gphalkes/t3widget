@@ -25,31 +25,50 @@
 
 namespace t3_widget {
 
+/** A widget displaying the contents of a directory. */
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 	private:
-		scrollbar_t scrollbar;
-		int height, width;
-		size_t top_idx, current;
-		file_list_t *file_list;
-		bool focus;
-		text_field_t *field;
-		int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], column_positions[_T3_WDIGET_FP_MAX_COLUMNS], columns_visible, scrollbar_range;
-		sigc::connection content_changed_connection;
+		scrollbar_t scrollbar; /**< Scrollbar displayed at the bottom. */
+		int height, /**< Height of the window. */
+			width; /**< Width of the window. */
+		size_t top_idx, /**< Index of the first item displayed. */
+			current; /**< Index of the currently highlighted item. */
+		file_list_t *file_list; /**< List of files to display. */
+		bool focus; /**< Boolean indicating whether this file_pane_t has the input focus. */
+		text_field_t *field; /**< The text_field_t which is the alternative input method for providing a file name. */
+		int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], /**< Width in cells of the various columns. */
+			column_positions[_T3_WDIGET_FP_MAX_COLUMNS], /**< Left-most position for each column. */
+			columns_visible, /**< The number of columns that are visible currently. */
+			scrollbar_range; /**< Visible range for scrollbar setting. */
+		sigc::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
 
+		/** Ensure that the updated value of #current does not put the highlighted entry outside the visible range. */
 		void ensure_cursor_on_screen(void);
+		/** Draw a single item. */
 		void draw_line(int idx, bool selected);
+		/** Update the width of a single column, based on the items to draw in it. */
 		void update_column_width(int column, int start);
+		/** Update the widths of all columns. */
 		void update_column_widths(void);
+		/** Handle a change of contents of #file_list. */
 		void content_changed(void);
 	public:
+		/** Create a new file_pane_t. */
 		file_pane_t(void);
+		/** Associate a text_field_t with this file_pane_t.
+		    The text_field_t will be updated when the selection in this file_pane_t
+		    changes.
+		*/
 		void set_text_field(text_field_t *_field);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
+		/** Set the list to its initial position, i.e. the selected item is the first item. */
 		void reset(void);
+		/** Set the file_list_t that this file_pane_t displays. */
 		void set_file_list(file_list_t *_file_list);
+		/** Set the current selected item to the named item. */
 		void set_file(const std::string *name);
 
 	T3_WIDGET_SIGNAL(activate, void, const std::string *);
