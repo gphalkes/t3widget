@@ -21,7 +21,6 @@ namespace t3_widget {
 
 class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 	private:
-		int height;
 		size_t top_idx, current;
 		t3_window_t *widgets_window;
 		widgets_t widgets;
