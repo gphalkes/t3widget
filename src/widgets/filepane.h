@@ -29,8 +29,6 @@ namespace t3_widget {
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 	private:
 		scrollbar_t scrollbar; /**< Scrollbar displayed at the bottom. */
-		int height, /**< Height of the window. */
-			width; /**< Width of the window. */
 		size_t top_idx, /**< Index of the first item displayed. */
 			current; /**< Index of the currently highlighted item. */
 		file_list_t *file_list; /**< List of files to display. */

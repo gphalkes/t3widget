@@ -48,15 +48,18 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	file_line->set_autocomplete(&view);
 
 	file_pane = new file_pane_t();
-	file_pane->set_size(height - 4, width - 4);
-	file_pane->set_position(2, 2);
 	file_pane->set_file_list(&names);
 	file_pane->set_text_field(file_line);
 	file_pane->connect_activate(sigc::mem_fun1(this, &file_dialog_t::ok_callback));
 	file_pane->set_file_list(&view);
 
+	file_pane_frame = new frame_t(frame_t::COVER_BOTTOM);
+	file_pane_frame->set_size(height - 4, width - 4);
+	file_pane_frame->set_position(2, 2);
+	file_pane_frame->set_child(file_pane);
+
 	show_hidden_box = new checkbox_t(false);
-	show_hidden_box->set_anchor(file_pane, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	show_hidden_box->set_anchor(file_pane_frame, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	show_hidden_box->set_position(0, 0);
 	show_hidden_box->connect_toggled(sigc::mem_fun(this, &file_dialog_t::refresh_view));
 	show_hidden_box->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
@@ -74,7 +77,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	cancel_button->connect_activate(sigc::mem_fun(this, &file_dialog_t::close));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	cancel_button_up_connection = cancel_button->connect_move_focus_up(
-		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
+		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane_frame));
 	ok_button = new button_t("_OK", true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
@@ -82,11 +85,11 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	ok_button_left_connection = ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 	ok_button_up_connection = ok_button->connect_move_focus_up(
-		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
+		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane_frame));
 
 	push_back(name_label);
 	push_back(file_line);
-	push_back(file_pane);
+	push_back(file_pane_frame);
 	push_back(show_hidden_box);
 	push_back(show_hidden_label);
 	push_back(ok_button);
@@ -101,11 +104,11 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 
 	set_widget_parent(options);
 	/* Make the file pane one line less high. */
-	file_pane->set_size(t3_win_get_height(window) - 5, None);
+	file_pane_frame->set_size(t3_win_get_height(window) - 5, None);
 
 	option_widget_set = true;
 	widgets.insert(widgets.end() - 2, options);
-	options->set_anchor(file_pane, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	options->set_anchor(file_pane_frame, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	options->set_position(0, 0);
 
 	cancel_button_up_connection.disconnect();
@@ -119,7 +122,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), ok_button));
 
 	if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != NULL) {
-		focus_widget->connect_move_focus_up(sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane));
+		focus_widget->connect_move_focus_up(sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane_frame));
 		focus_widget->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 		focus_widget->connect_move_focus_down(sigc::mem_fun(this, &file_dialog_t::focus_next));
 	}
@@ -130,7 +133,7 @@ bool file_dialog_t::set_size(optint height, optint width) {
 	result &= dialog_t::set_size(height, width);
 
 	result &= file_line->set_size(None, t3_win_get_width(window) - 3 - name_offset);
-	result &= file_pane->set_size(height - 4 - option_widget_set, width - 4);
+	result &= file_pane_frame->set_size(height - 4 - option_widget_set, width - 4);
 	return result;
 }
 

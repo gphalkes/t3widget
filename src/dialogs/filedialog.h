@@ -19,6 +19,7 @@
 #include <t3widget/widgets/filepane.h>
 #include <t3widget/widgets/button.h>
 #include <t3widget/widgets/checkbox.h>
+#include <t3widget/widgets/frame.h>
 
 namespace t3_widget {
 
@@ -31,6 +32,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 		int name_offset;
 
 		file_pane_t *file_pane;
+		frame_t *file_pane_frame;
 		text_field_t *file_line;
 		button_t *cancel_button, *ok_button;
 		checkbox_t *show_hidden_box;
