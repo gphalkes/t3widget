@@ -67,8 +67,9 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_l
 		text = _text;
 
 	text->window = this;
+	/*FIXME:WRAP:
 	if (text->get_wrap())
-		text->rewrap();
+		text->rewrap();*/
 
 	screen_pos = 0;
 	focus = false;
@@ -86,8 +87,10 @@ void edit_window_t::set_text(text_buffer_t *_text) {
 	text->window = NULL;
 	text = _text;
 	text->window = this;
+	/*FIXME:WRAP:
 	if (text->get_wrap())
 		text->rewrap();
+	*/
 	ensure_cursor_on_screen();
 	redraw = true;
 }
@@ -102,10 +105,12 @@ bool edit_window_t::set_size(optint height, optint width) {
 	result &= t3_win_resize(bottom_line_window, 1, width);
 	result &= scrollbar.set_size(height - 1, None);
 
+	/*FIXME:WRAP:
 	if (text->get_wrap()) {
 		text->rewrap();
 		redraw = true;
 	}
+	*/
 	ensure_cursor_on_screen();
 	return result;
 }
@@ -482,13 +487,17 @@ bool edit_window_t::process_key(key_t key) {
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				if (text->cursor.pos != text->get_line_max(text->cursor.line)) {
 					text->delete_char();
+	/*FIXME:WRAP:
 					if (text->get_wrap())
 						ensure_cursor_on_screen();
+					*/
 					redraw = true;
 				} else if (text->cursor.line + 1 < text->get_used_lines()) {
 					text->merge(false);
+	/*FIXME:WRAP:
 					if (text->get_wrap())
 						ensure_cursor_on_screen();
+					*/
 					redraw = true;
 				}
 			} else {
@@ -648,7 +657,7 @@ void edit_window_t::update_contents(void) {
 		text->topleft.line, t3_win_get_height(edit_window));
 	scrollbar.update_contents();
 
-	text->get_line_info(&logical_cursor_pos);
+	text->get_logical_cursor_pos(&logical_cursor_pos);
 	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1,
 		text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
 	info_width = t3_term_strwidth(info);

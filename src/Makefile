@@ -21,7 +21,6 @@ SOURCES.libt3widget.la := \
 	log.cc \
 	main.cc \
 	stringmatcher.cc \
-	subline.cc \
 	textbuffer.cc \
 	textline.cc \
 	undo.cc \
@@ -34,7 +33,6 @@ SOURCES.libt3widget.la := \
 	dialogs/mainwindow.cc \
 	dialogs/menupanel.cc \
 	dialogs/messagedialog.cc \
-	dialogs/inputselectiondialog.cc \
 	widgets/bullet.cc \
 	widgets/button.cc \
 	widgets/checkbox.cc \
@@ -52,8 +50,10 @@ SOURCES.libt3widget.la := \
 	widgets/split.cc \
 	widgets/textfield.cc \
 	widgets/widget.cc \
-	widgets/separator.cc \
-	widgets/textwindow.cc
+	widgets/separator.cc
+
+#	dialogs/inputselectiondialog.cc \
+#	widgets/textwindow.cc
 
 
 CXXLTTARGETS := libt3widget.la

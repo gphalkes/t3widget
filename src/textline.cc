@@ -666,6 +666,7 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 
 	/* Zero-width characters don't overwrite, only insert. */
 	if ((conversion_meta_data & WIDTH_MASK) == 0) {
+		//FIXME: shouldn't this simply insert and set starts_with_combining to true?
 		if (pos == 0)
 			return false;
 

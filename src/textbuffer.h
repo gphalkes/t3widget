@@ -20,7 +20,6 @@
 
 #include <t3widget/key.h>
 #include <t3widget/textline.h>
-#include <t3widget/subline.h>
 #include <t3widget/undo.h>
 #include <t3widget/main.h>
 #include <t3widget/interfaces.h>
@@ -28,7 +27,6 @@
 namespace t3_widget {
 
 typedef std::vector<text_line_t *> lines_t;
-typedef std::vector<subtext_line_t> sublines_t;
 
 struct find_result_t;
 class finder_t;
@@ -44,10 +42,7 @@ class T3_WIDGET_API text_buffer_window_t : public widget_t {
 class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 	protected:
 		lines_t lines;
-		sublines_t wraplines;
-		bool wrap;
 		int tabsize;
-		int wrap_width;
 		text_coordinate_t selection_start;
 		text_coordinate_t selection_end;
 		undo_list_t undo_list;
@@ -61,22 +56,16 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 
 		undo_t *get_undo(undo_type_t type);
 		undo_t *get_undo(undo_type_t type, int line, int pos);
-		bool init_wrap_lines(void);
 		void locate_pos(void);
 		void locate_pos(text_coordinate_t *coord) const;
-		int find_line(int idx) const;
-		void find_wrap_line(text_coordinate_t *coord) const;
-		int get_real_line(int line) const;
-		text_coordinate_t get_wrap_line(text_coordinate_t coord) const;
-		int get_max(int line) const;
-		bool rewrap_line(int line);
 		void delete_block(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
-		void insert_block_internal(text_coordinate_t insertAt, text_line_t *block);
+		bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
 		int apply_undo_redo(undo_type_t type, undo_t *current);
-		int merge_internal(int line);
+		bool merge_internal(int line);
 		bool break_line_internal(void);
 
 		void set_selection_from_find(int line, find_result_t *result);
+
 	public:
 		text_buffer_t(const char *_name = NULL);
 		virtual ~text_buffer_t(void);
@@ -85,55 +74,49 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		void set_tabsize(int tabsize);
 		int get_tabsize(void) const;
 
-		// API for manipulating lines through the file
 		bool insert_char(key_t c);
 		bool overwrite_char(key_t c);
-		bool append_char(key_t c);
-		int delete_char(void);
-		int backspace_char(void);
-		int merge(bool backspace);
+		bool delete_char(void);
+		bool backspace_char(void);
+		bool merge(bool backspace);
+		bool break_line(void);
+		bool insert_block(text_line_t *block);
+
 		bool append_text(const char *text);
 		bool append_text(const char *text, size_t size);
 		bool append_text(const std::string *text);
 
-		bool break_line(void);
-		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;
-		int calculate_line_pos(int line, int pos) const;
-
-		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const;
 		int get_line_max(int line) const;
-		void get_next_word(void);
-		void get_previous_word(void);
-		void get_line_info(text_coordinate_t *new_coord) const;
-
 		void adjust_position(int adjust);
-		void rewrap(void);
-		bool get_wrap(void) const;
-		void set_wrap(bool _wrap);
 		int width_at_cursor(void) const;
 
+		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const;
+		void get_next_word(void);
+		void get_previous_word(void);
+
+		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;
+		int calculate_line_pos(int line, int pos) const;
+		void get_logical_cursor_pos(text_coordinate_t *new_coord) const;
+		const text_line_t *get_name_line(void) const;
+
+		text_coordinate_t get_selection_start(void) const;
+		text_coordinate_t get_selection_end(void) const;
 		void set_selection_end(void);
 		void set_selection_mode(selection_mode_t mode);
 		selection_mode_t get_selection_mode(void) const;
 		bool selection_empty(void) const;
-		text_coordinate_t get_selection_start(void) const;
-		text_coordinate_t get_selection_end(void) const;
 		void delete_selection(void);
-		void replace_selection(text_line_t *block);
-		text_line_t *convert_selection(void);
-
-		int insert_block(text_line_t *block);
-
-		int apply_undo(void);
-		int apply_redo(void);
-
-		bool is_modified(void) const;
+		bool replace_selection(text_line_t *block);
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);
 
+		bool is_modified(void) const;
+		text_line_t *convert_selection(void);
+		int apply_undo(void);
+		int apply_redo(void);
+
 		const char *get_name(void) const;
-		const text_line_t *get_name_line(void) const;
 		bool has_window(void) const;
 
 		virtual void bad_draw_recheck(void);
