@@ -18,8 +18,6 @@ namespace t3_widget {
 	class edit_window_t;
 }; // namespace
 
-#include <t3widget/dialogs/gotodialog.h>
-#include <t3widget/dialogs/finddialog.h>
 #include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/textbuffer.h>
@@ -29,6 +27,10 @@ namespace t3_widget {
 namespace t3_widget {
 
 class finder_t;
+class wrap_info_t;
+class goto_dialog_t;
+class find_dialog_t;
+class replace_buttons_dialog_t;
 
 class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
 	protected:
@@ -49,6 +51,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		bool focus;
 		find_dialog_t *find_dialog;
 		finder_t *finder;
+		wrap_type_t wrap_type;
+		wrap_info_t *wrap_info;
+		text_coordinate_t topleft;
 
 		static void init(void);
 		static const char *ins_string[];
@@ -70,11 +75,14 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		void find_activated(find_action_t action, finder_t *finder);
 		void goto_line(int line);
+		void set_wrap_internal(wrap_type_t wrap);
 
 	public:
+		class view_parameters_t;
+
 		edit_window_t(text_buffer_t *_text = NULL);
 		virtual ~edit_window_t(void);
-		virtual void set_text(text_buffer_t *_text);
+		virtual void set_text(text_buffer_t *_text, view_parameters_t *params = NULL);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
@@ -98,6 +106,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_finder(finder_t *_finder);
 
 		void set_tabsize(int _tabsize);
+		void set_wrap(wrap_type_t wrap);
+		view_parameters_t *save_view_parameters(void);
 };
 
 }; // namespace

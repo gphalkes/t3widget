@@ -134,6 +134,12 @@ _T3_WIDGET_ENUM(rewrap_type_t,
 	DELETE_LINES
 );
 
+_T3_WIDGET_ENUM(wrap_type_t,
+	NONE,
+	WORD,
+	CHARACTER
+);
+
 #undef _T3_WIDGET_ENUM
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);

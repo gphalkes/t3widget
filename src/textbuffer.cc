@@ -71,8 +71,6 @@ text_buffer_t::text_buffer_t(const char *_name) : name(NULL) {
 	selection_end.line = 0;
 	cursor.pos = 0;
 	cursor.line = 0;
-	topleft.pos = 0;
-	topleft.line = 0;
 	ins_mode = 0;
 	last_set_pos = 0;
 	selection_mode = selection_mode_t::NONE;
