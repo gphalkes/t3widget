@@ -125,6 +125,15 @@ _T3_WIDGET_ENUM(attribute_t,
 /** @var attribute_t::BAD_DRAW
     Attribute specifier for text which the terminal is not able to draw correctly. */
 //FIXME: list other attributes
+
+_T3_WIDGET_ENUM(rewrap_type_t,
+	REWRAP_ALL,
+	REWRAP_LINE,
+	REWRAP_LINE_LOCAL,
+	INSERT_LINES,
+	DELETE_LINES
+);
+
 #undef _T3_WIDGET_ENUM
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);

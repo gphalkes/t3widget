@@ -66,7 +66,6 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_l
 	else
 		text = _text;
 
-	text->window = this;
 	/*FIXME:WRAP:
 	if (text->get_wrap())
 		text->rewrap();*/
@@ -84,9 +83,7 @@ void edit_window_t::set_text(text_buffer_t *_text) {
 	if (text == _text)
 		return;
 
-	text->window = NULL;
 	text = _text;
-	text->window = this;
 	/*FIXME:WRAP:
 	if (text->get_wrap())
 		text->rewrap();
@@ -123,7 +120,7 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 	else
 		width = text->width_at_cursor();
 
-	screen_pos = text->calculate_screen_pos();
+	screen_pos = text->calculate_screen_pos(NULL, tabsize);
 
 	if (text->cursor.line < text->topleft.line) {
 		text->topleft.line = text->cursor.line;
@@ -164,9 +161,10 @@ void edit_window_t::repaint_screen(void) {
 
 	info.leftcol = text->topleft.pos;
 	info.size = t3_win_get_width(edit_window);
+	info.tabsize = tabsize;
 	info.normal_attr = 0;
 	info.selected_attr = attributes.text_selected;
-	for (i = 0; i < t3_win_get_height(edit_window) && (i + text->topleft.line) < text->get_used_lines(); i++) {
+	for (i = 0; i < t3_win_get_height(edit_window) && (i + text->topleft.line) < text->size(); i++) {
 		info.selection_start = text->topleft.line + i == current_start.line ? current_start.pos : -1;
 		if (text->topleft.line + i >= current_start.line) {
 			if (text->topleft.line + i < current_end.line)
@@ -190,11 +188,11 @@ void edit_window_t::repaint_screen(void) {
 
 void edit_window_t::inc_x(void) {
 	if (text->cursor.pos == text->get_line_max(text->cursor.line)) {
-		if (text->cursor.line >= text->get_used_lines() - 1)
+		if (text->cursor.line >= text->size() - 1)
 			return;
 
 		text->cursor.line++;
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0);
+		text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0, tabsize);
 	} else {
 		text->adjust_position(1);
 	}
@@ -229,9 +227,9 @@ void edit_window_t::previous_word(void) {
 }
 
 void edit_window_t::inc_y(void) {
-	if (text->cursor.line + 1 < text->get_used_lines()) {
+	if (text->cursor.line + 1 < text->size()) {
 		text->cursor.line++;
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos);
+		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
 		ensure_cursor_on_screen();
 	} else {
 		text->cursor.pos = text->get_line_max(text->cursor.line);
@@ -243,7 +241,7 @@ void edit_window_t::inc_y(void) {
 void edit_window_t::dec_y(void) {
 	if (text->cursor.line > 0) {
 		text->cursor.line--;
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos);
+		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
 		ensure_cursor_on_screen();
 	} else {
 		text->last_set_pos = text->cursor.pos = 0;
@@ -254,24 +252,24 @@ void edit_window_t::dec_y(void) {
 void edit_window_t::pgdn(void) {
 	bool need_adjust = true;
 
-	if (text->cursor.line + t3_win_get_height(edit_window) - 1 < text->get_used_lines()) {
+	if (text->cursor.line + t3_win_get_height(edit_window) - 1 < text->size()) {
 		text->cursor.line += t3_win_get_height(edit_window) - 1;
 	} else {
-		text->cursor.line = text->get_used_lines() - 1;
+		text->cursor.line = text->size() - 1;
 		text->cursor.pos = text->get_line_max(text->cursor.line);
 		need_adjust = false;
 	}
 
 	/* If the end of the text is already on the screen, don't change the top line. */
-	if (text->topleft.line + t3_win_get_height(edit_window) < text->get_used_lines()) {
+	if (text->topleft.line + t3_win_get_height(edit_window) < text->size()) {
 		text->topleft.line += t3_win_get_height(edit_window) - 1;
-		if (text->topleft.line + t3_win_get_height(edit_window) > text->get_used_lines())
-			text->topleft.line = text->get_used_lines() - t3_win_get_height(edit_window);
+		if (text->topleft.line + t3_win_get_height(edit_window) > text->size())
+			text->topleft.line = text->size() - t3_win_get_height(edit_window);
 		redraw = true;
 	}
 
 	if (need_adjust)
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos);
+		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
 
 	ensure_cursor_on_screen();
 
@@ -302,7 +300,7 @@ void edit_window_t::pgup(void) {
 	}
 
 	if (need_adjust)
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos);
+		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
 
 	ensure_cursor_on_screen();
 }
@@ -453,7 +451,7 @@ bool edit_window_t::process_key(key_t key) {
 		case EKEY_HOME | EKEY_SHIFT:
 		case EKEY_HOME:
 			screen_pos = text->last_set_pos = 0;
-			text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0);
+			text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0, tabsize);
 			if (text->topleft.pos != 0)
 				ensure_cursor_on_screen();
 			break;
@@ -472,7 +470,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 		case EKEY_END | EKEY_CTRL | EKEY_SHIFT:
 		case EKEY_END | EKEY_CTRL: {
-			text->cursor.line = text->get_used_lines() - 1;
+			text->cursor.line = text->size() - 1;
 			text->cursor.pos = text->get_line_max(text->cursor.line);
 			ensure_cursor_on_screen();
 			text->last_set_pos = screen_pos;
@@ -492,7 +490,7 @@ bool edit_window_t::process_key(key_t key) {
 						ensure_cursor_on_screen();
 					*/
 					redraw = true;
-				} else if (text->cursor.line + 1 < text->get_used_lines()) {
+				} else if (text->cursor.line + 1 < text->size()) {
 					text->merge(false);
 	/*FIXME:WRAP:
 					if (text->get_wrap())
@@ -653,11 +651,12 @@ void edit_window_t::update_contents(void) {
 	t3_win_set_paint(bottom_line_window, 0, 0);
 	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
 
-	scrollbar.set_parameters(max(text->get_used_lines(), text->topleft.line + t3_win_get_height(edit_window)),
+	scrollbar.set_parameters(max(text->size(), text->topleft.line + t3_win_get_height(edit_window)),
 		text->topleft.line, t3_win_get_height(edit_window));
 	scrollbar.update_contents();
 
-	text->get_logical_cursor_pos(&logical_cursor_pos);
+	logical_cursor_pos = text->cursor;
+	logical_cursor_pos.pos = text->calculate_screen_pos(NULL, tabsize);
 	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1,
 		text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
 	info_width = t3_term_strwidth(info);
@@ -776,7 +775,7 @@ void edit_window_t::goto_line(int line) {
 		return;
 
 	reset_selection();
-	text->cursor.line = (line > text->get_used_lines() ? text->get_used_lines() : line) - 1;
+	text->cursor.line = (line > text->size() ? text->size() : line) - 1;
 	if (text->cursor.pos > text->get_line_max(text->cursor.line))
 		text->cursor.pos = text->get_line_max(text->cursor.line);
 	ensure_cursor_on_screen();
@@ -825,6 +824,17 @@ void edit_window_t::set_finder(finder_t *_finder) {
 void edit_window_t::force_redraw(void) {
 	widget_t::force_redraw();
 	ensure_cursor_on_screen();
+}
+
+void edit_window_t::set_tabsize(int _tabsize) {
+	if (_tabsize == tabsize)
+		return;
+	tabsize = _tabsize;
+	force_redraw();
+}
+
+void edit_window_t::bad_draw_recheck(void) {
+	widget_t::force_redraw();
 }
 
 }; // namespace

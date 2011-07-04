@@ -25,6 +25,7 @@ SOURCES.libt3widget.la := \
 	textline.cc \
 	undo.cc \
 	util.cc \
+	wrapinfo.cc \
 	dialogs/dialog.cc \
 	dialogs/filedialog.cc \
 	dialogs/finddialog.cc \

@@ -26,13 +26,13 @@
 
 #include "textbuffer.h"
 #include "textline.h"
-#include "subline.h"
 #include "colorscheme.h"
 #include "util.h"
 #include "undo.h"
 #include "widgets/editwindow.h"
 #include "internal.h"
 #include "findcontext.h"
+#include "wrapinfo.h"
 
 using namespace std;
 namespace t3_widget {
@@ -51,7 +51,6 @@ namespace t3_widget {
 text_buffer_t::~text_buffer_t(void) {
     int i;
 
-	//FIXME: this doesn't take into account sublines etc. Needs checking of what should be deleted
     /* Free all the text_line_t structs */
     for (i = 0; (size_t) i < lines.size(); i++)
 		delete lines[i];
@@ -66,8 +65,6 @@ text_buffer_t::text_buffer_t(const char *_name) : name(NULL) {
 	/* Allocate a new, empty line */
 	lines.push_back(new text_line_t());
 
-	tabsize = 8;
-
 	selection_start.pos = -1;
 	selection_start.line = 0;
 	selection_end.pos = -1;
@@ -81,15 +78,16 @@ text_buffer_t::text_buffer_t(const char *_name) : name(NULL) {
 	selection_mode = selection_mode_t::NONE;
 	last_undo = NULL;
 	last_undo_type = UNDO_NONE;
-	window = NULL;
 }
 
-int text_buffer_t::get_used_lines(void) const {
+int text_buffer_t::size(void) const {
 	return lines.size();
 }
 bool text_buffer_t::insert_char(key_t c) {
 	if (!lines[cursor.line]->insert_char(cursor.pos, c, get_undo(UNDO_ADD)))
 		return false;
+
+	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 
 	cursor.pos = lines[cursor.line]->adjust_position(cursor.pos, 1);
 	last_undo_position = cursor;
@@ -101,6 +99,8 @@ bool text_buffer_t::overwrite_char(key_t c) {
 	if (!lines[cursor.line]->overwrite_char(cursor.pos, c, get_undo(UNDO_OVERWRITE)))
 		return false;
 
+	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+
 	cursor.pos = lines[cursor.line]->adjust_position(cursor.pos, 1);
 	last_undo_position = cursor;
 
@@ -110,6 +110,7 @@ bool text_buffer_t::overwrite_char(key_t c) {
 bool text_buffer_t::delete_char(void) {
 	if (!lines[cursor.line]->delete_char(cursor.pos, get_undo(UNDO_DELETE)))
 		return false;
+	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 	return true;
 }
 
@@ -120,6 +121,9 @@ bool text_buffer_t::backspace_char(void) {
 	if (!lines[cursor.line]->backspace_char(cursor.pos, get_undo(UNDO_BACKSPACE)))
 		return false;
 	cursor.pos = newpos;
+
+	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+
 	last_undo_position = cursor;
 	return true;
 }
@@ -132,6 +136,8 @@ bool text_buffer_t::merge_internal(int line) {
 	cursor.pos = lines[line]->get_length();
 	lines[line]->merge(lines[line + 1]);
 	lines.erase(lines.begin() + line + 1);
+	rewrap_required(rewrap_type_t::DELETE_LINES, line + 1, line + 2);
+	rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
 	return true;
 }
 
@@ -164,6 +170,8 @@ bool text_buffer_t::break_line_internal(void) {
 
 	insert = lines[cursor.line]->break_line(cursor.pos);
 	lines.insert(lines.begin() + cursor.line + 1, insert);
+	rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
+	rewrap_required(rewrap_type_t::INSERT_LINES, cursor.line + 1, cursor.line + 2);
 	cursor.line++;
 	cursor.pos = 0;
 	return true;
@@ -174,18 +182,17 @@ bool text_buffer_t::break_line(void) {
 	return break_line_internal();
 }
 
-int text_buffer_t::calculate_screen_pos(const text_coordinate_t *where) const {
+int text_buffer_t::calculate_screen_pos(const text_coordinate_t *where, int tabsize) const {
 	if (where == NULL)
 		where = &cursor;
 	return lines[where->line]->calculate_screen_width(0, where->pos, tabsize);
 }
 
-int text_buffer_t::calculate_line_pos(int line, int pos) const {
+int text_buffer_t::calculate_line_pos(int line, int pos, int tabsize) const {
 	return lines[line]->calculate_line_pos(0, INT_MAX, pos, tabsize);
 }
 
 void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const {
-	info->tabsize = tabsize;
 	info->start = 0;
 	info->max = INT_MAX;
 	info->flags = 0;
@@ -238,11 +245,6 @@ void text_buffer_t::get_previous_word(void) {
 		cursor.pos = 0;
 }
 
-void text_buffer_t::get_logical_cursor_pos(text_coordinate_t *new_coord) const {
-	new_coord->line = cursor.line;
-	new_coord->pos = lines[new_coord->line]->calculate_screen_width(0, cursor.pos, tabsize);
-}
-
 void text_buffer_t::adjust_position(int adjust) {
 	cursor.pos = lines[cursor.line]->adjust_position(cursor.pos, adjust);
 }
@@ -285,6 +287,7 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 			undo->get_text()->merge(selected_text);
 		else
 			delete selected_text;
+		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
 		return;
 	}
 
@@ -363,6 +366,10 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 	end.line++;
 
 	lines.erase(lines.begin() + start.line, lines.begin() + end.line);
+	rewrap_required(rewrap_type_t::DELETE_LINES, start.line, end.line);
+	rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
+	if ((size_t) start.line < lines.size())
+		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, 0);
 }
 
 
@@ -390,17 +397,21 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
 	next_line = block->break_on_nl(&next_start);
 
 	lines[insert_at.line]->merge(next_line);
+	rewrap_required(rewrap_type_t::REWRAP_LINE, insert_at.line, insert_at.pos);
 
 	while (next_start > 0) {
 		insert_at.line++;
 		next_line = block->break_on_nl(&next_start);
 		lines.insert(lines.begin() + insert_at.line, next_line);
+		rewrap_required(rewrap_type_t::INSERT_LINES, insert_at.line, insert_at.line + 1);
 	}
 
 	cursor.pos = lines[insert_at.line]->get_length();
 
-	if (second_half != NULL)
+	if (second_half != NULL) {
 		lines[insert_at.line]->merge(second_half);
+		rewrap_required(rewrap_type_t::REWRAP_LINE, insert_at.line, cursor.pos);
+	}
 
 	cursor.line = insert_at.line;
 	return true;
@@ -746,23 +757,10 @@ const char *text_buffer_t::get_name(void) const {
 	return name;
 }
 
-void text_buffer_t::set_tabsize(int _tabsize) {
-	if (tabsize < 1 || tabsize > 32)
-		return;
-	tabsize = _tabsize;
-	if (window != NULL)
-		window->force_redraw();
-}
-
-bool text_buffer_t::has_window(void) const {
-	return window != NULL;
-}
-
 void text_buffer_t::bad_draw_recheck(void) {
 	for (lines_t::iterator iter = lines.begin(); iter != lines.end(); iter++)
 		(*iter)->bad_draw_recheck();
 	name_line.bad_draw_recheck();
-	window->force_redraw();
 }
 
 void text_buffer_t::set_selection_mode(selection_mode_t mode) {

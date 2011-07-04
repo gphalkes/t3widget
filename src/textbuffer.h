@@ -30,19 +30,12 @@ typedef std::vector<text_line_t *> lines_t;
 
 struct find_result_t;
 class finder_t;
-
-/** Interface definition for widgets displaying a text_buffer_t. */
-class T3_WIDGET_API text_buffer_window_t : public widget_t {
-	public:
-		text_buffer_window_t(void) : widget_t() {}
-		text_buffer_window_t(int height, int width) : widget_t(height, width) {}
-		virtual int get_text_width(void) = 0;
-};
+class wrap_info_t;
 
 class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
+	friend class wrap_info_t;
 	protected:
 		lines_t lines;
-		int tabsize;
 		text_coordinate_t selection_start;
 		text_coordinate_t selection_end;
 		undo_list_t undo_list;
@@ -69,10 +62,9 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 	public:
 		text_buffer_t(const char *_name = NULL);
 		virtual ~text_buffer_t(void);
+		virtual void bad_draw_recheck(void);
 
-		int get_used_lines(void) const;
-		void set_tabsize(int tabsize);
-		int get_tabsize(void) const;
+		int size(void) const;
 
 		bool insert_char(key_t c);
 		bool overwrite_char(key_t c);
@@ -94,9 +86,9 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		void get_next_word(void);
 		void get_previous_word(void);
 
-		int calculate_screen_pos(const text_coordinate_t *where = NULL) const;
-		int calculate_line_pos(int line, int pos) const;
-		void get_logical_cursor_pos(text_coordinate_t *new_coord) const;
+		int calculate_screen_pos(const text_coordinate_t *where, int tabsize) const;
+		int calculate_line_pos(int line, int pos, int tabsize) const;
+
 		const text_line_t *get_name_line(void) const;
 
 		text_coordinate_t get_selection_start(void) const;
@@ -117,17 +109,16 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		int apply_redo(void);
 
 		const char *get_name(void) const;
-		bool has_window(void) const;
 
-		virtual void bad_draw_recheck(void);
-
+		//FIXME: make these members private again
 		/* These are public members, because they store data that is not used
 		   by the text_buffer_t class (except cursor), but are stored here
 		   because the data are associated with a text bufffer and not with
 		   a window displaying the text buffer. */
 		text_coordinate_t cursor, topleft;
 		int ins_mode, last_set_pos;
-		text_buffer_window_t *window;
+
+	T3_WIDGET_SIGNAL(rewrap_required, void, rewrap_type_t, int, int);
 };
 
 }; // namespace

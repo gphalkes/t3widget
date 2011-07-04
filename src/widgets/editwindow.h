@@ -30,7 +30,7 @@ namespace t3_widget {
 
 class finder_t;
 
-class T3_WIDGET_API edit_window_t : public text_buffer_window_t, public center_component_t, public container_t {
+class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
 	protected:
 		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;
@@ -45,6 +45,7 @@ class T3_WIDGET_API edit_window_t : public text_buffer_window_t, public center_c
 		scrollbar_t scrollbar;
 		text_buffer_t *text;
 		int screen_pos; // Cached position of cursor in screen coordinates
+		int tabsize;
 		bool focus;
 		find_dialog_t *find_dialog;
 		finder_t *finder;
@@ -68,6 +69,7 @@ class T3_WIDGET_API edit_window_t : public text_buffer_window_t, public center_c
 		void delete_selection(void);
 
 		void find_activated(find_action_t action, finder_t *finder);
+		void goto_line(int line);
 
 	public:
 		edit_window_t(text_buffer_t *_text = NULL);
@@ -79,9 +81,8 @@ class T3_WIDGET_API edit_window_t : public text_buffer_window_t, public center_c
 		virtual void set_focus(bool focus);
 		virtual void force_redraw(void);
 
-		void goto_line(int line);
-
 		virtual int get_text_width(void);
+		virtual void bad_draw_recheck(void);
 
 		void undo(void);
 		void redo(void);
@@ -95,6 +96,8 @@ class T3_WIDGET_API edit_window_t : public text_buffer_window_t, public center_c
 		text_buffer_t *get_text(void);
 		void set_find_dialog(find_dialog_t *_find_dialog);
 		void set_finder(finder_t *_finder);
+
+		void set_tabsize(int _tabsize);
 };
 
 }; // namespace
