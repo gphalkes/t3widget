@@ -26,6 +26,10 @@ file_pane_t::file_pane_t(void) : widget_t(2, 1), scrollbar(false), top_idx(0), c
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 }
 
+file_pane_t::~file_pane_t(void) {
+	content_changed_connection.disconnect();
+}
+
 void file_pane_t::set_text_field(text_field_t *_field) {
 	field = _field;
 }

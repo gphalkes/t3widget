@@ -116,6 +116,8 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 		list_t *base;
 		/** Filter function. */
 		sigc::slot<bool, list_t *, size_t> test;
+		/** Connection to base list's content_changed signal. */
+		sigc::connection base_content_changed_connection;
 
 		/** Update the filtered list.
 			Called automatically when the base list changes, through the use of the
@@ -138,7 +140,11 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 	public:
 		/** Make a new filtered_list_internal_t, wrapping an existing list. */
 		filtered_list_internal_t(list_t *list) : base(list) {
-			base->connect_content_changed(sigc::mem_fun(this, &filtered_list_internal_t::update_list));
+			base_content_changed_connection =
+				base->connect_content_changed(sigc::mem_fun(this, &filtered_list_internal_t::update_list));
+		}
+		virtual ~filtered_list_internal_t(void) {
+			base_content_changed_connection.disconnect();
 		}
 		virtual void set_filter(const sigc::slot<bool, list_t *, size_t> &_test) {
 			test = _test;
