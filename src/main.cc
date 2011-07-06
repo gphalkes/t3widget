@@ -59,6 +59,7 @@ complex_error_t::source_t complex_error_t::get_source(void) { return source; }
 int complex_error_t::get_error(void) { return error; }
 
 const char *complex_error_t::get_string(void) {
+	//FIXME: add source of error to the string!
 	switch (source) {
 		case SRC_ERRNO:
 			return strerror(error);
