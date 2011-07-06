@@ -79,6 +79,7 @@ libt3widget.pc: libt3widget.pc.in
 install: all libt3widget.pc
 	$(LIBTOOL) --mode=install $(INSTALL) -s src/libt3widget.la $(libdir)
 	chmod 0644 $(libdir)/libt3widget.la
+	$(INSTALL) -d $(includedir)/t3/widget/t3widget
 	$(INSTALL) -m0644 src/*.h $(includedir)/t3/widget/t3widget
 	$(INSTALL) -d $(includedir)/t3/widget/t3widget/dialogs
 	$(INSTALL) -m0644 src/dialogs/*.h $(includedir)/t3/widget/t3widget/dialogs
