@@ -6,7 +6,7 @@ Name: libt3widget
 Description: libt3widget dialog toolkit library
 Version: <VERSION>
 URL: http://os.ghalkes.nl/t3/libt3widget.html
-Requires: libt3window
+Requires: libt3window sigc++-2.0
 Requires.private: libtranscript libt3unicode libt3key
 Cflags: -I${includedir}/t3/widget
 Libs: -L${libdir} -lt3widget
