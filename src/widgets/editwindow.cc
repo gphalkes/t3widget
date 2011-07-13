@@ -604,14 +604,14 @@ bool edit_window_t::process_key(key_t key) {
 		case EKEY_HOME:
 			screen_pos = text->last_set_pos = 0;
 			text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0, tabsize);
-			if (top_left.pos != 0)
+			if (wrap_type == wrap_type_t::NONE && top_left.pos != 0)
 				ensure_cursor_on_screen();
 			break;
 		case EKEY_HOME | EKEY_CTRL | EKEY_SHIFT:
 		case EKEY_HOME | EKEY_CTRL:
 			screen_pos = text->last_set_pos = text->cursor.pos = 0;
 			text->cursor.line = 0;
-			if (top_left.pos != 0 || top_left.line != 0)
+			if ((wrap_type == wrap_type_t::NONE && top_left.pos != 0) || top_left.line != 0)
 				ensure_cursor_on_screen();
 			break;
 		case EKEY_END | EKEY_SHIFT:
@@ -803,12 +803,23 @@ void edit_window_t::update_contents(void) {
 	t3_win_set_paint(bottom_line_window, 0, 0);
 	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
 
-	scrollbar.set_parameters(max(text->size(), top_left.line + t3_win_get_height(edit_window)),
-		top_left.line, t3_win_get_height(edit_window));
+	if (wrap_type == wrap_type_t::NONE) {
+		scrollbar.set_parameters(max(text->size(), top_left.line + t3_win_get_height(edit_window)),
+			top_left.line, t3_win_get_height(edit_window));
+	} else {
+		int i, count = 0;
+		for (i = 0; i < top_left.line; i++)
+			count += wrap_info->get_line_count(i);
+		count += top_left.pos;
+
+		scrollbar.set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(edit_window)),
+			count, t3_win_get_height(edit_window));
+	}
 	scrollbar.update_contents();
 
 	logical_cursor_pos = text->cursor;
 	logical_cursor_pos.pos = text->calculate_screen_pos(NULL, tabsize);
+
 	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1,
 		text->is_modified() ? '*' : ' ', ins_string[text->ins_mode]);
 	info_width = t3_term_strwidth(info);
