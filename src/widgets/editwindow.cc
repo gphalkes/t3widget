@@ -335,13 +335,29 @@ void edit_window_t::inc_y(void) {
 }
 
 void edit_window_t::dec_y(void) {
-	if (text->cursor.line > 0) {
-		text->cursor.line--;
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
-		ensure_cursor_on_screen();
+	if (wrap_type == wrap_type_t::NONE) {
+		if (text->cursor.line > 0) {
+			text->cursor.line--;
+			text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
+			ensure_cursor_on_screen();
+		} else {
+			text->last_set_pos = text->cursor.pos = 0;
+			ensure_cursor_on_screen();
+		}
 	} else {
-		text->last_set_pos = text->cursor.pos = 0;
-		ensure_cursor_on_screen();
+		int sub_line = wrap_info->find_line(text->cursor);
+		if (sub_line > 0) {
+			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, text->last_set_pos, sub_line - 1);
+			ensure_cursor_on_screen();
+		} else if (text->cursor.line > 0) {
+			text->cursor.line--;
+			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, text->last_set_pos,
+				wrap_info->get_line_count(text->cursor.line) - 1);
+		} else {
+			text->cursor.pos = 0;
+			ensure_cursor_on_screen();
+			text->last_set_pos = screen_pos;
+		}
 	}
 }
 
