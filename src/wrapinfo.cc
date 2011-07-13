@@ -13,6 +13,7 @@
 */
 
 #include "wrapinfo.h"
+#include "internal.h"
 
 namespace t3_widget {
 
@@ -22,7 +23,7 @@ wrap_info_t::~wrap_info_t(void) {
 	rewrap_connection.disconnect();
 }
 
-int wrap_info_t::get_size() { return size; }
+int wrap_info_t::get_size() const { return size; }
 
 void wrap_info_t::delete_lines(int first, int last) {
 	for (wrap_data_t::iterator iter = wrap_data.begin() + first; iter != wrap_data.begin() + last; iter++) {
@@ -49,7 +50,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 
 	/* The list of break positions always contains the start position (0). */
 
-	for (i = wrap_data[line]->size() - 1; i > 0 && (*wrap_data[line])[i] > pos; i++) {}
+	for (i = wrap_data[line]->size() - 1; i > 0 && (*wrap_data[line])[i] > pos; i--) {}
 
 	if (local) {
 		break_pos = text->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width, tabsize);
@@ -63,7 +64,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	wrap_data[line]->erase(wrap_data[line]->begin() + i + 1, wrap_data[line]->end());
 
 	while (1) {
-		break_pos = text->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width, tabsize);
+		break_pos = text->lines[line]->find_next_break_pos(wrap_data[line]->back(), wrap_width, tabsize);
 		if (break_pos.pos > 0)
 			wrap_data[line]->push_back(break_pos.pos);
 		else
@@ -130,6 +131,70 @@ void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
 			delete_lines(a, b);
 			break;
 	}
+}
+
+void wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
+	ASSERT(count > 0);
+	while (coord.line < (int) wrap_data.size() && (int) wrap_data[coord.line]->size() <= coord.pos + count) {
+		count -= wrap_data[coord.line]->size() - coord.pos;
+		coord.line++;
+		coord.pos = 0;
+	}
+	if (coord.line == (int) wrap_data.size()) {
+		coord.line = wrap_data.size() - 1;
+		coord.pos = wrap_data[coord.line]->size() - 1;
+	} else {
+		coord.pos += count;
+	}
+}
+
+void wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
+	ASSERT(count > 0);
+	if (coord.pos > count) {
+		coord.pos -= count;
+		return;
+	}
+	coord.pos = 0;
+	while (coord.line > 0 && count >= (int) wrap_data[coord.line - 1]->size()) {
+		coord.line--;
+		count -= wrap_data[coord.line]->size();
+	}
+	if (coord.line == 0)
+		return;
+	coord.pos = wrap_data[coord.line]->size() - count - 1;
+}
+
+int wrap_info_t::get_line_count(int line) const {
+	return (int) wrap_data[line]->size();
+}
+
+text_coordinate_t wrap_info_t::get_end(void) const {
+	text_coordinate_t result((int) wrap_data.size() - 1, (int) wrap_data[wrap_data.size() - 1]->size() - 1);
+	return result;
+}
+
+int wrap_info_t::find_line(text_coordinate_t coord) const {
+	size_t i;
+	for (i = 1; i < wrap_data[coord.line]->size() && coord.pos >= (*wrap_data[coord.line])[i]; i++) {}
+	return i - 1;
+}
+
+int wrap_info_t::calculate_screen_pos(void) const {
+	int sub_line;
+	sub_line = find_line(text->cursor);
+	return text->lines[text->cursor.line]->calculate_screen_width((*wrap_data[text->cursor.line])[sub_line], text->cursor.pos, tabsize);
+}
+
+void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line, text_line_t::paint_info_t *info) const {
+	info->start = (*wrap_data[line.line])[line.pos];
+	if (line.pos + 1 < (int) wrap_data[line.line]->size()) {
+		info->max = (*wrap_data[line.line])[line.pos + 1];
+		info->flags = text_line_t::BREAK;
+	} else {
+		info->max = INT_MAX;
+		info->flags = 0;
+	}
+	text->lines[line.line]->paint_line(win, info);
 }
 
 }; // namespace

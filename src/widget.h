@@ -18,7 +18,7 @@
 
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/dialogs/filedialog.h>
-#include <t3widget/dialogs/inputselectiondialog.h>
+//~ #include <t3widget/dialogs/inputselectiondialog.h>
 #include <t3widget/dialogs/insertchardialog.h>
 #include <t3widget/dialogs/mainwindow.h>
 #include <t3widget/dialogs/menupanel.h>
@@ -42,6 +42,6 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/split.h>
 #include <t3widget/widgets/textfield.h>
-#include <t3widget/widgets/textwindow.h>
+//~ #include <t3widget/widgets/textwindow.h>
 
 #endif

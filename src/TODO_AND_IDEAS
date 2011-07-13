@@ -20,6 +20,8 @@ High Priority
 
 Low Priority
 ------------
+- remove first parameter from calculate_screen_pos in text_buffer_t and
+	wrap_info_t because it is only ever called with NULL as value
 - use a line_factory_t for the text_buffer_t, such that lines with extensions
 	for e.g. syntax highlighting can be created
 - much of the widget and dialog interfaces should be made virtual to allow

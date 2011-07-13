@@ -24,6 +24,14 @@ namespace t3_widget {
 typedef std::vector<int> wrap_points_t;
 typedef std::vector<wrap_points_t *> wrap_data_t;
 
+/** Class holding information about wrapping a text_buffer_t.
+
+    This class is required by edit_window_t and text_buffer_t to present the
+    user with a wrapped text. Except for in the function find_line, it uses the
+    text_coordinate_t class in a special way: the @c pos field is used to store
+    the index in the array of wrap points for the line indicated by the @c line
+    field.
+*/
 class wrap_info_t {
 	private:
 		wrap_data_t wrap_data;
@@ -42,11 +50,19 @@ class wrap_info_t {
 	public:
 		wrap_info_t(int width, int tabsize = 8);
 		~wrap_info_t(void);
-		int get_size(void);
+		int get_size(void) const;
 
 		void set_wrap_width(int width);
 		void set_tabsize(int _tabsize);
 		void set_text_buffer(text_buffer_t *_text);
+
+		void add_lines(text_coordinate_t &coord, int count) const;
+		void sub_lines(text_coordinate_t &coord, int count) const;
+		int get_line_count(int line) const;
+		text_coordinate_t get_end(void) const;
+		int find_line(text_coordinate_t coord) const;
+		int calculate_screen_pos(void) const;
+		void paint_line(t3_window_t *win, text_coordinate_t line, text_line_t::paint_info_t *info) const;
 };
 
 }; // namespace

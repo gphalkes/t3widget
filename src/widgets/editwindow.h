@@ -53,7 +53,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		finder_t *finder;
 		wrap_type_t wrap_type;
 		wrap_info_t *wrap_info;
-		text_coordinate_t topleft;
+		text_coordinate_t top_left;
 
 		static void init(void);
 		static const char *ins_string[];
