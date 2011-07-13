@@ -133,7 +133,7 @@ void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
 	}
 }
 
-void wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
+bool wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
 	ASSERT(count > 0);
 	while (coord.line < (int) wrap_data.size() && (int) wrap_data[coord.line]->size() <= coord.pos + count) {
 		count -= wrap_data[coord.line]->size() - coord.pos;
@@ -143,25 +143,32 @@ void wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
 	if (coord.line == (int) wrap_data.size()) {
 		coord.line = wrap_data.size() - 1;
 		coord.pos = wrap_data[coord.line]->size() - 1;
+		return true;
 	} else {
 		coord.pos += count;
+		return false;
 	}
 }
 
-void wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
+bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
 	ASSERT(count > 0);
 	if (coord.pos > count) {
 		coord.pos -= count;
-		return;
+		return false;
 	}
+	count -= coord.pos;
 	coord.pos = 0;
 	while (coord.line > 0 && count >= (int) wrap_data[coord.line - 1]->size()) {
 		coord.line--;
 		count -= wrap_data[coord.line]->size();
 	}
+	if (count == 0)
+		return false;
 	if (coord.line == 0)
-		return;
-	coord.pos = wrap_data[coord.line]->size() - count - 1;
+		return true;
+	coord.line--;
+	coord.pos = wrap_data[coord.line]->size() - count;
+	return false;
 }
 
 int wrap_info_t::get_line_count(int line) const {

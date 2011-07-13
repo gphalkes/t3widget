@@ -364,25 +364,47 @@ void edit_window_t::dec_y(void) {
 void edit_window_t::pgdn(void) {
 	bool need_adjust = true;
 
-	if (text->cursor.line + t3_win_get_height(edit_window) - 1 < text->size()) {
-		text->cursor.line += t3_win_get_height(edit_window) - 1;
+	if (wrap_type == wrap_type_t::NONE) {
+		if (text->cursor.line + t3_win_get_height(edit_window) - 1 < text->size()) {
+			text->cursor.line += t3_win_get_height(edit_window) - 1;
+		} else {
+			text->cursor.line = text->size() - 1;
+			text->cursor.pos = text->get_line_max(text->cursor.line);
+			need_adjust = false;
+		}
+
+		/* If the end of the text is already on the screen, don't change the top line. */
+		if (top_left.line + t3_win_get_height(edit_window) < text->size()) {
+			top_left.line += t3_win_get_height(edit_window) - 1;
+			if (top_left.line + t3_win_get_height(edit_window) > text->size())
+				top_left.line = text->size() - t3_win_get_height(edit_window);
+			redraw = true;
+		}
+
+		if (need_adjust)
+			text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
+
 	} else {
-		text->cursor.line = text->size() - 1;
-		text->cursor.pos = text->get_line_max(text->cursor.line);
-		need_adjust = false;
+		text_coordinate_t new_top_left = top_left;
+		text_coordinate_t new_cursor(text->cursor.line, wrap_info->find_line(text->cursor));
+
+		if (wrap_info->add_lines(new_cursor, t3_win_get_height(edit_window) - 1)) {
+			text->cursor.line = new_cursor.line;
+			text->cursor.pos = text->get_line_max(text->cursor.line);
+			need_adjust = false;
+		} else {
+			text->cursor.line = new_cursor.line;
+		}
+
+		/* If the end of the text is already on the screen, don't change the top line. */
+		if (!wrap_info->add_lines(new_top_left, t3_win_get_height(edit_window))) {
+			top_left = new_top_left;
+			wrap_info->sub_lines(top_left, 1);
+		}
+
+		if (need_adjust)
+			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, text->last_set_pos, new_cursor.pos);
 	}
-
-	/* If the end of the text is already on the screen, don't change the top line. */
-	if (top_left.line + t3_win_get_height(edit_window) < text->size()) {
-		top_left.line += t3_win_get_height(edit_window) - 1;
-		if (top_left.line + t3_win_get_height(edit_window) > text->size())
-			top_left.line = text->size() - t3_win_get_height(edit_window);
-		redraw = true;
-	}
-
-	if (need_adjust)
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
-
 	ensure_cursor_on_screen();
 
 	if (!need_adjust)
@@ -392,28 +414,45 @@ void edit_window_t::pgdn(void) {
 void edit_window_t::pgup(void) {
 	bool need_adjust = true;
 
-	if (top_left.line < t3_win_get_height(edit_window) - 1) {
-		if (top_left.line != 0) {
-			redraw = true;
-			top_left.line = 0;
-		}
+	if (wrap_type == wrap_type_t::NONE) {
+		if (top_left.line < t3_win_get_height(edit_window) - 1) {
+			if (top_left.line != 0) {
+				redraw = true;
+				top_left.line = 0;
+			}
 
-		if (text->cursor.line < t3_win_get_height(edit_window) - 1) {
-			text->cursor.line = 0;
-			text->last_set_pos = text->cursor.pos = 0;
-			need_adjust = false;
+			if (text->cursor.line < t3_win_get_height(edit_window) - 1) {
+				text->cursor.line = 0;
+				text->last_set_pos = text->cursor.pos = 0;
+				need_adjust = false;
+			} else {
+				text->cursor.line -= t3_win_get_height(edit_window) - 1;
+			}
 		} else {
 			text->cursor.line -= t3_win_get_height(edit_window) - 1;
+			top_left.line -= t3_win_get_height(edit_window) - 1;
+			redraw = true;
 		}
+
+		if (need_adjust)
+			text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
 	} else {
-		text->cursor.line -= t3_win_get_height(edit_window) - 1;
-		top_left.line -= t3_win_get_height(edit_window) - 1;
-		redraw = true;
+		text_coordinate_t new_cursor(text->cursor.line, wrap_info->find_line(text->cursor));
+
+		if (wrap_info->sub_lines(new_cursor, t3_win_get_height(edit_window) - 1)) {
+			text->cursor.line = 0;
+			text->cursor.pos = 0;
+			text->last_set_pos = 0;
+			need_adjust = false;
+		} else {
+			text->cursor.line = new_cursor.line;
+		}
+
+		wrap_info->sub_lines(top_left, t3_win_get_height(edit_window) - 1);
+
+		if (need_adjust)
+			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, text->last_set_pos, new_cursor.pos);
 	}
-
-	if (need_adjust)
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
-
 	ensure_cursor_on_screen();
 }
 

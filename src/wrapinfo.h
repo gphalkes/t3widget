@@ -56,8 +56,8 @@ class wrap_info_t {
 		void set_tabsize(int _tabsize);
 		void set_text_buffer(text_buffer_t *_text);
 
-		void add_lines(text_coordinate_t &coord, int count) const;
-		void sub_lines(text_coordinate_t &coord, int count) const;
+		bool add_lines(text_coordinate_t &coord, int count) const;
+		bool sub_lines(text_coordinate_t &coord, int count) const;
 		int get_line_count(int line) const;
 		text_coordinate_t get_end(void) const;
 		int find_line(text_coordinate_t coord) const;
