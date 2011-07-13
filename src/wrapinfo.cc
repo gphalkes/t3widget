@@ -205,6 +205,7 @@ void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line, text_line
 		info->max = INT_MAX;
 		info->flags = 0;
 	}
+	info->tabsize = tabsize;
 	text->lines[line.line]->paint_line(win, info);
 }
 

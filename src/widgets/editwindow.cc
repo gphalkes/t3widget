@@ -637,17 +637,17 @@ bool edit_window_t::process_key(key_t key) {
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				if (text->cursor.pos != text->get_line_max(text->cursor.line)) {
 					text->delete_char();
-	/*FIXME:WRAP:
-					if (text->get_wrap())
+
+					if (wrap_type != wrap_type_t::NONE)
 						ensure_cursor_on_screen();
-					*/
+
 					redraw = true;
 				} else if (text->cursor.line + 1 < text->size()) {
 					text->merge(false);
-	/*FIXME:WRAP:
-					if (text->get_wrap())
+
+					if (wrap_type != wrap_type_t::NONE)
 						ensure_cursor_on_screen();
-					*/
+
 					redraw = true;
 				}
 			} else {
