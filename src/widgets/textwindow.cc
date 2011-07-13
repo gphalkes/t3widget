@@ -17,11 +17,12 @@
 #include "util.h"
 #include "colorscheme.h"
 #include "internal.h"
+#include "wrapinfo.h"
 
 using namespace std;
 namespace t3_widget {
 
-text_window_t::text_window_t(text_buffer_t *_text) : text_buffer_window_t(11, 11), scrollbar(true) {
+text_window_t::text_window_t(text_buffer_t *_text) : widget_t(11, 11), scrollbar(true), top(0, 0) {
 	/* Note: we use a dirty trick here: the last position of the window is obscured by
 	   the scrollbar. However, the last position will only contain the wrap character
 	   anyway, so we don't care. */
@@ -34,72 +35,68 @@ text_window_t::text_window_t(text_buffer_t *_text) : text_buffer_window_t(11, 11
 	else
 		text = _text;
 
-	text->window = this;
-	text->set_wrap(true);
-	text->rewrap();
+	wrap_info = new wrap_info_t(8);
+	wrap_info->set_text_buffer(text);
 }
 
 void text_window_t::set_text(text_buffer_t *_text) {
 	if (text == _text)
 		return;
 
-	text->window = NULL;
 	text = _text;
-	text->window = this;
-	text->set_wrap(true);
-	text->rewrap();
+	wrap_info->set_text_buffer(text);
+	top.line = 0;
+	top.pos = 0;
 	redraw = true;
 }
 
 bool text_window_t::set_size(optint height, optint width) {
 	bool result = true;
+	//FIXME: these ints are optional!! Take that into account below!!
 	if (width != t3_win_get_width(window) || height > t3_win_get_height(window))
 		redraw = true;
 
 	result &= t3_win_resize(window, height, width);
 	result &= scrollbar.set_size(height, None);
 
-	text->rewrap();
+	wrap_info->set_wrap_width(width - 1);
 	return result;
 }
 
 void text_window_t::inc_y(void) {
-	if (text->topleft.line + t3_win_get_height(window) < text->get_used_lines()) {
-		text->topleft.line++;
-		redraw = true;
-	}
+	text_coordinate_t check_top = top;
+	if (wrap_info->add_lines(check_top, t3_win_get_height(window)))
+		return;
+	wrap_info->add_lines(top, 1);
+	redraw = true;
 }
 
 void text_window_t::dec_y(void) {
-	if (text->topleft.line > 0) {
-		text->topleft.line--;
+	if (!wrap_info->sub_lines(top, 1))
 		redraw = true;
-	}
 }
 
 void text_window_t::pgdn(void) {
-	/* If the end of the text is already on the screen, don't change the top line. */
-	if (text->topleft.line + 2 * t3_win_get_height(window) - 1 < text->get_used_lines()) {
-		text->topleft.line += t3_win_get_height(window) - 1;
-		redraw = true;
-	} else if (text->topleft.line + t3_win_get_height(window) < text->get_used_lines()) {
-		text->topleft.line = text->get_used_lines() - t3_win_get_height(window);
-		if (text->topleft.line < 0)
-			text->topleft.line = 0;
+	text_coordinate_t new_top = top;
+
+	if (wrap_info->add_lines(new_top, 2 * t3_win_get_height(window) - 1)) {
+		wrap_info->sub_lines(new_top, t3_win_get_height(window) - 1);
+		if (top != new_top) {
+			top = new_top;
+			redraw = true;
+		}
+	} else {
+		wrap_info->add_lines(top, t3_win_get_height(window) - 1);
 		redraw = true;
 	}
 }
 
 void text_window_t::pgup(void) {
-	if (text->topleft.line < t3_win_get_height(window) - 1) {
-		if (text->topleft.line != 0) {
-			redraw = true;
-			text->topleft.line = 0;
-		}
-	} else {
-		text->topleft.line -= t3_win_get_height(window) - 1;
-		redraw = true;
-	}
+	if (top.line == 0 && top.pos == 0)
+		return;
+
+	wrap_info->sub_lines(top, t3_win_get_height(window) - 1);
+	redraw = true;
 }
 
 bool text_window_t::process_key(key_t key) {
@@ -120,20 +117,20 @@ bool text_window_t::process_key(key_t key) {
 			break;
 		case EKEY_HOME | EKEY_CTRL:
 		case EKEY_HOME:
-			if (text->topleft.line != 0) {
-				text->topleft.line = 0;
+			if (top.line != 0 || top.pos != 0) {
+				top.line = 0;
+				top.pos = 0;
 				redraw = true;
 			}
 			break;
 		case EKEY_END | EKEY_CTRL:
-		case EKEY_END:
-			if (text->topleft.line + t3_win_get_height(window) < text->get_used_lines()) {
-				text->topleft.line = text->get_used_lines() - t3_win_get_height(window);
-				if (text->topleft.line < 0)
-					text->topleft.line = 0;
+		case EKEY_END: {
+			text_coordinate_t new_top = wrap_info->get_end();
+			wrap_info->sub_lines(new_top, t3_win_get_height(window));
+			if (new_top != top)
 				redraw = true;
-			}
 			break;
+		}
 		default:
 			return false;
 	}
@@ -143,7 +140,7 @@ bool text_window_t::process_key(key_t key) {
 void text_window_t::update_contents(void) {
 	text_coordinate_t current_start, current_end;
 	text_line_t::paint_info_t info;
-	int i;
+	int i, count = 0;
 
 	if (!redraw)
 		return;
@@ -151,23 +148,37 @@ void text_window_t::update_contents(void) {
 	redraw = false;
 	t3_win_set_default_attrs(window, attributes.dialog);
 
-	info.leftcol = text->topleft.pos;
 	info.size = t3_win_get_width(window);
 	info.normal_attr = 0;
 	info.selected_attr = 0; /* There is no selected text anyway. */
 	info.selection_start = -1;
 	info.selection_end = -1;
 	info.cursor = -1;
-	for (i = 0; i < t3_win_get_height(window) && (i + text->topleft.line) < text->get_used_lines(); i++) {
+	info.leftcol = 0;
+
+	text_coordinate_t end = wrap_info->get_end();
+	text_coordinate_t draw_line = top;
+
+	for (i = 0; i < t3_win_get_height(window); i++, wrap_info->add_lines(draw_line, 1)) {
+		//FIXME: draw cursor on top or bottom line depending on last movement
+		/*info.cursor = focus && draw_line.line == text->cursor.line ? text->cursor.pos : -1;*/
 		t3_win_set_paint(window, i, 0);
 		t3_win_clrtoeol(window);
-		text->paint_line(window, text->topleft.line + i, &info);
+		wrap_info->paint_line(window, draw_line, &info);
+
+		if (draw_line.line == end.line && draw_line.pos == end.pos)
+			break;
 	}
 
 	t3_win_clrtobot(window);
 
-	scrollbar.set_parameters(max(text->get_used_lines(), text->topleft.line + t3_win_get_height(window)),
-		text->topleft.line, t3_win_get_height(window));
+
+	for (i = 0; i < top.line; i++)
+		count += wrap_info->get_line_count(i);
+	count += top.pos;
+
+	scrollbar.set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(window)),
+		count, t3_win_get_height(window));
 	scrollbar.update_contents();
 }
 
@@ -177,6 +188,10 @@ int text_window_t::get_text_width(void) {
 
 text_buffer_t *text_window_t::get_text(void) {
 	return text;
+}
+
+void text_window_t::set_tabsize(int size) {
+	wrap_info->set_tabsize(size);
 }
 
 }; // namespace

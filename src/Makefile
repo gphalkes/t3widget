@@ -30,6 +30,7 @@ SOURCES.libt3widget.la := \
 	dialogs/filedialog.cc \
 	dialogs/finddialog.cc \
 	dialogs/gotodialog.cc \
+	dialogs/inputselectiondialog.cc \
 	dialogs/insertchardialog.cc \
 	dialogs/mainwindow.cc \
 	dialogs/menupanel.cc \
@@ -48,14 +49,11 @@ SOURCES.libt3widget.la := \
 	widgets/multiwidget.cc \
 	widgets/scrollbar.cc \
 	widgets/smartlabel.cc \
+	widgets/separator.cc \
 	widgets/split.cc \
 	widgets/textfield.cc \
-	widgets/widget.cc \
-	widgets/separator.cc
-
-#	dialogs/inputselectiondialog.cc \
-#	widgets/textwindow.cc
-
+	widgets/textwindow.cc \
+	widgets/widget.cc
 
 CXXLTTARGETS := libt3widget.la
 #================================================#

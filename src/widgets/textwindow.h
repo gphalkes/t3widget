@@ -21,10 +21,12 @@
 
 namespace t3_widget {
 
-class T3_WIDGET_API text_window_t : public text_buffer_window_t, public center_component_t, public container_t {
+class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
 	protected:
 		scrollbar_t scrollbar;
 		text_buffer_t *text;
+		wrap_info_t *wrap_info;
+		text_coordinate_t top;
 
 		void inc_y(void);
 		void dec_y(void);
@@ -40,6 +42,7 @@ class T3_WIDGET_API text_window_t : public text_buffer_window_t, public center_c
 
 		virtual int get_text_width(void);
 		text_buffer_t *get_text(void);
+		void set_tabsize(int size);
 };
 
 }; // namespace
