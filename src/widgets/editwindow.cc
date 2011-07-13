@@ -178,18 +178,18 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 		}
 
 		bottom = top_left;
-		wrap_info->add_lines(bottom, t3_win_get_height(edit_window));
+		wrap_info->add_lines(bottom, t3_win_get_height(edit_window) - 1);
 
 		while (text->cursor.line > bottom.line) {
 			wrap_info->add_lines(top_left, wrap_info->get_line_count(bottom.line) - bottom.pos);
-			redraw = true;
 			bottom.line++;
 			bottom.pos = 0;
+			redraw = true;
 		}
 
 		if (text->cursor.line == bottom.line && sub_line > bottom.pos) {
-			redraw = true;
 			wrap_info->add_lines(top_left, sub_line - bottom.pos);
+			redraw = true;
 		}
 	}
 }
