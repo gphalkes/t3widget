@@ -305,14 +305,32 @@ void edit_window_t::previous_word(void) {
 }
 
 void edit_window_t::inc_y(void) {
-	if (text->cursor.line + 1 < text->size()) {
-		text->cursor.line++;
-		text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
-		ensure_cursor_on_screen();
+	if (wrap_type == wrap_type_t::NONE) {
+		if (text->cursor.line + 1 < text->size()) {
+			text->cursor.line++;
+			text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
+			ensure_cursor_on_screen();
+		} else {
+			text->cursor.pos = text->get_line_max(text->cursor.line);
+			ensure_cursor_on_screen();
+			text->last_set_pos = screen_pos;
+		}
 	} else {
-		text->cursor.pos = text->get_line_max(text->cursor.line);
-		ensure_cursor_on_screen();
-		text->last_set_pos = screen_pos;
+		int new_sub_line = wrap_info->find_line(text->cursor) + 1;
+		if (wrap_info->get_line_count(text->cursor.line) == new_sub_line) {
+			if (text->cursor.line + 1 < text->size()) {
+				text->cursor.line++;
+				text->cursor.pos = text->calculate_line_pos(text->cursor.line, text->last_set_pos, tabsize);
+				ensure_cursor_on_screen();
+			} else {
+				text->cursor.pos = text->get_line_max(text->cursor.line);
+				ensure_cursor_on_screen();
+				text->last_set_pos = screen_pos;
+			}
+		} else {
+			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, text->last_set_pos, new_sub_line);
+			ensure_cursor_on_screen();
+		}
 	}
 }
 

@@ -185,6 +185,10 @@ int wrap_info_t::calculate_screen_pos(void) const {
 	return text->lines[text->cursor.line]->calculate_screen_width((*wrap_data[text->cursor.line])[sub_line], text->cursor.pos, tabsize);
 }
 
+int wrap_info_t::calculate_line_pos(int line, int pos, int sub_line) const {
+	return text->lines[line]->calculate_line_pos((*wrap_data[line])[sub_line], INT_MAX, pos, tabsize);
+}
+
 void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line, text_line_t::paint_info_t *info) const {
 	info->start = (*wrap_data[line.line])[line.pos];
 	if (line.pos + 1 < (int) wrap_data[line.line]->size()) {
