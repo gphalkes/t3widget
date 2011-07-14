@@ -34,6 +34,8 @@ class edit_window_t::view_parameters_t {
 	public:
 		view_parameters_t(edit_window_t *view) {
 			top_left = view->top_left;
+			if (wrap_type != wrap_type_t::NONE)
+				top_left.pos = view->wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
 			wrap_type = view->wrap_type;
 			tabsize = view->tabsize;
 		}
@@ -41,8 +43,13 @@ class edit_window_t::view_parameters_t {
 			view->top_left = top_left;
 			view->tabsize = tabsize;
 			view->set_wrap(wrap_type);
-			if (view->wrap_info != NULL)
+			/* view->set_wrap will make sure that view->wrap_info is NULL if
+			   wrap_type != NONE. */
+			if (view->wrap_info != NULL) {
 				view->wrap_info->set_text_buffer(view->text);
+				view->top_left.pos = view->wrap_info->find_line(top_left);
+			}
+			// the calling function will call ensure_cursor_on_screen
 		}
 };
 
@@ -108,10 +115,14 @@ void edit_window_t::set_text(text_buffer_t *_text, view_parameters_t *params) {
 		return;
 
 	text = _text;
-	if (params != NULL)
+	if (params != NULL) {
 		params->apply_parameters(this);
-	else if (wrap_info != NULL)
+	} else if (wrap_info != NULL) {
 		wrap_info->set_text_buffer(text);
+		wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
+		top_left.line = 0;
+		top_left.pos = 0;
+	}
 
 	ensure_cursor_on_screen();
 	redraw = true;
@@ -129,8 +140,12 @@ bool edit_window_t::set_size(optint height, optint width) {
 	result &= t3_win_resize(bottom_line_window, 1, width);
 	result &= scrollbar.set_size(height - 1, None);
 
-	if (wrap_type != wrap_type_t::NONE)
+	if (wrap_type != wrap_type_t::NONE) {
+		top_left.pos = wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
 		wrap_info->set_wrap_width(width - 1);
+		top_left.pos = wrap_info->find_line(top_left);
+		text->last_set_pos = wrap_info->calculate_screen_pos();
+	}
 	ensure_cursor_on_screen();
 	return result;
 }
@@ -175,21 +190,21 @@ void edit_window_t::ensure_cursor_on_screen(void) {
 			top_left.line = text->cursor.line;
 			top_left.pos = sub_line;
 			redraw = true;
-		}
+		} else {
+			bottom = top_left;
+			wrap_info->add_lines(bottom, t3_win_get_height(edit_window) - 1);
 
-		bottom = top_left;
-		wrap_info->add_lines(bottom, t3_win_get_height(edit_window) - 1);
+			while (text->cursor.line > bottom.line) {
+				wrap_info->add_lines(top_left, wrap_info->get_line_count(bottom.line) - bottom.pos);
+				bottom.line++;
+				bottom.pos = 0;
+				redraw = true;
+			}
 
-		while (text->cursor.line > bottom.line) {
-			wrap_info->add_lines(top_left, wrap_info->get_line_count(bottom.line) - bottom.pos);
-			bottom.line++;
-			bottom.pos = 0;
-			redraw = true;
-		}
-
-		if (text->cursor.line == bottom.line && sub_line > bottom.pos) {
-			wrap_info->add_lines(top_left, sub_line - bottom.pos);
-			redraw = true;
+			if (text->cursor.line == bottom.line && sub_line > bottom.pos) {
+				wrap_info->add_lines(top_left, sub_line - bottom.pos);
+				redraw = true;
+			}
 		}
 	}
 }
@@ -353,6 +368,7 @@ void edit_window_t::dec_y(void) {
 			text->cursor.line--;
 			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, text->last_set_pos,
 				wrap_info->get_line_count(text->cursor.line) - 1);
+			ensure_cursor_on_screen();
 		} else {
 			text->cursor.pos = 0;
 			ensure_cursor_on_screen();
@@ -1015,6 +1031,7 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 			wrap_info = new wrap_info_t(t3_win_get_width(edit_window) - 1, tabsize);
 		wrap_info->set_text_buffer(text);
 	}
+	wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
 	wrap_type = wrap;
 	ensure_cursor_on_screen();
 }
