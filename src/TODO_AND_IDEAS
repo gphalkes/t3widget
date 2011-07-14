@@ -3,8 +3,11 @@ TODO
 
 Bugs
 ----
-If a list_pane_t is empty, it will show the first line with terminal default
-attribute, rather than doing something sane (see open-recent in tilde).
+- pressing right in the next-to-last column, while there is no item in the last
+  column, should move the cursor to the last entry in the last column
+- If a list_pane_t is empty, it will show the first line with terminal default
+  attribute, rather than doing something sane (see open-recent in tilde).
+
 
 High Priority
 -------------

@@ -8,12 +8,12 @@ setup_hg
 get_version_hg
 check_mod_hg
 build_all
-#[ -z "${NOBUILD}" ] && { make -C doc clean ; make -C doc all ; }
+[ -z "${NOBUILD}" ] && { make -C doc clean ; make -C doc all ; }
 get_sources_hg
 make_tmpdir
 copy_sources ${SOURCES} ${GENSOURCES} ${AUXSOURCES}
 copy_dist_files
-#copy_files doc/API
+copy_files doc/API
 create_configure
 
 if [[ "${VERSION}" =~ [0-9]{8} ]] ; then
@@ -24,6 +24,8 @@ fi
 
 sed -i "s/<VERSION>/${VERSION}/g" `find ${TOPDIR} -type f`
 sed -i "/#define T3_WIDGET_VERSION/c #define T3_WIDGET_VERSION ${VERSION_BIN}" ${TOPDIR}/src/main.h
+
+( cd ${TOPDIR}/src ; ln -s . t3widget )
 
 OBJECTS="`echo \"${SOURCES} ${GENSOURCES} ${AUXSOURCES}\" | tr ' ' '\n' | sed -r 's%\.objects/%%' | egrep '^src/.*\.cc$' | sed -r 's/\.cc\>/.lo/g' | tr '\n' ' '`"
 

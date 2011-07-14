@@ -142,8 +142,8 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig libt3window LIBT3WINDOW test_link_cxx || \
-		test_and_set test_link_cxx "libt3window" LIBT3window "-I/usr/include/t3/window" "-lt3window" || \
-		test_and_set test_link_cxx "libt3window" LIBT3window "-I/usr/local/include/t3/window" "-L/usr/local/lib -lt3window" || \
+		test_and_set test_link_cxx "libt3window" LIBT3WINDOW "-I/usr/include/t3/window" "-lt3window" || \
+		test_and_set test_link_cxx "libt3window" LIBT3WINDOW "-I/usr/local/include/t3/window" "-L/usr/local/lib -lt3window" || \
 		error "!! Can not find libt3window. libt3window is required to compile libt3widget."
 
 	clean_cxx
@@ -156,8 +156,8 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig libt3key LIBT3KEY test_link_cxx || \
-		test_and_set test_link_cxx "libt3key" LIBT3key "-I/usr/include/t3/key" "-lt3key" || \
-		test_and_set test_link_cxx "libt3key" LIBT3key "-I/usr/local/include/t3/key" "-L/usr/local/lib -lt3key" || \
+		test_and_set test_link_cxx "libt3key" LIBT3KEY "-I/usr/include/t3/key" "-lt3key" || \
+		test_and_set test_link_cxx "libt3key" LIBT3KEY "-I/usr/local/include/t3/key" "-L/usr/local/lib -lt3key" || \
 		error "!! Can not find libt3key. libt3key is required to compile libt3widget."
 
 	clean_cxx
@@ -190,8 +190,8 @@ EOF
 				false
 			fi
 		} || \
-		test_and_set test_link_cxx "libpcre" LIBT3key "" "-lpcre" || \
-		test_and_set test_link_cxx "libpcre" LIBT3key "-I/usr/local/include" "-L/usr/local/lib -lpcre" || \
+		test_and_set test_link_cxx "libpcre" LIBPCRE "" "-lpcre" || \
+		test_and_set test_link_cxx "libpcre" LIBPCRE "-I/usr/local/include" "-L/usr/local/lib -lpcre" || \
 		error "!! Can not find libpcre. libpcre is required to compile libt3widget."
 
 	if test_select "select in <sys/select.h>" "sys/select.h" ; then

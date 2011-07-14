@@ -28,7 +28,7 @@ namespace t3_widget {
     The third 8 bits represent the major version.
 
 	At runtime, the value of T3_WIDGET_VERSION can be retrieved by calling
-	t#get_version.
+	#get_version.
 
     @internal
     The value 0 is an invalid value which should be replaced by the script
