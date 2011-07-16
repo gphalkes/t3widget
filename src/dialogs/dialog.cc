@@ -180,10 +180,10 @@ void dialog_t::update_contents(void) {
 
 		t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 		if (title != NULL) {
-			t3_win_set_paint(window, 0, 2);
-			t3_win_addstr(window, "[ ", 0);
+			t3_win_set_paint(window, 0, 3);
+			t3_win_addstr(window, " ", 0);
 			t3_win_addstr(window, title, 0);
-			t3_win_addstr(window, " ]", 0);
+			t3_win_addstr(window, " ", 0);
 		}
 
 		x = t3_win_get_width(shadow_window) - 1;
