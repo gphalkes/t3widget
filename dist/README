@@ -12,7 +12,7 @@ libt3widget is part of the Tilde Terminal Toolkit (T3)
 Prerequisites and installation
 ==============================
 
-libt3widget requires the libtool utility to be compiled. Furthermore, it
+libt3widget requires the GNU libtool utility to be compiled. Furthermore, it
 requires libtranscript, libt3unicode, libt3key, libt3window and libsigc++ (2.0
 or newer).
 
