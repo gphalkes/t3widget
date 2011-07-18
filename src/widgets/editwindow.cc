@@ -267,7 +267,7 @@ void edit_window_t::next_word(void) {
 }
 
 void edit_window_t::dec_x(void) {
-	if (screen_pos == 0) {
+	if (text->cursor.pos == 0) {
 		if (text->cursor.line == 0)
 			return;
 
