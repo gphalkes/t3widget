@@ -45,7 +45,7 @@ void edit_window_t::init(void) {
 	replace_buttons = new replace_buttons_dialog_t();
 }
 
-edit_window_t::edit_window_t(text_buffer_t *_text, view_parameters_t *params) : edit_window(NULL),
+edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : edit_window(NULL),
 		bottom_line_window(NULL), scrollbar(true), text(NULL), find_dialog(NULL), finder(NULL),
 		wrap_type(wrap_type_t::NONE), wrap_info(NULL)
 {
@@ -77,7 +77,7 @@ edit_window_t::~edit_window_t(void) {
 	delete wrap_info;
 }
 
-void edit_window_t::set_text(text_buffer_t *_text, view_parameters_t *params) {
+void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *params) {
 	if (text == _text)
 		return;
 
@@ -957,7 +957,7 @@ void edit_window_t::find_next(bool backward) {
 	ensure_cursor_on_screen();
 }
 
-text_buffer_t *edit_window_t::get_text(void) {
+text_buffer_t *edit_window_t::get_text(void) const {
 	return text;
 }
 
@@ -1003,17 +1003,21 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 	ensure_cursor_on_screen();
 }
 
-//====================== view_parameters_t ========================
-
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
 	return new view_parameters_t(this);
 }
 
+void edit_window_t::save_view_parameters(view_parameters_t *params) {
+	*params = view_parameters_t(this);
+}
+
+//====================== view_parameters_t ========================
+
 edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
 	top_left = view->top_left;
+	wrap_type = view->wrap_type;
 	if (wrap_type != wrap_type_t::NONE)
 		top_left.pos = view->wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
-	wrap_type = view->wrap_type;
 	tabsize = view->tabsize;
 }
 
@@ -1021,7 +1025,7 @@ edit_window_t::view_parameters_t::view_parameters_t(int _tabsize, wrap_type_t _w
 	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize)
 {}
 
-void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) {
+void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) const {
 	view->top_left = top_left;
 	view->tabsize = tabsize;
 	view->set_wrap(wrap_type);

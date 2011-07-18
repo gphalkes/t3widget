@@ -80,9 +80,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 	public:
 		class view_parameters_t;
 
-		edit_window_t(text_buffer_t *_text = NULL, view_parameters_t *params = NULL);
+		edit_window_t(text_buffer_t *_text = NULL, const view_parameters_t *params = NULL);
 		virtual ~edit_window_t(void);
-		virtual void set_text(text_buffer_t *_text, view_parameters_t *params = NULL);
+		virtual void set_text(text_buffer_t *_text, const view_parameters_t *params = NULL);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
@@ -101,13 +101,14 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void goto_line(void);
 		void find_replace(bool replace);
 		void find_next(bool backward);
-		text_buffer_t *get_text(void);
+		text_buffer_t *get_text(void) const;
 		void set_find_dialog(find_dialog_t *_find_dialog);
 		void set_finder(finder_t *_finder);
 
 		void set_tabsize(int _tabsize);
 		void set_wrap(wrap_type_t wrap);
 		view_parameters_t *save_view_parameters(void);
+		void save_view_parameters(view_parameters_t *params);
 };
 
 class edit_window_t::view_parameters_t {
@@ -119,7 +120,7 @@ class edit_window_t::view_parameters_t {
 		int tabsize;
 
 		view_parameters_t(edit_window_t *view);
-		void apply_parameters(edit_window_t *view);
+		void apply_parameters(edit_window_t *view) const;
 
 	public:
 		view_parameters_t(int _tabsize, wrap_type_t _wrap_type);
