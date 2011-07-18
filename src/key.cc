@@ -330,8 +330,13 @@ static key_t decode_sequence(bool outer) {
 
 			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised. */
 			if (sequence.data[1] == '[') {
-				if (sequence.idx > 2 && c >= 0x40 && c < 0x7f)
+				if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
 					return -1;
+				} else if (c < 0x20 || c > 0x7f) {
+					/* Drop unknown leading sequence if some non-CSI byte is found. */
+					unget_key(c);
+					return -1;
+				}
 				continue;
 			}
 
