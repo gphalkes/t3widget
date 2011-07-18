@@ -25,34 +25,6 @@
 using namespace std;
 namespace t3_widget {
 
-
-class edit_window_t::view_parameters_t {
-	private:
-		text_coordinate_t top_left;
-		wrap_type_t wrap_type;
-		int tabsize;
-	public:
-		view_parameters_t(edit_window_t *view) {
-			top_left = view->top_left;
-			if (wrap_type != wrap_type_t::NONE)
-				top_left.pos = view->wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
-			wrap_type = view->wrap_type;
-			tabsize = view->tabsize;
-		}
-		void apply_parameters(edit_window_t *view) {
-			view->top_left = top_left;
-			view->tabsize = tabsize;
-			view->set_wrap(wrap_type);
-			/* view->set_wrap will make sure that view->wrap_info is NULL if
-			   wrap_type != NONE. */
-			if (view->wrap_info != NULL) {
-				view->wrap_info->set_text_buffer(view->text);
-				view->top_left.pos = view->wrap_info->find_line(top_left);
-			}
-			// the calling function will call ensure_cursor_on_screen
-		}
-};
-
 goto_dialog_t *edit_window_t::goto_dialog;
 sigc::connection edit_window_t::goto_connection;
 find_dialog_t *edit_window_t::global_find_dialog;
@@ -73,8 +45,9 @@ void edit_window_t::init(void) {
 	replace_buttons = new replace_buttons_dialog_t();
 }
 
-edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_line_window(NULL), scrollbar(true),
-		find_dialog(NULL), finder(NULL), wrap_type(wrap_type_t::NONE), wrap_info(NULL)
+edit_window_t::edit_window_t(text_buffer_t *_text, view_parameters_t *params) : edit_window(NULL),
+		bottom_line_window(NULL), scrollbar(true), text(NULL), find_dialog(NULL), finder(NULL),
+		wrap_type(wrap_type_t::NONE), wrap_info(NULL)
 {
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
@@ -92,13 +65,7 @@ edit_window_t::edit_window_t(text_buffer_t *_text) : edit_window(NULL), bottom_l
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar.set_size(10, None);
 
-	if (_text == NULL) {
-		text = new text_buffer_t();
-	} else {
-		text = _text;
-		text->cursor.line = 0;
-		text->cursor.pos = 0;
-	}
+	set_text(_text == NULL ? new text_buffer_t() : _text, params);
 
 	screen_pos = 0;
 	focus = false;
@@ -1036,8 +1003,35 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 	ensure_cursor_on_screen();
 }
 
+//====================== view_parameters_t ========================
+
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
 	return new view_parameters_t(this);
+}
+
+edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
+	top_left = view->top_left;
+	if (wrap_type != wrap_type_t::NONE)
+		top_left.pos = view->wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
+	wrap_type = view->wrap_type;
+	tabsize = view->tabsize;
+}
+
+edit_window_t::view_parameters_t::view_parameters_t(int _tabsize, wrap_type_t _wrap_type) :
+	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize)
+{}
+
+void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) {
+	view->top_left = top_left;
+	view->tabsize = tabsize;
+	view->set_wrap(wrap_type);
+	/* view->set_wrap will make sure that view->wrap_info is NULL if
+	   wrap_type != NONE. */
+	if (view->wrap_info != NULL) {
+		view->wrap_info->set_text_buffer(view->text);
+		view->top_left.pos = view->wrap_info->find_line(top_left);
+	}
+	// the calling function will call ensure_cursor_on_screen
 }
 
 }; // namespace

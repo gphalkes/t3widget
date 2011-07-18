@@ -80,7 +80,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 	public:
 		class view_parameters_t;
 
-		edit_window_t(text_buffer_t *_text = NULL);
+		edit_window_t(text_buffer_t *_text = NULL, view_parameters_t *params = NULL);
 		virtual ~edit_window_t(void);
 		virtual void set_text(text_buffer_t *_text, view_parameters_t *params = NULL);
 		virtual bool process_key(key_t key);
@@ -109,6 +109,22 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_wrap(wrap_type_t wrap);
 		view_parameters_t *save_view_parameters(void);
 };
+
+class edit_window_t::view_parameters_t {
+	friend class edit_window_t;
+
+	private:
+		text_coordinate_t top_left;
+		wrap_type_t wrap_type;
+		int tabsize;
+
+		view_parameters_t(edit_window_t *view);
+		void apply_parameters(edit_window_t *view);
+
+	public:
+		view_parameters_t(int _tabsize, wrap_type_t _wrap_type);
+};
+
 
 }; // namespace
 #endif
