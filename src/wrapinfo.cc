@@ -14,6 +14,7 @@
 
 #include "wrapinfo.h"
 #include "internal.h"
+#include "log.h"
 
 namespace t3_widget {
 
@@ -53,7 +54,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	for (i = wrap_data[line]->size() - 1; i > 0 && (*wrap_data[line])[i] > pos; i--) {}
 
 	if (local) {
-		break_pos = text->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width, tabsize);
+		break_pos = text->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width - 1, tabsize);
 		if (i < wrap_data[line]->size() - 1 && break_pos.pos == (*wrap_data[line])[i + 1])
 			return;
 	}
@@ -64,7 +65,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	wrap_data[line]->erase(wrap_data[line]->begin() + i + 1, wrap_data[line]->end());
 
 	while (1) {
-		break_pos = text->lines[line]->find_next_break_pos(wrap_data[line]->back(), wrap_width, tabsize);
+		break_pos = text->lines[line]->find_next_break_pos(wrap_data[line]->back(), wrap_width - 1, tabsize);
 		if (break_pos.pos > 0)
 			wrap_data[line]->push_back(break_pos.pos);
 		else
@@ -79,6 +80,7 @@ void wrap_info_t::rewrap_all(void) {
 }
 
 void wrap_info_t::set_wrap_width(int width) {
+	lprintf("Setting wrap width: %d\n", width);
 	if (width == wrap_width)
 		return;
 	wrap_width = width;
