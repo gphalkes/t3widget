@@ -645,6 +645,10 @@ void set_key_timeout(int msec) {
 	}
 }
 
+int get_key_timeout(void) {
+	return key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
+}
+
 void signal_update(void) {
 	key_buffer.push_back_unique(EKEY_EXTERNAL_UPDATE);
 }

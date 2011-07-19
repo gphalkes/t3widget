@@ -32,7 +32,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	va_start(ap, _title);
 	while ((button_name = va_arg(ap, const char *)) != NULL) {
 		button = new button_t(button_name, widgets.empty());
-		button->connect_activate(sigc::mem_fun(this, &message_dialog_t::close));
+		button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
 		total_width += button->get_width();
 		if (widgets.empty()) {
 			button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));

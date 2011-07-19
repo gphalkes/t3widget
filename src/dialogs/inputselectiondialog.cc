@@ -22,6 +22,8 @@ namespace t3_widget {
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text) :
 		dialog_t(height, width, _("Input Method"))
 {
+	button_t *intuitive_button, *compromise_button, *no_timeout_button, *cancel_button;
+
 	text = _text == NULL ? get_default_text() : _text;
 
 	text_window = new text_window_t(text);
@@ -40,30 +42,35 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	key_label->set_align(label_t::ALIGN_CENTER);
 	label_frame->set_child(key_label);
 
-	intuitive_button = new button_t(_("Most intuitive (F2)"));
+	intuitive_button = new button_t(_("Most intuitive (1)"));
 	intuitive_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMCENTER));
 	intuitive_button->set_position(-2, -intuitive_button->get_width() / 2 - 1);
-	intuitive_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::close));
+	intuitive_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::hide));
 	intuitive_button->connect_activate(sigc::bind(sigc::ptr_fun(set_key_timeout), 100));
 	intuitive_button->connect_activate(intuitive_activated.make_slot());
-	compromise_button = new button_t(_("Compromise (F3)"));
+	compromise_button = new button_t(_("Compromise (2)"));
 	compromise_button->set_anchor(intuitive_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	compromise_button->set_position(0, 2);
-	compromise_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::close));
+	compromise_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::hide));
 	compromise_button->connect_activate(sigc::bind(sigc::ptr_fun(set_key_timeout), -1000));
 	compromise_button->connect_activate(compromise_activated.make_slot());
-	no_timeout_button = new button_t(_("No time-out (F4)"));
+	no_timeout_button = new button_t(_("No time-out (3)"));
 	no_timeout_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMCENTER));
-	no_timeout_button->set_position(-1, 0);
-	no_timeout_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::close));
+	no_timeout_button->set_position(-1, -no_timeout_button->get_width() / 2 - 1);
+	no_timeout_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::hide));
 	no_timeout_button->connect_activate(sigc::bind(sigc::ptr_fun(set_key_timeout), 0));
 	no_timeout_button->connect_activate(no_timeout_activated.make_slot());
+	cancel_button = new button_t(_("Cancel (4)"));
+	cancel_button->set_anchor(no_timeout_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	cancel_button->set_position(0, 2);
+	cancel_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::cancel));
 
 	push_back(text_frame);
 	push_back(label_frame);
 	push_back(intuitive_button);
 	push_back(compromise_button);
 	push_back(no_timeout_button);
+	push_back(cancel_button);
 }
 
 input_selection_dialog_t::~input_selection_dialog_t(void) {
@@ -84,47 +91,55 @@ bool input_selection_dialog_t::set_size(optint height, optint width) {
 }
 
 bool input_selection_dialog_t::process_key(key_t key) {
-	if ((key & ~EKEY_META) < 0x110000 && (key & ~EKEY_META) > 0x20) {
-		char buffer[100];
-		size_t buffer_contents_length = 0;
-		buffer[0] = 0;
-		if (key & EKEY_META)
-			strcat(buffer, _("Meta-"));
-		buffer_contents_length = strlen(buffer);
-		buffer_contents_length += t3_unicode_put(key & ~EKEY_META, buffer + buffer_contents_length);
-		buffer[buffer_contents_length] = 0;
-		key_label->set_text(buffer);
-		return true;
-	}
 	switch (key) {
 		case EKEY_ESC:
 		case EKEY_ESC | EKEY_META:
-			return true;
-		case EKEY_F2:
-		case EKEY_F2 | EKEY_META:
+			set_key_timeout(old_timeout);
 			close();
+			return true;
+		case '1':
+			hide();
 			set_key_timeout(100);
 			intuitive_activated();
 			return true;
-		case EKEY_F3:
-		case EKEY_F3 | EKEY_META:
-			close();
+		case '2':
+			hide();
 			set_key_timeout(-1000);
 			compromise_activated();
 			return true;
-		case EKEY_F4:
-		case EKEY_F4 | EKEY_META:
-			close();
+		case '3':
+			hide();
 			set_key_timeout(0);
 			no_timeout_activated();
+			return true;
+		case '4':
+			cancel();
 			return true;
 		case '\t' | EKEY_META:
 		case EKEY_RIGHT | EKEY_META:
 		case EKEY_LEFT | EKEY_META:
 			return dialog_t::process_key(key & ~EKEY_META);
 		default:
+			if ((key & ~EKEY_META) < 0x110000 && (key & ~EKEY_META) > 0x20) {
+				char buffer[100];
+				size_t buffer_contents_length = 0;
+				buffer[0] = 0;
+				if (key & EKEY_META)
+					strcat(buffer, _("Meta-"));
+				buffer_contents_length = strlen(buffer);
+				buffer_contents_length += t3_unicode_put(key & ~EKEY_META, buffer + buffer_contents_length);
+				buffer[buffer_contents_length] = 0;
+				key_label->set_text(buffer);
+				return true;
+			}
 			return dialog_t::process_key(key);
 	}
+}
+
+void input_selection_dialog_t::show(void) {
+	old_timeout = get_key_timeout();
+	set_key_timeout(0);
+	dialog_t::show();
 }
 
 text_buffer_t *input_selection_dialog_t::get_default_text(void) {
@@ -154,6 +169,11 @@ text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 		"other key) after you press Escape."));
 
 	return default_text;
+}
+
+void input_selection_dialog_t::cancel(void) {
+	set_key_timeout(old_timeout);
+	close();
 }
 
 }; // namespace

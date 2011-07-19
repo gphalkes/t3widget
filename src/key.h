@@ -141,6 +141,13 @@ T3_WIDGET_API key_t read_key(void);
         #EKEY_ESC, the user needs to press the escape key twice.
 */
 T3_WIDGET_API void set_key_timeout(int msec);
+
+/** Get the timeout for handling escape sequences.
+
+    See set_key_timeout for details about the return value.
+*/
+T3_WIDGET_API int get_key_timeout(void);
+
 /** Request the generation of the @c update_notification signal.
 
     This function is part of the multi-threading support of libt3widget.
