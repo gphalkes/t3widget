@@ -705,11 +705,11 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 }
 
 /* Delete the character at position 'pos' */
-int text_line_t::delete_char(int pos, undo_t *undo) {
+bool text_line_t::delete_char(int pos, undo_t *undo) {
 	int oldspace;
 
 	if (pos < 0 || (size_t) pos >= buffer.size())
-		return -1;
+		return false;
 
 	if (starts_with_combining && pos == 0)
 		starts_with_combining = false;
@@ -727,7 +727,7 @@ int text_line_t::delete_char(int pos, undo_t *undo) {
 	buffer.erase(pos, oldspace);
 	meta_buffer.erase(pos, oldspace);
 
-	return 0;
+	return true;
 }
 
 /* Append character 'c' to 'line' */
@@ -736,9 +736,9 @@ bool text_line_t::append_char(key_t c, undo_t *undo) {
 }
 
 /* Delete char at 'pos - 1' */
-int text_line_t::backspace_char(int pos, undo_t *undo) {
+bool text_line_t::backspace_char(int pos, undo_t *undo) {
 	if (pos == 0)
-		return -1;
+		return false;
 	return delete_char(adjust_position(pos, -1), undo);
 }
 
