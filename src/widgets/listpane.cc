@@ -297,6 +297,7 @@ void list_pane_t::indicator_widget_t::update_contents(void) {
 	if (!redraw)
 		return;
 	redraw = false;
+	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS | (has_focus ? attributes.dialog_selected : attributes.dialog));
 	t3_win_set_paint(window, 0, t3_win_get_width(window) - 1);

@@ -501,7 +501,6 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			redraw = true;
 			if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
 				replace_buttons_connection.disconnect();
-				#warning FIXME: connection should be removed asap to prevent calls to deleted windows
 				replace_buttons_connection = replace_buttons->connect_activate(
 					sigc::bind(sigc::mem_fun(this, &edit_window_t::find_activated), (finder_t *) NULL));
 				replace_buttons->center_over(center_window);
@@ -910,7 +909,6 @@ void edit_window_t::insert_special(void) {
 
 void edit_window_t::goto_line(void) {
 	goto_connection.disconnect();
-	#warning FIXME: connection should be removed asap to prevent calls to deleted windows
 	goto_connection = goto_dialog->connect_activate(sigc::mem_fun1(this, &edit_window_t::goto_line));
 	goto_dialog->center_over(center_window);
 	goto_dialog->reset();
@@ -933,7 +931,6 @@ void edit_window_t::find_replace(bool replace) {
 	find_dialog_t *dialog;
 	if (find_dialog == NULL) {
 		global_find_dialog_connection.disconnect();
-		#warning FIXME: connection should be removed asap to prevent calls to deleted windows
 		global_find_dialog_connection = global_find_dialog->connect_activate(
 			sigc::mem_fun(this, &edit_window_t::find_activated));
 		dialog = global_find_dialog;
