@@ -75,7 +75,7 @@ bool file_pane_t::process_key(key_t key) {
 		case EKEY_RIGHT:
 			height = t3_win_get_height(window) - 1;
 			if (current + height >= file_list->size()) {
-				if (file_list->size() != 0)
+				if (file_list->size() == 0)
 					return true;
 				current = file_list->size() - 1;
 			} else {
@@ -170,7 +170,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 	column = idx / height;
 	idx %= height;
 
-	t3_win_set_paint(window, idx, column_positions[column] + 1);
+	t3_win_set_paint(window, idx, column_positions[column]);
 	t3_win_addch(window, is_dir ? '/' : ' ', selected ? attributes.dialog_selected : 0);
 
 	info.start = 0;
@@ -261,13 +261,13 @@ void file_pane_t::update_column_widths(void) {
 			top_idx + i * height < file_list->size(); i++)
 	{
 		update_column_width(i, top_idx + i * height);
-		sum_width += column_widths[i] + 2;
+		sum_width += column_widths[i] + 1;
 	}
 
 	columns_visible = i;
 	if (sum_width > width) {
 		if (i > 1) {
-			sum_width -= column_widths[i - 1] + 2;
+			sum_width -= column_widths[i - 1] + 1;
 			columns_visible = i - 1;
 		} else {
 			column_widths[0] = width;
@@ -284,7 +284,7 @@ void file_pane_t::update_column_widths(void) {
 		column_widths[i]++;
 	column_positions[0] = 0;
 	for (i = 1; i < columns_visible; i++)
-		column_positions[i] = column_positions[i - 1] + column_widths[i - 1] + 2;
+		column_positions[i] = column_positions[i - 1] + column_widths[i - 1] + 1;
 }
 
 void file_pane_t::content_changed(void) {

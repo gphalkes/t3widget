@@ -3,9 +3,6 @@ TODO
 
 Bugs
 ----
-- pressing right in the next-to-last column, while there is no item in the last
-  column, should move the cursor to the last entry in the last column in the
-  file-pane
 
 High Priority
 -------------
