@@ -27,6 +27,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		text_buffer_t *text;
 		wrap_info_t *wrap_info;
 		text_coordinate_t top;
+		bool focus;
 
 		void inc_y(void);
 		void dec_y(void);
@@ -39,6 +40,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
+		virtual void set_focus(bool _focus);
 
 		virtual int get_text_width(void);
 		text_buffer_t *get_text(void);

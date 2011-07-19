@@ -22,7 +22,7 @@
 using namespace std;
 namespace t3_widget {
 
-text_window_t::text_window_t(text_buffer_t *_text) : widget_t(11, 11), scrollbar(true), top(0, 0) {
+text_window_t::text_window_t(text_buffer_t *_text) : widget_t(11, 11), scrollbar(true), top(0, 0), focus(false) {
 	/* Note: we use a dirty trick here: the last position of the window is obscured by
 	   the scrollbar. However, the last position will only contain the wrap character
 	   anyway, so we don't care. */
@@ -160,8 +160,12 @@ void text_window_t::update_contents(void) {
 	text_coordinate_t draw_line = top;
 
 	for (i = 0; i < t3_win_get_height(window); i++, wrap_info->add_lines(draw_line, 1)) {
-		//FIXME: draw cursor on top or bottom line depending on last movement
-		/*info.cursor = focus && draw_line.line == text->cursor.line ? text->cursor.pos : -1;*/
+		if (focus) {
+			if (i == 0)
+				info.cursor = wrap_info->calculate_line_pos(draw_line.line, 0, draw_line.pos);
+			else
+				info.cursor = -1;
+		}
 		t3_win_set_paint(window, i, 0);
 		t3_win_clrtoeol(window);
 		wrap_info->paint_line(window, draw_line, &info);
@@ -180,6 +184,12 @@ void text_window_t::update_contents(void) {
 	scrollbar.set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(window)),
 		count, t3_win_get_height(window));
 	scrollbar.update_contents();
+}
+
+void text_window_t::set_focus(bool _focus) {
+	if (focus != _focus)
+		redraw = true;
+	focus = _focus;
 }
 
 int text_window_t::get_text_width(void) {
