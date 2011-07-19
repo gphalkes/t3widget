@@ -20,7 +20,7 @@ using namespace std;
 namespace t3_widget {
 
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text) :
-		dialog_t(height, width, _("Input Method"))
+		dialog_t(height, width, _("Input Handling"))
 {
 	button_t *intuitive_button, *compromise_button, *no_timeout_button, *cancel_button;
 
