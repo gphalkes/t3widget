@@ -192,10 +192,6 @@ void text_window_t::set_focus(bool _focus) {
 	focus = _focus;
 }
 
-int text_window_t::get_text_width(void) {
-	return t3_win_get_width(window);
-}
-
 text_buffer_t *text_window_t::get_text(void) {
 	return text;
 }

@@ -36,13 +36,12 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 
 	public:
 		text_window_t(text_buffer_t *_text = NULL);
-		virtual void set_text(text_buffer_t *_text);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 
-		virtual int get_text_width(void);
+		void set_text(text_buffer_t *_text);
 		text_buffer_t *get_text(void);
 		void set_tabsize(int size);
 };

@@ -22,6 +22,8 @@
 #include "findcontext.h"
 #include "wrapinfo.h"
 
+/* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
+
 using namespace std;
 namespace t3_widget {
 
@@ -855,10 +857,6 @@ void edit_window_t::update_contents(void) {
 void edit_window_t::set_focus(bool _focus) {
 	focus = _focus;
 	redraw = true; //FXIME: Only for painting/removing cursor
-}
-
-int edit_window_t::get_text_width(void) {
-	return t3_win_get_width(edit_window);
 }
 
 void edit_window_t::undo(void) {
