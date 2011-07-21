@@ -20,6 +20,10 @@
 #include <pthread.h>
 #include <t3key/key.h>
 #include <transcript/transcript.h>
+#ifdef __linux__
+#include <sys/ioctl.h>
+#include <linux/kd.h>
+#endif
 
 #include "main.h"
 #include "log.h"
@@ -41,6 +45,10 @@ static int screen_lines, screen_columns;
 static sigc::signal<void, int, int> resize;
 static sigc::signal<void> update_notification;
 static pthread_mutex_t transcript_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+#ifdef __linux__
+static int linux_meta_mode = -1;
+#endif
 
 insert_char_dialog_t *insert_char_dialog;
 message_dialog_t *message_dialog;
@@ -117,7 +125,8 @@ static void do_resize(void) {
 
 enum terminal_code_t {
 	TERM_NONE,
-	TERM_XTERM
+	TERM_XTERM,
+	TERM_LINUX
 };
 
 struct terminal_mapping_t {
@@ -138,6 +147,12 @@ static void terminal_specific_restore(void) {
 			/* Note: this may not actually reset to previous value, because of broken xterm */
 			t3_term_putp("\033[?1036r");
 			break;
+#ifdef __linux__
+		case TERM_LINUX:
+			if (linux_meta_mode > 0)
+				ioctl(0, KDSKBMETA, linux_meta_mode);
+			break;
+#endif
 		default:
 			break;
 	}
@@ -156,6 +171,14 @@ static void terminal_specific_setup(void) {
 		case TERM_XTERM:
 			t3_term_putp("\033[?1036s\033[?1036h");
 			break;
+#ifdef __linux__
+		case TERM_LINUX:
+			if (ioctl(0, KDGKBMETA, &linux_meta_mode) < 0)
+				linux_meta_mode = -1;
+			else
+				ioctl(0, KDSKBMETA, K_ESCPREFIX);
+			break;
+#endif
 		default:
 			return;
 	}

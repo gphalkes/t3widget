@@ -199,7 +199,8 @@ void file_dialog_t::change_dir(const string *dir) {
 		new_dir = *dir;
 	} else {
 		new_dir = current_dir;
-		new_dir += "/";
+		if (current_dir.compare("/") != 0)
+			new_dir += "/";
 		new_dir += *dir;
 	}
 

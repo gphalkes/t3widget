@@ -99,6 +99,8 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool selection_empty(void) const;
 		void delete_selection(void);
 		bool replace_selection(text_line_t *block);
+		bool indent_selection(void);
+		bool unindent_selection(void);
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);

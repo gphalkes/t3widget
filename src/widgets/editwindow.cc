@@ -732,6 +732,22 @@ bool edit_window_t::process_key(key_t key) {
 			insert_special();
 			break;
 
+		case EKEY_SHIFT | '\t':
+			if (text->get_selection_mode() != selection_mode_t::NONE &&
+					text->get_selection_start().line != text->get_selection_end().line)
+				text->unindent_selection();
+			/*FIXME else if (only whitespace before cursor)
+				text->unindent_line();
+			*/
+			return true;
+		case '\t':
+			if (text->get_selection_mode() != selection_mode_t::NONE &&
+					text->get_selection_start().line != text->get_selection_end().line)
+			{
+				text->indent_selection();
+				break;
+			}
+			/* FALLTHROUGH */
 		default:
 			if (key < 32 && key != '\t')
 				return false;

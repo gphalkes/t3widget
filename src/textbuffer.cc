@@ -129,6 +129,7 @@ bool text_buffer_t::backspace_char(void) {
 bool text_buffer_t::is_modified(void) const {
 	return !undo_list.is_at_mark();
 }
+
 bool text_buffer_t::merge_internal(int line) {
 	cursor.line = line;
 	cursor.pos = lines[line]->get_length();
@@ -787,6 +788,14 @@ selection_mode_t text_buffer_t::get_selection_mode(void) const {
 
 const text_line_t *text_buffer_t::get_name_line(void) const {
 	return &name_line;
+}
+
+bool text_buffer_t::indent_selection(void) {
+	return true;
+}
+
+bool text_buffer_t::unindent_selection(void) {
+	return true;
 }
 
 }; // namespace
