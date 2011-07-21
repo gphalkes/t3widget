@@ -38,6 +38,8 @@ char text_line_t::dots[16];
 const char *text_line_t::control_map = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]_^";
 const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";
 
+text_line_factory_t default_text_line_factory;
+
 /* Meta Information for each character:
   - screen width of character [2 bits]
   - is graphic char [1 bit]
@@ -107,7 +109,9 @@ void text_line_t::convert_key(key_t c) {
 	}
 }
 
-text_line_t::text_line_t(int buffersize) : starts_with_combining(false) {
+text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
+		factory(_factory == NULL ? &default_text_line_factory : _factory)
+{
 	reserve(buffersize);
 }
 
@@ -128,15 +132,21 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 	reserve(length);
 }
 
-text_line_t::text_line_t(const char *_buffer) : starts_with_combining(false) {
+text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory) : starts_with_combining(false),
+		factory(_factory == NULL ? &default_text_line_factory : _factory)
+{
 	fill_line(_buffer, strlen(_buffer));
 }
 
-text_line_t::text_line_t(const char *_buffer, int length) : starts_with_combining(false) {
+text_line_t::text_line_t(const char *_buffer, int length, text_line_factory_t *_factory) : starts_with_combining(false),
+		factory(_factory == NULL ? &default_text_line_factory : _factory)
+{
 	fill_line(_buffer, length);
 }
 
-text_line_t::text_line_t(const string *str) : starts_with_combining(false) {
+text_line_t::text_line_t(const string *str, text_line_factory_t *_factory) : starts_with_combining(false),
+		factory(_factory == NULL ? &default_text_line_factory : _factory)
+{
 	fill_line(str->data(), str->size());
 }
 
@@ -185,13 +195,13 @@ text_line_t *text_line_t::break_line(int pos) {
 
 	//FIXME: cut_line and break_line are very similar. Maybe we should combine them!
 	if ((size_t) pos == buffer.size())
-		return new text_line_t();
+		return factory->new_text_line_t();
 
 	/* Only allow line breaks at non-combining marks. */
 	ASSERT(meta_buffer[pos] & WIDTH_MASK);
 
 	/* copy the right part of the string into the new buffer */
-	newline = new text_line_t(buffer.size() - pos);
+	newline = factory->new_text_line_t(buffer.size() - pos);
 	newline->buffer.assign(buffer.data() + pos, buffer.size() - pos);
 	newline->meta_buffer.assign(meta_buffer.data() + pos, meta_buffer.size() - pos);
 
@@ -228,9 +238,9 @@ text_line_t *text_line_t::clone(int start, int end) {
 	ASSERT(start <= end);
 
 	if (start == end)
-		return new text_line_t(0);
+		return factory->new_text_line_t(0);
 
-	retval = new text_line_t(end - start);
+	retval = factory->new_text_line_t(end - start);
 
 	retval->buffer.assign(buffer.data() + start, end - start);
 	retval->meta_buffer.assign(meta_buffer.data() + start, end - start);
@@ -848,5 +858,13 @@ void text_line_t::bad_draw_recheck(void) {
 	for (i = 0; (size_t) i < buffer.size(); i = adjust_position(i, 1))
 		check_bad_draw(i);
 }
+
+//============================= text_line_factory_t ========================
+
+text_line_factory_t::text_line_factory_t(void) {}
+text_line_t *text_line_factory_t::new_text_line_t(int buffersize) { return new text_line_t(buffersize, this); }
+text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer) { return new text_line_t(_buffer, this); }
+text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer, int length) { return new text_line_t(_buffer, length, this); }
+text_line_t *text_line_factory_t::new_text_line_t(const std::string *str) { return new text_line_t(str, this); }
 
 }; // namespace

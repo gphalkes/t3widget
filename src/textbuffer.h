@@ -46,6 +46,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		text_line_t name_line;
 
 		selection_mode_t selection_mode;
+		text_line_factory_t *line_factory;
 
 		undo_t *get_undo(undo_type_t type);
 		undo_t *get_undo(undo_type_t type, int line, int pos);
@@ -60,7 +61,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		void set_selection_from_find(int line, find_result_t *result);
 
 	public:
-		text_buffer_t(const char *_name = NULL);
+		text_buffer_t(const char *_name = NULL, text_line_factory_t *_line_factory = NULL);
 		virtual ~text_buffer_t(void);
 		virtual void bad_draw_recheck(void);
 

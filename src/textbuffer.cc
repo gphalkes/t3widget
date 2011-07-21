@@ -47,23 +47,15 @@ namespace t3_widget {
   be a reset_selection call such that we can avoid any arguments.
 */
 
-/* Free all memory used by 'text' */
-text_buffer_t::~text_buffer_t(void) {
-    int i;
-
-    /* Free all the text_line_t structs */
-    for (i = 0; (size_t) i < lines.size(); i++)
-		delete lines[i];
-	free(name);
-}
-
-text_buffer_t::text_buffer_t(const char *_name) : name(NULL) {
+text_buffer_t::text_buffer_t(const char *_name, text_line_factory_t *_line_factory) : name(NULL),
+		line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory)
+{
 	if (_name != NULL) {
 		if ((name = strdup(_name)) == NULL)
 			throw bad_alloc();
 	}
 	/* Allocate a new, empty line */
-	lines.push_back(new text_line_t());
+	lines.push_back(line_factory->new_text_line_t());
 
 	selection_start.pos = -1;
 	selection_start.line = 0;
@@ -78,9 +70,19 @@ text_buffer_t::text_buffer_t(const char *_name) : name(NULL) {
 	last_undo_type = UNDO_NONE;
 }
 
+text_buffer_t::~text_buffer_t(void) {
+    int i;
+
+    /* Free all the text_line_t structs */
+    for (i = 0; (size_t) i < lines.size(); i++)
+		delete lines[i];
+	free(name);
+}
+
 int text_buffer_t::size(void) const {
 	return lines.size();
 }
+
 bool text_buffer_t::insert_char(key_t c) {
 	if (!lines[cursor.line]->insert_char(cursor.pos, c, get_undo(UNDO_ADD)))
 		return false;
@@ -156,7 +158,7 @@ bool text_buffer_t::append_text(const char *text) {
 
 bool text_buffer_t::append_text(const char *text, size_t size) {
 	text_coordinate_t at(lines.size() - 1, INT_MAX);
-	text_line_t *append = new text_line_t(text, size);
+	text_line_t *append = line_factory->new_text_line_t(text, size);
 	return insert_block_internal(at, append);
 }
 
@@ -338,7 +340,7 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 				undo->get_text()->merge(lines[start.line]);
 			else
 				delete lines[start.line];
-			lines[start.line] = new text_line_t();
+			lines[start.line] = line_factory->new_text_line_t();
 		}
 	} else {
 		if (end_part != NULL)

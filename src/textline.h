@@ -32,6 +32,8 @@ class undo_t;
 
 #define _T3_MAX_TAB 80
 
+class text_line_factory_t;
+
 class T3_WIDGET_API text_line_t {
 	public:
 		enum {
@@ -67,6 +69,7 @@ class T3_WIDGET_API text_line_t {
 	private:
 		std::string buffer, meta_buffer;
 		bool starts_with_combining;
+		text_line_factory_t *factory;
 
 		static char spaces[_T3_MAX_TAB];
 		static char dots[16];
@@ -85,10 +88,10 @@ class T3_WIDGET_API text_line_t {
 		bool check_boundaries(int match_start, int match_end) const;
 
 	public:
-		text_line_t(int buffersize = BUFFERSIZE);
-		text_line_t(const char *_buffer);
-		text_line_t(const char *_buffer, int length);
-		text_line_t(const std::string *str);
+		text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = NULL);
+		text_line_t(const char *_buffer, text_line_factory_t *_factory = NULL);
+		text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = NULL);
+		text_line_t(const std::string *str, text_line_factory_t *_factory = NULL);
 
 		void set_text(const char *_buffer);
 		void set_text(const char *_buffer, size_t length);
@@ -144,6 +147,17 @@ class T3_WIDGET_API text_line_t {
 
 		void check_bad_draw(int i);
 };
+
+class text_line_factory_t {
+	public:
+		text_line_factory_t(void);
+		virtual text_line_t *new_text_line_t(int buffersize = BUFFERSIZE);
+		virtual text_line_t *new_text_line_t(const char *_buffer);
+		virtual text_line_t *new_text_line_t(const char *_buffer, int length);
+		virtual text_line_t *new_text_line_t(const std::string *str);
+};
+
+extern text_line_factory_t default_text_line_factory;
 
 }; // namespace
 #endif
