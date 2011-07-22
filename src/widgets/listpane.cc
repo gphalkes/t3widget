@@ -179,7 +179,7 @@ void list_pane_t::update_positions(void) {
 	widgets_t::iterator iter;
 	size_t idx;
 
-	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(window));
+	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(widgets_window));
 	for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++)
 		(*iter)->set_position(idx, indicator ? 1 : 0);
 }

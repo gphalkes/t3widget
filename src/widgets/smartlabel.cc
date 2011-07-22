@@ -99,7 +99,9 @@ bool smart_label_t::process_key(key_t key) { (void) key; return false; }
 
 bool smart_label_t::set_size(optint height, optint width) {
 	(void) height;
-	(void) width;
+	if (!width.is_valid())
+		width = t3_win_get_width(window);
+	t3_win_resize(window, 1, width);
 	return true;
 }
 

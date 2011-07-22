@@ -132,7 +132,7 @@ void multi_widget_t::resize_widgets(void) {
 					size--;
 				}
 			}
-		} else if (size < width - fixed_sum) {
+		} else while (size < width - fixed_sum) {
 			for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size < width - fixed_sum; iter++) {
 				if (iter->width < 0)
 					continue;
@@ -143,7 +143,7 @@ void multi_widget_t::resize_widgets(void) {
 		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
 				continue;
-			iter->widget->set_size(1, iter->calculated_width);
+			iter->widget->set_size(1, iter->calculated_width > 0 ? iter->calculated_width : 1);
 		}
 	}
 }
