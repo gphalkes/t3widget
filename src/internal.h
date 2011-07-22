@@ -26,7 +26,7 @@ namespace t3_widget {
 
 class text_line_t;
 /** text_line_t holding the copy buffer. */
-T3_WIDGET_LOCAL extern text_line_t *copy_buffer;
+T3_WIDGET_LOCAL extern std::string *copy_buffer;
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { \

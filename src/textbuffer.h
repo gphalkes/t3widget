@@ -73,7 +73,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool backspace_char(void);
 		bool merge(bool backspace);
 		bool break_line(void);
-		bool insert_block(text_line_t *block);
+		bool insert_block(const std::string *block);
 
 		bool append_text(const char *text);
 		bool append_text(const char *text, size_t size);
@@ -99,7 +99,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		selection_mode_t get_selection_mode(void) const;
 		bool selection_empty(void) const;
 		void delete_selection(void);
-		bool replace_selection(text_line_t *block);
+		bool replace_selection(const std::string *block);
 		bool indent_selection(void);
 		bool unindent_selection(void);
 
@@ -107,7 +107,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		void replace(finder_t *finder);
 
 		bool is_modified(void) const;
-		text_line_t *convert_selection(void);
+		std::string *convert_selection(void);
 		int apply_undo(void);
 		int apply_redo(void);
 

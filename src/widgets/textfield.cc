@@ -25,12 +25,13 @@ using namespace std;
 namespace t3_widget {
 
 /*FIXME:
-	auto-completion
+- auto-completion
 	- when typing directories, the entries in the dir should complete as well
 	- pgup pgdn should take steps in the drop-down list
 	- the first autocompletion option should be filled in, in the text field itself.
 	  However, this text should be selected, and it should only be appended if the
 	  user added characters.
+- undo
 */
 
 text_field_t::text_field_t(void) : widget_t(1, 4),
@@ -98,10 +99,10 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 	if (save_to_copy_buffer) {
 		if (copy_buffer != NULL)
 			delete copy_buffer;
-		copy_buffer = result;
-	} else {
-		delete result;
+		copy_buffer = new string(*result->get_data());
 	}
+	delete result;
+
 	pos = start;
 	ensure_on_cursor_screen();
 	reset_selection();
@@ -219,7 +220,7 @@ bool text_field_t::process_key(key_t key) {
 				if (copy_buffer != NULL)
 					delete copy_buffer;
 
-				copy_buffer = line.clone(start, end);
+				copy_buffer = new string(*line.get_data(), start, end - start);
 			}
 			break;
 
@@ -232,7 +233,7 @@ bool text_field_t::process_key(key_t key) {
 				if (pos < line.get_length())
 					end = line.break_line(pos);
 
-				line.merge(copy_buffer->clone(0, -1));
+				line.merge(new text_line_t(copy_buffer));
 				pos = line.get_length();
 				if (end != NULL)
 					line.merge(end);

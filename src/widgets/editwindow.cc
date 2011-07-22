@@ -48,7 +48,7 @@ void edit_window_t::init(void) {
 }
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : edit_window(NULL),
-		bottom_line_window(NULL), scrollbar(true), text(NULL), find_dialog(NULL), finder(NULL),
+		bottom_line_window(NULL), scrollbar(true), text(NULL), tab_spaces(false), find_dialog(NULL), finder(NULL),
 		wrap_type(wrap_type_t::NONE), wrap_info(NULL)
 {
 	init_unbacked_window(11, 11);
@@ -748,6 +748,15 @@ bool edit_window_t::process_key(key_t key) {
 			{
 				text->indent_selection();
 				break;
+			} else if (tab_spaces) {
+				string spaces;
+
+				if (text->get_selection_mode() != selection_mode_t::NONE)
+					delete_selection();
+
+				spaces.append(tabsize - (screen_pos % tabsize), ' ');
+				text->insert_block(&spaces);
+				break;
 			}
 			/* FALLTHROUGH */
 		default:
@@ -1014,6 +1023,10 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 	ensure_cursor_on_screen();
 }
 
+void edit_window_t::set_tab_spaces(bool _tab_spaces) {
+	tab_spaces = _tab_spaces;
+}
+
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
 	return new view_parameters_t(this);
 }
@@ -1030,10 +1043,11 @@ edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
 	if (wrap_type != wrap_type_t::NONE)
 		top_left.pos = view->wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
 	tabsize = view->tabsize;
+	tab_spaces = view->tab_spaces;
 }
 
 edit_window_t::view_parameters_t::view_parameters_t(int _tabsize, wrap_type_t _wrap_type) :
-	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize)
+	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize), tab_spaces(false)
 {}
 
 void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) const {
@@ -1047,6 +1061,7 @@ void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) con
 		view->top_left.pos = view->wrap_info->find_line(top_left);
 	}
 	// the calling function will call ensure_cursor_on_screen
+	view->tab_spaces = tab_spaces;
 }
 
 }; // namespace

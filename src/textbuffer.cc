@@ -418,23 +418,27 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
 	return true;
 }
 
-bool text_buffer_t::insert_block(text_line_t *block) {
+bool text_buffer_t::insert_block(const string *block) {
 	text_coordinate_t cursor_at_start = cursor;
+	text_line_t *converted_block = line_factory->new_text_line_t(block);
 
-	if (!insert_block_internal(cursor, block))
+	if (!insert_block_internal(cursor, converted_block)) {
+		delete converted_block;
 		return false;
+	}
 
 	last_undo = new undo_single_text_double_coord_t(UNDO_ADD_BLOCK, cursor_at_start.line, cursor_at_start.pos, cursor.line, cursor.pos);
 	last_undo_type = UNDO_ADD_BLOCK;
 	//FIXME: clone may return NULL!
-	last_undo->get_text()->merge(block->clone(0, -1));
+	last_undo->get_text()->merge(converted_block);
 	undo_list.add(last_undo);
 	return true;
 }
 
-bool text_buffer_t::replace_selection(text_line_t *block) {
+bool text_buffer_t::replace_selection(const string *block) {
 	text_coordinate_t current_start, current_end;
 	undo_double_text_triple_coord_t *undo;
+	text_line_t *converted_block;
 
 	current_start = get_selection_start();
 	current_end = get_selection_end();
@@ -442,9 +446,8 @@ bool text_buffer_t::replace_selection(text_line_t *block) {
 //FIXME: check that everything succeeds and return false if it doesn't
 	//FIXME: make sure original state is restored on failing sub action
 	/* Simply insert on empty selection */
-	if (current_start.line == current_end.line && current_start.pos == current_end.pos) {
+	if (current_start.line == current_end.line && current_start.pos == current_end.pos)
 		return insert_block(block);
-	}
 
 	last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, current_start.line,
 			current_start.pos, current_end.line, current_end.pos);
@@ -455,18 +458,20 @@ bool text_buffer_t::replace_selection(text_line_t *block) {
 	if (current_end.line < current_start.line || (current_end.line == current_start.line && current_end.pos < current_start.pos))
 		current_start = current_end;
 
-	insert_block_internal(current_start, block);
+	converted_block = line_factory->new_text_line_t(block);
+	//FIXME: insert_block_internal may fail!!!
+	insert_block_internal(current_start, converted_block);
 
-	undo->get_replacement()->merge(block->clone(0, -1));
+	undo->get_replacement()->merge(converted_block);
 	undo->setNewEnd(cursor);
 
 	undo_list.add(undo);
 	return true;
 }
 
-text_line_t *text_buffer_t::convert_selection(void) {
+string *text_buffer_t::convert_selection(void) {
 	text_coordinate_t current_start, current_end;
-	text_line_t *retval;
+	string *retval;
 	int i;
 
 	current_start = get_selection_start();
@@ -485,20 +490,20 @@ text_line_t *text_buffer_t::convert_selection(void) {
 	}
 
 	if (current_start.line == current_end.line)
-		return lines[current_start.line]->clone(current_start.pos, current_end.pos);
+		return new string(*lines[current_start.line]->get_data(), current_start.pos, current_end.pos - current_start.pos);
 
-	//FIXME: clone may return NULL!
-	retval = lines[current_start.line]->clone(current_start.pos, -1);
-	retval->append_char('\n', NULL);
+	//FIXME: new and append may fail!
+	retval = new string(*lines[current_start.line]->get_data(), current_start.pos);
+	retval->append(1, '\n');
 
 	for (i = current_start.line + 1; i < current_end.line; i++) {
-		//FIXME: clone may return NULL!
-		retval->merge(lines[i]->clone(0, -1));
-		retval->append_char('\n', NULL);
+		//FIXME: append may fail!
+		retval->append(*lines[i]->get_data());
+		retval->append(1, '\n');
 	}
 
-	//FIXME: clone may return NULL!
-	retval->merge(lines[current_end.line]->clone(0, current_end.pos));
+	//FIXME: append may fail!
+	retval->append(*lines[current_end.line]->get_data(), 0, current_end.pos);
 	return retval;
 }
 
@@ -748,10 +753,9 @@ void text_buffer_t::replace(finder_t *finder) {
 		return;
 
 	string *replacement_str = finder->get_replacement(lines[cursor.line]->get_data());
-	text_line_t replacement(replacement_str);
-	delete replacement_str;
 
-	replace_selection(&replacement);
+	replace_selection(replacement_str);
+	delete replacement_str;
 }
 
 const char *text_buffer_t::get_name(void) const {

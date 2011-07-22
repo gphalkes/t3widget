@@ -51,6 +51,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		int screen_pos; /**< Cached position of cursor in screen coordinates. */
 		int tabsize; /**< Width of a tab, in cells. */
 		bool focus; /**< Boolean indicating whether this edit_window_t has the input focus. */
+		bool tab_spaces; /**< Boolean indicating whether to use spaces for tab. */
 		/** Associated find dialog.
 		    By default this is the shared dialog, but can be set to a different one.
 		*/
@@ -171,6 +172,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_tabsize(int _tabsize);
 		/** Set the wrap type. */
 		void set_wrap(wrap_type_t wrap);
+		/** Set tab indents with spaces. */
+		void set_tab_spaces(bool _tab_spaces);
+
 		/** Save the current view parameters, to allow them to be restored later. */
 		view_parameters_t *save_view_parameters(void);
 		/** Save the current view parameters, to allow them to be restored later. */
@@ -184,6 +188,7 @@ class edit_window_t::view_parameters_t {
 		text_coordinate_t top_left;
 		wrap_type_t wrap_type;
 		int tabsize;
+		bool tab_spaces;
 
 		view_parameters_t(edit_window_t *view);
 		void apply_parameters(edit_window_t *view) const;
