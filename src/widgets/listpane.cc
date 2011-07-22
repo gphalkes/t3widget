@@ -200,7 +200,7 @@ void list_pane_t::push_back(widget_t *widget) {
 	widget->set_position(widgets.size(), indicator ? 1 : 0);
 	set_widget_parent(widget);
 	widgets.push_back(widget);
-	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(window));
+	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(widgets_window));
 }
 
 void list_pane_t::push_front(widget_t *widget) {
@@ -222,7 +222,7 @@ void list_pane_t::pop_back(void) {
 	}
 	unset_widget_parent(widgets.back());
 	widgets.pop_back();
-	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(window));
+	t3_win_resize(widgets_window, widgets.size(), t3_win_get_width(widgets_window));
 }
 
 void list_pane_t::pop_front(void) {
