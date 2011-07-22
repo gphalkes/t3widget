@@ -175,6 +175,13 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Set tab indents with spaces. */
 		void set_tab_spaces(bool _tab_spaces);
 
+		/** Get the size of a tab. */
+		int get_tabsize(void);
+		/** Get the wrap type. */
+		wrap_type_t get_wrap(void);
+		/** Get tab indents with spaces. */
+		bool get_tab_spaces(void);
+
 		/** Save the current view parameters, to allow them to be restored later. */
 		view_parameters_t *save_view_parameters(void);
 		/** Save the current view parameters, to allow them to be restored later. */

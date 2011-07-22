@@ -998,6 +998,8 @@ void edit_window_t::set_tabsize(int _tabsize) {
 	if (_tabsize == tabsize)
 		return;
 	tabsize = _tabsize;
+	if (wrap_info != NULL)
+		wrap_info->set_tabsize(tabsize);
 	force_redraw();
 }
 
@@ -1010,21 +1012,35 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 		return;
 
 	if (wrap == wrap_type_t::NONE) {
-		if (wrap_info != NULL)
+		if (wrap_info != NULL) {
 			delete wrap_info;
+			wrap_info = NULL;
+		}
 	} else {
 		//FIXME: differentiate between wrap types
 		if (wrap_info == NULL)
 			wrap_info = new wrap_info_t(t3_win_get_width(edit_window) - 1, tabsize);
 		wrap_info->set_text_buffer(text);
+		wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
 	}
-	wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
 	wrap_type = wrap;
 	ensure_cursor_on_screen();
 }
 
 void edit_window_t::set_tab_spaces(bool _tab_spaces) {
 	tab_spaces = _tab_spaces;
+}
+
+int edit_window_t::get_tabsize(void) {
+	return tabsize;
+}
+
+wrap_type_t edit_window_t::get_wrap(void) {
+	return wrap_type;
+}
+
+bool edit_window_t::get_tab_spaces(void) {
+	return tab_spaces;
 }
 
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
