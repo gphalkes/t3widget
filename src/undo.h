@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_UNDO_H
 #define T3_WIDGET_UNDO_H
 
+#include <string>
 #include <t3widget/textline.h>
 #include <t3widget/util.h>
 
@@ -33,12 +34,14 @@ enum undo_type_t {
 	UNDO_DELETE_NEWLINE,
 	UNDO_BACKSPACE_NEWLINE,
 	UNDO_ADD_NEWLINE,
+	UNDO_INDENT,
+	UNDO_UNINDENT,
 
 	// Types only for mapping redo to undo types
 	UNDO_ADD_REDO,
 	UNDO_BACKSPACE_REDO,
 	UNDO_REPLACE_BLOCK_REDO,
-	UNDO_OVERWRITE_REDO
+	UNDO_OVERWRITE_REDO,
 };
 
 class T3_WIDGET_API undo_list_t {
@@ -78,8 +81,8 @@ class T3_WIDGET_API undo_t {
 		undo_type_t get_redo_type(void) const;
 		virtual text_coordinate_t get_start(void);
 	    virtual void add_newline(void) {}
-		virtual text_line_t *get_text(void);
-		virtual text_line_t *get_replacement(void);
+		virtual std::string *get_text(void);
+		virtual std::string *get_replacement(void);
 		virtual text_coordinate_t get_end(void) const;
 		virtual void minimize(void) {}
 		virtual text_coordinate_t get_new_end(void) const;
@@ -87,12 +90,12 @@ class T3_WIDGET_API undo_t {
 
 class T3_WIDGET_API undo_single_text_t : public undo_t {
 	private:
-		text_line_t text;
+		std::string text;
 
 	public:
-		undo_single_text_t(undo_type_t _type, int start_line, int start_pos) : undo_t(_type, start_line, start_pos), text(TEXT_START_SIZE) {};
+		undo_single_text_t(undo_type_t _type, int start_line, int start_pos) : undo_t(_type, start_line, start_pos) {};
 	    virtual void add_newline(void);
-		virtual text_line_t *get_text(void);
+		virtual std::string *get_text(void);
 		virtual void minimize(void);
 };
 
@@ -108,13 +111,13 @@ class T3_WIDGET_API undo_single_text_double_coord_t : public undo_single_text_t 
 
 class T3_WIDGET_API undo_double_text_t : public undo_single_text_double_coord_t {
 	private:
-		text_line_t replacement;
+		std::string replacement;
 
 	public:
 		undo_double_text_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
-			undo_single_text_double_coord_t(_type, start_line, start_pos, end_line, end_pos), replacement(TEXT_START_SIZE) {}
+			undo_single_text_double_coord_t(_type, start_line, start_pos, end_line, end_pos) {}
 
-		virtual text_line_t *get_replacement(void);
+		virtual std::string *get_replacement(void);
 		virtual void minimize(void);
 };
 
@@ -125,7 +128,7 @@ class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t 
 	public:
 		undo_double_text_triple_coord_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
 			undo_double_text_t(_type, start_line, start_pos, end_line, end_pos) {}
-
+//FIXME: uncamelcase!
 		void setNewEnd(text_coordinate_t _newEnd);
 		virtual text_coordinate_t get_new_end(void) const;
 };

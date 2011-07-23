@@ -647,11 +647,11 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	reserve(buffer.size() + conversion_length + 1);
 
 	if (undo != NULL) {
-		text_line_t *undo_text = undo->get_text();
-		undo_text->reserve(undo_text->buffer.size() + conversion_length);
+		string *undo_text = undo->get_text();
+		undo_text->reserve(undo_text->size() + conversion_length);
 
 		ASSERT(undo->get_type() == UNDO_ADD);
-		undo_text->insert_bytes(undo_text->buffer.size(), conversion_buffer, conversion_length, conversion_meta_data);
+		undo_text->append(conversion_buffer, conversion_length);
 	}
 
 	if (pos == 0) {
@@ -670,7 +670,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 /* Overwrite a character with 'c' in 'line' at position 'pos' */
 bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	int oldspace;
-	text_line_t *undo_text, *replacement_text;
+	string *undo_text, *replacement_text;
 
 	convert_key(c);
 
@@ -683,8 +683,8 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 		if (undo != NULL) {
 			ASSERT(undo->get_type() == UNDO_OVERWRITE);
 			replacement_text = undo->get_replacement();
-			replacement_text->reserve(replacement_text->buffer.size() + conversion_length);
-			replacement_text->insert_bytes(replacement_text->buffer.size(), conversion_buffer, conversion_length, conversion_meta_data);
+			replacement_text->reserve(replacement_text->size() + conversion_length);
+			replacement_text->append(conversion_buffer, conversion_length);
 		}
 		return insert_char(pos, c, NULL);
 	}
@@ -699,12 +699,12 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	if (undo != NULL) {
 		ASSERT(undo->get_type() == UNDO_OVERWRITE);
 		undo_text = undo->get_text();
-		undo_text->reserve(undo_text->buffer.size() + oldspace);
+		undo_text->reserve(undo_text->size() + oldspace);
 		replacement_text = undo->get_replacement();
-		replacement_text->reserve(replacement_text->buffer.size() + conversion_length);
+		replacement_text->reserve(replacement_text->size() + conversion_length);
 
-		undo_text->insert_bytes(undo_text->buffer.size(), buffer.data() + pos, oldspace, meta_buffer[pos]);
-		replacement_text->insert_bytes(replacement_text->buffer.size(), conversion_buffer, conversion_length, conversion_meta_data);
+		undo_text->append(buffer.data() + pos, oldspace);
+		replacement_text->append(conversion_buffer, conversion_length);
 	}
 
 	buffer.replace(pos, oldspace, conversion_buffer, conversion_length);
@@ -727,11 +727,11 @@ bool text_line_t::delete_char(int pos, undo_t *undo) {
 	oldspace = adjust_position(pos, 1) - pos;
 
 	if (undo != NULL) {
-		text_line_t *undo_text = undo->get_text();
+		string *undo_text = undo->get_text();
 		undo_text->reserve(oldspace);
 
 		ASSERT(undo->get_type() == UNDO_DELETE || undo->get_type() == UNDO_BACKSPACE);
-		undo_text->insert_bytes(undo->get_type() == UNDO_DELETE ? undo_text->buffer.size() : 0, buffer.data() + pos, oldspace, meta_buffer[pos]);
+		undo_text->insert(undo->get_type() == UNDO_DELETE ? undo_text->size() : 0, buffer.data() + pos, oldspace);
 	}
 
 	buffer.erase(pos, oldspace);

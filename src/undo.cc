@@ -181,21 +181,21 @@ undo_type_t undo_t::get_type(void) const { return type; }
 undo_type_t undo_t::get_redo_type(void) const { return redo_map[type]; }
 
 text_coordinate_t undo_t::get_start(void) { return start; }
-text_line_t *undo_t::get_text(void) { return NULL; }
-text_line_t *undo_t::get_replacement(void) { return NULL; }
+string *undo_t::get_text(void) { return NULL; }
+string *undo_t::get_replacement(void) { return NULL; }
 text_coordinate_t undo_t::get_end(void) const { return text_coordinate_t(-1, -1); }
 text_coordinate_t undo_t::get_new_end(void) const { return text_coordinate_t(-1, -1); }
 
-void undo_single_text_t::add_newline(void) { text.append_char('\n', NULL); }
-text_line_t *undo_single_text_t::get_text(void) { return &text; }
-void undo_single_text_t::minimize(void) { text.minimize(); }
+void undo_single_text_t::add_newline(void) { text.append(1, '\n'); }
+string *undo_single_text_t::get_text(void) { return &text; }
+void undo_single_text_t::minimize(void) { text.reserve(0); }
 
 text_coordinate_t undo_single_text_double_coord_t::get_end(void) const { return end; }
 
-text_line_t *undo_double_text_t::get_replacement(void) { return &replacement; }
+string *undo_double_text_t::get_replacement(void) { return &replacement; }
 void undo_double_text_t::minimize(void) {
 	undo_single_text_double_coord_t::minimize();
-	replacement.minimize();
+	replacement.reserve(0);
 }
 
 void undo_double_text_triple_coord_t::setNewEnd(text_coordinate_t _new_end) { new_end = _new_end; }

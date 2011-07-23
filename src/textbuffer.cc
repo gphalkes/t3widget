@@ -285,9 +285,8 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 		text_line_t *selected_text;
 		selected_text = lines[start.line]->cut_line(start.pos, end.pos);
 		if (undo != NULL)
-			undo->get_text()->merge(selected_text);
-		else
-			delete selected_text;
+			undo->get_text()->append(*selected_text->get_data());
+		delete selected_text;
 		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
 		return;
 	}
@@ -317,9 +316,8 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 	} else if (start.pos != 0) {
 		text_line_t *retval = lines[start.line]->break_line(start.pos);
 		if (undo != NULL)
-			undo->get_text()->merge(retval);
-		else
-			delete retval;
+			undo->get_text()->append(*retval->get_data());
+		delete retval;
 		start_part = lines[start.line];
 	}
 
@@ -329,19 +327,13 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 		end_part = lines[end.line]->break_line(end.pos);
 
 	if (start_part == NULL) {
-		if (end_part != NULL) {
-			if (undo != NULL)
-				undo->get_text()->merge(lines[start.line]);
-			else
-				delete lines[start.line];
+		if (undo != NULL)
+			undo->get_text()->append(*lines[start.line]->get_data());
+		delete lines[start.line];
+		if (end_part != NULL)
 			lines[start.line] = end_part;
-		} else {
-			if (undo != NULL)
-				undo->get_text()->merge(lines[start.line]);
-			else
-				delete lines[start.line];
+		else
 			lines[start.line] = line_factory->new_text_line_t();
-		}
 	} else {
 		if (end_part != NULL)
 			start_part->merge(end_part);
@@ -353,20 +345,19 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end,
 		undo->add_newline();
 
 		for (i = start.line; i < end.line; i++) {
-			undo->get_text()->merge(lines[i]);
+			undo->get_text()->append(*lines[i]->get_data());
+			delete lines[i];
 			undo->add_newline();
 		}
 
-		if (end.pos != 0)
-			undo->get_text()->merge(lines[end.line]);
-	} else {
-		for (i = start.line; i < end.line; i++)
-			delete lines[i];
+		if (end.pos != 0) {
+			undo->get_text()->append(*lines[end.line]->get_data());
+			delete lines[end.line];
+		}
 	}
-
 	end.line++;
-
 	lines.erase(lines.begin() + start.line, lines.begin() + end.line);
+
 	rewrap_required(rewrap_type_t::DELETE_LINES, start.line, end.line);
 	rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
 	if ((size_t) start.line < lines.size())
@@ -430,7 +421,9 @@ bool text_buffer_t::insert_block(const string *block) {
 	last_undo = new undo_single_text_double_coord_t(UNDO_ADD_BLOCK, cursor_at_start.line, cursor_at_start.pos, cursor.line, cursor.pos);
 	last_undo_type = UNDO_ADD_BLOCK;
 	//FIXME: clone may return NULL!
-	last_undo->get_text()->merge(converted_block);
+	last_undo->get_text()->append(*converted_block->get_data());
+	delete converted_block;
+
 	undo_list.add(last_undo);
 	return true;
 }
@@ -462,7 +455,8 @@ bool text_buffer_t::replace_selection(const string *block) {
 	//FIXME: insert_block_internal may fail!!!
 	insert_block_internal(current_start, converted_block);
 
-	undo->get_replacement()->merge(converted_block);
+	undo->get_replacement()->append(*converted_block->get_data());
+	delete converted_block;
 	undo->setNewEnd(cursor);
 
 	undo_list.add(undo);
@@ -557,14 +551,15 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 	switch (type) {
 		case UNDO_ADD:
 			end = start = current->get_start();
-			end.pos += current->get_text()->get_length();
+			end.pos += current->get_text()->size();
 			delete_block(start, end, NULL);
 			cursor = start;
 			break;
 		case UNDO_ADD_REDO:
 		case UNDO_DELETE:
 			start = current->get_start();
-			insert_block_internal(start, current->get_text());
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_text()));
 			if (type == UNDO_DELETE)
 				cursor = start;
 			break;
@@ -579,32 +574,36 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			end = current->get_end();
 			if (end.line < start.line || (end.line == start.line && end.pos < start.pos))
 				start = end;
-			insert_block_internal(start, current->get_text());
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_text()));
 			cursor = end;
 			break;
 		case UNDO_BACKSPACE:
 			start = current->get_start();
-			start.pos -= current->get_text()->get_length();
-			insert_block_internal(start, current->get_text());
+			start.pos -= current->get_text()->size();
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_text()));
 			break;
 		case UNDO_BACKSPACE_REDO:
 			end = start = current->get_start();
-			start.pos -= current->get_text()->get_length();
+			start.pos -= current->get_text()->size();
 			delete_block(start, end, NULL);
 			cursor = start;
 			break;
 		case UNDO_OVERWRITE:
 			end = start = current->get_start();
-			end.pos += current->get_replacement()->get_length();
+			end.pos += current->get_replacement()->size();
 			delete_block(start, end, NULL);
-			insert_block_internal(start, current->get_text());
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_text()));
 			cursor = start;
 			break;
 		case UNDO_OVERWRITE_REDO:
 			end = start = current->get_start();
-			end.pos += current->get_text()->get_length();
+			end.pos += current->get_text()->size();
 			delete_block(start, end, NULL);
-			insert_block_internal(start, current->get_replacement());
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_replacement()));
 			break;
 		case UNDO_REPLACE_BLOCK:
 			start = current->get_start();
@@ -613,7 +612,8 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 				start = end;
 			end = current->get_new_end();
 			delete_block(start, end, NULL);
-			insert_block_internal(start, current->get_text());
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_text()));
 			cursor = current->get_end();
 			break;
 		case UNDO_REPLACE_BLOCK_REDO:
@@ -622,7 +622,8 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			delete_block(start, end, NULL);
 			if (end.line < start.line || (end.line == start.line && end.pos < start.pos))
 				start = end;
-			insert_block_internal(start, current->get_replacement());
+			//FIXME: insert_block_internal may fail, in which case we must clean up the block
+			insert_block_internal(start, line_factory->new_text_line_t(current->get_replacement()));
 			break;
 		case UNDO_BACKSPACE_NEWLINE:
 			cursor = current->get_start();
