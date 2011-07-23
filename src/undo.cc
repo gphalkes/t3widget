@@ -198,7 +198,7 @@ void undo_double_text_t::minimize(void) {
 	replacement.reserve(0);
 }
 
-void undo_double_text_triple_coord_t::setNewEnd(text_coordinate_t _new_end) { new_end = _new_end; }
+void undo_double_text_triple_coord_t::set_new_end(text_coordinate_t _new_end) { new_end = _new_end; }
 text_coordinate_t undo_double_text_triple_coord_t::get_new_end(void) const { return new_end; }
 
 }; // namespace

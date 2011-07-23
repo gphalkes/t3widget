@@ -457,7 +457,7 @@ bool text_buffer_t::replace_selection(const string *block) {
 
 	undo->get_replacement()->append(*converted_block->get_data());
 	delete converted_block;
-	undo->setNewEnd(cursor);
+	undo->set_new_end(cursor);
 
 	undo_list.add(undo);
 	return true;

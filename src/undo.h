@@ -128,8 +128,8 @@ class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t 
 	public:
 		undo_double_text_triple_coord_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
 			undo_double_text_t(_type, start_line, start_pos, end_line, end_pos) {}
-//FIXME: uncamelcase!
-		void setNewEnd(text_coordinate_t _newEnd);
+
+		void set_new_end(text_coordinate_t _new_end);
 		virtual text_coordinate_t get_new_end(void) const;
 };
 
