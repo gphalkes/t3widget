@@ -52,7 +52,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
 		void locate_pos(void);
 		void locate_pos(text_coordinate_t *coord) const;
-		void delete_block(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
+		void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
 		bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
 		int apply_undo_redo(undo_type_t type, undo_t *current);
 		bool merge_internal(int line);
