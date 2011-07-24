@@ -59,6 +59,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool break_line_internal(void);
 
 		void set_selection_from_find(int line, find_result_t *result);
+		bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
 	public:
 		text_buffer_t(const char *_name = NULL, text_line_factory_t *_line_factory = NULL);
@@ -100,8 +101,8 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool selection_empty(void) const;
 		void delete_selection(void);
 		bool replace_selection(const std::string *block);
-		bool indent_selection(void);
-		bool unindent_selection(void);
+		bool indent_selection(int tabsize, bool tab_spaces);
+		bool unindent_selection(int tabsize);
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);

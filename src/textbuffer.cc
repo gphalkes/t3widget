@@ -433,8 +433,8 @@ bool text_buffer_t::replace_selection(const string *block) {
 	undo_double_text_triple_coord_t *undo;
 	text_line_t *converted_block;
 
-	current_start = get_selection_start();
-	current_end = get_selection_end();
+	current_start = selection_start;
+	current_end = selection_end;
 
 //FIXME: check that everything succeeds and return false if it doesn't
 	//FIXME: make sure original state is restored on failing sub action
@@ -468,8 +468,8 @@ string *text_buffer_t::convert_selection(void) {
 	string *retval;
 	int i;
 
-	current_start = get_selection_start();
-	current_end = get_selection_end();
+	current_start = selection_start;
+	current_end = selection_end;
 
 	/* Don't do anything on empty selection */
 	if (current_start.line == current_end.line && current_start.pos == current_end.pos)
@@ -548,6 +548,7 @@ undo_t *text_buffer_t::get_undo(undo_type_t type, int line, int pos) {
 int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 	text_coordinate_t start, end;
 
+	set_selection_mode(selection_mode_t::NONE);
 	switch (type) {
 		case UNDO_ADD:
 			end = start = current->get_start();
@@ -637,10 +638,15 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			start = current->get_start();
 			merge_internal(start.line);
 			break;
+		case UNDO_INDENT:
+		case UNDO_UNINDENT:
+			undo_indent_selection(current, type);
+			break;
 		default:
 			ASSERT(0);
 			break;
 	}
+	last_undo_type = UNDO_NONE;
 	return 0;
 }
 
@@ -656,8 +662,6 @@ int text_buffer_t::apply_undo(void) {
 		return -1;
 
 	apply_undo_redo(current->get_type(), current);
-	last_undo_type = UNDO_NONE;
-
 	return 0;
 }
 
@@ -668,8 +672,6 @@ int text_buffer_t::apply_redo(void) {
 		return -1;
 
 	apply_undo_redo(current->get_redo_type(), current);
-	last_undo_type = UNDO_NONE;
-
 	return 0;
 }
 
@@ -797,11 +799,142 @@ const text_line_t *text_buffer_t::get_name_line(void) const {
 	return &name_line;
 }
 
-bool text_buffer_t::indent_selection(void) {
+bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
+	int end_line;
+	text_coordinate_t insert_at;
+	string str, *undo_text;
+	text_line_t *indent;
+
+	if (selection_mode == selection_mode_t::NONE)
+		return false;
+
+	last_undo = new undo_single_text_double_coord_t(UNDO_INDENT, selection_start.line, selection_start.pos, selection_end.line, selection_end.pos);
+	last_undo_type = UNDO_INDENT;
+
+	if (tab_spaces)
+		str.append(tabsize, ' ');
+	else
+		str.append(1, '\t');
+
+	insert_at.pos = 0;
+	if (selection_end.line < selection_start.line) {
+		insert_at.line = selection_end.line;
+		end_line = selection_start.line;
+	} else {
+		insert_at.line = selection_start.line;
+		end_line = selection_end.line;
+	}
+	undo_text = last_undo->get_text();
+
+	for (; insert_at.line <= end_line; insert_at.line++) {
+		undo_text->append(str);
+		undo_text->append(1, 'X'); // Simply add a non-space/tab as marker
+		indent = line_factory->new_text_line_t(&str);
+		insert_block_internal(insert_at, indent);
+	}
+	selection_start.pos += tab_spaces ? tabsize : 1;
+	selection_end.pos += tab_spaces ? tabsize : 1;
+	cursor.pos = selection_end.pos;
+
+	undo_list.add(last_undo);
 	return true;
 }
 
-bool text_buffer_t::unindent_selection(void) {
+bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
+	int first_line, last_line;
+	size_t pos = 0, next_pos;
+	string *undo_text;
+
+	if (undo->get_start().line < undo->get_end().line) {
+		first_line = undo->get_start().line;
+		last_line = undo->get_end().line;
+	} else {
+		first_line = undo->get_end().line;
+		last_line = undo->get_start().line;
+	}
+
+	undo_text = undo->get_text();
+	for (; first_line <= last_line; first_line++) {
+		next_pos = undo_text->find('X', pos);
+		if (type == UNDO_INDENT) {
+			text_coordinate_t delete_start, delete_end;
+			delete_start.line = delete_end.line = first_line;
+			delete_start.pos = 0;
+			delete_end.pos = next_pos - pos;
+			delete_block(delete_start, delete_end, NULL);
+		} else {
+			text_coordinate_t insert_at(first_line, 0);
+			if (next_pos != pos) {
+				text_line_t *indent = line_factory->new_text_line_t(undo_text->data() + pos, next_pos - pos);
+				insert_block_internal(insert_at, indent);
+			}
+		}
+		pos = next_pos + 1;
+	}
+	cursor = undo->get_end();
+	if (type == UNDO_UNINDENT) {
+		pos = undo_text->rfind('X', pos - 2);
+		if (pos == string::npos)
+		    cursor.pos += undo_text->size() - 1;
+		else
+			cursor.pos += next_pos - pos - 1;
+	}
+	return true;
+}
+
+bool text_buffer_t::unindent_selection(int tabsize) {
+	int end_line;
+	text_coordinate_t delete_start, delete_end;
+	string undo_text;
+	bool text_changed = false;
+
+	if (selection_mode == selection_mode_t::NONE)
+		return false;
+
+	if (selection_end.line < selection_start.line) {
+		delete_start.line = selection_end.line;
+		end_line = selection_start.line;
+	} else {
+		delete_start.line = selection_start.line;
+		end_line = selection_end.line;
+	}
+
+	delete_start.pos = 0;
+	for (; delete_start.line <= end_line; delete_start.line++) {
+		const string *data = lines[delete_start.line]->get_data();
+		int indent;
+		for (delete_end.pos = 0, indent = 0; delete_end.pos < tabsize && indent < tabsize; delete_end.pos++) {
+			if ((*data)[delete_end.pos] == '\t') {
+				delete_end.pos++;
+				break;
+			} else if ((*data)[delete_end.pos] != ' ') {
+				break;
+			}
+		}
+
+		undo_text.append(*data, 0, delete_end.pos);
+		undo_text.append(1, 'X'); // Simply add a non-space/tab as marker
+		if (delete_end.pos == 0)
+			continue;
+		text_changed = true;
+		delete_end.line = delete_start.line;
+		delete_block(delete_start, delete_end, NULL);
+
+		if (delete_end.line == selection_start.line) {
+			selection_start.pos -= delete_end.pos;
+		} else if (delete_end.line == selection_end.line) {
+			if (selection_end.pos > delete_end.pos)
+				cursor.pos = selection_end.pos -= delete_end.pos;
+			else
+				cursor.pos = selection_end.pos = 0;
+		}
+	}
+	if (text_changed) {
+		last_undo = new undo_single_text_double_coord_t(UNDO_UNINDENT, selection_start.line, selection_start.pos, selection_end.line, selection_end.pos);
+		last_undo_type = UNDO_UNINDENT;
+		last_undo->get_text()->append(undo_text);
+		undo_list.add(last_undo);
+	}
 	return true;
 }
 

@@ -171,7 +171,9 @@ undo_type_t undo_t::redo_map[] = {
 	UNDO_OVERWRITE_REDO,
 	UNDO_ADD_NEWLINE,
 	UNDO_ADD_NEWLINE,
-	UNDO_DELETE_NEWLINE
+	UNDO_DELETE_NEWLINE,
+	UNDO_UNINDENT,
+	UNDO_INDENT
 };
 
 undo_t::~undo_t(void) {}
