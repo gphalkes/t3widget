@@ -103,6 +103,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool replace_selection(const std::string *block);
 		bool indent_selection(int tabsize, bool tab_spaces);
 		bool unindent_selection(int tabsize);
+		bool unindent_line(int tabsize);
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);

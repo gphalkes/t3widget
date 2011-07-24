@@ -803,7 +803,7 @@ bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 	text_line_t *indent;
 
 	if (selection_mode == selection_mode_t::NONE && selection_start.line != selection_end.line)
-		return false;
+		return true;
 
 	last_undo = new undo_single_text_double_coord_t(UNDO_INDENT, selection_start, selection_end);
 	last_undo_type = UNDO_INDENT;
@@ -893,7 +893,7 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 	bool text_changed = false;
 
 	if (selection_mode == selection_mode_t::NONE && selection_start.line != selection_end.line)
-		return false;
+		return true;
 
 	if (selection_end.line < selection_start.line) {
 		delete_start.line = selection_end.line;
@@ -908,8 +908,7 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 	delete_start.pos = 0;
 	for (; delete_start.line <= end_line; delete_start.line++) {
 		const string *data = lines[delete_start.line]->get_data();
-		int indent;
-		for (delete_end.pos = 0, indent = 0; delete_end.pos < tabsize && indent < tabsize; delete_end.pos++) {
+		for (delete_end.pos = 0; delete_end.pos < tabsize; delete_end.pos++) {
 			if ((*data)[delete_end.pos] == '\t') {
 				delete_end.pos++;
 				break;
@@ -944,6 +943,36 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 		last_undo->get_text()->append(undo_text);
 		undo_list.add(last_undo);
 	}
+	return true;
+}
+
+bool text_buffer_t::unindent_line(int tabsize) {
+	text_coordinate_t delete_start(cursor.line, 0), delete_end(cursor.line, 0);
+
+	if (selection_mode != selection_mode_t::NONE)
+		set_selection_mode(selection_mode_t::NONE);
+
+	const string *data = lines[delete_start.line]->get_data();
+	for (; delete_end.pos < tabsize; delete_end.pos++) {
+		if ((*data)[delete_end.pos] == '\t') {
+			delete_end.pos++;
+			break;
+		} else if ((*data)[delete_end.pos] != ' ') {
+			break;
+		}
+	}
+
+	if (delete_end.pos == 0)
+		return true;
+
+	last_undo = new undo_single_text_double_coord_t(UNDO_DELETE_BLOCK, delete_start, delete_end);
+	last_undo_type = UNDO_UNINDENT;
+	undo_list.add(last_undo);
+	delete_block_internal(delete_start, delete_end, last_undo);
+	if (cursor.pos > delete_end.pos)
+		cursor.pos -= delete_end.pos;
+	else
+		cursor.pos = 0;
 	return true;
 }
 

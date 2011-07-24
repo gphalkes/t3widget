@@ -738,27 +738,26 @@ bool edit_window_t::process_key(key_t key) {
 			if (text->get_selection_mode() != selection_mode_t::NONE &&
 					text->get_selection_start().line != text->get_selection_end().line)
 				unindent_selection();
-			/*FIXME else if (only whitespace before cursor)
-				text->unindent_line();
-			*/
+			else
+				text->unindent_line(tabsize);
 			return true;
 		case '\t':
 			if (text->get_selection_mode() != selection_mode_t::NONE &&
 					text->get_selection_start().line != text->get_selection_end().line)
 			{
 				indent_selection();
-				break;
-			} else if (tab_spaces) {
-				string spaces;
-
+			} else {
+				string space;
 				if (text->get_selection_mode() != selection_mode_t::NONE)
 					delete_selection();
 
-				spaces.append(tabsize - (screen_pos % tabsize), ' ');
-				text->insert_block(&spaces);
-				break;
+				if (tab_spaces)
+					space.append(tabsize - (screen_pos % tabsize), ' ');
+				else
+					space.append(1, '\t');
+				text->insert_block(&space);
 			}
-			/* FALLTHROUGH */
+			break;
 		default:
 			if (key < 32 && key != '\t')
 				return false;
