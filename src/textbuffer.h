@@ -49,7 +49,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		text_line_factory_t *line_factory;
 
 		undo_t *get_undo(undo_type_t type);
-		undo_t *get_undo(undo_type_t type, int line, int pos);
+		undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
 		void locate_pos(void);
 		void locate_pos(text_coordinate_t *coord) const;
 		void delete_block(text_coordinate_t start, text_coordinate_t end, undo_t *undo);

@@ -144,10 +144,10 @@ bool text_buffer_t::merge_internal(int line) {
 
 bool text_buffer_t::merge(bool backspace) {
 	if (backspace) {
-		get_undo(UNDO_BACKSPACE_NEWLINE, cursor.line - 1, lines[cursor.line - 1]->get_length());
+		get_undo(UNDO_BACKSPACE_NEWLINE, text_coordinate_t(cursor.line - 1, lines[cursor.line - 1]->get_length()));
 		return merge_internal(cursor.line - 1);
 	} else {
-		get_undo(UNDO_DELETE_NEWLINE, cursor.line, lines[cursor.line]->get_length());
+		get_undo(UNDO_DELETE_NEWLINE, text_coordinate_t(cursor.line, lines[cursor.line]->get_length()));
 		return merge_internal(cursor.line);
 	}
 }
@@ -370,8 +370,7 @@ void text_buffer_t::delete_selection(void) {
 	if (selection_start.line == selection_end.line && selection_start.pos == selection_end.pos)
 		return;
 
-	last_undo = new undo_single_text_double_coord_t(UNDO_DELETE_BLOCK, selection_start.line,
-			selection_start.pos, selection_end.line, selection_end.pos);
+	last_undo = new undo_single_text_double_coord_t(UNDO_DELETE_BLOCK, selection_start, selection_end);
 	last_undo_type = UNDO_DELETE_BLOCK;
 
 	delete_block(selection_start, selection_end, last_undo);
@@ -418,7 +417,7 @@ bool text_buffer_t::insert_block(const string *block) {
 		return false;
 	}
 
-	last_undo = new undo_single_text_double_coord_t(UNDO_ADD_BLOCK, cursor_at_start.line, cursor_at_start.pos, cursor.line, cursor.pos);
+	last_undo = new undo_single_text_double_coord_t(UNDO_ADD_BLOCK, cursor_at_start, cursor);
 	last_undo_type = UNDO_ADD_BLOCK;
 	//FIXME: clone may return NULL!
 	last_undo->get_text()->append(*converted_block->get_data());
@@ -442,8 +441,7 @@ bool text_buffer_t::replace_selection(const string *block) {
 	if (current_start.line == current_end.line && current_start.pos == current_end.pos)
 		return insert_block(block);
 
-	last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, current_start.line,
-			current_start.pos, current_end.line, current_end.pos);
+	last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, current_start, current_end);
 	last_undo_type = UNDO_REPLACE_BLOCK;
 
 	delete_block(current_start, current_end, undo);
@@ -502,14 +500,14 @@ string *text_buffer_t::convert_selection(void) {
 }
 
 undo_t *text_buffer_t::get_undo(undo_type_t type) {
-	return get_undo(type, cursor.line, cursor.pos);
+	return get_undo(type, cursor);
 }
 
-undo_t *text_buffer_t::get_undo(undo_type_t type, int line, int pos) {
+undo_t *text_buffer_t::get_undo(undo_type_t type, text_coordinate_t coord) {
 	ASSERT(type != UNDO_ADD_BLOCK && type != UNDO_DELETE_BLOCK);
 
-	if (last_undo_type == type && last_undo_position.line == line &&
-			last_undo_position.pos == pos && last_undo != NULL)
+	if (last_undo_type == type && last_undo_position.line == coord.line &&
+			last_undo_position.pos == coord.pos && last_undo != NULL)
 		return last_undo;
 
 	if (last_undo != NULL)
@@ -519,22 +517,21 @@ undo_t *text_buffer_t::get_undo(undo_type_t type, int line, int pos) {
 		case UNDO_ADD_NEWLINE:
 		case UNDO_DELETE_NEWLINE:
 		case UNDO_BACKSPACE_NEWLINE:
-			last_undo = new undo_t(type, line, pos);
+			last_undo = new undo_t(type, coord);
 			break;
 		case UNDO_DELETE:
 		case UNDO_ADD:
 		case UNDO_BACKSPACE:
-			last_undo = new undo_single_text_t(type, line, pos);
+			last_undo = new undo_single_text_t(type, coord);
 			break;
 		case UNDO_OVERWRITE:
 			//FIXME: what to do with the last arguments?
-			last_undo = new undo_double_text_t(type, line, pos, -1, -1);
+			last_undo = new undo_double_text_t(type, coord, text_coordinate_t(-1, -1));
 			break;
 		default:
 			ASSERT(0);
 	}
-	last_undo_position.line = line;
-	last_undo_position.pos = pos;
+	last_undo_position = coord;
 
 	undo_list.add(last_undo);
 	if (type == UNDO_ADD_NEWLINE || type == UNDO_DELETE_NEWLINE)
@@ -808,7 +805,7 @@ bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 	if (selection_mode == selection_mode_t::NONE && selection_start.line != selection_end.line)
 		return false;
 
-	last_undo = new undo_single_text_double_coord_t(UNDO_INDENT, selection_start.line, selection_start.pos, selection_end.line, selection_end.pos);
+	last_undo = new undo_single_text_double_coord_t(UNDO_INDENT, selection_start, selection_end);
 	last_undo_type = UNDO_INDENT;
 
 	if (tab_spaces)
@@ -942,7 +939,7 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 		undo_text.append(1, 'X'); // Simply add a non-space/tab as marker
 
 	if (text_changed) {
-		last_undo = new undo_single_text_double_coord_t(UNDO_UNINDENT, selection_start.line, selection_start.pos, selection_end.line, selection_end.pos);
+		last_undo = new undo_single_text_double_coord_t(UNDO_UNINDENT, selection_start, selection_end);
 		last_undo_type = UNDO_UNINDENT;
 		last_undo->get_text()->append(undo_text);
 		undo_list.add(last_undo);

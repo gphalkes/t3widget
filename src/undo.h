@@ -75,7 +75,7 @@ class T3_WIDGET_API undo_t {
 		friend class undo_list_t;
 	public:
 
-		undo_t(undo_type_t _type, int start_line, int start_pos) : type(_type), start(start_line, start_pos), previous(NULL), next(NULL) {}
+		undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start), previous(NULL), next(NULL) {}
 		virtual ~undo_t(void);
 		undo_type_t get_type(void) const;
 		undo_type_t get_redo_type(void) const;
@@ -93,7 +93,7 @@ class T3_WIDGET_API undo_single_text_t : public undo_t {
 		std::string text;
 
 	public:
-		undo_single_text_t(undo_type_t _type, int start_line, int start_pos) : undo_t(_type, start_line, start_pos) {};
+		undo_single_text_t(undo_type_t _type, text_coordinate_t _start) : undo_t(_type, _start) {};
 	    virtual void add_newline(void);
 		virtual std::string *get_text(void);
 		virtual void minimize(void);
@@ -104,8 +104,8 @@ class T3_WIDGET_API undo_single_text_double_coord_t : public undo_single_text_t 
 		text_coordinate_t end;
 
 	public:
-		undo_single_text_double_coord_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
-			undo_single_text_t(_type, start_line, start_pos), end(end_line, end_pos) {}
+		undo_single_text_double_coord_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
+			undo_single_text_t(_type, _start), end(_end) {}
 		virtual text_coordinate_t get_end(void) const;
 };
 
@@ -114,8 +114,8 @@ class T3_WIDGET_API undo_double_text_t : public undo_single_text_double_coord_t 
 		std::string replacement;
 
 	public:
-		undo_double_text_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
-			undo_single_text_double_coord_t(_type, start_line, start_pos, end_line, end_pos) {}
+		undo_double_text_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
+			undo_single_text_double_coord_t(_type, _start, _end) {}
 
 		virtual std::string *get_replacement(void);
 		virtual void minimize(void);
@@ -126,8 +126,8 @@ class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t 
 		text_coordinate_t new_end;
 
 	public:
-		undo_double_text_triple_coord_t(undo_type_t _type, int start_line, int start_pos, int end_line, int end_pos) :
-			undo_double_text_t(_type, start_line, start_pos, end_line, end_pos) {}
+		undo_double_text_triple_coord_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
+			undo_double_text_t(_type, _start, _end) {}
 
 		void set_new_end(text_coordinate_t _new_end);
 		virtual text_coordinate_t get_new_end(void) const;
