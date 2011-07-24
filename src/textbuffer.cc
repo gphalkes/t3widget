@@ -805,7 +805,7 @@ bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 	string str, *undo_text;
 	text_line_t *indent;
 
-	if (selection_mode == selection_mode_t::NONE)
+	if (selection_mode == selection_mode_t::NONE && selection_start.line != selection_end.line)
 		return false;
 
 	last_undo = new undo_single_text_double_coord_t(UNDO_INDENT, selection_start.line, selection_start.pos, selection_end.line, selection_end.pos);
@@ -895,7 +895,7 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 	string undo_text;
 	bool text_changed = false;
 
-	if (selection_mode == selection_mode_t::NONE)
+	if (selection_mode == selection_mode_t::NONE && selection_start.line != selection_end.line)
 		return false;
 
 	if (selection_end.line < selection_start.line) {

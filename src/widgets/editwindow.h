@@ -148,6 +148,11 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void select_all(void);
 		/** Show the Insert Special Character dialog. */
 		void insert_special(void);
+		/** Indent the current selection. */
+		void indent_selection(void);
+		/** Unindent the current selection. */
+		void unindent_selection(void);
+
 		/** Show the Goto Line dialog. */
 		void goto_line(void);
 		/** Show the find or replace dialog. */

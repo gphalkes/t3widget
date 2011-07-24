@@ -737,7 +737,7 @@ bool edit_window_t::process_key(key_t key) {
 		case EKEY_SHIFT | '\t':
 			if (text->get_selection_mode() != selection_mode_t::NONE &&
 					text->get_selection_start().line != text->get_selection_end().line)
-				text->unindent_selection(tabsize);
+				unindent_selection();
 			/*FIXME else if (only whitespace before cursor)
 				text->unindent_line();
 			*/
@@ -746,9 +746,7 @@ bool edit_window_t::process_key(key_t key) {
 			if (text->get_selection_mode() != selection_mode_t::NONE &&
 					text->get_selection_start().line != text->get_selection_end().line)
 			{
-				text->indent_selection(tabsize, tab_spaces);
-				ensure_cursor_on_screen();
-				redraw = true;
+				indent_selection();
 				break;
 			} else if (tab_spaces) {
 				string spaces;
@@ -928,6 +926,18 @@ void edit_window_t::insert_special(void) {
 	insert_char_dialog->center_over(center_window);
 	insert_char_dialog->reset();
 	insert_char_dialog->show();
+}
+
+void edit_window_t::indent_selection(void) {
+	text->indent_selection(tabsize, tab_spaces);
+	ensure_cursor_on_screen();
+	redraw = true;
+}
+
+void edit_window_t::unindent_selection(void) {
+	text->unindent_selection(tabsize);
+	ensure_cursor_on_screen();
+	redraw = true;
 }
 
 void edit_window_t::goto_line(void) {
