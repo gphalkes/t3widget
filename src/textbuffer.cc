@@ -47,8 +47,9 @@ namespace t3_widget {
   be a reset_selection call such that we can avoid any arguments.
 */
 
-text_buffer_t::text_buffer_t(const char *_name, text_line_factory_t *_line_factory) : name(NULL),
-		line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory)
+text_buffer_t::text_buffer_t(const char *_name, text_line_factory_t *_line_factory) :
+		selection_start(-1, 0), selection_end(-1, 0), name(NULL),
+		line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory), cursor(0, 0)
 {
 	if (_name != NULL) {
 		if ((name = strdup(_name)) == NULL)
@@ -61,10 +62,6 @@ text_buffer_t::text_buffer_t(const char *_name, text_line_factory_t *_line_facto
 	selection_start.line = 0;
 	selection_end.pos = -1;
 	selection_end.line = 0;
-	cursor.pos = 0;
-	cursor.line = 0;
-	ins_mode = 0;
-	last_set_pos = 0;
 	selection_mode = selection_mode_t::NONE;
 	last_undo = NULL;
 	last_undo_type = UNDO_NONE;

@@ -64,6 +64,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    a line and sub-line (pos @c member) coordinate when wrapping is enabled.
 		*/
 		text_coordinate_t top_left;
+		int ins_mode, /**< Current insert/overwrite mode. */
+			last_set_pos; /**< Last horiziontal position set by user action. */
+
 
 		/** Function to initialize the shared dialogs and data. */
 		static void init(void);
@@ -201,6 +204,7 @@ class edit_window_t::view_parameters_t {
 		wrap_type_t wrap_type;
 		int tabsize;
 		bool tab_spaces;
+		int ins_mode, last_set_pos;
 
 		view_parameters_t(edit_window_t *view);
 		void apply_parameters(edit_window_t *view) const;
