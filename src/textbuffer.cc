@@ -208,7 +208,7 @@ int text_buffer_t::get_line_max(int line) const {
 	return lines[line]->get_length();
 }
 
-void text_buffer_t::get_next_word(void) {
+void text_buffer_t::goto_next_word(void) {
 	text_line_t *line;
 
 	line = lines[cursor.line];
@@ -232,7 +232,7 @@ void text_buffer_t::get_next_word(void) {
 		cursor.pos = line->get_length();
 }
 
-void text_buffer_t::get_previous_word(void) {
+void text_buffer_t::goto_previous_word(void) {
 	text_line_t *line;
 
 	line = lines[cursor.line];

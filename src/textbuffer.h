@@ -86,8 +86,8 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		int width_at_cursor(void) const;
 
 		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const;
-		void get_next_word(void);
-		void get_previous_word(void);
+		void goto_next_word(void);
+		void goto_previous_word(void);
 
 		int calculate_screen_pos(const text_coordinate_t *where, int tabsize) const;
 		int calculate_line_pos(int line, int pos, int tabsize) const;

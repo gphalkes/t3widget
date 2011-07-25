@@ -263,7 +263,7 @@ void edit_window_t::inc_x(void) {
 }
 
 void edit_window_t::next_word(void) {
-	text->get_next_word();
+	text->goto_next_word();
 	ensure_cursor_on_screen();
 	text->last_set_pos = screen_pos;
 }
@@ -283,7 +283,7 @@ void edit_window_t::dec_x(void) {
 }
 
 void edit_window_t::previous_word(void) {
-	text->get_previous_word();
+	text->goto_previous_word();
 	ensure_cursor_on_screen();
 	text->last_set_pos = screen_pos;
 }
