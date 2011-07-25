@@ -53,7 +53,7 @@ SILENTLDLT=@echo '[LDLT]' $@ ;
 
 OBJECTS=<OBJECTS>
 
-all: src/libt3widget.la
+all: src/libt3widget.la libt3widget.pc
 
 .PHONY: all clean dist-clean install uninstall
 .SUFFIXES: .cc .o .lo .la .mo .po
@@ -76,7 +76,7 @@ libt3widget.pc: libt3widget.pc.in
 	@echo 'prefix=$(prefix)' >> .sedscript
 	sed -f .sedscript $< > $@
 
-install: all libt3widget.pc
+install: all
 	$(LIBTOOL) --mode=install $(INSTALL) -s src/libt3widget.la $(libdir)
 	chmod 0644 $(libdir)/libt3widget.la
 	$(INSTALL) -d $(includedir)/t3/widget/t3widget
