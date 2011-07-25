@@ -83,6 +83,10 @@ int text_buffer_t::size(void) const {
 	return lines.size();
 }
 
+const string *text_buffer_t::get_line_data(int idx) const {
+	return lines[idx]->get_data();
+}
+
 bool text_buffer_t::insert_char(key_t c) {
 	if (!lines[cursor.line]->insert_char(cursor.pos, c, get_undo(UNDO_ADD)))
 		return false;
