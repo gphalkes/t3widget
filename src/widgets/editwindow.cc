@@ -49,7 +49,7 @@ void edit_window_t::init(void) {
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : edit_window(NULL),
 		bottom_line_window(NULL), scrollbar(true), text(NULL), tab_spaces(false), find_dialog(NULL), finder(NULL),
-		wrap_type(wrap_type_t::NONE), wrap_info(NULL)
+		wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0), auto_indent(true)
 {
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
@@ -91,6 +91,7 @@ void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *para
 		wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
 		top_left.line = 0;
 		top_left.pos = 0;
+		last_set_pos = 0;
 	}
 
 	ensure_cursor_on_screen();
@@ -639,16 +640,47 @@ bool edit_window_t::process_key(key_t key) {
 			}
 			break;
 
-		case EKEY_NL:
+		case EKEY_NL: {
+			const string *current_line;
+			int i, indent, tabs;
+			string space;
+
 			if (text->get_selection_mode() != selection_mode_t::NONE)
 				delete_selection();
 
-			text->break_line();
+			if (auto_indent) {
+				current_line = text->get_line_data(text->cursor.line);
+				for (i = 0, indent = 0, tabs = 0; i < text->cursor.pos; i++) {
+					if ((*current_line)[i] == '\t') {
+						indent = 0;
+						tabs++;
+					} else if ((*current_line)[i] == ' ') {
+						indent++;
+						if (indent == tabsize) {
+							indent = 0;
+							tabs++;
+						}
+					} else {
+						break;
+					}
+				}
+				if (tab_spaces)
+					space.append(tabsize * tabs, ' ');
+				else
+					space.append(tabs, '\t');
+
+				if (indent != 0)
+					space.append(indent, ' ');
+
+				text->break_line(&space);
+			} else {
+				text->break_line();
+			}
 			ensure_cursor_on_screen();
 			last_set_pos = screen_pos;
 			redraw = true;
 			break;
-
+		}
 		case EKEY_BS:
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				if (text->cursor.pos <= text->get_line_max(text->cursor.line)) {
@@ -745,7 +777,7 @@ bool edit_window_t::process_key(key_t key) {
 				last_set_pos = screen_pos;
 				redraw = true;
 			}
-			return true;
+			break;
 		case '\t':
 			if (text->get_selection_mode() != selection_mode_t::NONE &&
 					text->get_selection_start().line != text->get_selection_end().line)
@@ -1047,6 +1079,10 @@ void edit_window_t::set_tab_spaces(bool _tab_spaces) {
 	tab_spaces = _tab_spaces;
 }
 
+void edit_window_t::set_auto_indent(bool _auto_indent) {
+	auto_indent = _auto_indent;
+}
+
 int edit_window_t::get_tabsize(void) {
 	return tabsize;
 }
@@ -1057,6 +1093,10 @@ wrap_type_t edit_window_t::get_wrap(void) {
 
 bool edit_window_t::get_tab_spaces(void) {
 	return tab_spaces;
+}
+
+bool edit_window_t::get_auto_indent(void) {
+	return auto_indent;
 }
 
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
@@ -1078,10 +1118,11 @@ edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
 	tab_spaces = view->tab_spaces;
 	ins_mode = view->ins_mode;
 	last_set_pos = view->last_set_pos;
+	auto_indent = view->auto_indent;
 }
 
-edit_window_t::view_parameters_t::view_parameters_t(int _tabsize, wrap_type_t _wrap_type) :
-	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize), tab_spaces(false), ins_mode(0), last_set_pos(0)
+edit_window_t::view_parameters_t::view_parameters_t(int _tabsize, wrap_type_t _wrap_type, bool _auto_indent) :
+	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize), tab_spaces(false), ins_mode(0), last_set_pos(0), auto_indent(_auto_indent)
 {}
 
 void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) const {
@@ -1098,6 +1139,7 @@ void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) con
 	view->tab_spaces = tab_spaces;
 	view->ins_mode = ins_mode;
 	view->last_set_pos = last_set_pos;
+	view->auto_indent = auto_indent;
 }
 
 }; // namespace

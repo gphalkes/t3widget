@@ -66,6 +66,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		text_coordinate_t top_left;
 		int ins_mode, /**< Current insert/overwrite mode. */
 			last_set_pos; /**< Last horiziontal position set by user action. */
+		bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
 
 
 		/** Function to initialize the shared dialogs and data. */
@@ -182,6 +183,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_wrap(wrap_type_t wrap);
 		/** Set tab indents with spaces. */
 		void set_tab_spaces(bool _tab_spaces);
+		/** Set automatic indent. */
+		void set_auto_indent(bool _auto_indent);
 
 		/** Get the size of a tab. */
 		int get_tabsize(void);
@@ -189,6 +192,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		wrap_type_t get_wrap(void);
 		/** Get tab indents with spaces. */
 		bool get_tab_spaces(void);
+		/** Get automatic indent. */
+		bool get_auto_indent(void);
 
 		/** Save the current view parameters, to allow them to be restored later. */
 		view_parameters_t *save_view_parameters(void);
@@ -205,12 +210,13 @@ class edit_window_t::view_parameters_t {
 		int tabsize;
 		bool tab_spaces;
 		int ins_mode, last_set_pos;
+		bool auto_indent;
 
 		view_parameters_t(edit_window_t *view);
 		void apply_parameters(edit_window_t *view) const;
 
 	public:
-		view_parameters_t(int _tabsize, wrap_type_t _wrap_type);
+		view_parameters_t(int _tabsize, wrap_type_t _wrap_type, bool _auto_indent);
 };
 
 

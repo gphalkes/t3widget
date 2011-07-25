@@ -56,7 +56,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
 		int apply_undo_redo(undo_type_t type, undo_t *current);
 		bool merge_internal(int line);
-		bool break_line_internal(void);
+		bool break_line_internal(const std::string *indent = NULL);
 
 		void set_selection_from_find(int line, find_result_t *result);
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
@@ -74,7 +74,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool delete_char(void);
 		bool backspace_char(void);
 		bool merge(bool backspace);
-		bool break_line(void);
+		bool break_line(const std::string *indent = NULL);
 		bool insert_block(const std::string *block);
 
 		bool append_text(const char *text);

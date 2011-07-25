@@ -167,7 +167,7 @@ bool text_buffer_t::append_text(const string *text) {
 	return append_text(text->data(), text->size());
 }
 
-bool text_buffer_t::break_line_internal(void) {
+bool text_buffer_t::break_line_internal(const string *indent) {
 	text_line_t *insert;
 
 	insert = lines[cursor.line]->break_line(cursor.pos);
@@ -175,13 +175,26 @@ bool text_buffer_t::break_line_internal(void) {
 	rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
 	rewrap_required(rewrap_type_t::INSERT_LINES, cursor.line + 1, cursor.line + 2);
 	cursor.line++;
-	cursor.pos = 0;
+	if (indent == NULL) {
+		cursor.pos = 0;
+	} else {
+		text_line_t *new_line = line_factory->new_text_line_t(indent);
+		new_line->merge(lines[cursor.line]);
+		lines[cursor.line] = new_line;
+		cursor.pos = indent->size();
+	}
 	return true;
 }
 
-bool text_buffer_t::break_line(void) {
-	get_undo(UNDO_ADD_NEWLINE);
-	return break_line_internal();
+bool text_buffer_t::break_line(const string *indent) {
+	if (indent == NULL) {
+		get_undo(UNDO_ADD_NEWLINE);
+	} else {
+		get_undo(UNDO_ADD_NEWLINE_INDENT);
+		last_undo->get_text()->append(1, '\n');
+		last_undo->get_text()->append(*indent);
+	}
+	return break_line_internal(indent);
 }
 
 int text_buffer_t::calculate_screen_pos(const text_coordinate_t *where, int tabsize) const {
@@ -523,6 +536,7 @@ undo_t *text_buffer_t::get_undo(undo_type_t type, text_coordinate_t coord) {
 		case UNDO_DELETE:
 		case UNDO_ADD:
 		case UNDO_BACKSPACE:
+		case UNDO_ADD_NEWLINE_INDENT:
 			last_undo = new undo_single_text_t(type, coord);
 			break;
 		case UNDO_OVERWRITE:
@@ -639,6 +653,13 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 		case UNDO_INDENT:
 		case UNDO_UNINDENT:
 			undo_indent_selection(current, type);
+			break;
+		case UNDO_ADD_NEWLINE_INDENT:
+			cursor = current->get_start();
+			delete_block_internal(cursor, text_coordinate_t(cursor.line + 1, current->get_text()->size() - 1), NULL);
+			break;
+		case UNDO_ADD_NEWLINE_INDENT_REDO:
+			insert_block_internal(current->get_start(), line_factory->new_text_line_t(current->get_text()));
 			break;
 		default:
 			ASSERT(0);
