@@ -594,7 +594,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
 	for (i = 0, idx = top_idx; i < 5 && idx < completions->size(); i++, idx++) {
 		text_line_t::paint_info_t info;
-		text_line_t fileNameLine((*completions)[idx]);
+		text_line_t file_name_line((*completions)[idx]);
 		bool paint_selected = focus && idx == current;
 
 		t3_win_set_paint(window, i, 1);
@@ -611,10 +611,10 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 		info.normal_attr = 0;
 		info.selected_attr = attributes.dialog_selected;
 
-		fileNameLine.paint_line(window, &info);
+		file_name_line.paint_line(window, &info);
 
 		if (file_list != NULL && file_list->is_dir(idx)) {
-			int length = fileNameLine.get_length();
+			int length = file_name_line.get_length();
 			if (length < width) {
 				t3_win_set_paint(window, i, length + 1);
 				t3_win_addch(window, '/', paint_selected ? attributes.dialog_selected : 0);

@@ -816,31 +816,6 @@ void text_line_t::reserve(int size) {
 	meta_buffer.reserve(size);
 }
 
-int text_line_t::callout(pcre_callout_block *block) {
-	finder_t *context = (finder_t *) block->callout_data;
-	if (block->pattern_position != context->pattern_length)
-		return 0;
-
-	if (context->flags & find_flags_t::BACKWARD) {
-		if (block->start_match > context->ovector[0] ||
-				(block->start_match == context->ovector[0] && block->current_position > context->ovector[1])) {
-			memcpy(context->ovector, block->offset_vector, block->capture_top * sizeof(int) * 2);
-			context->ovector[0] = block->start_match;
-			context->ovector[1] = block->current_position;
-			context->captures = block->capture_top;
-			context->found = true;
-		}
-		return 1;
-	} else {
-		memcpy(context->ovector, block->offset_vector, block->capture_top * sizeof(int) * 2);
-		context->ovector[0] = block->start_match;
-		context->ovector[1] = block->current_position;
-		context->captures = block->capture_top;
-		context->found = true;
-		return 0;
-	}
-}
-
 bool text_line_t::check_boundaries(int match_start, int match_end) const {
 	return (match_start == 0 || get_class(match_start) != get_class(adjust_position(match_start, -1))) &&
 							(match_end == get_length() || get_class(match_end) != get_class(adjust_position(match_end, 1)));

@@ -14,6 +14,8 @@
 EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext"
 LTSHARED=1
 DEFAULT_LINGUAS=nl
+INSTALLDIRS="libdir docdir includedir"
+
 
 test_select() {
 	DESC="$1"
@@ -261,10 +263,17 @@ EOF
 		error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
 	}
 	test_compile_cxx "-pthread flag" && PTHREADFLAGS=-pthread
-	if test_link_cxx "pthreads in ${PTHREADFLAGS-standard library}" "TESTLIBS=${PTHREADFLAGS}" ; then
+	# Libtool sometimes -nostdlib, which then requires that -lpthread is specified
+	# separately. Therefore, we first test for -pthread -lpthread, then for
+	# -pthread, then -lpthread and if all else fails without anything
+	if [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS} -lpthread" "TESTLIBS=${PTHREADFLAGS} -lpthread" ; then
+		PTHREADLIBS="${PTHREADFLAGS} -lpthread"
+	elif [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS}" "TESTLIBS=${PTHREADFLAGS}" ; then
 		PTHREADLIBS="${PTHREADFLAGS}"
-	elif test_link_cxx "pthreads in -lpthread" TESTLIBS=-pthread ; then
+	elif test_link_cxx "pthreads in -lpthread" TESTLIBS=-lpthread ; then
 		PTHREADLIBS=-lpthread
+	elif test_link_cxx "pthreads in standard library" "TESTLIBS=" ; then
+		:
 	else
 		error "!! Can not find required linker flags for pthreads. Pthreads are required to compile libt3widget. See config.log for compile details."
 	fi

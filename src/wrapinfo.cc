@@ -132,6 +132,8 @@ void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
 		case rewrap_type_t::DELETE_LINES:
 			delete_lines(a, b);
 			break;
+		default:
+			ASSERT(0);
 	}
 }
 

@@ -78,7 +78,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		bool insert_block(const std::string *block);
 
 		bool append_text(const char *text);
-		bool append_text(const char *text, size_t size);
+		bool append_text(const char *text, size_t _size);
 		bool append_text(const std::string *text);
 
 		int get_line_max(int line) const;

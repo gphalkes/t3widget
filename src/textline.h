@@ -20,7 +20,6 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string>
-#include <pcre.h>
 #include <t3window/window.h>
 
 #include <t3widget/widget_api.h>
@@ -142,8 +141,6 @@ class T3_WIDGET_API text_line_t {
 		int byte_width_from_first(int pos) const;
 
 		static void convert_key(key_t c);
-
-		static int callout(pcre_callout_block *block);
 
 		void check_bad_draw(int i);
 };

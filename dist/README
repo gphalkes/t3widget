@@ -13,8 +13,8 @@ Prerequisites and installation
 ==============================
 
 libt3widget requires the GNU libtool utility to be compiled. Furthermore, it
-requires libtranscript, libt3unicode, libt3key, libt3window and libsigc++ (2.0
-or newer).
+requires libpcre, libtranscript, libt3unicode, libt3key, libt3window and
+libsigc++ (2.0 or newer).
 
 There are two ways in which to compile libt3widget:
 

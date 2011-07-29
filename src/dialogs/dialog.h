@@ -58,10 +58,6 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 
 		/** Create a new dialog with @p height and @p width, and with title @p _title. */
 		dialog_t(int height, int width, const char *_title);
-		/** Destroy this dialog.
-		    Any widgets on the dialog are deleted as well.
-		*/
-		virtual ~dialog_t();
 		/** Focus the previous widget, wrapping around if necessary. */
 		void focus_next(void);
 		/** Focus the next widget, wrapping around if necessary. */
@@ -78,6 +74,10 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		virtual void close(void);
 
 	public:
+		/** Destroy this dialog.
+		    Any widgets on the dialog are deleted as well.
+		*/
+		virtual ~dialog_t();
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);

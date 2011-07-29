@@ -19,7 +19,7 @@ using namespace std;
 namespace t3_widget {
 
 list_pane_t::list_pane_t(bool _indicator) : top_idx(0), current(0),
-		widgets(NULL), has_focus(false), scrollbar(true), indicator(_indicator)
+		has_focus(false), scrollbar(true), indicator(_indicator)
 {
 	init_unbacked_window(1, 3);
 	widgets_window = window;
