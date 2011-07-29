@@ -132,6 +132,7 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t& other) {
 
 	files.resize(other.files.size());
 	copy(other.files.begin(), other.files.end(), files.begin());
+	content_changed();
 	return *this;
 }
 
