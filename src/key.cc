@@ -412,7 +412,7 @@ static bool is_function_key(const char *str) {
 	return false;
 }
 
-#define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x); goto return_error; } while (0)
+#define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x, __FILE__, __LINE__); goto return_error; } while (0)
 /* Initialize the key map */
 complex_error_t init_keys(const char *term, bool separate_keypad) {
 	complex_error_t result;

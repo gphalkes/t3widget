@@ -54,12 +54,16 @@ insert_char_dialog_t *insert_char_dialog;
 message_dialog_t *message_dialog;
 
 complex_error_t::complex_error_t(void) : success(true), source(SRC_NONE), error(0) {}
-complex_error_t::complex_error_t(source_t _source, int _error) : success(false), source(_source), error(_error) {}
+complex_error_t::complex_error_t(source_t _source, int _error, const char *_file_name, int _line_number) :
+		success(false), source(_source), error(_error), file_name(_file_name), line_number(_line_number)
+{}
 
-void complex_error_t::set_error(source_t _source, int _error) {
+void complex_error_t::set_error(source_t _source, int _error, const char *_file_name, int _line_number) {
 	success = false;
 	source = _source;
 	error = _error;
+	file_name = _file_name;
+	line_number = _line_number;
 }
 
 bool complex_error_t::get_success(void) { return success; }
@@ -67,19 +71,36 @@ complex_error_t::source_t complex_error_t::get_source(void) { return source; }
 int complex_error_t::get_error(void) { return error; }
 
 const char *complex_error_t::get_string(void) {
-	//FIXME: add source of error to the string!
+	static string error_str;
+
 	switch (source) {
 		case SRC_ERRNO:
-			return strerror(error);
+			if (file_name != NULL) {
+				char number_buffer[128];
+				error_str = file_name;
+				sprintf(number_buffer, ":%d: ", line_number);
+				error_str.append(number_buffer);
+			} else {
+				error_str = "tilde: ";
+			}
+			error_str.append(strerror(error));
+			break;
 		case SRC_TRANSCRIPT:
-			return transcript_strerror((transcript_error_t) error);
+			error_str = "libtranscript: ";
+			error_str.append(transcript_strerror((transcript_error_t) error));
+			break;
 		case SRC_T3_KEY:
-			return t3_key_strerror(error);
+			error_str = "libt3key: ";
+			error_str.append(t3_key_strerror(error));
+			break;
 		case SRC_T3_WINDOW:
-			return t3_window_strerror(error);
+			error_str = "libt3window: ";
+			error_str.append(t3_window_strerror(error));
+			break;
 		default:
 			return strerror(0);
 	}
+	return error_str.c_str();
 }
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot) {
