@@ -340,7 +340,7 @@ static key_t decode_sequence(bool outer) {
 				continue;
 			}
 
-			if (drop_single_esc && !is_prefix)
+			if (!is_prefix)
 				goto unknown_sequence;
 		}
 

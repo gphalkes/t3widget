@@ -67,7 +67,7 @@ void scrollbar_t::update_contents(void) {
 	redraw = false;
 
 	blocks_per_line = (double) (length - 2) / range;
-	slider_size = blocks_per_line * used;
+	slider_size = (int) (blocks_per_line * used);
 	if (slider_size == 0)
 		slider_size = 1;
 	/* Recalulate the number of blocks per line, because the slider may actually
@@ -77,7 +77,7 @@ void scrollbar_t::update_contents(void) {
 	else
 		blocks_per_line = (double) (length - 2 - slider_size) / (range - used);
 
-	before = ceil(blocks_per_line * start);
+	before = (int) ceil(blocks_per_line * start);
 	if (before >= length - 2)
 		before = length - 3;
 

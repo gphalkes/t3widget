@@ -117,7 +117,7 @@ void multi_widget_t::resize_widgets(void) {
 		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
 				continue;
-			iter->calculated_width = scale * iter->width;
+			iter->calculated_width = (int) (scale * iter->width);
 			if (iter->calculated_width == 0)
 				iter->calculated_width = 1;
 			size = iter->calculated_width;
