@@ -158,9 +158,12 @@ bool text_buffer_t::append_text(const char *text) {
 }
 
 bool text_buffer_t::append_text(const char *text, size_t _size) {
+	bool result;
 	text_coordinate_t at(lines.size() - 1, INT_MAX);
 	text_line_t *append = line_factory->new_text_line_t(text, _size);
-	return insert_block_internal(at, append);
+	result = insert_block_internal(at, append);
+	delete append;
+	return result;
 }
 
 bool text_buffer_t::append_text(const string *text) {
