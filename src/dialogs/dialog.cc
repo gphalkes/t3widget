@@ -51,8 +51,6 @@ dialog_t::dialog_t(void) : shadow_window(NULL), active(false), title(NULL), redr
 }
 
 dialog_t::~dialog_t() {
-	t3_win_del(window);
-	t3_win_del(shadow_window);
 	for (dialogs_t::iterator iter = dialogs.begin(); iter != dialogs.end(); iter++) {
 		if ((*iter) == this) {
 			dialogs.erase(iter);
@@ -61,6 +59,8 @@ dialog_t::~dialog_t() {
 	}
 	for (widgets_t::iterator widget_iter = widgets.begin(); widget_iter != widgets.end(); widget_iter++)
 		delete *widget_iter;
+	t3_win_del(window);
+	t3_win_del(shadow_window);
 }
 
 void dialog_t::activate_dialog(void) {

@@ -86,9 +86,11 @@ void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *para
 	text = _text;
 	if (params != NULL) {
 		params->apply_parameters(this);
-	} else if (wrap_info != NULL) {
-		wrap_info->set_text_buffer(text);
-		wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
+	} else {
+		if (wrap_info != NULL) {
+			wrap_info->set_text_buffer(text);
+			wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
+		}
 		top_left.line = 0;
 		top_left.pos = 0;
 		last_set_pos = 0;
