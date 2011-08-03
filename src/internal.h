@@ -1,4 +1,4 @@
-/* Copyright (C) 2010 G.P. Halkes
+/* Copyright (C) 2011 G.P. Halkes
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 3, as
    published by the Free Software Foundation.
@@ -21,6 +21,8 @@
 #include <string>
 #include <sigc++/sigc++.h>
 #include <t3widget/widget_api.h>
+
+#include <t3widget/key.h>
 
 namespace t3_widget {
 
@@ -70,7 +72,7 @@ T3_WIDGET_LOCAL void deinit_keys(void);
 /** Switch back to best keypad mode after using #deinit_keys. */
 T3_WIDGET_LOCAL void reinit_keys(void);
 /** Insert a key to the queue, marked to ensure it is not interpreted by any widget except text widgets. */
-T3_WIDGET_LOCAL void insert_protected_key(key_t key);
+T3_WIDGET_LOCAL void insert_protected_key(t3_widget::key_t key);
 
 }; // namespace
 #endif
