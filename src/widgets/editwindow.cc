@@ -536,7 +536,14 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			break;
 		}
 		case find_action_t::REPLACE_IN_SELECTION:
-			//FIXME: do the replacement
+			//FIXME: do the replacement. For now, show a message and go back to where we were.
+			if (find_dialog == NULL)
+				global_find_dialog->show();
+			else
+				find_dialog->show();
+			message_dialog->set_message("\"Replace in selection\" has not been implemented yet. Sorry.");
+			message_dialog->center_over(center_window);
+			message_dialog->show();
 			break;
 		default:
 			break;
