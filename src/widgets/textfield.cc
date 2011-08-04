@@ -361,7 +361,7 @@ void text_field_t::update_contents(void) {
 
 	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
-	t3_win_addch(window, '[', 0);
+	t3_win_addch(window, leftcol == 0 ? '[' : '(', 0);
 
 	info.start = 0;
 	info.leftcol = leftcol;
@@ -384,7 +384,7 @@ void text_field_t::update_contents(void) {
 	info.selected_attr = attributes.dialog_selected;
 
 	line.paint_line(window, &info);
-	t3_win_addch(window, ']', 0);
+	t3_win_addch(window, line.calculate_screen_width(leftcol, INT_MAX, 0) > t3_win_get_width(window) - 2 ? ')' : ']', 0);
 }
 
 void text_field_t::set_focus(bool _focus) {
