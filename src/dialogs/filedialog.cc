@@ -227,6 +227,8 @@ void file_dialog_t::change_dir(const string *dir) {
 
 void file_dialog_t::refresh_view(void) {
 	convert_lang_codeset(get_filter(), &lang_codeset_filter, false);
+	if (lang_codeset_filter.size() == 0)
+		lang_codeset_filter = "*";
 	view.set_filter((filtered_file_list_t::filter_type_t) sigc::bind(sigc::ptr_fun(glob_filter),
 		&lang_codeset_filter, show_hidden_box->get_state()));
 
@@ -270,7 +272,9 @@ const string *open_file_dialog_t::get_filter(void) {
 }
 
 void open_file_dialog_t::reset(void) {
+	file_dialog_t::reset();
 	filter_line->set_text("*");
+	refresh_view();
 }
 
 string save_as_dialog_t::empty_filter("*");
