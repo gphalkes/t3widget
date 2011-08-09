@@ -60,7 +60,12 @@ void text_window_t::set_text(text_buffer_t *_text) {
 
 bool text_window_t::set_size(optint height, optint width) {
 	bool result = true;
-	//FIXME: these ints are optional!! Take that into account below!!
+
+	if (!width.is_valid())
+		width = t3_win_get_width(window);
+	if (!height.is_valid())
+		height = t3_win_get_height(window);
+
 	if (width != t3_win_get_width(window) || height > t3_win_get_height(window))
 		redraw = true;
 
@@ -81,6 +86,7 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
 	if (with_scrollbar) {
 		scrollbar = new scrollbar_t(true);
 		set_widget_parent(scrollbar);
+		scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 		scrollbar->set_size(t3_win_get_height(window), None);
 		wrap_info->set_wrap_width(t3_win_get_width(window));
 	} else {
@@ -129,8 +135,10 @@ void text_window_t::pgup(void) {
 
 bool text_window_t::process_key(key_t key) {
 	switch (key) {
-		case EKEY_DOWN:
 		case EKEY_NL:
+			activate();
+			break;
+		case EKEY_DOWN:
 			inc_y();
 			break;
 		case EKEY_UP:
