@@ -90,7 +90,7 @@ install: all
 	$(INSTALL) -d $(includedir)/t3/widget/t3widget/widgets
 	$(INSTALL) -m0644 src/widgets/*.h $(includedir)/t3/widget/t3widget/widgets
 	$(INSTALL) -d $(docdir)/API/search
-	( cd doc ; find API -type f ) | xargs -IX $(INSTALL) -m0644 doc/X $(docdir)/X
+	( cd doc ; find API -type f ) | while read X ; do $(INSTALL) -m0644 doc/$${X} $(docdir)/$${X} ; done
 	$(INSTALL) -m0644 COPYING README Changelog $(docdir)
 	$(INSTALL) -d $(pkgconfigdir)
 	$(INSTALL) -m0644 libt3widget.pc $(pkgconfigdir)

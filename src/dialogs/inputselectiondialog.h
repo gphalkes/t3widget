@@ -18,7 +18,7 @@
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/frame.h>
 #include <t3widget/widgets/label.h>
-#include <t3widget/widgets/button.h>
+#include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/textwindow.h>
 
 namespace t3_widget {
@@ -29,6 +29,7 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 		frame_t *text_frame, *label_frame;
 		text_window_t *text_window;
 		label_t *key_label;
+		checkbox_t *enable_simulate_box, *disable_timeout_box;
 		int old_timeout;
 
 	public:
@@ -39,12 +40,12 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 		virtual void show(void);
 
 		void cancel(void);
+		void ok_activated(void);
+		void check_state(void);
 
 		static text_buffer_t *get_default_text(void);
 
-	T3_WIDGET_SIGNAL(intuitive_activated, void);
-	T3_WIDGET_SIGNAL(compromise_activated, void);
-	T3_WIDGET_SIGNAL(no_timeout_activated, void);
+	T3_WIDGET_SIGNAL(activate, void);
 };
 
 }; // namespace
