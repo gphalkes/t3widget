@@ -13,6 +13,7 @@
 */
 #include <cstring>
 
+#include "main.h"
 #include "dialogs/gotodialog.h"
 #include "dialogs/finddialog.h"
 #include "editwindow.h"

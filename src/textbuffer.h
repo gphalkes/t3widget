@@ -21,7 +21,6 @@
 #include <t3widget/key.h>
 #include <t3widget/textline.h>
 #include <t3widget/undo.h>
-#include <t3widget/main.h>
 #include <t3widget/interfaces.h>
 
 namespace t3_widget {
