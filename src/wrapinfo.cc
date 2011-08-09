@@ -209,6 +209,8 @@ void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line, text_line
 		info->max = INT_MAX;
 		info->flags = 0;
 	}
+	if (tabsize <= 0)
+		info->flags |= text_line_t::TAB_AS_CONTROL;
 	info->tabsize = tabsize;
 	text->lines[line.line]->paint_line(win, info);
 }
