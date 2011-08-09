@@ -45,6 +45,13 @@ void main_window_base_t::set_position(optint top, optint left) {
 	(void) left;
 }
 
+void main_window_base_t::update_contents(void) {
+	redraw = false;
+	dialog_t::update_contents();
+}
+
+void main_window_base_t::hide(void) {}
+
 void main_window_base_t::set_size_real(int height, int width) {
 	t3_win_resize(window, height, width);
 	set_size(height, width);

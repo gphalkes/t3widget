@@ -280,6 +280,7 @@ void dialog_t::push_back(widget_t *widget) {
 }
 
 void dialog_t::force_redraw(void) {
+	redraw = true;
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->force_redraw();
 }

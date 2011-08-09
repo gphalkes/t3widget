@@ -52,11 +52,11 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	enable_simulate_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
 	enable_simulate_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
 
-	enable_simulate_label = new smart_label_t("'Escape <letter>' simulates Meta+<letter>");
+	enable_simulate_label = new smart_label_t("'Esc <letter>' simulates Meta+<letter>");
 	enable_simulate_label->set_anchor(enable_simulate_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	enable_simulate_label->set_position(0, 2);
 
-	close_remark_label = new smart_label_t("(Requires 'Escape Escape' to close menu or dialog)");
+	close_remark_label = new smart_label_t("(Requires 'Esc Esc' to close menu or dialog)");
 	close_remark_label->set_anchor(enable_simulate_label, 0);
 	close_remark_label->set_position(1, 0);
 
@@ -67,7 +67,7 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	disable_timeout_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
 	disable_timeout_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
 
-	disable_timeout_label = new smart_label_t("Disable timeout on Escape");
+	disable_timeout_label = new smart_label_t("Disable timeout on Esc");
 	disable_timeout_label->set_anchor(disable_timeout_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	disable_timeout_label->set_position(0, 2);
 
@@ -160,7 +160,7 @@ void input_selection_dialog_t::show(void) {
 
 text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 	text_buffer_t *default_text = new text_buffer_t();
-	const char *intl_text = _("%s tries to provide an intuitive interface for people accustomed "
+	const char *intl_text = _("%s provides an intuitive interface for people accustomed "
 		"to GUI applications. For example, it allows you to use Meta+<letter> combinations to open "
 		"menus and jump to items on your screen. However, not all terminals and terminal emulators "
 		"handle the Meta key the same way. The result is that %s can not reliably handle the "
@@ -179,19 +179,19 @@ text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 	default_text->append_text(insert_point + 2);
 
 	intl_text = _("As an alternative to Meta+<letter>, %s can allow you to simulate "
-		"Meta+<letter> by pressing Esacpe followed by <letter>. However, this does mean that you have to "
-		"press Escape twice to close a menu or dialog. While this dialog is open, this work-around "
+		"Meta+<letter> by pressing Esc followed by <letter>. However, this does mean that you have to "
+		"press Esc twice to close a menu or dialog. While this dialog is open, this work-around "
 		"is enabled. If you do not require this work-around because Meta+<letter> is fully functional, "
 		"you can disable it below for the rest of the program, allowing you to close menus and dialogs "
-		"(except this one) with a single press of the Escape key.\n\n");
+		"(except this one) with a single press of the Esc key.\n\n");
 	insert_point = strstr(intl_text, "%s");
 	default_text->append_text(intl_text, insert_point - intl_text);
 	default_text->append_text(init_params.program_name);
 	default_text->append_text(insert_point + 2);
 
-	default_text->append_text(_("When the 'Escape <letter>' work-around is enabled, the fact that you "
-		"pressed the Escape key is discarded after one second. This may be inconvenient in some cases, "
-		"therefore the timeout on the Escape key can be disabled.\n\n"));
+	default_text->append_text(_("When the 'Esc <letter>' work-around is enabled, the fact that you "
+		"pressed the Esc key is discarded after one second. This may be inconvenient in some cases, "
+		"therefore the timeout on the Esc key can be disabled.\n\n"));
 	default_text->append_text(_("Other methods\n=============\n\nSome terminal emulators have configuration "
 		"options to either use Meta+<letter> for their own purposes, or pass the key combination through to the "
 		"program running in the terminal. An example of this is gnome-terminal. Furthermore, some terminal "
