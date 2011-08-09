@@ -34,8 +34,8 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	text_window = new text_window_t(NULL, false);
 	text_window->set_size(1, width - 2);
 	text_window->set_position(1, 1);
-	text_window->connect_activate(activate_internal.make_slot());
 	text_window->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
+	text_window->connect_activate(activate_internal.make_slot());
 	text_window->set_tabsize(0);
 	text_window->set_enabled(false);
 
@@ -45,6 +45,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	while ((button_name = va_arg(ap, const char *)) != NULL) {
 		if (widgets.size() == 1) {
 			button = new button_t(button_name, true);
+			button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
 			button->connect_activate(activate_internal.make_slot());
 			button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 		} else {
@@ -54,11 +55,11 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 
 			((button_t *) widgets.back())->connect_move_focus_right(sigc::mem_fun(this, &message_dialog_t::focus_next));
 			button->connect_move_focus_left(sigc::mem_fun(this, &message_dialog_t::focus_previous));
+			button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
 
 			total_width += 2;
 		}
 
-		button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
 		total_width += button->get_width();
 		push_back(button);
 	}
@@ -67,7 +68,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 }
 
 message_dialog_t::~message_dialog_t(void) {
-	delete text_window->get_text();
+	//~ delete text_window->get_text();
 }
 
 void message_dialog_t::set_message(const char *message, size_t length) {
@@ -89,19 +90,19 @@ void message_dialog_t::set_message(const char *message, size_t length) {
 
 	text_height = text_window->get_text_height();
 	if (text_height > max_text_height) {
-		height = max_text_height + 3;
+		height = max_text_height + 4;
 		text_window->set_scrollbar(true);
 		text_window->set_enabled(true);
 	} else if (text_height == 1) {
 		text_coordinate_t coord(0, INT_MAX);
-		height = 4;
+		height = 5;
 		text_window->set_size(1, text->calculate_screen_pos(&coord, 0));
 		text_window->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
 		text_window->set_position(1, 0);
 	} else {
-		height = text_height + 3;
+		height = text_height + 4;
 	}
-	text_window->set_size(height - 3, None);
+	text_window->set_size(height - 4, None);
 	set_size(height, None);
 	update_contents();
 }
