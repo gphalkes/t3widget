@@ -494,7 +494,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	if (flags & text_line_t::BREAK) {
 		for (; total < size; total++)
 			t3_win_addch(win, ' ', info->normal_attr);
-		t3_win_addnstr(win, wrap_symbol, 3, attributes.non_print);
+		t3_win_addstr(win, wrap_symbol, attributes.non_print);
 	} else if (flags & text_line_t::SPACECLEAR) {
 		for (; total + sizeof(spaces) < (size_t) size; total += sizeof(spaces))
 			t3_win_addnstr(win, spaces, sizeof(spaces), (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);

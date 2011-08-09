@@ -22,21 +22,29 @@
 using namespace std;
 namespace t3_widget {
 
-text_window_t::text_window_t(text_buffer_t *_text) : widget_t(11, 11), scrollbar(true), top(0, 0), focus(false) {
+text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget_t(11, 11), scrollbar(NULL), top(0, 0), focus(false) {
 	/* Note: we use a dirty trick here: the last position of the window is obscured by
-	   the scrollbar. However, the last position will only contain the wrap character
-	   anyway, so we don't care. */
-	set_widget_parent(&scrollbar);
-	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	scrollbar.set_size(11, None);
+	   the scrollbar-> However, the last position will only contain the wrap character
+	   anyway, so we don't care. If the scrollbar is disabled, we set the wrap width
+	   one higher, such that the wrap character falls off the edge. */
+	if (with_scrollbar) {
+		scrollbar = new scrollbar_t(true);
+		set_widget_parent(scrollbar);
+		scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+		scrollbar->set_size(11, None);
+	}
 
 	if (_text == NULL)
 		text = new text_buffer_t();
 	else
 		text = _text;
 
-	wrap_info = new wrap_info_t(8);
+	wrap_info = new wrap_info_t(scrollbar != NULL ? 11 : 12);
 	wrap_info->set_text_buffer(text);
+}
+
+text_window_t::~text_window_t(void) {
+	delete scrollbar;
 }
 
 void text_window_t::set_text(text_buffer_t *_text) {
@@ -57,10 +65,30 @@ bool text_window_t::set_size(optint height, optint width) {
 		redraw = true;
 
 	result &= t3_win_resize(window, height, width);
-	result &= scrollbar.set_size(height, None);
+	if (scrollbar != NULL) {
+		result &= scrollbar->set_size(height, None);
+		wrap_info->set_wrap_width(width);
+	} else {
+		wrap_info->set_wrap_width(width + 1);
+	}
 
-	wrap_info->set_wrap_width(width - 1);
 	return result;
+}
+
+void text_window_t::set_scrollbar(bool with_scrollbar) {
+	if (with_scrollbar == (scrollbar != NULL))
+		return;
+	if (with_scrollbar) {
+		scrollbar = new scrollbar_t(true);
+		set_widget_parent(scrollbar);
+		scrollbar->set_size(t3_win_get_height(window), None);
+		wrap_info->set_wrap_width(t3_win_get_width(window));
+	} else {
+		delete scrollbar;
+		scrollbar = NULL;
+		wrap_info->set_wrap_width(t3_win_get_width(window) + 1);
+	}
+	redraw = true;
 }
 
 void text_window_t::inc_y(void) {
@@ -149,6 +177,8 @@ void text_window_t::update_contents(void) {
 	t3_win_set_default_attrs(window, attributes.dialog);
 
 	info.size = t3_win_get_width(window);
+	if (scrollbar == NULL)
+		info.size++;
 	info.normal_attr = 0;
 	info.selected_attr = 0; /* There is no selected text anyway. */
 	info.selection_start = -1;
@@ -181,9 +211,11 @@ void text_window_t::update_contents(void) {
 		count += wrap_info->get_line_count(i);
 	count += top.pos;
 
-	scrollbar.set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(window)),
-		count, t3_win_get_height(window));
-	scrollbar.update_contents();
+	if (scrollbar != NULL) {
+		scrollbar->set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(window)),
+			count, t3_win_get_height(window));
+		scrollbar->update_contents();
+	}
 }
 
 void text_window_t::set_focus(bool _focus) {
@@ -198,6 +230,10 @@ text_buffer_t *text_window_t::get_text(void) {
 
 void text_window_t::set_tabsize(int size) {
 	wrap_info->set_tabsize(size);
+}
+
+int text_window_t::get_text_height(void) {
+	return wrap_info->get_size();
 }
 
 }; // namespace

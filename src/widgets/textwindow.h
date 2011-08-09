@@ -23,7 +23,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
 	protected:
-		scrollbar_t scrollbar;
+		scrollbar_t *scrollbar;
 		text_buffer_t *text;
 		wrap_info_t *wrap_info;
 		text_coordinate_t top;
@@ -35,15 +35,18 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		void pgup(void);
 
 	public:
-		text_window_t(text_buffer_t *_text = NULL);
+		text_window_t(text_buffer_t *_text = NULL, bool with_scrollbar = true);
+		virtual ~text_window_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
 
+		void set_scrollbar(bool with_scrollbar);
 		void set_text(text_buffer_t *_text);
 		text_buffer_t *get_text(void);
 		void set_tabsize(int size);
+		int get_text_height(void);
 };
 
 }; // namespace
