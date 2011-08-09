@@ -160,26 +160,41 @@ void input_selection_dialog_t::show(void) {
 
 text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 	text_buffer_t *default_text = new text_buffer_t();
-
-	default_text->append_text(_("This program tries to provide an intuitive interface for people accustomed "
+	const char *intl_text = _("%s tries to provide an intuitive interface for people accustomed "
 		"to GUI applications. For example, it allows you to use Meta+<letter> combinations to open "
 		"menus and jump to items on your screen. However, not all terminals and terminal emulators "
-		"handle the Meta key the same way. The result is that this program can not reliably handle the "
+		"handle the Meta key the same way. The result is that %s can not reliably handle the "
 		"Meta+<letter> combinations on all terminals. While this dialog is open, the box "
 		"below will show which keys you pressed, allowing you to test whether the Meta "
-		"key is fully functional.\n\n"));
-	default_text->append_text(_("As an alternative to Meta+<letter>, this program can allow you to simulate "
+		"key is fully functional.\n\n");
+
+	const char *insert_point = strstr(intl_text, "%s");
+
+	default_text->append_text(intl_text, insert_point - intl_text);
+	default_text->append_text(init_params.program_name);
+	intl_text = insert_point + 2;
+	insert_point = strstr(intl_text, "%s");
+	default_text->append_text(intl_text, insert_point - intl_text);
+	default_text->append_text(init_params.program_name);
+	default_text->append_text(insert_point + 2);
+
+	intl_text = _("As an alternative to Meta+<letter>, %s can allow you to simulate "
 		"Meta+<letter> by pressing Esacpe followed by <letter>. However, this does mean that you have to "
 		"press Escape twice to close a menu or dialog. While this dialog is open, this work-around "
 		"is enabled. If you do not require this work-around because Meta+<letter> is fully functional, "
 		"you can disable it below for the rest of the program, allowing you to close menus and dialogs "
-		"(except this one) with a single press of the Escape key.\n\n"));
+		"(except this one) with a single press of the Escape key.\n\n");
+	insert_point = strstr(intl_text, "%s");
+	default_text->append_text(intl_text, insert_point - intl_text);
+	default_text->append_text(init_params.program_name);
+	default_text->append_text(insert_point + 2);
+
 	default_text->append_text(_("When the 'Escape <letter>' work-around is enabled, the fact that you "
 		"pressed the Escape key is discarded after one second. This may be inconvenient in some cases, "
 		"therefore the timeout on the Escape key can be disabled.\n\n"));
 	default_text->append_text(_("Other methods\n=============\n\nSome terminal emulators have configuration "
 		"options to either use Meta+<letter> for their own purposes, or pass the key combination through to the "
-		"program running in the terminal. An example of this is gnome-terminal. Furthermore, most terminal "
+		"program running in the terminal. An example of this is gnome-terminal. Furthermore, some terminal "
 		"emulators only intercept Meta+<letter> but not Meta+Shift+<letter>. This combination is therefore "
 		"also accepted as if it were Meta+<letter>."));
 

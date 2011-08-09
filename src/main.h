@@ -63,6 +63,24 @@ class T3_WIDGET_API complex_error_t {
 		const char *get_string(void);
 };
 
+/** Structure holding the parameters for initialization for libt3widget.
+
+    Do @b not use this type as an automatic or static variable. By allocating
+    on the stack using new, binary compatibility between library versions can
+    be retained while allowing additions to this struct.
+*/
+struct T3_WIDGET_API init_parameters_t {
+	const char *program_name; /**< Name of the program to print where appropriate. */
+	const char *term; /**< Override the terminal name derived from @c TERM. */
+	/** Boolean indicating whether keypad keys are returned as separate from the regular cursor control keys.
+
+	    If @c false, there will be no distinction between the user pressing e.g.
+	    left arrow and keypad left arrow. This is the recommended behavior. */
+	bool separate_keypad;
+
+	init_parameters_t(void);
+};
+
 //FIXME: shouldn't these be internal?
 /** Global insert_char_dialog_t dialog. */
 T3_WIDGET_API extern insert_char_dialog_t *insert_char_dialog;
@@ -90,12 +108,9 @@ T3_WIDGET_API sigc::connection connect_terminal_settings_changed(const sigc::slo
 /** Initialize the libt3widget library.
 
     This function should be called before any other function in the libt3widget
-    library. The @p separate_keypad parameter determines whether keypad keys
-    are returned as separate from the regular cursor control keys. If @c false,
-    there will be no distinction between the user pressing e.g. left arrow and
-    keypad left arrow. This is the recommended behavior.
+    library.
 */
-T3_WIDGET_API complex_error_t init(const char *term = NULL, bool separate_keypad = false);
+T3_WIDGET_API complex_error_t init(const init_parameters_t *params);
 /** Function to restore the terminal to the original settings.
     This function is called automatically on program termination by use of
     @c atexit(3).

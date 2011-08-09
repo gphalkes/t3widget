@@ -21,6 +21,7 @@
 #include <string>
 #include <sigc++/sigc++.h>
 #include <t3widget/widget_api.h>
+#include <t3widget/main.h>
 
 #include <t3widget/key.h>
 
@@ -29,6 +30,8 @@ namespace t3_widget {
 class text_line_t;
 /** text_line_t holding the copy buffer. */
 T3_WIDGET_LOCAL extern std::string *copy_buffer;
+
+T3_WIDGET_LOCAL extern init_parameters_t init_params;
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { \
