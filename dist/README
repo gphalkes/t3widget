@@ -8,6 +8,9 @@ easy construction of dialog based programs for Un*x terminals.
 libt3widget is part of the Tilde Terminal Toolkit (T3)
 [http://os.ghalkes.nl/t3/]
 
+libt3widget is licensed under the GNU General Public License version 3. See the
+file COPYING for details.
+
 
 Prerequisites and installation
 ==============================

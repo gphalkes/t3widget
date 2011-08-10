@@ -79,8 +79,8 @@ int text_buffer_t::size(void) const {
 	return lines.size();
 }
 
-const string *text_buffer_t::get_line_data(int idx) const {
-	return lines[idx]->get_data();
+const text_line_t *text_buffer_t::get_line_data(int idx) const {
+	return lines[idx];
 }
 
 bool text_buffer_t::insert_char(key_t c) {

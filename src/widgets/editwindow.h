@@ -96,6 +96,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void pgdn(void);
 		/** Handle page-up key. */
 		void pgup(void);
+		/** Handle home key. */
+		void home(void);
 		/** Reset the selection. */
 		void reset_selection(void);
 		/** Set the selection mode based on the current key pressed by the user. */

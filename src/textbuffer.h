@@ -66,7 +66,7 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 		virtual void bad_draw_recheck(void);
 
 		int size(void) const;
-		const std::string *get_line_data(int idx) const;
+		const text_line_t *get_line_data(int idx) const;
 
 		bool insert_char(key_t c);
 		bool overwrite_char(key_t c);

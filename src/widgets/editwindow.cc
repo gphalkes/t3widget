@@ -445,6 +445,32 @@ void edit_window_t::pgup(void) {
 	ensure_cursor_on_screen();
 }
 
+void edit_window_t::home(void) {
+	const text_line_t *line;
+	int pos;
+
+
+	if (wrap_type != wrap_type_t::NONE) {
+		pos = wrap_info->calculate_line_pos(text->cursor.line, 0, wrap_info->find_line(text->cursor));
+		if (pos != text->cursor.pos) {
+			text->cursor.pos = pos;
+			screen_pos = last_set_pos = 0;
+			return;
+		}
+	}
+/*			screen_pos = last_set_pos = 0;
+			text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0, tabsize);
+			if (wrap_type == wrap_type_t::NONE && top_left.pos != 0)
+				ensure_cursor_on_screen();*/
+
+	line = text->get_line_data(text->cursor.line);
+	for (pos = 0; pos < line->get_length() && line->is_space(pos); pos = line->adjust_position(pos, 1)) {}
+
+	text->cursor.pos = text->cursor.pos != pos ? pos : 0;
+	ensure_cursor_on_screen();
+	last_set_pos = screen_pos;
+}
+
 void edit_window_t::reset_selection(void) {
 	text->set_selection_mode(selection_mode_t::NONE);
 	redraw = true;
@@ -597,10 +623,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 		case EKEY_HOME | EKEY_SHIFT:
 		case EKEY_HOME:
-			screen_pos = last_set_pos = 0;
-			text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0, tabsize);
-			if (wrap_type == wrap_type_t::NONE && top_left.pos != 0)
-				ensure_cursor_on_screen();
+			home();
 			break;
 		case EKEY_HOME | EKEY_CTRL | EKEY_SHIFT:
 		case EKEY_HOME | EKEY_CTRL:
@@ -659,7 +682,7 @@ bool edit_window_t::process_key(key_t key) {
 				delete_selection();
 
 			if (auto_indent) {
-				current_line = text->get_line_data(text->cursor.line);
+				current_line = text->get_line_data(text->cursor.line)->get_data();
 				for (i = 0, indent = 0, tabs = 0; i < text->cursor.pos; i++) {
 					if ((*current_line)[i] == '\t') {
 						indent = 0;
