@@ -828,6 +828,7 @@ bool edit_window_t::process_key(key_t key) {
 				else
 					space.append(1, '\t');
 				text->insert_block(&space);
+				ensure_cursor_on_screen();
 			}
 			break;
 		default:
@@ -1099,12 +1100,14 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 			delete wrap_info;
 			wrap_info = NULL;
 		}
+		top_left.pos = wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
 	} else {
 		//FIXME: differentiate between wrap types
 		if (wrap_info == NULL)
 			wrap_info = new wrap_info_t(t3_win_get_width(edit_window) - 1, tabsize);
 		wrap_info->set_text_buffer(text);
 		wrap_info->set_wrap_width(t3_win_get_width(edit_window) - 1);
+		top_left.pos = wrap_info->find_line(top_left);
 	}
 	wrap_type = wrap;
 	ensure_cursor_on_screen();
