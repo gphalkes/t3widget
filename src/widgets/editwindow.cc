@@ -50,7 +50,8 @@ void edit_window_t::init(void) {
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : edit_window(NULL),
 		bottom_line_window(NULL), scrollbar(true), text(NULL), tab_spaces(false), find_dialog(NULL), finder(NULL),
-		wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0), auto_indent(true)
+		wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0), auto_indent(true),
+		indent_aware_home(true)
 {
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
@@ -449,6 +450,13 @@ void edit_window_t::home(void) {
 	const text_line_t *line;
 	int pos;
 
+	if (!indent_aware_home) {
+		text->cursor.pos = wrap_type == wrap_type_t::NONE ? 0 :
+			wrap_info->calculate_line_pos(text->cursor.line, 0, wrap_info->find_line(text->cursor));
+		ensure_cursor_on_screen();
+		last_set_pos = screen_pos;
+		return;
+	}
 
 	if (wrap_type != wrap_type_t::NONE) {
 		pos = wrap_info->calculate_line_pos(text->cursor.line, 0, wrap_info->find_line(text->cursor));
@@ -458,11 +466,6 @@ void edit_window_t::home(void) {
 			return;
 		}
 	}
-/*			screen_pos = last_set_pos = 0;
-			text->cursor.pos = text->calculate_line_pos(text->cursor.line, 0, tabsize);
-			if (wrap_type == wrap_type_t::NONE && top_left.pos != 0)
-				ensure_cursor_on_screen();*/
-
 	line = text->get_line_data(text->cursor.line);
 	for (pos = 0; pos < line->get_length() && line->is_space(pos); pos = line->adjust_position(pos, 1)) {}
 
@@ -1121,6 +1124,10 @@ void edit_window_t::set_auto_indent(bool _auto_indent) {
 	auto_indent = _auto_indent;
 }
 
+void edit_window_t::set_indent_aware_home(bool _indent_aware_home) {
+	indent_aware_home = _indent_aware_home;
+}
+
 int edit_window_t::get_tabsize(void) {
 	return tabsize;
 }
@@ -1135,6 +1142,10 @@ bool edit_window_t::get_tab_spaces(void) {
 
 bool edit_window_t::get_auto_indent(void) {
 	return auto_indent;
+}
+
+bool edit_window_t::get_indent_aware_home(void) {
+	return indent_aware_home;
 }
 
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
@@ -1157,10 +1168,11 @@ edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
 	ins_mode = view->ins_mode;
 	last_set_pos = view->last_set_pos;
 	auto_indent = view->auto_indent;
+	indent_aware_home = view->indent_aware_home;
 }
 
-edit_window_t::view_parameters_t::view_parameters_t(int _tabsize, wrap_type_t _wrap_type, bool _auto_indent) :
-	top_left(0, 0), wrap_type(_wrap_type), tabsize(_tabsize), tab_spaces(false), ins_mode(0), last_set_pos(0), auto_indent(_auto_indent)
+edit_window_t::view_parameters_t::view_parameters_t(void) : top_left(0, 0), wrap_type(wrap_type_t::NONE), tabsize(8),
+		tab_spaces(false), ins_mode(0), last_set_pos(0), auto_indent(true), indent_aware_home(true)
 {}
 
 void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) const {
@@ -1178,6 +1190,14 @@ void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) con
 	view->ins_mode = ins_mode;
 	view->last_set_pos = last_set_pos;
 	view->auto_indent = auto_indent;
+	view->indent_aware_home = indent_aware_home;
 }
+
+
+void edit_window_t::view_parameters_t::set_tabsize(int _tabsize) { tabsize = _tabsize; }
+void edit_window_t::view_parameters_t::set_wrap(wrap_type_t _wrap_type) { wrap_type = _wrap_type; }
+void edit_window_t::view_parameters_t::set_tab_spaces(bool _tab_spaces) { tab_spaces = _tab_spaces; }
+void edit_window_t::view_parameters_t::set_auto_indent(bool _auto_indent) { auto_indent = _auto_indent; }
+void edit_window_t::view_parameters_t::set_indent_aware_home(bool _indent_aware_home) { indent_aware_home = _indent_aware_home; }
 
 }; // namespace
