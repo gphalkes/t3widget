@@ -308,7 +308,7 @@ void edit_window_t::inc_y(void) {
 		if (wrap_info->get_line_count(text->cursor.line) == new_sub_line) {
 			if (text->cursor.line + 1 < text->size()) {
 				text->cursor.line++;
-				text->cursor.pos = text->calculate_line_pos(text->cursor.line, last_set_pos, tabsize);
+				text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, last_set_pos, 0);
 				ensure_cursor_on_screen();
 			} else {
 				text->cursor.pos = text->get_line_max(text->cursor.line);
