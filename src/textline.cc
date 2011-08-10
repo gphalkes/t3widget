@@ -83,9 +83,13 @@ void text_line_t::convert_key(key_t c) {
 		conversion_meta_data = (conversion_meta_data & ~WIDTH_MASK) | width;
 		// Just making sure...
 		conversion_meta_data &= ~(GRAPH_BIT | SPACE_BIT);
+		/* We consider tab a space character, rather than control. */
+		if (c == '\t')
+			conversion_meta_data |= SPACE_BIT;
 	} else {
 		conversion_meta_data--;
 	}
+
 
 	if (c > 0x10000L)
 		conversion_length = 4;
@@ -526,7 +530,7 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
 		else
 			total += width_at(i);
 
-		if (total > length && (buffer[i] != '\t' || tabsize == 0)) {
+		if (total > length) {
 			if (possible_break.pos == start)
 				possible_break.flags = text_line_t::PARTIAL_CHAR;
 			break;
