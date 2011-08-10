@@ -38,7 +38,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 		checkbox_t *show_hidden_box;
 		smart_label_t *show_hidden_label;
 		bool option_widget_set;
-		sigc::connection cancel_button_up_connection, ok_button_up_connection, ok_button_left_connection;
+		sigc::connection cancel_button_up_connection, ok_button_up_connection;
 
 		file_dialog_t(int height, int width, const char *_title);
 		void ok_callback(void);
@@ -73,6 +73,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 
 	public:
 		open_file_dialog_t(int height, int width);
+		virtual bool set_size(optint height, optint width);
 		virtual void reset(void);
 };
 

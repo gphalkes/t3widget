@@ -82,7 +82,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun0(this, &file_dialog_t::ok_callback));
-	ok_button_left_connection = ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
+	ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &file_dialog_t::focus_next));
 	ok_button_up_connection = ok_button->connect_move_focus_up(
 		sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), file_pane_frame));
@@ -114,7 +114,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 	cancel_button_up_connection.disconnect();
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
-	ok_button_left_connection.disconnect();
+	ok_button->connect_move_focus_left(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	ok_button_up_connection.disconnect();
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &file_dialog_t::focus_previous));
 	show_hidden_box->connect_move_focus_down(sigc::bind(sigc::mem_fun(this, &file_dialog_t::focus_set), ok_button));
@@ -248,7 +248,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	filter_label->set_anchor(show_hidden_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	filter_label->set_position(0, 2);
 	filter_offset = filter_label->get_width() + 1;
-	filter_width = 10;
+	filter_width = min(max(10, width - 60), 25);
 	filter_line = new filter_text_field_t();
 	set_widget_parent(filter_line);
 	filter_line->set_anchor(filter_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -269,6 +269,13 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 
 const string *open_file_dialog_t::get_filter(void) {
 	return filter_line->get_text();
+}
+
+bool open_file_dialog_t::set_size(optint height, optint width) {
+	bool result = file_dialog_t::set_size(height, width);
+	if (width.is_valid())
+		result &= filter_line->set_size(None, min(max(10, width - 60), 25));
+	return result;
 }
 
 void open_file_dialog_t::reset(void) {
