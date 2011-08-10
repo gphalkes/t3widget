@@ -766,6 +766,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_F3:
+		case EKEY_META | '3':
 			find_next(false);
 			break;
 		case EKEY_F3 | EKEY_SHIFT:
@@ -773,6 +774,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_F9:
+		case EKEY_META | '9':
 			insert_special();
 			break;
 

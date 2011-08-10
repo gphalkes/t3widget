@@ -120,7 +120,6 @@ bool dialog_t::process_key(key_t key) {
 					return true;
 			}
 		}
-		return false;
 	}
 
 	if ((*current_widget)->process_key(key))

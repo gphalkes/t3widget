@@ -38,6 +38,7 @@ bool split_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_F8:
+		case EKEY_META | '8':
 			next();
 			break;
 		case EKEY_F8 | EKEY_SHIFT:

@@ -267,6 +267,7 @@ bool text_field_t::process_key(key_t key) {
 			break;
 
 		case EKEY_F9:
+		case EKEY_META | '9':
 			dont_select_on_focus = true;
 			insert_char_dialog->center_over(center_window);
 			insert_char_dialog->reset();
