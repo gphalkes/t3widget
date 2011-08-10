@@ -54,7 +54,7 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 
 	enable_simulate_label = new smart_label_t("'Esc <letter>' simulates Meta+<letter>");
 	enable_simulate_label->set_anchor(enable_simulate_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	enable_simulate_label->set_position(0, 2);
+	enable_simulate_label->set_position(0, 1);
 
 	close_remark_label = new smart_label_t("(Requires 'Esc Esc' to close menu or dialog)");
 	close_remark_label->set_anchor(enable_simulate_label, 0);
@@ -69,7 +69,7 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 
 	disable_timeout_label = new smart_label_t("Disable timeout on Esc");
 	disable_timeout_label->set_anchor(disable_timeout_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	disable_timeout_label->set_position(0, 2);
+	disable_timeout_label->set_position(0, 1);
 
 	cancel_button = new button_t(_("Cancel"));
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
@@ -110,7 +110,7 @@ bool input_selection_dialog_t::set_size(optint height, optint width) {
 		width = t3_win_get_width(window);
 
 	result = dialog_t::set_size(height, width);
-	result &= text_frame->set_size(height - 6, width - 2);
+	result &= text_frame->set_size(height - 9, width - 2);
 	return result;
 }
 
