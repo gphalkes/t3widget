@@ -66,10 +66,10 @@ dist-clean: clean
 	rm -rf Makefile config.log libt3widget.pc
 
 .cc.lo:
-	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CFLAGS) $(CONFIGFLAGS) $(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL -c -o $@ $<
+	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) $(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL -c -o $@ $<
 
 src/libt3widget.la: $(OBJECTS)
-	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
+	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
 
 libt3widget.pc: libt3widget.pc.in
 	@{ echo '/^prefix=/c\' ; echo 'prefix=$(prefix)' ; } > .sedscript
