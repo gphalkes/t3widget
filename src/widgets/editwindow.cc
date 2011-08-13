@@ -474,6 +474,25 @@ void edit_window_t::home(void) {
 	last_set_pos = screen_pos;
 }
 
+void edit_window_t::end(void) {
+	if (wrap_type == wrap_type_t::NONE) {
+		text->cursor.pos = text->get_line_max(text->cursor.line);
+	} else {
+		int sub_line = wrap_info->find_line(text->cursor);
+		if (sub_line + 1 < wrap_info->get_line_count(text->cursor.line)) {
+			int before_pos = text->cursor.pos;
+			text->cursor.pos = wrap_info->calculate_line_pos(text->cursor.line, 0, sub_line + 1);
+			text->adjust_position(-1);
+			if (before_pos == text->cursor.pos)
+				text->cursor.pos = text->get_line_max(text->cursor.line);
+		} else {
+			text->cursor.pos = text->get_line_max(text->cursor.line);
+		}
+	}
+	ensure_cursor_on_screen();
+	last_set_pos = screen_pos;
+}
+
 void edit_window_t::reset_selection(void) {
 	text->set_selection_mode(selection_mode_t::NONE);
 	redraw = true;
@@ -637,9 +656,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 		case EKEY_END | EKEY_SHIFT:
 		case EKEY_END:
-			text->cursor.pos = text->get_line_max(text->cursor.line);
-			ensure_cursor_on_screen();
-			last_set_pos = screen_pos;
+			end();
 			break;
 		case EKEY_END | EKEY_CTRL | EKEY_SHIFT:
 		case EKEY_END | EKEY_CTRL: {
