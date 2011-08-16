@@ -1116,11 +1116,11 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 		return;
 
 	if (wrap == wrap_type_t::NONE) {
+		top_left.pos = wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
 		if (wrap_info != NULL) {
 			delete wrap_info;
 			wrap_info = NULL;
 		}
-		top_left.pos = wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
 	} else {
 		//FIXME: differentiate between wrap types
 		if (wrap_info == NULL)
