@@ -277,22 +277,26 @@ void text_line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is
 	}
 }
 
-t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *info) const {
-	t3_attr_t retval = info->normal_attr;
+t3_attr_t text_line_t::get_base_attr(int i, const text_line_t::paint_info_t *info) {
+	(void) i;
+	return info->normal_attr;
+}
+
+t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *info) {
+	t3_attr_t retval = get_base_attr(i, info);
 
 	if (i >= info->selection_start && i < info->selection_end)
-		retval = i == info->cursor ? attributes.selection_cursor2 : info->selected_attr;
+		retval = i == info->cursor ? t3_term_combine_attrs(attributes.selection_cursor2, retval) : info->selected_attr;
 	else if (i == info->cursor)
-		retval = i == info->selection_end ? attributes.selection_cursor : attributes.text_cursor;
+		retval = t3_term_combine_attrs(i == info->selection_end ? attributes.selection_cursor : attributes.text_cursor, retval);
 
 	if (is_bad_draw(i))
 		retval = t3_term_combine_attrs(attributes.bad_draw, retval);
 
-	//FIXME: also take highlighting into account
 	return retval;
 }
 
-void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *info) const {
+void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *info) {
 	int i, j,
 		total = 0,
 		print_from,

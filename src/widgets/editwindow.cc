@@ -948,7 +948,7 @@ void edit_window_t::update_contents(void) {
 		paint_info.normal_attr = 0;
 		paint_info.selected_attr = 0;
 
-		name_line->paint_line(bottom_line_window, &paint_info);
+		text->paint_name_line(bottom_line_window, &paint_info);
 	}
 
 	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);

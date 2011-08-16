@@ -76,13 +76,19 @@ class T3_WIDGET_API text_line_t {
 		static const char *wrap_symbol;
 
 		static void paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr);
+		static char get_key_meta(key_t c);
 
-		t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info) const;
+		t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info);
 
 		void fill_line(const char *_buffer, int length);
 		bool check_boundaries(int match_start, int match_end) const;
 		void update_meta_buffer(int start_pos = 0);
 		char get_char_meta(int pos) const;
+
+		int get_class(int pos) const;
+		void insert_bytes(int pos, const char *bytes, int space);
+		void reserve(int size);
+		int byte_width_from_first(int pos) const;
 
 	public:
 		text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = NULL);
@@ -105,7 +111,7 @@ class T3_WIDGET_API text_line_t {
 		int calculate_screen_width(int start, int pos, int tabsize) const;
 		int calculate_line_pos(int start, int max, int pos, int tabsize) const;
 
-		void paint_line(t3_window_t *win, const paint_info_t *info) const;
+		void paint_line(t3_window_t *win, const paint_info_t *info);
 
 		break_pos_t find_next_break_pos(int start, int length, int tabsize) const;
 		int get_next_word(int start) const;
@@ -131,13 +137,8 @@ class T3_WIDGET_API text_line_t {
 
 		static void init(void);
 
-	private:
-		int get_class(int pos) const;
-		void insert_bytes(int pos, const char *bytes, int space);
-		void reserve(int size);
-		int byte_width_from_first(int pos) const;
-
-		static char get_key_meta(key_t c);
+	protected:
+		virtual t3_attr_t get_base_attr(int i, const paint_info_t *info);
 };
 
 class text_line_factory_t {

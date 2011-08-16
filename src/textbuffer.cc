@@ -203,7 +203,8 @@ int text_buffer_t::calculate_line_pos(int line, int pos, int tabsize) const {
 	return lines[line]->calculate_line_pos(0, INT_MAX, pos, tabsize);
 }
 
-void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const {
+void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) {
+	prepare_paint_line(line);
 	info->start = 0;
 	info->max = INT_MAX;
 	info->flags = 0;
@@ -808,6 +809,10 @@ const text_line_t *text_buffer_t::get_name_line(void) const {
 	return &name_line;
 }
 
+void text_buffer_t::paint_name_line(t3_window_t *win, text_line_t::paint_info_t *info) {
+	name_line.paint_line(win, info);
+}
+
 bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 	int end_line;
 	text_coordinate_t insert_at;
@@ -986,6 +991,10 @@ bool text_buffer_t::unindent_line(int tabsize) {
 	else
 		cursor.pos = 0;
 	return true;
+}
+
+void text_buffer_t::prepare_paint_line(int line) {
+	(void) line;
 }
 
 }; // namespace

@@ -60,6 +60,8 @@ class T3_WIDGET_API text_buffer_t {
 		void set_selection_from_find(int line, find_result_t *result);
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
+		virtual void prepare_paint_line(int line);
+
 	public:
 		text_buffer_t(const char *_name = NULL, text_line_factory_t *_line_factory = NULL);
 		virtual ~text_buffer_t(void);
@@ -83,7 +85,7 @@ class T3_WIDGET_API text_buffer_t {
 		void adjust_position(int adjust);
 		int width_at_cursor(void) const;
 
-		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info) const;
+		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info);
 		void goto_next_word(void);
 		void goto_previous_word(void);
 
@@ -91,6 +93,7 @@ class T3_WIDGET_API text_buffer_t {
 		int calculate_line_pos(int line, int pos, int tabsize) const;
 
 		const text_line_t *get_name_line(void) const;
+		void paint_name_line(t3_window_t *win, text_line_t::paint_info_t *info);
 
 		text_coordinate_t get_selection_start(void) const;
 		text_coordinate_t get_selection_end(void) const;
