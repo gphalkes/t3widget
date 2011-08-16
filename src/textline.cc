@@ -60,15 +60,13 @@ char text_line_t::conversion_meta_data;
    characters are required than the 5 for the UTF-8 encoding. */
 #define MAX_WCS_CHARS 5
 
-#warning Using a global static buffer is not a good idea. Refactor!
+//FIXME: Using a global static buffer is not a good idea. Refactor!
 /** Convert one UCS-4 character to UTF-8.
 	@param c The character to convert.
 
 	This function does not check for high/low surrogates.
 */
 void text_line_t::convert_key(key_t c) {
-	int i;
-
 	conversion_meta_data = t3_unicode_get_info(c, INT_MAX);
 	/* Mask out only what we need. */
 	conversion_meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
@@ -88,27 +86,7 @@ void text_line_t::convert_key(key_t c) {
 		conversion_meta_data--;
 	}
 
-
-	if (c > 0x10000L)
-		conversion_length = 4;
-	else if (c > 0x800)
-		conversion_length = 3;
-	else if (c > 0x80)
-		conversion_length = 2;
-	else {
-		conversion_buffer[0] = c;
-		conversion_buffer[1] = 0;
-		conversion_length = 1;
-	}
-
-	if (conversion_length > 1) {
-		for (i = conversion_length - 1; i >= 0; i--) {
-			conversion_buffer[i] = (c & 0x3F) | 0x80;
-			c >>= 6;
-		}
-		conversion_buffer[0] |= 0xF0 << (4 - conversion_length);
-		conversion_buffer[conversion_length] = 0;
-	}
+	conversion_length = t3_unicode_put(c, conversion_buffer);
 }
 
 text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
@@ -118,20 +96,21 @@ text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts
 }
 
 void text_line_t::fill_line(const char *_buffer, int length) {
-	size_t char_bytes;
+	size_t char_bytes, round_trip_bytes;
 	key_t next;
+	char byte_buffer[5];
 
 	reserve(length);
 
 	while (length > 0) {
 		char_bytes = length;
 		next = t3_unicode_get(_buffer, &char_bytes);
-		append_char(next, NULL);
+		round_trip_bytes = t3_unicode_put(next, byte_buffer);
+		buffer.append(byte_buffer, round_trip_bytes);
 		length -= char_bytes;
 		_buffer += char_bytes;
 	}
-
-	reserve(length);
+	starts_with_combining = buffer.size() > 0 && (get_char_meta(0) & WIDTH_MASK) == 0;
 }
 
 text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory) : starts_with_combining(false),

@@ -1,7 +1,10 @@
 Version 0.1.3:
-	Buf fixes:
+	Bug fixes:
 	- Fix crash on unsetting wrap on buffer
 	- Fix handling of end key in wrap mode
+
+	New features:
+	- Faster handling of large text buffers
 
 Version 0.1.2:
 	Bug fixes:
