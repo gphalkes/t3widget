@@ -270,9 +270,10 @@ void text_line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is
 	if (is_print) {
 		t3_win_addnstr(win, paint_buffer, todo, selection_attr);
 	} else {
+		selection_attr = t3_term_combine_attrs(attributes.non_print, selection_attr);
 		for (; (size_t) todo > sizeof(dots); todo -= sizeof(dots))
-			t3_win_addnstr(win, dots, sizeof(dots), attributes.non_print | selection_attr);
-		t3_win_addnstr(win, dots, todo, attributes.non_print | selection_attr);
+			t3_win_addnstr(win, dots, sizeof(dots), selection_attr);
+		t3_win_addnstr(win, dots, todo, selection_attr);
 	}
 }
 
@@ -341,12 +342,12 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 			total += 2;
 			// If total > info->leftcol than only the right side character is visible
 			if (total > info->leftcol)
-				t3_win_addch(win, control_map[(int) buffer[i]], attributes.non_print | selection_attr);
+				t3_win_addch(win, control_map[(int) buffer[i]], t3_term_combine_attrs(attributes.non_print, selection_attr));
 		} else if (width_at(i) > 1) {
 			total += width_at(i);
 			if (total > info->leftcol) {
 				for (j = info->leftcol; j < total; j++)
-					t3_win_addch(win, '<',  attributes.non_print | selection_attr);
+					t3_win_addch(win, '<',  t3_term_combine_attrs(attributes.non_print, selection_attr));
 			}
 		} else {
 			total += width_at(i);
@@ -354,7 +355,8 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	}
 
 	if (starts_with_combining && info->leftcol == 0 && info->start == 0) {
-		paint_part(win, " ", true, 1, attributes.non_print | selection_attr);
+		selection_attr = get_draw_attrs(0, info);
+		paint_part(win, " ", true, 1, t3_term_combine_attrs(attributes.non_print, selection_attr));
 		accumulated++;
 	} else {
 		/* Skip to first non-zero-width char */
@@ -397,14 +399,14 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 			total += tabspaces;
 			print_from = i + 1;
 		} else if ((unsigned char) buffer[i] < 32) {
-			/* Print control characters as a dot with special markup. */
+			/* Print control characters as ^ followed by a letter indicating the control char. */
 			paint_part(win, buffer.data() + print_from, _is_print, _is_print ? i - print_from : accumulated, selection_attr);
 			total += accumulated;
 			accumulated = 0;
-			t3_win_addch(win, '^', attributes.non_print | selection_attr);
+			t3_win_addch(win, '^', t3_term_combine_attrs(attributes.non_print, selection_attr));
 			total += 2;
 			if (total <= size)
-				t3_win_addch(win, control_map[(int) buffer[i]], attributes.non_print | selection_attr);
+				t3_win_addch(win, control_map[(int) buffer[i]], t3_term_combine_attrs(attributes.non_print, selection_attr));
 			print_from = i + 1;
 		} else if (_is_print != new_is_print) {
 			/* Print part of the buffer as either printable or control characters, because
@@ -433,7 +435,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 		endchars = 1;
 
 	for (j = 0; j < endchars; j++)
-		t3_win_addch(win, '>', attributes.non_print | selection_attr);
+		t3_win_addch(win, '>', t3_term_combine_attrs(attributes.non_print, selection_attr));
 	total += endchars;
 
 	/* Add a selected space when the selection crosses the end of this line
@@ -448,7 +450,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	if (flags & text_line_t::BREAK) {
 		for (; total < size; total++)
 			t3_win_addch(win, ' ', info->normal_attr);
-		t3_win_addstr(win, wrap_symbol, attributes.non_print);
+		t3_win_addstr(win, wrap_symbol, t3_term_combine_attrs(attributes.non_print, info->normal_attr));
 	} else if (flags & text_line_t::SPACECLEAR) {
 		for (; total + sizeof(spaces) < (size_t) size; total += sizeof(spaces))
 			t3_win_addnstr(win, spaces, sizeof(spaces), (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
