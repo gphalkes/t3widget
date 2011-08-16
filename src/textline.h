@@ -66,7 +66,7 @@ class T3_WIDGET_API text_line_t {
 		};
 
 	private:
-		std::string buffer, meta_buffer;
+		std::string buffer, *meta_buffer;
 		bool starts_with_combining;
 		text_line_factory_t *factory;
 
@@ -85,12 +85,15 @@ class T3_WIDGET_API text_line_t {
 
 		void fill_line(const char *_buffer, int length);
 		bool check_boundaries(int match_start, int match_end) const;
+		void update_meta_buffer(int start_pos = 0);
+		char get_char_meta(int pos) const;
 
 	public:
 		text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = NULL);
 		text_line_t(const char *_buffer, text_line_factory_t *_factory = NULL);
 		text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = NULL);
 		text_line_t(const std::string *str, text_line_factory_t *_factory = NULL);
+		virtual ~text_line_t(void);
 
 		void set_text(const char *_buffer);
 		void set_text(const char *_buffer, size_t length);
