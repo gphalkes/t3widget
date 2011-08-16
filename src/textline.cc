@@ -62,9 +62,9 @@ char text_line_t::conversion_meta_data;
    characters are required than the 5 for the UTF-8 encoding. */
 #define MAX_WCS_CHARS 5
 
+#warning Using a global static buffer is not a good idea. Refactor!
 /** Convert one UCS-4 character to UTF-8.
 	@param c The character to convert.
-	@return the number of @a char's written.
 
 	This function does not check for high/low surrogates.
 */
@@ -838,6 +838,11 @@ void text_line_t::bad_draw_recheck(void) {
 		check_bad_draw(i);
 }
 
+void text_line_t::release_meta(void) {
+/*	factory->release_meta(this, meta);
+	meta = NULL;*/
+}
+
 //============================= text_line_factory_t ========================
 
 text_line_factory_t::text_line_factory_t(void) {}
@@ -845,5 +850,7 @@ text_line_t *text_line_factory_t::new_text_line_t(int buffersize) { return new t
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer) { return new text_line_t(_buffer, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer, int length) { return new text_line_t(_buffer, length, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const std::string *str) { return new text_line_t(str, this); }
+string *text_line_factory_t::allocate_meta(text_line_t *caller) { (void) caller; return new string(); }
+void text_line_factory_t::release_meta(text_line_t *caller, std::string *meta) { (void) caller; delete meta; }
 
 }; // namespace

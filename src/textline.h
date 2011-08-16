@@ -132,6 +132,8 @@ class T3_WIDGET_API text_line_t {
 		const std::string *get_data(void) const;
 		void bad_draw_recheck(void);
 
+		void release_meta(void);
+
 		static void init(void);
 
 	private:
@@ -152,6 +154,8 @@ class text_line_factory_t {
 		virtual text_line_t *new_text_line_t(const char *_buffer);
 		virtual text_line_t *new_text_line_t(const char *_buffer, int length);
 		virtual text_line_t *new_text_line_t(const std::string *str);
+		virtual std::string *allocate_meta(text_line_t *caller);
+		virtual void release_meta(text_line_t *caller, std::string *meta);
 };
 
 extern text_line_factory_t default_text_line_factory;
