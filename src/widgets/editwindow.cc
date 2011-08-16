@@ -225,7 +225,7 @@ void edit_window_t::repaint_screen(void) {
 			text->paint_line(edit_window, top_left.line + i, &info);
 		}
 	} else {
-		text_coordinate_t end = wrap_info->get_end();
+		text_coordinate_t end_coord = wrap_info->get_end();
 		text_coordinate_t draw_line = top_left;
 		info.leftcol = 0;
 		for (i = 0; i < t3_win_get_height(edit_window); i++, wrap_info->add_lines(draw_line, 1)) {
@@ -246,7 +246,7 @@ void edit_window_t::repaint_screen(void) {
 			t3_win_clrtoeol(edit_window);
 			wrap_info->paint_line(edit_window, draw_line, &info);
 
-			if (draw_line.line == end.line && draw_line.pos == end.pos)
+			if (draw_line.line == end_coord.line && draw_line.pos == end_coord.pos)
 				break;
 		}
 	}

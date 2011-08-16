@@ -11,14 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <pcre.h>
-
+#include <cstring>
+#include <climits>
 #include <new>
 #include <t3window/window.h>
 #include <t3unicode/unicode.h>
