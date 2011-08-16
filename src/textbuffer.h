@@ -31,7 +31,7 @@ struct find_result_t;
 class finder_t;
 class wrap_info_t;
 
-class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
+class T3_WIDGET_API text_buffer_t {
 	friend class wrap_info_t;
 	protected:
 		lines_t lines;
@@ -63,7 +63,6 @@ class T3_WIDGET_API text_buffer_t : public bad_draw_recheck_t {
 	public:
 		text_buffer_t(const char *_name = NULL, text_line_factory_t *_line_factory = NULL);
 		virtual ~text_buffer_t(void);
-		virtual void bad_draw_recheck(void);
 
 		int size(void) const;
 		const text_line_t *get_line_data(int idx) const;

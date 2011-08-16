@@ -786,12 +786,6 @@ const char *text_buffer_t::get_name(void) const {
 	return name;
 }
 
-void text_buffer_t::bad_draw_recheck(void) {
-	for (lines_t::iterator iter = lines.begin(); iter != lines.end(); iter++)
-		(*iter)->bad_draw_recheck();
-	name_line.bad_draw_recheck();
-}
-
 void text_buffer_t::set_selection_mode(selection_mode_t mode) {
 	switch (mode) {
 		case selection_mode_t::NONE:

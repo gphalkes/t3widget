@@ -66,7 +66,7 @@ class T3_WIDGET_API text_line_t {
 		};
 
 	private:
-		std::string buffer, *meta_buffer;
+		std::string buffer;
 		bool starts_with_combining;
 		text_line_factory_t *factory;
 
@@ -93,7 +93,6 @@ class T3_WIDGET_API text_line_t {
 		text_line_t(const char *_buffer, text_line_factory_t *_factory = NULL);
 		text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = NULL);
 		text_line_t(const std::string *str, text_line_factory_t *_factory = NULL);
-		virtual ~text_line_t(void);
 
 		void set_text(const char *_buffer);
 		void set_text(const char *_buffer, size_t length);
@@ -133,7 +132,6 @@ class T3_WIDGET_API text_line_t {
 		int is_bad_draw(int pos) const;
 
 		const std::string *get_data(void) const;
-		void bad_draw_recheck(void);
 
 		void release_meta(void);
 
@@ -141,13 +139,11 @@ class T3_WIDGET_API text_line_t {
 
 	private:
 		int get_class(int pos) const;
-		void insert_bytes(int pos, const char *bytes, int space, char meta_data);
+		void insert_bytes(int pos, const char *bytes, int space);
 		void reserve(int size);
 		int byte_width_from_first(int pos) const;
 
 		static void convert_key(key_t c);
-
-		void check_bad_draw(int i);
 };
 
 class text_line_factory_t {
@@ -157,8 +153,6 @@ class text_line_factory_t {
 		virtual text_line_t *new_text_line_t(const char *_buffer);
 		virtual text_line_t *new_text_line_t(const char *_buffer, int length);
 		virtual text_line_t *new_text_line_t(const std::string *str);
-		virtual std::string *allocate_meta(text_line_t *caller);
-		virtual void release_meta(text_line_t *caller, std::string *meta);
 };
 
 extern text_line_factory_t default_text_line_factory;
