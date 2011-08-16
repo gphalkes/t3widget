@@ -15,9 +15,6 @@
 #define _XOPEN_SOURCE
 
 #include <cstring>
-#include <cctype>
-#include <cerrno>
-#include <unistd.h>
 #include <t3unicode/unicode.h>
 
 #include "findcontext.h"
@@ -61,6 +58,7 @@ char text_line_t::conversion_meta_data;
 #define MAX_WCS_CHARS 5
 
 //FIXME: Using a global static buffer is not a good idea. Refactor!
+//FIXME: This should be done differently. get_char_meta should do the first bit, and the rest is trivial
 /** Convert one UCS-4 character to UTF-8.
 	@param c The character to convert.
 
@@ -100,6 +98,9 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 	key_t next;
 	char byte_buffer[5];
 
+	/* If _buffer is valid UTF-8, we will end up with a buffer of size length.
+	   So just tell the buffer that, such that it can allocate an appropriately
+	   sized buffer. */
 	reserve(length);
 
 	while (length > 0) {
