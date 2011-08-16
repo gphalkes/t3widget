@@ -75,10 +75,6 @@ class T3_WIDGET_API text_line_t {
 		static const char *control_map;
 		static const char *wrap_symbol;
 
-		static char conversion_buffer[5];
-		static int conversion_length;
-		static char conversion_meta_data;
-
 		static void paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr);
 
 		t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info) const;
@@ -133,8 +129,6 @@ class T3_WIDGET_API text_line_t {
 
 		const std::string *get_data(void) const;
 
-		void release_meta(void);
-
 		static void init(void);
 
 	private:
@@ -143,7 +137,7 @@ class T3_WIDGET_API text_line_t {
 		void reserve(int size);
 		int byte_width_from_first(int pos) const;
 
-		static void convert_key(key_t c);
+		static char get_key_meta(key_t c);
 };
 
 class text_line_factory_t {

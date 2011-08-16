@@ -49,42 +49,30 @@ text_line_factory_t default_text_line_factory;
 #define SPACE_BIT (T3_UNICODE_SPACE_BIT)
 #define BAD_DRAW_BIT (T3_UNICODE_NFC_QC_BIT)
 
-char text_line_t::conversion_buffer[5];
-int text_line_t::conversion_length;
-char text_line_t::conversion_meta_data;
 
-/* 5 WCS chars should be enough because in any UTF encoding no more
-   characters are required than the 5 for the UTF-8 encoding. */
-#define MAX_WCS_CHARS 5
-
-//FIXME: Using a global static buffer is not a good idea. Refactor!
-//FIXME: This should be done differently. get_char_meta should do the first bit, and the rest is trivial
-/** Convert one UCS-4 character to UTF-8.
-	@param c The character to convert.
-
+/** Retrieve the meta data for a key.
 	This function does not check for high/low surrogates.
 */
-void text_line_t::convert_key(key_t c) {
-	conversion_meta_data = t3_unicode_get_info(c, INT_MAX);
+char text_line_t::get_key_meta(key_t c) {
+	char meta_data = t3_unicode_get_info(c, INT_MAX);
 	/* Mask out only what we need. */
-	conversion_meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
+	meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
 
 	/* Convert width as returned by t3_unicode_get_info to what we need locally.
-	   Note: the width returned in conversion_meta_data is actually the width + 1.
+	   Note: the width returned in meta_data is actually the width + 1.
 	   So a with of 0 actually means -1, i.e. a control character. */
-	if ((conversion_meta_data & WIDTH_MASK) == 0) {
+	if ((meta_data & WIDTH_MASK) == 0) {
 		int width = c < 32 && c != '\t' ? 2 : 1;
-		conversion_meta_data = (conversion_meta_data & ~WIDTH_MASK) | width;
+		meta_data = (meta_data & ~WIDTH_MASK) | width;
 		// Just making sure...
-		conversion_meta_data &= ~(GRAPH_BIT | SPACE_BIT);
+		meta_data &= ~(GRAPH_BIT | SPACE_BIT);
 		/* We consider tab a space character, rather than control. */
 		if (c == '\t')
-			conversion_meta_data |= SPACE_BIT;
+			meta_data |= SPACE_BIT;
 	} else {
-		conversion_meta_data--;
+		meta_data--;
 	}
-
-	conversion_length = t3_unicode_put(c, conversion_buffer);
+	return meta_data;
 }
 
 text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
@@ -606,7 +594,10 @@ void text_line_t::insert_bytes(int pos, const char *bytes, int space) {
 
 /* Insert character 'c' into 'line' at position 'pos' */
 bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
-	convert_key(c);
+	char conversion_buffer[5];
+	int conversion_length;
+
+	conversion_length = t3_unicode_put(c, conversion_buffer);
 
 	reserve(buffer.size() + conversion_length + 1);
 
@@ -618,12 +609,8 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 		undo_text->append(conversion_buffer, conversion_length);
 	}
 
-	if (pos == 0) {
-		if ((conversion_meta_data & WIDTH_MASK) == 0)
-			starts_with_combining = true;
-		else if (starts_with_combining)
-			starts_with_combining = false;
-	}
+	if (pos == 0)
+		starts_with_combining = (get_key_meta(c) & WIDTH_MASK) == 0;
 
 	insert_bytes(pos, conversion_buffer, conversion_length);
 	return true;
@@ -633,11 +620,13 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	int oldspace;
 	string *undo_text, *replacement_text;
+	char conversion_buffer[5];
+	int conversion_length;
 
-	convert_key(c);
+	conversion_length = t3_unicode_put(c, conversion_buffer);
 
 	/* Zero-width characters don't overwrite, only insert. */
-	if ((conversion_meta_data & WIDTH_MASK) == 0) {
+	if ((get_key_meta(c) & WIDTH_MASK) == 0) {
 		//FIXME: shouldn't this simply insert and set starts_with_combining to true?
 		if (pos == 0)
 			return false;
@@ -782,8 +771,7 @@ bool text_line_t::check_boundaries(int match_start, int match_end) const {
 char text_line_t::get_char_meta(int pos) const {
 	size_t char_size = buffer.size() - pos;
 
-	convert_key(t3_unicode_get(buffer.data() + pos, &char_size));
-	return conversion_meta_data;
+	return get_key_meta(t3_unicode_get(buffer.data() + pos, &char_size));
 }
 
 //============================= text_line_factory_t ========================
