@@ -15,8 +15,6 @@
 #define _XOPEN_SOURCE
 
 #include <cstring>
-//~ #include <cwctype>
-//~ #include <cwchar>
 #include <cctype>
 #include <cerrno>
 #include <unistd.h>
@@ -62,9 +60,9 @@ char text_line_t::conversion_meta_data;
    characters are required than the 5 for the UTF-8 encoding. */
 #define MAX_WCS_CHARS 5
 
+#warning Using a global static buffer is not a good idea. Refactor!
 /** Convert one UCS-4 character to UTF-8.
 	@param c The character to convert.
-	@return the number of @a char's written.
 
 	This function does not check for high/low surrogates.
 */
@@ -113,7 +111,7 @@ void text_line_t::convert_key(key_t c) {
 	}
 }
 
-text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
+text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : meta_buffer(NULL), starts_with_combining(false),
 		factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
 	reserve(buffersize);
@@ -136,40 +134,47 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 	reserve(length);
 }
 
-text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory) : starts_with_combining(false),
+text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory) : meta_buffer(NULL), starts_with_combining(false),
 		factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
 	fill_line(_buffer, strlen(_buffer));
 }
 
-text_line_t::text_line_t(const char *_buffer, int length, text_line_factory_t *_factory) : starts_with_combining(false),
-		factory(_factory == NULL ? &default_text_line_factory : _factory)
+text_line_t::text_line_t(const char *_buffer, int length, text_line_factory_t *_factory) : meta_buffer(NULL),
+		starts_with_combining(false), factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
 	fill_line(_buffer, length);
 }
 
-text_line_t::text_line_t(const string *str, text_line_factory_t *_factory) : starts_with_combining(false),
+text_line_t::text_line_t(const string *str, text_line_factory_t *_factory) : meta_buffer(NULL), starts_with_combining(false),
 		factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
 	fill_line(str->data(), str->size());
 }
 
+text_line_t::~text_line_t(void) {
+	if (meta_buffer != NULL)
+		factory->release_meta(this, meta_buffer);
+}
 
 void text_line_t::set_text(const char *_buffer) {
 	buffer.clear();
-	meta_buffer.clear();
+	if (meta_buffer != NULL)
+		meta_buffer->clear();
 	fill_line(_buffer, strlen(_buffer));
 }
 
 void text_line_t::set_text(const char *_buffer, size_t length) {
 	buffer.clear();
-	meta_buffer.clear();
+	if (meta_buffer != NULL)
+		meta_buffer->clear();
 	fill_line(_buffer, length);
 }
 
 void text_line_t::set_text(const string *str) {
 	buffer.clear();
-	meta_buffer.clear();
+	if (meta_buffer != NULL)
+		meta_buffer->clear();
 	fill_line(str->data(), str->size());
 }
 
@@ -183,10 +188,15 @@ void text_line_t::merge(text_line_t *other) {
 	reserve(buffer.size() + other->buffer.size());
 
 	buffer += other->buffer;
-	meta_buffer += other->meta_buffer;
+	if (meta_buffer != NULL) {
+		if (other->meta_buffer != NULL)
+			*meta_buffer += *other->meta_buffer;
+		else
+			update_meta_buffer(meta_buffer->size());
 
-	if (other->starts_with_combining)
-		check_bad_draw(adjust_position(buffer_len, -1));
+		if (other->starts_with_combining)
+			check_bad_draw(adjust_position(buffer_len, -1));
+	}
 
 	delete other;
 }
@@ -202,15 +212,15 @@ text_line_t *text_line_t::break_line(int pos) {
 		return factory->new_text_line_t();
 
 	/* Only allow line breaks at non-combining marks. */
-	ASSERT(meta_buffer[pos] & WIDTH_MASK);
+	ASSERT(meta_buffer == NULL || (*meta_buffer)[pos] & WIDTH_MASK);
 
 	/* copy the right part of the string into the new buffer */
 	newline = factory->new_text_line_t(buffer.size() - pos);
 	newline->buffer.assign(buffer.data() + pos, buffer.size() - pos);
-	newline->meta_buffer.assign(meta_buffer.data() + pos, meta_buffer.size() - pos);
 
 	buffer.resize(pos);
-	meta_buffer.resize(pos);
+	if (meta_buffer != NULL)
+		meta_buffer->resize(pos);
 	return newline;
 }
 
@@ -223,10 +233,11 @@ text_line_t *text_line_t::cut_line(int start, int end) {
 	retval = clone(start, end);
 
 	buffer.erase(start, end - start);
-	meta_buffer.erase(start, end - start);
-	check_bad_draw(adjust_position(start, -1));
-
-	starts_with_combining = buffer.size() > 0 && (meta_buffer[0] & WIDTH_MASK) == 0;
+	if (meta_buffer != NULL) {
+		meta_buffer->erase(start, end - start);
+		check_bad_draw(adjust_position(start, -1));
+	}
+	starts_with_combining = buffer.size() > 0 && width_at(0) == 0;
 
 	return retval;
 }
@@ -247,9 +258,7 @@ text_line_t *text_line_t::clone(int start, int end) {
 	retval = factory->new_text_line_t(end - start);
 
 	retval->buffer.assign(buffer.data() + start, end - start);
-	retval->meta_buffer.assign(meta_buffer.data() + start, end - start);
-	if ((retval->meta_buffer[0] & WIDTH_MASK) == 0)
-		retval->starts_with_combining = true;
+	retval->starts_with_combining = width_at(start) == 0;
 
 	return retval;
 }
@@ -639,8 +648,10 @@ int text_line_t::get_previous_word(int start) const {
 
 void text_line_t::insert_bytes(int pos, const char *bytes, int space, char meta_data) {
 	buffer.insert(pos, bytes, space);
-	meta_buffer.insert(pos, space, 0);
-	meta_buffer[pos] = meta_data;
+	if (meta_buffer != NULL) {
+		meta_buffer->insert(pos, space, 0);
+		(*meta_buffer)[pos] = meta_data;
+	}
 }
 
 
@@ -666,7 +677,8 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	}
 
 	insert_bytes(pos, conversion_buffer, conversion_length, conversion_meta_data);
-	check_bad_draw(width_at(pos) == 0 ? adjust_position(pos, -1) : pos);
+	if (meta_buffer != NULL)
+		check_bad_draw(width_at(pos) == 0 ? adjust_position(pos, -1) : pos);
 
 	return true;
 }
@@ -712,9 +724,11 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	}
 
 	buffer.replace(pos, oldspace, conversion_buffer, conversion_length);
-	meta_buffer.replace(pos, oldspace, conversion_length, 0);
-	meta_buffer[pos] = conversion_meta_data;
-	check_bad_draw(pos);
+	if (meta_buffer != NULL) {
+		meta_buffer->replace(pos, oldspace, conversion_length, 0);
+		(*meta_buffer)[pos] = conversion_meta_data;
+		check_bad_draw(pos);
+	}
 	return true;
 }
 
@@ -739,7 +753,8 @@ bool text_line_t::delete_char(int pos, undo_t *undo) {
 	}
 
 	buffer.erase(pos, oldspace);
-	meta_buffer.erase(pos, oldspace);
+	if (meta_buffer != NULL)
+		meta_buffer->erase(pos, oldspace);
 
 	return true;
 }
@@ -772,7 +787,7 @@ int text_line_t::adjust_position(int pos, int adjust) const {
 	} else {
 		for (; adjust < 0 && pos > 0; adjust += (width_at(pos) ? 1 : 0)) {
 			pos--;
-			while (pos > 0 && !width_at(pos))
+			while (pos > 0 && (buffer[pos] & 0xc0) == 0x80)
 				pos--;
 		}
 	}
@@ -797,12 +812,17 @@ int text_line_t::byte_width_from_first(int pos) const {
 	}
 }
 
-int text_line_t::width_at(int pos) const { return meta_buffer[pos] & WIDTH_MASK; }
-int text_line_t::is_print(int pos) const { return (meta_buffer[pos] & (GRAPH_BIT | SPACE_BIT)) != 0; }
-int text_line_t::is_graph(int pos) const { return meta_buffer[pos] & GRAPH_BIT; }
-int text_line_t::is_alnum(int pos) const { return meta_buffer[pos] & ALNUM_BIT; }
-int text_line_t::is_space(int pos) const { return meta_buffer[pos] & SPACE_BIT; }
-int text_line_t::is_bad_draw(int pos) const { return meta_buffer[pos] & BAD_DRAW_BIT; }
+int text_line_t::width_at(int pos) const { return get_char_meta(pos) & WIDTH_MASK; }
+int text_line_t::is_print(int pos) const { return (get_char_meta(pos) & (GRAPH_BIT | SPACE_BIT)) != 0; }
+int text_line_t::is_graph(int pos) const { return get_char_meta(pos) & GRAPH_BIT; }
+int text_line_t::is_alnum(int pos) const { return get_char_meta(pos) & ALNUM_BIT; }
+int text_line_t::is_space(int pos) const { return get_char_meta(pos) & SPACE_BIT; }
+int text_line_t::is_bad_draw(int pos) const {
+	if (meta_buffer != NULL)
+		return (*meta_buffer)[pos] & BAD_DRAW_BIT;
+
+	return !t3_term_can_draw(buffer.data() + pos, adjust_position(pos, 1) - pos);
+}
 
 const string *text_line_t::get_data(void) const {
 	return &buffer;
@@ -817,7 +837,8 @@ void text_line_t::init(void) {
 
 void text_line_t::reserve(int size) {
 	buffer.reserve(size);
-	meta_buffer.reserve(size);
+	if (meta_buffer != NULL)
+		meta_buffer->reserve(size);
 }
 
 bool text_line_t::check_boundaries(int match_start, int match_end) const {
@@ -826,16 +847,55 @@ bool text_line_t::check_boundaries(int match_start, int match_end) const {
 }
 
 void text_line_t::check_bad_draw(int i) {
+	if (meta_buffer == NULL)
+		return;
+
 	if (t3_term_can_draw(buffer.data() + i, adjust_position(i, 1) - i))
-		meta_buffer[i] &= ~BAD_DRAW_BIT;
+		(*meta_buffer)[i] &= ~BAD_DRAW_BIT;
 	else
-		meta_buffer[i] |= BAD_DRAW_BIT;
+		(*meta_buffer)[i] |= BAD_DRAW_BIT;
 }
 
 void text_line_t::bad_draw_recheck(void) {
 	int i;
-	for (i = 0; (size_t) i < buffer.size(); i = adjust_position(i, 1))
-		check_bad_draw(i);
+/* 	for (i = 0; (size_t) i < buffer.size(); i = adjust_position(i, 1))
+		check_bad_draw(i); */
+}
+
+void text_line_t::release_meta(void) {
+	factory->release_meta(this, meta_buffer);
+	meta_buffer = NULL;
+}
+
+void text_line_t::update_meta_buffer(int start_pos) {
+	size_t char_size = buffer.size() - start_pos;
+
+	if (meta_buffer == NULL) {
+		meta_buffer = factory->allocate_meta(this);
+		start_pos = 0;
+	}
+	meta_buffer->resize(buffer.size());
+
+	if ((size_t) start_pos >= buffer.size())
+		return;
+
+	while ((size_t) start_pos < buffer.size()) {
+		convert_key(t3_unicode_get(buffer.data() + start_pos, &char_size));
+		(*meta_buffer)[start_pos] = conversion_meta_data;
+		check_bad_draw(start_pos);
+		start_pos += char_size;
+	}
+}
+
+char text_line_t::get_char_meta(int pos) const {
+	size_t char_size = buffer.size() - pos;
+
+	if (meta_buffer == NULL) {
+		convert_key(t3_unicode_get(buffer.data() + pos, &char_size));
+		return conversion_meta_data;
+	} else {
+		return (*meta_buffer)[pos];
+	}
 }
 
 //============================= text_line_factory_t ========================
@@ -845,5 +905,7 @@ text_line_t *text_line_factory_t::new_text_line_t(int buffersize) { return new t
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer) { return new text_line_t(_buffer, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer, int length) { return new text_line_t(_buffer, length, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const std::string *str) { return new text_line_t(str, this); }
+string *text_line_factory_t::allocate_meta(text_line_t *caller) { (void) caller; return new string(); }
+void text_line_factory_t::release_meta(text_line_t *caller, std::string *meta) { (void) caller; delete meta; }
 
 }; // namespace
