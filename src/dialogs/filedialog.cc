@@ -296,6 +296,9 @@ save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height
 }
 
 void save_as_dialog_t::create_folder(void) {
+	message_dialog->center_over(this);
+	message_dialog->set_message("This function has not been implemented yet. Sorry.");
+	message_dialog->show();
 	// FIXME: create folder here
 }
 
