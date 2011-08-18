@@ -1116,6 +1116,7 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 		return;
 
 	if (wrap == wrap_type_t::NONE) {
+		top_left.pos = 0;
 		if (wrap_info != NULL) {
 			delete wrap_info;
 			wrap_info = NULL;
