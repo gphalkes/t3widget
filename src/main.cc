@@ -249,7 +249,7 @@ complex_error_t init(const init_parameters_t *params) {
 	if (init_params == NULL)
 		init_params = init_parameters_t::create();
 
-	if (params->term == NULL) {
+	if (params == NULL || params->term == NULL) {
 		const char *term_env = getenv("TERM");
 		/* If term_env == NULL, t3_term_init will abort anyway, so we ignore
 		   that case. */
@@ -258,8 +258,11 @@ complex_error_t init(const init_parameters_t *params) {
 	} else {
 		init_params->term = strdup(params->term);
 	}
-	init_params->separate_keypad = params->separate_keypad;
-	init_params->program_name = strdup(params->program_name == NULL ? "This program" : params->program_name);
+
+	if (params != NULL) {
+		init_params->separate_keypad = params->separate_keypad;
+		init_params->program_name = strdup(params->program_name == NULL ? "This program" : params->program_name);
+	}
 
 	atexit(restore);
 	if ((term_init_result = t3_term_init(-1, init_params->term)) != T3_ERR_SUCCESS) {
