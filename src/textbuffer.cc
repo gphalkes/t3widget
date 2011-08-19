@@ -40,14 +40,10 @@ namespace t3_widget {
   be a reset_selection call such that we can avoid any arguments.
 */
 
-text_buffer_t::text_buffer_t(const char *_name, text_line_factory_t *_line_factory) :
-		selection_start(-1, 0), selection_end(-1, 0), name(NULL),
+text_buffer_t::text_buffer_t(text_line_factory_t *_line_factory) :
+		selection_start(-1, 0), selection_end(-1, 0),
 		line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory), cursor(0, 0)
 {
-	if (_name != NULL) {
-		if ((name = strdup(_name)) == NULL)
-			throw bad_alloc();
-	}
 	/* Allocate a new, empty line */
 	lines.push_back(line_factory->new_text_line_t());
 
@@ -66,7 +62,6 @@ text_buffer_t::~text_buffer_t(void) {
     /* Free all the text_line_t structs */
     for (i = 0; (size_t) i < lines.size(); i++)
 		delete lines[i];
-	free(name);
 }
 
 int text_buffer_t::size(void) const {
@@ -777,10 +772,6 @@ void text_buffer_t::replace(finder_t *finder) {
 	delete replacement_str;
 }
 
-const char *text_buffer_t::get_name(void) const {
-	return name;
-}
-
 void text_buffer_t::set_selection_mode(selection_mode_t mode) {
 	switch (mode) {
 		case selection_mode_t::NONE:
@@ -803,14 +794,6 @@ void text_buffer_t::set_selection_mode(selection_mode_t mode) {
 
 selection_mode_t text_buffer_t::get_selection_mode(void) const {
 	return selection_mode;
-}
-
-const text_line_t *text_buffer_t::get_name_line(void) const {
-	return &name_line;
-}
-
-void text_buffer_t::paint_name_line(t3_window_t *win, text_line_t::paint_info_t *info) {
-	name_line.paint_line(win, info);
 }
 
 bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {

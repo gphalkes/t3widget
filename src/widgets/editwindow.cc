@@ -49,21 +49,29 @@ void edit_window_t::init(void) {
 }
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : edit_window(NULL),
-		bottom_line_window(NULL), scrollbar(true), text(NULL), tab_spaces(false), find_dialog(NULL), finder(NULL),
+		indicator_window(NULL), scrollbar(true), tab_spaces(false), find_dialog(NULL), finder(NULL),
 		wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0), auto_indent(true),
-		indent_aware_home(true)
+		indent_aware_home(true), text(NULL)
 {
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(edit_window);
 
-	if ((bottom_line_window = t3_win_new(window, 1, 11, 0, 0, 0)) == NULL) {
+	if ((indicator_window = t3_win_new(window, 1, 10, 0, 0, 0)) == NULL) {
 		t3_win_del(edit_window);
 		throw bad_alloc();
 	}
-	t3_win_set_anchor(bottom_line_window, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	t3_win_show(bottom_line_window);
+	t3_win_set_anchor(indicator_window, window, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
+	t3_win_show(indicator_window);
+
+	if ((info_window = t3_win_new(window, 1, 1, 0, 0, 1)) == NULL) {
+		t3_win_del(edit_window);
+		t3_win_del(indicator_window);
+		throw bad_alloc();
+	}
+	t3_win_set_anchor(info_window, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+	t3_win_show(info_window);
 
 	set_widget_parent(&scrollbar);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
@@ -77,7 +85,8 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 
 edit_window_t::~edit_window_t(void) {
 	t3_win_del(edit_window);
-	t3_win_del(bottom_line_window);
+	t3_win_del(indicator_window);
+	t3_win_del(info_window);
 	delete wrap_info;
 }
 
@@ -111,7 +120,6 @@ bool edit_window_t::set_size(optint height, optint width) {
 
 	result &= t3_win_resize(window, height, width);
 	result &= t3_win_resize(edit_window, height - 1, width - 1);
-	result &= t3_win_resize(bottom_line_window, 1, width);
 	result &= scrollbar.set_size(height - 1, None);
 
 	if (wrap_type != wrap_type_t::NONE) {
@@ -880,8 +888,14 @@ void edit_window_t::update_contents(void) {
 	text_coordinate_t logical_cursor_pos;
 	char info[30];
 	int info_width, name_width;
-	text_line_t::paint_info_t paint_info;
 	selection_mode_t selection_mode;
+
+	/* TODO: see if we can optimize this somewhat by not redrawing the whole thing
+	   on every key.
+
+	   - cursor-only movements mostly don't require entire redraws
+
+	*/
 
 	if (!focus && !redraw)
 		return;
@@ -896,13 +910,13 @@ void edit_window_t::update_contents(void) {
 		}
 	}
 
-	//FIXME: don't want to fully repaint on every key when selecting!!
 	redraw = false;
 	repaint_screen();
 
-	t3_win_set_default_attrs(bottom_line_window, attributes.menubar);
-	t3_win_set_paint(bottom_line_window, 0, 0);
-	t3_win_addchrep(bottom_line_window, ' ', 0, t3_win_get_width(bottom_line_window));
+	t3_win_set_default_attrs(indicator_window, attributes.menubar);
+	t3_win_set_default_attrs(info_window, attributes.menubar);
+	t3_win_set_paint(indicator_window, 0, 0);
+	t3_win_addchrep(indicator_window, ' ', 0, t3_win_get_width(indicator_window));
 
 	if (wrap_type == wrap_type_t::NONE) {
 		scrollbar.set_parameters(max(text->size(), top_left.line + t3_win_get_height(edit_window)),
@@ -924,35 +938,16 @@ void edit_window_t::update_contents(void) {
 	snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1, logical_cursor_pos.pos + 1,
 		text->is_modified() ? '*' : ' ', ins_string[ins_mode]);
 	info_width = t3_term_strwidth(info);
-	name_width = t3_win_get_width(bottom_line_window) - info_width - 3;
+	t3_win_resize(indicator_window, 1, info_width + 3);
+	name_width = t3_win_get_width(window) - t3_win_get_width(indicator_window);
 
-	if (name_width > 3) {
-		const text_line_t *name_line = text->get_name_line();
-		/* FIXME: is it really necessary to do this on each key stroke??? */
-		t3_win_set_paint(bottom_line_window, 0, 0);
-		if (name_line->calculate_screen_width(0, name_line->get_length(), 1) > name_width) {
-			t3_win_addstr(bottom_line_window, "..", 0);
-			paint_info.start = name_line->adjust_position(name_line->get_length(), -(name_width - 2));
-			paint_info.size = name_width - 2;
-		} else {
-			paint_info.start = 0;
-			paint_info.size = name_width;
-		}
-		paint_info.leftcol = 0;
-		paint_info.max = INT_MAX;
-		paint_info.tabsize = 1;
-		paint_info.flags = text_line_t::TAB_AS_CONTROL | text_line_t::SPACECLEAR;
-		paint_info.selection_start = -1;
-		paint_info.selection_end = -1;
-		paint_info.cursor = -1;
-		paint_info.normal_attr = 0;
-		paint_info.selected_attr = 0;
-
-		text->paint_name_line(bottom_line_window, &paint_info);
+	if (t3_win_get_width(info_window) != name_width && name_width > 0) {
+		t3_win_resize(info_window, 1, name_width);
+		draw_info_window();
 	}
 
-	t3_win_set_paint(bottom_line_window, 0, t3_win_get_width(bottom_line_window) - strlen(info) - 1);
-	t3_win_addstr(bottom_line_window, info, 0);
+	t3_win_set_paint(indicator_window, 0, t3_win_get_width(indicator_window) - info_width - 1);
+	t3_win_addstr(indicator_window, info, 0);
 }
 
 void edit_window_t::set_focus(bool _focus) {
@@ -1172,6 +1167,8 @@ edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
 void edit_window_t::save_view_parameters(view_parameters_t *params) {
 	*params = view_parameters_t(this);
 }
+
+void edit_window_t::draw_info_window(void) {}
 
 //====================== view_parameters_t ========================
 

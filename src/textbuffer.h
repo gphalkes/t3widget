@@ -41,8 +41,6 @@ class T3_WIDGET_API text_buffer_t {
 		text_coordinate_t last_undo_position;
 		undo_type_t last_undo_type;
 		undo_t *last_undo;
-		char *name;
-		text_line_t name_line;
 
 		selection_mode_t selection_mode;
 		text_line_factory_t *line_factory;
@@ -63,7 +61,7 @@ class T3_WIDGET_API text_buffer_t {
 		virtual void prepare_paint_line(int line);
 
 	public:
-		text_buffer_t(const char *_name = NULL, text_line_factory_t *_line_factory = NULL);
+		text_buffer_t(text_line_factory_t *_line_factory = NULL);
 		virtual ~text_buffer_t(void);
 
 		int size(void) const;
@@ -92,9 +90,6 @@ class T3_WIDGET_API text_buffer_t {
 		int calculate_screen_pos(const text_coordinate_t *where, int tabsize) const;
 		int calculate_line_pos(int line, int pos, int tabsize) const;
 
-		const text_line_t *get_name_line(void) const;
-		void paint_name_line(t3_window_t *win, text_line_t::paint_info_t *info);
-
 		text_coordinate_t get_selection_start(void) const;
 		text_coordinate_t get_selection_end(void) const;
 		void set_selection_end(void);
@@ -114,8 +109,6 @@ class T3_WIDGET_API text_buffer_t {
 		std::string *convert_selection(void);
 		int apply_undo(void);
 		int apply_redo(void);
-
-		const char *get_name(void) const;
 
 		//FIXME: make these members private again
 		text_coordinate_t cursor;

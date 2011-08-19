@@ -34,7 +34,7 @@ class replace_buttons_dialog_t;
 
 /** Class implementing an edit widget. */
 class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
-	protected:
+	private:
 		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;
 		static find_dialog_t *global_find_dialog;
@@ -45,9 +45,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static sigc::connection init_connected;
 
 		t3_window_t *edit_window, /**< Window containing the text. */
-			*bottom_line_window; /**< Window holding the information line at the bottom. */
+			*indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
 		scrollbar_t scrollbar; /**< Scrollbar on the right of the text. */
-		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
 		int screen_pos; /**< Cached position of cursor in screen coordinates. */
 		int tabsize; /**< Width of a tab, in cells. */
 		bool focus; /**< Boolean indicating whether this edit_window_t has the input focus. */
@@ -114,6 +113,17 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void goto_line(int line);
 		/** Handle setting of the wrap mode. */
 		void set_wrap_internal(wrap_type_t wrap);
+
+	protected:
+		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
+		t3_window_t *info_window; /**< Window for other information, such as buffer name. */
+
+		/** Draw the information in the #info_window.
+
+		    This function is called whenever the #info_window changes size and
+		    therefore needs to be redrawn.
+		*/
+		virtual void draw_info_window(void);
 
 	public:
 		class view_parameters_t;
