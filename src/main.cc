@@ -45,7 +45,7 @@ static sigc::signal<void, int, int> resize;
 static sigc::signal<void> update_notification;
 static pthread_mutex_t transcript_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-init_parameters_t init_params;
+init_parameters_t *init_params;
 
 #ifdef __linux__
 static int linux_meta_mode = -1;
@@ -102,6 +102,10 @@ const char *complex_error_t::get_string(void) {
 			return strerror(0);
 	}
 	return error_str.c_str();
+}
+
+init_parameters_t *init_parameters_t::create(void) {
+	return new init_parameters_t();
 }
 
 init_parameters_t::init_parameters_t(void) {
@@ -189,10 +193,10 @@ static void terminal_specific_restore(void) {
 static void terminal_specific_setup(void) {
 	int i;
 
-	if (init_params.term == NULL)
+	if (init_params->term == NULL)
 		return;
 
-	for (i = 0; terminal_mapping[i].name != NULL && strcmp(terminal_mapping[i].name, init_params.term) != 0; i++) {}
+	for (i = 0; terminal_mapping[i].name != NULL && strcmp(terminal_mapping[i].name, init_params->term) != 0; i++) {}
 	terminal = terminal_mapping[i].code;
 
 	switch (terminal) {
@@ -227,9 +231,9 @@ void restore(void) {
 			}
 			t3_term_restore();
 		case 0:
-			free((char *) init_params.term);
-			init_params.term = NULL;
-			free((char *) init_params.program_name);
+			free((char *) init_params->term);
+			init_params->term = NULL;
+			free((char *) init_params->program_name);
 			break;
 	}
 	init_level = 0;
@@ -242,20 +246,23 @@ complex_error_t init(const init_parameters_t *params) {
 	init_log();
 	text_line_t::init();
 
+	if (init_params == NULL)
+		init_params = init_parameters_t::create();
+
 	if (params->term == NULL) {
 		const char *term_env = getenv("TERM");
 		/* If term_env == NULL, t3_term_init will abort anyway, so we ignore
 		   that case. */
 		if (term_env != NULL)
-			init_params.term = strdup(term_env);
+			init_params->term = strdup(term_env);
 	} else {
-		init_params.term = strdup(params->term);
+		init_params->term = strdup(params->term);
 	}
-	init_params.separate_keypad = params->separate_keypad;
-	init_params.program_name = strdup(params->program_name == NULL ? "This program" : params->program_name);
+	init_params->separate_keypad = params->separate_keypad;
+	init_params->program_name = strdup(params->program_name == NULL ? "This program" : params->program_name);
 
 	atexit(restore);
-	if ((term_init_result = t3_term_init(-1, init_params.term)) != T3_ERR_SUCCESS) {
+	if ((term_init_result = t3_term_init(-1, init_params->term)) != T3_ERR_SUCCESS) {
 		restore();
 		result.set_error(complex_error_t::SRC_T3_WINDOW, term_init_result);
 		return result;
@@ -267,7 +274,7 @@ complex_error_t init(const init_parameters_t *params) {
 
 	transcript_set_lock_callbacks((void (*)(void *)) pthread_mutex_lock, (void (*)(void *)) pthread_mutex_unlock, &transcript_mutex);
 
-	result = init_keys(init_params.term, init_params.separate_keypad);
+	result = init_keys(init_params->term, init_params->separate_keypad);
 	if (!result.get_success()) {
 		restore();
 		return result;
@@ -331,7 +338,7 @@ void suspend(void) {
 	terminal_specific_restore();
 	t3_term_restore();
 	printf("%s has been stopped. You can return to %s by entering 'fg'.\n",
-		init_params.program_name, init_params.program_name);
+		init_params->program_name, init_params->program_name);
 	kill(getpid(), SIGSTOP);
 	t3_term_init(-1, NULL);
 	terminal_specific_setup();

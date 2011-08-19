@@ -64,21 +64,21 @@ class T3_WIDGET_API complex_error_t {
 };
 
 /** Structure holding the parameters for initialization for libt3widget.
-
-    Do @b not use this type as an automatic or static variable. By allocating
-    on the stack using new, binary compatibility between library versions can
-    be retained while allowing additions to this struct.
 */
-struct T3_WIDGET_API init_parameters_t {
-	const char *program_name; /**< Name of the program to print where appropriate. */
-	const char *term; /**< Override the terminal name derived from @c TERM. */
-	/** Boolean indicating whether keypad keys are returned as separate from the regular cursor control keys.
+class T3_WIDGET_API init_parameters_t {
+	public:
+		const char *program_name; /**< Name of the program to print where appropriate. */
+		const char *term; /**< Override the terminal name derived from @c TERM. */
+		/** Boolean indicating whether keypad keys are returned as separate from the regular cursor control keys.
 
-	    If @c false, there will be no distinction between the user pressing e.g.
-	    left arrow and keypad left arrow. This is the recommended behavior. */
-	bool separate_keypad;
+			If @c false, there will be no distinction between the user pressing e.g.
+			left arrow and keypad left arrow. This is the recommended behavior. */
+		bool separate_keypad;
 
-	init_parameters_t(void);
+		/** Construct a new init_parameters_t object. */
+		static init_parameters_t *create(void);
+	private:
+		init_parameters_t(void);
 };
 
 //FIXME: shouldn't these be internal?

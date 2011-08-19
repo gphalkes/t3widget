@@ -171,11 +171,11 @@ text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 	const char *insert_point = strstr(intl_text, "%s");
 
 	default_text->append_text(intl_text, insert_point - intl_text);
-	default_text->append_text(init_params.program_name);
+	default_text->append_text(init_params->program_name);
 	intl_text = insert_point + 2;
 	insert_point = strstr(intl_text, "%s");
 	default_text->append_text(intl_text, insert_point - intl_text);
-	default_text->append_text(init_params.program_name);
+	default_text->append_text(init_params->program_name);
 	default_text->append_text(insert_point + 2);
 
 	intl_text = _("As an alternative to Meta+<letter>, %s can allow you to simulate "
@@ -186,7 +186,7 @@ text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 		"(except this one) with a single press of the Esc key.\n\n");
 	insert_point = strstr(intl_text, "%s");
 	default_text->append_text(intl_text, insert_point - intl_text);
-	default_text->append_text(init_params.program_name);
+	default_text->append_text(init_params->program_name);
 	default_text->append_text(insert_point + 2);
 
 	default_text->append_text(_("When the 'Esc <letter>' work-around is enabled, the fact that you "
