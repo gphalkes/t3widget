@@ -97,10 +97,6 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	push_back(cancel_button);
 }
 
-input_selection_dialog_t::~input_selection_dialog_t(void) {
-	delete text;
-}
-
 bool input_selection_dialog_t::set_size(optint height, optint width) {
 	bool result;
 

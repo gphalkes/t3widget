@@ -19,11 +19,12 @@ using namespace std;
 namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
-file_pane_t::file_pane_t(void) : widget_t(2, 1), scrollbar(false), top_idx(0), current(0), file_list(NULL),
+file_pane_t::file_pane_t(void) : widget_t(2, 1), top_idx(0), current(0), file_list(NULL),
 		focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
 {
-	set_widget_parent(&scrollbar);
-	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+	scrollbar = new scrollbar_t(false);
+	set_widget_parent(scrollbar);
+	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 }
 
 file_pane_t::~file_pane_t(void) {
@@ -53,12 +54,15 @@ void file_pane_t::ensure_cursor_on_screen(void) {
 		update_column_widths();
 		ensure_cursor_on_screen();
 		lprintf("setting scrollbar params: %d, %zd, %d\n", scrollbar_range, top_idx, columns_visible * height);
-		scrollbar.set_parameters(scrollbar_range, top_idx, columns_visible * height);
+		scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
 	}
 }
 
 bool file_pane_t::process_key(key_t key) {
 	int height;
+	if (file_list == NULL)
+		return false;
+
 	switch (key) {
 		case EKEY_DOWN:
 			if (current + 1 >= file_list->size())
@@ -143,14 +147,14 @@ bool file_pane_t::set_size(optint height, optint width) {
 	if (!width.is_valid())
 		width = t3_win_get_height(window);
 	result = t3_win_resize(window, height, width);
-	result &= scrollbar.set_size(None, width);
+	result &= scrollbar->set_size(None, width);
 
 	height = height - 1;
 	if (file_list != NULL && file_list->size() != 0) {
 		update_column_widths();
 		scrollbar_range = ((file_list->size() + height - 1) / height) * height;
 		ensure_cursor_on_screen();
-		scrollbar.set_parameters(scrollbar_range, top_idx, columns_visible * height);
+		scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
 	}
 	redraw = true;
 	return result;
@@ -206,7 +210,7 @@ void file_pane_t::update_contents(void) {
 	for (i = top_idx, max_idx = min(top_idx + columns_visible * (t3_win_get_height(window) - 1), file_list->size()); i < max_idx; i++)
 		draw_line(i, focus && i == current);
 
-	scrollbar.update_contents();
+	scrollbar->update_contents();
 }
 
 void file_pane_t::set_focus(bool _focus) {
@@ -293,7 +297,7 @@ void file_pane_t::content_changed(void) {
 	top_idx = 0;
 	update_column_widths();
 	scrollbar_range = ((file_list->size() + height - 1) / height) * height;
-	scrollbar.set_parameters(scrollbar_range, 0, columns_visible * height);
+	scrollbar->set_parameters(scrollbar_range, 0, columns_visible * height);
 	redraw = true;
 }
 

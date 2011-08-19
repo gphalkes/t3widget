@@ -19,6 +19,7 @@
 
 #include <t3widget/widget_api.h>
 #include <t3widget/stringmatcher.h>
+#include <t3widget/util.h>
 
 #ifndef _T3_WIDGET_INTERNAL
 #error This header file is for internal use _only_!!
@@ -41,15 +42,17 @@ class T3_WIDGET_LOCAL finder_t {
 	friend class text_line_t;
 	//FIXME: many members are necessary in other classes
 	private:
+		static void call_pcre_free(pcre *);
+
 		/** Flags indicating what type of search was requested. */
 		int flags;
 
 		/** Pointer to a string_matcher_t, if a non-regex search was requested. */
-		string_matcher_t *matcher;
+		cleanup_obj_ptr<string_matcher_t> matcher;
 
 		/* PCRE context and data */
 		/** Pointer to a compiled regex. */
-		pcre *regex;
+		cleanup_ptr<pcre, pcre, call_pcre_free> regex;
 		/** Array to hold sub-matches information. */
 		int ovector[30];
 		/** The number of sub-matches captured. */
@@ -59,10 +62,10 @@ class T3_WIDGET_LOCAL finder_t {
 		bool found; /**< Boolean indicating whether the regex match was successful. */
 
 		/** Replacement string. */
-		std::string *replacement;
+		cleanup_obj_ptr<std::string> replacement;
 
 		/** Space to store the case-folded representation of a single character. */
-		char *folded;
+		cleanup_ptr<char> folded;
 		/** Size of the finder_t::folded buffer. */
 		size_t folded_size;
 
@@ -88,7 +91,7 @@ class T3_WIDGET_LOCAL finder_t {
 		*/
 		finder_t(const std::string *needle, int flags, const std::string *replacement = NULL);
 		/** Destroy a finder_t instance. */
-		~finder_t(void);
+		virtual ~finder_t(void);
 		/** Assign the value of another finder_t to this finder_t.
 		    Assignment using this operator is destructive to @p other. I.e. this
 		    finder_t instance will take ownership of all objects allocated by

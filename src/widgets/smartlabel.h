@@ -22,7 +22,7 @@ namespace t3_widget {
 class T3_WIDGET_API smart_label_text_t {
 	protected:
 		bool add_colon;
-		char *text;
+		cleanup_ptr<char> text;
 		size_t underline_start, underline_length, text_length;
 		bool underlined;
 		key_t hotkey;
@@ -30,7 +30,7 @@ class T3_WIDGET_API smart_label_text_t {
 	public:
 		smart_label_text_t(const char *spec, bool _addColon = false);
 		smart_label_text_t(smart_label_text_t *other);
-		~smart_label_text_t(void);
+		virtual ~smart_label_text_t(void);
 		void draw(t3_window_t *win, int attr, bool selected = false);
 		int get_width(void);
 		bool is_hotkey(key_t key);

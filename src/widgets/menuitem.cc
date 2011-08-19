@@ -17,7 +17,7 @@
 namespace t3_widget {
 
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
-		menu_item_base_t(_parent), label(_label), hotkey(_hotkey), id(_id)
+		menu_item_base_t(_parent), label(new smart_label_t(_label)), hotkey(_hotkey), id(_id)
 {
 	has_focus = false;
 }
@@ -56,9 +56,9 @@ void menu_item_t::update_contents(void) {
 
 	t3_win_set_paint(parent_window, top, 1);
 	t3_win_addch(parent_window, ' ', attrs);
-	label.draw(parent_window, attrs, has_focus);
+	label->draw(parent_window, attrs, has_focus);
 
-	spaces = width - 2 - label.get_width();
+	spaces = width - 2 - label->get_width();
 	if (hotkey != NULL) {
 		spaces -= t3_term_strwidth(hotkey);
 		t3_win_addchrep(parent_window, ' ', attrs, spaces);
@@ -79,11 +79,11 @@ void menu_item_t::show(void) {}
 void menu_item_t::hide(void) {}
 
 bool menu_item_t::is_hotkey(key_t key) {
-	return label.is_hotkey(key);
+	return label->is_hotkey(key);
 }
 
 int menu_item_t::get_label_width(void) {
-	return label.get_width() + 2;
+	return label->get_width() + 2;
 }
 
 int menu_item_t::get_hotkey_width(void) {

@@ -52,16 +52,15 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 }
 
 smart_label_text_t::smart_label_text_t(smart_label_text_t *other):
-	add_colon(other->add_colon), text(other->text), underline_start(other->underline_start),
+	add_colon(other->add_colon), text(other->text()), underline_start(other->underline_start),
 	underline_length(other->underline_length), text_length(other->text_length), underlined(other->underlined),
 	hotkey(other->hotkey)
 {
+	other->text = NULL;
 	delete other;
 }
 
-smart_label_text_t::~smart_label_text_t(void) {
-	free(text);
-}
+smart_label_text_t::~smart_label_text_t(void) {}
 
 void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
 	if (!underlined) {

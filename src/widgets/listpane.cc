@@ -19,27 +19,25 @@ using namespace std;
 namespace t3_widget {
 
 list_pane_t::list_pane_t(bool _indicator) : top_idx(0), current(0),
-		has_focus(false), scrollbar(true), indicator(_indicator)
+		has_focus(false), indicator(_indicator)
 {
 	init_unbacked_window(1, 3);
-	widgets_window = window;
+	widgets_window = (t3_window_t *) window;
+	window = NULL;
 
 	init_unbacked_window(1, 4);
 	t3_win_set_parent(widgets_window, window);
 	t3_win_set_anchor(widgets_window, window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
-	t3_win_set_parent(scrollbar.get_base_window(), window);
-	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	scrollbar.set_size(1, None);
+	scrollbar = new scrollbar_t(true);
+	set_widget_parent(scrollbar);
+	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	scrollbar->set_size(1, None);
 
 	if (indicator) {
 		indicator_widget = new indicator_widget_t();
 		set_widget_parent(indicator_widget);
 	}
-}
-
-list_pane_t::~list_pane_t(void) {
-	t3_win_del(widgets_window);
 }
 
 bool list_pane_t::set_widget_parent(widget_t *widget) {
@@ -142,7 +140,7 @@ bool list_pane_t::set_size(optint height, optint width) {
 			iter != widgets.end(); iter++)
 		result &= (*iter)->set_size(None, widget_width);
 
-	result &= scrollbar.set_size(height, None);
+	result &= scrollbar->set_size(height, None);
 
 	ensure_cursor_on_screen();
 	return result;
@@ -156,8 +154,8 @@ void list_pane_t::update_contents(void) {
 	}
 
 	t3_win_move(widgets_window, -top_idx, 0);
-	scrollbar.set_parameters(widgets.size(), top_idx, t3_win_get_height(window) - 1);
-	scrollbar.update_contents();
+	scrollbar->set_parameters(widgets.size(), top_idx, t3_win_get_height(window) - 1);
+	scrollbar->update_contents();
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->update_contents();
 }

@@ -16,6 +16,7 @@
 
 #include <string>
 #include <t3widget/widget_api.h>
+#include <t3widget/util.h>
 
 #ifndef _T3_WIDGET_INTERNAL
 #error This header file is for internal use _only_!!
@@ -25,16 +26,16 @@ namespace t3_widget {
 
 class T3_WIDGET_LOCAL string_matcher_t {
 	private:
-		char *needle;
+		cleanup_ptr<char> needle;
 		size_t needle_size;
-		int *partial_match_table, *reverse_partial_match_table, *index_table;
+		cleanup_objarr_ptr<int> partial_match_table, reverse_partial_match_table, index_table;
 		int i;
 		void init(void);
 
 	public:
 		string_matcher_t(const std::string &_needle);
 		string_matcher_t(char *_needle, size_t _needle_size);
-		~string_matcher_t(void);
+		virtual ~string_matcher_t(void);
 		void reset(void);
 		int next_char(const std::string *c);
 		int previous_char(const std::string *c);

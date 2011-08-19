@@ -24,12 +24,14 @@
 using namespace std;
 namespace t3_widget {
 
-finder_t::finder_t(void) : flags(0), matcher(NULL), regex(NULL),
-		replacement(NULL), folded(NULL), folded_size(0)
-{}
+void finder_t::call_pcre_free(pcre *p) {
+	pcre_free(p);
+}
+
+finder_t::finder_t(void) : flags(0), folded_size(0) {}
 
 finder_t::finder_t(const string *needle, int _flags, const string *_replacement) :
-		flags(_flags & ~find_flags_t::NOT_FIRST_FIND), matcher(NULL), regex(NULL), replacement(NULL), folded(NULL), folded_size(0)
+		flags(_flags & ~find_flags_t::NOT_FIRST_FIND), folded_size(0)
 {
 	const char *error_message;
 	if (flags & find_flags_t::REGEX) {
@@ -43,8 +45,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 		if (flags & find_flags_t::ICASE)
 			pcre_flags |= PCRE_CASELESS;
 
-		regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, NULL);
-		if (regex == NULL)
+		if ((regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, NULL)) == NULL)
 			//FIXME: error offset should be added for clarity
 			throw error_message;
 		pattern_length = pattern.size();
@@ -59,12 +60,14 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 
 		if (flags & find_flags_t::ICASE) {
 			size_t folded_needle_size;
-			char *folded_needle;
+			cleanup_ptr<char> folded_needle;
 
 			folded_needle_size = t3_unicode_casefold(search_for.data(), search_for.size(), &folded_needle, NULL, t3_false);
 			/* When passing a const char * to string_matcher_t, it takes responsibility for
 			   de-allocation. */
 			matcher = new string_matcher_t(folded_needle, folded_needle_size);
+			/* Avoid de-allocation of folded_needle if creating the string matcher succeeds. */
+			folded_needle = NULL;
 		} else {
 			matcher = new string_matcher_t(search_for);
 		}
@@ -81,13 +84,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 	flags |= find_flags_t::VALID;
 }
 
-finder_t::~finder_t(void) {
-	delete matcher;
-	delete replacement;
-	if (regex != NULL)
-		pcre_free(regex);
-	free(folded);
-}
+finder_t::~finder_t(void) {}
 
 finder_t &finder_t::operator=(finder_t& other) {
 	if (&other == this)
@@ -99,13 +96,13 @@ finder_t &finder_t::operator=(finder_t& other) {
 		pcre_free(regex);
 
 	flags = other.flags;
-	matcher = other.matcher;
-	regex = other.regex;
+	matcher = other.matcher();
+	regex = other.regex();
 	memcpy(ovector, other.ovector, sizeof(ovector));
 	captures = other.captures;
 	pattern_length = other.pattern_length;
 	found = other.found;
-	replacement = other.replacement;
+	replacement = other.replacement();
 
 	other.matcher = NULL;
 	other.regex = NULL;

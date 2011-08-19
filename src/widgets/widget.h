@@ -46,8 +46,6 @@ class T3_WIDGET_API widget_t : public virtual window_component_t {
 		void init_unbacked_window(int height, int width);
 
 	public:
-		/** Destructor. */
-		virtual ~widget_t(void);
 		/** Query whether key is a hotkey for this widget. */
 		virtual bool is_hotkey(key_t key);
 		/** Query whether this widget accepts focus. */

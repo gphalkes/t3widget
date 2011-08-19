@@ -81,12 +81,7 @@ void string_matcher_t::init(void) {
 	reset();
 }
 
-string_matcher_t::~string_matcher_t(void) {
-	delete partial_match_table;
-	delete reverse_partial_match_table;
-	delete index_table;
-	free(needle);
-}
+string_matcher_t::~string_matcher_t(void) {}
 
 void string_matcher_t::reset(void) {
 	i = 0;

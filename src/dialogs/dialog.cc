@@ -30,8 +30,7 @@ void dialog_t::init(void) {
 	dummy = new dummy_widget_t();
 }
 
-dialog_t::dialog_t(int height, int width, const char *_title) : shadow_window(NULL), active(false),
-		title(_title), redraw(true)
+dialog_t::dialog_t(int height, int width, const char *_title) : active(false), title(_title), redraw(true)
 {
 	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
@@ -59,8 +58,6 @@ dialog_t::~dialog_t() {
 	}
 	for (widgets_t::iterator widget_iter = widgets.begin(); widget_iter != widgets.end(); widget_iter++)
 		delete *widget_iter;
-	t3_win_del(window);
-	t3_win_del(shadow_window);
 }
 
 void dialog_t::activate_dialog(void) {

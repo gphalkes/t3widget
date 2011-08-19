@@ -40,7 +40,7 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		static void init(void); /**< Function to initialize the dummy widget. */
 		static sigc::connection init_connected; /**< Dummy value to allow static connection of the @c on_init signal to #init. */
 
-		t3_window_t *shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+		auto_t3_window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
 
 		void activate_dialog(void); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
 		void deactivate_dialog(void); /**< Remove this dialog from the dialog stack. Called from #hide. */

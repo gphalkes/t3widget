@@ -68,7 +68,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 }
 
 message_dialog_t::~message_dialog_t(void) {
-	//~ delete text_window->get_text();
+	delete text_window->get_text();
 }
 
 void message_dialog_t::set_message(const char *message, size_t length) {

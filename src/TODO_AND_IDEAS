@@ -33,24 +33,6 @@ Low Priority
 
 New Functionality
 -----------------
-- use a smart pointer like wrapper for private members, such that allocated
-  data will always be deleted. This should be templated. Something like:
-	template <class T/* , typename F */>
-	class cleanup_ptr {
-	  public:
-		cleanup_ptr* operator-> () { return p_; }
-		cleanup_ptr& operator* () { return *p_; }
-	   ~cleanup_ptr(void) { delete p_; }
-		cleanup_ptr(void) : p_(NULL) {}
-		cleanup_ptr(T *p) : p_(p) {}
-		T* operator= (T *p) { return p_ = p; }
-		cleanup_ptr& operator= (cleanup_ptr &p) { p_ = p.p_; p.p_ = NULL; return *this; }
-		operator T* (void) { return p_; }
-	  private:
-		T* p_;
-	};
-  This will need to be done for each type of release function (delete, free,
-  t3_win_del). Perhaps this can be done as a second parameter in the template.
 
 Done
 ----

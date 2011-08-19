@@ -43,15 +43,12 @@ text_field_t::text_field_t(void) : widget_t(1, 4),
 	drop_down_list_shown(false),
 	dont_select_on_focus(false),
 	edited(false),
+	line(new text_line_t()),
 	filter_keys(NULL),
 	label(NULL),
 	drop_down_list(NULL)
 {
 	reset_selection();
-}
-
-text_field_t::~text_field_t(void) {
-	delete drop_down_list;
 }
 
 void text_field_t::reset_selection(void) {
@@ -95,7 +92,7 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 		end = selection_start_pos;
 	}
 
-	result = line.cut_line(start, end);
+	result = line->cut_line(start, end);
 	if (save_to_copy_buffer) {
 		if (copy_buffer != NULL)
 			delete copy_buffer;
@@ -118,7 +115,7 @@ bool text_field_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_DOWN:
-			if (drop_down_list != NULL && !drop_down_list->empty() && line.get_length() > 0) {
+			if (drop_down_list != NULL && !drop_down_list->empty() && line->get_length() > 0) {
 				in_drop_down_list = true;
 				drop_down_list_shown = true;
 				drop_down_list->set_focus(true);
@@ -134,8 +131,8 @@ bool text_field_t::process_key(key_t key) {
 			if (selection_mode != selection_mode_t::NONE) {
 				delete_selection(false);
 			} else if (pos > 0) {
-				int newpos = line.adjust_position(pos, -1);
-				line.backspace_char(pos, NULL);
+				int newpos = line->adjust_position(pos, -1);
+				line->backspace_char(pos, NULL);
 				pos = newpos;
 				ensure_on_cursor_screen();
 				redraw = true;
@@ -145,8 +142,8 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_DEL:
 			if (selection_mode != selection_mode_t::NONE) {
 				delete_selection(false);
-			} else if (pos < line.get_length()) {
-				line.delete_char(pos, NULL);
+			} else if (pos < line->get_length()) {
+				line->delete_char(pos, NULL);
 				redraw = true;
 				edited = true;
 			}
@@ -155,25 +152,25 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_LEFT | EKEY_SHIFT:
 			if (pos > 0) {
 				redraw = true;
-				pos = line.adjust_position(pos, -1);
+				pos = line->adjust_position(pos, -1);
 				ensure_on_cursor_screen();
 			}
 			break;
 		case EKEY_RIGHT:
 		case EKEY_RIGHT | EKEY_SHIFT:
-			if (pos < line.get_length()) {
+			if (pos < line->get_length()) {
 				redraw = true;
-				pos = line.adjust_position(pos, 1);
+				pos = line->adjust_position(pos, 1);
 				ensure_on_cursor_screen();
 			}
 			break;
 		case EKEY_RIGHT | EKEY_CTRL:
 		case EKEY_RIGHT | EKEY_CTRL | EKEY_SHIFT:
-			if (pos < line.get_length()) {
+			if (pos < line->get_length()) {
 				redraw = true;
-				pos = line.get_next_word(pos);
+				pos = line->get_next_word(pos);
 				if (pos < 0)
-					pos = line.get_length();
+					pos = line->get_length();
 				ensure_on_cursor_screen();
 			}
 			break;
@@ -181,7 +178,7 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_LEFT | EKEY_CTRL | EKEY_SHIFT:
 			if (pos > 0) {
 				redraw = true;
-				pos = line.get_previous_word(pos);
+				pos = line->get_previous_word(pos);
 				if (pos < 0)
 					pos = 0;
 				ensure_on_cursor_screen();
@@ -196,7 +193,7 @@ bool text_field_t::process_key(key_t key) {
 		case EKEY_END:
 		case EKEY_END | EKEY_SHIFT:
 			redraw = true;
-			pos = line.get_length();
+			pos = line->get_length();
 			ensure_on_cursor_screen();
 			break;
 		case EKEY_CTRL | 'x':
@@ -220,7 +217,7 @@ bool text_field_t::process_key(key_t key) {
 				if (copy_buffer != NULL)
 					delete copy_buffer;
 
-				copy_buffer = new string(*line.get_data(), start, end - start);
+				copy_buffer = new string(*line->get_data(), start, end - start);
 			}
 			break;
 
@@ -230,13 +227,13 @@ bool text_field_t::process_key(key_t key) {
 
 				if (selection_mode != selection_mode_t::NONE)
 					delete_selection(false);
-				if (pos < line.get_length())
-					end = line.break_line(pos);
+				if (pos < line->get_length())
+					end = line->break_line(pos);
 
-				line.merge(new text_line_t(copy_buffer));
-				pos = line.get_length();
+				line->merge(new text_line_t(copy_buffer));
+				pos = line->get_length();
 				if (end != NULL)
-					line.merge(end);
+					line->merge(end);
 				ensure_on_cursor_screen();
 				redraw = true;
 				edited = true;
@@ -302,11 +299,11 @@ bool text_field_t::process_key(key_t key) {
 			if (selection_mode != selection_mode_t::NONE)
 				delete_selection(false);
 
-			if (pos == line.get_length())
-				line.append_char(key, NULL);
+			if (pos == line->get_length())
+				line->append_char(key, NULL);
 			else
-				line.insert_char(pos, key, NULL);
-			pos = line.adjust_position(pos, 1);
+				line->insert_char(pos, key, NULL);
+			pos = line->adjust_position(pos, 1);
 			ensure_on_cursor_screen();
 			redraw = true;
 			edited = true;
@@ -334,7 +331,7 @@ void text_field_t::update_contents(void) {
 
 	if (drop_down_list != NULL && edited) {
 		drop_down_list->update_view();
-		if (!drop_down_list->empty() && line.get_length() > 0) {
+		if (!drop_down_list->empty() && line->get_length() > 0) {
 			drop_down_list_shown = true;
 			drop_down_list->show();
 		} else {
@@ -384,8 +381,8 @@ void text_field_t::update_contents(void) {
 	info.normal_attr = attributes.dialog;
 	info.selected_attr = attributes.dialog_selected;
 
-	line.paint_line(window, &info);
-	t3_win_addch(window, line.calculate_screen_width(leftcol, INT_MAX, 0) > t3_win_get_width(window) - 2 ? ')' : ']', 0);
+	line->paint_line(window, &info);
+	t3_win_addch(window, line->calculate_screen_width(leftcol, INT_MAX, 0) > t3_win_get_width(window) - 2 ? ')' : ']', 0);
 }
 
 void text_field_t::set_focus(bool _focus) {
@@ -393,7 +390,7 @@ void text_field_t::set_focus(bool _focus) {
 	redraw = true;
 	if (focus) {
 		if (!dont_select_on_focus) {
-			selection_end_pos = pos = line.get_length();
+			selection_end_pos = pos = line->get_length();
 			selection_start_pos = 0;
 			selection_mode = selection_mode_t::SHIFT;
 		}
@@ -426,12 +423,12 @@ void text_field_t::hide(void) {
 void text_field_t::ensure_on_cursor_screen(void) {
 	int width, char_width;
 
-	if (pos == line.get_length())
+	if (pos == line->get_length())
 		char_width = 1;
 	else
-		char_width = line.width_at(pos);
+		char_width = line->width_at(pos);
 
-	screen_pos = line.calculate_screen_width(0, pos, 0);
+	screen_pos = line->calculate_screen_width(0, pos, 0);
 
 	if (screen_pos < leftcol) {
 		leftcol = screen_pos;
@@ -454,8 +451,8 @@ void text_field_t::set_text(const char *text) {
 }
 
 void text_field_t::set_text(const char *text, size_t size) {
-	line.set_text(text, size);
-	pos = line.get_length();
+	line->set_text(text, size);
+	pos = line->get_length();
 	ensure_on_cursor_screen();
 	redraw = true;
 }
@@ -467,7 +464,7 @@ void text_field_t::set_key_filter(key_t *keys, size_t nr_of_keys, bool accept) {
 }
 
 const string *text_field_t::get_text(void) const {
-	return line.get_data();
+	return line->get_data();
 }
 
 void text_field_t::set_autocomplete(string_list_t *completions) {
@@ -492,7 +489,7 @@ void text_field_t::bad_draw_recheck(void) {
   == drop_down_list_t ==
   ======================*/
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
-		top_idx(0), field(_field), completions(NULL)
+		top_idx(0), field(_field)
 {
 	if ((window = t3_win_new(NULL, 6, t3_win_get_width(_field->get_base_window()), 1, 0, INT_MIN)) == NULL)
 		throw(-1);
@@ -500,12 +497,6 @@ text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
 
 	focus = false;
 	current = 0;
-}
-
-text_field_t::drop_down_list_t::~drop_down_list_t(void) {
-	if (completions != NULL)
-		delete completions;
-	t3_win_del(window);
 }
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
@@ -574,7 +565,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	if (completions == NULL)
 		return;
 
-	file_list = dynamic_cast<file_list_t *>(completions);
+	file_list = dynamic_cast<file_list_t *>(completions());
 	width = t3_win_get_width(window);
 
 	/* We don't optimize for the case when nothing changes, because almost all
@@ -644,10 +635,10 @@ void text_field_t::drop_down_list_t::update_view(void) {
 	top_idx = current = 0;
 
 	if (completions != NULL) {
-		if (field->line.get_length() == 0)
+		if (field->line->get_length() == 0)
 			completions->reset_filter();
 		else
-			completions->set_filter(sigc::bind(sigc::ptr_fun(string_compare_filter), field->line.get_data()));
+			completions->set_filter(sigc::bind(sigc::ptr_fun(string_compare_filter), field->line->get_data()));
 	}
 }
 

@@ -46,7 +46,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 			*/
 			edited;
 
-		text_line_t line; /**< Variable containing the current text. */
+		cleanup_obj_ptr<text_line_t> line; /**< Variable containing the current text. */
 		const key_t *filter_keys; /**< List of keys to accept or reject. */
 		size_t filter_keys_size; /**< Size of #filter_keys. */
 		bool filter_keys_accept; /**< Boolean indicating whether the keys in #filter_keys should be accepted or rejected. */
@@ -71,10 +71,9 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 					redraw; /**< Boolean indicating whether this drop_down_list_t needs to be redrawn. */
 				text_field_t *field; /**< text_field_t this drop-down list is created for. */
 
-				filtered_list_base_t *completions; /**< List of possible selections. */
+				cleanup_obj_ptr<filtered_list_base_t> completions; /**< List of possible selections. */
 			public:
 				drop_down_list_t(text_field_t *_field);
-				~drop_down_list_t(void);
 				virtual bool process_key(key_t key);
 				virtual void set_position(optint top, optint left);
 				virtual bool set_size(optint height, optint width);
@@ -90,11 +89,10 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				/** Return whether the autocompletion list is empty. */
 				bool empty(void);
 		};
-		drop_down_list_t *drop_down_list;
+		cleanup_obj_ptr<drop_down_list_t> drop_down_list;
 
 	public:
 		text_field_t(void);
-		virtual ~text_field_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

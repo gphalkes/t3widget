@@ -25,7 +25,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 	private:
-		text_buffer_t *text;
+		cleanup_obj_ptr<text_buffer_t> text;
 		frame_t *text_frame, *label_frame;
 		text_window_t *text_window;
 		label_t *key_label;
@@ -34,7 +34,6 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 
 	public:
 		input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
-		~input_selection_dialog_t(void);
 		virtual bool set_size(optint height, optint width);
 		virtual bool process_key(key_t key);
 		virtual void show(void);

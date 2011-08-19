@@ -48,34 +48,31 @@ void edit_window_t::init(void) {
 	replace_buttons = new replace_buttons_dialog_t();
 }
 
-edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : edit_window(NULL),
-		indicator_window(NULL), scrollbar(true), tab_spaces(false), find_dialog(NULL), finder(NULL),
-		wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0), auto_indent(true),
-		indent_aware_home(true), text(NULL)
+edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : tab_spaces(false),
+		find_dialog(NULL), finder(NULL), wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0),
+		last_set_pos(0), auto_indent(true), indent_aware_home(true), text(NULL)
 {
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(edit_window);
 
-	if ((indicator_window = t3_win_new(window, 1, 10, 0, 0, 0)) == NULL) {
-		t3_win_del(edit_window);
+	if ((indicator_window = t3_win_new(window, 1, 10, 0, 0, 0)) == NULL)
 		throw bad_alloc();
-	}
+
 	t3_win_set_anchor(indicator_window, window, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	t3_win_show(indicator_window);
 
-	if ((info_window = t3_win_new(window, 1, 1, 0, 0, 1)) == NULL) {
-		t3_win_del(edit_window);
-		t3_win_del(indicator_window);
+	if ((info_window = t3_win_new(window, 1, 1, 0, 0, 1)) == NULL)
 		throw bad_alloc();
-	}
+
 	t3_win_set_anchor(info_window, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	t3_win_show(info_window);
 
-	set_widget_parent(&scrollbar);
-	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	scrollbar.set_size(10, None);
+	scrollbar = new scrollbar_t(true);
+	set_widget_parent(scrollbar);
+	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	scrollbar->set_size(10, None);
 
 	set_text(_text == NULL ? new text_buffer_t() : _text, params);
 
@@ -84,9 +81,6 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 }
 
 edit_window_t::~edit_window_t(void) {
-	t3_win_del(edit_window);
-	t3_win_del(indicator_window);
-	t3_win_del(info_window);
 	delete wrap_info;
 }
 
@@ -120,7 +114,7 @@ bool edit_window_t::set_size(optint height, optint width) {
 
 	result &= t3_win_resize(window, height, width);
 	result &= t3_win_resize(edit_window, height - 1, width - 1);
-	result &= scrollbar.set_size(height - 1, None);
+	result &= scrollbar->set_size(height - 1, None);
 
 	if (wrap_type != wrap_type_t::NONE) {
 		top_left.pos = wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
@@ -919,7 +913,7 @@ void edit_window_t::update_contents(void) {
 	t3_win_addchrep(indicator_window, ' ', 0, t3_win_get_width(indicator_window));
 
 	if (wrap_type == wrap_type_t::NONE) {
-		scrollbar.set_parameters(max(text->size(), top_left.line + t3_win_get_height(edit_window)),
+		scrollbar->set_parameters(max(text->size(), top_left.line + t3_win_get_height(edit_window)),
 			top_left.line, t3_win_get_height(edit_window));
 	} else {
 		int i, count = 0;
@@ -927,10 +921,10 @@ void edit_window_t::update_contents(void) {
 			count += wrap_info->get_line_count(i);
 		count += top_left.pos;
 
-		scrollbar.set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(edit_window)),
+		scrollbar->set_parameters(max(wrap_info->get_size(), count + t3_win_get_height(edit_window)),
 			count, t3_win_get_height(edit_window));
 	}
-	scrollbar.update_contents();
+	scrollbar->update_contents();
 
 	logical_cursor_pos = text->cursor;
 	logical_cursor_pos.pos = text->calculate_screen_pos(NULL, tabsize);

@@ -44,9 +44,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static sigc::connection replace_buttons_connection;
 		static sigc::connection init_connected;
 
-		t3_window_t *edit_window, /**< Window containing the text. */
-			*indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
-		scrollbar_t scrollbar; /**< Scrollbar on the right of the text. */
+		auto_t3_window_t edit_window, /**< Window containing the text. */
+			indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
+		cleanup_obj_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
 		int screen_pos; /**< Cached position of cursor in screen coordinates. */
 		int tabsize; /**< Width of a tab, in cells. */
 		bool focus; /**< Boolean indicating whether this edit_window_t has the input focus. */
@@ -116,7 +116,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 	protected:
 		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
-		t3_window_t *info_window; /**< Window for other information, such as buffer name. */
+		auto_t3_window_t info_window; /**< Window for other information, such as buffer name. */
 
 		/** Draw the information in the #info_window.
 
@@ -133,7 +133,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    @param params The view parameters to set.
 		*/
 		edit_window_t(text_buffer_t *_text = NULL, const view_parameters_t *params = NULL);
-		virtual ~edit_window_t(void);
+		~edit_window_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

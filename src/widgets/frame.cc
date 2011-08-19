@@ -19,10 +19,6 @@ namespace t3_widget {
 frame_t::frame_t(frame_dimension_t _dimension) : widget_t(3, 3),
 		dimension(_dimension), child(NULL) {}
 
-frame_t::~frame_t(void) {
-	delete child;
-}
-
 void frame_t::set_child(widget_t *_child) {
 	int child_top = 1, child_left = 1;
 

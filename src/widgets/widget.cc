@@ -17,7 +17,7 @@
 using namespace std;
 namespace t3_widget {
 
-t3_window_t * widget_t::default_parent = t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0);
+t3_window_t *widget_t::default_parent = t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0);
 
 bool widget_t::is_hotkey(key_t key) {
 	(void) key;
@@ -42,10 +42,6 @@ void widget_t::init_unbacked_window(int height, int width) {
 	if ((window = t3_win_new_unbacked(default_parent, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
-}
-
-widget_t::~widget_t(void) {
-	t3_win_del(window);
 }
 
 void widget_t::set_anchor(window_component_t *anchor, int relation) {

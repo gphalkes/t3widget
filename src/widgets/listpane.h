@@ -22,10 +22,10 @@ namespace t3_widget {
 class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 	private:
 		size_t top_idx, current;
-		t3_window_t *widgets_window;
+		auto_t3_window_t widgets_window;
 		widgets_t widgets;
 		bool has_focus;
-		scrollbar_t scrollbar;
+		cleanup_obj_ptr<scrollbar_t> scrollbar;
 		bool indicator;
 
 		class indicator_widget_t : public widget_t {
@@ -40,7 +40,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 				virtual bool accepts_focus(void);
 		};
 
-		indicator_widget_t *indicator_widget;
+		cleanup_obj_ptr<indicator_widget_t> indicator_widget;
 
 		void ensure_cursor_on_screen(void);
 
@@ -49,7 +49,6 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
 	public:
 		list_pane_t(bool _indicator);
-		virtual ~list_pane_t(void);
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);

@@ -19,8 +19,8 @@
 using namespace std;
 namespace t3_widget {
 
-button_t::button_t(const char *_text, bool _is_default) : text(_text), is_default(_is_default) {
-	text_width = text.get_width();
+button_t::button_t(const char *_text, bool _is_default) : text(new smart_label_t(_text)), is_default(_is_default) {
+	text_width = text->get_width();
 
 	init_window(1, text_width + 4);
 
@@ -83,7 +83,7 @@ void button_t::update_contents(void) {
 	t3_win_addstr(window, is_default ? "[<" : "[ ", attr);
 	if (width > text_width + 4)
 		t3_win_addchrep(window, ' ', attr, (width - 4 - text_width) / 2);
-	text.draw(window, attr, has_focus);
+	text->draw(window, attr, has_focus);
 	if (width > text_width + 4)
 		t3_win_addchrep(window, ' ', attr, (width - 4 - text_width + 1) / 2);
 	else if (width > 0)
@@ -103,7 +103,7 @@ int button_t::get_width(void) {
 }
 
 bool button_t::is_hotkey(key_t key) {
-	return text.is_hotkey(key);
+	return text->is_hotkey(key);
 }
 
 }; // namespace
