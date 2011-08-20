@@ -231,9 +231,9 @@ void restore(void) {
 			}
 			t3_term_restore();
 		case 0:
-			free((char *) init_params->term);
+			free(const_cast<char *>(init_params->term));
 			init_params->term = NULL;
-			free((char *) init_params->program_name);
+			free(const_cast<char *>(init_params->program_name));
 			break;
 	}
 	init_level = 0;
