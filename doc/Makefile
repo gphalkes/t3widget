@@ -22,4 +22,4 @@ clean::
 
 .PHONY: clean doxygen
 #~ T3NAME:=widget
-#~ include ../../t3shared/doc-rules.mk
+#~ include ../../shared/doc-rules.mk

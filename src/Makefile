@@ -62,7 +62,7 @@ CXXLTTARGETS := libt3widget.la
 include ../../makesys/rules.mk
 #================================================#
 T3NAME := widget
-include ../../t3shared/rules.mk
+include ../../shared/rules.mk
 #================================================#
 
 CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
