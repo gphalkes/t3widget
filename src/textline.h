@@ -68,8 +68,11 @@ class T3_WIDGET_API text_line_t {
 	private:
 		std::string buffer;
 		bool starts_with_combining;
+
+	protected:
 		text_line_factory_t *factory;
 
+	private:
 		static char spaces[_T3_MAX_TAB];
 		static char dots[16];
 		static const char *control_map;
@@ -141,9 +144,10 @@ class T3_WIDGET_API text_line_t {
 		virtual t3_attr_t get_base_attr(int i, const paint_info_t *info);
 };
 
-class text_line_factory_t {
+class T3_WIDGET_API text_line_factory_t {
 	public:
 		text_line_factory_t(void);
+		virtual ~text_line_factory_t(void);
 		virtual text_line_t *new_text_line_t(int buffersize = BUFFERSIZE);
 		virtual text_line_t *new_text_line_t(const char *_buffer);
 		virtual text_line_t *new_text_line_t(const char *_buffer, int length);

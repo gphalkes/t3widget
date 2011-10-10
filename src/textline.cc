@@ -783,6 +783,7 @@ char text_line_t::get_char_meta(int pos) const {
 //============================= text_line_factory_t ========================
 
 text_line_factory_t::text_line_factory_t(void) {}
+text_line_factory_t::~text_line_factory_t(void) {}
 text_line_t *text_line_factory_t::new_text_line_t(int buffersize) { return new text_line_t(buffersize, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer) { return new text_line_t(_buffer, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer, int length) { return new text_line_t(_buffer, length, this); }
