@@ -43,7 +43,6 @@ static int init_level;
 static int screen_lines, screen_columns;
 static sigc::signal<void, int, int> resize;
 static sigc::signal<void> update_notification;
-static pthread_mutex_t transcript_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 init_parameters_t *init_params;
 
@@ -275,7 +274,7 @@ complex_error_t init(const init_parameters_t *params) {
 	terminal_specific_setup();
 	init_level++;
 
-	transcript_set_lock_callbacks((void (*)(void *)) pthread_mutex_lock, (void (*)(void *)) pthread_mutex_unlock, &transcript_mutex);
+	transcript_init();
 
 	result = init_keys(init_params->term, init_params->separate_keypad);
 	if (!result.get_success()) {

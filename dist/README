@@ -17,7 +17,7 @@ Prerequisites and installation
 
 libt3widget requires GNU libtool and a C++ compiler to be compiled.
 Furthermore, it requires libpcre, libtranscript, libt3unicode, libt3key,
-libt3window and libsigc++ (2.0 or newer).
+libt3window, libsigc++ (2.0 or newer) and a Pthread library.
 
 There are two ways in which to compile libt3widget:
 

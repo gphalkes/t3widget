@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	test_compile_cxx "pthreads"  || {
+	test_compile_cxx "pthreads" || {
 		if checkfunction_compile "pthread.h" "" "<pthread.h>" ; then
 			check_message_result "Testing required functions seperatly for debugging purposes"
 
@@ -263,7 +263,7 @@ EOF
 		error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
 	}
 	test_compile_cxx "-pthread flag" && PTHREADFLAGS=-pthread
-	# Libtool sometimes -nostdlib, which then requires that -lpthread is specified
+	# Libtool sometimes adds -nostdlib, which then requires that -lpthread is specified
 	# separately. Therefore, we first test for -pthread -lpthread, then for
 	# -pthread, then -lpthread and if all else fails without anything
 	if [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS} -lpthread" "TESTLIBS=${PTHREADFLAGS} -lpthread" ; then
