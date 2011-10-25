@@ -30,7 +30,7 @@ list_pane_t::list_pane_t(bool _indicator) : top_idx(0), current(0),
 	t3_win_set_anchor(widgets_window, window, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
 	scrollbar = new scrollbar_t(true);
-	set_widget_parent(scrollbar);
+	container_t::set_widget_parent(scrollbar);
 	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar->set_size(1, None);
 

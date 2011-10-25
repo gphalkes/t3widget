@@ -14,7 +14,8 @@ High Priority
 - handle FIXME's
 - figure out how to override attributes on a per-widget basis
 - gettext for titles of dialogs etc.
-- make tab indent if text selection crosses line boundary
+- PCRE callout uses global variable. Try to work without this, or document if
+	not possible
 
 Low Priority
 ------------
@@ -33,6 +34,8 @@ Low Priority
 
 New Functionality
 -----------------
+- mouse handling. xterm 262 provides UTF-8 reporting such that values up to 2015
+	can be reported. xterm 268 also extends this to buttons (see xterm changelog)
 
 Done
 ----
