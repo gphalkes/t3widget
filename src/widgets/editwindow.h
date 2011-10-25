@@ -109,8 +109,6 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		/** The find or replace action has been activated in the find or replace buttons dialog. */
 		void find_activated(find_action_t action, finder_t *finder);
-		/** Move the cursor to the specified line. */
-		void goto_line(int line);
 		/** Handle setting of the wrap mode. */
 		void set_wrap_internal(wrap_type_t wrap);
 
@@ -171,6 +169,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void indent_selection(void);
 		/** Unindent the current selection. */
 		void unindent_selection(void);
+		/** Move the cursor to the specified line. */
+		void goto_line(int line);
 
 		/** Show the Goto Line dialog. */
 		void goto_line(void);
