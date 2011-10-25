@@ -115,8 +115,6 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig libtranscript LIBTRANSCRIPT test_link_cxx || \
-		test_and_set test_link_cxx "libtranscript" LIBTRANSCRIPT "-I/usr/include/transcript" "-ltranscript" || \
-		test_and_set test_link_cxx "libtranscript" LIBTRANSCRIPT "-I/usr/local/include/transcript" "-L/usr/local/lib -ltranscript" || \
 		error "!! Can not find libtranscript. libtranscript is required to compile libt3widget."
 
 	clean_cxx
@@ -129,8 +127,6 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig libt3unicode LIBT3UNICODE test_link_cxx || \
-		test_and_set test_link_cxx "libt3unicode" LIBT3UNICODE "-I/usr/include/t3/unicode" "-lt3unicode" || \
-		test_and_set test_link_cxx "libt3unicode" LIBT3UNICODE "-I/usr/local/include/t3/unicode" "-L/usr/local/lib -lt3unicode" || \
 		error "!! Can not find libt3unicode. libt3unicode is required to compile libt3widget."
 
 	clean_cxx
@@ -144,8 +140,6 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig libt3window LIBT3WINDOW test_link_cxx || \
-		test_and_set test_link_cxx "libt3window" LIBT3WINDOW "-I/usr/include/t3/window" "-lt3window" || \
-		test_and_set test_link_cxx "libt3window" LIBT3WINDOW "-I/usr/local/include/t3/window" "-L/usr/local/lib -lt3window" || \
 		error "!! Can not find libt3window. libt3window is required to compile libt3widget."
 
 	clean_cxx
@@ -158,8 +152,6 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig libt3key LIBT3KEY test_link_cxx || \
-		test_and_set test_link_cxx "libt3key" LIBT3KEY "-I/usr/include/t3/key" "-lt3key" || \
-		test_and_set test_link_cxx "libt3key" LIBT3KEY "-I/usr/local/include/t3/key" "-L/usr/local/lib -lt3key" || \
 		error "!! Can not find libt3key. libt3key is required to compile libt3widget."
 
 	clean_cxx
@@ -178,23 +170,23 @@ int main(int argc, char *argv[]) {
 EOF
 
 	pkgconfig libpcre LIBPCRE test_link_cxx || {
-			check_message "Checking for pcre-config..."
-			echo "Running: pcre-config --cflags" >> config.log
-			if pcre-config --cflags >> config.log 2>&1 ; then
-				check_message_result "yes"
-				if test_link_cxx "libpcre compile" "TESTFLAGS=`pcre-config --cflags`" "TESTLIBS=`pcre-config --libs`" ; then
-					LIBPCRE_FLAGS="`pcre-config --cflags`"
-					LIBPCRE_LIBS="`pcre-config --libs`"
-					true
-				fi
-			else
-				check_message_result "no"
-				false
+		check_message "Checking for pcre-config..."
+		echo "Running: pcre-config --cflags" >> config.log
+		if pcre-config --cflags >> config.log 2>&1 ; then
+			check_message_result "yes"
+			if test_link_cxx "libpcre compile" "TESTFLAGS=`pcre-config --cflags`" "TESTLIBS=`pcre-config --libs`" ; then
+				LIBPCRE_FLAGS="`pcre-config --cflags`"
+				LIBPCRE_LIBS="`pcre-config --libs`"
+				true
 			fi
-		} || \
-		test_and_set test_link_cxx "libpcre" LIBPCRE "" "-lpcre" || \
-		test_and_set test_link_cxx "libpcre" LIBPCRE "-I/usr/local/include" "-L/usr/local/lib -lpcre" || \
-		error "!! Can not find libpcre. libpcre is required to compile libt3widget."
+		else
+			check_message_result "no"
+			false
+		fi
+	} || \
+	test_and_set test_link_cxx "libpcre" LIBPCRE "" "-lpcre" || \
+	test_and_set test_link_cxx "libpcre" LIBPCRE "-I/usr/local/include" "-L/usr/local/lib -lpcre" || \
+	error "!! Can not find libpcre. libpcre is required to compile libt3widget."
 
 	if test_select "select in <sys/select.h>" "sys/select.h" ; then
 		CONFIGFLAGS="${CONFIGFLAGS} -DHAS_SELECT_H"
