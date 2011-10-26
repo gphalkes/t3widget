@@ -102,6 +102,7 @@ void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *para
 	}
 
 	ensure_cursor_on_screen();
+	draw_info_window();
 	redraw = true;
 }
 

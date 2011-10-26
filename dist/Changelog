@@ -1,3 +1,11 @@
+Version 0.1.4:
+	New features:
+	- Allow coloring of text in edit_window_t through subclassing of
+	  edit_window_t and text_line_t (used for syntax highlighting in Tilde)
+
+	Bug fixes:
+	- Invisible scrollbar in list pane
+
 Version 0.1.3:
 	Bug fixes:
 	- Fix crash on unsetting wrap on buffer

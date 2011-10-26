@@ -233,6 +233,7 @@ void restore(void) {
 			free(const_cast<char *>(init_params->term));
 			init_params->term = NULL;
 			free(const_cast<char *>(init_params->program_name));
+			init_params->program_name = NULL;
 			break;
 	}
 	init_level = 0;
@@ -248,6 +249,7 @@ complex_error_t init(const init_parameters_t *params) {
 	if (init_params == NULL)
 		init_params = init_parameters_t::create();
 
+	#warning FIXME: do not use strdup directly!!!
 	if (params == NULL || params->term == NULL) {
 		const char *term_env = getenv("TERM");
 		/* If term_env == NULL, t3_term_init will abort anyway, so we ignore

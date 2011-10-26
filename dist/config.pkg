@@ -101,8 +101,6 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx || \
-		test_and_set test_link_cxx "sigc++-2.0" LIBSIGCPP "-I/usr/include/sigc++-2.0 -I/usr/lib/sigc++-2.0/include" "-lsigc-2.0" || \
-		test_and_set test_link_cxx "sigc++-2.0" LIBSIGCPP "-I/usr/local/include/sigc++-2.0 -I/usr/local/lib/sigc++-2.0/include" "-L/usr/loca/lib -lsigc-2.0" || \
 		error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
 
 	clean_cxx
@@ -114,7 +112,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libtranscript LIBTRANSCRIPT test_link_cxx || \
+	pkgconfig libtranscript/0.2 LIBTRANSCRIPT test_link_cxx || \
 		error "!! Can not find libtranscript. libtranscript is required to compile libt3widget."
 
 	clean_cxx
@@ -184,8 +182,6 @@ EOF
 			false
 		fi
 	} || \
-	test_and_set test_link_cxx "libpcre" LIBPCRE "" "-lpcre" || \
-	test_and_set test_link_cxx "libpcre" LIBPCRE "-I/usr/local/include" "-L/usr/local/lib -lpcre" || \
 	error "!! Can not find libpcre. libpcre is required to compile libt3widget."
 
 	if test_select "select in <sys/select.h>" "sys/select.h" ; then
