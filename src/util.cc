@@ -320,8 +320,14 @@ string get_directory(const char *directory) {
 }
 
 bool is_dir(const string *current_dir, const char *name) {
-	string file = *current_dir + "/" + name;
 	struct stat file_info;
+	string file;
+
+	if (name[0] != '/') {
+		file += *current_dir;
+		file += '/';
+	}
+	file += name;
 
 	if (stat(file.c_str(), &file_info) < 0)
 		//This would be weird, but still we have to do something

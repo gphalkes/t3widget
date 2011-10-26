@@ -170,12 +170,18 @@ void file_dialog_t::ok_callback(void) {
 }
 
 void file_dialog_t::ok_callback(const string *file) {
+	if (file->size() == 0)
+		return;
+
 	if (is_dir(&current_dir, file->c_str())) {
 		change_dir(file);
 		file_line->set_text("");
 	} else {
-		string full_name = current_dir;
-		full_name += "/";
+		string full_name;
+		if ((*file)[0] != '/') {
+			full_name += current_dir;
+			full_name += "/";
+		}
 		full_name += *file;
 		hide();
 		file_selected(&full_name);
