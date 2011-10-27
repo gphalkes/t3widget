@@ -27,6 +27,20 @@
 #include "main.h"
 
 using namespace std;
+
+#ifndef HAS_STRDUP
+/** strdup implementation if none is provided by the environment. */
+char *_t3_widget_strdup(const char *str) {
+	char *result;
+	size_t len = strlen(str) + 1;
+
+	if ((result = (char *) malloc(len)) == NULL)
+		return NULL;
+	memcpy(result, str, len);
+	return result;
+}
+#endif
+
 namespace t3_widget {
 
 static void lang_codeset_init(void);

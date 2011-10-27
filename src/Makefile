@@ -68,6 +68,7 @@ include ../../shared/rules.mk
 CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
 CXXFLAGS += -D_T3_WIDGET_DEBUG
 CXXFLAGS += -D_T3_WIDGET_INTERNAL
+CXXFLAGS += -DHAS_STRDUP
 CXXFLAGS += -I$(CURDIR)
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`

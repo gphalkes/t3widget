@@ -22,6 +22,7 @@
 #include "textline.h"
 #include "util.h"
 #include "colorscheme.h"
+#include "internal.h"
 
 using namespace std;
 namespace t3_widget {
@@ -31,7 +32,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 	char *underline_ptr;
 
 	text_length = strlen(spec);
-	if ((text = strdup(spec)) == NULL)
+	if ((text = _t3_widget_strdup(spec)) == NULL)
 		throw bad_alloc();
 
 	if ((underline_ptr = strchr(text, '_')) != NULL) {

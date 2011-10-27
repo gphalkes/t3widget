@@ -249,20 +249,19 @@ complex_error_t init(const init_parameters_t *params) {
 	if (init_params == NULL)
 		init_params = init_parameters_t::create();
 
-	#warning FIXME: do not use strdup directly!!!
 	if (params == NULL || params->term == NULL) {
 		const char *term_env = getenv("TERM");
 		/* If term_env == NULL, t3_term_init will abort anyway, so we ignore
 		   that case. */
 		if (term_env != NULL)
-			init_params->term = strdup(term_env);
+			init_params->term = _t3_widget_strdup(term_env);
 	} else {
-		init_params->term = strdup(params->term);
+		init_params->term = _t3_widget_strdup(params->term);
 	}
 
 	if (params != NULL) {
 		init_params->separate_keypad = params->separate_keypad;
-		init_params->program_name = strdup(params->program_name == NULL ? "This program" : params->program_name);
+		init_params->program_name = _t3_widget_strdup(params->program_name == NULL ? "This program" : params->program_name);
 	}
 
 	atexit(restore);

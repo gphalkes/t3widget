@@ -25,6 +25,12 @@
 
 #include <t3widget/key.h>
 
+#ifdef HAS_STRDUP
+#define _t3_widget_strdup strdup
+#else
+T3_WIDGET_LOCAL char *_t3_widget_strdup(const char *str);
+#endif
+
 namespace t3_widget {
 
 class text_line_t;
