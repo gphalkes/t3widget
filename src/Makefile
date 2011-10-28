@@ -71,6 +71,7 @@ CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -DHAS_STRDUP
 CXXFLAGS += -I$(CURDIR)
 CXXFLAGS += -pthread
+CXXFLAGS += `pkg-config --cflags libpcre`
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
@@ -79,7 +80,7 @@ LDLIBS += -L$(CURDIR)/t3window/.libs -lt3window
 LDLIBS += -L$(CURDIR)/t3unicode/.libs -lt3unicode
 LDLIBS += -L$(CURDIR)/transcript/.libs -ltranscript
 LDLIBS += -L$(CURDIR)/t3key/.libs -lt3key
-LDLIBS += -lpcre
+LDLIBS += `pkg-config --libs libpcre`
 LDLIBS += `pkg-config --libs sigc++-2.0`
 
 all: | links
