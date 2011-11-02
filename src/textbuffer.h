@@ -104,7 +104,6 @@ class T3_WIDGET_API text_buffer_t {
 		bool indent_selection(int tabsize, bool tab_spaces);
 		bool unindent_selection(int tabsize);
 		bool unindent_line(int tabsize);
-		void strip_spaces(void);
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);
