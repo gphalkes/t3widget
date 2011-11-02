@@ -523,6 +523,8 @@ undo_t *text_buffer_t::get_undo(undo_type_t type, text_coordinate_t coord) {
 		case UNDO_ADD_NEWLINE:
 		case UNDO_DELETE_NEWLINE:
 		case UNDO_BACKSPACE_NEWLINE:
+		case UNDO_BLOCK_START:
+		case UNDO_BLOCK_END:
 			last_undo = new undo_t(type, coord);
 			break;
 		case UNDO_DELETE:
@@ -535,16 +537,24 @@ undo_t *text_buffer_t::get_undo(undo_type_t type, text_coordinate_t coord) {
 			//FIXME: what to do with the last arguments?
 			last_undo = new undo_double_text_t(type, coord, text_coordinate_t(-1, -1));
 			break;
+			break;
 		default:
 			ASSERT(0);
 	}
 	last_undo_position = coord;
 
 	undo_list.add(last_undo);
-	if (type == UNDO_ADD_NEWLINE || type == UNDO_DELETE_NEWLINE)
-		last_undo_type = UNDO_NONE;
-	else
-		last_undo_type = type;
+	switch (type) {
+		case UNDO_ADD_NEWLINE:
+		case UNDO_DELETE_NEWLINE:
+		case UNDO_BLOCK_START:
+		case UNDO_BLOCK_END:
+			last_undo_type = UNDO_NONE;
+			break;
+		default:
+			last_undo_type = type;
+			break;
+	}
 	return last_undo;
 }
 
@@ -652,6 +662,23 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			break;
 		case UNDO_ADD_NEWLINE_INDENT_REDO:
 			insert_block_internal(current->get_start(), line_factory->new_text_line_t(current->get_text()));
+			break;
+		case UNDO_BLOCK_START:
+		case UNDO_BLOCK_END_REDO:
+			break;
+		case UNDO_BLOCK_END:
+			do {
+				current = undo_list.back();
+				apply_undo_redo(current->get_type(), current);
+			} while (current != NULL && current->get_type() != UNDO_BLOCK_START);
+			ASSERT(current != NULL);
+			break;
+		case UNDO_BLOCK_START_REDO:
+			do {
+				current = undo_list.forward();
+				apply_undo_redo(current->get_redo_type(), current);
+			} while (current != NULL && current->get_redo_type() != UNDO_BLOCK_END_REDO);
+			ASSERT(current != NULL);
 			break;
 		default:
 			ASSERT(0);
@@ -978,6 +1005,57 @@ bool text_buffer_t::unindent_line(int tabsize) {
 
 void text_buffer_t::prepare_paint_line(int line) {
 	(void) line;
+}
+
+void text_buffer_t::start_undo_block(void) {
+	get_undo(UNDO_BLOCK_START);
+}
+
+void text_buffer_t::end_undo_block(void) {
+	get_undo(UNDO_BLOCK_END);
+}
+
+void text_buffer_t::strip_spaces(void) {
+	size_t i, idx, char_len, size;
+	bool undo_started = false;
+
+	for (i = 0; i < lines.size() ; i++) {
+		const string *str = lines[i]->get_data();
+		const char *data = str->data();
+		size = str->size();
+		for (idx = size; idx > 0; idx--) {
+			if ((data[idx - 1] & 0xC0) == 0x80)
+				continue;
+
+			char_len = size - idx + 1;
+			if (!(t3_unicode_get_info(t3_unicode_get(data + idx - 1, &char_len), INT_MAX) &
+					T3_UNICODE_SPACE_BIT) && data[idx - 1] != '\t') /* Tab is a control character! */
+				break;
+
+			size = idx - 1;
+		}
+
+		if (size != str->size()) {
+			text_coordinate_t start, end;
+			if (!undo_started) {
+				start_undo_block();
+				undo_started = true;
+			}
+			start.line = end.line = i;
+			start.pos = size;
+			end.pos = str->size();
+			last_undo = new undo_single_text_double_coord_t(UNDO_DELETE_BLOCK, start, end);
+			undo_list.add(last_undo);
+			last_undo_type = UNDO_NONE;
+			delete_block_internal(start, end, last_undo);
+
+			if ((size_t) cursor.line == i && (size_t) cursor.pos > size)
+				cursor.pos = size;
+		}
+	}
+
+	if (undo_started)
+		end_undo_block();
 }
 
 }; // namespace

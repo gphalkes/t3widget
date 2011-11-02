@@ -58,6 +58,9 @@ class T3_WIDGET_API text_buffer_t {
 		void set_selection_from_find(int line, find_result_t *result);
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
+		void start_undo_block(void);
+		void end_undo_block(void);
+
 		virtual void prepare_paint_line(int line);
 
 	public:
@@ -101,6 +104,7 @@ class T3_WIDGET_API text_buffer_t {
 		bool indent_selection(int tabsize, bool tab_spaces);
 		bool unindent_selection(int tabsize);
 		bool unindent_line(int tabsize);
+		void strip_spaces(void);
 
 		bool find(finder_t *finder, bool reverse = false);
 		void replace(finder_t *finder);
