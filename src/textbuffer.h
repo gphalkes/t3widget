@@ -58,9 +58,6 @@ class T3_WIDGET_API text_buffer_t {
 		void set_selection_from_find(int line, find_result_t *result);
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
-		void start_undo_block(void);
-		void end_undo_block(void);
-
 		virtual void prepare_paint_line(int line);
 
 	public:
@@ -106,12 +103,15 @@ class T3_WIDGET_API text_buffer_t {
 		bool unindent_line(int tabsize);
 
 		bool find(finder_t *finder, bool reverse = false);
+		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end);
 		void replace(finder_t *finder);
 
 		bool is_modified(void) const;
 		std::string *convert_selection(void);
 		int apply_undo(void);
 		int apply_redo(void);
+		void start_undo_block(void);
+		void end_undo_block(void);
 
 		//FIXME: make these members private again
 		text_coordinate_t cursor;

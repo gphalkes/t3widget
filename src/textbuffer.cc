@@ -35,9 +35,6 @@ namespace t3_widget {
 
   get_line_max may be refactorable to use the cursor, depending on use outside
   files.cc
-
-  set_selection_start/set_selection_end need refactoring. However, there should also
-  be a reset_selection call such that we can avoid any arguments.
 */
 
 text_buffer_t::text_buffer_t(text_line_factory_t *_line_factory) :
@@ -261,7 +258,7 @@ int text_buffer_t::width_at_cursor(void) const {
 }
 
 bool text_buffer_t::selection_empty(void) const {
-	return selection_start.line == selection_end.line && selection_start.pos == selection_end.pos;
+	return selection_start == selection_end;
 }
 
 void text_buffer_t::set_selection_end(void)  {
@@ -785,6 +782,30 @@ bool text_buffer_t::find(finder_t *finder, bool reverse) {
 				return true;
 			}
 		}
+	}
+
+	return false;
+}
+
+bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end) {
+	find_result_t result;
+	size_t idx;
+
+	result.start = start.pos;
+	result.end = INT_MAX;
+
+	for (idx = start.line; idx < lines.size() && idx < (size_t) end.line; idx++) {
+		if (finder->match(lines[idx]->get_data(), &result, false)) {
+			set_selection_from_find(idx, &result);
+			return true;
+		}
+		result.start = 0;
+	}
+
+	result.end = end.pos;
+	if (idx < lines.size() && finder->match(lines[idx]->get_data(), &result, false)) {
+		set_selection_from_find(idx, &result);
+		return true;
 	}
 
 	return false;

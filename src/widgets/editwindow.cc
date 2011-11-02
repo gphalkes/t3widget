@@ -22,6 +22,7 @@
 #include "internal.h"
 #include "findcontext.h"
 #include "wrapinfo.h"
+#include "log.h"
 
 /* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
 
@@ -196,8 +197,7 @@ void edit_window_t::repaint_screen(void) {
 	current_start = text->get_selection_start();
 	current_end = text->get_selection_end();
 
-	if (current_end.line < current_start.line || (current_end.line == current_start.line &&
-			current_end.pos < current_start.pos)) {
+	if (current_end < current_start) {
 		current_start = current_end;
 		current_end = text->get_selection_start();
 	}
@@ -578,25 +578,75 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			break;
 		case find_action_t::REPLACE_ALL: {
 			int replacements;
+			text_coordinate_t start(0, 0);
+			text_coordinate_t eof(INT_MAX, INT_MAX);
 
-			for (replacements = 0; text->find(local_finder); replacements++)
+			for (replacements = 0; text->find_limited(local_finder, start, eof); replacements++) {
+				if (replacements == 0)
+					text->start_undo_block();
 				text->replace(local_finder);
+				start = text->cursor;
+			}
 
 			if (replacements == 0)
 				goto not_found;
+
+			text->end_undo_block();
+			reset_selection();
+			ensure_cursor_on_screen();
 			redraw = true;
 			break;
 		}
-		case find_action_t::REPLACE_IN_SELECTION:
-			//FIXME: do the replacement. For now, show a message and go back to where we were.
-			if (find_dialog == NULL)
-				global_find_dialog->show();
-			else
-				find_dialog->show();
-			message_dialog->set_message("\"Replace in selection\" has not been implemented yet. Sorry.");
-			message_dialog->center_over(center_window);
-			message_dialog->show();
+		case find_action_t::REPLACE_IN_SELECTION: {
+			if (text->selection_empty())
+				return;
+
+			text_coordinate_t start(text->get_selection_start());
+			text_coordinate_t end(text->get_selection_end());
+			text_coordinate_t saved_start;
+			int replacements;
+			int end_line_length;
+			int reverse_selection = false;
+
+			if (end < start) {
+				start = text->get_selection_end();
+				end = text->get_selection_start();
+				reverse_selection = true;
+			}
+			end_line_length = text->get_line_max(end.line);
+			saved_start = start;
+
+			for (replacements = 0; text->find_limited(local_finder, start, end); replacements++) {
+				if (replacements == 0)
+					text->start_undo_block();
+				text->replace(local_finder);
+				start = text->cursor;
+				end.pos -= end_line_length - text->get_line_max(end.line);
+				end_line_length = text->get_line_max(end.line);
+			}
+
+			if (replacements == 0)
+				goto not_found;
+
+			text->end_undo_block();
+
+			text->set_selection_mode(selection_mode_t::NONE);
+			if (reverse_selection) {
+				text->cursor = end;
+				text->set_selection_mode(selection_mode_t::SHIFT);
+				text->cursor = saved_start;
+				text->set_selection_end();
+			} else {
+				text->cursor = saved_start;
+				text->set_selection_mode(selection_mode_t::SHIFT);
+				text->cursor = end;
+				text->set_selection_end();
+			}
+
+			ensure_cursor_on_screen();
+			redraw = true;
 			break;
+		}
 		default:
 			break;
 	}

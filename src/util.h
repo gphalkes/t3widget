@@ -45,6 +45,10 @@ struct T3_WIDGET_API text_coordinate_t {
 	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
 	bool operator==(const text_coordinate_t &other) const { return line == other.line && pos == other.pos; }
 	bool operator!=(const text_coordinate_t &other) const { return line != other.line || pos != other.pos; }
+	bool operator>(const text_coordinate_t &other) const { return line > other.line || (line == other.line && pos > other.pos); }
+	bool operator>=(const text_coordinate_t &other) const { return line > other.line || (line == other.line && pos >= other.pos); }
+	bool operator<(const text_coordinate_t &other) const { return line < other.line || (line == other.line && pos < other.pos); }
+	bool operator<=(const text_coordinate_t &other) const { return line < other.line || (line == other.line && pos <= other.pos); }
 	int line;
 	int pos;
 };

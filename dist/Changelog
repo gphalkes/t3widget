@@ -1,3 +1,12 @@
+Version 0.1.5:
+	New features:
+	- Allow grouping of several undo items in text_buffer_t
+	- "Replace in selection" now working
+
+	Bug fixes:
+	- Replace all now stops even if the search string occurs in the replacement
+	  string
+
 Version 0.1.4:
 	New features:
 	- Allow coloring of text in edit_window_t through subclassing of

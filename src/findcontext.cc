@@ -182,6 +182,10 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 			matcher->reset();
 			while((size_t) curr_char > 0) {
 				next_char = adjust_position(haystack, curr_char, -1);
+
+				if (next_char < result->start)
+					return false;
+
 				substr.clear();
 				substr = haystack->substr(next_char, curr_char - next_char);
 				if (flags & find_flags_t::ICASE) {
@@ -207,6 +211,10 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 			matcher->reset();
 			while((size_t) curr_char < haystack->size()) {
 				next_char = adjust_position(haystack, curr_char, 1);
+
+				if (next_char > result->end)
+					return false;
+
 				substr.clear();
 				substr = haystack->substr(curr_char, next_char - curr_char);
 				if (flags & find_flags_t::ICASE) {
