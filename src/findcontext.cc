@@ -40,7 +40,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 
 		string pattern = flags & find_flags_t::ANCHOR_WORD_LEFT ? "(?:\\b" : "(?:";
 		pattern += *needle;
-		pattern += flags & find_flags_t::ANCHOR_WORD_RIGHT ? "\\b)(?C0)" : ")(?C0)";
+		pattern += flags & find_flags_t::ANCHOR_WORD_RIGHT ? "\\b)" : ")";
 
 		if (flags & find_flags_t::ICASE)
 			pcre_flags |= PCRE_CASELESS;
@@ -48,7 +48,6 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 		if ((regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, NULL)) == NULL)
 			//FIXME: error offset should be added for clarity
 			throw error_message;
-		pattern_length = pattern.size();
 	} else {
 		/* Create a copy of needle, for transformation purposes. */
 		string search_for(*needle);
@@ -100,7 +99,6 @@ finder_t &finder_t::operator=(finder_t& other) {
 	regex = other.regex();
 	memcpy(ovector, other.ovector, sizeof(ovector));
 	captures = other.captures;
-	pattern_length = other.pattern_length;
 	found = other.found;
 	replacement = other.replacement();
 
@@ -126,8 +124,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 	flags |= find_flags_t::NOT_FIRST_FIND;
 
 	if (flags & find_flags_t::REGEX) {
-		pcre_extra extra;
-		int pcre_flags = PCRE_NOTEMPTY;
+		int pcre_flags = PCRE_NOTEMPTY | PCRE_NO_UTF8_CHECK;
 		/* Because of the way we match backwards, we can't directly use the ovector
 		   in context. That gets destroyed by trying to find a further match if none
 		   exists. */
@@ -145,25 +142,29 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 			end = result->end;
 		}
 
-		if (reverse)
-			flags |= find_flags_t::INTERNAL_REVERSE;
-		else
-			flags &= ~find_flags_t::INTERNAL_REVERSE;
-
-		extra.flags = PCRE_EXTRA_CALLOUT_DATA;
-		extra.callout_data = this;
-
 		if ((size_t) end >= haystack->size())
 			end = haystack->size();
 		else
 			pcre_flags |= PCRE_NOTEOL;
 
-		if (start != 0)
-			pcre_flags |= PCRE_NOTBOL;
-
-		pcre_callout = callout;
-		match_result = pcre_exec(regex, &extra, haystack->data(), end, start, pcre_flags,
-			reverse ? local_ovector : ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
+		if (reverse) {
+			do {
+				match_result = pcre_exec(regex, NULL, haystack->data(), end, start, pcre_flags,
+					local_ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
+				if (match_result >= 0) {
+					found = true;
+					memcpy(ovector, local_ovector, sizeof(ovector));
+					captures = match_result;
+					start = ovector[1];
+				}
+			} while (match_result >= 0);
+		} else {
+			match_result = pcre_exec(regex, NULL, haystack->data(), end, start, pcre_flags,
+				ovector, sizeof(ovector) / sizeof(ovector[0]));
+			captures = match_result;
+			found = match_result >= 0;
+			lprintf("match_result: %d\n", match_result);
+		}
 		if (!found)
 			return false;
 		result->start = ovector[0];
@@ -237,30 +238,6 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 			}
 			return false;
 		}
-	}
-}
-
-int finder_t::callout(pcre_callout_block *block) {
-	finder_t *context = (finder_t *) block->callout_data;
-	if (block->pattern_position != context->pattern_length)
-		return 0;
-
-	if (context->flags & find_flags_t::INTERNAL_REVERSE) {
-		if (block->start_match > context->ovector[0] ||
-				(block->start_match == context->ovector[0] && block->current_position > context->ovector[1])) {
-			memcpy(context->ovector, block->offset_vector, block->capture_top * sizeof(int) * 2);
-			context->ovector[0] = block->start_match;
-			context->ovector[1] = block->current_position;
-			context->captures = block->capture_top;
-			context->found = true;
-		}
-		return 1;
-	} else {
-		context->ovector[0] = block->start_match;
-		context->ovector[1] = block->current_position;
-		context->captures = block->capture_top;
-		context->found = true;
-		return 0;
 	}
 }
 

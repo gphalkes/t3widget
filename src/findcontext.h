@@ -57,8 +57,6 @@ class T3_WIDGET_LOCAL finder_t {
 		int ovector[30];
 		/** The number of sub-matches captured. */
 		int captures;
-		/** Length of the original patter in bytes. */
-		int pattern_length;
 		bool found; /**< Boolean indicating whether the regex match was successful. */
 
 		/** Replacement string. */
@@ -69,8 +67,6 @@ class T3_WIDGET_LOCAL finder_t {
 		/** Size of the finder_t::folded buffer. */
 		size_t folded_size;
 
-		/** Function called by the PCRE library on matching up to a (?C) construct. */
-		static int callout(pcre_callout_block *block);
 		/** Get the next position of a UTF-8 character. */
 		static int adjust_position(const std::string *str, int pos, int adjust);
 		/** Check if the start and end of a match are on word boundaries.
