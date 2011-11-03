@@ -38,9 +38,9 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 		int error_offset;
 		int pcre_flags = PCRE_UTF8;
 
-		string pattern = flags & find_flags_t::WHOLE_WORD ? "(?:\\b" : "(?:";
+		string pattern = flags & find_flags_t::ANCHOR_WORD_LEFT ? "(?:\\b" : "(?:";
 		pattern += *needle;
-		pattern += flags & find_flags_t::WHOLE_WORD ? "\\b)(?C0)" : ")(?C0)";
+		pattern += flags & find_flags_t::ANCHOR_WORD_RIGHT ? "\\b)(?C0)" : ")(?C0)";
 
 		if (flags & find_flags_t::ICASE)
 			pcre_flags |= PCRE_CASELESS;
@@ -281,8 +281,16 @@ int finder_t::adjust_position(const string *str, int pos, int adjust) {
 }
 
 bool finder_t::check_boundaries(const string *str, int match_start, int match_end) {
-	return (match_start == 0 || get_class(str, match_start) != get_class(str, adjust_position(str, match_start, -1))) &&
-							(match_end == (int) str->size() || get_class(str, match_end) != get_class(str, adjust_position(str, match_end, 1)));
+	if ((flags & find_flags_t::ANCHOR_WORD_LEFT) &&
+			!(match_start == 0 || get_class(str, match_start) !=
+			get_class(str, adjust_position(str, match_start, -1))))
+		return false;
+
+	if ((flags & find_flags_t::ANCHOR_WORD_RIGHT) &&
+			!(match_end == (int) str->size() || get_class(str, match_end) !=
+			get_class(str, adjust_position(str, match_end, 1))))
+		return false;
+	return true;
 }
 
 int finder_t::get_class(const string *str, int pos) {

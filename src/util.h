@@ -88,11 +88,13 @@ _T3_WIDGET_ENUM(find_flags_t,
 	REGEX = (1<<3),
 	WRAP = (1<<4),
 	TRANSFROM_BACKSLASH = (1<<5),
-	WHOLE_WORD = (1<<6),
-	VALID = (1<<7),
-	NOT_FIRST_FIND = (1<<8),
-	REPLACEMENT_VALID = (1<<9),
-	INTERNAL_REVERSE = (1<<10)
+	WHOLE_WORD = (1<<6) | (1<<7),
+	ANCHOR_WORD_LEFT = (1<<6),
+	ANCHOR_WORD_RIGHT = (1<<7),
+	VALID = (1<<8),
+	NOT_FIRST_FIND = (1<<9),
+	REPLACEMENT_VALID = (1<<10),
+	INTERNAL_REVERSE = (1<<11)
 );
 
 _T3_WIDGET_ENUM(find_action_t,

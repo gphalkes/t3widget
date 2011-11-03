@@ -836,6 +836,10 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case 0: //CTRL-SPACE (and others)
+			//FIXME: attempt_autocomplete();
+			break;
+
+		case EKEY_CTRL | 't':
 			switch (text->get_selection_mode()) {
 				case selection_mode_t::MARK:
 					reset_selection();
