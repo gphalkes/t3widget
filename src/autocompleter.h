@@ -20,8 +20,7 @@ namespace t3_widget {
 
 class autocompleter_t {
 	public:
-		virtual string_list_t *build_autocomplete_list(const text_buffer_t *text) = 0;
-		virtual string_list_t *update_autocomplete_list(const text_buffer_t *text) = 0;
+		virtual string_list_base_t *build_autocomplete_list(const text_buffer_t *text, int *position) = 0;
 		virtual void autocomplete(text_buffer_t *text, size_t idx) = 0;
 };
 

@@ -467,7 +467,7 @@ const string *text_field_t::get_text(void) const {
 	return line->get_data();
 }
 
-void text_field_t::set_autocomplete(string_list_t *completions) {
+void text_field_t::set_autocomplete(string_list_base_t *completions) {
 	if (drop_down_list == NULL)
 		drop_down_list = new drop_down_list_t(this);
 	drop_down_list->set_autocomplete(completions);
@@ -642,7 +642,7 @@ void text_field_t::drop_down_list_t::update_view(void) {
 	}
 }
 
-void text_field_t::drop_down_list_t::set_autocomplete(string_list_t *_completions) {
+void text_field_t::drop_down_list_t::set_autocomplete(string_list_base_t *_completions) {
 	if (completions != NULL)
 		delete completions;
 

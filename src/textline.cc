@@ -71,6 +71,8 @@ char text_line_t::get_key_meta(key_t c) {
 			meta_data |= SPACE_BIT;
 	} else {
 		meta_data--;
+		if (c == '_')
+			meta_data |= ALNUM_BIT;
 	}
 	return meta_data;
 }

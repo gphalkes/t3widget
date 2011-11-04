@@ -20,6 +20,7 @@ namespace t3_widget {
 
 #include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/scrollbar.h>
+#include <t3widget/widgets/listpane.h>
 #include <t3widget/textbuffer.h>
 #include <t3widget/key.h>
 #include <t3widget/interfaces.h>
@@ -36,6 +37,8 @@ class replace_buttons_dialog_t;
 /** Class implementing an edit widget. */
 class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
 	private:
+		class autocomplete_panel_t;
+
 		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;
 		static find_dialog_t *global_find_dialog;
@@ -69,7 +72,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
 		bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
 
-		autocompleter_t *autocompleter; /**< Object used for autocompletion. */
+		cleanup_obj_ptr<autocompleter_t> autocompleter; /**< Object used for autocompletion. */
+		cleanup_obj_ptr<autocomplete_panel_t> autocomplete_panel; /**< Panel for showing autocomplete options. */
+		bool autocomplete_panel_shown; /**< Boolean indicating whether the autocompletions are currently being shown. */
 
 		/** Function to initialize the shared dialogs and data. */
 		static void init(void);
@@ -249,6 +254,24 @@ class edit_window_t::view_parameters_t {
 		void set_indent_aware_home(bool _indent_aware_home);
 };
 
+class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t {
+	private:
+		auto_t3_window_t shadow_window;
+		list_pane_t *list_pane;
+		bool redraw;
+	public:
+		autocomplete_panel_t(edit_window_t *parent);
+		virtual bool process_key(key_t key);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
+		virtual void update_contents(void);
+		virtual void set_focus(bool _focus);
+		virtual void show(void);
+		virtual void hide(void);
+		virtual void force_redraw(void);
+
+		void set_completions(string_list_base_t *completions);
+};
 
 }; // namespace
 #endif

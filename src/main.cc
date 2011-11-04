@@ -154,6 +154,13 @@ static void do_resize(void) {
 	resize(screen_lines, screen_columns);
 }
 
+void get_screen_size(int *height, int *width) {
+	if (height != NULL)
+		*height = screen_lines;
+	if (width != NULL)
+		*width = screen_columns;
+}
+
 enum terminal_code_t {
 	TERM_NONE,
 	TERM_XTERM,

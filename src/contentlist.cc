@@ -26,6 +26,24 @@
 using namespace std;
 namespace t3_widget {
 
+string_list_t::~string_list_t(void) {
+	for (vector<string *>::iterator iter = strings.begin(); iter != strings.end(); iter++)
+		delete *iter;
+}
+
+size_t string_list_t::size(void) const {
+	return strings.size();
+}
+
+const string *string_list_t::operator[](size_t idx) const {
+	return strings[idx];
+}
+
+void string_list_t::push_back(string *str) {
+	strings.push_back(str);
+}
+
+
 file_name_list_t::file_name_entry_t::file_name_entry_t(void) : is_dir(false) {
 	display_name = &file_name_entry_t::name;
 }
@@ -136,7 +154,7 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t& other) {
 	return *this;
 }
 
-bool string_compare_filter(string_list_t *list, size_t idx, const string *str) {
+bool string_compare_filter(string_list_base_t *list, size_t idx, const string *str) {
 	return (*list)[idx]->compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 

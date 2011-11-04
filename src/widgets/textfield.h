@@ -85,7 +85,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				/** Request that the drop-down is filtered based on the contents of the text_field_t it is asscociated with. */
 				void update_view(void);
 				/** Set the list of autocompletion options. */
-				void set_autocomplete(string_list_t *completions);
+				void set_autocomplete(string_list_base_t *completions);
 				/** Return whether the autocompletion list is empty. */
 				bool empty(void);
 		};
@@ -106,7 +106,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		/** Set the text of the text_field_t. */
 		void set_text(const char *text, size_t size);
 		/** Set the autocompletion list. */
-		void set_autocomplete(string_list_t *_completions);
+		void set_autocomplete(string_list_base_t *_completions);
 		/** Set the list of keys to accept or reject.
 		    @param keys The list of keys to accept or reject.
 		    @param nr_of_keys The size of @p keys.

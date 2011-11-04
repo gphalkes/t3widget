@@ -154,7 +154,7 @@ void list_pane_t::update_contents(void) {
 	}
 
 	t3_win_move(widgets_window, -top_idx, 0);
-	scrollbar->set_parameters(widgets.size(), top_idx, t3_win_get_height(window) - 1);
+	scrollbar->set_parameters(widgets.size(), top_idx, t3_win_get_height(window));
 	scrollbar->update_contents();
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->update_contents();

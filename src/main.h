@@ -163,6 +163,8 @@ T3_WIDGET_API long get_libt3key_version(void);
 /** Get the version of the libt3window library used by libt3widget at runtime. */
 T3_WIDGET_API long get_libt3window_version(void);
 
+/** Get the dimensions of the screen as used by libt3widget. */
+T3_WIDGET_API void get_screen_size(int *height, int *width);
 }; // namespace
 
 #endif

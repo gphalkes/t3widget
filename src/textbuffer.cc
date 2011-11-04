@@ -22,7 +22,6 @@
 #include "colorscheme.h"
 #include "util.h"
 #include "undo.h"
-#include "widgets/editwindow.h"
 #include "internal.h"
 #include "findcontext.h"
 #include "wrapinfo.h"
@@ -441,7 +440,7 @@ bool text_buffer_t::replace_selection(const string *block) {
 //FIXME: check that everything succeeds and return false if it doesn't
 	//FIXME: make sure original state is restored on failing sub action
 	/* Simply insert on empty selection */
-	if (current_start.line == current_end.line && current_start.pos == current_end.pos)
+	if (current_start == current_end)
 		return insert_block(block);
 
 	last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, current_start, current_end);
@@ -722,7 +721,7 @@ void text_buffer_t::set_selection_from_find(find_result_t *result) {
 	selection_mode = selection_mode_t::SHIFT;
 }
 
-bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) {
+bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) const {
 	size_t start, idx;
 
 	start = idx = cursor.line;
@@ -785,7 +784,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 	return false;
 }
 
-bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) {
+bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) const {
 	size_t idx;
 
 	result->start = start.pos;

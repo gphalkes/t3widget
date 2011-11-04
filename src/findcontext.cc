@@ -270,8 +270,11 @@ bool finder_t::check_boundaries(const string *str, int match_start, int match_en
 
 int finder_t::get_class(const string *str, int pos) {
 	size_t data_len = str->size() - pos;
-	return t3_unicode_get_info(t3_unicode_get(str->data() + pos, &data_len), INT_MAX) &
+	int char_class = t3_unicode_get_info(t3_unicode_get(str->data() + pos, &data_len), INT_MAX) &
 		(T3_UNICODE_ALNUM_BIT | T3_UNICODE_GRAPH_BIT | T3_UNICODE_SPACE_BIT);
+	if ((*str)[pos] == '_')
+		char_class |= T3_UNICODE_ALNUM_BIT;
+	return char_class;
 }
 
 int finder_t::get_flags(void) {

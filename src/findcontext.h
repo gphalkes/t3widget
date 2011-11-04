@@ -21,13 +21,9 @@
 #include <t3widget/stringmatcher.h>
 #include <t3widget/util.h>
 
-#ifndef _T3_WIDGET_INTERNAL
-#error This header file is for internal use _only_!!
-#endif
-
 namespace t3_widget {
 
-/** @internal A struct holding the result of a find operation.
+/** A struct holding the result of a find operation.
     In the current situation, find operations work on a single line. Therefore
     this struct does not contain line references.
 */
@@ -35,12 +31,8 @@ struct find_result_t {
 	int line, start, end;
 };
 
-class text_line_t;
-
-/** @internal Class holding the context of a find operation. */
-class T3_WIDGET_LOCAL finder_t {
-	friend class text_line_t;
-	//FIXME: many members are necessary in other classes
+/** Class holding the context of a find operation. */
+class T3_WIDGET_API finder_t {
 	private:
 		static void call_pcre_free(pcre *);
 

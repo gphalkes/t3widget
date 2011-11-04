@@ -102,8 +102,8 @@ class T3_WIDGET_API text_buffer_t {
 		bool unindent_line(int tabsize);
 		void set_selection_from_find(find_result_t *result);
 
-		bool find(finder_t *finder, find_result_t *result, bool reverse = false);
-		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result);
+		bool find(finder_t *finder, find_result_t *result, bool reverse = false) const;
+		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) const;
 		void replace(finder_t *finder);
 
 		bool is_modified(void) const;

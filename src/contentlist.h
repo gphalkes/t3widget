@@ -16,6 +16,7 @@
 
 #include <string>
 #include <vector>
+#include <iterator>
 
 #include <t3widget/widget_api.h>
 struct transcript_t;
@@ -23,9 +24,9 @@ struct transcript_t;
 namespace t3_widget {
 
 /** Abstract base class for string and file lists and filtered lists. */
-class T3_WIDGET_API string_list_base_t {
+class T3_WIDGET_API list_base_t {
 	public:
-		virtual ~string_list_base_t(void) {}
+		virtual ~list_base_t(void) {}
 		/** Retrieve the size of the list. */
 		virtual size_t size(void) const = 0;
 		/** Retrieve element @p idx. */
@@ -36,21 +37,33 @@ class T3_WIDGET_API string_list_base_t {
 
     Because filtered lists need to provide the same basic members as string/file
     lists, i.e. @c size and @c operator[], they have to derive from
-    string_list_base_t. However, to prevent them from having multiple
+    list_base_t. However, to prevent them from having multiple
     instances of the @c content_changed signal, this is added in this base
     class. In other cases using virtual inheritance would have solved this
     problem, but because of the templating below the distance to the base class
     will not always be the same.
 */
-class T3_WIDGET_API string_list_t : public virtual string_list_base_t {
+class T3_WIDGET_API string_list_base_t : public virtual list_base_t {
 	/** @fn sigc::connection connect_content_changed(const sigc::slot<void> &_slot)
 	    Connect to signal emitted when the content of the list changed.*/
 	/** Signal emitted when the content of the list changed. */
 	T3_WIDGET_SIGNAL(content_changed, void);
 };
 
+/** Implementation of a string list. */
+class T3_WIDGET_API string_list_t : public string_list_base_t {
+	protected:
+		std::vector<std::string *> strings;
+
+	public:
+		virtual ~string_list_t(void);
+		virtual size_t size(void) const;
+		virtual const std::string *operator[](size_t idx) const;
+		virtual void push_back(std::string *str);
+};
+
 /** Abstract base class for file lists. */
-class T3_WIDGET_API file_list_t : public string_list_t {
+class T3_WIDGET_API file_list_t : public string_list_base_t {
 	public:
 		/** Get the file-system name for a particular @p idx.
 
@@ -98,10 +111,10 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 };
 
 /** Abstract base class for filtered string and file lists. */
-class T3_WIDGET_API filtered_list_base_t : public virtual string_list_base_t {
+class T3_WIDGET_API filtered_list_base_t : public virtual list_base_t {
 	public:
 		/** Set the filter callback. */
-		virtual void set_filter(const sigc::slot<bool, string_list_t *, size_t> &) = 0;
+		virtual void set_filter(const sigc::slot<bool, string_list_base_t *, size_t> &) = 0;
 		/** Reset the filter. */
 		virtual void reset_filter(void) = 0;
 };
@@ -172,24 +185,24 @@ class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
 
 		filtered_list_t(list_t *list) : filtered_list_internal_t<list_t>(list) {}
 		using filtered_list_internal_t<list_t>::set_filter;
-		virtual void set_filter(const sigc::slot<bool, string_list_t *, size_t> &_test) {
+		virtual void set_filter(const sigc::slot<bool, string_list_base_t *, size_t> &_test) {
 			this->test = _test;
 			this->update_list();
 		}
 };
 
-/** Specialized filtered list template for string_list_t.
+/** Specialized filtered list template for string_list_base_t.
 
     A typedef named #filtered_string_list_t is provided for convenience.
 */
 template <>
-class T3_WIDGET_API filtered_list_t<string_list_t> : public filtered_list_internal_t<string_list_t> {
+class T3_WIDGET_API filtered_list_t<string_list_base_t> : public filtered_list_internal_t<string_list_base_t> {
 	public:
-		filtered_list_t(string_list_t *list) : filtered_list_internal_t<string_list_t>(list) {}
+		filtered_list_t(string_list_base_t *list) : filtered_list_internal_t<string_list_base_t>(list) {}
 };
 
 /** Special name for filtered string lists. */
-typedef filtered_list_t<string_list_t> filtered_string_list_t;
+typedef filtered_list_t<string_list_base_t> filtered_string_list_t;
 
 /** Filted file list implementation. */
 class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
@@ -200,7 +213,7 @@ class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 };
 
 /** Filter function comparing the initial part of an entry with @p str. */
-T3_WIDGET_API bool string_compare_filter(string_list_t *list, size_t idx, const std::string *str);
+T3_WIDGET_API bool string_compare_filter(string_list_base_t *list, size_t idx, const std::string *str);
 /** Filter function using glob on the fs_name of a file entry. */
 T3_WIDGET_API bool glob_filter(file_list_t *list, size_t idx, const std::string *str, bool show_hidden);
 
