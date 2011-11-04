@@ -544,6 +544,7 @@ void edit_window_t::delete_selection(void) {
 
 void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 	finder_t *local_finder;
+	find_result_t result;
 
 	local_finder = finder == NULL ? &global_finder : finder;
 	if (_finder != NULL)
@@ -551,11 +552,12 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
 	switch (action) {
 		case find_action_t::FIND:
-			if (!text->find(local_finder))
+			if (!text->find(local_finder, &result))
 				goto not_found;
 
-			ensure_cursor_on_screen();
+			text->set_selection_from_find(&result);
 			redraw = true;
+			ensure_cursor_on_screen();
 			if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
 				replace_buttons_connection.disconnect();
 				replace_buttons_connection = replace_buttons->connect_activate(
@@ -568,10 +570,12 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			text->replace(local_finder);
 			redraw = true;
 		case find_action_t::SKIP:
-			if (!text->find(local_finder)) {
+			if (!text->find(local_finder, &result)) {
 				ensure_cursor_on_screen();
 				goto not_found;
 			}
+
+			text->set_selection_from_find(&result);
 			redraw = true;
 			ensure_cursor_on_screen();
 			replace_buttons->reshow(action);
@@ -581,9 +585,10 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			text_coordinate_t start(0, 0);
 			text_coordinate_t eof(INT_MAX, INT_MAX);
 
-			for (replacements = 0; text->find_limited(local_finder, start, eof); replacements++) {
+			for (replacements = 0; text->find_limited(local_finder, start, eof, &result); replacements++) {
 				if (replacements == 0)
 					text->start_undo_block();
+				text->set_selection_from_find(&result);
 				text->replace(local_finder);
 				start = text->cursor;
 			}
@@ -616,9 +621,10 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			end_line_length = text->get_line_max(end.line);
 			saved_start = start;
 
-			for (replacements = 0; text->find_limited(local_finder, start, end); replacements++) {
+			for (replacements = 0; text->find_limited(local_finder, start, end, &result); replacements++) {
 				if (replacements == 0)
 					text->start_undo_block();
+				text->set_selection_from_find(&result);
 				text->replace(local_finder);
 				start = text->cursor;
 				end.pos -= end_line_length - text->get_line_max(end.line);
@@ -1120,11 +1126,14 @@ void edit_window_t::find_replace(bool replace) {
 }
 
 void edit_window_t::find_next(bool backward) {
-	if (!text->find(finder != NULL ? finder : &global_finder, backward)) {
+	find_result_t result;
+	if (!text->find(finder != NULL ? finder : &global_finder, &result, backward)) {
 		//FIXME: show search string
 		message_dialog->set_message("Search string not found");
 		message_dialog->center_over(center_window);
 		message_dialog->show();
+	} else {
+		text->set_selection_from_find(&result);
 	}
 	ensure_cursor_on_screen();
 }

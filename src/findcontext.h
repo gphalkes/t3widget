@@ -32,7 +32,7 @@ namespace t3_widget {
     this struct does not contain line references.
 */
 struct find_result_t {
-	int start, end;
+	int line, start, end;
 };
 
 class text_line_t;

@@ -711,37 +711,36 @@ int text_buffer_t::apply_redo(void) {
 	return 0;
 }
 
-void text_buffer_t::set_selection_from_find(int line, find_result_t *result) {
-	selection_start.line = line;
+void text_buffer_t::set_selection_from_find(find_result_t *result) {
+	selection_start.line = result->line;
 	selection_start.pos = result->start;
 
-	selection_end.line = line;
+	selection_end.line = result->line;
 	selection_end.pos = result->end;
 
 	cursor = get_selection_end();
 	selection_mode = selection_mode_t::SHIFT;
 }
 
-bool text_buffer_t::find(finder_t *finder, bool reverse) {
+bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) {
 	size_t start, idx;
-	find_result_t result;
 
 	start = idx = cursor.line;
 
 	// Perform search
 	if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
-		result.start = selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
-		result.end = 0;
-		if (finder->match(lines[idx]->get_data(), &result, true)) {
-			set_selection_from_find(idx, &result);
+		result->end = selection_mode != selection_mode_t::NONE ? selection_start.pos : cursor.pos;
+		result->start = 0;
+		if (finder->match(lines[idx]->get_data(), result, true)) {
+			result->line = idx;
 			return true;
 		}
 
-		result.start = INT_MAX;
+		result->end = INT_MAX;
 		for (; idx > 0; ) {
 			idx--;
-			if (finder->match(lines[idx]->get_data(), &result, true)) {
-				set_selection_from_find(idx, &result);
+			if (finder->match(lines[idx]->get_data(), result, true)) {
+				result->line = idx;
 				return true;
 			}
 		}
@@ -749,26 +748,25 @@ bool text_buffer_t::find(finder_t *finder, bool reverse) {
 		if (!(finder->get_flags() & find_flags_t::WRAP))
 			return false;
 
-		result.start = INT_MAX;
 		for (idx = lines.size(); idx > start; ) {
 			idx--;
-			if (finder->match(lines[idx]->get_data(), &result, true)) {
-				set_selection_from_find(idx, &result);
+			if (finder->match(lines[idx]->get_data(), result, true)) {
+				result->line = idx;
 				return true;
 			}
 		}
 	} else {
-		result.start = cursor.pos;
-		result.end = INT_MAX;
-		if (finder->match(lines[idx]->get_data(), &result, false)) {
-			set_selection_from_find(idx, &result);
+		result->start = cursor.pos;
+		result->end = INT_MAX;
+		if (finder->match(lines[idx]->get_data(), result, false)) {
+			result->line = idx;
 			return true;
 		}
 
-		result.start = 0;
+		result->start = 0;
 		for (idx++; idx < lines.size(); idx++) {
-			if (finder->match(lines[idx]->get_data(), &result, false)) {
-				set_selection_from_find(idx, &result);
+			if (finder->match(lines[idx]->get_data(), result, false)) {
+				result->line = idx;
 				return true;
 			}
 		}
@@ -777,8 +775,8 @@ bool text_buffer_t::find(finder_t *finder, bool reverse) {
 			return false;
 
 		for (idx = 0; idx <= start; idx++) {
-			if (finder->match(lines[idx]->get_data(), &result, false)) {
-				set_selection_from_find(idx, &result);
+			if (finder->match(lines[idx]->get_data(), result, false)) {
+				result->line = idx;
 				return true;
 			}
 		}
@@ -787,24 +785,23 @@ bool text_buffer_t::find(finder_t *finder, bool reverse) {
 	return false;
 }
 
-bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end) {
-	find_result_t result;
+bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) {
 	size_t idx;
 
-	result.start = start.pos;
-	result.end = INT_MAX;
+	result->start = start.pos;
+	result->end = INT_MAX;
 
 	for (idx = start.line; idx < lines.size() && idx < (size_t) end.line; idx++) {
-		if (finder->match(lines[idx]->get_data(), &result, false)) {
-			set_selection_from_find(idx, &result);
+		if (finder->match(lines[idx]->get_data(), result, false)) {
+			result->line = idx;
 			return true;
 		}
-		result.start = 0;
+		result->start = 0;
 	}
 
-	result.end = end.pos;
-	if (idx < lines.size() && finder->match(lines[idx]->get_data(), &result, false)) {
-		set_selection_from_find(idx, &result);
+	result->end = end.pos;
+	if (idx < lines.size() && finder->match(lines[idx]->get_data(), result, false)) {
+		result->line = idx;
 		return true;
 	}
 

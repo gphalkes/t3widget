@@ -55,7 +55,6 @@ class T3_WIDGET_API text_buffer_t {
 		bool merge_internal(int line);
 		bool break_line_internal(const std::string *indent = NULL);
 
-		void set_selection_from_find(int line, find_result_t *result);
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
 		virtual void prepare_paint_line(int line);
@@ -101,9 +100,10 @@ class T3_WIDGET_API text_buffer_t {
 		bool indent_selection(int tabsize, bool tab_spaces);
 		bool unindent_selection(int tabsize);
 		bool unindent_line(int tabsize);
+		void set_selection_from_find(find_result_t *result);
 
-		bool find(finder_t *finder, bool reverse = false);
-		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end);
+		bool find(finder_t *finder, find_result_t *result, bool reverse = false);
+		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result);
 		void replace(finder_t *finder);
 
 		bool is_modified(void) const;

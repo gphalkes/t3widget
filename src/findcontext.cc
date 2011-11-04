@@ -137,13 +137,8 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		ovector[1] = -1;
 		found = false;
 
-		if (reverse) {
-			start = result->end;
-			end = result->start;
-		} else {
-			start = result->start;
-			end = result->end;
-		}
+		start = result->start;
+		end = result->end;
 
 		if ((size_t) end >= haystack->size())
 			end = haystack->size();
@@ -178,7 +173,10 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		size_t c_size;
 		const char *c;
 
-		start = result->start >= 0 && (size_t) result->start > haystack->size() ? haystack->size() : (size_t) result->start;
+		if (reverse)
+			start = result->end >= 0 && (size_t) result->end > haystack->size() ? haystack->size() : (size_t) result->end;
+		else
+			start = result->start >= 0 && (size_t) result->start > haystack->size() ? haystack->size() : (size_t) result->start;
 		curr_char = start;
 
 		if (reverse) {
