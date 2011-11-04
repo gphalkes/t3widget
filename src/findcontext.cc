@@ -24,6 +24,9 @@
 using namespace std;
 namespace t3_widget {
 
+/* This function exists as a wrapper around pcre_free, because pcre_free is not
+   a function but a variable, and therefore can not be passed as a template
+   parameter. */
 void finder_t::call_pcre_free(pcre *p) {
 	pcre_free(p);
 }
@@ -163,7 +166,6 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 				ovector, sizeof(ovector) / sizeof(ovector[0]));
 			captures = match_result;
 			found = match_result >= 0;
-			lprintf("match_result: %d\n", match_result);
 		}
 		if (!found)
 			return false;

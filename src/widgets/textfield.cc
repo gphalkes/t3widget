@@ -240,7 +240,7 @@ bool text_field_t::process_key(key_t key) {
 			}
 			break;
 
-		case 0: //CTRL-SPACE (and others)
+		case EKEY_CTRL | 't':
 			switch (selection_mode) {
 				case selection_mode_t::MARK:
 					reset_selection();
