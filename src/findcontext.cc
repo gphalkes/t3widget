@@ -34,7 +34,7 @@ void finder_t::call_pcre_free(pcre *p) {
 finder_t::finder_t(void) : flags(0), folded_size(0) {}
 
 finder_t::finder_t(const string *needle, int _flags, const string *_replacement) :
-		flags(_flags & ~find_flags_t::NOT_FIRST_FIND), folded_size(0)
+		flags(_flags), folded_size(0)
 {
 	const char *error_message;
 	if (flags & find_flags_t::REGEX) {
@@ -123,8 +123,6 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 
 	if (!(flags & find_flags_t::VALID))
 		return false;
-
-	flags |= find_flags_t::NOT_FIRST_FIND;
 
 	if (flags & find_flags_t::REGEX) {
 		int pcre_flags = PCRE_NOTEMPTY | PCRE_NO_UTF8_CHECK;
