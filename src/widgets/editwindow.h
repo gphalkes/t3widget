@@ -23,6 +23,7 @@ namespace t3_widget {
 #include <t3widget/textbuffer.h>
 #include <t3widget/key.h>
 #include <t3widget/interfaces.h>
+#include <t3widget/autocompleter.h>
 
 namespace t3_widget {
 
@@ -68,6 +69,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
 		bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
 
+		autocompleter_t *autocompleter; /**< Object used for autocompletion. */
 
 		/** Function to initialize the shared dialogs and data. */
 		static void init(void);
@@ -218,6 +220,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		view_parameters_t *save_view_parameters(void);
 		/** Save the current view parameters, to allow them to be restored later. */
 		void save_view_parameters(view_parameters_t *params);
+
+		/** Set the autocompleter to use. */
+		void set_autocompleter(autocompleter_t *_autocompleter);
 };
 
 class edit_window_t::view_parameters_t {

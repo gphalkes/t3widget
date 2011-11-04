@@ -51,7 +51,7 @@ void edit_window_t::init(void) {
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : tab_spaces(false),
 		find_dialog(NULL), finder(NULL), wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0),
-		last_set_pos(0), auto_indent(true), indent_aware_home(true), text(NULL)
+		last_set_pos(0), auto_indent(true), indent_aware_home(true), autocompleter(NULL), text(NULL)
 {
 	init_unbacked_window(11, 11);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
@@ -835,6 +835,14 @@ bool edit_window_t::process_key(key_t key) {
 			goto_line();
 			break;
 
+		case 0: /* CTRL-space and others */
+			if (autocompleter != NULL) {
+				string_list_t *autocomplete_list = autocompleter->build_autocomplete_list(text);
+				//FIXME: do something useful here!!
+				delete autocomplete_list;
+			}
+			break;
+
 		case EKEY_CTRL | 't':
 			switch (text->get_selection_mode()) {
 				case selection_mode_t::MARK:
@@ -1214,6 +1222,10 @@ void edit_window_t::save_view_parameters(view_parameters_t *params) {
 }
 
 void edit_window_t::draw_info_window(void) {}
+
+void edit_window_t::set_autocompleter(autocompleter_t *_autocompleter) {
+	autocompleter = _autocompleter;
+}
 
 //====================== view_parameters_t ========================
 
