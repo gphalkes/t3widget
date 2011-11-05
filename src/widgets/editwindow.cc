@@ -831,7 +831,7 @@ bool edit_window_t::process_key(key_t key) {
 				delete_selection();
 			}
 			if (autocomplete_panel_shown)
-				activate_autocomplete();
+				activate_autocomplete(false);
 			break;
 
 		case EKEY_CTRL | 'c':
@@ -863,7 +863,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case 0: /* CTRL-space and others */
-			activate_autocomplete();
+			activate_autocomplete(true);
 			break;
 
 		case EKEY_CTRL | 't':
@@ -959,7 +959,7 @@ bool edit_window_t::process_key(key_t key) {
 			redraw = true;
 			last_set_pos = screen_pos;
 			if (autocomplete_panel_shown)
-				activate_autocomplete();
+				activate_autocomplete(false);
 			return true;
 		}
 	}
@@ -1260,6 +1260,7 @@ void edit_window_t::save_view_parameters(view_parameters_t *params) {
 void edit_window_t::draw_info_window(void) {}
 
 void edit_window_t::set_autocompleter(autocompleter_t *_autocompleter) {
+	hide_autocomplete();
 	autocompleter = _autocompleter;
 }
 
@@ -1270,7 +1271,7 @@ void edit_window_t::hide_autocomplete(void) {
 	}
 }
 
-void edit_window_t::activate_autocomplete(void) {
+void edit_window_t::activate_autocomplete(bool autocomplete_single) {
 	if (autocompleter == NULL)
 		return;
 
@@ -1278,6 +1279,13 @@ void edit_window_t::activate_autocomplete(void) {
 	string_list_base_t *autocomplete_list = autocompleter->build_autocomplete_list(text, &anchor.pos);
 
 	if (autocomplete_list != NULL) {
+		if (autocomplete_single && autocomplete_list->size() == 1) {
+			autocompleter->autocomplete(text, 0);
+			/* Just in case... */
+			hide_autocomplete();
+			return;
+		}
+
 		autocomplete_panel->set_completions(autocomplete_list);
 		if (wrap_type == wrap_type_t::NONE) {
 			int position = text->calculate_screen_pos(&anchor, tabsize);
