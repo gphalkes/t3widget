@@ -674,13 +674,16 @@ not_found:
 bool edit_window_t::process_key(key_t key) {
 	if (autocomplete_panel_shown) {
 		if (key == EKEY_ESC) {
-			autocomplete_panel->hide();
-			autocomplete_panel_shown = false;
+			hide_autocomplete();
+		} else if (key == EKEY_NL) {
+			size_t idx = autocomplete_panel->get_selected_idx();
+			hide_autocomplete();
+			autocompleter->autocomplete(text, idx);
+			return true;
 		} else if (autocomplete_panel->process_key(key)) {
 			return true;
-		} else if (key < 0x20 || key > 0x110000) {
-			autocomplete_panel->hide();
-			autocomplete_panel_shown = false;
+		} else if ((key <= 0x20 || key >= 0x110000) && key != EKEY_BS) {
+			hide_autocomplete();
 		}
 	}
 
@@ -746,7 +749,6 @@ bool edit_window_t::process_key(key_t key) {
 			ins_mode ^= 1;
 			break;
 
-		/* Below this line all the keys modify the text. */
 		case EKEY_DEL:
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				if (text->cursor.pos != text->get_line_max(text->cursor.line)) {
@@ -828,6 +830,8 @@ bool edit_window_t::process_key(key_t key) {
 			} else {
 				delete_selection();
 			}
+			if (autocomplete_panel_shown)
+				activate_autocomplete();
 			break;
 
 		case EKEY_CTRL | 'c':
@@ -859,36 +863,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case 0: /* CTRL-space and others */
-			if (autocompleter != NULL) {
-				text_coordinate_t anchor(text->cursor);
-				string_list_base_t *autocomplete_list = autocompleter->build_autocomplete_list(text, &anchor.pos);
-				anchor.pos = text->cursor.pos - anchor.pos;
-
-				if (autocomplete_list != NULL) {
-					autocomplete_panel->set_completions(autocomplete_list);
-					if (wrap_type == wrap_type_t::NONE) {
-						int position = text->calculate_screen_pos(&anchor, tabsize);
-						autocomplete_panel->set_position(text->cursor.line - top_left.line + 1,
-							position - top_left.pos - 1);
-					} else {
-						int sub_line = wrap_info->find_line(text->cursor);
-						int position = wrap_info->calculate_screen_pos(&anchor);
-						int line;
-
-						if (text->cursor.line == top_left.line) {
-							line = sub_line - top_left.pos;
-						} else {
-							line = wrap_info->get_line_count(top_left.line) - top_left.pos + sub_line;
-							for (int i = top_left.line + 1; i < text->cursor.line; i++)
-								line += wrap_info->get_line_count(i);
-						}
-						autocomplete_panel->set_position(line + 1, position - 1);
-					}
-					autocomplete_panel->show();
-					autocomplete_panel_shown = true;
-				}
-				delete autocomplete_list;
-			}
+			activate_autocomplete();
 			break;
 
 		case EKEY_CTRL | 't':
@@ -960,27 +935,33 @@ bool edit_window_t::process_key(key_t key) {
 				ensure_cursor_on_screen();
 			}
 			break;
-		default:
-			if (key < 32 && key != '\t')
+		default: {
+			int local_insmode;
+
+			if (key < 32)
 				return false;
 
 			key &= ~EKEY_PROTECT;
 			if (key == 10)
 				return false;
 
-			if (key < 0x110000) {
-				int local_insmode = ins_mode;
-				if (text->get_selection_mode() != selection_mode_t::NONE) {
-					delete_selection();
-					local_insmode = 0;
-				}
+			if (key >= 0x110000)
+				return false;
 
-				(text->*proces_char[local_insmode])(key);
-				ensure_cursor_on_screen();
-				redraw = true;
-				last_set_pos = screen_pos;
+			local_insmode = ins_mode;
+			if (text->get_selection_mode() != selection_mode_t::NONE) {
+				delete_selection();
+				local_insmode = 0;
 			}
-			return false;
+
+			(text->*proces_char[local_insmode])(key);
+			ensure_cursor_on_screen();
+			redraw = true;
+			last_set_pos = screen_pos;
+			if (autocomplete_panel_shown)
+				activate_autocomplete();
+			return true;
+		}
 	}
 	return true;
 }
@@ -1056,6 +1037,7 @@ void edit_window_t::update_contents(void) {
 
 void edit_window_t::set_focus(bool _focus) {
 	focus = _focus;
+	hide_autocomplete();
 	redraw = true; //FXIME: Only for painting/removing cursor
 }
 
@@ -1281,6 +1263,47 @@ void edit_window_t::set_autocompleter(autocompleter_t *_autocompleter) {
 	autocompleter = _autocompleter;
 }
 
+void edit_window_t::hide_autocomplete(void) {
+	if (autocomplete_panel_shown) {
+		autocomplete_panel->hide();
+		autocomplete_panel_shown = false;
+	}
+}
+
+void edit_window_t::activate_autocomplete(void) {
+	if (autocompleter == NULL)
+		return;
+
+	text_coordinate_t anchor(text->cursor);
+	string_list_base_t *autocomplete_list = autocompleter->build_autocomplete_list(text, &anchor.pos);
+
+	if (autocomplete_list != NULL) {
+		autocomplete_panel->set_completions(autocomplete_list);
+		if (wrap_type == wrap_type_t::NONE) {
+			int position = text->calculate_screen_pos(&anchor, tabsize);
+			autocomplete_panel->set_position(text->cursor.line - top_left.line + 1,
+				position - top_left.pos - 1);
+		} else {
+			int sub_line = wrap_info->find_line(text->cursor);
+			int position = wrap_info->calculate_screen_pos(&anchor);
+			int line;
+
+			if (text->cursor.line == top_left.line) {
+				line = sub_line - top_left.pos;
+			} else {
+				line = wrap_info->get_line_count(top_left.line) - top_left.pos + sub_line;
+				for (int i = top_left.line + 1; i < text->cursor.line; i++)
+					line += wrap_info->get_line_count(i);
+			}
+			autocomplete_panel->set_position(line + 1, position - 1);
+		}
+		autocomplete_panel->show();
+		autocomplete_panel_shown = true;
+	} else if (autocomplete_panel_shown) {
+		hide_autocomplete();
+	}
+}
+
 //====================== view_parameters_t ========================
 
 edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
@@ -1447,6 +1470,10 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
 		new_height = 5;
 
 	set_size(new_height, new_width + 3);
+}
+
+size_t edit_window_t::autocomplete_panel_t::get_selected_idx(void) const {
+	return list_pane->get_current();
 }
 
 }; // namespace

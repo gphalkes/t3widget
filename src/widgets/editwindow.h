@@ -130,6 +130,12 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		*/
 		virtual void draw_info_window(void);
 
+		/** Activate the autocomplete panel.
+
+		    The autocomplete panel activate, only if there is a possible autocompletion.
+		*/
+		void activate_autocomplete(void);
+
 	public:
 		class view_parameters_t;
 
@@ -228,6 +234,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		/** Set the autocompleter to use. */
 		void set_autocompleter(autocompleter_t *_autocompleter);
+		/** Hide the autocompletion panel. */
+		void hide_autocomplete(void);
 };
 
 class edit_window_t::view_parameters_t {
@@ -271,6 +279,7 @@ class edit_window_t::autocomplete_panel_t : public virtual window_component_t, p
 		virtual void force_redraw(void);
 
 		void set_completions(string_list_base_t *completions);
+		size_t get_selected_idx(void) const;
 };
 
 }; // namespace
