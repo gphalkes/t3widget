@@ -2,10 +2,13 @@ Version 0.1.5:
 	New features:
 	- Allow grouping of several undo items in text_buffer_t
 	- "Replace in selection" now working
+	- Autocompletion support in edit_window_t
 
 	Bug fixes:
-	- Replace all now stops even if the search string occurs in the replacement
-	  string
+	- "Replace all" now stops even if the search string occurs in the
+	  replacement string
+	- Fix the default colorscheme such that text remains readable when the
+	  cursor or selection are over a highlighted section
 
 Version 0.1.4:
 	New features:
