@@ -860,17 +860,21 @@ bool edit_window_t::process_key(key_t key) {
 
 		case 0: /* CTRL-space and others */
 			if (autocompleter != NULL) {
-				int position;
-				string_list_base_t *autocomplete_list = autocompleter->build_autocomplete_list(text, &position);
+				text_coordinate_t anchor(text->cursor);
+				string_list_base_t *autocomplete_list = autocompleter->build_autocomplete_list(text, &anchor.pos);
+				anchor.pos = text->cursor.pos - anchor.pos;
 
 				if (autocomplete_list != NULL) {
 					autocomplete_panel->set_completions(autocomplete_list);
 					if (wrap_type == wrap_type_t::NONE) {
+						int position = text->calculate_screen_pos(&anchor, tabsize);
 						autocomplete_panel->set_position(text->cursor.line - top_left.line + 1,
-							screen_pos - top_left.pos - position - 1);
+							position - top_left.pos - 1);
 					} else {
 						int sub_line = wrap_info->find_line(text->cursor);
+						int position = wrap_info->calculate_screen_pos(&anchor);
 						int line;
+
 						if (text->cursor.line == top_left.line) {
 							line = sub_line - top_left.pos;
 						} else {
@@ -878,7 +882,7 @@ bool edit_window_t::process_key(key_t key) {
 							for (int i = top_left.line + 1; i < text->cursor.line; i++)
 								line += wrap_info->get_line_count(i);
 						}
-						autocomplete_panel->set_position(line + 1, screen_pos - position - 1);
+						autocomplete_panel->set_position(line + 1, position - 1);
 					}
 					autocomplete_panel->show();
 					autocomplete_panel_shown = true;
