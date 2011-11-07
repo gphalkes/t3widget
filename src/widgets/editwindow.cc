@@ -531,15 +531,9 @@ void edit_window_t::set_selection_mode(key_t key) {
 void edit_window_t::delete_selection(void) {
 	text_coordinate_t current_start, current_end;
 
-	text->delete_selection();
-
 	current_start = text->get_selection_start();
 	current_end = text->get_selection_end();
-
-	if ((current_end.line < current_start.line) || (current_end.line == current_start.line && current_end.pos < current_start.pos))
-		text->cursor = current_end;
-	else
-		text->cursor = current_start;
+	text->delete_block(current_start, current_end);
 
 	redraw = true;
 	ensure_cursor_on_screen();
@@ -574,6 +568,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 		case find_action_t::REPLACE:
 			text->replace(local_finder);
 			redraw = true;
+			/* FALLTHROUGH */
 		case find_action_t::SKIP:
 			if (!text->find(local_finder, &result)) {
 				ensure_cursor_on_screen();
@@ -1081,7 +1076,7 @@ void edit_window_t::paste(void) {
 		if (text->get_selection_mode() == selection_mode_t::NONE) {
 			text->insert_block(copy_buffer);
 		} else {
-			text->replace_selection(copy_buffer);
+			text->replace_block(text->get_selection_start(), text->get_selection_end(), copy_buffer);
 			reset_selection();
 		}
 		ensure_cursor_on_screen();

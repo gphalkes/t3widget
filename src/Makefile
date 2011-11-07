@@ -83,8 +83,6 @@ LDLIBS += -L$(CURDIR)/t3key/.libs -lt3key
 LDLIBS += `pkg-config --libs libpcre`
 LDLIBS += `pkg-config --libs sigc++-2.0`
 
-all: | links
-
 links:
 	@[ -L t3unicode ] || ln -s ../../unicode/src t3unicode
 	@[ -L transcript ] || ln -s ../../../transcript/src transcript

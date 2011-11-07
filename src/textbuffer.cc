@@ -271,8 +271,8 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 	text_line_t *start_part = NULL, *end_part = NULL;
 	int i;
 
-	/* Don't do anything on empty selection */
-	if (start.line == end.line && start.pos == end.pos)
+	/* Don't do anything on empty block */
+	if (start == end)
 		return;
 
 	/* Swap start and end if end is before start. This simplifies the code below. */
@@ -290,6 +290,7 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 			undo->get_text()->append(*selected_text->get_data());
 		delete selected_text;
 		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
+		cursor = start;
 		return;
 	}
 
@@ -364,18 +365,19 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 	rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
 	if ((size_t) start.line < lines.size())
 		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, 0);
+	cursor = start;
 }
 
 
-void text_buffer_t::delete_selection(void) {
-	/* Don't do anything on empty selection */
-	if (selection_start.line == selection_end.line && selection_start.pos == selection_end.pos)
+void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end) {
+	/* Don't do anything on empty block */
+	if (start == end)
 		return;
 
-	last_undo = new undo_single_text_double_coord_t(UNDO_DELETE_BLOCK, selection_start, selection_end);
+	last_undo = new undo_single_text_double_coord_t(UNDO_DELETE_BLOCK, start, end);
 	last_undo_type = UNDO_DELETE_BLOCK;
 
-	delete_block_internal(selection_start, selection_end, last_undo);
+	delete_block_internal(start, end, last_undo);
 
 	undo_list.add(last_undo);
 }
@@ -429,31 +431,27 @@ bool text_buffer_t::insert_block(const string *block) {
 	return true;
 }
 
-bool text_buffer_t::replace_selection(const string *block) {
-	text_coordinate_t current_start, current_end;
+bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end, const string *block) {
 	undo_double_text_triple_coord_t *undo;
 	text_line_t *converted_block;
 
-	current_start = selection_start;
-	current_end = selection_end;
-
 //FIXME: check that everything succeeds and return false if it doesn't
 	//FIXME: make sure original state is restored on failing sub action
-	/* Simply insert on empty selection */
-	if (current_start == current_end)
+	/* Simply insert on empty block */
+	if (start == end)
 		return insert_block(block);
 
-	last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, current_start, current_end);
+	last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, start, end);
 	last_undo_type = UNDO_REPLACE_BLOCK;
 
-	delete_block_internal(current_start, current_end, undo);
+	delete_block_internal(start, end, undo);
 
-	if (current_end.line < current_start.line || (current_end.line == current_start.line && current_end.pos < current_start.pos))
-		current_start = current_end;
+	if (end.line < start.line || (end.line == start.line && end.pos < start.pos))
+		start = end;
 
 	converted_block = line_factory->new_text_line_t(block);
 	//FIXME: insert_block_internal may fail!!!
-	insert_block_internal(current_start, converted_block);
+	insert_block_internal(start, converted_block);
 
 	undo->get_replacement()->append(*converted_block->get_data());
 	delete converted_block;
@@ -564,7 +562,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			end = start = current->get_start();
 			end.pos += current->get_text()->size();
 			delete_block_internal(start, end, NULL);
-			cursor = start;
 			break;
 		case UNDO_ADD_REDO:
 		case UNDO_DELETE:
@@ -578,7 +575,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			start = current->get_start();
 			end = current->get_end();
 			delete_block_internal(start, end, NULL);
-			cursor = start;
 			break;
 		case UNDO_DELETE_BLOCK:
 			start = current->get_start();
@@ -599,7 +595,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			end = start = current->get_start();
 			start.pos -= current->get_text()->size();
 			delete_block_internal(start, end, NULL);
-			cursor = start;
 			break;
 		case UNDO_OVERWRITE:
 			end = start = current->get_start();
@@ -813,7 +808,7 @@ void text_buffer_t::replace(finder_t *finder) {
 
 	string *replacement_str = finder->get_replacement(lines[cursor.line]->get_data());
 
-	replace_selection(replacement_str);
+	replace_block(selection_start, selection_end, replacement_str);
 	delete replacement_str;
 }
 

@@ -95,8 +95,8 @@ class T3_WIDGET_API text_buffer_t {
 		void set_selection_mode(selection_mode_t mode);
 		selection_mode_t get_selection_mode(void) const;
 		bool selection_empty(void) const;
-		void delete_selection(void);
-		bool replace_selection(const std::string *block);
+		void delete_block(text_coordinate_t start, text_coordinate_t end);
+		bool replace_block(text_coordinate_t start, text_coordinate_t end, const std::string *block);
 		bool indent_selection(int tabsize, bool tab_spaces);
 		bool unindent_selection(int tabsize);
 		bool unindent_line(int tabsize);
