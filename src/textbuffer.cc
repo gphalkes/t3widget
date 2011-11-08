@@ -802,13 +802,16 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
 	return false;
 }
 
-void text_buffer_t::replace(finder_t *finder) {
-	if (selection_mode == selection_mode_t::NONE)
+void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
+	text_coordinate_t start(result->line, result->start), end (result->line, result->end);
+	string *replacement_str;
+
+	if (result->start == result->end)
 		return;
 
-	string *replacement_str = finder->get_replacement(lines[cursor.line]->get_data());
+	replacement_str = finder->get_replacement(lines[result->line]->get_data());
 
-	replace_block(selection_start, selection_end, replacement_str);
+	replace_block(start, end, replacement_str);
 	delete replacement_str;
 }
 

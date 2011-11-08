@@ -566,7 +566,10 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			}
 			break;
 		case find_action_t::REPLACE:
-			text->replace(local_finder);
+			result.line = text->get_selection_start().line;
+			result.start = text->get_selection_start().pos;
+			result.end = text->get_selection_end().pos;
+			text->replace(local_finder, &result);
 			redraw = true;
 			/* FALLTHROUGH */
 		case find_action_t::SKIP:
@@ -588,8 +591,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			for (replacements = 0; text->find_limited(local_finder, start, eof, &result); replacements++) {
 				if (replacements == 0)
 					text->start_undo_block();
-				text->set_selection_from_find(&result);
-				text->replace(local_finder);
+				text->replace(local_finder, &result);
 				start = text->cursor;
 			}
 
@@ -624,8 +626,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			for (replacements = 0; text->find_limited(local_finder, start, end, &result); replacements++) {
 				if (replacements == 0)
 					text->start_undo_block();
-				text->set_selection_from_find(&result);
-				text->replace(local_finder);
+				text->replace(local_finder, &result);
 				start = text->cursor;
 				end.pos -= end_line_length - text->get_line_max(end.line);
 				end_line_length = text->get_line_max(end.line);
