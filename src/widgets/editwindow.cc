@@ -1267,6 +1267,10 @@ void edit_window_t::hide_autocomplete(void) {
 	}
 }
 
+void edit_window_t::autocomplete(void) {
+	activate_autocomplete(true);
+}
+
 void edit_window_t::activate_autocomplete(bool autocomplete_single) {
 	if (autocompleter == NULL)
 		return;

@@ -238,6 +238,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		/** Set the autocompleter to use. */
 		void set_autocompleter(autocompleter_t *_autocompleter);
+		/** Perform autocompletion, or pop-up autocompletion choice menu. */
+		void autocomplete(void);
 };
 
 class edit_window_t::view_parameters_t {

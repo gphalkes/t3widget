@@ -37,19 +37,12 @@ namespace t3_widget {
 */
 
 text_buffer_t::text_buffer_t(text_line_factory_t *_line_factory) :
-		selection_start(-1, 0), selection_end(-1, 0),
+		selection_start(-1, 0), selection_end(-1, 0), selection_mode(selection_mode_t::NONE),
+		last_undo(NULL), last_undo_type(UNDO_NONE),
 		line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory), cursor(0, 0)
 {
 	/* Allocate a new, empty line */
 	lines.push_back(line_factory->new_text_line_t());
-
-	selection_start.pos = -1;
-	selection_start.line = 0;
-	selection_end.pos = -1;
-	selection_end.line = 0;
-	selection_mode = selection_mode_t::NONE;
-	last_undo = NULL;
-	last_undo_type = UNDO_NONE;
 }
 
 text_buffer_t::~text_buffer_t(void) {

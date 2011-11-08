@@ -37,12 +37,13 @@ class T3_WIDGET_API text_buffer_t {
 		lines_t lines;
 		text_coordinate_t selection_start;
 		text_coordinate_t selection_end;
+		selection_mode_t selection_mode;
+
 		undo_list_t undo_list;
 		text_coordinate_t last_undo_position;
 		undo_type_t last_undo_type;
 		undo_t *last_undo;
 
-		selection_mode_t selection_mode;
 		text_line_factory_t *line_factory;
 
 		undo_t *get_undo(undo_type_t type);
