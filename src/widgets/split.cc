@@ -94,6 +94,11 @@ void split_t::set_focus(bool _focus) {
 	(*current)->set_focus(focus);
 }
 
+void split_t::force_redraw(void) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		(*iter)->force_redraw();
+}
+
 void split_t::split(widget_t *widget, bool _horizontal) {
 	split_t *current_window = dynamic_cast<split_t *>(*current);
 

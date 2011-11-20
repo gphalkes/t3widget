@@ -82,4 +82,5 @@ bool frame_t::set_size(optint height, optint width) {
 bool frame_t::accepts_focus(void) { return child != NULL ? child->accepts_focus() : false; }
 bool frame_t::is_hotkey(key_t key) { return child != NULL ? child->is_hotkey(key) : false; }
 void frame_t::set_enabled(bool enable) { if (child != NULL) child->set_enabled(enable); }
+void frame_t::force_redraw(void) { if (child != NULL) child->force_redraw(); }
 }; // namespace

@@ -995,7 +995,6 @@ void edit_window_t::update_contents(void) {
 	repaint_screen();
 
 	t3_win_set_default_attrs(indicator_window, attributes.menubar);
-	t3_win_set_default_attrs(info_window, attributes.menubar);
 	t3_win_set_paint(indicator_window, 0, 0);
 	t3_win_addchrep(indicator_window, ' ', 0, t3_win_get_width(indicator_window));
 
@@ -1175,6 +1174,7 @@ void edit_window_t::set_finder(finder_t *_finder) {
 
 void edit_window_t::force_redraw(void) {
 	widget_t::force_redraw();
+	draw_info_window();
 	ensure_cursor_on_screen();
 }
 

@@ -53,6 +53,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
  		virtual bool accepts_focus(void);
 		virtual bool is_hotkey(key_t key);
 		virtual void set_enabled(bool enable);
+		virtual void force_redraw(void);
 
 	private:
 		frame_dimension_t dimension; /**< Requested overlaps. */
