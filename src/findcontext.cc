@@ -263,7 +263,7 @@ bool finder_t::check_boundaries(const string *str, int match_start, int match_en
 
 	if ((flags & find_flags_t::ANCHOR_WORD_RIGHT) &&
 			!(match_end == (int) str->size() || get_class(str, match_end) !=
-			get_class(str, adjust_position(str, match_end, 1))))
+			get_class(str, adjust_position(str, match_end, -1))))
 		return false;
 	return true;
 }
