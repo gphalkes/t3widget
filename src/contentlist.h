@@ -159,7 +159,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 		virtual ~filtered_list_internal_t(void) {
 			base_content_changed_connection.disconnect();
 		}
-		virtual void set_filter(const sigc::slot<bool, list_t *, size_t> &_test) {
+		virtual void set_filter(const sigc::slot<bool, string_list_base_t *, size_t> &_test) {
 			test = _test;
 			update_list();
 		}
@@ -181,7 +181,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 template <class list_t>
 class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
 	public:
-		typedef sigc::slot<bool, list_t *, size_t> filter_type_t;
+		//typedef sigc::slot<bool, list_t *, size_t> filter_type_t;
 
 		filtered_list_t(list_t *list) : filtered_list_internal_t<list_t>(list) {}
 		using filtered_list_internal_t<list_t>::set_filter;
@@ -215,7 +215,7 @@ class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 /** Filter function comparing the initial part of an entry with @p str. */
 T3_WIDGET_API bool string_compare_filter(string_list_base_t *list, size_t idx, const std::string *str);
 /** Filter function using glob on the fs_name of a file entry. */
-T3_WIDGET_API bool glob_filter(file_list_t *list, size_t idx, const std::string *str, bool show_hidden);
+T3_WIDGET_API bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, bool show_hidden);
 
 }; // namespace
 #endif

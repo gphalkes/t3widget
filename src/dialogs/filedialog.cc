@@ -226,8 +226,7 @@ void file_dialog_t::change_dir(const string *dir) {
 
 	names = new_names;
 	current_dir = new_dir;
-	view.set_filter((filtered_file_list_t::filter_type_t) sigc::bind(sigc::ptr_fun(glob_filter),
-		get_filter(), show_hidden_box->get_state()));
+	view.set_filter(sigc::bind(sigc::ptr_fun(glob_filter), get_filter(), show_hidden_box->get_state()));
 	file_pane->reset();
 }
 
@@ -235,8 +234,7 @@ void file_dialog_t::refresh_view(void) {
 	convert_lang_codeset(get_filter(), &lang_codeset_filter, false);
 	if (lang_codeset_filter.size() == 0)
 		lang_codeset_filter = "*";
-	view.set_filter((filtered_file_list_t::filter_type_t) sigc::bind(sigc::ptr_fun(glob_filter),
-		&lang_codeset_filter, show_hidden_box->get_state()));
+	view.set_filter(sigc::bind(sigc::ptr_fun(glob_filter), &lang_codeset_filter, show_hidden_box->get_state()));
 
 	file_pane->set_file(file_line->get_text());
 }

@@ -15,8 +15,10 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
-#include <t3unicode/unicode.h>
 #include <t3window/window.h>
+#include <t3window/utf8.h>
+#include <unicase.h>
+
 #include "widgets/widget.h"
 #include "widgets/smartlabel.h"
 #include "textline.h"
@@ -26,6 +28,16 @@
 
 using namespace std;
 namespace t3_widget {
+
+static uint32_t casefold_single(uint32_t c) {
+	uint32_t result[8];
+	size_t result_size = sizeof(result) / sizeof(result[0]);
+
+	/* Case folding never results in more than two codepoints for case folding a
+	   single codepoint. Thus, we can use a static buffer, as long as it's big
+	   enough. Just in case, we use a buffer of size 8. */
+	return u32_casefold(&c, 1, NULL, NULL, result, &result_size) == NULL || result_size > 1 ?  0 : result[0];
+}
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_colon(_add_colon), underlined(false), hotkey(0) {
 	text_line_t *line;
@@ -43,7 +55,8 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 		memmove(underline_ptr, underline_ptr + 1, text_length - underline_start);
 		text_length--;
 
-		hotkey = t3_unicode_casefold_single(t3_unicode_get(underline_ptr, &src_size));
+		src_size = text_length - underline_start;
+		hotkey = casefold_single(t3_utf8_get(underline_ptr, &src_size));
 
 		//FIXME: an alloc error here will cause a leak of the allocated 'text' var
 		line = new text_line_t(text, text_length);
@@ -84,7 +97,7 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 	if (hotkey == 0)
 		return false;
 
-	return (key_t) t3_unicode_casefold_single(key & 0x1fffffl) == hotkey;
+	return (key_t) casefold_single(key & 0x1fffffl) == hotkey;
 }
 
 //======= smart_label_t =======

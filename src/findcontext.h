@@ -67,8 +67,6 @@ class T3_WIDGET_API finder_t {
 		    @param match_end The position of the end of the match in @p str.
 		*/
 		bool check_boundaries(const std::string *str, int match_start, int match_end);
-		/** Get the character class at postion @p pos in the string. */
-		static int get_class(const std::string *str, int pos);
 
 	public:
 		/** Create a new empty finder_t. */

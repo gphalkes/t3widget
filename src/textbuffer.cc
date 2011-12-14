@@ -15,7 +15,6 @@
 #include <climits>
 #include <new>
 #include <t3window/window.h>
-#include <t3unicode/unicode.h>
 
 #include "textbuffer.h"
 #include "textline.h"
@@ -38,7 +37,7 @@ namespace t3_widget {
 
 text_buffer_t::text_buffer_t(text_line_factory_t *_line_factory) :
 		selection_start(-1, 0), selection_end(-1, 0), selection_mode(selection_mode_t::NONE),
-		last_undo(NULL), last_undo_type(UNDO_NONE),
+		last_undo_type(UNDO_NONE), last_undo(NULL),
 		line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory), cursor(0, 0)
 {
 	/* Allocate a new, empty line */

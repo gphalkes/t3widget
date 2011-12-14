@@ -77,14 +77,13 @@ CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 CXXFLAGS += -fvisibility=hidden
 
 LDLIBS += -L$(CURDIR)/t3window/.libs -lt3window
-LDLIBS += -L$(CURDIR)/t3unicode/.libs -lt3unicode
 LDLIBS += -L$(CURDIR)/transcript/.libs -ltranscript
 LDLIBS += -L$(CURDIR)/t3key/.libs -lt3key
 LDLIBS += `pkg-config --libs libpcre`
 LDLIBS += `pkg-config --libs sigc++-2.0`
+LDLIBS += -lunistring
 
 links:
-	@[ -L t3unicode ] || ln -s ../../unicode/src t3unicode
 	@[ -L transcript ] || ln -s ../../../transcript/src transcript
 	@[ -L t3window ] || ln -s ../../window/src t3window
 	@[ -L t3key ] || ln -s ../../key/src t3key

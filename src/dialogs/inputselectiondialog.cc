@@ -12,7 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
-#include <t3unicode/unicode.h>
+#include <t3window/utf8.h>
 #include "dialogs/inputselectiondialog.h"
 #include "widgets/button.h"
 #include "internal.h"
@@ -129,7 +129,7 @@ bool input_selection_dialog_t::process_key(key_t key) {
 				if (key & EKEY_META)
 					strcat(buffer, _("Meta-"));
 				buffer_contents_length = strlen(buffer);
-				buffer_contents_length += t3_unicode_put(key & ~EKEY_META, buffer + buffer_contents_length);
+				buffer_contents_length += t3_utf8_put(key & ~EKEY_META, buffer + buffer_contents_length);
 				buffer[buffer_contents_length] = 0;
 				key_label->set_text(buffer);
 				return true;

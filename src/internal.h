@@ -83,5 +83,14 @@ T3_WIDGET_LOCAL void reinit_keys(void);
 /** Insert a key to the queue, marked to ensure it is not interpreted by any widget except text widgets. */
 T3_WIDGET_LOCAL void insert_protected_key(t3_widget::key_t key);
 
+enum {
+	CLASS_WHITESPACE,
+	CLASS_ALNUM,
+	CLASS_GRAPH,
+	CLASS_OTHER
+};
+
+/** Get the character class associated with the character at a specific position in a string. */
+T3_WIDGET_LOCAL int get_class(const std::string *str, int pos);
 }; // namespace
 #endif

@@ -12,9 +12,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <t3unicode/unicode.h>
 #include <cstring>
 #include <climits>
+#include <t3window/utf8.h>
+#include <unicase.h>
 
 #include "findcontext.h"
 #include "util.h"
@@ -64,7 +65,8 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 			size_t folded_needle_size;
 			cleanup_ptr<char> folded_needle;
 
-			folded_needle_size = t3_unicode_casefold(search_for.data(), search_for.size(), &folded_needle, NULL, t3_false);
+			folded_needle = (char *) u8_casefold((const uint8_t *) search_for.data(), search_for.size(),
+				NULL, NULL, NULL, &folded_needle_size);
 			/* When passing a const char * to string_matcher_t, it takes responsibility for
 			   de-allocation. */
 			matcher = new string_matcher_t(folded_needle, folded_needle_size);
@@ -188,8 +190,14 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 				substr.clear();
 				substr = haystack->substr(next_char, curr_char - next_char);
 				if (flags & find_flags_t::ICASE) {
-					c_size = t3_unicode_casefold(substr.data(), substr.size(), &folded, &folded_size, t3_false);
-					c = folded;
+					c_size = folded_size;
+					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), NULL, NULL, (uint8_t *) (char *) folded, &c_size);
+					if (c != folded) {
+						lprintf("folded: %p, c: %p\n", (char *) folded, c);
+						free(folded);
+						folded = (char *) c;
+						folded_size = c_size;
+					}
 				} else {
 					c = substr.data();
 					c_size = substr.size();
@@ -217,8 +225,14 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 				substr.clear();
 				substr = haystack->substr(curr_char, next_char - curr_char);
 				if (flags & find_flags_t::ICASE) {
-					c_size = t3_unicode_casefold(substr.data(), substr.size(), &folded, &folded_size, t3_false);
-					c = folded;
+					c_size = folded_size;
+					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), NULL, NULL, (uint8_t *) (char *) folded, &c_size);
+					if (c != folded) {
+						lprintf("folded: %p, c: %p\n", (char *) folded, c);
+						free(folded);
+						folded = (char *) c;
+						folded_size = c_size;
+					}
 				} else {
 					c = substr.data();
 					c_size = substr.size();
@@ -266,15 +280,6 @@ bool finder_t::check_boundaries(const string *str, int match_start, int match_en
 			get_class(str, adjust_position(str, match_end, -1))))
 		return false;
 	return true;
-}
-
-int finder_t::get_class(const string *str, int pos) {
-	size_t data_len = str->size() - pos;
-	int char_class = t3_unicode_get_info(t3_unicode_get(str->data() + pos, &data_len), INT_MAX) &
-		(T3_UNICODE_ALNUM_BIT | T3_UNICODE_GRAPH_BIT | T3_UNICODE_SPACE_BIT);
-	if ((*str)[pos] == '_')
-		char_class |= T3_UNICODE_ALNUM_BIT;
-	return char_class;
 }
 
 int finder_t::get_flags(void) {

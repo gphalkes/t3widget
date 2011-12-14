@@ -158,7 +158,8 @@ bool string_compare_filter(string_list_base_t *list, size_t idx, const string *s
 	return (*list)[idx]->compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 
-bool glob_filter(file_list_t *list, size_t idx, const std::string *str, bool show_hidden) {
+bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, bool show_hidden) {
+	file_list_t *file_list = dynamic_cast<file_list_t *>(list);
 	const string *item_name = (*list)[idx];
 	string fs_name;
 
@@ -174,7 +175,7 @@ bool glob_filter(file_list_t *list, size_t idx, const std::string *str, bool sho
 	   file names to the locale codeset, and use fnmatch on those. Note that the
 	   filter string passed to this function is already in the locale codeset. */
 	convert_lang_codeset(item_name, &fs_name, false);
-	if (!list->is_dir(idx) && fnmatch(str->c_str(), fs_name.c_str(), 0) != 0)
+	if ((file_list == NULL || !file_list->is_dir(idx)) && fnmatch(str->c_str(), fs_name.c_str(), 0) != 0)
 		return false;
 	return true;
 }

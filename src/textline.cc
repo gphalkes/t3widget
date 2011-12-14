@@ -15,7 +15,7 @@
 #define _XOPEN_SOURCE
 
 #include <cstring>
-#include <t3unicode/unicode.h>
+#include <t3window/utf8.h>
 
 #include "findcontext.h"
 #include "colorscheme.h"
@@ -35,48 +35,6 @@ const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";
 
 text_line_factory_t default_text_line_factory;
 
-/* Meta Information for each character:
-  - screen width of character [2 bits]
-  - is graphic char [1 bit]
-  - is alnum char [1 bit]
-  - is space char [1 bit]
-  - bad print, i.e. terminal may not be able to draw properly
-*/
-
-#define WIDTH_MASK (T3_UNICODE_WIDTH_MASK)
-#define GRAPH_BIT (T3_UNICODE_GRAPH_BIT)
-#define ALNUM_BIT (T3_UNICODE_ALNUM_BIT)
-#define SPACE_BIT (T3_UNICODE_SPACE_BIT)
-#define BAD_DRAW_BIT (T3_UNICODE_NFC_QC_BIT)
-
-
-/** Retrieve the meta data for a key.
-	This function does not check for high/low surrogates.
-*/
-char text_line_t::get_key_meta(key_t c) {
-	char meta_data = t3_unicode_get_info(c, INT_MAX);
-	/* Mask out only what we need. */
-	meta_data &= (WIDTH_MASK | GRAPH_BIT | ALNUM_BIT | SPACE_BIT);
-
-	/* Convert width as returned by t3_unicode_get_info to what we need locally.
-	   Note: the width returned in meta_data is actually the width + 1.
-	   So a with of 0 actually means -1, i.e. a control character. */
-	if ((meta_data & WIDTH_MASK) == 0) {
-		int width = c < 32 && c != '\t' ? 2 : 1;
-		meta_data = (meta_data & ~WIDTH_MASK) | width;
-		// Just making sure...
-		meta_data &= ~(GRAPH_BIT | SPACE_BIT);
-		/* We consider tab a space character, rather than control. */
-		if (c == '\t')
-			meta_data |= SPACE_BIT;
-	} else {
-		meta_data--;
-		if (c == '_')
-			meta_data |= ALNUM_BIT;
-	}
-	return meta_data;
-}
-
 text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
 		factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
@@ -95,13 +53,13 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 
 	while (length > 0) {
 		char_bytes = length;
-		next = t3_unicode_get(_buffer, &char_bytes);
-		round_trip_bytes = t3_unicode_put(next, byte_buffer);
+		next = t3_utf8_get(_buffer, &char_bytes);
+		round_trip_bytes = t3_utf8_put(next, byte_buffer);
 		buffer.append(byte_buffer, round_trip_bytes);
 		length -= char_bytes;
 		_buffer += char_bytes;
 	}
-	starts_with_combining = buffer.size() > 0 && (get_char_meta(0) & WIDTH_MASK) == 0;
+	starts_with_combining = buffer.size() > 0 && width_at(0) == 0;
 }
 
 text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory) : starts_with_combining(false),
@@ -161,7 +119,7 @@ text_line_t *text_line_t::break_line(int pos) {
 		return factory->new_text_line_t();
 
 	/* Only allow line breaks at non-combining marks. */
-	ASSERT(get_char_meta(pos) & WIDTH_MASK);
+	ASSERT(width_at(pos));
 
 	/* copy the right part of the string into the new buffer */
 	newline = factory->new_text_line_t(buffer.size() - pos);
@@ -475,7 +433,7 @@ Several things need to be done:
 */
 /* tabsize == 0 -> tab as control */
 text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length, int tabsize) const {
-	int i, total = 0;
+	int i, total = 0, cclass;
 	break_pos_t possible_break = { start, 0 };
 	bool graph_seen = false, last_was_graph = false;
 
@@ -494,21 +452,17 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
 			break;
 		}
 
+		cclass = get_class(&buffer, i);
 		if (!graph_seen) {
-			if (is_graph(i) || buffer[i] < 32) {
+			if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH || buffer[i] < 32) {
 				graph_seen = true;
 				last_was_graph = true;
 			}
 			possible_break.pos = i;
-		} else if (is_space(i) && last_was_graph) {
+		} else if (cclass == CLASS_WHITESPACE && last_was_graph) {
 			possible_break.pos = adjust_position(i, 1);
 			last_was_graph = false;
-		} else if (is_graph(i) || buffer[i] < 32) {
-/* 			if (last_was_graph && !is_alnum(i) && buffer[i] != '_') {
-				size_t next_pos = adjust_position(i, 1);
-				if (!is_space(next_pos))
-					possible_break.pos = next_pos;
-			} */
+		} else if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH || buffer[i] < 32) {
 			last_was_graph = true;
 		}
 	}
@@ -524,23 +478,6 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
 	return possible_break;
 }
 
-enum {
-	CLASS_WHITESPACE,
-	CLASS_ALNUM,
-	CLASS_GRAPH,
-	CLASS_OTHER
-};
-
-int text_line_t::get_class(int pos) const {
-	if (is_space(pos))
-		return CLASS_WHITESPACE;
-	if (is_alnum(pos))
-		return CLASS_ALNUM;
-	if (is_graph(pos))
-		return CLASS_GRAPH;
-	return CLASS_OTHER;
-}
-
 int text_line_t::get_next_word(int start) const {
 	int i, cclass, newCclass;
 
@@ -548,12 +485,12 @@ int text_line_t::get_next_word(int start) const {
 		start = 0;
 		cclass = CLASS_WHITESPACE;
 	} else {
-		cclass = get_class(start);
+		cclass = get_class(&buffer, start);
 		start = adjust_position(start, 1);
 	}
 
 	for (i = start;
-			(size_t) i < buffer.size() && ((newCclass = get_class(i)) == cclass || newCclass == CLASS_WHITESPACE);
+			(size_t) i < buffer.size() && ((newCclass = get_class(&buffer, i)) == cclass || newCclass == CLASS_WHITESPACE);
 			i = adjust_position(i, 1))
 	{
 		cclass = newCclass;
@@ -572,7 +509,7 @@ int text_line_t::get_previous_word(int start) const {
 		start = buffer.size();
 
 	for (i = adjust_position(start, -1);
-			i > 0 && (cclass = get_class(i)) == CLASS_WHITESPACE;
+			i > 0 && (cclass = get_class(&buffer, i)) == CLASS_WHITESPACE;
 			i = adjust_position(i, -1))
 	{}
 
@@ -582,13 +519,13 @@ int text_line_t::get_previous_word(int start) const {
 	savePos = i;
 
 	for (i = adjust_position(i, -1);
-			i > 0 && get_class(i) == cclass;
+			i > 0 && get_class(&buffer, i) == cclass;
 			i = adjust_position(i, -1))
 	{
 		savePos = i;
 	}
 
-	if (i == 0 && get_class(i) == cclass)
+	if (i == 0 && get_class(&buffer, i) == cclass)
 		savePos = i;
 
 	return cclass != CLASS_WHITESPACE ? savePos : -1;
@@ -605,7 +542,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	char conversion_buffer[5];
 	int conversion_length;
 
-	conversion_length = t3_unicode_put(c, conversion_buffer);
+	conversion_length = t3_utf8_put(c, conversion_buffer);
 
 	reserve(buffer.size() + conversion_length + 1);
 
@@ -618,7 +555,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	}
 
 	if (pos == 0)
-		starts_with_combining = (get_key_meta(c) & WIDTH_MASK) == 0;
+		starts_with_combining = key_width(c) == 0;
 
 	insert_bytes(pos, conversion_buffer, conversion_length);
 	return true;
@@ -631,10 +568,10 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	char conversion_buffer[5];
 	int conversion_length;
 
-	conversion_length = t3_unicode_put(c, conversion_buffer);
+	conversion_length = t3_utf8_put(c, conversion_buffer);
 
 	/* Zero-width characters don't overwrite, only insert. */
-	if ((get_key_meta(c) & WIDTH_MASK) == 0) {
+	if (key_width(c) == 0) {
 		//FIXME: shouldn't this simply insert and set starts_with_combining to true?
 		if (pos == 0)
 			return false;
@@ -747,12 +684,25 @@ int text_line_t::byte_width_from_first(int pos) const {
 	}
 }
 
-int text_line_t::width_at(int pos) const { return get_char_meta(pos) & WIDTH_MASK; }
-int text_line_t::is_print(int pos) const { return (get_char_meta(pos) & (GRAPH_BIT | SPACE_BIT)) != 0; }
-int text_line_t::is_graph(int pos) const { return get_char_meta(pos) & GRAPH_BIT; }
-int text_line_t::is_alnum(int pos) const { return get_char_meta(pos) & ALNUM_BIT; }
-int text_line_t::is_space(int pos) const { return get_char_meta(pos) & SPACE_BIT; }
-int text_line_t::is_bad_draw(int pos) const {
+int text_line_t::key_width(key_t key) {
+	int width = t3_utf8_wcwidth((uint32_t) key);
+	if (width < 0)
+		width = key < 32 && key != '\t' ? 2 : 1;
+	return width;
+}
+int text_line_t::width_at(int pos) const {
+	return key_width(t3_utf8_get(buffer.data() + pos, NULL));
+}
+bool text_line_t::is_print(int pos) const {
+	return buffer[pos] == '\t' || !uc_is_general_category_withtable(t3_utf8_get(buffer.data() + pos, NULL), T3_UTF8_CONTROL_MASK);
+}
+bool text_line_t::is_alnum(int pos) const {
+	return get_class(&buffer, pos) == CLASS_ALNUM;
+}
+bool text_line_t::is_space(int pos) const {
+	return get_class(&buffer, pos) == CLASS_WHITESPACE;
+}
+bool text_line_t::is_bad_draw(int pos) const {
 	return !t3_term_can_draw(buffer.data() + pos, adjust_position(pos, 1) - pos);
 }
 
@@ -772,14 +722,8 @@ void text_line_t::reserve(int size) {
 }
 
 bool text_line_t::check_boundaries(int match_start, int match_end) const {
-	return (match_start == 0 || get_class(match_start) != get_class(adjust_position(match_start, -1))) &&
-							(match_end == get_length() || get_class(match_end) != get_class(adjust_position(match_end, 1)));
-}
-
-char text_line_t::get_char_meta(int pos) const {
-	size_t char_size = buffer.size() - pos;
-
-	return get_key_meta(t3_unicode_get(buffer.data() + pos, &char_size));
+	return (match_start == 0 || get_class(&buffer, match_start) != get_class(&buffer, adjust_position(match_start, -1))) &&
+		(match_end == get_length() || get_class(&buffer, match_end) != get_class(&buffer, adjust_position(match_end, 1)));
 }
 
 //============================= text_line_factory_t ========================

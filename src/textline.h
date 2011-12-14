@@ -79,7 +79,7 @@ class T3_WIDGET_API text_line_t {
 		static const char *wrap_symbol;
 
 		static void paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo, t3_attr_t selection_attr);
-		static char get_key_meta(key_t c);
+		static int key_width(key_t key);
 
 		t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info);
 
@@ -88,7 +88,6 @@ class T3_WIDGET_API text_line_t {
 		void update_meta_buffer(int start_pos = 0);
 		char get_char_meta(int pos) const;
 
-		int get_class(int pos) const;
 		void insert_bytes(int pos, const char *bytes, int space);
 		void reserve(int size);
 		int byte_width_from_first(int pos) const;
@@ -130,11 +129,10 @@ class T3_WIDGET_API text_line_t {
 
 		int get_length(void) const;
 		int width_at(int pos) const;
-		int is_print(int pos) const;
-		int is_graph(int pos) const;
-		int is_alnum(int pos) const;
-		int is_space(int pos) const;
-		int is_bad_draw(int pos) const;
+		bool is_print(int pos) const;
+		bool is_space(int pos) const;
+		bool is_alnum(int pos) const;
+		bool is_bad_draw(int pos) const;
 
 		const std::string *get_data(void) const;
 

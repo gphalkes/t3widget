@@ -18,7 +18,7 @@
 #include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <t3unicode/unicode.h>
+#include <t3window/utf8.h>
 #include <transcript/transcript.h>
 
 #include "log.h"
@@ -246,7 +246,7 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 				if (value == 0) {
 					str[write_position++] = 0;
 				} else {
-					t3_unicode_put(value, buffer);
+					t3_utf8_put(value, buffer);
 					buffer[4] = 0;
 					str.replace(write_position, strlen(buffer), buffer);
 					write_position += strlen(buffer);
@@ -255,7 +255,7 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 			} else if (value & ESCAPE_REPLACEMENT) {
 				/* Write a specific invalid UTF-8 string, that we can later recognize.
 				   For this we use the 0xd901-0xd909 range. */
-				t3_unicode_put((value & ~ESCAPE_REPLACEMENT) + 0xd900, buffer);
+				t3_utf8_put((value & ~ESCAPE_REPLACEMENT) + 0xd900, buffer);
 				str.replace(write_position, 2, buffer);
 				/* Unfortunately, the expanded escape sequence doesn't fit in the previously
 				   allocated space, so we have to adjust the read_position
@@ -391,6 +391,19 @@ void convert_lang_codeset(const char *str, std::string *result, bool from) {
 
 void convert_lang_codeset(const std::string *str, std::string *result, bool from) {
 	convert_lang_codeset(str->c_str(), str->size(), result, from);
+}
+
+int get_class(const string *str, int pos) {
+	size_t data_len = str->size() - pos;
+	uint32_t c = t3_utf8_get(str->data() + pos, &data_len);
+
+	if (uc_is_property_id_continue(c))
+		return CLASS_ALNUM;
+	if (!uc_is_general_category_withtable(c, T3_UTF8_CONTROL_MASK | UC_CATEGORY_MASK_Zs))
+		return CLASS_GRAPH;
+	if (c == '\t' || uc_is_general_category_withtable(c, UC_CATEGORY_MASK_Zs))
+		return CLASS_WHITESPACE;
+	return CLASS_OTHER;
 }
 
 }; // namespace
