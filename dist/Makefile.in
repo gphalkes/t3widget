@@ -16,7 +16,7 @@
 CXXFLAGS=-O2
 
 # Configuration flags and libraries. Include flags here to compile and link
-# against the libpcre, libsigc++, libt3unicode, libt3key, libt3window and
+# against the libpcre, libsigc++, libunistring, libt3key, libt3window and
 # libtranscript libraries.
 CONFIGFLAGS=
 CONFIGLIBS=
