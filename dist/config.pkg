@@ -117,15 +117,24 @@ EOF
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
-#include <t3unicode/unicode.h>
+#include <unictype.h>
+#include <unicase.h>
 
 int main(int argc, char *argv[]) {
-	t3_unicode_get_version();
+	uint8_t buffer[10];
+	size_t buffer_size = sizeof(buffer);
+	size_t out_size;
+	char nul = 0;
+
+	u8_casefold(buffer, buffer_size, NULL, NULL, NULL, &out_size);
+	uc_is_general_category_withtable(0x1234, UC_CATEGORY_MASK_Zs);
+	uc_is_property_id_continue(0x1234);
+
 	return 0;
 }
 EOF
-	pkgconfig libt3unicode LIBT3UNICODE test_link_cxx || \
-		error "!! Can not find libt3unicode. libt3unicode is required to compile libt3widget."
+	test_link_cxx "libunistring" "TESTLIBS=-lunistring" || \
+		error "!! Can not find libunistring library. Libunistring is required to compile libt3window."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -367,6 +376,6 @@ int main(int argc, char *argv[]) {
 EOF
 	test_link_cxx "strdup" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRDUP"
 
-	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} ${LIBT3UNICODE_FLAGS} ${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
-		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} ${LIBT3UNICODE_LIBS} ${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}"
+	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} ${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
+		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring ${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}"
 }

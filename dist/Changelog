@@ -1,3 +1,7 @@
+Version 0.1.6:
+	Miscelaneous changes:
+	- Use libunistring instead of libt3unicode.
+
 Version 0.1.5:
 	New features:
 	- Allow grouping of several undo items in text_buffer_t

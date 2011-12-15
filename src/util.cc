@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <t3window/utf8.h>
 #include <transcript/transcript.h>
+#include <unictype.h>
 
 #include "log.h"
 #include "util.h"
