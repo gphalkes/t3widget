@@ -83,19 +83,24 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
 			widget_t *widget = dynamic_cast<widget_t *>(iter->second);
+			dialog_t *active_dialog = dialog_t::active_dialogs.back();
 
 			if (widget == NULL)
 				continue;
 
-			if (!dialog_t::active_dialogs.back()->is_child(widget))
+			if (!active_dialog->is_child(widget))
 				return false;
 
 			mouse_event_t local_event = event;
 			local_event.x -= t3_win_get_abs_x(win);
 			local_event.y -= t3_win_get_abs_y(win);
 			if (iter->second->process_mouse_event(local_event)) {
-				if (event.previous_button_state == 0 && (event.button_state & 7) != 0)
-					dialog_t::active_dialogs.back()->focus_set(widget);
+				/* If the active dialog has not changed by processing the event,
+				   and the event is a button press, we should focus the widget that
+				   received the event. */
+				if (active_dialog == dialog_t::active_dialogs.back() &&
+						event.previous_button_state == 0 && (event.button_state & 7) != 0)
+					active_dialog->focus_set(widget);
 				return true;
 			}
 		}
