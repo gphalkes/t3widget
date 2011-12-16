@@ -14,6 +14,7 @@
 #include "interfaces.h"
 #include "widgets/widget.h"
 #include "main.h"
+
 using namespace std;
 
 namespace t3_widget {
@@ -33,6 +34,61 @@ void container_t::unset_widget_parent(widget_t *widget) {
 center_component_t::center_component_t(void) : center_window(this) {}
 void center_component_t::set_center_window(window_component_t *_center_window) { center_window = _center_window; }
 
+mouse_target_t::mouse_target_map_t mouse_target_t::targets;
+
+void mouse_target_t::register_mouse_target(t3_window_t *window) {
+	targets[window] = this;
+}
+
+mouse_target_t::~mouse_target_t(void) {
+	for (mouse_target_map_t::iterator iter = targets.begin(); iter != targets.end(); ) {
+		/* Can't use iter anymore after erasing, so we have to start our search all over
+		   once we have found ourselves. */
+		for (iter = targets.begin(); iter != targets.end(); iter++) {
+			if (iter->second == this) {
+				targets.erase(iter);
+				break;
+			}
+		}
+	}
+}
+
+bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
+	static t3_window_t *button_down_win = NULL;
+
+	t3_window_t *win = t3_win_at_location(event.y, event.x);
+	mouse_target_map_t::iterator iter;
+
+	if (win == NULL)
+		return false;
+
+	/*FIXME:
+		- As we only have modal dialogs, we must only pass the events on if
+		  the mouse_target_t is part of the currently activated dialog. The only
+		  exception to this is when we click next to a menu panel.
+		- We need to somehow be able to focus the widget that is clicked.
+	*/
+	if (event.previous_button_state == 0 && (event.button_state & 7) != 0) {
+		button_down_win = win;
+	} else if ((event.previous_button_state & 7) != 0 && event.button_state == 0) {
+		if (button_down_win == win)
+			event.button_state |= (event.previous_button_state & 7) << 5;
+		button_down_win = NULL;
+	}
+
+	while (win != NULL) {
+		iter = targets.find(win);
+		if (iter != targets.end()) {
+			mouse_event_t local_event = event;
+			local_event.x -= t3_win_get_abs_x(win);
+			local_event.y -= t3_win_get_abs_y(win);
+			if (iter->second->process_mouse_event(local_event))
+				return true;
+		}
+		win = t3_win_get_parent(win);
+	}
+	return false;
+}
 
 list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
 sigc::connection bad_draw_recheck_t::initialized =

@@ -531,6 +531,7 @@ convert_mouse_event:
 
 	event.x = event.x <= 32 ? event.x = -1 : event.x - 33;
 	event.y = event.y <= 32 ? event.y = -1 : event.y - 33;
+	event.previous_button_state = mouse_button_state;
 	buttons -= 32;
 
 	if (buttons & 64) {

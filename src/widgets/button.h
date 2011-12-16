@@ -20,7 +20,7 @@
 namespace t3_widget {
 
 /** Button widget. */
-class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
+class T3_WIDGET_API button_t : public widget_t, public focus_widget_t, public mouse_target_t {
 	private:
 		/** Text to display on the button. */
 		cleanup_obj_ptr<smart_label_text_t> text;
@@ -51,6 +51,8 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual bool is_hotkey(key_t key);
+
+		virtual bool process_mouse_event(mouse_event_t event);
 		/** Retrieve this button_t's width. */
 		int get_width(void);
 

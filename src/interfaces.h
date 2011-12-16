@@ -15,6 +15,7 @@
 #define T3_WIDGET_INTERFACES_H
 
 #include <list>
+#include <map>
 #include <t3window/window.h>
 
 #include <t3widget/key.h>
@@ -102,6 +103,24 @@ class T3_WIDGET_API center_component_t : private virtual window_component_t {
 		center_component_t(void);
 		/** Set the window_component_t to center over. */
 		virtual void set_center_window(window_component_t *_center_window);
+};
+
+class T3_WIDGET_API mouse_target_t {
+	typedef std::map<t3_window_t *, mouse_target_t *> mouse_target_map_t;
+	private:
+		static mouse_target_map_t targets;
+
+	public:
+		/** Register a window to receive mouse events. */
+		void register_mouse_target(t3_window_t *window);
+		/** Process a mouse event.
+		    @return A boolean indicating whether this mouse_target_t handled the
+		        mouse event.
+		*/
+		virtual bool process_mouse_event(mouse_event_t event) = 0;
+		~mouse_target_t(void);
+
+		static bool handle_mouse_event(mouse_event_t event);
 };
 
 /** Base class for widgets that need handle user text and draw differently based on the t3_win_can_draw function.

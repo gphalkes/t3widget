@@ -322,6 +322,7 @@ void iterate(void) {
 		mouse_event_t event = read_mouse_event();
 		lprintf("Got mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d\n", event.x, event.y,
 			event.button_state, event.modifier_state);
+		mouse_target_t::handle_mouse_event(event);
 	} else {
 		lprintf("Got key %04X\n", key);
 	}

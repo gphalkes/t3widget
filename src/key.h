@@ -30,6 +30,7 @@ typedef int key_t;
 struct mouse_event_t {
 	int x,
 		y,
+		previous_button_state,
 		button_state,
 		modifier_state;
 };
@@ -142,6 +143,9 @@ enum {
 	EMOUSE_BUTTON_RIGHT = (1<<2),
 	EMOUSE_SCROLL_UP = (1<<3),
 	EMOUSE_SCROLL_DOWN = (1<<4),
+	EMOUSE_CLICKED_LEFT = (1<<5),
+	EMOUSE_CLICKED_MIDDLE = (1<<6),
+	EMOUSE_CLICKED_RIGHT = (1<<7),
 };
 enum {
 	EMOUSE_SHIFT = (1<<0),
