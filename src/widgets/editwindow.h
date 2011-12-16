@@ -156,6 +156,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		virtual void force_redraw(void);
 		virtual void bad_draw_recheck(void);
 
+		virtual void focus_set(widget_t *target);
+		virtual bool is_child(widget_t *widget);
+
 		/** Set the text to display.
 		    The previously displayed text will be replaced, without deleting. Use
 		    get_text to retrieve the current text_buffer_t before calling this
@@ -269,7 +272,7 @@ class edit_window_t::view_parameters_t {
 class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t {
 	private:
 		auto_t3_window_t shadow_window;
-		list_pane_t *list_pane;
+		list_pane_t list_pane;
 		bool redraw;
 	public:
 		autocomplete_panel_t(edit_window_t *parent);
@@ -281,6 +284,8 @@ class edit_window_t::autocomplete_panel_t : public virtual window_component_t, p
 		virtual void show(void);
 		virtual void hide(void);
 		virtual void force_redraw(void);
+		virtual void focus_set(widget_t *target);
+		virtual bool is_child(widget_t *widget);
 
 		void set_completions(string_list_base_t *completions);
 		size_t get_selected_idx(void) const;

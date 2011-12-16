@@ -20,7 +20,7 @@
 namespace t3_widget {
 
 /** Class implementing a checkbox. */
-class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
+class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t, public mouse_target_t {
 	private:
 		bool state, /**< Current state (true if checked). */
 			has_focus; /**< Boolean indicating whether this widget should be drawn as focuessed. */
@@ -38,6 +38,7 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual bool is_hotkey(key_t key);
+		virtual bool process_mouse_event(mouse_event_t event);
 		/** Set the enabled status of this widget.
 		    When the checkbox_t is not enabled, it does not accept focus and the
 		    contents will be shown as a dash (-).

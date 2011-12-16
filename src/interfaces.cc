@@ -11,6 +11,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <typeinfo>
 #include "interfaces.h"
 #include "widgets/widget.h"
 #include "main.h"
@@ -36,8 +37,16 @@ void center_component_t::set_center_window(window_component_t *_center_window) {
 
 mouse_target_t::mouse_target_map_t mouse_target_t::targets;
 
-void mouse_target_t::register_mouse_target(t3_window_t *window) {
-	targets[window] = this;
+mouse_target_t::mouse_target_t(bool use_window) {
+	if (use_window)
+		register_mouse_target(window);
+}
+
+void mouse_target_t::register_mouse_target(t3_window_t *target) {
+	if (target == NULL)
+		fprintf(stderr, "registering mouse target for NULL window in %s\n", typeid(this).name());
+	else
+		targets[target] = this;
 }
 
 mouse_target_t::~mouse_target_t(void) {
@@ -62,12 +71,6 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	if (win == NULL)
 		return false;
 
-	/*FIXME:
-		- As we only have modal dialogs, we must only pass the events on if
-		  the mouse_target_t is part of the currently activated dialog. The only
-		  exception to this is when we click next to a menu panel.
-		- We need to somehow be able to focus the widget that is clicked.
-	*/
 	if (event.previous_button_state == 0 && (event.button_state & 7) != 0) {
 		button_down_win = win;
 	} else if ((event.previous_button_state & 7) != 0 && event.button_state == 0) {
@@ -79,11 +82,22 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	while (win != NULL) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
+			widget_t *widget = dynamic_cast<widget_t *>(iter->second);
+
+			if (widget == NULL)
+				continue;
+
+			if (!dialog_t::active_dialogs.back()->is_child(widget))
+				return false;
+
 			mouse_event_t local_event = event;
 			local_event.x -= t3_win_get_abs_x(win);
 			local_event.y -= t3_win_get_abs_y(win);
-			if (iter->second->process_mouse_event(local_event))
+			if (iter->second->process_mouse_event(local_event)) {
+				if (event.previous_button_state == 0 && (event.button_state & 7) != 0)
+					dialog_t::active_dialogs.back()->focus_set(widget);
 				return true;
+			}
 		}
 		win = t3_win_get_parent(win);
 	}

@@ -99,6 +99,38 @@ void split_t::force_redraw(void) {
 		(*iter)->force_redraw();
 }
 
+void split_t::focus_set(widget_t *target) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if (*iter == target) {
+			(*current)->set_focus(false);
+			current = iter;
+			(*current)->set_focus(true);
+			return;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(*iter);
+			if (container != NULL && container->is_child(target)) {
+				(*current)->set_focus(false);
+				current = iter;
+				container->focus_set(target);
+				return;
+			}
+		}
+	}
+}
+
+bool split_t::is_child(widget_t *widget) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if (*iter == widget) {
+			return true;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(*iter);
+			if (container != NULL && container->is_child(widget))
+				return true;
+		}
+	}
+	return false;
+}
+
 void split_t::split(widget_t *widget, bool _horizontal) {
 	split_t *current_window = dynamic_cast<split_t *>(*current);
 

@@ -31,6 +31,7 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		friend void iterate(void);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
+		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
 
 		static dialogs_t active_dialogs; /**< Dialog stack. */
 		static dialogs_t dialogs; /**< List of all dialogs in the application. */
@@ -62,8 +63,6 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		void focus_next(void);
 		/** Focus the next widget, wrapping around if necessary. */
 		void focus_previous(void);
-		/** Set the focus to a specific widget. */
-		void focus_set(widget_t *target);
 		/** Add a widget to this dialog.
 		    If a widget is not added through #push_back, it will not be
 		    displayed, or receive input. */
@@ -72,6 +71,9 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		    This function should be called when the dialog is closed by some
 		    event originating from this dialog. */
 		virtual void close(void);
+
+		virtual bool is_child(widget_t *widget);
+		virtual void focus_set(widget_t *target);
 
 	public:
 		/** Destroy this dialog.

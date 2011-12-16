@@ -265,8 +265,29 @@ void dialog_t::focus_set(widget_t *target) {
 			current_widget = iter;
 			(*current_widget)->set_focus(true);
 			return;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(*iter);
+			if (container != NULL && container->is_child(target)) {
+				(*current_widget)->set_focus(false);
+				current_widget = iter;
+				container->focus_set(target);
+				return;
+			}
 		}
 	}
+}
+
+bool dialog_t::is_child(widget_t *widget) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if (*iter == widget) {
+			return true;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(*iter);
+			if (container != NULL && container->is_child(widget))
+				return true;
+		}
+	}
+	return false;
 }
 
 void dialog_t::push_back(widget_t *widget) {

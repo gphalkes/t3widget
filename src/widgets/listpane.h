@@ -56,6 +56,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		virtual void set_focus(bool focus);
 		virtual void set_anchor(window_component_t *anchor, int relation);
 		virtual void force_redraw(void);
+		virtual void focus_set(widget_t *target);
+		virtual bool is_child(widget_t *widget);
 		void reset(void);
 		void update_positions(void);
 
@@ -74,7 +76,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		iterator begin(void);
 		iterator end(void);
 
-		size_t get_current(void);
+		size_t get_current(void) const;
 		void set_current(size_t idx);
 
 	T3_WIDGET_SIGNAL(activate, void);

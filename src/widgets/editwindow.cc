@@ -1191,6 +1191,15 @@ void edit_window_t::bad_draw_recheck(void) {
 	widget_t::force_redraw();
 }
 
+void edit_window_t::focus_set(widget_t *target) {
+	(void) target;
+	set_focus(true);
+}
+
+bool edit_window_t::is_child(widget_t *widget) {
+	return widget == scrollbar;
+}
+
 void edit_window_t::set_wrap(wrap_type_t wrap) {
 	if (wrap == wrap_type)
 		return;
@@ -1359,22 +1368,21 @@ void edit_window_t::view_parameters_t::set_indent_aware_home(bool _indent_aware_
 
 //====================== autocomplete_panel_t ========================
 
-edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent) {
+edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent) : list_pane(false) {
 	if ((window = t3_win_new(parent->get_base_window(), 7, 7, 0, 0, -10)) == NULL)
 		throw bad_alloc();
 	if ((shadow_window = t3_win_new(parent->get_base_window(), 7, 7, 1, 1, -9)) == NULL)
 		throw bad_alloc();
 	t3_win_set_anchor(shadow_window, window, 0);
 
-	list_pane = new list_pane_t(false);
-	list_pane->set_size(5, 6);
-	list_pane->set_position(1, 1);
-	list_pane->set_focus(true);
-	set_widget_parent(list_pane);
+	list_pane.set_size(5, 6);
+	list_pane.set_position(1, 1);
+	list_pane.set_focus(true);
+	set_widget_parent(&list_pane);
 }
 
 bool edit_window_t::autocomplete_panel_t::process_key(key_t key) {
-	return list_pane->process_key(key);
+	return list_pane.process_key(key);
 }
 
 void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left) {
@@ -1406,7 +1414,7 @@ bool edit_window_t::autocomplete_panel_t::set_size(optint height, optint width) 
 	(void) height;
 	result = t3_win_resize(window, height, width);
 	result &= t3_win_resize(shadow_window, height, width);
-	result &= list_pane->set_size(height - 2, width - 1);
+	result &= list_pane.set_size(height - 2, width - 1);
 	redraw = true;
 	return result;
 }
@@ -1430,7 +1438,7 @@ void edit_window_t::autocomplete_panel_t::update_contents(void) {
 
 		redraw = false;
 	}
-	list_pane->update_contents();
+	list_pane.update_contents();
 }
 
 void edit_window_t::autocomplete_panel_t::set_focus(bool _focus) {
@@ -1441,7 +1449,7 @@ void edit_window_t::autocomplete_panel_t::set_focus(bool _focus) {
 void edit_window_t::autocomplete_panel_t::show(void) {
 	t3_win_show(window);
 	t3_win_show(shadow_window);
-	list_pane->set_focus(true);
+	list_pane.set_focus(true);
 }
 
 void edit_window_t::autocomplete_panel_t::hide(void) {
@@ -1450,28 +1458,36 @@ void edit_window_t::autocomplete_panel_t::hide(void) {
 }
 
 void edit_window_t::autocomplete_panel_t::force_redraw(void) {
-	list_pane->force_redraw();
+	list_pane.force_redraw();
 	redraw = true;
+}
+
+void edit_window_t::autocomplete_panel_t::focus_set(widget_t *target) {
+	(void) target;
+}
+
+bool edit_window_t::autocomplete_panel_t::is_child(widget_t *widget) {
+	return widget == &list_pane || list_pane.is_child(widget);
 }
 
 void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *completions) {
 	int new_width = 1;
 	int new_height;
 
-	while (!list_pane->empty()) {
-		widget_t *widget = list_pane->back();
-		list_pane->pop_back();
+	while (!list_pane.empty()) {
+		widget_t *widget = list_pane.back();
+		list_pane.pop_back();
 		delete widget;
 	}
 
 	for (size_t i = 0; i < completions->size(); i++) {
 		label_t *label = new label_t((*completions)[i]->c_str());
-		list_pane->push_back(label);
+		list_pane.push_back(label);
 		if (label->get_text_width() > new_width)
 			new_width = label->get_text_width();
 	}
 
-	new_height = list_pane->size() + 2;
+	new_height = list_pane.size() + 2;
 	if (new_height > 7)
 		new_height = 7;
 	else if (new_height < 5)
@@ -1481,7 +1497,7 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
 }
 
 size_t edit_window_t::autocomplete_panel_t::get_selected_idx(void) const {
-	return list_pane->get_current();
+	return list_pane.get_current();
 }
 
 }; // namespace

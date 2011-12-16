@@ -235,6 +235,15 @@ void text_window_t::set_focus(bool _focus) {
 	focus = _focus;
 }
 
+void text_window_t::focus_set(widget_t *target) {
+	(void) target;
+	set_focus(true);
+}
+
+bool text_window_t::is_child(widget_t *component) {
+	return component == scrollbar;
+}
+
 text_buffer_t *text_window_t::get_text(void) {
 	return text;
 }

@@ -154,4 +154,23 @@ void multi_widget_t::set_enabled(bool enable) {
 		iter->widget->set_enabled(enable);
 }
 
+void multi_widget_t::focus_set(widget_t *target) {
+	(void) target;
+	set_focus(true);
+}
+
+bool multi_widget_t::is_child(widget_t *widget) {
+	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if (iter->widget == widget) {
+			return true;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(iter->widget);
+			if (container != NULL && container->is_child(widget))
+				return true;
+		}
+	}
+	return false;
+}
+
+
 }; // namespace

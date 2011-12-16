@@ -62,6 +62,10 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool _focus);
+
+		virtual void focus_set(widget_t *target);
+		virtual bool is_child(widget_t *component);
+
 		/** Set the list to its initial position, i.e. the selected item is the first item. */
 		void reset(void);
 		/** Set the file_list_t that this file_pane_t displays. */

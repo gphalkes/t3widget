@@ -219,6 +219,15 @@ void file_pane_t::set_focus(bool _focus) {
 		draw_line(current, focus);
 }
 
+void file_pane_t::focus_set(widget_t *target) {
+	(void) target;
+	set_focus(true);
+}
+
+bool file_pane_t::is_child(widget_t *widget) {
+	return widget == scrollbar;
+}
+
 void file_pane_t::reset(void) {
 	top_idx = 0;
 	current = 0;

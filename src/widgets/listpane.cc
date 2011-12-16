@@ -193,6 +193,46 @@ void list_pane_t::force_redraw(void) {
 		indicator_widget->force_redraw();
 }
 
+void list_pane_t::focus_set(widget_t *target) {
+	widgets_t::iterator iter;
+	size_t idx;
+	if (target == scrollbar || target == indicator_widget) {
+		set_focus(true);
+		return;
+	}
+
+	for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
+		if (*iter == target) {
+			current = idx;
+			set_focus(true);
+			return;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(*iter);
+			if (container != NULL) {
+				current = idx;
+				set_focus(true);
+				return;
+			}
+		}
+	}
+}
+
+bool list_pane_t::is_child(widget_t *widget) {
+	if (widget == scrollbar || widget == indicator_widget)
+		return true;
+
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		if (*iter == widget) {
+			return true;
+		} else {
+			container_t *container = dynamic_cast<container_t *>(*iter);
+			if (container != NULL && container->is_child(widget))
+				return true;
+		}
+	}
+	return false;
+}
+
 void list_pane_t::push_back(widget_t *widget) {
 	widget->set_size(1, t3_win_get_width(widgets_window) - (indicator ? 2 : 0));
 	widget->set_position(widgets.size(), indicator ? 1 : 0);
@@ -271,7 +311,7 @@ list_pane_t::iterator list_pane_t::end(void) {
 	return widgets.size();
 }
 
-size_t list_pane_t::get_current(void) {
+size_t list_pane_t::get_current(void) const {
 	return current;
 }
 

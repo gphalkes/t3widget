@@ -93,4 +93,14 @@ void checkbox_t::set_enabled(bool enable) {
 	redraw = true;
 }
 
+bool checkbox_t::process_mouse_event(mouse_event_t event) {
+	if (event.button_state & EMOUSE_CLICKED_LEFT) {
+		state ^= true;
+		redraw = true;
+		toggled();
+		update_contents();
+	}
+	return true;
+}
+
 }; // namespace

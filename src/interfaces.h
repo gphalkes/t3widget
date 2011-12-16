@@ -80,6 +80,11 @@ class T3_WIDGET_API container_t : private virtual window_component_t {
 		virtual bool set_widget_parent(widget_t *widget);
 		/** Unset the parent window for a @p widget. */
 		virtual void unset_widget_parent(widget_t *widget);
+	public:
+		/** Set the focus to a specific window component. */
+		virtual void focus_set(widget_t *target) = 0;
+		/** Determine whether a window_compnent_t is a child of the container_t. */
+		virtual bool is_child(widget_t *component) = 0;
 };
 
 /** Base class for components which need to center dialogs.
@@ -105,14 +110,16 @@ class T3_WIDGET_API center_component_t : private virtual window_component_t {
 		virtual void set_center_window(window_component_t *_center_window);
 };
 
-class T3_WIDGET_API mouse_target_t {
+class T3_WIDGET_API mouse_target_t : private virtual window_component_t {
 	typedef std::map<t3_window_t *, mouse_target_t *> mouse_target_map_t;
 	private:
 		static mouse_target_map_t targets;
+	protected:
+		mouse_target_t(bool use_window = true);
 
 	public:
 		/** Register a window to receive mouse events. */
-		void register_mouse_target(t3_window_t *window);
+		void register_mouse_target(t3_window_t *target);
 		/** Process a mouse event.
 		    @return A boolean indicating whether this mouse_target_t handled the
 		        mouse event.
