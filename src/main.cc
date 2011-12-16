@@ -318,7 +318,13 @@ void iterate(void) {
 
 	t3_term_update();
 	key = read_key();
-	lprintf("Got key %04X\n", key);
+	if (key == EKEY_MOUSE_EVENT) {
+		mouse_event_t event = read_mouse_event();
+		lprintf("Got mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d\n", event.x, event.y,
+			event.button_state, event.modifier_state);
+	} else {
+		lprintf("Got key %04X\n", key);
+	}
 	switch (key) {
 		case EKEY_RESIZE:
 			do_resize();

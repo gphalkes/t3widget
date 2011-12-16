@@ -118,6 +118,9 @@ static int map_count;
 static key_t map_single[128];
 
 static const char *leave, *enter;
+static const char *disable_mouse = "\033[?1005l\033[?1002l\033[?1000l";
+static const char *enable_mouse = "\033[?1000h\033[?1002h\033[?1005h";
+
 static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
 
@@ -310,6 +313,10 @@ key_t read_key(void) {
 	return key_buffer.pop_front();
 }
 
+mouse_event_t read_mouse_event(void) {
+	return mouse_event_buffer.pop_front();
+}
+
 static int compare_sequence_with_mapping(const void *key, const void *mapping) {
 	const key_sequence_t *_key;
 	const mapping_t *_mapping;
@@ -452,9 +459,19 @@ unknown_sequence:
     number in response to a "Send Device Attributes" request. Thus, this
     routine tries to do automatic switching, based on the received mouse
     reports.
+
+    Autodetection logic:
+    - start by assuming full UTF-8 encoded mode
+    - if the buttons have the top bit set, but are not properly UTF-8 encoded,
+      assume that only the coordinates have been UTF-8 encoded
+    - if a coordinate is not properly UTF-8 encoded, assume single byte coding
+    - if during the examination of the coordinate we find that not enough bytes
+      are available to decode, assume single byte coding. (This situation can
+      not be caused by incorrecly assuming that the buttons are UTF-8 encoded,
+      because then the first coordinate byte would be invalid.)
 */
 static int decode_xterm_mouse(void) {
-	struct mouse_event_t event;
+	mouse_event_t event;
 	int buttons, idx, i;
 
 	while (char_buffer_fill < 3) {
@@ -546,7 +563,8 @@ convert_mouse_event:
 
 	event.modifier_state = (buttons >> 2) & 7;
 	mouse_event_buffer.push_back(event);
-	lprintf("Mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d (%d)\n", event.x, event.y, event.button_state, event.modifier_state, xterm_mouse_reporting);
+	/* lprintf("Mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d (%d)\n", event.x, event.y,
+		event.button_state, event.modifier_state, xterm_mouse_reporting); */
 	return EKEY_MOUSE_EVENT;
 }
 
@@ -665,6 +683,12 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 		leave = key_node->string;
 	if ((key_node = t3_key_get_named_node(keymap, "%shiftfn")) != NULL)
 		shiftfn = key_node->string;
+	if (t3_key_get_named_node(keymap, "%xterm_mouse")) {
+		/* Start out in ALL_UTF mode. The decode_xterm_mouse routine will switch back
+		   to a different mode if necessary. */
+		xterm_mouse_reporting = XTERM_MOUSE_ALL_UTF;
+		t3_term_putp(enable_mouse);
+	}
 
 	/* Load all the known keys from the terminfo database.
 	   - find out how many sequences there are
@@ -790,11 +814,15 @@ return_error:
 #undef RETURN_ERROR
 
 void deinit_keys(void) {
+	if (xterm_mouse_reporting)
+		t3_term_putp(disable_mouse);
 	t3_term_putp(leave);
 }
 
 void reinit_keys(void) {
 	t3_term_putp(enter);
+	if (xterm_mouse_reporting)
+		t3_term_putp(enable_mouse);
 }
 
 void cleanup_keys(void) {
@@ -820,6 +848,8 @@ static void stop_keys(void) {
 	char quit_signal = QUIT_SIGNAL;
 	nosig_write(signal_pipe[1], &quit_signal, 1);
 	pthread_join(read_key_thread, &retval);
+	if (xterm_mouse_reporting)
+		t3_term_putp(disable_mouse);
 	t3_term_putp(leave);
 }
 

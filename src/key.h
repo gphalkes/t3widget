@@ -181,5 +181,8 @@ T3_WIDGET_API int get_key_timeout(void);
     running the #main_loop function.
 */
 T3_WIDGET_API void signal_update(void);
+
+/** Retrieve a mouse event from the input queue. */
+T3_WIDGET_API mouse_event_t read_mouse_event(void);
 }; // namespace
 #endif
