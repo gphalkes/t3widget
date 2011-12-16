@@ -122,6 +122,8 @@ static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
 
 static key_buffer_t key_buffer;
+static mouse_event_buffer_t mouse_event_buffer;
+static int mouse_button_state;
 static pthread_t read_key_thread;
 
 static char char_buffer[32];
@@ -144,6 +146,7 @@ static enum { // Mouse reporting states:
 } xterm_mouse_reporting;
 
 static key_t decode_sequence(bool outer);
+static int decode_xterm_mouse(void);
 static void stop_keys(void);
 
 static void convert_next_key(void) {
@@ -297,7 +300,8 @@ static void *read_keys(void *arg) {
 			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
-			key_buffer.push_back(c);
+			if (c >= 0)
+				key_buffer.push_back(c);
 		}
 	}
 }
@@ -345,12 +349,10 @@ static key_t decode_sequence(bool outer) {
 			if (c == EKEY_ESC) {
 				if (sequence.idx == 1 && outer) {
 					key_t alted = decode_sequence(false);
-					return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
+					return alted >= 0 ? alted | EKEY_META : (alted == -2 ? EKEY_ESC : -1);
 				}
 				unget_keychar(c);
 				goto unknown_sequence;
-			} else if (sequence.idx == 1 && xterm_mouse_reporting && c == 'M') {
-				//FIXME: decode xterm mouse reporting sequence
 			}
 
 			sequence.data[sequence.idx++] = c;
@@ -362,7 +364,18 @@ static key_t decode_sequence(bool outer) {
 
 			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised. */
 			if (sequence.data[1] == '[' && !is_prefix) {
-				if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
+				if (sequence.idx == 3 && xterm_mouse_reporting && c == 'M') {
+					if (!outer) {
+						/* If this is not the outer decode_sequence call, push everything
+						   back onto the character list, and do nothing. A next call to
+						   decode_sequence will take care of the mouse handling. */
+						unget_keychar(c);
+						unget_keychar('[');
+						unget_keychar(EKEY_ESC);
+						return -1;
+					}
+					return decode_xterm_mouse();
+				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
 					return -1;
 				} else if (c < 0x20 || c > 0x7f) {
 					/* Drop unknown leading sequence if some non-CSI byte is found. */
@@ -393,8 +406,8 @@ unknown_sequence:
 		if (alted_key < 0)
 			return -1;
 		return alted_key | EKEY_META;
-	} else if (sequence.idx == 1 && !drop_single_esc) {
-		return EKEY_ESC;
+	} else if (sequence.idx == 1) {
+		return drop_single_esc ? -2 : EKEY_ESC;
 	}
 
 	/* Something unwanted has happened here: the character sequence we encoutered was not
@@ -403,8 +416,143 @@ unknown_sequence:
 	return -1;
 }
 
+#define get_next_byte(x) do { \
+	while ((x = get_next_keychar()) < 0 && read_keychar(1)) {} \
+	if (x < 0) \
+		return -1; \
+} while (0)
+
+#define ensure_buffer_fill() do { \
+	while (char_buffer_fill == idx) { \
+		if (!read_keychar(1)) { \
+			xterm_mouse_reporting = XTERM_MOUSE_SINGLE_BYTE; \
+			goto convert_mouse_event; \
+		} \
+	} \
+} while (0)
+
+/** Decode an XTerm mouse event.
+
+    This routine would have been simple, had it not been for the fact that the
+    original XTerm mouse protocol is a little broken, and it is hard to detect
+    whether the fix is present. First of all, the original protocol can not
+    handle coordinates above 223. This is due to the fact that a coordinate is
+    encoded as coordinate + 32 (and coordinates start at 1).
+
+    Once screens got big enough to make terminals more than 223 columns wide,
+    a fix was implemented, which uses UTF-8 encoding (but only using at most
+    2 bytes, instead of simply using the full range). However, to accomodate
+    clients which simply assumed all input was UTF-8 encoded, several versions
+    later the buttons were encoded as UTF-8 as well. Thus we now have three
+    different versions of the XTerm mouse reporting protocol.
+
+    This wouldn't be so bad, if it wasn't for all those terminal emulators out
+    there claiming to be XTerm. They make detection of the specific version of
+    the protocol practically impossible, because they may report any version
+    number in response to a "Send Device Attributes" request. Thus, this
+    routine tries to do automatic switching, based on the received mouse
+    reports.
+*/
+static int decode_xterm_mouse(void) {
+	struct mouse_event_t event;
+	int buttons, idx, i;
+
+	while (char_buffer_fill < 3) {
+		if (!read_keychar(1))
+			return -1;
+	}
+
+	if (xterm_mouse_reporting > XTERM_MOUSE_SINGLE_BYTE) {
+		idx = 1;
+		if ((char_buffer[0] & 0x80) && xterm_mouse_reporting == XTERM_MOUSE_ALL_UTF) {
+			if ((char_buffer[0] & 0xc0) != 0xc0 || (char_buffer[1] & 0xc0) != 0x80)
+				xterm_mouse_reporting = XTERM_MOUSE_COORD_UTF;
+			else
+				idx = 2;
+		}
+		for (i = 0; i < 2; i++) {
+			ensure_buffer_fill();
+			if ((char_buffer[idx] & 0x80) && xterm_mouse_reporting >= XTERM_MOUSE_COORD_UTF) {
+				idx++;
+				ensure_buffer_fill();
+				if ((char_buffer[idx - 1] & 0xc0) != 0xc0 || (char_buffer[idx] & 0xc0) != 0x80) {
+					xterm_mouse_reporting = XTERM_MOUSE_SINGLE_BYTE;
+					goto convert_mouse_event;
+				}
+			}
+			idx++;
+		}
+	}
+
+#define DECODE_UTF() (char_buffer[idx] & 0x80 ? (idx += 2, ((((unsigned char) char_buffer[idx - 2] & ~0xc0) << 6) | \
+	((unsigned char) char_buffer[idx - 1] & ~0xc0))) : char_buffer[idx++])
+
+convert_mouse_event:
+	idx = 0;
+	switch (xterm_mouse_reporting) {
+		case XTERM_MOUSE_SINGLE_BYTE:
+			buttons = (unsigned char) char_buffer[0];
+			event.x = (unsigned char) char_buffer[1];
+			event.y = (unsigned char) char_buffer[2];
+			idx = 3;
+			break;
+		case XTERM_MOUSE_COORD_UTF:
+			buttons = (unsigned char) char_buffer[0];
+			idx = 1;
+			goto convert_coordinates;
+		case XTERM_MOUSE_ALL_UTF:
+			buttons = DECODE_UTF();
+		convert_coordinates:
+			event.x = DECODE_UTF();
+			event.y = DECODE_UTF();
+			break;
+		default:
+			return -1;
+	}
+	char_buffer_fill -= idx;
+	memmove(char_buffer, char_buffer + idx, char_buffer_fill);
+
+	event.x = event.x <= 32 ? event.x = -1 : event.x - 33;
+	event.y = event.y <= 32 ? event.y = -1 : event.y - 33;
+	buttons -= 32;
+
+	if (buttons & 64) {
+		switch (buttons & 3) {
+			case 0:
+				event.button_state = mouse_button_state | EMOUSE_SCROLL_UP;
+				break;
+			case 1:
+				event.button_state = mouse_button_state | EMOUSE_SCROLL_DOWN;
+				break;
+			default:
+				event.button_state = mouse_button_state;
+				break;
+		}
+	} else {
+		switch (buttons & 3) {
+			case 0:
+				event.button_state = mouse_button_state |= EMOUSE_BUTTON_LEFT;
+				break;
+			case 1:
+				event.button_state = mouse_button_state |= EMOUSE_BUTTON_MIDDLE;
+				break;
+			case 2:
+				event.button_state = mouse_button_state |= EMOUSE_BUTTON_RIGHT;
+				break;
+			default:
+				event.button_state = mouse_button_state = 0;
+		}
+	}
+
+	event.modifier_state = (buttons >> 2) & 7;
+	mouse_event_buffer.push_back(event);
+	lprintf("Mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d (%d)\n", event.x, event.y, event.button_state, event.modifier_state, xterm_mouse_reporting);
+	return EKEY_MOUSE_EVENT;
+}
+
 void insert_protected_key(key_t key) {
-	key_buffer.push_back(key | EKEY_PROTECT);
+	if (key >= 0)
+		key_buffer.push_back(key | EKEY_PROTECT);
 }
 
 static void sigwinch_handler(int param) {
