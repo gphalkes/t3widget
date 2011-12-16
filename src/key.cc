@@ -136,12 +136,57 @@ static bool drop_single_esc = true;
 /* Used in decode_sequence and comparison routine to communicate whether the current
    sequence is a prefix of any known sequence. */
 static bool is_prefix;
-
+static enum { // Mouse reporting states:
+	XTERM_MOUSE_NONE, // disabled
+	XTERM_MOUSE_SINGLE_BYTE, // using a single byte for each coordinate and button state
+	XTERM_MOUSE_COORD_UTF, // using UTF-like encoding for coordinates, but not for button state (xterm 262-267)
+	XTERM_MOUSE_ALL_UTF // using UTF-like encoding for coordinates and button state
+} xterm_mouse_reporting;
 
 static key_t decode_sequence(bool outer);
 static void stop_keys(void);
 
+static void convert_next_key(void) {
+	const char *char_buffer_ptr;
+	uint32_t *unicode_buffer_ptr;
+
+	char_buffer_ptr = char_buffer;
+	unicode_buffer_ptr = unicode_buffer;
+
+	while (1) {
+		switch (transcript_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
+				(char **) &unicode_buffer_ptr, ((const char *) unicode_buffer) + sizeof(unicode_buffer),
+				TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SINGLE_CONVERSION))
+		{
+			case TRANSCRIPT_SUCCESS:
+			case TRANSCRIPT_NO_SPACE:
+			case TRANSCRIPT_INCOMPLETE:
+				char_buffer_fill -= char_buffer_ptr - char_buffer;
+				if (char_buffer_fill != 0)
+					memmove(char_buffer, char_buffer_ptr, char_buffer_fill);
+				unicode_buffer_fill = unicode_buffer_ptr - unicode_buffer;
+				return;
+
+			case TRANSCRIPT_FALLBACK: // NOTE: we allow fallbacks, so this should not even occur!!!
+
+			case TRANSCRIPT_UNASSIGNED:
+			case TRANSCRIPT_ILLEGAL:
+			case TRANSCRIPT_ILLEGAL_END:
+			case TRANSCRIPT_INTERNAL_ERROR:
+			case TRANSCRIPT_PRIVATE_USE:
+				transcript_to_unicode_skip(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill);
+				break;
+			default:
+				// This shouldn't happen, and we can't really do anything with this.
+				return;
+		}
+	}
+}
+
 static key_t get_next_converted_key(void) {
+	if (unicode_buffer_fill == 0)
+		convert_next_key();
+
 	if (unicode_buffer_fill > 0) {
 		key_t c = unicode_buffer[0];
 		unicode_buffer_fill--;
@@ -157,9 +202,23 @@ static void unget_key(key_t c) {
 	unicode_buffer_fill++;
 }
 
-static int read_and_convert_keys(int timeout) {
-	const char *char_buffer_ptr;
-	uint32_t *unicode_buffer_ptr;
+static int get_next_keychar(void) {
+	if (char_buffer_fill > 0) {
+		int c = char_buffer[0];
+		char_buffer_fill--;
+		memmove(char_buffer, char_buffer + 1, char_buffer_fill);
+		return (unsigned char) c;
+	}
+	return -1;
+}
+
+static void unget_keychar(int c) {
+	memmove(char_buffer + 1, char_buffer, sizeof(char_buffer[0]) * char_buffer_fill);
+	char_buffer[0] = c;
+	char_buffer_fill++;
+}
+
+static bool read_keychar(int timeout) {
 	key_t c;
 
 	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL) {
@@ -178,39 +237,10 @@ static int read_and_convert_keys(int timeout) {
 	}
 
 	if (c < T3_WARN_MIN)
-		return -1;
+		return false;
 
 	char_buffer[char_buffer_fill++] = (char) c;
-	char_buffer_ptr = char_buffer;
-	unicode_buffer_ptr = unicode_buffer;
-
-	while (1) {
-		switch (transcript_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
-				(char **) &unicode_buffer_ptr, ((const char *) unicode_buffer) + sizeof(unicode_buffer), TRANSCRIPT_ALLOW_FALLBACK))
-		{
-			case TRANSCRIPT_SUCCESS:
-			case TRANSCRIPT_NO_SPACE:
-			case TRANSCRIPT_INCOMPLETE:
-				char_buffer_fill -= char_buffer_ptr - char_buffer;
-				if (char_buffer_fill != 0)
-					memmove(char_buffer, char_buffer_ptr, char_buffer_fill);
-				unicode_buffer_fill = unicode_buffer_ptr - unicode_buffer;
-				return 0;
-
-			case TRANSCRIPT_FALLBACK: // NOTE: we allow fallbacks, so this should not even occur!!!
-
-			case TRANSCRIPT_UNASSIGNED:
-			case TRANSCRIPT_ILLEGAL:
-			case TRANSCRIPT_ILLEGAL_END:
-			case TRANSCRIPT_INTERNAL_ERROR:
-			case TRANSCRIPT_PRIVATE_USE:
-				transcript_to_unicode_skip(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill);
-				break;
-			default:
-				// This shouldn't happen, and we can't really do anything with this.
-				return 0;
-		}
-	}
+	return true;
 }
 
 static void *read_keys(void *arg) {
@@ -253,7 +283,7 @@ static void *read_keys(void *arg) {
 		}
 
 		if (FD_ISSET(0, &readset))
-			read_and_convert_keys(-1);
+			read_keychar(-1);
 
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
@@ -311,14 +341,16 @@ static key_t decode_sequence(bool outer) {
 	sequence.data[0] = EKEY_ESC;
 
 	while (sequence.idx < MAX_SEQUENCE) {
-		while ((c = get_next_converted_key()) >= 0) {
+		while ((c = get_next_keychar()) >= 0) {
 			if (c == EKEY_ESC) {
 				if (sequence.idx == 1 && outer) {
 					key_t alted = decode_sequence(false);
 					return alted >= 0 ? alted | EKEY_META : EKEY_ESC;
 				}
-				unget_key(c);
+				unget_keychar(c);
 				goto unknown_sequence;
+			} else if (sequence.idx == 1 && xterm_mouse_reporting && c == 'M') {
+				//FIXME: decode xterm mouse reporting sequence
 			}
 
 			sequence.data[sequence.idx++] = c;
@@ -344,15 +376,26 @@ static key_t decode_sequence(bool outer) {
 				goto unknown_sequence;
 		}
 
-		if (read_and_convert_keys(outer ? key_timeout : 50) < 0)
+		if (!read_keychar(outer ? key_timeout : 50))
 			break;
 	}
 
 unknown_sequence:
-	if (sequence.idx == 2)
-		return sequence.data[1] | EKEY_META;
-	else if (sequence.idx == 1 && !drop_single_esc)
+	if (sequence.idx == 2) {
+		key_t alted_key;
+		unget_keychar(sequence.data[1]);
+		/* It is quite possible that we only read a partial character here. So if we haven't
+		   read a complete character yet (i.e. get_next_converted_key returns -1), we simply
+		   keep asking to read one more character. We use a one milisecond timeout, to ensure
+		   we don't get stuck waiting here. If reading the keychar times out, we need to skip
+		   this input. */
+		while ((alted_key = get_next_converted_key()) < 0 && read_keychar(1)) {}
+		if (alted_key < 0)
+			return -1;
+		return alted_key | EKEY_META;
+	} else if (sequence.idx == 1 && !drop_single_esc) {
 		return EKEY_ESC;
+	}
 
 	/* Something unwanted has happened here: the character sequence we encoutered was not
 	   in our key map. Because it will give some undesired result to just return
