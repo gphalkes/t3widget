@@ -21,7 +21,7 @@ namespace t3_widget {
 list_pane_t::list_pane_t(bool _indicator) : top_idx(0), current(0),
 		has_focus(false), indicator(_indicator)
 {
-	init_unbacked_window(1, 3);
+	init_unbacked_window(1, 3, true);
 	widgets_window = (t3_window_t *) window;
 	window = NULL;
 
@@ -166,6 +166,14 @@ void list_pane_t::set_focus(bool focus) {
 		widgets[current]->set_focus(focus);
 	if (indicator)
 		indicator_widget->set_focus(focus);
+}
+
+bool list_pane_t::process_mouse_event(mouse_event_t event) {
+	if (event.type == EMOUSE_BUTTON_RELEASE &&
+			(event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
+			event.window != widgets_window)
+		activate();
+	return true;
 }
 
 void list_pane_t::reset(void) {

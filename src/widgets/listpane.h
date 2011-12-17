@@ -58,6 +58,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		virtual void force_redraw(void);
 		virtual void focus_set(widget_t *target);
 		virtual bool is_child(widget_t *widget);
+		virtual bool process_mouse_event(mouse_event_t event);
 		void reset(void);
 		void update_positions(void);
 

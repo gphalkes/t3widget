@@ -11,6 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <sys/time.h>
+
 #include "interfaces.h"
 #include "widgets/widget.h"
 #include "main.h"
@@ -62,33 +64,72 @@ mouse_target_t::~mouse_target_t(void) {
 	}
 }
 
+static long timediff(struct timeval a, struct timeval b) {
+	long result = a.tv_sec - b.tv_sec;
+	if (result > 10)
+		return 10 * 1000000;
+	return result * 1000000 + (a.tv_usec - b.tv_usec);
+}
+#define DOUBLECLICK_TIMEOUT 200000
+
 bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	static t3_window_t *button_down_win = NULL;
+	/* Information for handling double clicks. */
+	static t3_window_t *last_click_win = NULL;
+	static struct timeval last_click_time = { 0, 0 };
+	static short last_click_buttons = 0;
+
 	/* Whether to report events to widgets that are not children of the active dialog.
 	   Set for button-down motion and button release events. */
-	bool report_foreign = false;
-	t3_window_t *win = t3_win_at_location(event.y, event.x);
+	bool report_foreign = false,
+		handled = false;
+	t3_window_t *win;
 	mouse_target_map_t::iterator iter;
+	dialog_t *active_dialog;
+	mouse_target_t *active_dialog_target;
 
-	if (win == NULL)
-		return false;
-
-	if (event.previous_button_state == 0 && (event.button_state & 7) != 0) {
-		button_down_win = win;
-	} else if ((event.previous_button_state & 7) != 0 && event.button_state == 0) {
-		if (button_down_win == win)
+	win = event.window;
+	if (event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 && (event.button_state & 7) != 0) {
+		button_down_win = event.window;
+		if (button_down_win != last_click_win)
+			last_click_win = NULL;
+	} else if (event.type == EMOUSE_BUTTON_RELEASE) {
+		if (button_down_win == win) {
+			struct timeval now;
 			// Set CLICKED event for released buttons
 			event.button_state |= (event.previous_button_state & 7) << 5;
+
+			gettimeofday(&now, NULL);
+			//FIXME: make DOUBLECLICK_TIMEOUT configurable
+			if (last_click_win == button_down_win && timediff(now, last_click_time) < DOUBLECLICK_TIMEOUT &&
+					(last_click_buttons & event.button_state) != 0)
+			{
+				// Set DOUBLE_CLICKED event for appropriate buttons
+				event.button_state |= (event.button_state & last_click_buttons) << 3;
+				last_click_win = NULL;
+			} else {
+				last_click_win = button_down_win;
+				last_click_time = now;
+				last_click_buttons = event.button_state & (7 << 5);
+			}
+		} else {
+			last_click_win = NULL;
+		}
+
 		report_foreign = true;
+		win = button_down_win;
+
 		button_down_win = NULL;
 	} else if (button_down_win != NULL) {
 		report_foreign = true;
 		win = button_down_win;
 	}
 
-	dialog_t *active_dialog = dialog_t::active_dialogs.back();
-	mouse_target_t *active_dialog_target = dynamic_cast<mouse_target_t *>(active_dialog);
+	active_dialog = dialog_t::active_dialogs.back();
+	active_dialog_target = dynamic_cast<mouse_target_t *>(active_dialog);
 
+	/* FIXME: events should be passed to parents as well, but marked. Same goes
+	   for events that were not caught by any children. */
 	while (win != NULL) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
@@ -111,15 +152,16 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				/* If the active dialog has not changed by processing the event,
 				   and the event is a button press, we should focus the widget that
 				   received the event. */
-				if (widget != NULL && active_dialog == dialog_t::active_dialogs.back() &&
-						event.previous_button_state == 0 && (event.button_state & 7) != 0)
+				if (!handled && widget != NULL && active_dialog == dialog_t::active_dialogs.back() &&
+						event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 &&
+						(event.button_state & 7) != 0)
 					active_dialog->focus_set(widget);
-				return true;
+				handled = true;
 			}
 		}
 		win = t3_win_get_parent(win);
 	}
-	return false;
+	return handled;
 }
 
 list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;

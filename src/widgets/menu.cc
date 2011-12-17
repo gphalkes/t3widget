@@ -178,11 +178,10 @@ bool menu_bar_t::is_hotkey(key_t key) {
 bool menu_bar_t::accepts_focus(void) { return false; }
 
 bool menu_bar_t::process_mouse_event(mouse_event_t event) {
-	int clicked_idx;
-	if (event.button_state & EMOUSE_BUTTON_LEFT) {
+	if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT)) {
 		button_down_idx = coord_to_menu_idx(event.x);
 	} else if (event.button_state & EMOUSE_CLICKED_LEFT) {
-		clicked_idx = coord_to_menu_idx(event.x);
+		int clicked_idx = coord_to_menu_idx(event.x);
 		if (clicked_idx != -1 && clicked_idx == button_down_idx) {
 			current_menu = clicked_idx;
 			show();

@@ -535,6 +535,7 @@ convert_mouse_event:
 	buttons -= 32;
 
 	if (buttons & 64) {
+		event.type = EMOUSE_BUTTON_PRESS;
 		switch (buttons & 3) {
 			case 0:
 				event.button_state = mouse_button_state | EMOUSE_SCROLL_UP;
@@ -546,7 +547,14 @@ convert_mouse_event:
 				event.button_state = mouse_button_state;
 				break;
 		}
+	} else if (buttons & 32) {
+		event.type = EMOUSE_MOTION;
+		/* Trying to decode the button state here is pretty much useless, because
+		   it can only encode a single button. The saved mouse_button_state is
+		   more accurate. */
+		event.button_state = mouse_button_state;
 	} else {
+		event.type = EMOUSE_BUTTON_PRESS;
 		switch (buttons & 3) {
 			case 0:
 				event.button_state = mouse_button_state |= EMOUSE_BUTTON_LEFT;
@@ -558,11 +566,14 @@ convert_mouse_event:
 				event.button_state = mouse_button_state |= EMOUSE_BUTTON_RIGHT;
 				break;
 			default:
+				event.type = EMOUSE_BUTTON_RELEASE;
 				event.button_state = mouse_button_state = 0;
+				break;
 		}
 	}
 
 	event.modifier_state = (buttons >> 2) & 7;
+	event.window = t3_win_at_location(event.y, event.x);
 	mouse_event_buffer.push_back(event);
 	/* lprintf("Mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d (%d)\n", event.x, event.y,
 		event.button_state, event.modifier_state, xterm_mouse_reporting); */
