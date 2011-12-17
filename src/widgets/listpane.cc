@@ -196,6 +196,8 @@ void list_pane_t::force_redraw(void) {
 void list_pane_t::focus_set(widget_t *target) {
 	widgets_t::iterator iter;
 	size_t idx;
+	size_t old_current = current;
+
 	if (target == scrollbar || target == indicator_widget) {
 		set_focus(true);
 		return;
@@ -203,16 +205,23 @@ void list_pane_t::focus_set(widget_t *target) {
 
 	for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
 		if (*iter == target) {
-			current = idx;
-			set_focus(true);
-			return;
+			break;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
-			if (container != NULL) {
-				current = idx;
-				set_focus(true);
-				return;
+			if (container != NULL && container->is_child(target))
+				break;
+		}
+	}
+	if (idx < widgets.size()) {
+		current = idx;
+		if (has_focus) {
+			if (current != old_current) {
+				widgets[old_current]->set_focus(false);
+				widgets[current]->set_focus(has_focus);
+				selection_changed();
 			}
+		} else {
+			set_focus(true);
 		}
 	}
 }

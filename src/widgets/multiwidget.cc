@@ -17,7 +17,7 @@ using namespace std;
 namespace t3_widget {
 
 multi_widget_t::multi_widget_t(void) : fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
-	init_unbacked_window(1, 1);
+	init_unbacked_window(1, 1, true);
 }
 
 multi_widget_t::~multi_widget_t(void) {

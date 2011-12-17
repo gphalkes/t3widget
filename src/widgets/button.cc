@@ -22,7 +22,6 @@ namespace t3_widget {
 button_t::button_t(const char *_text, bool _is_default) : text(new smart_label_t(_text)), is_default(_is_default) {
 	text_width = text->get_width();
 	init_window(1, text_width + 4);
-	register_mouse_target(window);
 	has_focus = false;
 }
 

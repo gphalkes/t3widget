@@ -56,7 +56,9 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 		last_set_pos(0), auto_indent(true), indent_aware_home(true), autocompleter(NULL),
 		autocomplete_panel(NULL), autocomplete_panel_shown(false), text(NULL)
 {
-	init_unbacked_window(11, 11);
+	/* Register the unbacked window for mouse events, such that we can get focus
+	   if the bottom line is clicked. */
+	init_unbacked_window(11, 11, true);
 	if ((edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(edit_window);

@@ -13,6 +13,7 @@
 */
 #include "colorscheme.h"
 #include "widgets/widget.h"
+#include "log.h"
 
 using namespace std;
 namespace t3_widget {
@@ -28,21 +29,24 @@ bool widget_t::accepts_focus(void) { return enabled && shown; }
 
 widget_t::widget_t(int height, int width) : redraw(true), enabled(true), shown(true) {
 	init_window(height, width);
-	register_mouse_target(window);
 }
 
 widget_t::widget_t(void) : redraw(true), enabled(true), shown(true) {}
 
-void widget_t::init_window(int height, int width) {
+void widget_t::init_window(int height, int width, bool reg) {
 	if ((window = t3_win_new(default_parent, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
+	if (reg)
+		register_mouse_target(window);
 }
 
-void widget_t::init_unbacked_window(int height, int width) {
+void widget_t::init_unbacked_window(int height, int width, bool reg) {
 	if ((window = t3_win_new_unbacked(default_parent, height, width, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
+	if (reg)
+		register_mouse_target(window);
 }
 
 void widget_t::set_anchor(window_component_t *anchor, int relation) {
@@ -88,6 +92,7 @@ void widget_t::set_focus(bool focus) { (void) focus; return; }
 
 bool widget_t::process_mouse_event(mouse_event_t event) {
 	(void) event;
+	lprintf("Default mouse handling for %s (%d)\n", typeid(*this).name(), accepts_focus());
 	return accepts_focus();
 }
 
