@@ -1202,6 +1202,38 @@ bool edit_window_t::is_child(widget_t *widget) {
 	return widget == scrollbar;
 }
 
+bool edit_window_t::process_mouse_event(mouse_event_t event) {
+	if (event.window == edit_window) {
+		if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
+			if (wrap_type == wrap_type_t::NONE) {
+				text_coordinate_t new_pos;
+				text->cursor.line = event.y + top_left.line;
+				if (text->cursor.line >= text->size())
+					text->cursor.line = text->size() - 1;
+				text->cursor.pos = text->calculate_line_pos(text->cursor.line, event.x + top_left.pos, tabsize);
+			} else {
+
+			}
+		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
+			if (wrap_type == wrap_type_t::NONE) {
+				if (event.button_state & EMOUSE_SCROLL_UP) {
+					if (top_left.line > 3)
+						top_left.line -= 3;
+					else
+						top_left.line = 0;
+				} else {
+					if (top_left.line + t3_win_get_height(edit_window) <= text->size() - 3)
+						top_left.line += 3;
+					else if (top_left.line + t3_win_get_height(edit_window) - 1 < text->size())
+						top_left.line = text->size() - t3_win_get_height(edit_window);
+				}
+			}
+
+		}
+	}
+	return true;
+}
+
 void edit_window_t::set_wrap(wrap_type_t wrap) {
 	if (wrap == wrap_type)
 		return;

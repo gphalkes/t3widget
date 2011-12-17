@@ -158,6 +158,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		virtual void focus_set(widget_t *target);
 		virtual bool is_child(widget_t *widget);
+		virtual bool process_mouse_event(mouse_event_t event);
 
 		/** Set the text to display.
 		    The previously displayed text will be replaced, without deleting. Use
