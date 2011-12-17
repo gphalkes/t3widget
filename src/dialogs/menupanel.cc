@@ -179,4 +179,13 @@ void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
 	}
 }
 
+bool menu_panel_t::is_child(widget_t *widget) {
+	/* We use a little hack here. The menu bar widget isn't actually one of our
+	   children. But by claiming it is, it will receive the mouse events that it
+	   should, even when this panel is visible. */
+	if (widget == menu_bar)
+		return true;
+	return dialog_t::is_child(widget);
+}
+
 }; // namespace

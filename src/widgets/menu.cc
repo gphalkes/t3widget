@@ -19,12 +19,13 @@
 #include "dialogs/menupanel.h"
 #include "main.h"
 #include "key.h"
+#include "log.h"
 
 using namespace std;
 namespace t3_widget {
 
 menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), current_menu(0), old_menu(0),
-		start_col(0), hidden(_hidden), has_focus(false)
+		start_col(0), hidden(_hidden), button_down_idx(-1)
 {
 	// Menu bar should be above normal widgets
 	t3_win_set_depth(window, -1);
@@ -106,11 +107,7 @@ bool menu_bar_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_HOTKEY:
-			has_focus = true;
-			if (hidden)
-				t3_win_show(window);
-			draw_menu_name(menus[current_menu], true);
-			menus[current_menu]->show();
+			show();
 			return true;
 		default:
 			return false;
@@ -153,9 +150,14 @@ void menu_bar_t::set_focus(bool focus) {
 }
 
 void menu_bar_t::show(void) {
-	shown = true;
-	if (!hidden || has_focus)
-		t3_win_show(window);
+	if (!has_focus) {
+		has_focus = true;
+		redraw = true;
+		if (!hidden)
+			t3_win_show(window);
+		draw_menu_name(menus[current_menu], true);
+		menus[current_menu]->show();
+	}
 }
 
 bool menu_bar_t::is_hotkey(key_t key) {
@@ -174,6 +176,35 @@ bool menu_bar_t::is_hotkey(key_t key) {
 }
 
 bool menu_bar_t::accepts_focus(void) { return false; }
+
+bool menu_bar_t::process_mouse_event(mouse_event_t event) {
+	int clicked_idx;
+	if (event.button_state & EMOUSE_BUTTON_LEFT) {
+		button_down_idx = coord_to_menu_idx(event.x);
+	} else if (event.button_state & EMOUSE_CLICKED_LEFT) {
+		clicked_idx = coord_to_menu_idx(event.x);
+		if (clicked_idx != -1 && clicked_idx == button_down_idx) {
+			current_menu = clicked_idx;
+			show();
+		}
+	}
+	return true;
+}
+
+int menu_bar_t::coord_to_menu_idx(int x) {
+	std::vector<menu_panel_t *>::iterator iter;
+	int idx;
+	int menu_start;
+
+	for (iter = menus.begin(), idx = 0; iter != menus.end(); iter++, idx++) {
+		menu_start = t3_win_get_x((*iter)->get_base_window()) + 2;
+		if (x < menu_start)
+			return -1;
+		if (x < menu_start + (*iter)->label.get_width())
+			return idx;
+	}
+	return -1;
+}
 
 void menu_bar_t::draw(void) {
 	redraw = false;

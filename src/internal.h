@@ -20,10 +20,11 @@
 
 #include <string>
 #include <sigc++/sigc++.h>
-#include <t3widget/widget_api.h>
-#include <t3widget/main.h>
-
 #include <t3widget/key.h>
+
+#include "widget_api.h"
+#include "main.h"
+#include "log.h"
 
 #ifdef HAS_STRDUP
 #define _t3_widget_strdup strdup

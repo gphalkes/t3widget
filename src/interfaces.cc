@@ -15,6 +15,7 @@
 #include "interfaces.h"
 #include "widgets/widget.h"
 #include "main.h"
+#include "log.h"
 
 using namespace std;
 
@@ -38,13 +39,13 @@ void center_component_t::set_center_window(window_component_t *_center_window) {
 mouse_target_t::mouse_target_map_t mouse_target_t::targets;
 
 mouse_target_t::mouse_target_t(bool use_window) {
-	if (use_window)
+	if (use_window && window != NULL)
 		register_mouse_target(window);
 }
 
 void mouse_target_t::register_mouse_target(t3_window_t *target) {
 	if (target == NULL)
-		fprintf(stderr, "registering mouse target for NULL window in %s\n", typeid(this).name());
+		lprintf("Registering mouse target for NULL window in %s\n", typeid(*this).name());
 	else
 		targets[target] = this;
 }
@@ -64,7 +65,9 @@ mouse_target_t::~mouse_target_t(void) {
 
 bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	static t3_window_t *button_down_win = NULL;
-
+	/* Whether to report events to widgets that are not children of the active dialog.
+	   Set for button-down motion and button release events. */
+	bool report_foreign = false;
 	t3_window_t *win = t3_win_at_location(event.y, event.x);
 	mouse_target_map_t::iterator iter;
 
@@ -75,8 +78,13 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		button_down_win = win;
 	} else if ((event.previous_button_state & 7) != 0 && event.button_state == 0) {
 		if (button_down_win == win)
+			// Set CLICKED event for released buttons
 			event.button_state |= (event.previous_button_state & 7) << 5;
+		report_foreign = true;
 		button_down_win = NULL;
+	} else if (button_down_win != NULL) {
+		report_foreign = true;
+		win = button_down_win;
 	}
 
 	while (win != NULL) {
@@ -88,8 +96,10 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 			if (widget == NULL)
 				continue;
 
-			if (!active_dialog->is_child(widget))
+			if (!report_foreign && !active_dialog->is_child(widget)) {
+				//FIXME: should notify dialog of outside-dialog clicks
 				return false;
+			}
 
 			mouse_event_t local_event = event;
 			local_event.x -= t3_win_get_abs_x(win);

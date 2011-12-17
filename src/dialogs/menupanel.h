@@ -34,6 +34,9 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 		void close(void);
 		void set_menu_bar(menu_bar_t *_menu_bar);
 
+	protected:
+		virtual bool is_child(widget_t *widget);
+
 	public:
 		menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);
 		virtual bool process_key(key_t key);

@@ -23,7 +23,7 @@ namespace t3_widget {
 class menu_panel_t;
 
 /** Class implementing a menu bar. */
-class T3_WIDGET_API menu_bar_t : public widget_t {
+class T3_WIDGET_API menu_bar_t : public widget_t, public mouse_target_t {
 	friend class menu_panel_t;
 
 	private:
@@ -37,6 +37,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 			has_focus;
 
 		std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
+		int button_down_idx; /** Index of menu on which the left button was pressed down. */
 
 		/** Draw the name of a single menu in the menu bar. */
 		void draw_menu_name(menu_panel_t *menu, bool selected);
@@ -49,6 +50,9 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		void next_menu(void);
 		/** Switch to the previous menu. */
 		void previous_menu(void);
+
+		/** Translate an x coordinate into the index of a menu. */
+		int coord_to_menu_idx(int x);
 	public:
 		/** Create a new menu_bar_t.
 		    @param _hidden Boolean indicating whether this menu_bar_t has "hidden" display type.
@@ -70,6 +74,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		virtual void show(void);
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
+		virtual bool process_mouse_event(mouse_event_t event);
 		/** Add a menu to the menu bar.
 		    Note that this will be called automatically if the menu_bar_t is passed to the
 		    menu_panel_t constructor. */
