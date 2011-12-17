@@ -22,30 +22,29 @@ namespace t3_widget {
 class T3_WIDGET_API menu_item_base_t : public widget_t {
 	protected:
 		menu_panel_t *parent;
-		int top;
 
 	public:
-		menu_item_base_t(menu_panel_t *_parent) : parent(_parent), top(0) {}
-		virtual t3_window_t *get_base_window(void) { return parent->get_base_window(); }
+		menu_item_base_t(menu_panel_t *_parent) : widget_t(1, 4), parent(_parent) {}
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
 };
 
 class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 	private:
 		cleanup_obj_ptr<smart_label_text_t> label;
 		const char *hotkey;
-		int width, id;
+		int id;
 		bool has_focus;
 
 	public:
 		menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
 		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void show(void);
 		virtual void hide(void);
 		virtual bool is_hotkey(key_t key);
+		virtual bool process_mouse_event(mouse_event_t event);
 		int get_label_width(void);
 		int get_hotkey_width(void);
 };
@@ -54,8 +53,6 @@ class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
 	public:
 		menu_separator_t(menu_panel_t *_parent);
 		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void show(void);

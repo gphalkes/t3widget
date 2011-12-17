@@ -18,10 +18,15 @@
 #error This header file is for internal use _only_!!
 #endif
 
+#ifdef _T3_WIDGET_DEBUG
+#include <typeinfo>
+#endif
+
 #include <stdio.h>
 namespace t3_widget {
 
 #ifdef _T3_WIDGET_DEBUG
+
 void init_log(void);
 void lprintf(const char *fmt, ...)
 	#ifdef __GNUC__

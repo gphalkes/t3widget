@@ -111,7 +111,7 @@ menu_item_base_t *menu_panel_t::add_item(const char *_label, const char *hotkey,
 }
 
 menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
-	widgets.push_back(item);
+	push_back(item);
 	item->set_position(widgets.size(), None);
 
 	hotkey_width = max(hotkey_width, item->get_hotkey_width());
@@ -125,7 +125,7 @@ menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
 menu_item_base_t *menu_panel_t::add_separator(void) {
 	menu_separator_t *sep = new menu_separator_t(this);
 	sep->set_position(widgets.size() + 1, None);
-	widgets.push_back(sep);
+	push_back(sep);
 	return sep;
 }
 

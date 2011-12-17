@@ -21,7 +21,7 @@
 namespace t3_widget {
 
 /** Base class for widgets. */
-class T3_WIDGET_API widget_t : public virtual window_component_t {
+class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_target_t {
 	private:
 		friend class container_t;
 		/** Default parent for widgets, making them invisible. */
@@ -68,6 +68,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t {
 		/** Query the visibility status of this widget. */
 		virtual bool is_shown(void);
 		virtual void set_focus(bool focus);
+		virtual bool process_mouse_event(mouse_event_t event);
 };
 
 /** Base class for widgets that take focus. */

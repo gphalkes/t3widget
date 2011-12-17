@@ -23,7 +23,7 @@ namespace t3_widget {
 class menu_panel_t;
 
 /** Class implementing a menu bar. */
-class T3_WIDGET_API menu_bar_t : public widget_t, public mouse_target_t {
+class T3_WIDGET_API menu_bar_t : public widget_t {
 	friend class menu_panel_t;
 
 	private:

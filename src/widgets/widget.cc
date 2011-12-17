@@ -28,6 +28,7 @@ bool widget_t::accepts_focus(void) { return enabled && shown; }
 
 widget_t::widget_t(int height, int width) : redraw(true), enabled(true), shown(true) {
 	init_window(height, width);
+	register_mouse_target(window);
 }
 
 widget_t::widget_t(void) : redraw(true), enabled(true), shown(true) {}
@@ -84,5 +85,10 @@ bool widget_t::is_shown(void) {
 }
 
 void widget_t::set_focus(bool focus) { (void) focus; return; }
+
+bool widget_t::process_mouse_event(mouse_event_t event) {
+	(void) event;
+	return accepts_focus();
+}
 
 }; // namespace

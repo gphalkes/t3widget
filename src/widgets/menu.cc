@@ -25,7 +25,7 @@ using namespace std;
 namespace t3_widget {
 
 menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), current_menu(0), old_menu(0),
-		start_col(0), hidden(_hidden), button_down_idx(-1)
+		start_col(0), hidden(_hidden), has_focus(false), button_down_idx(-1)
 {
 	// Menu bar should be above normal widgets
 	t3_win_set_depth(window, -1);

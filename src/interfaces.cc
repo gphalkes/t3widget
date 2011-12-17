@@ -11,7 +11,6 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <typeinfo>
 #include "interfaces.h"
 #include "widgets/widget.h"
 #include "main.h"
@@ -87,18 +86,22 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		win = button_down_win;
 	}
 
+	dialog_t *active_dialog = dialog_t::active_dialogs.back();
+	mouse_target_t *active_dialog_target = dynamic_cast<mouse_target_t *>(active_dialog);
+
 	while (win != NULL) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
 			widget_t *widget = dynamic_cast<widget_t *>(iter->second);
-			dialog_t *active_dialog = dialog_t::active_dialogs.back();
 
-			if (widget == NULL)
-				continue;
+			if (iter->second != active_dialog_target) {
+				if (widget == NULL)
+					continue;
 
-			if (!report_foreign && !active_dialog->is_child(widget)) {
-				//FIXME: should notify dialog of outside-dialog clicks
-				return false;
+				if (!report_foreign && !active_dialog->is_child(widget)) {
+					//FIXME: should notify dialog of outside-dialog clicks
+					return false;
+				}
 			}
 
 			mouse_event_t local_event = event;
@@ -108,7 +111,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				/* If the active dialog has not changed by processing the event,
 				   and the event is a button press, we should focus the widget that
 				   received the event. */
-				if (active_dialog == dialog_t::active_dialogs.back() &&
+				if (widget != NULL && active_dialog == dialog_t::active_dialogs.back() &&
 						event.previous_button_state == 0 && (event.button_state & 7) != 0)
 					active_dialog->focus_set(widget);
 				return true;

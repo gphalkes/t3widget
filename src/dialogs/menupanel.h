@@ -46,7 +46,6 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 		menu_item_base_t *add_item(menu_item_t *item);
 		menu_item_base_t *add_separator(void);
 		void remove_item(menu_item_base_t *item);
-
 };
 
 }; // namespace
