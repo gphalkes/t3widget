@@ -79,6 +79,7 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 	set_widget_parent(scrollbar);
 	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar->set_size(10, None);
+	scrollbar->connect_clicked(sigc::mem_fun(this, &edit_window_t::scrollbar_clicked));
 
 	set_text(_text == NULL ? new text_buffer_t() : _text, params);
 
@@ -1209,20 +1210,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
 			ensure_cursor_on_screen();
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
-			if (wrap_type == wrap_type_t::NONE) {
-				if (event.button_state & EMOUSE_SCROLL_UP) {
-					if (top_left.line > 3)
-						top_left.line -= 3;
-					else
-						top_left.line = 0;
-				} else {
-					if (top_left.line + t3_win_get_height(edit_window) <= text->size() - 3)
-						top_left.line += 3;
-					else if (top_left.line + t3_win_get_height(edit_window) - 1 < text->size())
-						top_left.line = text->size() - t3_win_get_height(edit_window);
-				}
-			}
-
+			scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3);
 		} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
 				(event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT))) {
 			/* Complex handling here is required to prevent claiming the X11 selection
@@ -1389,6 +1377,36 @@ text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
 	return coord;
 }
 
+void edit_window_t::scroll(int lines) {
+	//FIXME: maybe we should use this for pgup/pgdn and up/down as well?
+	if (wrap_type == wrap_type_t::NONE) {
+		if (lines < 0) {
+			if (top_left.line > -lines)
+				top_left.line += lines;
+			else
+				top_left.line = 0;
+		} else {
+			if (top_left.line + t3_win_get_height(edit_window) <= text->size() - lines)
+				top_left.line += lines;
+			else if (top_left.line + t3_win_get_height(edit_window) - 1 < text->size())
+				top_left.line = text->size() - t3_win_get_height(edit_window);
+		}
+	} else {
+		if (lines < 0)
+			wrap_info->sub_lines(top_left, -lines);
+		else
+			wrap_info->add_lines(top_left, lines);
+	}
+}
+
+void edit_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
+	scroll(step == scrollbar_t::UP_SMALL ? -3 :
+		step == scrollbar_t::DOWN_SMALL ? 3 :
+		step == scrollbar_t::UP_MEDIUM ? -t3_win_get_height(edit_window) / 2 :
+		step == scrollbar_t::DOWN_MEDIUM ? t3_win_get_height(edit_window) / 2 :
+		step == scrollbar_t::UP_PAGE ? -(t3_win_get_height(edit_window) - 1) :
+		step == scrollbar_t::DOWN_PAGE ? -(t3_win_get_height(edit_window) - 1) : 0);
+}
 //====================== view_parameters_t ========================
 
 edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {

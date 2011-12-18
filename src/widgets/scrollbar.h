@@ -31,8 +31,20 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
 		virtual void update_contents(void);
 		virtual bool accepts_focus(void);
 		virtual void set_focus(bool focus);
+		virtual bool process_mouse_event(mouse_event_t event);
 
 		void set_parameters(int _range, int _start, int _used);
+
+		enum step_t {
+			UP_SMALL,
+			UP_MEDIUM,
+			UP_PAGE,
+			DOWN_SMALL,
+			DOWN_MEDIUM,
+			DOWN_PAGE
+		};
+
+		T3_WIDGET_SIGNAL(clicked, void, step_t);
 };
 
 }; // namespace

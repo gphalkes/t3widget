@@ -119,6 +119,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Handle setting of the wrap mode. */
 		void set_wrap_internal(wrap_type_t wrap);
 
+		void scroll(int lines);
+		void scrollbar_clicked(scrollbar_t::step_t step);
+
 	protected:
 		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
 		auto_t3_window_t info_window; /**< Window for other information, such as buffer name. */
