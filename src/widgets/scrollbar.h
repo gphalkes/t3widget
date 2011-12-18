@@ -23,6 +23,7 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
 		int length;
 		int range, start, used;
 		bool vertical;
+		int before, slider_size;
 
 	public:
 		scrollbar_t(bool _vertical);

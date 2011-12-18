@@ -1405,7 +1405,7 @@ void edit_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		step == scrollbar_t::UP_MEDIUM ? -t3_win_get_height(edit_window) / 2 :
 		step == scrollbar_t::DOWN_MEDIUM ? t3_win_get_height(edit_window) / 2 :
 		step == scrollbar_t::UP_PAGE ? -(t3_win_get_height(edit_window) - 1) :
-		step == scrollbar_t::DOWN_PAGE ? -(t3_win_get_height(edit_window) - 1) : 0);
+		step == scrollbar_t::DOWN_PAGE ? (t3_win_get_height(edit_window) - 1) : 0);
 }
 //====================== view_parameters_t ========================
 

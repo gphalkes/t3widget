@@ -21,7 +21,7 @@
 namespace t3_widget {
 
 scrollbar_t::scrollbar_t(bool _vertical) :
-	length(3), range(1), start(0), used(1), vertical(_vertical)
+	length(3), range(1), start(0), used(1), vertical(_vertical), before(0), slider_size(length - 2)
 {
 	int width, height;
 
@@ -59,12 +59,8 @@ bool scrollbar_t::set_size(optint height, optint width) {
 }
 
 void scrollbar_t::update_contents(void) {
-	int before, slider_size, i;
+	int i;
 	double blocks_per_line;
-#warning FIXME: change scrollbar calculation
-	/* FIXME such that as long there are items outside the view, we can click the
-		bar itself. Also save before and slider size such that we can use them
-	    in process_mouse_event. */
 
 	if (!redraw)
 		return;
@@ -79,11 +75,15 @@ void scrollbar_t::update_contents(void) {
 	if (range <= used)
 		blocks_per_line = strtod("Inf", NULL);
 	else
-		blocks_per_line = (double) (length - 2 - slider_size) / (range - used);
+		blocks_per_line = (double) (length - 2 - slider_size) / (range - used + 1);
 
 	before = (int) ceil(blocks_per_line * start);
 	if (before >= length - 2)
 		before = length - 3;
+	if (before > 1 && before + slider_size == length - 2 && used + start < range)
+		before--;
+	else if (used + start == range)
+		before = length - 2 - slider_size;
 
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addch(window, vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | attributes.scrollbar);
@@ -116,20 +116,21 @@ void scrollbar_t::set_focus(bool focus) { (void) focus; }
 bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 	if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) != 0) {
 		int pos;
-		if (event.x == 0 && event.y == 0) {
-			clicked(UP_SMALL);
-			return true;
-		}
-
 		pos = vertical ? event.y : event.x;
-		if (pos == length - 1) {
+
+		if (pos == 0)
+			clicked(UP_SMALL);
+		else if (pos == length - 1)
 			clicked(DOWN_SMALL);
-			return true;
-		}
+		else if (pos <= before)
+			clicked(UP_PAGE);
+		else if (pos > before + slider_size)
+			clicked(DOWN_PAGE);
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 		clicked((event.button_state & EMOUSE_SCROLL_UP) ? UP_MEDIUM : DOWN_MEDIUM);
 	}
-	return true;
+	/* We don't take focus, so return false. */
+	return false;
 }
 
 void scrollbar_t::set_parameters(int _range, int _start, int _used) {

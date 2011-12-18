@@ -83,7 +83,6 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	t3_window_t *win;
 	mouse_target_map_t::iterator iter;
 	dialog_t *active_dialog;
-	mouse_target_t *active_dialog_target;
 
 	win = event.window;
 	if (event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 && (event.button_state & 7) != 0) {
@@ -120,7 +119,6 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	}
 
 	active_dialog = dialog_t::active_dialogs.back();
-	active_dialog_target = dynamic_cast<mouse_target_t *>(active_dialog);
 
 	/* FIXME: events should be passed to parents as well, but marked. Same goes
 	   for events that were not caught by any children. */
@@ -130,13 +128,8 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		if (iter != targets.end()) {
 			widget_t *widget = dynamic_cast<widget_t *>(iter->second);
 
-			if (iter->second != active_dialog_target) {
-				if (widget == NULL)
-					continue;
-
-				if (!active_dialog->is_child(widget))
-					return false;
-			}
+			if (widget != NULL && !active_dialog->is_child(widget))
+				return handled;
 
 			mouse_event_t local_event = event;
 			local_event.x -= t3_win_get_abs_x(win);
