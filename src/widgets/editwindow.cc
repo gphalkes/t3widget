@@ -1223,6 +1223,12 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 				}
 			}
 
+		} else if (event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) {
+			if (text->get_selection_mode() == selection_mode_t::NONE)
+				text->set_selection_mode(selection_mode_t::SHIFT);
+			text->cursor = xy_to_text_coordinate(event.x, event.y);
+			text->set_selection_end();
+			ensure_cursor_on_screen();
 		}
 	}
 	return true;
