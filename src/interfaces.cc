@@ -79,10 +79,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	static struct timeval last_click_time = { 0, 0 };
 	static short last_click_buttons = 0;
 
-	/* Whether to report events to widgets that are not children of the active dialog.
-	   Set for button-down motion and button release events. */
-	bool report_foreign = false,
-		handled = false;
+	bool handled = false;
 	t3_window_t *win;
 	mouse_target_map_t::iterator iter;
 	dialog_t *active_dialog;
@@ -96,7 +93,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	} else if (event.type == EMOUSE_BUTTON_RELEASE) {
 		if (button_down_win == win) {
 			struct timeval now;
-			// Set CLICKED event for released buttons
+			/* Set CLICKED event for released buttons */
 			event.button_state |= (event.previous_button_state & 7) << 5;
 
 			gettimeofday(&now, NULL);
@@ -104,7 +101,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 			if (last_click_win == button_down_win && timediff(now, last_click_time) < DOUBLECLICK_TIMEOUT &&
 					(last_click_buttons & event.button_state) != 0)
 			{
-				// Set DOUBLE_CLICKED event for appropriate buttons
+				/* Set DOUBLE_CLICKED event for appropriate buttons */
 				event.button_state |= (event.button_state & last_click_buttons) << 3;
 				last_click_win = NULL;
 			} else {
@@ -116,12 +113,9 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 			last_click_win = NULL;
 		}
 
-		report_foreign = true;
 		win = button_down_win;
-
 		button_down_win = NULL;
 	} else if (button_down_win != NULL) {
-		report_foreign = true;
 		win = button_down_win;
 	}
 
@@ -130,6 +124,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 
 	/* FIXME: events should be passed to parents as well, but marked. Same goes
 	   for events that were not caught by any children. */
+	//FIXME: should notify dialog of outside-dialog clicks
 	while (win != NULL) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
@@ -139,10 +134,8 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				if (widget == NULL)
 					continue;
 
-				if (!report_foreign && !active_dialog->is_child(widget)) {
-					//FIXME: should notify dialog of outside-dialog clicks
+				if (!active_dialog->is_child(widget))
 					return false;
-				}
 			}
 
 			mouse_event_t local_event = event;
