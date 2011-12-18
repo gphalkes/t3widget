@@ -1205,15 +1205,9 @@ bool edit_window_t::is_child(widget_t *widget) {
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
 	if (event.window == edit_window) {
 		if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
-			if (wrap_type == wrap_type_t::NONE) {
-				text_coordinate_t new_pos;
-				text->cursor.line = event.y + top_left.line;
-				if (text->cursor.line >= text->size())
-					text->cursor.line = text->size() - 1;
-				text->cursor.pos = text->calculate_line_pos(text->cursor.line, event.x + top_left.pos, tabsize);
-			} else {
-
-			}
+			reset_selection();
+			text->cursor = xy_to_text_coordinate(event.x, event.y);
+			ensure_cursor_on_screen();
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 			if (wrap_type == wrap_type_t::NONE) {
 				if (event.button_state & EMOUSE_SCROLL_UP) {
@@ -1353,6 +1347,26 @@ void edit_window_t::activate_autocomplete(bool autocomplete_single) {
 	} else if (autocomplete_panel_shown) {
 		hide_autocomplete();
 	}
+}
+
+text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
+	text_coordinate_t coord;
+	if (wrap_type == wrap_type_t::NONE) {
+		coord.line = y + top_left.line;
+		if (coord.line >= text->size())
+			coord.line = text->size() - 1;
+		coord.pos = text->calculate_line_pos(coord.line, x + top_left.pos, tabsize);
+	} else {
+		coord.line = top_left.line;
+		y += top_left.pos;
+		while (y >= wrap_info->get_line_count(coord.line) && coord.line < wrap_info->get_size()) {
+			y -= wrap_info->get_line_count(coord.line);
+			coord.line++;
+		}
+
+		coord.pos = wrap_info->calculate_line_pos(coord.line, x, y);
+	}
+	return coord;
 }
 
 //====================== view_parameters_t ========================

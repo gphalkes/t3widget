@@ -140,6 +140,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Hide the autocompletion panel. */
 		void hide_autocomplete(void);
 
+		/** Convert coordinates relative to the edit window to a text_coordinate_t. */
+		text_coordinate_t xy_to_text_coordinate(int x, int y);
 	public:
 		class view_parameters_t;
 
