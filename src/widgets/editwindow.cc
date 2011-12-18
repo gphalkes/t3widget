@@ -1353,15 +1353,22 @@ text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
 	text_coordinate_t coord;
 	if (wrap_type == wrap_type_t::NONE) {
 		coord.line = y + top_left.line;
-		if (coord.line >= text->size())
+		x += top_left.pos;
+		if (coord.line >= text->size()) {
 			coord.line = text->size() - 1;
-		coord.pos = text->calculate_line_pos(coord.line, x + top_left.pos, tabsize);
+			x = INT_MAX;
+		}
+		coord.pos = text->calculate_line_pos(coord.line, x, tabsize);
 	} else {
 		coord.line = top_left.line;
 		y += top_left.pos;
-		while (y >= wrap_info->get_line_count(coord.line) && coord.line < wrap_info->get_size()) {
+		while (coord.line < wrap_info->get_size() - 1 && y >= wrap_info->get_line_count(coord.line)) {
 			y -= wrap_info->get_line_count(coord.line);
 			coord.line++;
+		}
+		if (y >= wrap_info->get_line_count(coord.line)) {
+			y = wrap_info->get_line_count(coord.line) - 1;
+			x = INT_MAX;
 		}
 
 		coord.pos = wrap_info->calculate_line_pos(coord.line, x, y);
