@@ -1223,11 +1223,18 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 				}
 			}
 
-		} else if (event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) {
-			if (text->get_selection_mode() == selection_mode_t::NONE)
+		} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
+				(event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT))) {
+			/* Complex handling here is required to prevent claiming the X11 selection
+			   when no text is selected at all. The basic idea however is to start the
+			   selection if none has been started yet, move the cursor and move the end
+			   of the selection to the new cursor location. */
+			text_coordinate_t new_cursor = xy_to_text_coordinate(event.x, event.y);
+			if (text->get_selection_mode() == selection_mode_t::NONE && new_cursor != text->cursor)
 				text->set_selection_mode(selection_mode_t::SHIFT);
-			text->cursor = xy_to_text_coordinate(event.x, event.y);
-			text->set_selection_end();
+			text->cursor = new_cursor;
+			if (text->get_selection_mode() != selection_mode_t::NONE)
+				text->set_selection_end();
 			ensure_cursor_on_screen();
 		}
 	}
