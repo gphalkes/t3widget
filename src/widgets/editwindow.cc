@@ -1209,12 +1209,11 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 		if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
 			if ((event.modifier_state & EMOUSE_SHIFT) == 0)
 				reset_selection();
+			else if (text->get_selection_mode() == selection_mode_t::NONE)
+				text->set_selection_mode(selection_mode_t::SHIFT);
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
-			if ((event.modifier_state & EMOUSE_SHIFT) != 0) {
-				if (text->get_selection_mode() == selection_mode_t::NONE)
-					text->set_selection_mode(selection_mode_t::SHIFT);
+			if ((event.modifier_state & EMOUSE_SHIFT) != 0)
 				text->set_selection_end();
-			}
 			ensure_cursor_on_screen();
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 			scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3);

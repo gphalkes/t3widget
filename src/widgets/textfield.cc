@@ -101,7 +101,7 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 	delete result;
 
 	pos = start;
-	ensure_on_cursor_screen();
+	ensure_cursor_on_screen();
 	reset_selection();
 	redraw = true;
 	edited = true;
@@ -134,7 +134,7 @@ bool text_field_t::process_key(key_t key) {
 				int newpos = line->adjust_position(pos, -1);
 				line->backspace_char(pos, NULL);
 				pos = newpos;
-				ensure_on_cursor_screen();
+				ensure_cursor_on_screen();
 				redraw = true;
 				edited = true;
 			}
@@ -153,7 +153,7 @@ bool text_field_t::process_key(key_t key) {
 			if (pos > 0) {
 				redraw = true;
 				pos = line->adjust_position(pos, -1);
-				ensure_on_cursor_screen();
+				ensure_cursor_on_screen();
 			}
 			break;
 		case EKEY_RIGHT:
@@ -161,7 +161,7 @@ bool text_field_t::process_key(key_t key) {
 			if (pos < line->get_length()) {
 				redraw = true;
 				pos = line->adjust_position(pos, 1);
-				ensure_on_cursor_screen();
+				ensure_cursor_on_screen();
 			}
 			break;
 		case EKEY_RIGHT | EKEY_CTRL:
@@ -171,7 +171,7 @@ bool text_field_t::process_key(key_t key) {
 				pos = line->get_next_word(pos);
 				if (pos < 0)
 					pos = line->get_length();
-				ensure_on_cursor_screen();
+				ensure_cursor_on_screen();
 			}
 			break;
 		case EKEY_LEFT | EKEY_CTRL:
@@ -181,20 +181,20 @@ bool text_field_t::process_key(key_t key) {
 				pos = line->get_previous_word(pos);
 				if (pos < 0)
 					pos = 0;
-				ensure_on_cursor_screen();
+				ensure_cursor_on_screen();
 			}
 			break;
 		case EKEY_HOME:
 		case EKEY_HOME | EKEY_SHIFT:
 			redraw = true;
 			pos = 0;
-			ensure_on_cursor_screen();
+			ensure_cursor_on_screen();
 			break;
 		case EKEY_END:
 		case EKEY_END | EKEY_SHIFT:
 			redraw = true;
 			pos = line->get_length();
-			ensure_on_cursor_screen();
+			ensure_cursor_on_screen();
 			break;
 		case EKEY_CTRL | 'x':
 			if (selection_mode != selection_mode_t::NONE)
@@ -234,7 +234,7 @@ bool text_field_t::process_key(key_t key) {
 				pos = line->get_length();
 				if (end != NULL)
 					line->merge(end);
-				ensure_on_cursor_screen();
+				ensure_cursor_on_screen();
 				redraw = true;
 				edited = true;
 			}
@@ -304,7 +304,7 @@ bool text_field_t::process_key(key_t key) {
 			else
 				line->insert_char(pos, key, NULL);
 			pos = line->adjust_position(pos, 1);
-			ensure_on_cursor_screen();
+			ensure_cursor_on_screen();
 			redraw = true;
 			edited = true;
 	}
@@ -320,7 +320,7 @@ bool text_field_t::set_size(optint height, optint width) {
 			drop_down_list->set_size(None, width);
 	}
 
-	ensure_on_cursor_screen();
+	ensure_cursor_on_screen();
 
 	redraw = true;
 	//FIXME: use return values from different parts as return value!
@@ -420,7 +420,7 @@ void text_field_t::hide(void) {
 	widget_t::hide();
 }
 
-void text_field_t::ensure_on_cursor_screen(void) {
+void text_field_t::ensure_cursor_on_screen(void) {
 	int width, char_width;
 
 	if (pos == line->get_length())
@@ -453,7 +453,7 @@ void text_field_t::set_text(const char *text) {
 void text_field_t::set_text(const char *text, size_t size) {
 	line->set_text(text, size);
 	pos = line->get_length();
-	ensure_on_cursor_screen();
+	ensure_cursor_on_screen();
 	redraw = true;
 }
 
@@ -483,6 +483,41 @@ bool text_field_t::is_hotkey(key_t key) {
 
 void text_field_t::bad_draw_recheck(void) {
 	redraw = true;
+}
+
+bool text_field_t::process_mouse_event(mouse_event_t event) {
+	if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
+		if ((event.modifier_state & EMOUSE_SHIFT) == 0) {
+			reset_selection();
+		} else if (selection_mode == selection_mode_t::NONE) {
+			selection_mode = selection_mode_t::SHIFT;
+			selection_start_pos = pos;
+		}
+		pos = line->calculate_line_pos(0, INT_MAX, event.x - 1 + leftcol, 0);
+		if ((event.modifier_state & EMOUSE_SHIFT) != 0)
+			selection_end_pos = pos;
+		ensure_cursor_on_screen();
+/* 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
+		scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3); */
+	} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
+			(event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT))) {
+		/* Complex handling here is required to prevent claiming the X11 selection
+		   when no text is selected at all. The basic idea however is to start the
+		   selection if none has been started yet, move the cursor and move the end
+		   of the selection to the new cursor location. */
+		int newpos = line->calculate_line_pos(0, INT_MAX, event.x - 1 + leftcol, 0);
+		if (selection_mode == selection_mode_t::NONE && newpos != pos) {
+			selection_mode = selection_mode_t::SHIFT;
+			selection_start_pos = pos;
+		}
+		pos = newpos;
+		if (selection_mode != selection_mode_t::NONE)
+			selection_end_pos = pos;
+		ensure_cursor_on_screen();
+		redraw = true;
+	}
+	dont_select_on_focus = true;
+	return true;
 }
 
 /*======================

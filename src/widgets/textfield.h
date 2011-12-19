@@ -60,7 +60,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		/** Delete the current selection. */
 		void delete_selection(bool save_to_copy_buffer);
 		/** Make sure the text in the text_field_t is aligned such that the cursor is visible. */
-		void ensure_on_cursor_screen(void);
+		void ensure_cursor_on_screen(void);
 
 		/** Drop-down list implementation for text_field_t. */
 		class T3_WIDGET_API drop_down_list_t : public window_component_t {
@@ -124,6 +124,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual bool is_hotkey(key_t key);
 
 		virtual void bad_draw_recheck(void);
+		virtual bool process_mouse_event(mouse_event_t event);
 
 	T3_WIDGET_SIGNAL(activate, void);
 };
