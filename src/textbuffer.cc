@@ -274,6 +274,7 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 		start = end;
 		end = tmp;
 	}
+	cursor = start;
 
 	if (start.line == end.line) {
 		text_line_t *selected_text;
@@ -282,7 +283,6 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 			undo->get_text()->append(*selected_text->get_data());
 		delete selected_text;
 		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
-		cursor = start;
 		return;
 	}
 
@@ -357,7 +357,6 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 	rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
 	if ((size_t) start.line < lines.size())
 		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, 0);
-	cursor = start;
 }
 
 
