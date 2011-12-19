@@ -114,20 +114,21 @@ bool scrollbar_t::accepts_focus(void) { return false; }
 void scrollbar_t::set_focus(bool focus) { (void) focus; }
 
 bool scrollbar_t::process_mouse_event(mouse_event_t event) {
+	/* FIXME: allow drag of slider */
 	if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) != 0) {
 		int pos;
 		pos = vertical ? event.y : event.x;
 
 		if (pos == 0)
-			clicked(UP_SMALL);
+			clicked(BACK_SMALL);
 		else if (pos == length - 1)
-			clicked(DOWN_SMALL);
+			clicked(FWD_SMALL);
 		else if (pos <= before)
-			clicked(UP_PAGE);
+			clicked(BACK_PAGE);
 		else if (pos > before + slider_size)
-			clicked(DOWN_PAGE);
+			clicked(FWD_PAGE);
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
-		clicked((event.button_state & EMOUSE_SCROLL_UP) ? UP_MEDIUM : DOWN_MEDIUM);
+		clicked((event.button_state & EMOUSE_SCROLL_UP) ? BACK_MEDIUM : FWD_MEDIUM);
 	}
 	/* We don't take focus, so return false. */
 	return false;

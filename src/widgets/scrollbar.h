@@ -37,12 +37,12 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
 		void set_parameters(int _range, int _start, int _used);
 
 		enum step_t {
-			UP_SMALL,
-			UP_MEDIUM,
-			UP_PAGE,
-			DOWN_SMALL,
-			DOWN_MEDIUM,
-			DOWN_PAGE
+			FWD_SMALL,
+			FWD_MEDIUM,
+			FWD_PAGE,
+			BACK_SMALL,
+			BACK_MEDIUM,
+			BACK_PAGE
 		};
 
 		T3_WIDGET_SIGNAL(clicked, void, step_t);

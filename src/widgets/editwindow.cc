@@ -1204,6 +1204,7 @@ bool edit_window_t::is_child(widget_t *widget) {
 }
 
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
+	/*FIXME: handle double clicking for word selection */
 	if (event.window == edit_window) {
 		if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
 			if ((event.modifier_state & EMOUSE_SHIFT) == 0)
@@ -1406,12 +1407,12 @@ void edit_window_t::scroll(int lines) {
 }
 
 void edit_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
-	scroll(step == scrollbar_t::UP_SMALL ? -3 :
-		step == scrollbar_t::DOWN_SMALL ? 3 :
-		step == scrollbar_t::UP_MEDIUM ? -t3_win_get_height(edit_window) / 2 :
-		step == scrollbar_t::DOWN_MEDIUM ? t3_win_get_height(edit_window) / 2 :
-		step == scrollbar_t::UP_PAGE ? -(t3_win_get_height(edit_window) - 1) :
-		step == scrollbar_t::DOWN_PAGE ? (t3_win_get_height(edit_window) - 1) : 0);
+	scroll(step == scrollbar_t::BACK_SMALL ? -3 :
+		step == scrollbar_t::FWD_SMALL ? 3 :
+		step == scrollbar_t::BACK_MEDIUM ? -t3_win_get_height(edit_window) / 2 :
+		step == scrollbar_t::FWD_MEDIUM ? t3_win_get_height(edit_window) / 2 :
+		step == scrollbar_t::BACK_PAGE ? -(t3_win_get_height(edit_window) - 1) :
+		step == scrollbar_t::FWD_PAGE ? (t3_win_get_height(edit_window) - 1) : 0);
 }
 //====================== view_parameters_t ========================
 
