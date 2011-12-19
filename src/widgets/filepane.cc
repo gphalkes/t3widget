@@ -19,6 +19,8 @@ using namespace std;
 namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
+/* FIXME: we should not distribute left-over space among shown columns, but show partial column instead
+	this is more intuitive for the user. */
 file_pane_t::file_pane_t(void) : widget_t(3, 3), top_idx(0), current(0), file_list(NULL),
 		focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
 {
@@ -233,11 +235,12 @@ bool file_pane_t::is_child(widget_t *widget) {
 bool file_pane_t::process_mouse_event(mouse_event_t event) {
 	if (event.window != window)
 		return true;
-	if (event.type == EMOUSE_BUTTON_RELEASE) {
+	if ((event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT)) ||
+			(event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT))) {
 		int column;
 		size_t idx;
 
-		if ((event.button_state & (EMOUSE_CLICKED_LEFT | EMOUSE_DOUBLE_CLICKED_LEFT)) == 0 || columns_visible == 0)
+		if ((event.button_state & (EMOUSE_BUTTON_LEFT | EMOUSE_DOUBLE_CLICKED_LEFT)) == 0 || columns_visible == 0)
 			return true;
 
 		for (column = 1; column < columns_visible && column_positions[column] < event.x; column++) {}
@@ -252,7 +255,7 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
 				current = idx;
 				redraw = true;
 			}
-		} else if (event.button_state & EMOUSE_CLICKED_LEFT) {
+		} else if (event.button_state & EMOUSE_BUTTON_LEFT) {
 			current = idx;
 			redraw = true;
 			return true;
