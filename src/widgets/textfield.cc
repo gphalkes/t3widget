@@ -497,8 +497,6 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 		if ((event.modifier_state & EMOUSE_SHIFT) != 0)
 			selection_end_pos = pos;
 		ensure_cursor_on_screen();
-/* 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
-		scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3); */
 	} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
 			(event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT))) {
 		/* Complex handling here is required to prevent claiming the X11 selection

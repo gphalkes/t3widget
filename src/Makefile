@@ -26,6 +26,7 @@ SOURCES.libt3widget.la := \
 	undo.cc \
 	util.cc \
 	wrapinfo.cc \
+	x11.cc \
 	dialogs/dialog.cc \
 	dialogs/filedialog.cc \
 	dialogs/finddialog.cc \
@@ -73,6 +74,7 @@ CXXFLAGS += -I$(CURDIR)
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags libpcre`
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
+CXXFLAGS += `pkg-config --cflags x11`
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
 
@@ -81,6 +83,7 @@ LDLIBS += -L$(CURDIR)/transcript/.libs -ltranscript
 LDLIBS += -L$(CURDIR)/t3key/.libs -lt3key
 LDLIBS += `pkg-config --libs libpcre`
 LDLIBS += `pkg-config --libs sigc++-2.0`
+LDLIBS += `pkg-config --libs x11`
 LDLIBS += -lunistring
 
 links:

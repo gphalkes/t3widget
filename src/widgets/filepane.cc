@@ -356,7 +356,7 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 			return;
 		top_idx += height;
 	} else if (step == scrollbar_t::FWD_PAGE) {
-
+		//FIXME:
 	} else if (step == scrollbar_t::BACK_SMALL || step == scrollbar_t::BACK_MEDIUM) {
 		if (top_idx == 0)
 			return;
@@ -365,9 +365,8 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		else
 			top_idx -= height;
 	} else if (step == scrollbar_t::BACK_PAGE) {
-
+		//FIXME:
 	}
-
 
 	update_column_widths();
 	if (current < top_idx)
