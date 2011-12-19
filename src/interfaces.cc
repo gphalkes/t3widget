@@ -93,7 +93,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		if (button_down_win == win) {
 			struct timeval now;
 			/* Set CLICKED event for released buttons */
-			event.button_state |= (event.previous_button_state & 7) << 5;
+			event.button_state |= (event.previous_button_state & EMOUSE_CLICK_BUTTONS) << EMOUSE_ALL_BUTTONS_COUNT;
 
 			gettimeofday(&now, NULL);
 			//FIXME: make DOUBLECLICK_TIMEOUT configurable
@@ -101,12 +101,12 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 					(last_click_buttons & event.button_state) != 0)
 			{
 				/* Set DOUBLE_CLICKED event for appropriate buttons */
-				event.button_state |= (event.button_state & last_click_buttons) << 3;
+				event.button_state |= (event.button_state & last_click_buttons) << EMOUSE_CLICK_BUTTONS_COUNT;
 				last_click_win = NULL;
 			} else {
 				last_click_win = button_down_win;
 				last_click_time = now;
-				last_click_buttons = event.button_state & (7 << 5);
+				last_click_buttons = event.button_state & (EMOUSE_CLICK_BUTTONS << EMOUSE_ALL_BUTTONS_COUNT);
 			}
 		} else {
 			last_click_win = NULL;
@@ -140,7 +140,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				   received the event. */
 				if (!handled && widget != NULL && active_dialog == dialog_t::active_dialogs.back() &&
 						event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 &&
-						(event.button_state & 7) != 0)
+						(event.button_state & EMOUSE_ALL_BUTTONS) != 0)
 					active_dialog->focus_set(widget);
 				handled = true;
 			}
