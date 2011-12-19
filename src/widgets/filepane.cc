@@ -19,12 +19,13 @@ using namespace std;
 namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
-file_pane_t::file_pane_t(void) : widget_t(2, 1), top_idx(0), current(0), file_list(NULL),
+file_pane_t::file_pane_t(void) : widget_t(3, 3), top_idx(0), current(0), file_list(NULL),
 		focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
 {
 	scrollbar = new scrollbar_t(false);
 	set_widget_parent(scrollbar);
 	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+	scrollbar->connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
 }
 
 file_pane_t::~file_pane_t(void) {
@@ -53,7 +54,6 @@ void file_pane_t::ensure_cursor_on_screen(void) {
 	if (top_idx != old_top_idx) {
 		update_column_widths();
 		ensure_cursor_on_screen();
-		lprintf("setting scrollbar params: %d, %zd, %d\n", scrollbar_range, top_idx, columns_visible * height);
 		scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
 	}
 }
@@ -133,7 +133,7 @@ bool file_pane_t::process_key(key_t key) {
 			return false;
 	}
 	if (file_list->size() != 0) {
-		if (field)
+		if (field != NULL)
 			field->set_text((*file_list)[current]->c_str());
 		ensure_cursor_on_screen();
 	}
@@ -194,6 +194,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 
 void file_pane_t::update_contents(void) {
 	size_t max_idx, i;
+	int height;
 
 	if (!redraw)
 		return;
@@ -207,7 +208,8 @@ void file_pane_t::update_contents(void) {
 	if (file_list == NULL)
 		return;
 
-	for (i = top_idx, max_idx = min(top_idx + columns_visible * (t3_win_get_height(window) - 1), file_list->size()); i < max_idx; i++)
+	height = t3_win_get_height(window) - 1;
+	for (i = top_idx, max_idx = min(top_idx + columns_visible * height, file_list->size()); i < max_idx; i++)
 		draw_line(i, focus && i == current);
 
 	scrollbar->update_contents();
@@ -226,6 +228,37 @@ void file_pane_t::focus_set(widget_t *target) {
 
 bool file_pane_t::is_child(widget_t *widget) {
 	return widget == scrollbar;
+}
+
+bool file_pane_t::process_mouse_event(mouse_event_t event) {
+	if (event.window != window)
+		return true;
+	if (event.type == EMOUSE_BUTTON_RELEASE) {
+		int column;
+		size_t idx;
+
+		if ((event.button_state & (EMOUSE_CLICKED_LEFT | EMOUSE_DOUBLE_CLICKED_LEFT)) == 0 || columns_visible == 0)
+			return true;
+
+		for (column = 1; column < columns_visible && column_positions[column] < event.x; column++) {}
+		column--;
+		idx = column * (t3_win_get_height(window) - 1) + event.y + top_idx;
+		if (idx > file_list->size())
+			return true;
+		if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
+			if (current == idx) {
+				activate(file_list->get_fs_name(current));
+			} else {
+				current = idx;
+				redraw = true;
+			}
+		} else if (event.button_state & EMOUSE_CLICKED_LEFT) {
+			current = idx;
+			redraw = true;
+			return true;
+		}
+	}
+	return true;
 }
 
 void file_pane_t::reset(void) {
@@ -308,6 +341,43 @@ void file_pane_t::content_changed(void) {
 	scrollbar_range = ((file_list->size() + height - 1) / height) * height;
 	scrollbar->set_parameters(scrollbar_range, 0, columns_visible * height);
 	redraw = true;
+}
+
+void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
+	int height = t3_win_get_height(window) - 1;
+	if (file_list == NULL)
+		return;
+
+	if (step == scrollbar_t::FWD_SMALL || step == scrollbar_t::FWD_MEDIUM) {
+		if (top_idx + columns_visible * height >= file_list->size())
+			return;
+		top_idx += height;
+	} else if (step == scrollbar_t::FWD_PAGE) {
+
+	} else if (step == scrollbar_t::BACK_SMALL || step == scrollbar_t::BACK_MEDIUM) {
+		if (top_idx == 0)
+			return;
+		if (top_idx < (size_t) height)
+			top_idx = 0;
+		else
+			top_idx -= height;
+	} else if (step == scrollbar_t::BACK_PAGE) {
+
+	}
+
+
+	update_column_widths();
+	if (current < top_idx)
+		current = top_idx;
+	else if (current >= file_list->size())
+		current = file_list->size() - 1;
+	else if (current >= top_idx + columns_visible * height)
+		current = top_idx + columns_visible * height - 1;
+	scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
+	redraw = true;
+
+	if (file_list->size() != 0 && field != NULL)
+		field->set_text((*file_list)[current]->c_str());
 }
 
 }; // namespace

@@ -50,6 +50,9 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		void update_column_widths(void);
 		/** Handle a change of contents of #file_list. */
 		void content_changed(void);
+
+		void scrollbar_clicked(scrollbar_t::step_t step);
+
 	public:
 		file_pane_t(void);
 		virtual ~file_pane_t(void);
@@ -65,6 +68,8 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 
 		virtual void focus_set(widget_t *target);
 		virtual bool is_child(widget_t *component);
+
+		virtual bool process_mouse_event(mouse_event_t event);
 
 		/** Set the list to its initial position, i.e. the selected item is the first item. */
 		void reset(void);
