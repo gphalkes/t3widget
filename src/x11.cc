@@ -21,13 +21,16 @@
 #include <errno.h>
 #include <list>
 
+#ifdef HAS_SELECT_H
+#include <sys/select.h>
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 #include "log.h"
 #include "ptr.h"
 #include "x11.h"
-
-#ifdef WITH_XINITTHREADS
-#error Compiling with XInitThreads does not work at this point
-#endif
 
 // FIXME: exit thread on protocol errors (so not on things like BadAtom). [ keep reading from self_pipe to prevent clogging ]
 // FIXME: remove incr_sends on long periods of inactivity
@@ -41,7 +44,8 @@ enum clipboard_action_t {
 	CONVERT_CLIPBOARD,
 	CONVERT_PRIMARY,
 	CLAIM_CLIPBOARD,
-	CLAIM_PRIMARY
+	CLAIM_PRIMARY,
+	RELEASE_SELECTIONS
 };
 
 struct incr_send_data_t {
@@ -77,6 +81,7 @@ static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
 
 static bool x11_initialized;
 static bool x11_error;
+static bool end_connection;
 
 static const char *atom_names[] = {
 	"CLIPBOARD",
@@ -109,15 +114,6 @@ static Atom atoms[ATOM_COUNT];
 #define DATA_BLOCK_SIZE 4000
 static string retrieved_data;
 
-#ifdef WITH_XINITTHREADS
-static bool end_connection;
-#else
-enum {
-	DO_ACTION,
-	DO_CLOSE
-};
-static int self_pipe[2];
-#endif
 
 static long retrieve_data(void) {
 	Atom actual_type;
@@ -191,119 +187,86 @@ static bool send_selection(Window requestor, Atom target, Atom property, linked_
 	}
 }
 
+static void handle_property_notify(XEvent &event) {
+	lprintf("Handling PropertyNotify\n");
+	if (event.xproperty.window == window) {
+		if (event.xproperty.atom == XA_WM_NAME) {
+			switch (action) {
+				case CONVERT_CLIPBOARD:
+				case CONVERT_PRIMARY:
+					retrieved_data.clear();
+					conversion_succeeded = false;
+					conversion_started_at = event.xproperty.time;
+					/* Make sure that the target property does not exist */
+					XDeleteProperty(display, window, atoms[GDK_SELECTION]);
+					XConvertSelection(display, atoms[action == CONVERT_CLIPBOARD ? CLIPBOARD : PRIMARY],
+						atoms[UTF8_STRING], atoms[GDK_SELECTION], window, conversion_started_at);
+					break;
+				case CLAIM_CLIPBOARD:
+					clipboard_owner_since = event.xproperty.time;
+					claim(&clipboard_owner_since, atoms[CLIPBOARD]);
+					break;
+				case CLAIM_PRIMARY:
+					primary_owner_since = event.xproperty.time;
+					claim(&primary_owner_since, atoms[PRIMARY]);
+					break;
+				default:
+					break;
+			}
+		} else if (event.xproperty.atom == atoms[GDK_SELECTION]) {
+			if (receive_incr && event.xproperty.state == PropertyNewValue) {
+				long result;
+				if ((result = retrieve_data()) <= 0) {
+					receive_incr = false;
+					conversion_succeeded = result == 0;
+					pthread_cond_signal(&clipboard_signal);
+				}
+				XDeleteProperty(display, window, atoms[GDK_SELECTION]);
+			}
+		}
+	} else {
+		if (event.xproperty.state != PropertyDelete || incr_sends.empty())
+			return;
+
+		for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
+			if (iter->window == event.xproperty.window) {
+				unsigned long size = iter->data->size() - iter->offset;
+				if (size > max_data)
+					size = max_data;
+				XChangeProperty(display, iter->window, iter->property, atoms[UTF8_STRING], 8, PropModeReplace,
+					(unsigned char *) iter->data->data() + iter->offset, size);
+				if (size == 0) {
+					XSelectInput(display, iter->window, 0);
+					incr_sends.erase(iter);
+				}
+				iter->offset += size;
+				break;
+			}
+		}
+	}
+}
+
+
 static void *processEvents(void *arg) {
 	XEvent event;
-#ifndef WITH_XINITTHREADS
-	fd_set read_set;
-	int x11fd = ConnectionNumber(display);
-	int max_fd = x11fd > self_pipe[0] ? x11fd : self_pipe[0];
-#endif
 	(void) arg;
 
 	pthread_mutex_lock(&clipboard_lock);
 	while (1) {
-		XFlush(display);
-		/* The initial implementation of this only used a select on the X11 fd,
-		   and called XChangeProperty from another thread. However, this somehow
-		   caused the select call to unexpectedly block occasionaly. The most
-		   likely cause is the XChangeProperty call read the socket before the
-		   select call, but after unlocking the mutex.
+		if (!XPending(display)) {
+			fd_set read_fds;
 
-		   We now have two possible implementations which work. We either call
-		   XInitThreads, and simply block in XNextEvent here, or we use a
-		   self-pipe trick to notify this thread.
-		*/
-#ifdef WITH_XINITTHREADS
-		/* Check XPending to prevent unlock/lock of mutex when there are more
-		   events to be handled. */
-		if (XPending(display)) {
-			XNextEvent(display, &event);
-		} else {
+			FD_ZERO(&read_fds);
+			FD_SET(ConnectionNumber(display), &read_fds);
 			pthread_mutex_unlock(&clipboard_lock);
-			XNextEvent(display, &event);
+			select(ConnectionNumber(display) + 1, &read_fds, NULL, NULL, NULL);
 			pthread_mutex_lock(&clipboard_lock);
-		}
-#else
-		while (!XPending(display)) {
-			FD_ZERO(&read_set);
-			FD_SET(x11fd, &read_set);
-			FD_SET(self_pipe[0], &read_set);
-			pthread_mutex_unlock(&clipboard_lock);
-			select(max_fd + 1, &read_set, NULL, NULL, NULL);
-			pthread_mutex_lock(&clipboard_lock);
-			if (FD_ISSET(self_pipe[0], &read_set)) {
-				char c;
-				if (read(self_pipe[0], &c, 1) == 1) {
-					if (c == DO_ACTION)
-						XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
-					if (c == DO_CLOSE) {
-						XCloseDisplay(display);
-						pthread_mutex_unlock(&clipboard_lock);
-						return NULL;
-					}
-				}
-			}
-			XFlush(display);
 		}
 		XNextEvent(display, &event);
-#endif
+
 		switch (event.type) {
 			case PropertyNotify:
-				if (event.xproperty.window == window) {
-					if (event.xproperty.atom == XA_WM_NAME) {
-						switch (action) {
-							case CONVERT_CLIPBOARD:
-							case CONVERT_PRIMARY:
-								retrieved_data.clear();
-								conversion_succeeded = false;
-								conversion_started_at = event.xproperty.time;
-								/* Make sure that the target property does not exist */
-								XDeleteProperty(display, window, atoms[GDK_SELECTION]);
-								XConvertSelection(display, atoms[action == CONVERT_CLIPBOARD ? CLIPBOARD : PRIMARY],
-									atoms[UTF8_STRING], atoms[GDK_SELECTION], window, conversion_started_at);
-								break;
-							case CLAIM_CLIPBOARD:
-								clipboard_owner_since = event.xproperty.time;
-								claim(&clipboard_owner_since, atoms[CLIPBOARD]);
-								break;
-							case CLAIM_PRIMARY:
-								primary_owner_since = event.xproperty.time;
-								claim(&primary_owner_since, atoms[PRIMARY]);
-								break;
-							default:
-								break;
-						}
-					} else if (event.xproperty.atom == atoms[GDK_SELECTION]) {
-						if (receive_incr && event.xproperty.state == PropertyNewValue) {
-							long result;
-							if ((result = retrieve_data()) <= 0) {
-								receive_incr = false;
-								conversion_succeeded = result == 0;
-								pthread_cond_signal(&clipboard_signal);
-							}
-							XDeleteProperty(display, window, atoms[GDK_SELECTION]);
-						}
-					}
-				} else {
-					if (event.xproperty.state != PropertyDelete || incr_sends.empty())
-						break;
-
-					for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
-						if (iter->window == event.xproperty.window) {
-							unsigned long size = iter->data->size() - iter->offset;
-							if (size > max_data)
-								size = max_data;
-							XChangeProperty(display, iter->window, iter->property, atoms[UTF8_STRING], 8, PropModeReplace,
-								(unsigned char *) iter->data->data() + iter->offset, size);
-							if (size == 0) {
-								XSelectInput(display, iter->window, 0);
-								incr_sends.erase(iter);
-							}
-							iter->offset += size;
-							break;
-						}
-					}
-				}
+				handle_property_notify(event);
 				break;
 
 			case SelectionNotify: {
@@ -350,9 +313,11 @@ static void *processEvents(void *arg) {
 					primary_data = NULL;
 					primary_owner_since = CurrentTime;
 				}
+				if (action == RELEASE_SELECTIONS && clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime)
+					pthread_cond_signal(&clipboard_signal);
 				break;
 
-			case SelectionRequest:
+			case SelectionRequest: {
 				XEvent reply;
 				linked_ptr<string> data;
 				Time since;
@@ -383,7 +348,7 @@ static void *processEvents(void *arg) {
 
 				XSendEvent(display, event.xselectionrequest.requestor, False, 0, &reply);
 				break;
-#ifdef WITH_XINITTHREADS
+			}
 			case ClientMessage:
 				lprintf("ClientMessage received: %d\n", end_connection);
 				if (end_connection) {
@@ -392,7 +357,6 @@ static void *processEvents(void *arg) {
 					return NULL;
 				}
 				break;
-#endif
 		}
 	}
 	return NULL;
@@ -422,22 +386,21 @@ static int io_error_handler(Display *_display) {
 
 static void stop_x11(void) {
 	void *retval;
-#ifdef WITH_XINITTHREADS
 	XEvent event;
+
 	pthread_mutex_lock(&clipboard_lock);
 	end_connection = true;
-	pthread_mutex_unlock(&clipboard_lock);
 
+	/* We need to wake up the other thread, such that it will close the connection.
+	   Thus we send it a ClientMessage. */
 	event.type = ClientMessage;
 	event.xclient.window = window;
 	event.xclient.format = 8;
 	event.xclient.message_type = None;
 	lprintf("Sending ClientMessage\n");
 	XSendEvent(display, window, False, 0, &event);
-#else
-	char c = DO_CLOSE;
-	while (write(self_pipe[1], &c, 1) != 1) {}
-#endif
+	XFlush(display);
+	pthread_mutex_unlock(&clipboard_lock);
 	pthread_join(x11_event_thread, &retval);
 }
 
@@ -447,13 +410,7 @@ bool init_x11(void) {
 	char **atom_names_local = NULL;
 	long max_request;
 	size_t i;
-#ifdef WITH_XINITTHREADS
-	if (XInitThreads() == 0)
-		return false;
-#else
-	if (pipe(self_pipe) < 0)
-		return false;
-#endif
+
 	if ((atom_names_local = (char **) malloc(sizeof(char *) * ATOM_COUNT)) == NULL)
 		return false;
 
@@ -540,9 +497,6 @@ static struct timespec timeout_time(int usec) {
 linked_ptr<string> get_x11_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
 	linked_ptr<string> result;
-#ifndef WITH_XINITTHREADS
-	char c = DO_ACTION;
-#endif
 
 	if (!x11_working()) {
 		lprintf("X11 not initialized\n");
@@ -552,11 +506,8 @@ linked_ptr<string> get_x11_selection(bool clipboard) {
 	pthread_mutex_lock(&clipboard_lock);
 	if ((clipboard && clipboard_owner_since == CurrentTime) || (!clipboard && primary_owner_since == CurrentTime)) {
 		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
-#ifdef WITH_XINITTHREADS
 		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
-#else
-		while (write(self_pipe[1], &c, 1) != 1) {}
-#endif
+		XFlush(display);
 		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout) != ETIMEDOUT &&
 				conversion_succeeded)
 			result = new string(retrieved_data);
@@ -570,9 +521,6 @@ linked_ptr<string> get_x11_selection(bool clipboard) {
 
 void claim_selection(bool clipboard, string *data) {
 	struct timespec timeout = timeout_time(1000000);
-#ifndef WITH_XINITTHREADS
-	char c = DO_ACTION;
-#endif
 
 	if (!x11_working()) {
 		if (clipboard)
@@ -590,18 +538,34 @@ void claim_selection(bool clipboard, string *data) {
 		action = CLAIM_PRIMARY;
 		primary_data = data;
 	}
-#ifdef WITH_XINITTHREADS
 	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
-#else
-	while (write(self_pipe[1], &c, 1) != 1) {}
-#endif
+	XFlush(display);
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_lock);
 }
 
 void release_selections(void) {
-	//FIXME: handle this case!
+	struct timespec timeout = timeout_time(1000000);
+
+	if (!x11_working())
+		return;
+
+	pthread_mutex_lock(&clipboard_lock);
+	if (clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime) {
+		pthread_mutex_unlock(&clipboard_lock);
+		return;
+	}
+
+	action = RELEASE_SELECTIONS;
+	if (clipboard_owner_since != CurrentTime)
+		XSetSelectionOwner(display, atoms[CLIPBOARD], None, CurrentTime);
+	if (primary_owner_since != CurrentTime)
+		XSetSelectionOwner(display, atoms[PRIMARY], None, CurrentTime);
+	XFlush(display);
+	pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout);
+	action = ACTION_NONE;
+	pthread_mutex_unlock(&clipboard_lock);
 }
 
 }; // namespace

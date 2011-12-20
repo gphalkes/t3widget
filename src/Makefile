@@ -79,7 +79,6 @@ CXXFLAGS += `pkg-config --cflags x11`
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
-#~ CXXFLAGS += -DWITH_XINITTHREADS
 
 LDLIBS += -L$(CURDIR)/t3window/.libs -lt3window
 LDLIBS += -L$(CURDIR)/transcript/.libs -ltranscript

@@ -18,6 +18,14 @@
 #include <transcript/transcript.h>
 #include <cerrno>
 
+#ifdef HAS_SELECT_H
+#include <sys/select.h>
+#else
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 #ifdef HAS_SCHED_FUNCS
 #include <sched.h>
 #endif
