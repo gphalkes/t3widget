@@ -91,9 +91,8 @@ bool widget_t::is_shown(void) {
 void widget_t::set_focus(bool focus) { (void) focus; return; }
 
 bool widget_t::process_mouse_event(mouse_event_t event) {
-	(void) event;
 	lprintf("Default mouse handling for %s (%d)\n", typeid(*this).name(), accepts_focus());
-	return accepts_focus();
+	return accepts_focus() && (event.button_state & EMOUSE_CLICK_BUTTONS);
 }
 
 }; // namespace

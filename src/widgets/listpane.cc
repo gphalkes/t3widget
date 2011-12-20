@@ -33,6 +33,7 @@ list_pane_t::list_pane_t(bool _indicator) : top_idx(0), current(0),
 	container_t::set_widget_parent(scrollbar);
 	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	scrollbar->set_size(1, None);
+	scrollbar->connect_clicked(sigc::mem_fun(this, &list_pane_t::scrollbar_clicked));
 
 	if (indicator) {
 		indicator_widget = new indicator_widget_t();
@@ -172,7 +173,11 @@ bool list_pane_t::process_mouse_event(mouse_event_t event) {
 	if (event.type == EMOUSE_BUTTON_RELEASE &&
 			(event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
 			event.window != widgets_window)
+	{
 		activate();
+	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
+		scroll((event.button_state & EMOUSE_SCROLL_UP) ? -3 : 3);
+	}
 	return true;
 }
 
@@ -338,6 +343,20 @@ void list_pane_t::set_current(size_t idx) {
 
 	current = idx;
 	ensure_cursor_on_screen();
+}
+
+void list_pane_t::scroll(int change) {
+	top_idx = (change < 0 && top_idx < (size_t) -change) ? 0 :
+		(change > 0 && top_idx + t3_win_get_height(window) + change >= widgets.size()) ?
+			widgets.size() - t3_win_get_height(window) : top_idx + change;
+}
+void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
+	scroll(step == scrollbar_t::BACK_SMALL ? -3 :
+		step == scrollbar_t::BACK_MEDIUM ? -t3_win_get_height(window) / 2 :
+		step == scrollbar_t::BACK_PAGE ? -t3_win_get_height(window) :
+		step == scrollbar_t::FWD_SMALL ? 3 :
+		step == scrollbar_t::FWD_MEDIUM ? t3_win_get_height(window) / 2 :
+		step == scrollbar_t::FWD_PAGE ? t3_win_get_height(window) : 0);
 }
 
 //=========== Indicator widget ================

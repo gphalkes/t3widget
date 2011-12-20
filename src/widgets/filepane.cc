@@ -351,13 +351,16 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 	if (file_list == NULL)
 		return;
 
-	if (step == scrollbar_t::FWD_SMALL || step == scrollbar_t::FWD_MEDIUM) {
+	/* FIXME: for now, clicking the empty area of the scrollbar will simply
+		jump one column, because doing it differently is too tricky (for now). */
+	if (step == scrollbar_t::FWD_SMALL || step == scrollbar_t::FWD_MEDIUM || step == scrollbar_t::FWD_PAGE) {
 		if (top_idx + columns_visible * height >= file_list->size())
 			return;
 		top_idx += height;
 	} else if (step == scrollbar_t::FWD_PAGE) {
-		//FIXME:
-	} else if (step == scrollbar_t::BACK_SMALL || step == scrollbar_t::BACK_MEDIUM) {
+		/* FIXME: This one is tricky. The question is whether there are enough
+			items to fill the view after the current page. */
+	} else if (step == scrollbar_t::BACK_SMALL || step == scrollbar_t::BACK_MEDIUM || step == scrollbar_t::BACK_PAGE) {
 		if (top_idx == 0)
 			return;
 		if (top_idx < (size_t) height)
@@ -365,7 +368,9 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		else
 			top_idx -= height;
 	} else if (step == scrollbar_t::BACK_PAGE) {
-		//FIXME:
+		/* FIXME: This one is tricky. The question is how many columns we should
+			go back to fill the page. If we go back to far we will jump over
+			a column, which is confusing for the user. */
 	}
 
 	update_column_widths();

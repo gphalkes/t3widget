@@ -43,6 +43,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		cleanup_obj_ptr<indicator_widget_t> indicator_widget;
 
 		void ensure_cursor_on_screen(void);
+		void scroll(int change);
+		void scrollbar_clicked(scrollbar_t::step_t step);
 
 	protected:
 		virtual bool set_widget_parent(widget_t *widget);
