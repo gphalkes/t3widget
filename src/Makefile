@@ -13,6 +13,7 @@
 
 
 SOURCES.libt3widget.la := \
+	clipboard.cc \
 	colorscheme.cc \
 	contentlist.cc \
 	findcontext.cc \

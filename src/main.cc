@@ -31,6 +31,7 @@
 #include "dialogs/dialog.h"
 #include "textline.h"
 #include "internal.h"
+#include "x11.h"
 
 using namespace std;
 
@@ -306,6 +307,9 @@ complex_error_t init(const init_parameters_t *params) {
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
 	t3_term_hide_cursor();
+	if (!init_x11())
+		lprintf("Error initializing X11\n");
+	//~ init_x11();
 	return result;
 }
 

@@ -24,6 +24,7 @@
 #include "internal.h"
 #include "findcontext.h"
 #include "wrapinfo.h"
+#include "clipboard.h"
 #include "log.h"
 
 /* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
@@ -1062,10 +1063,7 @@ void edit_window_t::cut_copy(bool cut) {
 			return;
 		}
 
-		if (copy_buffer != NULL)
-			delete copy_buffer;
-
-		copy_buffer = text->convert_selection();
+		set_clipboard(text->convert_selection());
 
 		if (cut)
 			delete_selection();
@@ -1075,6 +1073,7 @@ void edit_window_t::cut_copy(bool cut) {
 }
 
 void edit_window_t::paste(void) {
+	linked_ptr<string> copy_buffer = get_clipboard();
 	if (copy_buffer != NULL) {
 		if (text->get_selection_mode() == selection_mode_t::NONE) {
 			text->insert_block(copy_buffer);

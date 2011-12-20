@@ -20,6 +20,7 @@
 #include <t3window/window.h>
 
 #include <t3widget/widget_api.h>
+#include <t3widget/ptr.h>
 
 namespace t3_widget {
 
@@ -149,64 +150,6 @@ _T3_WIDGET_ENUM(wrap_type_t,
 
 #undef _T3_WIDGET_ENUM
 
-/* Pointer wrappers which automatically de-allocate their objects when going out
-   of scope. The difference with the Boost scoped_ptr is that the objects are not
-   deallocated when assigning a different value. Their main use is to ensure
-   deallocation during exception handling, and storing of temporary values.
-*/
-template <typename T>
-class cleanup_abstract {
-	public:
-		T* operator-> (void) const { return p_; }
-		T& operator* (void) const { return *p_; }
-		T** operator& (void) { return &p_; }
-		T* operator() (void) const { return p_; }
-		cleanup_abstract(void) : p_(NULL) {}
-		cleanup_abstract(T *p) : p_(p) {}
-		T* operator= (T *p) { return p_ = p; }
-		operator T* (void) { return p_; }
-		T* get(void) { return p_; }
-	protected:
-		cleanup_abstract& operator= (const cleanup_abstract &p) { (void) p; return *this; }
-		cleanup_abstract(const cleanup_abstract &p) { (void) p; }
-		T* p_;
-};
-
-template <typename T>
-class cleanup_obj_ptr : public cleanup_abstract<T> {
-	public:
-		~cleanup_obj_ptr(void) { delete cleanup_abstract<T>::p_; }
-		cleanup_obj_ptr(void) : cleanup_abstract<T>(NULL) {}
-		cleanup_obj_ptr(T *p) : cleanup_abstract<T>(p) {}
-		T* operator= (T *p) { return cleanup_abstract<T>::p_ = p; }
-	protected:
-		cleanup_obj_ptr& operator= (const cleanup_obj_ptr &p) { (void) p; return *this; }
-		cleanup_obj_ptr(const cleanup_obj_ptr &p) { (void) p; }
-};
-
-template <typename T>
-class cleanup_objarr_ptr : public cleanup_abstract<T> {
-	public:
-		~cleanup_objarr_ptr(void) { delete [] cleanup_abstract<T>::p_; }
-		cleanup_objarr_ptr(void) : cleanup_abstract<T>(NULL) {}
-		cleanup_objarr_ptr(T *p) : cleanup_abstract<T>(p) {}
-		T* operator= (T *p) { return cleanup_abstract<T>::p_ = p; }
-	protected:
-		cleanup_objarr_ptr& operator= (const cleanup_objarr_ptr &p) { (void) p; return *this; }
-		cleanup_objarr_ptr(const cleanup_objarr_ptr &p) { (void) p; }
-};
-
-template <typename T, typename U = void, void (*f)(U *) = free>
-class cleanup_ptr : public cleanup_abstract<T> {
-	public:
-		~cleanup_ptr(void) { f((U *) cleanup_abstract<T>::p_); }
-		cleanup_ptr(void) : cleanup_abstract<T>(NULL) {}
-		cleanup_ptr(T *p) : cleanup_abstract<T>(p) {}
-		T* operator= (T *p) { return cleanup_abstract<T>::p_ = p; }
-	private:
-		cleanup_ptr& operator= (const cleanup_ptr &p) { (void) p; return *this; }
-		cleanup_ptr(const cleanup_ptr &p) { (void) p; }
-};
 
 typedef cleanup_ptr<t3_window_t, t3_window_t, t3_win_del> auto_t3_window_t;
 

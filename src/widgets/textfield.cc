@@ -18,7 +18,7 @@
 #include "colorscheme.h"
 #include "internal.h"
 #include "widgets/textfield.h"
-
+#include "clipboard.h"
 #include "log.h"
 
 using namespace std;
@@ -93,11 +93,9 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 	}
 
 	result = line->cut_line(start, end);
-	if (save_to_copy_buffer) {
-		if (copy_buffer != NULL)
-			delete copy_buffer;
-		copy_buffer = new string(*result->get_data());
-	}
+	if (save_to_copy_buffer)
+		set_clipboard(new string(*result->get_data()));
+
 	delete result;
 
 	pos = start;
@@ -214,14 +212,12 @@ bool text_field_t::process_key(key_t key) {
 					end = selection_start_pos;
 				}
 
-				if (copy_buffer != NULL)
-					delete copy_buffer;
-
-				copy_buffer = new string(*line->get_data(), start, end - start);
+				set_clipboard(new string(*line->get_data(), start, end - start));
 			}
 			break;
 
-		case EKEY_CTRL | 'v':
+		case EKEY_CTRL | 'v': {
+			linked_ptr<string> copy_buffer = get_clipboard();
 			if (copy_buffer != NULL) {
 				text_line_t *end = NULL;
 
@@ -239,6 +235,7 @@ bool text_field_t::process_key(key_t key) {
 				edited = true;
 			}
 			break;
+		}
 
 		case EKEY_CTRL | 't':
 			switch (selection_mode) {

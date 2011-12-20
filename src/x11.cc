@@ -12,18 +12,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdlib.h>
-#include <stdio.h>
 #include <sys/time.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-#include <stdbool.h>
 #include <cstring>
 #include <string>
 #include <pthread.h>
 #include <errno.h>
 
+#include "log.h"
+
 // FIXME: exit thread on protocol errors (so not on things like BadAtom). [ keep reading from self_pipe to prevent clogging ]
-// FIXME: signal failure of conversion to requesting routine
 
 using namespace std;
 
@@ -51,12 +50,14 @@ static Window root, window;
 
 static long max_request;
 
-static bool receive_incr = false;
+static bool receive_incr;
 
 static pthread_t x11_event_thread;
 static pthread_mutex_t clipboard_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
-static bool x11error = false;
+
+static bool x11_initialized;
+static bool x11error;
 
 static const char *atom_names[] = {
 	"CLIPBOARD",
@@ -389,6 +390,7 @@ static void *processEvents(void *arg) {
 				break;
 #ifdef WITH_XINITTHREADS
 			case ClientMessage:
+				tprintf("ClientMessage received: %d\n", end_connection);
 				if (end_connection) {
 					XCloseDisplay(display);
 					pthread_mutex_unlock(&clipboard_lock);
@@ -401,16 +403,19 @@ static void *processEvents(void *arg) {
 	return NULL;
 }
 
-static int errorHandler(Display *_display, XErrorEvent *error) {
-	(void) _display;
-	(void) error;
+static int error_handler(Display *_display, XErrorEvent *error) {
+	char error_text[1024];
+	XGetErrorText(_display, error->error_code, error_text, sizeof(error_text));
+
+	lprintf("X11 error handler: %s\n", error_text);
 	//FIXME: Alloc errors should not disable further processing
 	x11error = true;
 	return 0;
 }
 
-static int ioErrorHandler(Display *_display) {
+static int io_error_handler(Display *_display) {
 	(void) _display;
+	lprintf("X11 IO error\n");
 	x11error = true;
 	return 0;
 }
@@ -418,11 +423,15 @@ static int ioErrorHandler(Display *_display) {
 static void stop_x11(void) {
 	void *retval;
 #ifdef WITH_XINITTHREADS
+	#error FIXME: XSendEvent to self does not seem to work
 	XEvent event;
+	end_connection = true;
+
 	event.type = ClientMessage;
 	event.xclient.window = window;
 	event.xclient.type = 8;
 	event.xclient.message_type = None;
+	tprintf("Sending ClientMessage\n");
 	XSendEvent(display, window, False, 0, &event);
 #else
 	char c = DO_CLOSE;
@@ -454,8 +463,8 @@ bool init_x11(void) {
 	}
 
 	// Make sure X11 errors don't abort the program
-	XSetErrorHandler(errorHandler);
-	XSetIOErrorHandler(ioErrorHandler);
+	XSetErrorHandler(error_handler);
+	XSetIOErrorHandler(io_error_handler);
 
 	if ((display = XOpenDisplay(NULL)) == NULL)
 		goto error_exit;
@@ -474,6 +483,11 @@ bool init_x11(void) {
 	if (!XInternAtoms(display, atom_names_local, ATOM_COUNT, False, atoms))
 		goto error_exit;
 
+	for (i = 0; i < ATOM_COUNT; i++)
+		free(atom_names_local[i]);
+	free(atom_names_local);
+	atom_names_local = NULL;
+
 	XSelectInput(display, window, PropertyChangeMask);
 
 	while (XPending(display))
@@ -481,6 +495,7 @@ bool init_x11(void) {
 	if (x11error)
 		goto error_exit;
 
+	x11_initialized = true;
 	pthread_create(&x11_event_thread, NULL, processEvents, NULL);
 	atexit(stop_x11);
 	return true;
@@ -519,6 +534,11 @@ string *get_x11_selection(bool clipboard) {
 	char c = DO_ACTION;
 #endif
 
+	if (!x11_initialized) {
+		lprintf("X11 not initialized\n");
+		return NULL;
+	}
+
 	pthread_mutex_lock(&clipboard_lock);
 	action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 #ifdef WITH_XINITTHREADS
@@ -544,6 +564,9 @@ void claim_selection(bool clipboard, const string *data) {
 #ifndef WITH_XINITTHREADS
 	char c = DO_ACTION;
 #endif
+
+	if (!x11_initialized)
+		return;
 
 	pthread_mutex_lock(&clipboard_lock);
 	if (clipboard) {

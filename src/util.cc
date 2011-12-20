@@ -51,7 +51,6 @@ static transcript_t *lang_codeset_handle;
 static bool lang_codeset_is_utf8;
 
 const optint None;
-std::string *copy_buffer;
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
 	size_t start = 0;
