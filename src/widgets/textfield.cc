@@ -195,6 +195,7 @@ bool text_field_t::process_key(key_t key) {
 			ensure_cursor_on_screen();
 			break;
 		case EKEY_CTRL | 'x':
+		case EKEY_SHIFT | EKEY_DEL:
 			if (selection_mode != selection_mode_t::NONE)
 				delete_selection(true);
 			break;
@@ -216,20 +217,17 @@ bool text_field_t::process_key(key_t key) {
 			}
 			break;
 
-		case EKEY_CTRL | 'v': {
+		case EKEY_CTRL | 'v':
+		case EKEY_SHIFT | EKEY_INS: {
 			linked_ptr<string> copy_buffer = get_clipboard();
 			if (copy_buffer != NULL) {
-				text_line_t *end = NULL;
+				text_line_t insert_line(copy_buffer);
 
 				if (selection_mode != selection_mode_t::NONE)
 					delete_selection(false);
-				if (pos < line->get_length())
-					end = line->break_line(pos);
 
-				line->merge(new text_line_t(copy_buffer));
-				pos = line->get_length();
-				if (end != NULL)
-					line->merge(end);
+				line->insert(&insert_line, pos);
+				pos += insert_line.get_length();
 				ensure_cursor_on_screen();
 				redraw = true;
 				edited = true;
@@ -494,6 +492,20 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 		if ((event.modifier_state & EMOUSE_SHIFT) != 0)
 			selection_end_pos = pos;
 		ensure_cursor_on_screen();
+	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
+		linked_ptr<string> primary;
+
+		reset_selection();
+		pos = line->calculate_line_pos(0, INT_MAX, event.x - 1 + leftcol, 0);
+
+		primary = get_primary();
+		if (primary != NULL) {
+			text_line_t insert_line(primary);
+
+			line->insert(&insert_line, pos);
+			pos += insert_line.get_length();
+		}
+		ensure_cursor_on_screen();
 	} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
 			(event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT))) {
 		/* Complex handling here is required to prevent claiming the X11 selection
@@ -506,8 +518,20 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 			selection_start_pos = pos;
 		}
 		pos = newpos;
-		if (selection_mode != selection_mode_t::NONE)
+		if (selection_mode != selection_mode_t::NONE) {
 			selection_end_pos = pos;
+			if (event.type == EMOUSE_BUTTON_RELEASE && selection_end_pos != selection_start_pos) {
+				size_t start, length;
+				if (selection_start_pos < selection_end_pos) {
+					start = selection_start_pos;
+					length = selection_end_pos - start;
+				} else {
+					start = selection_end_pos;
+					length = selection_start_pos - start;
+				}
+				set_primary(new string(*line->get_data(), start, length));
+			}
+		}
 		ensure_cursor_on_screen();
 		redraw = true;
 	}

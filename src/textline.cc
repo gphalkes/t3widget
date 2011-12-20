@@ -179,6 +179,15 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
 	return retval;
 }
 
+void text_line_t::insert(text_line_t *other, int pos) {
+	ASSERT(pos >= 0 && pos <= buffer.size());
+
+	reserve(buffer.size() + other->buffer.size());
+	buffer.insert(pos, other->buffer);
+	if (pos == 0)
+		starts_with_combining = other->starts_with_combining;
+}
+
 void text_line_t::minimize(void) {
 	reserve(0);
 }

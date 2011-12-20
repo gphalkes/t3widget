@@ -1221,9 +1221,11 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 				text->set_selection_end();
 			ensure_cursor_on_screen();
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
+			linked_ptr<string> primary;
+
 			reset_selection();
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
-			linked_ptr<string> primary = get_primary();
+			primary = get_primary();
 			if (primary != NULL)
 				text->insert_block(primary);
 			ensure_cursor_on_screen();

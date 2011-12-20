@@ -107,6 +107,7 @@ class T3_WIDGET_API text_line_t {
 		text_line_t *cut_line(int start, int end);
 		text_line_t *clone(int start, int end);
 		text_line_t *break_on_nl(int *start_from);
+		void insert(text_line_t *other, int pos);
 
 		void minimize(void);
 
