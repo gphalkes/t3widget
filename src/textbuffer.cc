@@ -253,9 +253,10 @@ bool text_buffer_t::selection_empty(void) const {
 	return selection_start == selection_end;
 }
 
-void text_buffer_t::set_selection_end(void)  {
+void text_buffer_t::set_selection_end(bool update_primary)  {
 	selection_end = cursor;
-	set_primary(convert_selection());
+	if (update_primary)
+		set_primary(convert_selection());
 }
 
 text_coordinate_t text_buffer_t::get_selection_start(void) const { return selection_start; }
@@ -707,6 +708,7 @@ void text_buffer_t::set_selection_from_find(find_result_t *result) {
 
 	cursor = get_selection_end();
 	selection_mode = selection_mode_t::SHIFT;
+	set_primary(convert_selection());
 }
 
 bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) const {

@@ -92,7 +92,7 @@ class T3_WIDGET_API text_buffer_t {
 
 		text_coordinate_t get_selection_start(void) const;
 		text_coordinate_t get_selection_end(void) const;
-		void set_selection_end(void);
+		void set_selection_end(bool update_primary = true);
 		void set_selection_mode(selection_mode_t mode);
 		selection_mode_t get_selection_mode(void) const;
 		bool selection_empty(void) const;

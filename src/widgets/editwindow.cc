@@ -1203,7 +1203,13 @@ bool edit_window_t::is_child(widget_t *widget) {
 }
 
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
-	/*FIXME: handle double clicking for word selection */
+	/*FIXME:
+		- handle double clicking for word selection
+		- handle triple clicking for line selection
+		- somehow make it such that using mouse selection does not cause
+			so many updates to the primary selection. It should only update on
+			mouse release.
+	*/
 	if (event.window == edit_window) {
 		if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
 			if ((event.modifier_state & EMOUSE_SHIFT) == 0)
@@ -1234,7 +1240,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 				text->set_selection_mode(selection_mode_t::SHIFT);
 			text->cursor = new_cursor;
 			if (text->get_selection_mode() != selection_mode_t::NONE)
-				text->set_selection_end();
+				text->set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
 			ensure_cursor_on_screen();
 		}
 	}
