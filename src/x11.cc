@@ -19,6 +19,7 @@
 #include <string>
 #include <pthread.h>
 #include <errno.h>
+#include <list>
 
 #include "log.h"
 #include "ptr.h"
@@ -29,6 +30,7 @@
 #endif
 
 // FIXME: exit thread on protocol errors (so not on things like BadAtom). [ keep reading from self_pipe to prevent clogging ]
+// FIXME: remove incr_sends on long periods of inactivity
 
 using namespace std;
 
@@ -42,6 +44,18 @@ enum clipboard_action_t {
 	CLAIM_PRIMARY
 };
 
+struct incr_send_data_t {
+	Window window;
+	linked_ptr<string> data;
+	Atom property;
+	size_t offset;
+
+	incr_send_data_t(Window _window, linked_ptr<string> _data, Atom _property) : window(_window),
+		data(_data), property(_property), offset(0) {}
+};
+typedef list<incr_send_data_t> incr_send_list_t;
+static incr_send_list_t incr_sends;
+
 static clipboard_action_t action;
 static bool conversion_succeeded;
 
@@ -53,7 +67,7 @@ static Time conversion_started_at;
 static Display *display;
 static Window root, window;
 
-static long max_request;
+static size_t max_data;
 
 static bool receive_incr;
 
@@ -93,7 +107,6 @@ static Atom atoms[ATOM_COUNT];
 
 
 #define DATA_BLOCK_SIZE 4000
-
 static string retrieved_data;
 
 #ifdef WITH_XINITTHREADS
@@ -137,7 +150,7 @@ static void claim(Time *since, Atom selection) {
 	pthread_cond_signal(&clipboard_signal);
 }
 
-static bool send_selection(Window requestor, Atom target, Atom property, string *data, Time since) {
+static bool send_selection(Window requestor, Atom target, Atom property, linked_ptr<string> data, Time since) {
 	if (target == atoms[TARGETS]) {
 		XChangeProperty(display, requestor, property, atoms[ATOM], 32, PropModeReplace, (unsigned char *) &atoms[TARGETS], 4);
 		return true;
@@ -145,9 +158,15 @@ static bool send_selection(Window requestor, Atom target, Atom property, string 
 		XChangeProperty(display, requestor, property, atoms[TIMESTAMP], 32, PropModeReplace, (unsigned char *) &since, 1);
 		return true;
 	} else if (target == atoms[UTF8_STRING]) {
-		//FIXME: use incremental sending for large transfers
-		XChangeProperty(display, requestor, property, atoms[UTF8_STRING], 8, PropModeReplace,
-			(unsigned char *) data->data(), data->size());
+		if (data->size() > max_data) {
+			XChangeProperty(display, requestor, property, atoms[UTF8_STRING], 8, PropModeReplace,
+				(unsigned char *) data->data(), data->size());
+		} else {
+			long size = data->size();
+			incr_sends.push_back(incr_send_data_t(requestor, data, property));
+			XSelectInput(display, requestor, PropertyChangeMask);
+			XChangeProperty(display, requestor, property, atoms[INCR], 32, PropModeReplace, (unsigned char *) &size, 1);
+		}
 		return true;
 	} else if (target == atoms[MULTIPLE]) {
 		Atom actual_type, *requested_conversions;
@@ -266,12 +285,28 @@ static void *processEvents(void *arg) {
 						}
 					}
 				} else {
-					/*FIXME: we may get this for incremental sends, so we should check
-					  if any of the running sends are incremental. */
+					if (event.xproperty.state != PropertyDelete || incr_sends.empty())
+						break;
+
+					for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
+						if (iter->window == event.xproperty.window) {
+							unsigned long size = iter->data->size() - iter->offset;
+							if (size > max_data)
+								size = max_data;
+							XChangeProperty(display, iter->window, iter->property, atoms[UTF8_STRING], 8, PropModeReplace,
+								(unsigned char *) iter->data->data() + iter->offset, size);
+							if (size == 0) {
+								XSelectInput(display, iter->window, 0);
+								incr_sends.erase(iter);
+							}
+							iter->offset += size;
+							break;
+						}
+					}
 				}
 				break;
 
-			case SelectionNotify: { //FIXME: should we use throw to exit on error?
+			case SelectionNotify: {
 				/* Conversion failed. */
 				if (event.xselection.property == None) {
 					if (action == CONVERT_CLIPBOARD || action == CONVERT_PRIMARY)
@@ -319,7 +354,7 @@ static void *processEvents(void *arg) {
 
 			case SelectionRequest:
 				XEvent reply;
-				string *data;
+				linked_ptr<string> data;
 				Time since;
 
 				reply.type = SelectionNotify;
@@ -410,6 +445,7 @@ bool init_x11(void) {
 	XEvent event;
 	int black;
 	char **atom_names_local = NULL;
+	long max_request;
 	size_t i;
 #ifdef WITH_XINITTHREADS
 	if (XInitThreads() == 0)
@@ -436,6 +472,10 @@ bool init_x11(void) {
 		goto error_exit;
 
 	max_request = XMaxRequestSize(display);
+	if (max_request > DATA_BLOCK_SIZE * 4 + 100)
+		max_data = DATA_BLOCK_SIZE * 4;
+	else
+		max_data = max_request - 100;
 
 	root = XDefaultRootWindow(display);
 	black = BlackPixel(display, DefaultScreen(display));
