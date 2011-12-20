@@ -22,7 +22,8 @@
 #include <pthread.h>
 #include <errno.h>
 
-// FIXME: exit thread on protocol errors (so not on things like BadAtom).
+// FIXME: exit thread on protocol errors (so not on things like BadAtom). [ keep reading from self_pipe to prevent clogging ]
+// FIXME: signal failure of conversion to requesting routine
 
 using namespace std;
 
@@ -59,23 +60,25 @@ static const char *atomNames[] = {
 	"CLIPBOARD",
 	"PRIMARY",
 	"TARGETS",
-	"UTF8_STRING",
-	"GDK_SELECTION", // Use same name as GDK to save on atoms
 	"TIMESTAMP",
 	"MULTIPLE",
+	"UTF8_STRING",
+	"GDK_SELECTION", // Use same name as GDK to save on atoms
 	"INCR",
-	"ATOM"
+	"ATOM",
+	"ATOM_PAIR",
 };
 enum {
 	CLIPBOARD,
 	PRIMARY,
 	TARGETS,
-	UTF8_STRING,
-	GDK_SELECTION,
 	TIMESTAMP,
 	MULTIPLE,
+	UTF8_STRING,
+	GDK_SELECTION,
 	INCR,
-	ATOM
+	ATOM,
+	ATOM_PAIR,
 };
 #define ATOM_COUNT (sizeof(atomNames) / sizeof(atomNames[0]))
 static Atom atoms[ATOM_COUNT];
@@ -95,29 +98,34 @@ enum {
 static int self_pipe[2];
 #endif
 
+#ifdef TESTX11
+#define tprintf(...) printf(__VA_ARGS__)
+#else
+#define tprintf(...)
+#endif
 
 
 static long retrieve_data(void) {
-	Atom actualType;
-	int actualFormat;
-	unsigned long nitems, bytesAfter;
+	Atom actual_type;
+	int actual_format;
+	unsigned long nitems, bytes_after;
 	unsigned char *prop = NULL;
 	unsigned long offset = 0;
 
 	do {
 		if (XGetWindowProperty(display, window, atoms[GDK_SELECTION], offset,
-			DATA_BLOCK_SIZE, False, AnyPropertyType, &actualType, &actualFormat,
-			&nitems, &bytesAfter, &prop) != Success)
+			DATA_BLOCK_SIZE, False, AnyPropertyType, &actual_type, &actual_format,
+			&nitems, &bytes_after, &prop) != Success)
 		{
 			retrievedData.clear();
 			return -1;
 		} else {
 			retrievedData.append((char *) prop, nitems);
-			offset += nitems;
+			offset += nitems / 4;
 			XFree(prop);
 		}
 		prop = NULL;
-	} while (bytesAfter);
+	} while (bytes_after);
 	return offset;
 }
 
@@ -128,13 +136,38 @@ static void claim(Time *since, Atom selection) {
 	pthread_cond_signal(&clipboard_signal);
 }
 
-static void send_selection(Window requestor, Atom target, Atom property, string *data) {
+static bool send_selection(Window requestor, Atom target, Atom property, string *data, Time since) {
 	if (target == atoms[TARGETS]) {
-		XChangeProperty(display, requestor, property, atoms[ATOM], 32, PropModeReplace, (unsigned char *) &atoms[TARGETS], 2);
+		XChangeProperty(display, requestor, property, atoms[ATOM], 32, PropModeReplace, (unsigned char *) &atoms[TARGETS], 4);
+		return true;
+	} else if (target == atoms[TIMESTAMP]) {
+		XChangeProperty(display, requestor, property, atoms[TIMESTAMP], 32, PropModeReplace, (unsigned char *) &since, 1);
+		return true;
 	} else if (target == atoms[UTF8_STRING]) {
 		//FIXME: use incremental sending for large transfers
 		XChangeProperty(display, requestor, property, atoms[UTF8_STRING], 8, PropModeReplace,
 			(unsigned char *) data->data(), data->size());
+		return true;
+	} else if (target == atoms[MULTIPLE]) {
+		Atom actual_type, *requested_conversions;
+		int actual_format;
+		unsigned long nitems, bytes_after, i;
+
+		if (XGetWindowProperty(display, requestor, property, 0, 100, False, atoms[ATOM_PAIR],
+				&actual_type, &actual_format, &nitems, &bytes_after, (unsigned char **) &requested_conversions) != Success ||
+				bytes_after != 0)
+			return false;
+
+		for (i = 0; i < nitems; i += 2) {
+			if (requested_conversions[i] == atoms[MULTIPLE] || !send_selection(requestor, requested_conversions[i],
+					requested_conversions[i + 1], data, since))
+				requested_conversions[i + 1] = None;
+		}
+		XChangeProperty(display, requestor, property, atoms[ATOM_PAIR], 32, PropModeReplace,
+			(unsigned char *) requested_conversions, nitems);
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -320,22 +353,33 @@ static void *processEvents(void *arg) {
 
 			case SelectionRequest:
 				XEvent reply;
+				string *data;
+				Time since;
+
 				reply.type = SelectionNotify;
 				reply.xselection.requestor = event.xselectionrequest.requestor;
 				reply.xselection.selection = event.xselectionrequest.selection;
 				reply.xselection.target = event.xselectionrequest.target;
-				reply.xselection.property = event.xselectionrequest.property == None ? event.xselectionrequest.target:
-					event.xselectionrequest.property;
-
-				if (event.xselectionrequest.selection == atoms[CLIPBOARD] && clipboard_owner_since != CurrentTime) {
-					send_selection(event.xselectionrequest.requestor, event.xselectionrequest.target,
-						reply.xselection.property, &clipboard_data);
-				} else if (event.xselectionrequest.selection == atoms[PRIMARY] && primary_owner_since != CurrentTime) {
-					send_selection(event.xselectionrequest.requestor, event.xselectionrequest.target,
-						reply.xselection.property, &primary_data);
-				} else {
+				if (event.xselectionrequest.target == atoms[MULTIPLE] && event.xselectionrequest.property == None) {
 					reply.xselection.property = None;
+				} else {
+					reply.xselection.property = event.xselectionrequest.property == None ? event.xselectionrequest.target:
+						event.xselectionrequest.property;
+					if (event.xselectionrequest.selection == atoms[CLIPBOARD] && clipboard_owner_since != CurrentTime) {
+						data = &clipboard_data;
+						since = clipboard_owner_since;
+					} else if (event.xselectionrequest.selection == atoms[PRIMARY] && primary_owner_since != CurrentTime) {
+						data = &primary_data;
+						since = primary_owner_since;
+					} else {
+						reply.xselection.property = None;
+					}
 				}
+
+				if (reply.xselection.property != None && !send_selection(event.xselectionrequest.requestor,
+						event.xselectionrequest.target, reply.xselection.property, data, since))
+					reply.xselection.property = None;
+
 				XSendEvent(display, event.xselectionrequest.requestor, False, 0, &reply);
 				break;
 #ifdef WITH_XINITTHREADS
@@ -515,17 +559,17 @@ void claim_selection(bool clipboard, const string *data) {
 
 }; // namespace
 
-#if 0
+#ifdef TESTX11
 int main(int argc, char *argv[]) {
 	string *result;
 	t3_widget::init_x11();
 	result = t3_widget::get_x11_selection(true);
 	printf("Retrieved data: %.*s\n", (int) result->size(), result->data());
 	fprintf(stderr, "Data retrieved\n");
-	result->clear();
-	result->append("Test text for X11 Clipboard action");
-	t3_widget::claim_selection(true, result);
-	fprintf(stderr, "Clipboard claimed\n");
+	//~ result->clear();
+	//~ result->append("Test text for X11 Clipboard action");
+	//~ t3_widget::claim_selection(true, result);
+	//~ fprintf(stderr, "Clipboard claimed\n");
 	return 0;
 }
 #endif

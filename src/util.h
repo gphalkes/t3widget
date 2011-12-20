@@ -149,6 +149,11 @@ _T3_WIDGET_ENUM(wrap_type_t,
 
 #undef _T3_WIDGET_ENUM
 
+/* Pointer wrappers which automatically de-allocate their objects when going out
+   of scope. The difference with the Boost scoped_ptr is that the objects are not
+   deallocated when assigning a different value. Their main use is to ensure
+   deallocation during exception handling, and storing of temporary values.
+*/
 template <typename T>
 class cleanup_abstract {
 	public:
@@ -160,6 +165,7 @@ class cleanup_abstract {
 		cleanup_abstract(T *p) : p_(p) {}
 		T* operator= (T *p) { return p_ = p; }
 		operator T* (void) { return p_; }
+		T* get(void) { return p_; }
 	protected:
 		cleanup_abstract& operator= (const cleanup_abstract &p) { (void) p; return *this; }
 		cleanup_abstract(const cleanup_abstract &p) { (void) p; }
