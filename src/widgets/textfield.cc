@@ -347,7 +347,7 @@ void text_field_t::update_contents(void) {
 		if (selection_mode == selection_mode_t::SHIFT && selection_start_pos == pos)
 			reset_selection();
 		else
-			selection_end_pos = pos;
+			set_selection_end();
 	}
 
 	text_line_t::paint_info_t info;
@@ -385,9 +385,10 @@ void text_field_t::set_focus(bool _focus) {
 	redraw = true;
 	if (focus) {
 		if (!dont_select_on_focus) {
-			selection_end_pos = pos = line->get_length();
 			selection_start_pos = 0;
 			selection_mode = selection_mode_t::SHIFT;
+			pos = line->get_length();
+			set_selection_end();
 		}
 		dont_select_on_focus = false;
 		if (drop_down_list != NULL)
@@ -490,7 +491,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 		}
 		pos = line->calculate_line_pos(0, INT_MAX, event.x - 1 + leftcol, 0);
 		if ((event.modifier_state & EMOUSE_SHIFT) != 0)
-			selection_end_pos = pos;
+			set_selection_end();
 		ensure_cursor_on_screen();
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
 		linked_ptr<string> primary;
@@ -518,25 +519,28 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 			selection_start_pos = pos;
 		}
 		pos = newpos;
-		if (selection_mode != selection_mode_t::NONE) {
-			selection_end_pos = pos;
-			if (event.type == EMOUSE_BUTTON_RELEASE && selection_end_pos != selection_start_pos) {
-				size_t start, length;
-				if (selection_start_pos < selection_end_pos) {
-					start = selection_start_pos;
-					length = selection_end_pos - start;
-				} else {
-					start = selection_end_pos;
-					length = selection_start_pos - start;
-				}
-				set_primary(new string(*line->get_data(), start, length));
-			}
-		}
+		if (selection_mode != selection_mode_t::NONE)
+			set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
 		ensure_cursor_on_screen();
 		redraw = true;
 	}
 	dont_select_on_focus = true;
 	return true;
+}
+
+void text_field_t::set_selection_end(bool update_primary) {
+	selection_end_pos = pos;
+	if (update_primary) {
+		size_t start, length;
+		if (selection_start_pos < selection_end_pos) {
+			start = selection_start_pos;
+			length = selection_end_pos - start;
+		} else {
+			start = selection_end_pos;
+			length = selection_start_pos - start;
+		}
+		set_primary(new string(*line->get_data(), start, length));
+	}
 }
 
 /*======================

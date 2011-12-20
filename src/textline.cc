@@ -180,7 +180,7 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
 }
 
 void text_line_t::insert(text_line_t *other, int pos) {
-	ASSERT(pos >= 0 && pos <= buffer.size());
+	ASSERT(pos >= 0 && (size_t) pos <= buffer.size());
 
 	reserve(buffer.size() + other->buffer.size());
 	buffer.insert(pos, other->buffer);

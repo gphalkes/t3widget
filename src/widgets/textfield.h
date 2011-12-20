@@ -62,6 +62,9 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		/** Make sure the text in the text_field_t is aligned such that the cursor is visible. */
 		void ensure_cursor_on_screen(void);
 
+		/** Set the end of the selection to the current position, updating the primary selection if so requested. */
+		void set_selection_end(bool update_primary = true);
+
 		/** Drop-down list implementation for text_field_t. */
 		class T3_WIDGET_API drop_down_list_t : public window_component_t {
 			private:
