@@ -14,11 +14,20 @@
 #ifndef T3_WIDGET_X11_H
 #define T3_WIDGET_X11_H
 
+#include <t3widget/widget_api.h>
 #include <string>
+#include <pthread.h>
 
 namespace t3_widget {
-bool init_x11(void);
-std::string *get_x11_selection(bool clipboard);
-void claim_selection(bool clipboard, const std::string *data);
+
+T3_WIDGET_LOCAL extern linked_ptr<std::string> clipboard_data;
+T3_WIDGET_LOCAL extern linked_ptr<std::string> primary_data;
+
+T3_WIDGET_LOCAL bool init_x11(void);
+T3_WIDGET_LOCAL bool x11_working(void);
+T3_WIDGET_LOCAL linked_ptr<std::string> get_x11_selection(bool clipboard);
+T3_WIDGET_LOCAL void claim_selection(bool clipboard, std::string *data);
+T3_WIDGET_LOCAL void release_selections(void);
+
 }; // namespace
 #endif

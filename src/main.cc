@@ -31,7 +31,9 @@
 #include "dialogs/dialog.h"
 #include "textline.h"
 #include "internal.h"
+#ifdef WITH_X11
 #include "x11.h"
+#endif
 
 using namespace std;
 
@@ -307,9 +309,9 @@ complex_error_t init(const init_parameters_t *params) {
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
 	t3_term_hide_cursor();
-	if (!init_x11())
-		lprintf("Error initializing X11\n");
-	//~ init_x11();
+#ifdef WITH_X11
+	init_x11();
+#endif
 	return result;
 }
 
@@ -355,6 +357,9 @@ void main_loop(void) {
 
 void suspend(void) {
 	//FIXME: check return values!
+#ifdef WITH_X11
+	release_selections();
+#endif
 	deinit_keys();
 	terminal_specific_restore();
 	t3_term_restore();

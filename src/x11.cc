@@ -21,6 +21,12 @@
 #include <errno.h>
 
 #include "log.h"
+#include "ptr.h"
+#include "x11.h"
+
+#ifdef WITH_XINITTHREADS
+#error Compiling with XInitThreads does not work at this point
+#endif
 
 // FIXME: exit thread on protocol errors (so not on things like BadAtom). [ keep reading from self_pipe to prevent clogging ]
 
@@ -42,7 +48,6 @@ static bool conversion_succeeded;
 /* Use CurrentTime as "Invalid" value, as it will never be returned by anything. */
 static Time clipboard_owner_since = CurrentTime,
 	primary_owner_since = CurrentTime;
-static string clipboard_data, primary_data;
 static Time conversion_started_at;
 
 static Display *display;
@@ -57,7 +62,7 @@ static pthread_mutex_t clipboard_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
 
 static bool x11_initialized;
-static bool x11error;
+static bool x11_error;
 
 static const char *atom_names[] = {
 	"CLIPBOARD",
@@ -100,13 +105,6 @@ enum {
 };
 static int self_pipe[2];
 #endif
-
-#ifdef TESTX11
-#define tprintf(...) printf(__VA_ARGS__)
-#else
-#define tprintf(...)
-#endif
-
 
 static long retrieve_data(void) {
 	Atom actual_type;
@@ -232,42 +230,6 @@ static void *processEvents(void *arg) {
 #endif
 		switch (event.type) {
 			case PropertyNotify:
-				/*
-					If the notify was for our window:
-						If property XA_WM_NAME:
-						- save the timestamp
-							If timestamp request was for obtaining selection:
-							- call XConvertSelection
-							If timestamp was for claiming selection ownership:
-							- call XSetSelectionOwner and verify with XGetSelectionOwner
-						If property GDK_SELECTION:
-							If not currently interested (previous request timed out)
-							- delete property
-							Else
-								If type is INCR and not already receiving
-								- switch state to INCR reception
-								- delete property
-								Else
-								- retrieve data
-								- delete property
-									If state is INCR reception
-										If data length is 0
-										- reset state
-										- return collected data
-										Else
-										- append data
-										- continue loop
-									Else
-										- reset state
-										- return data
-					Else
-						If INCR sending and window is remote
-							If more data available
-							- send next piece of data
-							Else
-							- reset property notify events on remote
-							- send zero length data
-				*/
 				if (event.xproperty.window == window) {
 					if (event.xproperty.atom == XA_WM_NAME) {
 						switch (action) {
@@ -347,12 +309,10 @@ static void *processEvents(void *arg) {
 			}
 			case SelectionClear:
 				if (event.xselectionclear.selection == atoms[CLIPBOARD]) {
-					clipboard_data.clear();
-					clipboard_data.reserve(0);
+					clipboard_data = NULL;
 					clipboard_owner_since = CurrentTime;
 				} else if (event.xselectionclear.selection == atoms[PRIMARY]) {
-					primary_data.clear();
-					primary_data.reserve(0);
+					primary_data = NULL;
 					primary_owner_since = CurrentTime;
 				}
 				break;
@@ -372,10 +332,10 @@ static void *processEvents(void *arg) {
 					reply.xselection.property = event.xselectionrequest.property == None ? event.xselectionrequest.target:
 						event.xselectionrequest.property;
 					if (event.xselectionrequest.selection == atoms[CLIPBOARD] && clipboard_owner_since != CurrentTime) {
-						data = &clipboard_data;
+						data = clipboard_data;
 						since = clipboard_owner_since;
 					} else if (event.xselectionrequest.selection == atoms[PRIMARY] && primary_owner_since != CurrentTime) {
-						data = &primary_data;
+						data = primary_data;
 						since = primary_owner_since;
 					} else {
 						reply.xselection.property = None;
@@ -390,7 +350,7 @@ static void *processEvents(void *arg) {
 				break;
 #ifdef WITH_XINITTHREADS
 			case ClientMessage:
-				tprintf("ClientMessage received: %d\n", end_connection);
+				lprintf("ClientMessage received: %d\n", end_connection);
 				if (end_connection) {
 					XCloseDisplay(display);
 					pthread_mutex_unlock(&clipboard_lock);
@@ -404,34 +364,40 @@ static void *processEvents(void *arg) {
 }
 
 static int error_handler(Display *_display, XErrorEvent *error) {
+#ifdef _T3_WIDGET_DEBUG
 	char error_text[1024];
 	XGetErrorText(_display, error->error_code, error_text, sizeof(error_text));
 
 	lprintf("X11 error handler: %s\n", error_text);
-	//FIXME: Alloc errors should not disable further processing
-	x11error = true;
+#else
+	(void) _display;
+	(void) error;
+#endif
+	if (!x11_initialized)
+		x11_error = true;
 	return 0;
 }
 
 static int io_error_handler(Display *_display) {
 	(void) _display;
 	lprintf("X11 IO error\n");
-	x11error = true;
+	x11_error = true;
 	return 0;
 }
 
 static void stop_x11(void) {
 	void *retval;
 #ifdef WITH_XINITTHREADS
-	#error FIXME: XSendEvent to self does not seem to work
 	XEvent event;
+	pthread_mutex_lock(&clipboard_lock);
 	end_connection = true;
+	pthread_mutex_unlock(&clipboard_lock);
 
 	event.type = ClientMessage;
 	event.xclient.window = window;
-	event.xclient.type = 8;
+	event.xclient.format = 8;
 	event.xclient.message_type = None;
-	tprintf("Sending ClientMessage\n");
+	lprintf("Sending ClientMessage\n");
 	XSendEvent(display, window, False, 0, &event);
 #else
 	char c = DO_CLOSE;
@@ -477,7 +443,7 @@ bool init_x11(void) {
 
 	while (XPending(display))
 		XNextEvent(display, &event);
-	if (x11error)
+	if (x11_error)
 		goto error_exit;
 
 	if (!XInternAtoms(display, atom_names_local, ATOM_COUNT, False, atoms))
@@ -492,7 +458,7 @@ bool init_x11(void) {
 
 	while (XPending(display))
 		XNextEvent(display, &event);
-	if (x11error)
+	if (x11_error)
 		goto error_exit;
 
 	x11_initialized = true;
@@ -511,6 +477,10 @@ error_exit:
 	return false;
 }
 
+bool x11_working(void) {
+	return x11_initialized && !x11_error;
+}
+
 static struct timespec timeout_time(int usec) {
 	struct timeval timeval;
 	struct timespec result;
@@ -527,54 +497,58 @@ static struct timespec timeout_time(int usec) {
 	return result;
 }
 
-string *get_x11_selection(bool clipboard) {
+linked_ptr<string> get_x11_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
-	string *result = NULL;
+	linked_ptr<string> result;
 #ifndef WITH_XINITTHREADS
 	char c = DO_ACTION;
 #endif
 
-	if (!x11_initialized) {
+	if (!x11_working()) {
 		lprintf("X11 not initialized\n");
-		return NULL;
+		return clipboard ? clipboard_data : primary_data;
 	}
 
 	pthread_mutex_lock(&clipboard_lock);
-	action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
+	if ((clipboard && clipboard_owner_since == CurrentTime) || (!clipboard && primary_owner_since == CurrentTime)) {
+		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 #ifdef WITH_XINITTHREADS
-	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
+		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
 #else
-	while (write(self_pipe[1], &c, 1) != 1) {}
+		while (write(self_pipe[1], &c, 1) != 1) {}
 #endif
-	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout) != ETIMEDOUT &&
-			conversion_succeeded)
-		result = new string(retrieved_data);
-	action = ACTION_NONE;
+		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout) != ETIMEDOUT &&
+				conversion_succeeded)
+			result = new string(retrieved_data);
+		action = ACTION_NONE;
+	} else {
+		result = clipboard ? clipboard_data : primary_data;
+	}
 	pthread_mutex_unlock(&clipboard_lock);
 	return result;
 }
 
-static void set_selection_data(string *selection_data, const string *data) {
-	selection_data->clear();
-	selection_data->append(*data);
-}
-
-void claim_selection(bool clipboard, const string *data) {
+void claim_selection(bool clipboard, string *data) {
 	struct timespec timeout = timeout_time(1000000);
 #ifndef WITH_XINITTHREADS
 	char c = DO_ACTION;
 #endif
 
-	if (!x11_initialized)
+	if (!x11_working()) {
+		if (clipboard)
+			clipboard_data = data;
+		else
+			primary_data = data;
 		return;
+	}
 
 	pthread_mutex_lock(&clipboard_lock);
 	if (clipboard) {
 		action = CLAIM_CLIPBOARD;
-		set_selection_data(&clipboard_data, data);
+		clipboard_data = data;
 	} else {
 		action = CLAIM_PRIMARY;
-		set_selection_data(&primary_data, data);
+		primary_data = data;
 	}
 #ifdef WITH_XINITTHREADS
 	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
@@ -586,23 +560,8 @@ void claim_selection(bool clipboard, const string *data) {
 	pthread_mutex_unlock(&clipboard_lock);
 }
 
-}; // namespace
-
-#ifdef TESTX11
-int main(int argc, char *argv[]) {
-	string *result;
-	t3_widget::init_x11();
-	result = t3_widget::get_x11_selection(true);
-	if (result == NULL) {
-		fprintf(stderr, "Error converting data\n");
-	} else {
-		printf("Retrieved data: %.*s\n", (int) result->size(), result->data());
-		fprintf(stderr, "Data retrieved\n");
-	}
-	//~ result->clear();
-	//~ result->append("Test text for X11 Clipboard action");
-	//~ t3_widget::claim_selection(true, result);
-	//~ fprintf(stderr, "Clipboard claimed\n");
-	return 0;
+void release_selections(void) {
+	//FIXME: handle this case!
 }
-#endif
+
+}; // namespace
