@@ -32,7 +32,6 @@
 #include "ptr.h"
 #include "x11.h"
 
-// FIXME: exit thread on protocol errors (so not on things like BadAtom). [ keep reading from self_pipe to prevent clogging ]
 // FIXME: remove incr_sends on long periods of inactivity
 
 using namespace std;
@@ -247,7 +246,7 @@ static void handle_property_notify(XEvent &event) {
 }
 
 
-static void *processEvents(void *arg) {
+static void *process_events(void *arg) {
 	XEvent event;
 	(void) arg;
 
@@ -261,6 +260,10 @@ static void *processEvents(void *arg) {
 			pthread_mutex_unlock(&clipboard_lock);
 			select(ConnectionNumber(display) + 1, &read_fds, NULL, NULL, NULL);
 			pthread_mutex_lock(&clipboard_lock);
+		}
+		if (x11_error) {
+			pthread_mutex_unlock(&clipboard_lock);
+			return NULL;
 		}
 		XNextEvent(display, &event);
 
@@ -389,17 +392,23 @@ static void stop_x11(void) {
 	XEvent event;
 
 	pthread_mutex_lock(&clipboard_lock);
-	end_connection = true;
+	/* If x11_error has been set, the event handling thread will stop, or will
+	   have stopped already. Also, if this is the case, the connection is broken,
+	   which means we can't send anything anyway. Thus we skip the client message
+	   if x11_error is set. */
+	if (!x11_error) {
+		end_connection = true;
 
-	/* We need to wake up the other thread, such that it will close the connection.
-	   Thus we send it a ClientMessage. */
-	event.type = ClientMessage;
-	event.xclient.window = window;
-	event.xclient.format = 8;
-	event.xclient.message_type = None;
-	lprintf("Sending ClientMessage\n");
-	XSendEvent(display, window, False, 0, &event);
-	XFlush(display);
+		/* We need to wake up the other thread, such that it will close the connection.
+		   Thus we send it a ClientMessage. */
+		event.type = ClientMessage;
+		event.xclient.window = window;
+		event.xclient.format = 8;
+		event.xclient.message_type = None;
+		lprintf("Sending ClientMessage\n");
+		XSendEvent(display, window, False, 0, &event);
+		XFlush(display);
+	}
 	pthread_mutex_unlock(&clipboard_lock);
 	pthread_join(x11_event_thread, &retval);
 }
@@ -459,7 +468,7 @@ bool init_x11(void) {
 		goto error_exit;
 
 	x11_initialized = true;
-	pthread_create(&x11_event_thread, NULL, processEvents, NULL);
+	pthread_create(&x11_event_thread, NULL, process_events, NULL);
 	atexit(stop_x11);
 	return true;
 

@@ -37,7 +37,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 		*reverse_direction_label;
 	button_t *find_button, *cancel_button;
 
-	find_label = new smart_label_t("S_earch for", true);
+	find_label = new smart_label_t("Fi_nd", true);
 	find_label->set_position(1, 2);
 	find_line = new text_field_t();
 	find_line->set_anchor(find_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -59,7 +59,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 
 	whole_word_checkbox = new checkbox_t();
 	whole_word_checkbox->set_position(2, 2);
-	whole_word_label = new smart_label_t("Match whole word _only");
+	whole_word_label = new smart_label_t("Match _whole word only");
 	whole_word_label->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	whole_word_label->set_position(0, 1);
 	whole_word_checkbox->set_label(whole_word_label);
@@ -70,7 +70,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	match_case_checkbox = new checkbox_t();
 	match_case_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	match_case_checkbox->set_position(0, 0);
-	match_case_label = new smart_label_t("_Match case");
+	match_case_label = new smart_label_t("Case sensiti_ve");
 	match_case_label->set_anchor(match_case_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	match_case_label->set_position(0, 1);
 	match_case_checkbox->set_label(match_case_label);
@@ -81,7 +81,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	regex_checkbox = new checkbox_t();
 	regex_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	regex_checkbox->set_position(1, 0);
-	regex_label = new smart_label_t("Regular e_xpression");
+	regex_label = new smart_label_t("Regular _expression");
 	regex_label->set_anchor(regex_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	regex_label->set_position(0, 1);
 	regex_checkbox->set_label(regex_label);
@@ -92,7 +92,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	wrap_checkbox = new checkbox_t();
 	wrap_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	wrap_checkbox->set_position(2, 0);
-	wrap_label = new smart_label_t("_Wrap");
+	wrap_label = new smart_label_t("Wrap ar_ound");
 	wrap_label->set_anchor(wrap_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	wrap_label->set_position(0, 1);
 	wrap_checkbox->set_label(wrap_label);
@@ -103,7 +103,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	transform_backslash_checkbox = new checkbox_t();
 	transform_backslash_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	transform_backslash_checkbox->set_position(3, 0);
-	transform_backslash_label = new smart_label_t("_Transform backslash expressions");
+	transform_backslash_label = new smart_label_t("Transform _backslash expressions");
 	transform_backslash_label->set_anchor(transform_backslash_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	transform_backslash_label->set_position(0, 1);
 	transform_backslash_checkbox->set_label(transform_backslash_label);
@@ -114,7 +114,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	reverse_direction_checkbox = new checkbox_t();
 	reverse_direction_checkbox->set_anchor(whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	reverse_direction_checkbox->set_position(4, 0);
-	reverse_direction_label = new smart_label_t("Re_verse direction");
+	reverse_direction_label = new smart_label_t("_Up");
 	reverse_direction_label->set_anchor(reverse_direction_checkbox, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	reverse_direction_label->set_position(0, 1);
 	reverse_direction_checkbox->set_label(reverse_direction_label);
