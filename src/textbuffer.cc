@@ -24,6 +24,7 @@
 #include "internal.h"
 #include "findcontext.h"
 #include "wrapinfo.h"
+#include "clipboard.h"
 
 using namespace std;
 namespace t3_widget {
@@ -254,6 +255,7 @@ bool text_buffer_t::selection_empty(void) const {
 
 void text_buffer_t::set_selection_end(void)  {
 	selection_end = cursor;
+	set_primary(convert_selection());
 }
 
 text_coordinate_t text_buffer_t::get_selection_start(void) const { return selection_start; }
