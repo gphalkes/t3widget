@@ -38,6 +38,8 @@ enum clipboard_action_t {
 };
 
 static clipboard_action_t action;
+static bool conversion_succeeded;
+
 /* Use CurrentTime as "Invalid" value, as it will never be returned by anything. */
 static Time clipboard_owner_since = CurrentTime,
 	primary_owner_since = CurrentTime;
@@ -47,7 +49,7 @@ static Time conversion_started_at;
 static Display *display;
 static Window root, window;
 
-static long maxRequest;
+static long max_request;
 
 static bool receive_incr = false;
 
@@ -56,7 +58,7 @@ static pthread_mutex_t clipboard_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
 static bool x11error = false;
 
-static const char *atomNames[] = {
+static const char *atom_names[] = {
 	"CLIPBOARD",
 	"PRIMARY",
 	"TARGETS",
@@ -80,13 +82,13 @@ enum {
 	ATOM,
 	ATOM_PAIR,
 };
-#define ATOM_COUNT (sizeof(atomNames) / sizeof(atomNames[0]))
+#define ATOM_COUNT (sizeof(atom_names) / sizeof(atom_names[0]))
 static Atom atoms[ATOM_COUNT];
 
 
 #define DATA_BLOCK_SIZE 4000
 
-static string retrievedData;
+static string retrieved_data;
 
 #ifdef WITH_XINITTHREADS
 static bool end_connection;
@@ -117,10 +119,10 @@ static long retrieve_data(void) {
 			DATA_BLOCK_SIZE, False, AnyPropertyType, &actual_type, &actual_format,
 			&nitems, &bytes_after, &prop) != Success)
 		{
-			retrievedData.clear();
+			retrieved_data.clear();
 			return -1;
 		} else {
-			retrievedData.append((char *) prop, nitems);
+			retrieved_data.append((char *) prop, nitems);
 			offset += nitems / 4;
 			XFree(prop);
 		}
@@ -155,7 +157,7 @@ static bool send_selection(Window requestor, Atom target, Atom property, string 
 
 		if (XGetWindowProperty(display, requestor, property, 0, 100, False, atoms[ATOM_PAIR],
 				&actual_type, &actual_format, &nitems, &bytes_after, (unsigned char **) &requested_conversions) != Success ||
-				bytes_after != 0)
+				bytes_after != 0 || nitems & 1)
 			return false;
 
 		for (i = 0; i < nitems; i += 2) {
@@ -270,7 +272,8 @@ static void *processEvents(void *arg) {
 						switch (action) {
 							case CONVERT_CLIPBOARD:
 							case CONVERT_PRIMARY:
-								retrievedData.clear();
+								retrieved_data.clear();
+								conversion_succeeded = false;
 								conversion_started_at = event.xproperty.time;
 								/* Make sure that the target property does not exist */
 								XDeleteProperty(display, window, atoms[GDK_SELECTION]);
@@ -290,9 +293,10 @@ static void *processEvents(void *arg) {
 						}
 					} else if (event.xproperty.atom == atoms[GDK_SELECTION]) {
 						if (receive_incr && event.xproperty.state == PropertyNewValue) {
-							if (retrieve_data() <= 0) {
+							long result;
+							if ((result = retrieve_data()) <= 0) {
 								receive_incr = false;
-								fprintf(stderr, "Incremental transfer done\n");
+								conversion_succeeded = result == 0;
 								pthread_cond_signal(&clipboard_signal);
 							}
 							XDeleteProperty(display, window, atoms[GDK_SELECTION]);
@@ -331,7 +335,8 @@ static void *processEvents(void *arg) {
 				if (event.xselection.target == atoms[INCR]) {
 					receive_incr = true;
 				} else if (event.xselection.target == atoms[UTF8_STRING]) {
-					retrieve_data();
+					if (retrieve_data() >= 0)
+						conversion_succeeded = true;
 					pthread_cond_signal(&clipboard_signal);
 				} else {
 					pthread_cond_signal(&clipboard_signal);
@@ -429,7 +434,7 @@ static void stop_x11(void) {
 bool init_x11(void) {
 	XEvent event;
 	int black;
-	char **atomNamesLocal = NULL;
+	char **atom_names_local = NULL;
 	size_t i;
 #ifdef WITH_XINITTHREADS
 	if (XInitThreads() == 0)
@@ -438,13 +443,13 @@ bool init_x11(void) {
 	if (pipe(self_pipe) < 0)
 		return false;
 #endif
-	if ((atomNamesLocal = (char **) malloc(sizeof(char *) * ATOM_COUNT)) == NULL)
+	if ((atom_names_local = (char **) malloc(sizeof(char *) * ATOM_COUNT)) == NULL)
 		return false;
 
-	for (i = 0; i < ATOM_COUNT; i++) atomNamesLocal[i] = NULL;
+	for (i = 0; i < ATOM_COUNT; i++) atom_names_local[i] = NULL;
 
 	for (i = 0; i < ATOM_COUNT; i++) {
-		if ((atomNamesLocal[i] = strdup(atomNames[i])) == NULL)
+		if ((atom_names_local[i] = strdup(atom_names[i])) == NULL)
 			goto error_exit;
 	}
 
@@ -455,7 +460,7 @@ bool init_x11(void) {
 	if ((display = XOpenDisplay(NULL)) == NULL)
 		goto error_exit;
 
-	maxRequest = XMaxRequestSize(display);
+	max_request = XMaxRequestSize(display);
 
 	root = XDefaultRootWindow(display);
 	black = BlackPixel(display, DefaultScreen(display));
@@ -466,7 +471,7 @@ bool init_x11(void) {
 	if (x11error)
 		goto error_exit;
 
-	if (!XInternAtoms(display, atomNamesLocal, ATOM_COUNT, False, atoms))
+	if (!XInternAtoms(display, atom_names_local, ATOM_COUNT, False, atoms))
 		goto error_exit;
 
 	XSelectInput(display, window, PropertyChangeMask);
@@ -481,10 +486,10 @@ bool init_x11(void) {
 	return true;
 
 error_exit:
-	if (atomNamesLocal != NULL) {
+	if (atom_names_local != NULL) {
 		for (i = 0; i < ATOM_COUNT; i++)
-			free(atomNamesLocal[i]);
-		free(atomNamesLocal);
+			free(atom_names_local[i]);
+		free(atom_names_local);
 	}
 	if (display != NULL)
 		XCloseDisplay(display);
@@ -509,7 +514,7 @@ static struct timespec timeout_time(int usec) {
 
 string *get_x11_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
-	string *result;
+	string *result = NULL;
 #ifndef WITH_XINITTHREADS
 	char c = DO_ACTION;
 #endif
@@ -521,8 +526,9 @@ string *get_x11_selection(bool clipboard) {
 #else
 	while (write(self_pipe[1], &c, 1) != 1) {}
 #endif
-	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout) != ETIMEDOUT)
-		result = new string(retrievedData);
+	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout) != ETIMEDOUT &&
+			conversion_succeeded)
+		result = new string(retrieved_data);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_lock);
 	return result;
@@ -564,8 +570,12 @@ int main(int argc, char *argv[]) {
 	string *result;
 	t3_widget::init_x11();
 	result = t3_widget::get_x11_selection(true);
-	printf("Retrieved data: %.*s\n", (int) result->size(), result->data());
-	fprintf(stderr, "Data retrieved\n");
+	if (result == NULL) {
+		fprintf(stderr, "Error converting data\n");
+	} else {
+		printf("Retrieved data: %.*s\n", (int) result->size(), result->data());
+		fprintf(stderr, "Data retrieved\n");
+	}
 	//~ result->clear();
 	//~ result->append("Test text for X11 Clipboard action");
 	//~ t3_widget::claim_selection(true, result);
