@@ -187,7 +187,6 @@ static bool send_selection(Window requestor, Atom target, Atom property, linked_
 }
 
 static void handle_property_notify(XEvent &event) {
-	lprintf("Handling PropertyNotify\n");
 	if (event.xproperty.window == window) {
 		if (event.xproperty.atom == XA_WM_NAME) {
 			switch (action) {
@@ -353,7 +352,6 @@ static void *process_events(void *arg) {
 				break;
 			}
 			case ClientMessage:
-				lprintf("ClientMessage received: %d\n", end_connection);
 				if (end_connection) {
 					XCloseDisplay(display);
 					pthread_mutex_unlock(&clipboard_lock);
@@ -405,7 +403,6 @@ static void stop_x11(void) {
 		event.xclient.window = window;
 		event.xclient.format = 8;
 		event.xclient.message_type = None;
-		lprintf("Sending ClientMessage\n");
 		XSendEvent(display, window, False, 0, &event);
 		XFlush(display);
 	}
@@ -507,10 +504,8 @@ linked_ptr<string> get_x11_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
 	linked_ptr<string> result;
 
-	if (!x11_working()) {
-		lprintf("X11 not initialized\n");
+	if (!x11_working())
 		return clipboard ? clipboard_data : primary_data;
-	}
 
 	pthread_mutex_lock(&clipboard_lock);
 	if ((clipboard && clipboard_owner_since == CurrentTime) || (!clipboard && primary_owner_since == CurrentTime)) {
