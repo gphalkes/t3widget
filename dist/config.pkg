@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext"
+EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext x11"
 LTSHARED=1
 DEFAULT_LINGUAS=nl
 INSTALLDIRS="libdir docdir includedir"
@@ -379,7 +379,15 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	test_link_cxx "strdup" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRDUP"
+	unset X11OBJECTS
+	if basic_x11 ; then
+		CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
+		X11OBJECTS=x11.o
+	fi
 
-	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} ${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
-		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring ${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}"
+	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} \
+		${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS} ${X11_FLAGS}" \
+		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring \
+		${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS} ${X11_LIBS}" \
+		"X11OBJECTS=${X11OBJECTS}"
 }
