@@ -153,6 +153,8 @@ static bool send_selection(Window requestor, Atom target, Atom property, linked_
 		XChangeProperty(display, requestor, property, atoms[TIMESTAMP], 32, PropModeReplace, (unsigned char *) &since, 1);
 		return true;
 	} else if (target == atoms[UTF8_STRING]) {
+		if (data == NULL)
+			return false;
 		if (data->size() > max_data) {
 			XChangeProperty(display, requestor, property, atoms[UTF8_STRING], 8, PropModeReplace,
 				(unsigned char *) data->data(), data->size());
@@ -315,7 +317,8 @@ static void *process_events(void *arg) {
 					primary_data = NULL;
 					primary_owner_since = CurrentTime;
 				}
-				if (action == RELEASE_SELECTIONS && clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime)
+				if ((action == RELEASE_SELECTIONS && clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime) ||
+						action == CLAIM_CLIPBOARD || action == CLAIM_PRIMARY)
 					pthread_cond_signal(&clipboard_signal);
 				break;
 
@@ -534,17 +537,43 @@ void claim_selection(bool clipboard, string *data) {
 		return;
 	}
 
+	if (data != NULL && data->size() == 0) {
+		delete data;
+		data = NULL;
+	}
+
 	pthread_mutex_lock(&clipboard_lock);
+
 	if (clipboard) {
+		if (clipboard_owner_since == CurrentTime && data == NULL) {
+			pthread_mutex_unlock(&clipboard_lock);
+			return;
+		}
 		action = CLAIM_CLIPBOARD;
 		clipboard_data = data;
 	} else {
+		if (primary_owner_since == CurrentTime && data == NULL) {
+			pthread_mutex_unlock(&clipboard_lock);
+			return;
+		}
 		action = CLAIM_PRIMARY;
 		primary_data = data;
 	}
-	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
+
+	if (data != NULL) {
+		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
+	} else {
+		XSetSelectionOwner(display, atoms[clipboard ? CLIPBOARD : PRIMARY], None, CurrentTime);
+	}
+
 	XFlush(display);
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout);
+	if (data == NULL) {
+		if (clipboard)
+			clipboard_data = data;
+		else
+			primary_data = data;
+	}
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_lock);
 }

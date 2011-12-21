@@ -532,6 +532,12 @@ void text_field_t::set_selection_end(bool update_primary) {
 	selection_end_pos = pos;
 	if (update_primary) {
 		size_t start, length;
+
+		if (selection_start_pos == selection_end_pos) {
+			set_primary(NULL);
+			return;
+		}
+
 		if (selection_start_pos < selection_end_pos) {
 			start = selection_start_pos;
 			length = selection_end_pos - start;

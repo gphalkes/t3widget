@@ -15,7 +15,7 @@ all: doxygen
 .PHONY: all
 
 doxygen: doxygen.conf DoxygenLayout.xml
-	~/tmp/doxygen-test/doxygen-1.7.4/bin/doxygen doxygen.conf
+	doxygen doxygen.conf
 
 clean::
 	rm -rf API 2> /dev/null

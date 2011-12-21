@@ -14,8 +14,13 @@
 EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext x11"
 LTSHARED=1
 DEFAULT_LINGUAS=nl
+SWITCHES="+x11"
+USERHELP=print_help
 INSTALLDIRS="libdir docdir includedir"
 
+print_help() {
+	echo "  --without-x11           Do not include X11 integration"
+}
 
 test_select() {
 	DESC="$1"
@@ -380,9 +385,11 @@ int main(int argc, char *argv[]) {
 EOF
 	test_link_cxx "strdup" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRDUP"
 	unset X11OBJECTS
-	if basic_x11 ; then
-		CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
-		X11OBJECTS=x11.o
+	if [ yes = "${with_x11}" ] ; then
+		if basic_x11 ; then
+			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
+			X11OBJECTS=src/x11.lo
+		fi
 	fi
 
 	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} \
