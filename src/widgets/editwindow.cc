@@ -88,6 +88,7 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 	focus = false;
 
 	autocomplete_panel = new autocomplete_panel_t(this);
+	autocomplete_panel->connect_activate(sigc::mem_fun(this, &edit_window_t::autocomplete_activated));
 }
 
 edit_window_t::~edit_window_t(void) {
@@ -675,11 +676,6 @@ bool edit_window_t::process_key(key_t key) {
 	if (autocomplete_panel_shown) {
 		if (key == EKEY_ESC) {
 			hide_autocomplete();
-		} else if (key == EKEY_NL) {
-			size_t idx = autocomplete_panel->get_selected_idx();
-			hide_autocomplete();
-			autocompleter->autocomplete(text, idx);
-			return true;
 		} else if (autocomplete_panel->process_key(key)) {
 			return true;
 		} else if ((key <= 0x20 || key >= 0x110000) && key != EKEY_BS) {
@@ -1035,9 +1031,12 @@ void edit_window_t::update_contents(void) {
 }
 
 void edit_window_t::set_focus(bool _focus) {
-	focus = _focus;
-	hide_autocomplete();
-	redraw = true; //FXIME: Only for painting/removing cursor
+	if (_focus != focus) {
+		focus = _focus;
+		lprintf("HA set_focus %d\n", _focus);
+		hide_autocomplete();
+		redraw = true; //FXIME: Only for painting/removing cursor
+	}
 }
 
 void edit_window_t::undo(void) {
@@ -1194,12 +1193,14 @@ void edit_window_t::bad_draw_recheck(void) {
 }
 
 void edit_window_t::focus_set(widget_t *target) {
-	(void) target;
-	set_focus(true);
+	if (autocomplete_panel_shown)
+		autocomplete_panel->focus_set(target);
+	else
+		set_focus(true);
 }
 
 bool edit_window_t::is_child(widget_t *widget) {
-	return widget == scrollbar;
+	return widget == scrollbar || autocomplete_panel->is_child(widget);
 }
 
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
@@ -1368,6 +1369,12 @@ void edit_window_t::activate_autocomplete(bool autocomplete_single) {
 	} else if (autocomplete_panel_shown) {
 		hide_autocomplete();
 	}
+}
+
+void edit_window_t::autocomplete_activated(void) {
+	size_t idx = autocomplete_panel->get_selected_idx();
+	hide_autocomplete();
+	autocompleter->autocomplete(text, idx);
 }
 
 text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
@@ -1569,7 +1576,7 @@ void edit_window_t::autocomplete_panel_t::force_redraw(void) {
 }
 
 void edit_window_t::autocomplete_panel_t::focus_set(widget_t *target) {
-	(void) target;
+	list_pane.focus_set(target);
 }
 
 bool edit_window_t::autocomplete_panel_t::is_child(widget_t *widget) {
@@ -1604,6 +1611,10 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
 
 size_t edit_window_t::autocomplete_panel_t::get_selected_idx(void) const {
 	return list_pane.get_current();
+}
+
+void edit_window_t::autocomplete_panel_t::connect_activate(const sigc::slot<void> &slot) {
+	list_pane.connect_activate(slot);
 }
 
 }; // namespace

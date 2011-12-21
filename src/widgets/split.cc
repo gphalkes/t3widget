@@ -102,15 +102,19 @@ void split_t::force_redraw(void) {
 void split_t::focus_set(widget_t *target) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (*iter == target) {
-			(*current)->set_focus(false);
-			current = iter;
-			(*current)->set_focus(true);
+			if (*current != *iter) {
+				(*current)->set_focus(false);
+				current = iter;
+				(*current)->set_focus(true);
+			}
 			return;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
 			if (container != NULL && container->is_child(target)) {
-				(*current)->set_focus(false);
-				current = iter;
+				if (*current != *iter) {
+					(*current)->set_focus(false);
+					current = iter;
+				}
 				container->focus_set(target);
 				return;
 			}

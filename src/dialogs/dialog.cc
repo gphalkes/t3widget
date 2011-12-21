@@ -261,15 +261,19 @@ void dialog_t::focus_set(widget_t *target) {
 
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (*iter == target) {
-			(*current_widget)->set_focus(false);
-			current_widget = iter;
-			(*current_widget)->set_focus(true);
+			if (*current_widget != *iter) {
+				(*current_widget)->set_focus(false);
+				current_widget = iter;
+				(*current_widget)->set_focus(true);
+			}
 			return;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
 			if (container != NULL && container->is_child(target)) {
-				(*current_widget)->set_focus(false);
-				current_widget = iter;
+				if (*current_widget != *iter) {
+					(*current_widget)->set_focus(false);
+					current_widget = iter;
+				}
 				container->focus_set(target);
 				return;
 			}

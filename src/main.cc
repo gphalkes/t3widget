@@ -331,21 +331,21 @@ void iterate(void) {
 		mouse_target_t::handle_mouse_event(event);
 	} else {
 		lprintf("Got key %04X\n", key);
-	}
-	switch (key) {
-		case EKEY_RESIZE:
-			do_resize();
-			break;
-		case EKEY_EXTERNAL_UPDATE:
-			update_notification();
-			break;
-		case EKEY_UPDATE_TERMINAL:
-			terminal_settings_changed()();
-			break;
-		default:
-			//FIXME: pass unhandled keys to callback?
-			dialog_t::active_dialogs.back()->process_key(key);
-			break;
+		switch (key) {
+			case EKEY_RESIZE:
+				do_resize();
+				break;
+			case EKEY_EXTERNAL_UPDATE:
+				update_notification();
+				break;
+			case EKEY_UPDATE_TERMINAL:
+				terminal_settings_changed()();
+				break;
+			default:
+				//FIXME: pass unhandled keys to callback?
+				dialog_t::active_dialogs.back()->process_key(key);
+				break;
+		}
 	}
 }
 

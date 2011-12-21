@@ -121,6 +121,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		void scroll(int lines);
 		void scrollbar_clicked(scrollbar_t::step_t step);
+		void autocomplete_activated(void);
 
 	protected:
 		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
@@ -295,6 +296,7 @@ class edit_window_t::autocomplete_panel_t : public virtual window_component_t, p
 
 		void set_completions(string_list_base_t *completions);
 		size_t get_selected_idx(void) const;
+		void connect_activate(const sigc::slot<void> &slot);
 };
 
 }; // namespace
