@@ -579,12 +579,17 @@ convert_mouse_event:
 				break;
 		}
 	}
+	/* Due to the fact that the XTerm mouse protocol doesn't say which mouse button
+	   was released, we assume that all buttons are released on a  button release
+	   event. However, when multiple buttons are pressed simultaneously, this may
+	   result in button release events where no buttons where previously thought
+	   to be depressed. We filter those out here. */
+	if (event.type == EMOUSE_BUTTON_RELEASE && event.previous_button_state == 0)
+		return -1;
 
 	event.modifier_state = (buttons >> 2) & 7;
 	event.window = t3_win_at_location(event.y, event.x);
 	mouse_event_buffer.push_back(event);
-	/* lprintf("Mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d (%d)\n", event.x, event.y,
-		event.button_state, event.modifier_state, xterm_mouse_reporting); */
 	return EKEY_MOUSE_EVENT;
 }
 
