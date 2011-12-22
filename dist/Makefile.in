@@ -117,8 +117,11 @@ install: all
 	$(INSTALL) -m0644 COPYING README Changelog $(_docdir)
 	$(INSTALL) -d $(_pkgconfigdir)
 	$(INSTALL) -m0644 libt3widget.pc $(_pkgconfigdir)
-	if [ -n "$(X11MODULE)" ] ; then $(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget-x11.la $(_libdir) ; fi
-	chmod 0644 $(_libdir)/libt3widget-x11.la
+	if [ -n "$(X11MODULE)" ] ; then \
+		$(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget-x11.la $(_libdir) ; \
+		chmod 0644 $(_libdir)/libt3widget-x11.la ; \
+	fi
+
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm $(_libdir)/libt3widget.la
