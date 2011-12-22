@@ -74,6 +74,13 @@ class T3_WIDGET_API init_parameters_t {
 			If @c false, there will be no distinction between the user pressing e.g.
 			left arrow and keypad left arrow. This is the recommended behavior. */
 		bool separate_keypad;
+		/** Boolean indicating whether to explicitly disable the external clipboard.
+
+		    The external clipboard is (at the time of this writing) the X11 clipboard.
+		    In some cases it may be desirable to disable the X11 interface, eventhough
+		    we may be able to connect to it. For example, if it is connected over a
+		    slow link. */
+		bool disable_external_clipboard;
 
 		/** Construct a new init_parameters_t object. */
 		static init_parameters_t *create(void);

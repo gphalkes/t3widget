@@ -30,7 +30,7 @@
 
 #include "log.h"
 #include "ptr.h"
-#include "x11.h"
+#include "extclipboard.h"
 
 // FIXME: remove incr_sends on long periods of inactivity
 
@@ -654,7 +654,7 @@ static void unlock(void) {
 }
 
 extern "C" {
-T3_WIDGET_API x11_interface_t _t3_widget_x11_calls = {
+T3_WIDGET_API extclipboard_interface_t _t3_widget_x11_calls = {
 	init_x11,
 	release_selections,
 	get_selection,

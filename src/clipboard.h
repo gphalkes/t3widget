@@ -18,7 +18,7 @@
 #include <t3widget/ptr.h>
 #include <string>
 
-#define WITH_CLIPBOARD_LOCK(code) { t3_widget::ensure_clipboard_lock_t _lock; { code } }
+#define WITH_CLIPBOARD_LOCK(code) { t3_widget::ensure_clipboard_lock_t _lock; code }
 
 namespace t3_widget {
 

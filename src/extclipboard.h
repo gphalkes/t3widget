@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef T3_WIDGET_X11_H
-#define T3_WIDGET_X11_H
+#ifndef T3_WIDGET_EXTCLIPBOARD_H
+#define T3_WIDGET_EXTCLIPBOARD_H
 
 #ifndef _T3_WIDGET_INTERNAL
 #error This header file is for internal use _only_!!
@@ -31,7 +31,7 @@ namespace t3_widget {
 T3_WIDGET_API extern linked_ptr<std::string> clipboard_data;
 T3_WIDGET_API extern linked_ptr<std::string> primary_data;
 
-struct x11_interface_t {
+struct extclipboard_interface_t {
 	bool (*init)(void);
 	void (*release_selections)(void);
 	linked_ptr<std::string> (*get_selection)(bool clipboard);

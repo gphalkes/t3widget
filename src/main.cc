@@ -108,11 +108,8 @@ init_parameters_t *init_parameters_t::create(void) {
 	return new init_parameters_t();
 }
 
-init_parameters_t::init_parameters_t(void) {
-	separate_keypad = false;
-	term = NULL;
-	program_name = NULL;
-}
+init_parameters_t::init_parameters_t(void) : program_name(NULL), term(NULL),
+	separate_keypad(false), disable_external_clipboard(false) {}
 
 sigc::connection connect_resize(const sigc::slot<void, int, int> &slot) {
 	return resize.connect(slot);
@@ -307,7 +304,8 @@ complex_error_t init(const init_parameters_t *params) {
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
 	t3_term_hide_cursor();
-	init_clipboard();
+	if (!init_params->disable_external_clipboard)
+		init_external_clipboard();
 	return result;
 }
 

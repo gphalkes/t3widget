@@ -17,7 +17,7 @@
 
 #include "clipboard.h"
 #include "ptr.h"
-#include "x11.h"
+#include "extclipboard.h"
 
 /* Ensure that functions with internal linkage as defined in internal.h actually
    get compiled with internal linkage. */
@@ -31,7 +31,7 @@ namespace t3_widget {
 linked_ptr<string> clipboard_data;
 linked_ptr<string> primary_data;
 
-static x11_interface_t *x11_calls;
+static extclipboard_interface_t *extclipboard_calls;
 
 /** Get the clipboard data.
 
@@ -39,8 +39,8 @@ static x11_interface_t *x11_calls;
     See lock_clipboard for details.
 */
 linked_ptr<string> get_clipboard(void) {
-	if (x11_calls != NULL)
-		return x11_calls->get_selection(true);
+	if (extclipboard_calls != NULL)
+		return extclipboard_calls->get_selection(true);
 	return clipboard_data;
 }
 
@@ -50,8 +50,8 @@ linked_ptr<string> get_clipboard(void) {
     See lock_clipboard for details.
 */
 linked_ptr<string> get_primary(void) {
-	if (x11_calls != NULL)
-		return x11_calls->get_selection(false);
+	if (extclipboard_calls != NULL)
+		return extclipboard_calls->get_selection(false);
 	return primary_data;
 }
 
@@ -61,8 +61,8 @@ void set_clipboard(string *str) {
 		str = NULL;
 	}
 
-	if (x11_calls != NULL) {
-		x11_calls->claim_selection(true, str);
+	if (extclipboard_calls != NULL) {
+		extclipboard_calls->claim_selection(true, str);
 		return;
 	}
 	clipboard_data = str;
@@ -74,14 +74,14 @@ void set_primary(string *str) {
 		str = NULL;
 	}
 
-	if (x11_calls != NULL) {
-		x11_calls->claim_selection(false, str);
+	if (extclipboard_calls != NULL) {
+		extclipboard_calls->claim_selection(false, str);
 		return;
 	}
 	primary_data = str;
 }
 
-void init_clipboard(void) {
+void init_external_clipboard(void) {
 #ifdef WITH_X11
 	lt_dlhandle x11_mod;
 	lt_dladvise advise;
@@ -104,27 +104,27 @@ void init_clipboard(void) {
 		lt_dladvise_destroy(&advise);
 	}
 
-	if ((x11_calls = (x11_interface_t *) lt_dlsym(x11_mod, "_t3_widget_x11_calls")) == NULL) {
+	if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(x11_mod, "_t3_widget_extclipboard_calls")) == NULL) {
 		lt_dlclose(x11_mod);
 		return;
 	}
-	x11_calls->init();
+	extclipboard_calls->init();
 #endif
 }
 
 void release_selections(void) {
-	if (x11_calls != NULL)
-		x11_calls->release_selections();
+	if (extclipboard_calls != NULL)
+		extclipboard_calls->release_selections();
 }
 
 void lock_clipboard(void) {
-	if (x11_calls != NULL)
-		x11_calls->lock();
+	if (extclipboard_calls != NULL)
+		extclipboard_calls->lock();
 }
 
 void unlock_clipboard(void) {
-	if (x11_calls != NULL)
-		x11_calls->unlock();
+	if (extclipboard_calls != NULL)
+		extclipboard_calls->unlock();
 }
 
 }; // namespace
