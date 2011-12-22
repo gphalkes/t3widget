@@ -23,7 +23,7 @@ using namespace std;
 namespace t3_widget {
 
 text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget_t(11, 11), scrollbar(NULL), top(0, 0), focus(false) {
-	cleanup_obj_ptr<wrap_info_t> tmp_wrap_info;
+	cleanup_ptr<wrap_info_t> tmp_wrap_info;
 	/* Note: we use a dirty trick here: the last position of the window is obscured by
 	   the scrollbar-> However, the last position will only contain the wrap character
 	   anyway, so we don't care. If the scrollbar is disabled, we set the wrap width

@@ -265,8 +265,9 @@ complex_error_t init(const init_parameters_t *params) {
 	}
 
 	if (params != NULL) {
-		init_params->separate_keypad = params->separate_keypad;
 		init_params->program_name = _t3_widget_strdup(params->program_name == NULL ? "This program" : params->program_name);
+		init_params->separate_keypad = params->separate_keypad;
+		init_params->disable_external_clipboard = params->disable_external_clipboard;
 	}
 
 	atexit(restore);

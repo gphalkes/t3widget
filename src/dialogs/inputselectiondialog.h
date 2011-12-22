@@ -25,7 +25,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 	private:
-		cleanup_obj_ptr<text_buffer_t> text;
+		cleanup_ptr<text_buffer_t> text;
 		frame_t *text_frame, *label_frame;
 		text_window_t *text_window;
 		label_t *key_label;

@@ -23,7 +23,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
 	protected:
-		cleanup_obj_ptr<scrollbar_t> scrollbar;
+		cleanup_ptr<scrollbar_t> scrollbar;
 		text_buffer_t *text;
 		wrap_info_t *wrap_info;
 		text_coordinate_t top;

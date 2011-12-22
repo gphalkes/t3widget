@@ -151,7 +151,7 @@ _T3_WIDGET_ENUM(wrap_type_t,
 #undef _T3_WIDGET_ENUM
 
 
-typedef cleanup_ptr<t3_window_t, t3_window_t, t3_win_del> auto_t3_window_t;
+typedef cleanup_ptr<t3_window_t, free_func<t3_window_t, t3_win_del> > auto_t3_window_t;
 
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);

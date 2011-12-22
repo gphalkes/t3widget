@@ -40,11 +40,11 @@ class T3_WIDGET_API finder_t {
 		int flags;
 
 		/** Pointer to a string_matcher_t, if a non-regex search was requested. */
-		cleanup_obj_ptr<string_matcher_t> matcher;
+		cleanup_ptr<string_matcher_t> matcher;
 
 		/* PCRE context and data */
 		/** Pointer to a compiled regex. */
-		cleanup_ptr<pcre, pcre, call_pcre_free> regex;
+		cleanup_ptr<pcre, free_func<pcre, call_pcre_free> > regex;
 		/** Array to hold sub-matches information. */
 		int ovector[30];
 		/** The number of sub-matches captured. */
@@ -52,10 +52,10 @@ class T3_WIDGET_API finder_t {
 		bool found; /**< Boolean indicating whether the regex match was successful. */
 
 		/** Replacement string. */
-		cleanup_obj_ptr<std::string> replacement;
+		cleanup_ptr<std::string> replacement;
 
 		/** Space to store the case-folded representation of a single character. */
-		cleanup_ptr<char> folded;
+		cleanup_ptr_char folded;
 		/** Size of the finder_t::folded buffer. */
 		size_t folded_size;
 

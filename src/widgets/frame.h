@@ -59,7 +59,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
 
 	private:
 		frame_dimension_t dimension; /**< Requested overlaps. */
-		cleanup_obj_ptr<widget_t> child; /**< The widget to enclose. */
+		cleanup_ptr<widget_t> child; /**< The widget to enclose. */
 };
 
 }; // namespace

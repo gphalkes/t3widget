@@ -50,7 +50,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		auto_t3_window_t edit_window, /**< Window containing the text. */
 			indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
-		cleanup_obj_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
+		cleanup_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
 		int screen_pos; /**< Cached position of cursor in screen coordinates. */
 		int tabsize; /**< Width of a tab, in cells. */
 		bool focus; /**< Boolean indicating whether this edit_window_t has the input focus. */
@@ -72,8 +72,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
 		bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
 
-		cleanup_obj_ptr<autocompleter_t> autocompleter; /**< Object used for autocompletion. */
-		cleanup_obj_ptr<autocomplete_panel_t> autocomplete_panel; /**< Panel for showing autocomplete options. */
+		cleanup_ptr<autocompleter_t> autocompleter; /**< Object used for autocompletion. */
+		cleanup_ptr<autocomplete_panel_t> autocomplete_panel; /**< Panel for showing autocomplete options. */
 		bool autocomplete_panel_shown; /**< Boolean indicating whether the autocompletions are currently being shown. */
 
 		/** Function to initialize the shared dialogs and data. */

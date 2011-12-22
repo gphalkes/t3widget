@@ -22,9 +22,9 @@ namespace t3_widget {
 
 class T3_WIDGET_LOCAL string_matcher_t {
 	private:
-		cleanup_ptr<char> needle;
+		cleanup_ptr_char needle;
 		size_t needle_size;
-		cleanup_objarr_ptr<int> partial_match_table, reverse_partial_match_table, index_table;
+		cleanup_ptr<int[]> partial_match_table, reverse_partial_match_table, index_table;
 		int i;
 		void init(void);
 
