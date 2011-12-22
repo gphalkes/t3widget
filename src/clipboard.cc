@@ -83,32 +83,43 @@ void set_primary(string *str) {
 
 void init_external_clipboard(void) {
 #ifdef WITH_X11
-	lt_dlhandle x11_mod;
+	lt_dlhandle extclipboard_mod;
 	lt_dladvise advise;
 
 	if (lt_dlinit() != 0)
 		return;
 
 	if (lt_dladvise_init(&advise) == 0) {
-		if ((x11_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
-			lprintf("Could not open X11 module\n");
+		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
+			lprintf("Could not open external clipboard module (X11)\n");
 			return;
 		}
 	} else {
 		lt_dladvise_local(&advise);
 		lt_dladvise_resident(&advise);
-		if ((x11_mod = lt_dlopenadvise(X11_MOD_NAME, advise)) == NULL) {
+		if ((extclipboard_mod = lt_dlopenadvise(X11_MOD_NAME, advise)) == NULL) {
+			lprintf("Could not open external clipboard module (X11)\n");
 			lt_dladvise_destroy(&advise);
 			return;
 		}
 		lt_dladvise_destroy(&advise);
 	}
 
-	if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(x11_mod, "_t3_widget_extclipboard_calls")) == NULL) {
-		lt_dlclose(x11_mod);
+	if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == NULL) {
+		lprintf("External clipboard module does not export interface symbol\n");
+		lt_dlclose(extclipboard_mod);
 		return;
 	}
-	extclipboard_calls->init();
+	if (extclipboard_calls->version != EXTCLIPBOARD_VERSION) {
+		lprintf("External clipboard module has incompatible version\n");
+		extclipboard_mod = NULL;
+		lt_dlclose(extclipboard_mod);
+	}
+	if (!extclipboard_calls->init()) {
+		lprintf("Failed to initialize external clipboard module\n");
+		extclipboard_calls = NULL;
+		lt_dlclose(extclipboard_mod);
+	}
 #endif
 }
 

@@ -34,7 +34,7 @@ T3_WIDGET_API void unlock_clipboard(void);
 class T3_WIDGET_API ensure_clipboard_lock_t {
 	public:
 		ensure_clipboard_lock_t(void) { lock_clipboard(); }
-		~ensure_clipboard_lock_t(void) { lock_clipboard(); }
+		~ensure_clipboard_lock_t(void) { unlock_clipboard(); }
 };
 
 }; // namespace

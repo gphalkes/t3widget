@@ -654,7 +654,8 @@ static void unlock(void) {
 }
 
 extern "C" {
-T3_WIDGET_API extclipboard_interface_t _t3_widget_x11_calls = {
+T3_WIDGET_API extclipboard_interface_t _t3_widget_extclipboard_calls = {
+	EXTCLIPBOARD_VERSION,
 	init_x11,
 	release_selections,
 	get_selection,
