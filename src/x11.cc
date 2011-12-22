@@ -75,7 +75,7 @@ static size_t max_data;
 static bool receive_incr;
 
 static pthread_t x11_event_thread;
-static pthread_mutex_t clipboard_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t clipboard_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
 
 static bool x11_initialized;
@@ -285,7 +285,7 @@ static void *process_events(void *arg) {
 	XEvent event;
 	(void) arg;
 
-	pthread_mutex_lock(&clipboard_lock);
+	pthread_mutex_lock(&clipboard_mutex);
 	while (1) {
 		if (!XPending(display)) {
 			fd_set read_fds;
@@ -295,12 +295,12 @@ static void *process_events(void *arg) {
 			   may interact with the clipboard. */
 			FD_ZERO(&read_fds);
 			FD_SET(ConnectionNumber(display), &read_fds);
-			pthread_mutex_unlock(&clipboard_lock);
+			pthread_mutex_unlock(&clipboard_mutex);
 			select(ConnectionNumber(display) + 1, &read_fds, NULL, NULL, NULL);
-			pthread_mutex_lock(&clipboard_lock);
+			pthread_mutex_lock(&clipboard_mutex);
 		}
 		if (x11_error) {
-			pthread_mutex_unlock(&clipboard_lock);
+			pthread_mutex_unlock(&clipboard_mutex);
 			return NULL;
 		}
 		XNextEvent(display, &event);
@@ -401,7 +401,7 @@ static void *process_events(void *arg) {
 				   our local variable first. */
 				if (end_connection) {
 					XCloseDisplay(display);
-					pthread_mutex_unlock(&clipboard_lock);
+					pthread_mutex_unlock(&clipboard_mutex);
 					return NULL;
 				}
 				break;
@@ -441,7 +441,7 @@ static void stop_x11(void) {
 	void *retval;
 	XEvent event;
 
-	pthread_mutex_lock(&clipboard_lock);
+	pthread_mutex_lock(&clipboard_mutex);
 	/* If x11_error has been set, the event handling thread will stop, or will
 	   have stopped already. Also, if this is the case, the connection is broken,
 	   which means we can't send anything anyway. Thus we skip the client message
@@ -458,7 +458,7 @@ static void stop_x11(void) {
 		XSendEvent(display, window, False, 0, &event);
 		XFlush(display);
 	}
-	pthread_mutex_unlock(&clipboard_lock);
+	pthread_mutex_unlock(&clipboard_mutex);
 	pthread_join(x11_event_thread, &retval);
 }
 
@@ -569,7 +569,7 @@ static linked_ptr<string> get_selection(bool clipboard) {
 		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
 		XFlush(display);
-		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout) != ETIMEDOUT &&
+		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) != ETIMEDOUT &&
 				conversion_succeeded)
 			result = new string(retrieved_data);
 		action = ACTION_NONE;
@@ -590,12 +590,12 @@ static void claim_selection(bool clipboard, string *data) {
 		return;
 	}
 
-	pthread_mutex_lock(&clipboard_lock);
+	pthread_mutex_lock(&clipboard_mutex);
 
 	if (clipboard) {
 		/* If we don't own the selection, reseting is a no-op. */
 		if (clipboard_owner_since == CurrentTime && data == NULL) {
-			pthread_mutex_unlock(&clipboard_lock);
+			pthread_mutex_unlock(&clipboard_mutex);
 			return;
 		}
 		action = CLAIM_CLIPBOARD;
@@ -603,7 +603,7 @@ static void claim_selection(bool clipboard, string *data) {
 	} else {
 		/* If we don't own the selection, reseting is a no-op. */
 		if (primary_owner_since == CurrentTime && data == NULL) {
-			pthread_mutex_unlock(&clipboard_lock);
+			pthread_mutex_unlock(&clipboard_mutex);
 			return;
 		}
 		action = CLAIM_PRIMARY;
@@ -617,9 +617,9 @@ static void claim_selection(bool clipboard, string *data) {
 	}
 
 	XFlush(display);
-	pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout);
+	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
-	pthread_mutex_unlock(&clipboard_lock);
+	pthread_mutex_unlock(&clipboard_mutex);
 }
 
 static void release_selections(void) {
@@ -628,9 +628,9 @@ static void release_selections(void) {
 	if (!x11_working())
 		return;
 
-	pthread_mutex_lock(&clipboard_lock);
+	pthread_mutex_lock(&clipboard_mutex);
 	if (clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime) {
-		pthread_mutex_unlock(&clipboard_lock);
+		pthread_mutex_unlock(&clipboard_mutex);
 		return;
 	}
 
@@ -640,17 +640,17 @@ static void release_selections(void) {
 	if (primary_owner_since != CurrentTime)
 		XSetSelectionOwner(display, atoms[PRIMARY], None, CurrentTime);
 	XFlush(display);
-	pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout);
+	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
-	pthread_mutex_unlock(&clipboard_lock);
+	pthread_mutex_unlock(&clipboard_mutex);
 }
 
 static void lock(void) {
-	pthread_mutex_lock(&clipboard_lock);
+	pthread_mutex_lock(&clipboard_mutex);
 }
 
 static void unlock(void) {
-	pthread_mutex_unlock(&clipboard_lock);
+	pthread_mutex_unlock(&clipboard_mutex);
 }
 
 extern "C" {
