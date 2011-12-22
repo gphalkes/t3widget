@@ -17,9 +17,13 @@ CXXFLAGS=-O2
 
 # Configuration flags and libraries. Include flags here to compile and link
 # against the libpcre, libsigc++, libunistring, libt3key, libt3window and
-# libtranscript libraries.
+# libtranscript libraries. Also add libltdl if you wish to build the X11
+# integration module (see below).
 CONFIGFLAGS=
 CONFIGLIBS=
+
+# Target to define for X11 integration module. Leave blank if not desired.
+X11MODULE=src/libt3widget-x11.la
 
 # Gettext configuration
 # GETTEXTFLAGS should contain -DUSE_GETTEXT to enable gettext translations
@@ -56,7 +60,7 @@ SILENTLDLT=@echo '[LDLT]' $@ ;
 
 OBJECTS=<OBJECTS>
 
-all: src/libt3widget.la libt3widget.pc
+all: src/libt3widget.la libt3widget.pc $(X11MODULE)
 
 .PHONY: all clean dist-clean install uninstall
 .SUFFIXES: .cc .o .lo .la .mo .po
@@ -69,16 +73,25 @@ dist-clean: clean
 	rm -rf Makefile config.log libt3widget.pc
 
 .cc.lo:
-	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) $(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL -c -o $@ $<
+	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) \
+		$(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL \
+		-DX11_MOD_NAME=\"$(libdir)/libt3widget-x11.mod\" -c -o $@ $<
 
 src/libt3widget.la: $(OBJECTS)
-	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
+	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> \
+		$(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
+
+src/libt3widget-x11.la: src/x11.lo src/libt3widget.la
+	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \
+		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) \
+		-Lsrc -lt3widget -rpath $(libdir)
 
 libt3widget.pc: libt3widget.pc.in
 	@{ echo '/^prefix=/c\' ; echo 'prefix=$(prefix)' ; } > .sedscript
 	@LIBDIR=$(libdir); if [ "$${LIBDIR#$(prefix)}" != "$${LIBDIR}" ] ; then LIBDIR="\$${prefix}$${LIBDIR#$(prefix)}" ; fi ; \
 		{ echo '/^libdir=/c\' ; echo "libdir=$${LIBDIR}" ; } >> .sedscript
-	@INCLUDEDIR=$(includedir); if [ "$${INCLUDEDIR#$(prefix)}" != "$${INCLUDEDIR}" ] ; then INCLUDEDIR="\$${prefix}$${INCLUDEDIR#$(prefix)}" ; fi ; \
+	@INCLUDEDIR=$(includedir); if [ "$${INCLUDEDIR#$(prefix)}" != "$${INCLUDEDIR}" ] ; then \
+		INCLUDEDIR="\$${prefix}$${INCLUDEDIR#$(prefix)}" ; fi ; \
 		{ echo '/^includedir=/c\' ; echo "includedir=$${INCLUDEDIR}" ; } >> .sedscript
 	sed -f .sedscript $< > $@
 
@@ -104,6 +117,8 @@ install: all
 	$(INSTALL) -m0644 COPYING README Changelog $(_docdir)
 	$(INSTALL) -d $(_pkgconfigdir)
 	$(INSTALL) -m0644 libt3widget.pc $(_pkgconfigdir)
+	if [ -n "$(X11MODULE)" ] ; then $(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget-x11.la $(_libdir) ; fi
+	chmod 0644 $(_libdir)/libt3widget-x11.la
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm $(_libdir)/libt3widget.la

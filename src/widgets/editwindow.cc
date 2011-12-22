@@ -1033,7 +1033,6 @@ void edit_window_t::update_contents(void) {
 void edit_window_t::set_focus(bool _focus) {
 	if (_focus != focus) {
 		focus = _focus;
-		lprintf("HA set_focus %d\n", _focus);
 		hide_autocomplete();
 		redraw = true; //FXIME: Only for painting/removing cursor
 	}
@@ -1072,18 +1071,20 @@ void edit_window_t::cut_copy(bool cut) {
 }
 
 void edit_window_t::paste(void) {
-	linked_ptr<string> copy_buffer = get_clipboard();
-	if (copy_buffer != NULL) {
-		if (text->get_selection_mode() == selection_mode_t::NONE) {
-			text->insert_block(copy_buffer);
-		} else {
-			text->replace_block(text->get_selection_start(), text->get_selection_end(), copy_buffer);
-			reset_selection();
+	WITH_CLIPBOARD_LOCK(
+		linked_ptr<string> copy_buffer = get_clipboard();
+		if (copy_buffer != NULL) {
+			if (text->get_selection_mode() == selection_mode_t::NONE) {
+				text->insert_block(copy_buffer);
+			} else {
+				text->replace_block(text->get_selection_start(), text->get_selection_end(), copy_buffer);
+				reset_selection();
+			}
+			ensure_cursor_on_screen();
+			last_set_pos = screen_pos;
+			redraw = true;
 		}
-		ensure_cursor_on_screen();
-		last_set_pos = screen_pos;
-		redraw = true;
-	}
+	)
 }
 
 void edit_window_t::select_all(void) {
@@ -1222,13 +1223,13 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 				text->set_selection_end();
 			ensure_cursor_on_screen();
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
-			linked_ptr<string> primary;
-
 			reset_selection();
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
-			primary = get_primary();
-			if (primary != NULL)
-				text->insert_block(primary);
+			WITH_CLIPBOARD_LOCK(
+				linked_ptr<string> primary = get_primary();
+				if (primary != NULL)
+					text->insert_block(primary);
+			)
 			ensure_cursor_on_screen();
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 			scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3);

@@ -18,6 +18,8 @@
 #include <t3widget/ptr.h>
 #include <string>
 
+#define WITH_CLIPBOARD_LOCK(code) { t3_widget::ensure_clipboard_lock_t _lock; { code } }
+
 namespace t3_widget {
 
 T3_WIDGET_API linked_ptr<std::string> get_clipboard(void);
@@ -25,6 +27,15 @@ T3_WIDGET_API linked_ptr<std::string> get_primary(void);
 
 T3_WIDGET_API void set_clipboard(std::string *str);
 T3_WIDGET_API void set_primary(std::string *str);
+T3_WIDGET_API void release_selections(void);
+T3_WIDGET_API void lock_clipboard(void);
+T3_WIDGET_API void unlock_clipboard(void);
+
+class T3_WIDGET_API ensure_clipboard_lock_t {
+	public:
+		ensure_clipboard_lock_t(void) { lock_clipboard(); }
+		~ensure_clipboard_lock_t(void) { lock_clipboard(); }
+};
 
 }; // namespace
 #endif

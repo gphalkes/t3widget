@@ -218,7 +218,7 @@ bool text_field_t::process_key(key_t key) {
 			break;
 
 		case EKEY_CTRL | 'v':
-		case EKEY_SHIFT | EKEY_INS: {
+		case EKEY_SHIFT | EKEY_INS: WITH_CLIPBOARD_LOCK(
 			linked_ptr<string> copy_buffer = get_clipboard();
 			if (copy_buffer != NULL) {
 				text_line_t insert_line(copy_buffer);
@@ -233,8 +233,7 @@ bool text_field_t::process_key(key_t key) {
 				edited = true;
 			}
 			break;
-		}
-
+		)
 		case EKEY_CTRL | 't':
 			switch (selection_mode) {
 				case selection_mode_t::MARK:
@@ -494,18 +493,19 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 			set_selection_end();
 		ensure_cursor_on_screen();
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
-		linked_ptr<string> primary;
 
 		reset_selection();
 		pos = line->calculate_line_pos(0, INT_MAX, event.x - 1 + leftcol, 0);
 
-		primary = get_primary();
-		if (primary != NULL) {
-			text_line_t insert_line(primary);
+		WITH_CLIPBOARD_LOCK(
+			linked_ptr<string> primary = get_primary();
+			if (primary != NULL) {
+				text_line_t insert_line(primary);
 
-			line->insert(&insert_line, pos);
-			pos += insert_line.get_length();
-		}
+				line->insert(&insert_line, pos);
+				pos += insert_line.get_length();
+			}
+		)
 		ensure_cursor_on_screen();
 	} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
 			(event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT))) {

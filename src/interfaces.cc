@@ -120,8 +120,6 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 
 	active_dialog = dialog_t::active_dialogs.back();
 
-	/* FIXME: events should be passed to parents as well, but marked. Same goes
-	   for events that were not caught by any children. */
 	//FIXME: should notify dialog of outside-dialog clicks
 	while (win != NULL) {
 		iter = targets.find(win);

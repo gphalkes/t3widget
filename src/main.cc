@@ -31,9 +31,7 @@
 #include "dialogs/dialog.h"
 #include "textline.h"
 #include "internal.h"
-#ifdef WITH_X11
-#include "x11.h"
-#endif
+#include "clipboard.h"
 
 using namespace std;
 
@@ -309,9 +307,7 @@ complex_error_t init(const init_parameters_t *params) {
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
 	t3_term_hide_cursor();
-#ifdef WITH_X11
-	init_x11();
-#endif
+	init_clipboard();
 	return result;
 }
 

@@ -28,7 +28,6 @@ sed -i "/#define T3_WIDGET_VERSION/c #define T3_WIDGET_VERSION ${VERSION_BIN}" $
 ( cd ${TOPDIR}/src ; ln -s . t3widget )
 
 OBJECTS="`echo \"${SOURCES} ${GENSOURCES} ${AUXSOURCES}\" | tr ' ' '\n' | sed -r 's%\.objects/%%' | egrep '^src/.*\.cc$' | egrep -v '^src/x11\.cc$' | sed -r 's/\.cc\>/.lo/g' | tr '\n' ' '`"
-OBJECTS="${OBJECTS} \$(X11OBJECTS)"
 #FIXME: somehow verify binary compatibility, and print an error if not compatible
 LIBVERSION="${VERSIONINFO%%:*}"
 

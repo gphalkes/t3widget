@@ -23,18 +23,20 @@
 #endif
 
 #include <stdio.h>
+
+#include "widget_api.h"
 namespace t3_widget {
 
 #ifdef _T3_WIDGET_DEBUG
 
 void init_log(void);
-void lprintf(const char *fmt, ...)
+T3_WIDGET_API void lprintf(const char *fmt, ...)
 	#ifdef __GNUC__
 	__attribute__((format(printf, 1, 2)))
 	#endif
 	;
-void ldumpstr(const char *str, int length);
-void logkeyseq(const char *keys);
+T3_WIDGET_API void ldumpstr(const char *str, int length);
+T3_WIDGET_API void logkeyseq(const char *keys);
 #else
 #define init_log()
 #define lprintf(fmt, ...)

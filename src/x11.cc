@@ -97,10 +97,12 @@ static const char *atom_names[] = {
 enum {
 	CLIPBOARD,
 	PRIMARY,
+	/* The following 4 targets must remain in this order and consecutive. */
 	TARGETS,
 	TIMESTAMP,
 	MULTIPLE,
 	UTF8_STRING,
+
 	GDK_SELECTION,
 	INCR,
 	ATOM,
@@ -113,7 +115,9 @@ static Atom atoms[ATOM_COUNT];
 #define DATA_BLOCK_SIZE 4000
 static string retrieved_data;
 
-
+/** Retrieve data set by another X client on our window.
+    @return The number of bytes received, or -1 on failure.
+*/
 static long retrieve_data(void) {
 	Atom actual_type;
 	int actual_format;
@@ -122,15 +126,20 @@ static long retrieve_data(void) {
 	unsigned long offset = 0;
 
 	do {
-		if (XGetWindowProperty(display, window, atoms[GDK_SELECTION], offset,
-			DATA_BLOCK_SIZE, False, AnyPropertyType, &actual_type, &actual_format,
+		/* To limit the size of the transfer, we get the data in smallish blocks.
+		   That is, at most 16K. This will in most cases result in a single transfer,
+		   but in some cases we must iterate until we have all data. In that case
+		   we need to set offset, which happens to be in 4 byte words rather than
+		   bytes. */
+		if (XGetWindowProperty(display, window, atoms[GDK_SELECTION], offset / 4,
+			DATA_BLOCK_SIZE, False, atoms[UTF8_STRING], &actual_type, &actual_format,
 			&nitems, &bytes_after, &prop) != Success)
 		{
 			retrieved_data.clear();
 			return -1;
 		} else {
 			retrieved_data.append((char *) prop, nitems);
-			offset += nitems / 4;
+			offset += nitems;
 			XFree(prop);
 		}
 		prop = NULL;
@@ -138,6 +147,7 @@ static long retrieve_data(void) {
 	return offset;
 }
 
+/** Claim a selection. */
 static void claim(Time *since, Atom selection) {
 	XSetSelectionOwner(display, selection, window, *since);
 	if (XGetSelectionOwner(display, selection) != window)
@@ -145,8 +155,17 @@ static void claim(Time *since, Atom selection) {
 	pthread_cond_signal(&clipboard_signal);
 }
 
+/** Send data requested by another X client.
+    @param requestor The @c Window of the requesting X client.
+    @param target The requested conversion.
+    @param property The property which must be used for sending the data.
+    @param data The data to send.
+    @param since The timestamp at which we aquired the requested selection.
+    @return A boolean indicating succes.
+*/
 static bool send_selection(Window requestor, Atom target, Atom property, linked_ptr<string> data, Time since) {
 	if (target == atoms[TARGETS]) {
+		/* The atoms are arranged such that the targets we have available are consecutive. */
 		XChangeProperty(display, requestor, property, atoms[ATOM], 32, PropModeReplace, (unsigned char *) &atoms[TARGETS], 4);
 		return true;
 	} else if (target == atoms[TIMESTAMP]) {
@@ -155,6 +174,8 @@ static bool send_selection(Window requestor, Atom target, Atom property, linked_
 	} else if (target == atoms[UTF8_STRING]) {
 		if (data == NULL)
 			return false;
+		/* If the data is too large to send in a single go (which is an arbitrary number,
+		   unless limited by the maximum request size), we use the INCR protocol. */
 		if (data->size() > max_data) {
 			XChangeProperty(display, requestor, property, atoms[UTF8_STRING], 8, PropModeReplace,
 				(unsigned char *) data->data(), data->size());
@@ -188,9 +209,17 @@ static bool send_selection(Window requestor, Atom target, Atom property, linked_
 	}
 }
 
+/** Handle an incoming PropertyNotify event.
+
+    There are so many different things which may be going on when we receive a
+    PropertyNotify event, that it has its own routine.
+*/
 static void handle_property_notify(XEvent &event) {
 	if (event.xproperty.window == window) {
 		if (event.xproperty.atom == XA_WM_NAME) {
+			/* If we changed the name atom of our window, we needed a timestamp
+			   to perform another request. The request we want to perform is
+			   signalled by the action variable. */
 			switch (action) {
 				case CONVERT_CLIPBOARD:
 				case CONVERT_PRIMARY:
@@ -214,6 +243,8 @@ static void handle_property_notify(XEvent &event) {
 					break;
 			}
 		} else if (event.xproperty.atom == atoms[GDK_SELECTION]) {
+			/* This event may happen all the time, but in some cases it means there
+			   is more data to receive for an INCR transfer. */
 			if (receive_incr && event.xproperty.state == PropertyNewValue) {
 				long result;
 				if ((result = retrieve_data()) <= 0) {
@@ -228,6 +259,9 @@ static void handle_property_notify(XEvent &event) {
 		if (event.xproperty.state != PropertyDelete || incr_sends.empty())
 			return;
 
+		/* In this case we received a PropertyNotify for a window that is not ours.
+		   That should only happen if we are trying to do an INCR send to another
+		   client. */
 		for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
 			if (iter->window == event.xproperty.window) {
 				unsigned long size = iter->data->size() - iter->offset;
@@ -246,7 +280,7 @@ static void handle_property_notify(XEvent &event) {
 	}
 }
 
-
+/** Thread to process incoming events. */
 static void *process_events(void *arg) {
 	XEvent event;
 	(void) arg;
@@ -256,6 +290,9 @@ static void *process_events(void *arg) {
 		if (!XPending(display)) {
 			fd_set read_fds;
 
+			/* Use select to wait for more events when there are no more left. In
+			   this case we also release the mutex, such that the rest of the library
+			   may interact with the clipboard. */
 			FD_ZERO(&read_fds);
 			FD_SET(ConnectionNumber(display), &read_fds);
 			pthread_mutex_unlock(&clipboard_lock);
@@ -298,6 +335,7 @@ static void *process_events(void *arg) {
 				}
 
 				if (event.xselection.target == atoms[INCR]) {
+					/* OK, here we go. The selection owner uses the INCR protocol. Shudder. */
 					receive_incr = true;
 				} else if (event.xselection.target == atoms[UTF8_STRING]) {
 					if (retrieve_data() >= 0)
@@ -311,12 +349,13 @@ static void *process_events(void *arg) {
 			}
 			case SelectionClear:
 				if (event.xselectionclear.selection == atoms[CLIPBOARD]) {
-					clipboard_data = NULL;
 					clipboard_owner_since = CurrentTime;
+					clipboard_data = NULL;
 				} else if (event.xselectionclear.selection == atoms[PRIMARY]) {
-					primary_data = NULL;
 					primary_owner_since = CurrentTime;
+					primary_data = NULL;
 				}
+
 				if ((action == RELEASE_SELECTIONS && clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime) ||
 						action == CLAIM_CLIPBOARD || action == CLAIM_PRIMARY)
 					pthread_cond_signal(&clipboard_signal);
@@ -326,6 +365,8 @@ static void *process_events(void *arg) {
 				XEvent reply;
 				linked_ptr<string> data;
 				Time since;
+
+				/* Some other X11 client is requesting our selection. */
 
 				reply.type = SelectionNotify;
 				reply.xselection.requestor = event.xselectionrequest.requestor;
@@ -355,6 +396,9 @@ static void *process_events(void *arg) {
 				break;
 			}
 			case ClientMessage:
+				/* Notification sent to close the connection. However, because any client
+				   can send a ClientMessage, which we have no way of verifying, we check
+				   our local variable first. */
 				if (end_connection) {
 					XCloseDisplay(display);
 					pthread_mutex_unlock(&clipboard_lock);
@@ -366,6 +410,7 @@ static void *process_events(void *arg) {
 	return NULL;
 }
 
+/** Handle error reports, i.e. BadAtom and such, from the server. */
 static int error_handler(Display *_display, XErrorEvent *error) {
 #ifdef _T3_WIDGET_DEBUG
 	char error_text[1024];
@@ -381,13 +426,17 @@ static int error_handler(Display *_display, XErrorEvent *error) {
 	return 0;
 }
 
+/** Handle IO errors. */
 static int io_error_handler(Display *_display) {
 	(void) _display;
 	lprintf("X11 IO error\n");
+	/* Note that this is the only place this variable is ever written, so there
+	   is no problem in not using a lock here. */
 	x11_error = true;
 	return 0;
 }
 
+/** Stop the X11 event processing. */
 static void stop_x11(void) {
 	void *retval;
 	XEvent event;
@@ -413,18 +462,21 @@ static void stop_x11(void) {
 	pthread_join(x11_event_thread, &retval);
 }
 
-bool init_x11(void) {
-	XEvent event;
+/** Initialize the X11 connection. */
+static bool init_x11(void) {
 	int black;
 	char **atom_names_local = NULL;
 	long max_request;
 	size_t i;
 
+	/* The XInternAtoms call expects an array of char *, not of const char *. Thus
+	   we make a copy here, which we later discard again. */
 	if ((atom_names_local = (char **) malloc(sizeof(char *) * ATOM_COUNT)) == NULL)
 		return false;
 
+	/* First initialize all the pointers to NULL, such that we can do a simple goto
+	   error_exit if some allocation fails. */
 	for (i = 0; i < ATOM_COUNT; i++) atom_names_local[i] = NULL;
-
 	for (i = 0; i < ATOM_COUNT; i++) {
 		if ((atom_names_local[i] = strdup(atom_names[i])) == NULL)
 			goto error_exit;
@@ -447,8 +499,8 @@ bool init_x11(void) {
 	black = BlackPixel(display, DefaultScreen(display));
 	window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, black, black);
 
-	while (XPending(display))
-		XNextEvent(display, &event);
+	/* Discard all events, but process errors. */
+	XSync(display, True);
 	if (x11_error)
 		goto error_exit;
 
@@ -462,14 +514,15 @@ bool init_x11(void) {
 
 	XSelectInput(display, window, PropertyChangeMask);
 
-	while (XPending(display))
-		XNextEvent(display, &event);
+	/* Discard all events, but process errors. */
+	XSync(display, True);
 	if (x11_error)
 		goto error_exit;
 
 	x11_initialized = true;
 	pthread_create(&x11_event_thread, NULL, process_events, NULL);
 	atexit(stop_x11);
+	lprintf("X11 interface initialized\n");
 	return true;
 
 error_exit:
@@ -483,9 +536,7 @@ error_exit:
 	return false;
 }
 
-bool x11_working(void) {
-	return x11_initialized && !x11_error;
-}
+#define x11_working() (x11_initialized && !x11_error)
 
 static struct timespec timeout_time(int usec) {
 	struct timeval timeval;
@@ -503,14 +554,17 @@ static struct timespec timeout_time(int usec) {
 	return result;
 }
 
-linked_ptr<string> get_x11_selection(bool clipboard) {
+static linked_ptr<string> get_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
 	linked_ptr<string> result;
 
+	/* If X11 was not initialized, or an IO error occured, we can skip the stuff
+	   below, because it won't work. */
 	if (!x11_working())
 		return clipboard ? clipboard_data : primary_data;
 
-	pthread_mutex_lock(&clipboard_lock);
+	/* If we currently own the selection that is requested, there is no need to go
+	   through the X server. */
 	if ((clipboard && clipboard_owner_since == CurrentTime) || (!clipboard && primary_owner_since == CurrentTime)) {
 		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
@@ -522,11 +576,10 @@ linked_ptr<string> get_x11_selection(bool clipboard) {
 	} else {
 		result = clipboard ? clipboard_data : primary_data;
 	}
-	pthread_mutex_unlock(&clipboard_lock);
 	return result;
 }
 
-void claim_selection(bool clipboard, string *data) {
+static void claim_selection(bool clipboard, string *data) {
 	struct timespec timeout = timeout_time(1000000);
 
 	if (!x11_working()) {
@@ -537,14 +590,10 @@ void claim_selection(bool clipboard, string *data) {
 		return;
 	}
 
-	if (data != NULL && data->size() == 0) {
-		delete data;
-		data = NULL;
-	}
-
 	pthread_mutex_lock(&clipboard_lock);
 
 	if (clipboard) {
+		/* If we don't own the selection, reseting is a no-op. */
 		if (clipboard_owner_since == CurrentTime && data == NULL) {
 			pthread_mutex_unlock(&clipboard_lock);
 			return;
@@ -552,6 +601,7 @@ void claim_selection(bool clipboard, string *data) {
 		action = CLAIM_CLIPBOARD;
 		clipboard_data = data;
 	} else {
+		/* If we don't own the selection, reseting is a no-op. */
 		if (primary_owner_since == CurrentTime && data == NULL) {
 			pthread_mutex_unlock(&clipboard_lock);
 			return;
@@ -568,17 +618,11 @@ void claim_selection(bool clipboard, string *data) {
 
 	XFlush(display);
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_lock, &timeout);
-	if (data == NULL) {
-		if (clipboard)
-			clipboard_data = data;
-		else
-			primary_data = data;
-	}
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_lock);
 }
 
-void release_selections(void) {
+static void release_selections(void) {
 	struct timespec timeout = timeout_time(1000000);
 
 	if (!x11_working())
@@ -601,4 +645,24 @@ void release_selections(void) {
 	pthread_mutex_unlock(&clipboard_lock);
 }
 
+static void lock(void) {
+	pthread_mutex_lock(&clipboard_lock);
+}
+
+static void unlock(void) {
+	pthread_mutex_unlock(&clipboard_lock);
+}
+
+extern "C" {
+T3_WIDGET_API x11_interface_t _t3_widget_x11_calls = {
+	init_x11,
+	release_selections,
+	get_selection,
+	claim_selection,
+	lock,
+	unlock
+};
+};
+
 }; // namespace
+

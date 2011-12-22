@@ -14,20 +14,31 @@
 #ifndef T3_WIDGET_X11_H
 #define T3_WIDGET_X11_H
 
-#include <t3widget/widget_api.h>
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
+/* This file only contains the definition of the interface struct used to
+   communicate with the X11 module. It should _not_ contain any symbol that is
+   dependent on the X11 headers. */
+
 #include <string>
-#include <pthread.h>
+#include "widget_api.h"
+#include "ptr.h"
 
 namespace t3_widget {
 
-T3_WIDGET_LOCAL extern linked_ptr<std::string> clipboard_data;
-T3_WIDGET_LOCAL extern linked_ptr<std::string> primary_data;
+T3_WIDGET_API extern linked_ptr<std::string> clipboard_data;
+T3_WIDGET_API extern linked_ptr<std::string> primary_data;
 
-T3_WIDGET_LOCAL bool init_x11(void);
-T3_WIDGET_LOCAL bool x11_working(void);
-T3_WIDGET_LOCAL linked_ptr<std::string> get_x11_selection(bool clipboard);
-T3_WIDGET_LOCAL void claim_selection(bool clipboard, std::string *data);
-T3_WIDGET_LOCAL void release_selections(void);
+struct x11_interface_t {
+	bool (*init)(void);
+	void (*release_selections)(void);
+	linked_ptr<std::string> (*get_selection)(bool clipboard);
+	void (*claim_selection)(bool clipboard, std::string *data);
+	void (*lock)(void);
+	void (*unlock)(void);
+};
 
 }; // namespace
 #endif

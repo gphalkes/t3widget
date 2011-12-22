@@ -76,13 +76,14 @@ checkfunction_compile() {
 	checkfunction_internal test_compile_cxx "$@"
 }
 
-# Make these functions available for the gettext extension
+# Make these functions available for the gettext and x11 extensions
 test_link() {
-	mv .config.c .configcxx.cc
+	[ -f .config.c ] && mv .config.c .configcxx.cc
 	test_link_cxx "$@"
 }
 
 test_compile() {
+	[ -f .config.c ] && mv .config.c .configcxx.cc
 	test_compile_cxx "$@"
 }
 
@@ -384,11 +385,29 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	test_link_cxx "strdup" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRDUP"
-	unset X11OBJECTS
+
+	unset X11MODULE
 	if [ yes = "${with_x11}" ] ; then
-		if basic_x11 ; then
+		clean_cxx
+		cat > .configcxx.cc <<EOF
+#include <ltdl.h>
+
+int main(int argc, char *argv[]) {
+	lt_dlhandle handle;
+	handle = lt_dlopen("name");
+	lt_dlerror();
+	lt_dlsym(handle, "sym_name");
+	lt_dlclose(handle);
+	lt_dlinit();
+	lt_dlexit();
+	return 0;
+}
+EOF
+
+		if test_link_cxx "libltdl" "TESTLIBS=-lltdl" && basic_x11 ; then
 			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
-			X11OBJECTS=src/x11.lo
+			CONFIGLIBS="-lltdl"
+			X11MODULE=src/libt3widget-x11.la
 		fi
 	fi
 
@@ -396,5 +415,5 @@ EOF
 		${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS} ${X11_FLAGS}" \
 		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring \
 		${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS} ${X11_LIBS}" \
-		"X11OBJECTS=${X11OBJECTS}"
+		"X11MODULE=${X11MODULE}"
 }
