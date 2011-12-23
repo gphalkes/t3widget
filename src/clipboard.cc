@@ -84,20 +84,20 @@ void set_primary(string *str) {
 void init_external_clipboard(void) {
 #ifdef WITH_X11
 	lt_dlhandle extclipboard_mod;
-#ifdef WTIH_LT_DLADVISE
+#ifdef WITH_LT_DLADVISE
 	lt_dladvise advise;
 #endif
 	if (lt_dlinit() != 0)
 		return;
 
-#ifdef WTIH_LT_DLADVISE
+#ifdef WITH_LT_DLADVISE
 	if (lt_dladvise_init(&advise) == 0) {
 #endif
 		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
 			lprintf("Could not open external clipboard module (X11)\n");
 			return;
 		}
-#ifdef WTIH_LT_DLADVISE
+#ifdef WITH_LT_DLADVISE
 	} else {
 		lt_dladvise_local(&advise);
 		lt_dladvise_resident(&advise);
