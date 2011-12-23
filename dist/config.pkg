@@ -403,11 +403,33 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
+		if test_link_cxx "libltdl" "TESTLIBS=-lltdl" ; then
+			unset LTDLFLAGS
+			clean_cxx
+			cat > .configcxx.cc <<EOF
+#include <ltdl.h>
 
-		if test_link_cxx "libltdl" "TESTLIBS=-lltdl" && basic_x11 ; then
-			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
-			CONFIGLIBS="-lltdl"
-			X11MODULE=src/libt3widget-x11.la
+int main(int argc, char *argv[]) {
+	lt_dladvise advise;
+	lt_dladvise_init(&advise);
+	lt_dladvise_local(&advise);
+	lt_dladvise_resident(&advise);
+	lt_dlopenadvise("mod", advise);
+	lt_dladvise_destroy(&advise);
+	return 0;
+}
+EOF
+			test_link_cxx "lt_dladvise functions in libltdl" "TESTLIBS=-lltdl" && LTDLFLAGS="-DWITH_LT_DLADVISE"
+
+			if basic_x11 ; then
+				CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 ${LTDLFLAGS}"
+				CONFIGLIBS="-lltdl"
+				X11MODULE=src/libt3widget-x11.la
+			else
+				check_message_result "!! Could not find X11 library. libt3widget will not provide X11 clipboard integration."
+			fi
+		else
+			check_message_result "!! Could not find libltdl. libt3widget will not provide X11 clipboard integration."
 		fi
 	fi
 

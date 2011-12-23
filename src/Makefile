@@ -77,7 +77,7 @@ CXXFLAGS += `pkg-config --cflags libpcre`
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
-CXXFLAGS += -DWITH_X11
+CXXFLAGS += -DWITH_X11 -DWITH_LT_DLADVISE
 CXXFLAGS += -DX11_MOD_NAME=\"$(PWD)/.libs/x11.mod\"
 
 LDLIBS.libt3widget.la += -L$(CURDIR)/t3window/.libs -lt3window
