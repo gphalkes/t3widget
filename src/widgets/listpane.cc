@@ -41,6 +41,11 @@ list_pane_t::list_pane_t(bool _indicator) : top_idx(0), current(0),
 	}
 }
 
+list_pane_t::~list_pane_t(void) {
+	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+		delete *iter;
+}
+
 bool list_pane_t::set_widget_parent(widget_t *widget) {
 	return t3_win_set_parent(widget->get_base_window(), widgets_window);
 }

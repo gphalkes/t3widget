@@ -52,14 +52,13 @@ void mouse_target_t::register_mouse_target(t3_window_t *target) {
 }
 
 mouse_target_t::~mouse_target_t(void) {
-	for (mouse_target_map_t::iterator iter = targets.begin(); iter != targets.end(); ) {
-		/* Can't use iter anymore after erasing, so we have to start our search all over
-		   once we have found ourselves. */
-		for (iter = targets.begin(); iter != targets.end(); iter++) {
-			if (iter->second == this) {
-				targets.erase(iter);
-				break;
-			}
+	/* Can't use iter anymore after erasing, so we have to start our search all over
+	   once we have found ourselves. */
+start_over:
+	for (mouse_target_map_t::iterator iter = targets.begin(); iter != targets.end(); iter++) {
+		if (iter->second == this) {
+			targets.erase(iter);
+			goto start_over;
 		}
 	}
 }

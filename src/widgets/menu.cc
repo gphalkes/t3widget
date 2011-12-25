@@ -34,7 +34,8 @@ menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), current_menu(0), old_men
 }
 
 menu_bar_t::~menu_bar_t(void) {
-	t3_win_del(window);
+	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
+		delete *iter;
 }
 
 void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {

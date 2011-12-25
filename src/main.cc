@@ -344,10 +344,23 @@ void iterate(void) {
 	}
 }
 
-void main_loop(void) {
-	while (true) {
-		iterate();
+struct main_loop_exit_t {
+	int retval;
+	main_loop_exit_t(int _retval) : retval(_retval) {}
+};
+
+int main_loop(void) {
+	try {
+		while (true) {
+			iterate();
+		}
+	} catch (main_loop_exit_t &e) {
+		return e.retval;
 	}
+}
+
+void exit_main_loop(int retval) {
+	throw main_loop_exit_t(retval);
 }
 
 void suspend(void) {

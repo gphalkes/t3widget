@@ -33,6 +33,11 @@ struct free_func {
 	void operator()(T *p) { f((T *) p); }
 };
 
+template <typename T, typename U, U (*f)(T *)>
+struct free_func2 {
+	void operator()(T *p) { f((T *) p); }
+};
+
 template <typename T>
 class smartptr_base {
 	public:
@@ -54,7 +59,7 @@ class smartptr_base {
 */
 #define _DEFINE_cleanup_ptr \
 	public: \
-		~cleanup_ptr(void) { D d; d(smartptr_base<T>::p_); } \
+		~cleanup_ptr(void) { if (smartptr_base<T>::p_ != NULL) { D d; d(smartptr_base<T>::p_); } } \
 		cleanup_ptr(void) {} \
 		cleanup_ptr(T *p) { smartptr_base<T>::p_ = p; } \
 		T* operator= (T *p) { return smartptr_base<T>::p_ = p; } \
@@ -73,6 +78,17 @@ class cleanup_ptr<T[], D> : public smartptr_base<T> {
 };
 #undef _DEFINE_cleanup_ptr
 typedef cleanup_ptr<char, free_func<> > cleanup_ptr_char;
+
+template <typename T, void (*f)(T *)>
+class cleanup_func_ptr : public cleanup_ptr<T, free_func<T, f> > {
+	public: \
+		cleanup_func_ptr(void) {} \
+		cleanup_func_ptr(T *p) { cleanup_ptr<T, free_func<T, f> >::p_ = p; } \
+		T* operator= (T *p) { return cleanup_ptr<T, free_func<T, f> >::p_ = p; } \
+	private: \
+		cleanup_func_ptr& operator= (const cleanup_func_ptr &p) { (void) p; return *this; } \
+		cleanup_func_ptr(const cleanup_func_ptr &p) { (void) p; }
+};
 
 /* Pointer wrapper using reference linking. */
 #define _DEFINE_LINKED_PTR \

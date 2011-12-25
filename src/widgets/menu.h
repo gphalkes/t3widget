@@ -63,9 +63,9 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		    bar's existance. */
 		menu_bar_t(bool _hidden = false);
 		/** Destroy the menu_bar_t.
-		    Note that this does @b not destroy the menus contained by this menu_bar_t.
+		    Note that this does destroys the menus contained by this menu_bar_t.
 		*/
-		~menu_bar_t(void);
+		virtual ~menu_bar_t(void);
 
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

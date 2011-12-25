@@ -51,6 +51,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
 	public:
 		list_pane_t(bool _indicator);
+		virtual ~list_pane_t(void);
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);

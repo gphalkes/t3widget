@@ -130,9 +130,10 @@ T3_WIDGET_API void restore(void);
 */
 T3_WIDGET_API void iterate(void);
 /** Run the main event loop of the libt3widget library.
-    This function does not return.
+    This function will return only by calling #exit_main_loop, yielding the
+    value passed to that function.
 */
-T3_WIDGET_API void main_loop(void);
+T3_WIDGET_API int main_loop(void);
 /** Suspend execution of this program by sending a @c SIGSTOP signal.
     Before sending the @c SIGSTOP signal, the terminal is reset to its original
     state. This allows the parent process (usually the shell) to continue
@@ -145,6 +146,17 @@ T3_WIDGET_API void suspend(void);
     exactly what this function does.
 */
 T3_WIDGET_API void redraw(void);
+
+/** Exit the main loop.
+    Calling this function will cause an exit from the main loop. This is
+    accomplished by throwing an exception, so using an unqualified @c catch
+    clause will interfere with the execution of this action.
+*/
+T3_WIDGET_API void exit_main_loop(int exit_code)
+#ifdef __GNUC__
+__attribute__((noreturn))
+#endif
+;
 
 /** Control the color mode.
     libt3widget by default starts in black and white mode, as most terminals
