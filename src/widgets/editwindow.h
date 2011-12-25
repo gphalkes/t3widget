@@ -48,7 +48,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static sigc::connection replace_buttons_connection;
 		static sigc::connection init_connected;
 
-		auto_t3_window_t edit_window, /**< Window containing the text. */
+		cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
 			indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
 		cleanup_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
 		int screen_pos; /**< Cached position of cursor in screen coordinates. */
@@ -125,7 +125,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 	protected:
 		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
-		auto_t3_window_t info_window; /**< Window for other information, such as buffer name. */
+		cleanup_t3_window_ptr info_window; /**< Window for other information, such as buffer name. */
 
 		/** Draw the information in the #info_window.
 
@@ -278,7 +278,7 @@ class edit_window_t::view_parameters_t {
 
 class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t {
 	private:
-		auto_t3_window_t shadow_window;
+		cleanup_t3_window_ptr shadow_window;
 		list_pane_t list_pane;
 		bool redraw;
 	public:

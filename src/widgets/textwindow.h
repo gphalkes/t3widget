@@ -25,7 +25,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 	protected:
 		cleanup_ptr<scrollbar_t> scrollbar;
 		text_buffer_t *text;
-		wrap_info_t *wrap_info;
+		cleanup_ptr<wrap_info_t> wrap_info;
 		text_coordinate_t top;
 		bool focus;
 
@@ -36,7 +36,6 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 
 	public:
 		text_window_t(text_buffer_t *_text = NULL, bool with_scrollbar = true);
-		~text_window_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

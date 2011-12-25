@@ -55,7 +55,7 @@ class T3_WIDGET_API finder_t {
 		cleanup_ptr<std::string> replacement;
 
 		/** Space to store the case-folded representation of a single character. */
-		cleanup_ptr_char folded;
+		cleanup_free_ptr<char> folded;
 		/** Size of the finder_t::folded buffer. */
 		size_t folded_size;
 

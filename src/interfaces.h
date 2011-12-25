@@ -27,7 +27,7 @@ namespace t3_widget {
 class T3_WIDGET_API window_component_t {
 	protected:
 		/** The t3_window_t used for presenting this item on screen (see libt3window). */
-		auto_t3_window_t window;
+		cleanup_t3_window_ptr window;
 	public:
 		/** Base constructor. */
 		window_component_t(void);

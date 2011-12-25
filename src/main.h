@@ -157,6 +157,15 @@ T3_WIDGET_API void exit_main_loop(int exit_code)
 __attribute__((noreturn))
 #endif
 ;
+/** Free memory used by libt3widget.
+    After this function is called, no further calls to libt3widget should be
+    made. Normally, there is no reason to call this function at all, because the
+    operating system will reclaim all memory. However, if you are trying to
+    track down memory leaks in your program, calling this function will free
+    all memory allocated in libt3widget, thus allowing you to debug your own
+    memory allocations more easily.
+*/
+T3_WIDGET_API void cleanup(void);
 
 /** Control the color mode.
     libt3widget by default starts in black and white mode, as most terminals

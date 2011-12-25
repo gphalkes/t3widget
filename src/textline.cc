@@ -175,7 +175,7 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
 
 	retval = clone(*startFrom, i);
 
-	*startFrom = (size_t) i == buffer.size() ? *startFrom = -1 : i + 1;
+	*startFrom = (size_t) i == buffer.size() ? -1 : i + 1;
 	return retval;
 }
 

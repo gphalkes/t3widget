@@ -363,6 +363,10 @@ void exit_main_loop(int retval) {
 	throw main_loop_exit_t(retval);
 }
 
+void cleanup(void) {
+	dialog_t::destroy_remaining();
+}
+
 void suspend(void) {
 	//FIXME: check return values!
 #ifdef WITH_X11

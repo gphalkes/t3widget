@@ -22,7 +22,7 @@ namespace t3_widget {
 class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 	private:
 		size_t top_idx, current;
-		auto_t3_window_t widgets_window;
+		cleanup_t3_window_ptr widgets_window;
 		widgets_t widgets;
 		bool has_focus;
 		cleanup_ptr<scrollbar_t> scrollbar;

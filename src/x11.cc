@@ -299,7 +299,7 @@ static void *process_events(void *arg) {
 			select(ConnectionNumber(display) + 1, &read_fds, NULL, NULL, NULL);
 			pthread_mutex_lock(&clipboard_mutex);
 		}
-		if (x11_error) {
+		if (x11_error || end_connection) {
 			pthread_mutex_unlock(&clipboard_mutex);
 			return NULL;
 		}
@@ -395,15 +395,7 @@ static void *process_events(void *arg) {
 				XSendEvent(display, event.xselectionrequest.requestor, False, 0, &reply);
 				break;
 			}
-			case ClientMessage:
-				/* Notification sent to close the connection. However, because any client
-				   can send a ClientMessage, which we have no way of verifying, we check
-				   our local variable first. */
-				if (end_connection) {
-					XCloseDisplay(display);
-					pthread_mutex_unlock(&clipboard_mutex);
-					return NULL;
-				}
+			default:
 				break;
 		}
 	}
@@ -438,9 +430,6 @@ static int io_error_handler(Display *_display) {
 
 /** Stop the X11 event processing. */
 static void stop_x11(void) {
-	void *retval;
-	XEvent event;
-
 	pthread_mutex_lock(&clipboard_mutex);
 	/* If x11_error has been set, the event handling thread will stop, or will
 	   have stopped already. Also, if this is the case, the connection is broken,
@@ -448,18 +437,9 @@ static void stop_x11(void) {
 	   if x11_error is set. */
 	if (!x11_error) {
 		end_connection = true;
-
-		/* We need to wake up the other thread, such that it will close the connection.
-		   Thus we send it a ClientMessage. */
-		event.type = ClientMessage;
-		event.xclient.window = window;
-		event.xclient.format = 8;
-		event.xclient.message_type = None;
-		XSendEvent(display, window, False, 0, &event);
-		XFlush(display);
+		XCloseDisplay(display);
 	}
 	pthread_mutex_unlock(&clipboard_mutex);
-	pthread_join(x11_event_thread, &retval);
 }
 
 /** Initialize the X11 connection. */

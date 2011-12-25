@@ -29,6 +29,7 @@ class complex_error_t;
 class T3_WIDGET_API dialog_t : public virtual window_component_t, public container_t {
 	private:
 		friend void iterate(void);
+		friend void cleanup(void);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
 		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
@@ -40,8 +41,9 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 
 		static void init(void); /**< Function to initialize the dummy widget. */
 		static sigc::connection init_connected; /**< Dummy value to allow static connection of the @c on_init signal to #init. */
+		static void destroy_remaining(void);
 
-		auto_t3_window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+		cleanup_t3_window_ptr shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
 
 		void activate_dialog(void); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
 		void deactivate_dialog(void); /**< Remove this dialog from the dialog stack. Called from #hide. */

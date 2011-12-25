@@ -30,6 +30,11 @@ void dialog_t::init(void) {
 	dummy = new dummy_widget_t();
 }
 
+void dialog_t::destroy_remaining(void) {
+	while (!dialogs.empty())
+		delete dialogs.front();
+}
+
 dialog_t::dialog_t(int height, int width, const char *_title) : active(false), title(_title), redraw(true)
 {
 	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)

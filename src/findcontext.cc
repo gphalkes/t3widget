@@ -63,7 +63,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 
 		if (flags & find_flags_t::ICASE) {
 			size_t folded_needle_size;
-			cleanup_ptr_char folded_needle;
+			cleanup_free_ptr<char> folded_needle;
 
 			folded_needle = (char *) u8_casefold((const uint8_t *) search_for.data(), search_for.size(),
 				NULL, NULL, NULL, &folded_needle_size);
@@ -195,7 +195,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 					if (c != folded) {
 						lprintf("folded: %p, c: %p\n", (char *) folded, c);
 						free(folded);
-						folded = (char *) c;
+						folded = const_cast<char *>(c);
 						folded_size = c_size;
 					}
 				} else {
@@ -230,7 +230,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 					if (c != folded) {
 						lprintf("folded: %p, c: %p\n", (char *) folded, c);
 						free(folded);
-						folded = (char *) c;
+						folded = const_cast<char *>(c);
 						folded_size = c_size;
 					}
 				} else {
