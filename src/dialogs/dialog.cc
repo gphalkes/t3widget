@@ -31,8 +31,6 @@ void dialog_t::init(bool _init) {
 		if (dummy == NULL)
 			dummy = new dummy_widget_t();
 	} else {
-		while (!dialogs.empty())
-			delete dialogs.front();
 		if (dummy != NULL)
 			delete dummy;
 	}

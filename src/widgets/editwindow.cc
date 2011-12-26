@@ -51,6 +51,10 @@ void edit_window_t::init(bool _init) {
 		goto_dialog = new goto_dialog_t();
 		global_find_dialog = new find_dialog_t();
 		replace_buttons = new replace_buttons_dialog_t();
+	} else {
+		delete goto_dialog; goto_dialog = NULL;
+		delete global_find_dialog; global_find_dialog = NULL;
+		delete replace_buttons; replace_buttons = NULL;
 	}
 }
 

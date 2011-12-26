@@ -19,16 +19,10 @@
 using namespace std;
 namespace t3_widget {
 
-sigc::connection widget_t::init_connected = connect_on_init(sigc::ptr_fun(widget_t::init));
-t3_window_t *widget_t::default_parent;
-
-void widget_t::init(bool _init) {
-	if (_init) {
-		default_parent = t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0);
-	} else {
-		t3_win_del(default_parent);
-	}
-}
+/* The default_parent must exist before any widgets are created. Thus using the
+   #on_init method won't work. Instead we use a cleanup_t3_window.
+*/
+cleanup_t3_window_ptr widget_t::default_parent(t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0));
 
 bool widget_t::is_hotkey(key_t key) {
 	(void) key;

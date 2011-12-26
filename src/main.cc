@@ -226,6 +226,7 @@ void restore(void) {
 		case 3:
 			stop_clipboard();
 			cleanup_keys();
+			transcript_finalize();
 		case 2:
 			terminal_specific_restore();
 		case 1:
@@ -370,6 +371,8 @@ void exit_main_loop(int retval) {
 
 void cleanup(void) {
 	on_init()(false);
+	delete message_dialog; message_dialog = NULL;
+	delete insert_char_dialog; insert_char_dialog = NULL;
 	restore();
 	t3_term_deinit();
 }

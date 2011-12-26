@@ -91,7 +91,7 @@ static void init_external_clipboard(bool init) {
 	lt_dladvise advise;
 #	endif
 #endif
-	if (!init_params->disable_external_clipboard)
+	if (init_params->disable_external_clipboard)
 		return;
 
 	if (init) {
