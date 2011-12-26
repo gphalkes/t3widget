@@ -89,7 +89,10 @@ LDLIBS.libt3widget.la += -L$(CURDIR)/t3key/.libs -lt3key
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
 LDLIBS.libt3widget.la += `pkg-config --libs sigc++-2.0`
 LDLIBS.libt3widget.la += -lunistring
-LDLIBS.libt3widget.la += -lltdl
+
+CXXFLAGS += -DHAS_DLFCN
+LDLIBS.libt3widget.la += -ldl
+#~ LDLIBS.libt3widget.la += -lltdl
 
 
 CXXFLAGS.x11 += `pkg-config --cflags x11`

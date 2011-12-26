@@ -388,14 +388,37 @@ EOF
 
 	unset X11MODULE
 	if [ yes = "${with_x11}" ] ; then
+		unset HAS_DYNAMIC DL_FLAGS DL_LIBS
 		clean_cxx
 		cat > .configcxx.cc <<EOF
+#include <dlfcn.h>
+
+int main(int argc, char *argv[]) {
+	void *handle = dlopen("name", RTLD_LOCAL);
+	dlsym(handle, "func");
+	dlclose(handle);
+	return 0;
+}
+EOF
+		if test_compile_cxx "dlopen/dlsym/dlclose in dlfcn.h" ; then
+			if test_link_cxx "dlopen/dlsym/dlclose in standard library" ; then
+				HAS_DYNAMIC=y
+				DL_FLAGS=-DHAS_DLFCN
+			elif test_link_cxx "dlopen/dlsym/dlclose in -ldl" ; then
+				HAS_DYNAMIC=y
+				DL_FLAGS=-DHAS_DLFCN
+				DL_LIB=-ldl
+			fi
+		fi
+
+		if [ -z "$HAS_DYNAMIC" ] ; then
+			clean_cxx
+			cat > .configcxx.cc <<EOF
 #include <ltdl.h>
 
 int main(int argc, char *argv[]) {
 	lt_dlhandle handle;
 	handle = lt_dlopen("name");
-	lt_dlerror();
 	lt_dlsym(handle, "sym_name");
 	lt_dlclose(handle);
 	lt_dlinit();
@@ -403,33 +426,20 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-		if test_link_cxx "libltdl" "TESTLIBS=-lltdl" ; then
-			unset LTDLFLAGS
-			clean_cxx
-			cat > .configcxx.cc <<EOF
-#include <ltdl.h>
-
-int main(int argc, char *argv[]) {
-	lt_dladvise advise;
-	lt_dladvise_init(&advise);
-	lt_dladvise_local(&advise);
-	lt_dladvise_resident(&advise);
-	lt_dlopenadvise("mod", advise);
-	lt_dladvise_destroy(&advise);
-	return 0;
-}
-EOF
-			test_link_cxx "lt_dladvise functions in libltdl" "TESTLIBS=-lltdl" && LTDLFLAGS="-DWITH_LT_DLADVISE"
-
-			if basic_x11 ; then
-				CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 ${LTDLFLAGS}"
-				CONFIGLIBS="-lltdl"
-				X11MODULE=src/libt3widget-x11.la
-			else
-				check_message_result "!! Could not find X11 library. libt3widget will not provide X11 clipboard integration."
+			if test_link_cxx "libltdl" "TESTLIBS=-lltdl" ; then
+				HAS_DYNAMIC=y
+				DL_LIB=-ltdl
 			fi
+		fi
+
+		if [ -z "$HAS_DYNAMIC" ] ; then
+			check_message_result "!! Could not find dlfcn functions or libltdl. libt3widget will not provide X11 clipboard integration."
+		elif basic_x11 ; then
+			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
+			CONFIGLIBS="$DL_LIBS"
+			X11MODULE=src/libt3widget-x11.la
 		else
-			check_message_result "!! Could not find libltdl. libt3widget will not provide X11 clipboard integration."
+			check_message_result "!! Could not find X11 library. libt3widget will not provide X11 clipboard integration."
 		fi
 	fi
 

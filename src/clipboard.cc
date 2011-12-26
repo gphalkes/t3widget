@@ -12,7 +12,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef WITH_X11
+#ifdef HAS_DLFCN
+#include <dlfcn.h>
+typedef void *lt_dlhandle;
+#define lt_dlinit() 0
+#define lt_dlexit()
+#define lt_dlopen(name) dlopen(name, RTLD_LOCAL)
+#define lt_dlsym dlsym
+#define lt_dlclose dlclose
+#else
 #include <ltdl.h>
+#endif
 #endif
 
 #include "clipboard.h"
@@ -87,9 +97,6 @@ void set_primary(string *str) {
 static void init_external_clipboard(bool init) {
 #ifdef WITH_X11
 	static lt_dlhandle extclipboard_mod;
-#	ifdef WITH_LT_DLADVISE
-	lt_dladvise advise;
-#	endif
 #endif
 	if (init_params->disable_external_clipboard)
 		return;
@@ -99,25 +106,10 @@ static void init_external_clipboard(bool init) {
 		if (lt_dlinit() != 0)
 			return;
 
-#	ifdef WITH_LT_DLADVISE
-		if (lt_dladvise_init(&advise) == 0) {
-#	endif
-			if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
-				lprintf("Could not open external clipboard module (X11)\n");
-				return;
-			}
-#	ifdef WITH_LT_DLADVISE
-		} else {
-			lt_dladvise_local(&advise);
-			lt_dladvise_resident(&advise);
-			if ((extclipboard_mod = lt_dlopenadvise(X11_MOD_NAME, advise)) == NULL) {
-				lprintf("Could not open external clipboard module (X11)\n");
-				lt_dladvise_destroy(&advise);
-				return;
-			}
-			lt_dladvise_destroy(&advise);
+		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
+			lprintf("Could not open external clipboard module (X11)\n");
+			return;
 		}
-#	endif
 
 		if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == NULL) {
 			lprintf("External clipboard module does not export interface symbol\n");
