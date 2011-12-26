@@ -224,6 +224,7 @@ void restore(void) {
 	switch (init_level) {
 		default:
 		case 3:
+			stop_clipboard();
 			cleanup_keys();
 		case 2:
 			terminal_specific_restore();
@@ -311,8 +312,6 @@ complex_error_t init(const init_parameters_t *params) {
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}
 	t3_term_hide_cursor();
-	if (!init_params->disable_external_clipboard)
-		init_external_clipboard();
 	return result;
 }
 
@@ -370,8 +369,8 @@ void exit_main_loop(int retval) {
 }
 
 void cleanup(void) {
-	restore();
 	on_init()(false);
+	restore();
 	t3_term_deinit();
 }
 

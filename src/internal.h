@@ -34,9 +34,9 @@ T3_WIDGET_LOCAL char *_t3_widget_strdup(const char *str);
 
 namespace t3_widget {
 
-T3_WIDGET_LOCAL void init_external_clipboard(void);
-
 T3_WIDGET_LOCAL extern init_parameters_t *init_params;
+
+T3_WIDGET_LOCAL void stop_clipboard(void);
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { \

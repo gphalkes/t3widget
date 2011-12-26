@@ -431,6 +431,9 @@ static int io_error_handler(Display *_display) {
 /** Stop the X11 event processing. */
 static void stop_x11(void) {
 	void *result;
+	if (!x11_initialized)
+		return;
+
 	pthread_mutex_lock(&clipboard_mutex);
 	end_connection = true;
 	/* If x11_error has been set, the event handling thread will stop, or will
@@ -504,7 +507,6 @@ static bool init_x11(void) {
 
 	x11_initialized = true;
 	pthread_create(&x11_event_thread, NULL, process_events, NULL);
-	atexit(stop_x11);
 	lprintf("X11 interface initialized\n");
 	return true;
 
@@ -644,7 +646,8 @@ T3_WIDGET_API extclipboard_interface_t _t3_widget_extclipboard_calls = {
 	get_selection,
 	claim_selection,
 	lock,
-	unlock
+	unlock,
+	stop_x11
 };
 };
 

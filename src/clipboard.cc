@@ -31,7 +31,10 @@ namespace t3_widget {
 linked_ptr<string> clipboard_data;
 linked_ptr<string> primary_data;
 
+static void init_external_clipboard(bool init);
+
 static extclipboard_interface_t *extclipboard_calls;
+static sigc::connection init_connected = connect_on_init(sigc::ptr_fun(init_external_clipboard));
 
 /** Get the clipboard data.
 
@@ -81,51 +84,67 @@ void set_primary(string *str) {
 	primary_data = str;
 }
 
-void init_external_clipboard(void) {
+static void init_external_clipboard(bool init) {
 #ifdef WITH_X11
-	lt_dlhandle extclipboard_mod;
-#ifdef WITH_LT_DLADVISE
+	static lt_dlhandle extclipboard_mod;
+#	ifdef WITH_LT_DLADVISE
 	lt_dladvise advise;
+#	endif
 #endif
-	if (lt_dlinit() != 0)
+	if (!init_params->disable_external_clipboard)
 		return;
 
-#ifdef WITH_LT_DLADVISE
-	if (lt_dladvise_init(&advise) == 0) {
-#endif
-		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
-			lprintf("Could not open external clipboard module (X11)\n");
+	if (init) {
+#ifdef WITH_X11
+		if (lt_dlinit() != 0)
 			return;
-		}
-#ifdef WITH_LT_DLADVISE
-	} else {
-		lt_dladvise_local(&advise);
-		lt_dladvise_resident(&advise);
-		if ((extclipboard_mod = lt_dlopenadvise(X11_MOD_NAME, advise)) == NULL) {
-			lprintf("Could not open external clipboard module (X11)\n");
+
+#	ifdef WITH_LT_DLADVISE
+		if (lt_dladvise_init(&advise) == 0) {
+#	endif
+			if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
+				lprintf("Could not open external clipboard module (X11)\n");
+				return;
+			}
+#	ifdef WITH_LT_DLADVISE
+		} else {
+			lt_dladvise_local(&advise);
+			lt_dladvise_resident(&advise);
+			if ((extclipboard_mod = lt_dlopenadvise(X11_MOD_NAME, advise)) == NULL) {
+				lprintf("Could not open external clipboard module (X11)\n");
+				lt_dladvise_destroy(&advise);
+				return;
+			}
 			lt_dladvise_destroy(&advise);
+		}
+#	endif
+
+		if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == NULL) {
+			lprintf("External clipboard module does not export interface symbol\n");
+			lt_dlclose(extclipboard_mod);
 			return;
 		}
-		lt_dladvise_destroy(&advise);
-	}
+		if (extclipboard_calls->version != EXTCLIPBOARD_VERSION) {
+			lprintf("External clipboard module has incompatible version\n");
+			extclipboard_mod = NULL;
+			lt_dlclose(extclipboard_mod);
+		}
+		if (!extclipboard_calls->init()) {
+			lprintf("Failed to initialize external clipboard module\n");
+			extclipboard_calls = NULL;
+			lt_dlclose(extclipboard_mod);
+		}
 #endif
-
-	if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == NULL) {
-		lprintf("External clipboard module does not export interface symbol\n");
+	} else {
+#ifdef WITH_X11
+		if (extclipboard_calls != NULL) {
+			extclipboard_calls->stop();
+			extclipboard_calls = NULL;
+		}
 		lt_dlclose(extclipboard_mod);
-		return;
-	}
-	if (extclipboard_calls->version != EXTCLIPBOARD_VERSION) {
-		lprintf("External clipboard module has incompatible version\n");
-		extclipboard_mod = NULL;
-		lt_dlclose(extclipboard_mod);
-	}
-	if (!extclipboard_calls->init()) {
-		lprintf("Failed to initialize external clipboard module\n");
-		extclipboard_calls = NULL;
-		lt_dlclose(extclipboard_mod);
-	}
+		lt_dlexit();
 #endif
+	}
 }
 
 void release_selections(void) {
@@ -141,6 +160,11 @@ void lock_clipboard(void) {
 void unlock_clipboard(void) {
 	if (extclipboard_calls != NULL)
 		extclipboard_calls->unlock();
+}
+
+void stop_clipboard(void) {
+	if (extclipboard_calls != NULL)
+		extclipboard_calls->stop();
 }
 
 }; // namespace

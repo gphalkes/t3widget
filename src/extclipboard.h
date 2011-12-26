@@ -41,6 +41,7 @@ struct extclipboard_interface_t {
 	void (*claim_selection)(bool clipboard, std::string *data);
 	void (*lock)(void);
 	void (*unlock)(void);
+	void (*stop)(void);
 };
 
 }; // namespace
