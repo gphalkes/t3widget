@@ -77,7 +77,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		bool autocomplete_panel_shown; /**< Boolean indicating whether the autocompletions are currently being shown. */
 
 		/** Function to initialize the shared dialogs and data. */
-		static void init(void);
+		static void init(bool _init);
 		/** Strings displayed in the bottom line when inserting/overwriting. */
 		static const char *ins_string[];
 		/** Function pointer for calling insert/replace depending on insert/overwrite status. */

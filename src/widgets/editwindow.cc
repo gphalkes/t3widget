@@ -44,12 +44,14 @@ sigc::connection edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(e
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-void edit_window_t::init(void) {
-	/* Construct these from t3_widget::init, such that the locale is set correctly and
-	   gettext therefore returns the correctly localized strings. */
-	goto_dialog = new goto_dialog_t();
-	global_find_dialog = new find_dialog_t();
-	replace_buttons = new replace_buttons_dialog_t();
+void edit_window_t::init(bool _init) {
+	if (_init) {
+		/* Construct these from t3_widget::init, such that the locale is set correctly and
+		   gettext therefore returns the correctly localized strings. */
+		goto_dialog = new goto_dialog_t();
+		global_find_dialog = new find_dialog_t();
+		replace_buttons = new replace_buttons_dialog_t();
+	}
 }
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params) : tab_spaces(false),

@@ -105,7 +105,7 @@ T3_WIDGET_API sigc::connection connect_update_notification(const sigc::slot<void
     is provided to allow initialization of global variables after initialization
     is complete, but without knowledge of when #init is called.
 */
-T3_WIDGET_API sigc::connection connect_on_init(const sigc::slot<void> &slot);
+T3_WIDGET_API sigc::connection connect_on_init(const sigc::slot<void, bool> &slot);
 /** Connect a callback to the @c terminal_settings_changed signal.
     The @c terminal_settings_changed signal is emitted when the libt3window
     library has completed the terminal capability detection.

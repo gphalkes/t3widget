@@ -430,16 +430,19 @@ static int io_error_handler(Display *_display) {
 
 /** Stop the X11 event processing. */
 static void stop_x11(void) {
+	void *result;
 	pthread_mutex_lock(&clipboard_mutex);
+	end_connection = true;
 	/* If x11_error has been set, the event handling thread will stop, or will
 	   have stopped already. Also, if this is the case, the connection is broken,
 	   which means we can't send anything anyway. Thus we skip the client message
 	   if x11_error is set. */
 	if (!x11_error) {
-		end_connection = true;
 		XCloseDisplay(display);
 	}
+	pthread_cancel(x11_event_thread);
 	pthread_mutex_unlock(&clipboard_mutex);
+	pthread_join(x11_event_thread, &result);
 }
 
 /** Initialize the X11 connection. */

@@ -26,13 +26,16 @@ int dialog_t::dialog_depth;
 dummy_widget_t *dialog_t::dummy;
 sigc::connection dialog_t::init_connected = connect_on_init(sigc::ptr_fun(dialog_t::init));
 
-void dialog_t::init(void) {
-	dummy = new dummy_widget_t();
-}
-
-void dialog_t::destroy_remaining(void) {
-	while (!dialogs.empty())
-		delete dialogs.front();
+void dialog_t::init(bool _init) {
+	if (_init){
+		if (dummy == NULL)
+			dummy = new dummy_widget_t();
+	} else {
+		while (!dialogs.empty())
+			delete dialogs.front();
+		if (dummy != NULL)
+			delete dummy;
+	}
 }
 
 dialog_t::dialog_t(int height, int width, const char *_title) : active(false), title(_title), redraw(true)

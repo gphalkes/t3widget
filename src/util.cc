@@ -44,7 +44,7 @@ char *_t3_widget_strdup(const char *str) {
 
 namespace t3_widget {
 
-static void lang_codeset_init(void);
+static void lang_codeset_init(bool init);
 
 static sigc::connection lang_codeset_init_connection = connect_on_init(sigc::ptr_fun(lang_codeset_init));
 static transcript_t *lang_codeset_handle;
@@ -349,15 +349,20 @@ bool is_dir(const string *current_dir, const char *name) {
 	return !!S_ISDIR(file_info.st_mode);
 }
 
-void lang_codeset_init(void) {
-	transcript_error_t error;
-	const char *codeset = transcript_get_codeset();
+void lang_codeset_init(bool init) {
+	if (init) {
+		transcript_error_t error;
+		const char *codeset = transcript_get_codeset();
 
-	if (lang_codeset_handle == NULL) {
-		lang_codeset_handle = transcript_open_converter(codeset,
-			TRANSCRIPT_UTF8, TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SUBST_UNASSIGNED | TRANSCRIPT_SUBST_ILLEGAL, &error);
-		if (transcript_equal("UTF-8", codeset))
-			lang_codeset_is_utf8 = true;
+		if (lang_codeset_handle == NULL) {
+			lang_codeset_handle = transcript_open_converter(codeset,
+				TRANSCRIPT_UTF8, TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SUBST_UNASSIGNED | TRANSCRIPT_SUBST_ILLEGAL, &error);
+			if (transcript_equal("UTF-8", codeset))
+				lang_codeset_is_utf8 = true;
+		}
+	} else {
+		if (lang_codeset_handle != NULL)
+			transcript_close_converter(lang_codeset_handle);
 	}
 }
 

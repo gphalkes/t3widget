@@ -821,8 +821,6 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	pthread_setschedparam(read_key_thread, SCHED_FIFO, &sched_param);
 #endif
 
-	if (leave != NULL)
-		atexit(stop_keys);
 	return result;
 
 return_error:
@@ -851,6 +849,7 @@ void reinit_keys(void) {
 }
 
 void cleanup_keys(void) {
+	stop_keys();
 	if (conversion_handle != NULL) {
 		transcript_close_converter(conversion_handle);
 		conversion_handle = NULL;

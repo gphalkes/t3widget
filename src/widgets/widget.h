@@ -24,8 +24,12 @@ namespace t3_widget {
 class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_target_t {
 	private:
 		friend class container_t;
+
+		static sigc::connection init_connected;
 		/** Default parent for widgets, making them invisible. */
 		static t3_window_t *default_parent;
+
+		static void init(bool _init);
 
 	protected:
 		bool redraw, /**< Widget requires redrawing on next #update_contents call. */

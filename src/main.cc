@@ -119,17 +119,17 @@ sigc::connection connect_update_notification(const sigc::slot<void> &slot) {
 	return update_notification.connect(slot);
 }
 
-static sigc::signal<void> &on_init() {
-	static sigc::signal<void> *on_init_obj = new sigc::signal<void>();
+static sigc::signal<void, bool> &on_init() {
+	static cleanup_ptr<sigc::signal<void, bool> > on_init_obj(new sigc::signal<void, bool>());
 	return *on_init_obj;
 }
 
-sigc::connection connect_on_init(const sigc::slot<void> &slot) {
+sigc::connection connect_on_init(const sigc::slot<void, bool> &slot) {
 	return on_init().connect(slot);
 }
 
 static sigc::signal<void> &terminal_settings_changed() {
-	static sigc::signal<void> *terminal_settings_changed_obj = new sigc::signal<void>();
+	static cleanup_ptr<sigc::signal<void> > terminal_settings_changed_obj(new sigc::signal<void>());
 	return *terminal_settings_changed_obj;
 }
 
@@ -218,7 +218,6 @@ static void terminal_specific_setup(void) {
 		default:
 			return;
 	}
-	atexit(terminal_specific_restore);
 }
 
 void restore(void) {
@@ -235,10 +234,14 @@ void restore(void) {
 			}
 			t3_term_restore();
 		case 0:
-			free(const_cast<char *>(init_params->term));
-			init_params->term = NULL;
-			free(const_cast<char *>(init_params->program_name));
-			init_params->program_name = NULL;
+			if (init_params != NULL) {
+				free(const_cast<char *>(init_params->term));
+				init_params->term = NULL;
+				free(const_cast<char *>(init_params->program_name));
+				init_params->program_name = NULL;
+				delete init_params;
+				init_params = NULL;
+			}
 			break;
 	}
 	init_level = 0;
@@ -247,6 +250,9 @@ void restore(void) {
 complex_error_t init(const init_parameters_t *params) {
 	complex_error_t result;
 	int term_init_result;
+
+	if (init_level > 0)
+		return result;
 
 	init_log();
 	text_line_t::init();
@@ -299,7 +305,7 @@ complex_error_t init(const init_parameters_t *params) {
 			message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Close"), NULL);
 		if (insert_char_dialog == NULL)
 			insert_char_dialog = new insert_char_dialog_t();
-		on_init()();
+		on_init()(true);
 	} catch (bad_alloc &ba) {
 		restore();
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
@@ -364,7 +370,9 @@ void exit_main_loop(int retval) {
 }
 
 void cleanup(void) {
-	dialog_t::destroy_remaining();
+	restore();
+	on_init()(false);
+	t3_term_deinit();
 }
 
 void suspend(void) {

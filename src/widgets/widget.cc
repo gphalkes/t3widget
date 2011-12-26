@@ -13,12 +13,22 @@
 */
 #include "colorscheme.h"
 #include "widgets/widget.h"
+#include "main.h"
 #include "log.h"
 
 using namespace std;
 namespace t3_widget {
 
-t3_window_t *widget_t::default_parent = t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0);
+sigc::connection widget_t::init_connected = connect_on_init(sigc::ptr_fun(widget_t::init));
+t3_window_t *widget_t::default_parent;
+
+void widget_t::init(bool _init) {
+	if (_init) {
+		default_parent = t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0);
+	} else {
+		t3_win_del(default_parent);
+	}
+}
 
 bool widget_t::is_hotkey(key_t key) {
 	(void) key;
