@@ -377,9 +377,7 @@ void cleanup(void) {
 
 void suspend(void) {
 	//FIXME: check return values!
-#ifdef WITH_X11
 	release_selections();
-#endif
 	deinit_keys();
 	terminal_specific_restore();
 	t3_term_restore();
