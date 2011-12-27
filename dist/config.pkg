@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libt3window/0.1.4 LIBT3WINDOW test_link_cxx || \
+	pkgconfig libt3window/0.1.5 LIBT3WINDOW test_link_cxx || \
 		error "!! Can not find libt3window. libt3window is required to compile libt3widget."
 
 	clean_cxx
@@ -404,10 +404,10 @@ EOF
 			if test_link_cxx "dlopen/dlsym/dlclose in standard library" ; then
 				HAS_DYNAMIC=y
 				DL_FLAGS=-DHAS_DLFCN
-			elif test_link_cxx "dlopen/dlsym/dlclose in -ldl" ; then
+			elif test_link_cxx "dlopen/dlsym/dlclose in -ldl" TESTLIBS=-ldl ; then
 				HAS_DYNAMIC=y
 				DL_FLAGS=-DHAS_DLFCN
-				DL_LIB=-ldl
+				DL_LIBS=-ldl
 			fi
 		fi
 
@@ -428,7 +428,7 @@ int main(int argc, char *argv[]) {
 EOF
 			if test_link_cxx "libltdl" "TESTLIBS=-lltdl" ; then
 				HAS_DYNAMIC=y
-				DL_LIB=-ltdl
+				DL_LIBS=-ltdl
 			fi
 		fi
 

@@ -36,4 +36,5 @@ sed -r -i "s%<LIBVERSION>%${LIBVERSION}%g" ${TOPDIR}/Makefile.in
 sed -r -i "s%<OBJECTS>%${OBJECTS}%g;
 s%<VERSIONINFO>%${VERSIONINFO}%g" ${TOPDIR}/Makefile.in
 
+update_pkgconfig_versions
 create_tar

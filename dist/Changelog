@@ -1,3 +1,9 @@
+Version 0.1.7:
+	New features:
+	- Allow finalizing of the library, to allow release of all memory for
+	  debugging purposes.
+	- Use dlopen/dlsym/dlclose directly if available, instead of using libltdl.
+
 Version 0.1.6:
 	New features:
 	- Support for the XTerm mouse protocol

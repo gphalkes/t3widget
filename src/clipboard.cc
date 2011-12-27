@@ -17,7 +17,7 @@
 typedef void *lt_dlhandle;
 #define lt_dlinit() 0
 #define lt_dlexit()
-#define lt_dlopen(name) dlopen(name, RTLD_LOCAL)
+#define lt_dlopen(name) dlopen(name, RTLD_NOW | RTLD_LOCAL)
 #define lt_dlsym dlsym
 #define lt_dlclose dlclose
 #else
