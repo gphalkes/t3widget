@@ -164,7 +164,7 @@ template <typename T, typename D = delete_functor<T> > _T3_WIDGET_TYPEDEF(linked
 template <typename T>
 class pimpl_ptr_base : public smartptr_base<T> {
 	public:
-		~pimpl_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) do_delete(this); }
+		~pimpl_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) do_delete(smartptr_base<T>::p_); }
 		pimpl_ptr_base(T *p) : do_delete(do_delete_impl) { smartptr_base<T>::p_ = p; }
 	private:
 		void (*do_delete)(T *t);
