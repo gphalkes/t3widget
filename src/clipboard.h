@@ -22,8 +22,8 @@
 
 namespace t3_widget {
 
-T3_WIDGET_API linked_ptr<std::string> get_clipboard(void);
-T3_WIDGET_API linked_ptr<std::string> get_primary(void);
+T3_WIDGET_API linked_ptr<std::string>::t get_clipboard(void);
+T3_WIDGET_API linked_ptr<std::string>::t get_primary(void);
 
 T3_WIDGET_API void set_clipboard(std::string *str);
 T3_WIDGET_API void set_primary(std::string *str);

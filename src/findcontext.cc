@@ -63,7 +63,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 
 		if (flags & find_flags_t::ICASE) {
 			size_t folded_needle_size;
-			cleanup_free_ptr<char> folded_needle;
+			cleanup_free_ptr<char>::t folded_needle;
 
 			folded_needle = (char *) u8_casefold((const uint8_t *) search_for.data(), search_for.size(),
 				NULL, NULL, NULL, &folded_needle_size);

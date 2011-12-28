@@ -49,11 +49,11 @@ enum clipboard_action_t {
 
 struct incr_send_data_t {
 	Window window;
-	linked_ptr<string> data;
+	linked_ptr<string>::t data;
 	Atom property;
 	size_t offset;
 
-	incr_send_data_t(Window _window, linked_ptr<string> _data, Atom _property) : window(_window),
+	incr_send_data_t(Window _window, linked_ptr<string>::t _data, Atom _property) : window(_window),
 		data(_data), property(_property), offset(0) {}
 };
 typedef list<incr_send_data_t> incr_send_list_t;
@@ -163,7 +163,7 @@ static void claim(Time *since, Atom selection) {
     @param since The timestamp at which we aquired the requested selection.
     @return A boolean indicating succes.
 */
-static bool send_selection(Window requestor, Atom target, Atom property, linked_ptr<string> data, Time since) {
+static bool send_selection(Window requestor, Atom target, Atom property, linked_ptr<string>::t data, Time since) {
 	if (target == atoms[TARGETS]) {
 		/* The atoms are arranged such that the targets we have available are consecutive. */
 		XChangeProperty(display, requestor, property, atoms[ATOM], 32, PropModeReplace, (unsigned char *) &atoms[TARGETS], 4);
@@ -363,7 +363,7 @@ static void *process_events(void *arg) {
 
 			case SelectionRequest: {
 				XEvent reply;
-				linked_ptr<string> data;
+				linked_ptr<string>::t data;
 				Time since;
 
 				/* Some other X11 client is requesting our selection. */
@@ -539,9 +539,9 @@ static struct timespec timeout_time(int usec) {
 	return result;
 }
 
-static linked_ptr<string> get_selection(bool clipboard) {
+static linked_ptr<string>::t get_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
-	linked_ptr<string> result;
+	linked_ptr<string>::t result;
 
 	/* If X11 was not initialized, or an IO error occured, we can skip the stuff
 	   below, because it won't work. */

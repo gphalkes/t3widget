@@ -22,7 +22,7 @@ namespace t3_widget {
 class T3_WIDGET_API smart_label_text_t {
 	protected:
 		bool add_colon;
-		cleanup_free_ptr<char> text;
+		cleanup_free_ptr<char>::t text;
 		size_t underline_start, underline_length, text_length;
 		bool underlined;
 		key_t hotkey;

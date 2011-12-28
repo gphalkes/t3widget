@@ -23,9 +23,9 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
 	protected:
-		cleanup_ptr<scrollbar_t> scrollbar;
+		cleanup_ptr<scrollbar_t>::t scrollbar;
 		text_buffer_t *text;
-		cleanup_ptr<wrap_info_t> wrap_info;
+		cleanup_ptr<wrap_info_t>::t wrap_info;
 		text_coordinate_t top;
 		bool focus;
 

@@ -219,7 +219,7 @@ bool text_field_t::process_key(key_t key) {
 
 		case EKEY_CTRL | 'v':
 		case EKEY_SHIFT | EKEY_INS: WITH_CLIPBOARD_LOCK(
-			linked_ptr<string> copy_buffer = get_clipboard();
+			linked_ptr<string>::t copy_buffer = get_clipboard();
 			if (copy_buffer != NULL) {
 				text_line_t insert_line(copy_buffer);
 
@@ -498,7 +498,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 		pos = line->calculate_line_pos(0, INT_MAX, event.x - 1 + leftcol, 0);
 
 		WITH_CLIPBOARD_LOCK(
-			linked_ptr<string> primary = get_primary();
+			linked_ptr<string>::t primary = get_primary();
 			if (primary != NULL) {
 				text_line_t insert_line(primary);
 

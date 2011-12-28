@@ -1078,7 +1078,7 @@ void edit_window_t::cut_copy(bool cut) {
 
 void edit_window_t::paste(void) {
 	WITH_CLIPBOARD_LOCK(
-		linked_ptr<string> copy_buffer = get_clipboard();
+		linked_ptr<string>::t copy_buffer = get_clipboard();
 		if (copy_buffer != NULL) {
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				text->insert_block(copy_buffer);
@@ -1232,7 +1232,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 			reset_selection();
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
 			WITH_CLIPBOARD_LOCK(
-				linked_ptr<string> primary = get_primary();
+				linked_ptr<string>::t primary = get_primary();
 				if (primary != NULL)
 					text->insert_block(primary);
 			)

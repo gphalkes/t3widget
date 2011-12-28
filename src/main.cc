@@ -120,7 +120,7 @@ sigc::connection connect_update_notification(const sigc::slot<void> &slot) {
 }
 
 static sigc::signal<void, bool> &on_init() {
-	static cleanup_ptr<sigc::signal<void, bool> > on_init_obj(new sigc::signal<void, bool>());
+	static cleanup_ptr<sigc::signal<void, bool> >::t on_init_obj(new sigc::signal<void, bool>());
 	return *on_init_obj;
 }
 
@@ -129,7 +129,7 @@ sigc::connection connect_on_init(const sigc::slot<void, bool> &slot) {
 }
 
 static sigc::signal<void> &terminal_settings_changed() {
-	static cleanup_ptr<sigc::signal<void> > terminal_settings_changed_obj(new sigc::signal<void>());
+	static cleanup_ptr<sigc::signal<void> >::t terminal_settings_changed_obj(new sigc::signal<void>());
 	return *terminal_settings_changed_obj;
 }
 

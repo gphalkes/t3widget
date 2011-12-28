@@ -25,7 +25,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		cleanup_t3_window_ptr widgets_window;
 		widgets_t widgets;
 		bool has_focus;
-		cleanup_ptr<scrollbar_t> scrollbar;
+		cleanup_ptr<scrollbar_t>::t scrollbar;
 		bool indicator;
 
 		class indicator_widget_t : public widget_t {
@@ -40,7 +40,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 				virtual bool accepts_focus(void);
 		};
 
-		cleanup_ptr<indicator_widget_t> indicator_widget;
+		cleanup_ptr<indicator_widget_t>::t indicator_widget;
 
 		void ensure_cursor_on_screen(void);
 		void scroll(int change);

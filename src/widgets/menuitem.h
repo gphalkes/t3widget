@@ -31,7 +31,7 @@ class T3_WIDGET_API menu_item_base_t : public widget_t {
 
 class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 	private:
-		cleanup_ptr<smart_label_text_t> label;
+		cleanup_ptr<smart_label_text_t>::t label;
 		const char *hotkey;
 		int id;
 		bool has_focus;

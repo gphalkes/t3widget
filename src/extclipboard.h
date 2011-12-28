@@ -28,8 +28,8 @@
 
 namespace t3_widget {
 
-T3_WIDGET_API extern linked_ptr<std::string> clipboard_data;
-T3_WIDGET_API extern linked_ptr<std::string> primary_data;
+T3_WIDGET_API extern linked_ptr<std::string>::t clipboard_data;
+T3_WIDGET_API extern linked_ptr<std::string>::t primary_data;
 
 #define EXTCLIPBOARD_VERSION 1
 
@@ -37,7 +37,7 @@ struct extclipboard_interface_t {
 	int version;
 	bool (*init)(void);
 	void (*release_selections)(void);
-	linked_ptr<std::string> (*get_selection)(bool clipboard);
+	linked_ptr<std::string>::t (*get_selection)(bool clipboard);
 	void (*claim_selection)(bool clipboard, std::string *data);
 	void (*lock)(void);
 	void (*unlock)(void);

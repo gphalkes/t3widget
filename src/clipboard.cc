@@ -38,8 +38,8 @@ using namespace std;
 
 namespace t3_widget {
 
-linked_ptr<string> clipboard_data;
-linked_ptr<string> primary_data;
+linked_ptr<string>::t clipboard_data;
+linked_ptr<string>::t primary_data;
 
 static void init_external_clipboard(bool init);
 
@@ -51,7 +51,7 @@ static sigc::connection init_connected = connect_on_init(sigc::ptr_fun(init_exte
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<string> get_clipboard(void) {
+linked_ptr<string>::t get_clipboard(void) {
 	if (extclipboard_calls != NULL)
 		return extclipboard_calls->get_selection(true);
 	return clipboard_data;
@@ -62,7 +62,7 @@ linked_ptr<string> get_clipboard(void) {
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<string> get_primary(void) {
+linked_ptr<string>::t get_primary(void) {
 	if (extclipboard_calls != NULL)
 		return extclipboard_calls->get_selection(false);
 	return primary_data;

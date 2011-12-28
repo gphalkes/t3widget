@@ -40,7 +40,7 @@ static uint32_t casefold_single(uint32_t c) {
 }
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_colon(_add_colon), underlined(false), hotkey(0) {
-	cleanup_ptr<text_line_t> line;
+	cleanup_ptr<text_line_t>::t line;
 	char *underline_ptr;
 
 	text_length = strlen(spec);
