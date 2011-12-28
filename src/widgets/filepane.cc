@@ -18,125 +18,143 @@
 using namespace std;
 namespace t3_widget {
 
+struct file_pane_t::implementation_t {
+	scrollbar_t scrollbar; /**< Scrollbar displayed at the bottom. */
+	size_t top_idx, /**< Index of the first item displayed. */
+		current; /**< Index of the currently highlighted item. */
+	file_list_t *file_list; /**< List of files to display. */
+	bool focus; /**< Boolean indicating whether this file_pane_t has the input focus. */
+	text_field_t *field; /**< The text_field_t which is the alternative input method for providing a file name. */
+	int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], /**< Width in cells of the various columns. */
+		column_positions[_T3_WDIGET_FP_MAX_COLUMNS], /**< Left-most position for each column. */
+		columns_visible, /**< The number of columns that are visible currently. */
+		scrollbar_range; /**< Visible range for scrollbar setting. */
+	sigc::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
+
+	implementation_t(void) : scrollbar(false), top_idx(0), current(0), file_list(NULL),
+		focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
+	{}
+};
+
+
+
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 /* FIXME: we should not distribute left-over space among shown columns, but show partial column instead
 	this is more intuitive for the user. */
-file_pane_t::file_pane_t(void) : widget_t(3, 3), top_idx(0), current(0), file_list(NULL),
-		focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
+file_pane_t::file_pane_t(void) : widget_t(3, 3), impl(new implementation_t())
 {
-	scrollbar = new scrollbar_t(false);
-	set_widget_parent(scrollbar);
-	scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	scrollbar->connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
+	set_widget_parent(&impl->scrollbar);
+	impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+	impl->scrollbar.connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
 }
 
 file_pane_t::~file_pane_t(void) {
-	content_changed_connection.disconnect();
+	impl->content_changed_connection.disconnect();
 }
 
 void file_pane_t::set_text_field(text_field_t *_field) {
-	field = _field;
+	impl->field = _field;
 }
 
 void file_pane_t::ensure_cursor_on_screen(void) {
-	size_t old_top_idx = top_idx;
+	size_t old_top_idx = impl->top_idx;
 	int height;
 
-	if (file_list == NULL)
+	if (impl->file_list == NULL)
 		return;
 
 	height = t3_win_get_height(window) - 1;
 
-	while (current >= top_idx + columns_visible * height)
-		top_idx += height;
-	while (current < top_idx && top_idx > (size_t) height)
-		top_idx -= height;
-	if (top_idx > current)
-		top_idx = 0;
-	if (top_idx != old_top_idx) {
+	while (impl->current >= impl->top_idx + impl->columns_visible * height)
+		impl->top_idx += height;
+	while (impl->current < impl->top_idx && impl->top_idx > (size_t) height)
+		impl->top_idx -= height;
+	if (impl->top_idx > impl->current)
+		impl->top_idx = 0;
+	if (impl->top_idx != old_top_idx) {
 		update_column_widths();
 		ensure_cursor_on_screen();
-		scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
+		impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	}
 }
 
 bool file_pane_t::process_key(key_t key) {
 	int height;
-	if (file_list == NULL)
+	if (impl->file_list == NULL)
 		return false;
 
 	switch (key) {
 		case EKEY_DOWN:
-			if (current + 1 >= file_list->size())
+			if (impl->current + 1 >= impl->file_list->size())
 				return true;
-			current++;
+			impl->current++;
 			redraw = true;
 			break;
 		case EKEY_UP:
-			if (current == 0)
+			if (impl->current == 0)
 				return true;
-			current--;
+			impl->current--;
 			redraw = true;
 			break;
 		case EKEY_RIGHT:
 			height = t3_win_get_height(window) - 1;
-			if (current + height >= file_list->size()) {
-				if (file_list->size() == 0)
+			if (impl->current + height >= impl->file_list->size()) {
+				if (impl->file_list->size() == 0)
 					return true;
-				current = file_list->size() - 1;
+				impl->current = impl->file_list->size() - 1;
 			} else {
-				current += height;
+				impl->current += height;
 			}
 			redraw = true;
 			break;
 		case EKEY_LEFT:
 			height = t3_win_get_height(window) - 1;
-			if (current < (size_t) height)
-				current = 0;
+			if (impl->current < (size_t) height)
+				impl->current = 0;
 			else
-				current -= height;
+				impl->current -= height;
 			redraw = true;
 			break;
 		case EKEY_END:
-			current = file_list->size() - 1;
+			impl->current = impl->file_list->size() - 1;
 			redraw = true;
 			break;
 		case EKEY_HOME:
-			current = 0;
+			impl->current = 0;
 			redraw = true;
 			break;
 		case EKEY_PGDN:
 			height = t3_win_get_height(window) - 1;
-			if (current + 2 * height >= file_list->size()) {
-				current = file_list->size() - 1;
+			if (impl->current + 2 * height >= impl->file_list->size()) {
+				impl->current = impl->file_list->size() - 1;
 			} else {
-				current += 2 * height;
-				top_idx += 2 * height;
+				impl->current += 2 * height;
+				impl->top_idx += 2 * height;
 			}
 			redraw = true;
 			break;
 		case EKEY_PGUP:
 			height = t3_win_get_height(window) - 1;
-			if (current < (size_t) 2 * height) {
-				current = 0;
+			if (impl->current < (size_t) 2 * height) {
+				impl->current = 0;
 			} else {
-				current -= 2 * height;
-				if (top_idx < (size_t) 2 * height)
-					top_idx = 0;
+				impl->current -= 2 * height;
+				if (impl->top_idx < (size_t) 2 * height)
+					impl->top_idx = 0;
 				else
-					top_idx -= 2 * height;
+					impl->top_idx -= 2 * height;
 			}
 			redraw = true;
 			break;
 		case EKEY_NL:
-			activate(file_list->get_fs_name(current));
+			activate(impl->file_list->get_fs_name(impl->current));
 			return true;
 		default:
 			return false;
 	}
-	if (file_list->size() != 0) {
-		if (field != NULL)
-			field->set_text((*file_list)[current]->c_str());
+	if (impl->file_list->size() != 0) {
+		if (impl->field != NULL)
+			impl->field->set_text((*impl->file_list)[impl->current]->c_str());
 		ensure_cursor_on_screen();
 	}
 	return true;
@@ -149,40 +167,40 @@ bool file_pane_t::set_size(optint height, optint width) {
 	if (!width.is_valid())
 		width = t3_win_get_height(window);
 	result = t3_win_resize(window, height, width);
-	result &= scrollbar->set_size(None, width);
+	result &= impl->scrollbar.set_size(None, width);
 
 	height = height - 1;
-	if (file_list != NULL && file_list->size() != 0) {
+	if (impl->file_list != NULL && impl->file_list->size() != 0) {
 		update_column_widths();
-		scrollbar_range = ((file_list->size() + height - 1) / height) * height;
+		impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
 		ensure_cursor_on_screen();
-		scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
+		impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	}
 	redraw = true;
 	return result;
 }
 
 void file_pane_t::draw_line(int idx, bool selected) {
-	if ((size_t) idx < top_idx || (size_t) idx >= file_list->size())
+	if ((size_t) idx < impl->top_idx || (size_t) idx >= impl->file_list->size())
 		return;
 
 	int column;
 	int height = t3_win_get_height(window) - 1;
-	text_line_t line((*file_list)[idx]);
-	bool is_dir = file_list->is_dir(idx);
+	text_line_t line((*impl->file_list)[idx]);
+	bool is_dir = impl->file_list->is_dir(idx);
 	text_line_t::paint_info_t info;
 
-	idx -= top_idx;
+	idx -= impl->top_idx;
 	column = idx / height;
 	idx %= height;
 
-	t3_win_set_paint(window, idx, column_positions[column]);
+	t3_win_set_paint(window, idx, impl->column_positions[column]);
 	t3_win_addch(window, is_dir ? '/' : ' ', selected ? attributes.dialog_selected : 0);
 
 	info.start = 0;
 	info.leftcol = 0;
 	info.max = INT_MAX;
-	info.size = column_widths[column];
+	info.size = impl->column_widths[column];
 	info.tabsize = 0;
 	info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL | (selected ? text_line_t::EXTEND_SELECTION : 0);
 	info.selection_start = -1;
@@ -207,20 +225,20 @@ void file_pane_t::update_contents(void) {
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 
-	if (file_list == NULL)
+	if (impl->file_list == NULL)
 		return;
 
 	height = t3_win_get_height(window) - 1;
-	for (i = top_idx, max_idx = min(top_idx + columns_visible * height, file_list->size()); i < max_idx; i++)
-		draw_line(i, focus && i == current);
+	for (i = impl->top_idx, max_idx = min(impl->top_idx + impl->columns_visible * height, impl->file_list->size()); i < max_idx; i++)
+		draw_line(i, impl->focus && i == impl->current);
 
-	scrollbar->update_contents();
+	impl->scrollbar.update_contents();
 }
 
 void file_pane_t::set_focus(bool _focus) {
-	focus = _focus;
-	if (file_list != NULL)
-		draw_line(current, focus);
+	impl->focus = _focus;
+	if (impl->file_list != NULL)
+		draw_line(impl->current, impl->focus);
 }
 
 void file_pane_t::focus_set(widget_t *target) {
@@ -229,7 +247,7 @@ void file_pane_t::focus_set(widget_t *target) {
 }
 
 bool file_pane_t::is_child(widget_t *widget) {
-	return widget == scrollbar;
+	return widget == &impl->scrollbar;
 }
 
 bool file_pane_t::process_mouse_event(mouse_event_t event) {
@@ -240,23 +258,23 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
 		int column;
 		size_t idx;
 
-		if ((event.button_state & (EMOUSE_BUTTON_LEFT | EMOUSE_DOUBLE_CLICKED_LEFT)) == 0 || columns_visible == 0)
+		if ((event.button_state & (EMOUSE_BUTTON_LEFT | EMOUSE_DOUBLE_CLICKED_LEFT)) == 0 || impl->columns_visible == 0)
 			return true;
 
-		for (column = 1; column < columns_visible && column_positions[column] < event.x; column++) {}
+		for (column = 1; column < impl->columns_visible && impl->column_positions[column] < event.x; column++) {}
 		column--;
-		idx = column * (t3_win_get_height(window) - 1) + event.y + top_idx;
-		if (idx > file_list->size())
+		idx = column * (t3_win_get_height(window) - 1) + event.y + impl->top_idx;
+		if (idx > impl->file_list->size())
 			return true;
 		if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
-			if (current == idx) {
-				activate(file_list->get_fs_name(current));
+			if (impl->current == idx) {
+				activate(impl->file_list->get_fs_name(impl->current));
 			} else {
-				current = idx;
+				impl->current = idx;
 				redraw = true;
 			}
 		} else if (event.button_state & EMOUSE_BUTTON_LEFT) {
-			current = idx;
+			impl->current = idx;
 			redraw = true;
 			return true;
 		}
@@ -265,37 +283,37 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
 }
 
 void file_pane_t::reset(void) {
-	top_idx = 0;
-	current = 0;
+	impl->top_idx = 0;
+	impl->current = 0;
 }
 
 void file_pane_t::set_file_list(file_list_t *_file_list) {
-	if (file_list != NULL)
-		content_changed_connection.disconnect();
+	if (impl->file_list != NULL)
+		impl->content_changed_connection.disconnect();
 
-	file_list = _file_list;
-	content_changed_connection = file_list->connect_content_changed(sigc::mem_fun(this, &file_pane_t::content_changed));
-	top_idx = 0;
+	impl->file_list = _file_list;
+	impl->content_changed_connection = impl->file_list->connect_content_changed(sigc::mem_fun(this, &file_pane_t::content_changed));
+	impl->top_idx = 0;
 	content_changed();
 	redraw = true;
 }
 
 void file_pane_t::set_file(const string *name) {
-	for (current = 0; current < file_list->size(); current++) {
-		if (name->compare(*(*file_list)[current]) == 0)
+	for (impl->current = 0; impl->current < impl->file_list->size(); impl->current++) {
+		if (name->compare(*(*impl->file_list)[impl->current]) == 0)
 			break;
 	}
-	if (current == file_list->size())
-		current = 0;
+	if (impl->current == impl->file_list->size())
+		impl->current = 0;
 
 	ensure_cursor_on_screen();
 }
 
 void file_pane_t::update_column_width(int column, int start) {
 	int height = t3_win_get_height(window) - 1;
-	column_widths[column] = 0;
-	for (int i = 0; i < height && start + i < (int) file_list->size(); i++)
-		column_widths[column] = max(column_widths[column], t3_term_strwidth((*file_list)[i + start]->c_str()));
+	impl->column_widths[column] = 0;
+	for (int i = 0; i < height && start + i < (int) impl->file_list->size(); i++)
+		impl->column_widths[column] = max(impl->column_widths[column], t3_term_strwidth((*impl->file_list)[i + start]->c_str()));
 }
 
 void file_pane_t::update_column_widths(void) {
@@ -303,70 +321,70 @@ void file_pane_t::update_column_widths(void) {
 	int height = t3_win_get_height(window) - 1;
 	int width = t3_win_get_width(window);
 
-	if (file_list == NULL)
+	if (impl->file_list == NULL)
 		return;
 
 	for (i = 0, sum_width = 0; i < _T3_WDIGET_FP_MAX_COLUMNS && sum_width < width &&
-			top_idx + i * height < file_list->size(); i++)
+			impl->top_idx + i * height < impl->file_list->size(); i++)
 	{
-		update_column_width(i, top_idx + i * height);
-		sum_width += column_widths[i] + 1;
+		update_column_width(i, impl->top_idx + i * height);
+		sum_width += impl->column_widths[i] + 1;
 	}
 
-	columns_visible = i;
+	impl->columns_visible = i;
 	if (sum_width > width) {
 		if (i > 1) {
-			sum_width -= column_widths[i - 1] + 1;
-			columns_visible = i - 1;
+			sum_width -= impl->column_widths[i - 1] + 1;
+			impl->columns_visible = i - 1;
 		} else {
-			column_widths[0] = width;
+			impl->column_widths[0] = width;
 			sum_width = width;
 		}
 	}
-	if (columns_visible == 0)
-		columns_visible = 1;
+	if (impl->columns_visible == 0)
+		impl->columns_visible = 1;
 
-	for (i = 0; i < columns_visible; i++)
-		column_widths[i] += (width - sum_width) / columns_visible;
-	sum_width += columns_visible * ((width - sum_width) / columns_visible);
-	for (i = 0; i < columns_visible; i++)
-		column_widths[i]++;
-	column_positions[0] = 0;
-	for (i = 1; i < columns_visible; i++)
-		column_positions[i] = column_positions[i - 1] + column_widths[i - 1] + 1;
+	for (i = 0; i < impl->columns_visible; i++)
+		impl->column_widths[i] += (width - sum_width) / impl->columns_visible;
+	sum_width += impl->columns_visible * ((width - sum_width) / impl->columns_visible);
+	for (i = 0; i < impl->columns_visible; i++)
+		impl->column_widths[i]++;
+	impl->column_positions[0] = 0;
+	for (i = 1; i < impl->columns_visible; i++)
+		impl->column_positions[i] = impl->column_positions[i - 1] + impl->column_widths[i - 1] + 1;
 }
 
 void file_pane_t::content_changed(void) {
 	int height = t3_win_get_height(window) - 1;
 
-	top_idx = 0;
+	impl->top_idx = 0;
 	update_column_widths();
-	scrollbar_range = ((file_list->size() + height - 1) / height) * height;
-	scrollbar->set_parameters(scrollbar_range, 0, columns_visible * height);
+	impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
+	impl->scrollbar.set_parameters(impl->scrollbar_range, 0, impl->columns_visible * height);
 	redraw = true;
 }
 
 void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 	int height = t3_win_get_height(window) - 1;
-	if (file_list == NULL)
+	if (impl->file_list == NULL)
 		return;
 
 	/* FIXME: for now, clicking the empty area of the scrollbar will simply
 		jump one column, because doing it differently is too tricky (for now). */
 	if (step == scrollbar_t::FWD_SMALL || step == scrollbar_t::FWD_MEDIUM || step == scrollbar_t::FWD_PAGE) {
-		if (top_idx + columns_visible * height >= file_list->size())
+		if (impl->top_idx + impl->columns_visible * height >= impl->file_list->size())
 			return;
-		top_idx += height;
+		impl->top_idx += height;
 	} else if (step == scrollbar_t::FWD_PAGE) {
 		/* FIXME: This one is tricky. The question is whether there are enough
 			items to fill the view after the current page. */
 	} else if (step == scrollbar_t::BACK_SMALL || step == scrollbar_t::BACK_MEDIUM || step == scrollbar_t::BACK_PAGE) {
-		if (top_idx == 0)
+		if (impl->top_idx == 0)
 			return;
-		if (top_idx < (size_t) height)
-			top_idx = 0;
+		if (impl->top_idx < (size_t) height)
+			impl->top_idx = 0;
 		else
-			top_idx -= height;
+			impl->top_idx -= height;
 	} else if (step == scrollbar_t::BACK_PAGE) {
 		/* FIXME: This one is tricky. The question is how many columns we should
 			go back to fill the page. If we go back to far we will jump over
@@ -374,17 +392,17 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 	}
 
 	update_column_widths();
-	if (current < top_idx)
-		current = top_idx;
-	else if (current >= file_list->size())
-		current = file_list->size() - 1;
-	else if (current >= top_idx + columns_visible * height)
-		current = top_idx + columns_visible * height - 1;
-	scrollbar->set_parameters(scrollbar_range, top_idx, columns_visible * height);
+	if (impl->current < impl->top_idx)
+		impl->current = impl->top_idx;
+	else if (impl->current >= impl->file_list->size())
+		impl->current = impl->file_list->size() - 1;
+	else if (impl->current >= impl->top_idx + impl->columns_visible * height)
+		impl->current = impl->top_idx + impl->columns_visible * height - 1;
+	impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	redraw = true;
 
-	if (file_list->size() != 0 && field != NULL)
-		field->set_text((*file_list)[current]->c_str());
+	if (impl->file_list->size() != 0 && impl->field != NULL)
+		impl->field->set_text((*impl->file_list)[impl->current]->c_str());
 }
 
 }; // namespace
