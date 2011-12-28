@@ -42,6 +42,7 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget
 		set_widget_parent(impl->scrollbar);
 		impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 		impl->scrollbar->set_size(11, None);
+		impl->scrollbar->connect_clicked(sigc::mem_fun(this, &text_window_t::scrollbar_clicked));
 	}
 
 	if (_text == NULL)
@@ -103,39 +104,26 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
 	redraw = true;
 }
 
-void text_window_t::inc_y(void) {
-	text_coordinate_t check_top = impl->top;
-	if (impl->wrap_info->add_lines(check_top, t3_win_get_height(window)))
-		return;
-	impl->wrap_info->add_lines(impl->top, 1);
-	redraw = true;
-}
-
-void text_window_t::dec_y(void) {
-	if (!impl->wrap_info->sub_lines(impl->top, 1))
-		redraw = true;
-}
-
-void text_window_t::pgdn(void) {
+void text_window_t::scroll_down(int lines) {
 	text_coordinate_t new_top = impl->top;
 
-	if (impl->wrap_info->add_lines(new_top, 2 * t3_win_get_height(window) - 1)) {
+	if (impl->wrap_info->add_lines(new_top, t3_win_get_height(window) + lines)) {
 		impl->wrap_info->sub_lines(new_top, t3_win_get_height(window) - 1);
 		if (impl->top != new_top) {
 			impl->top = new_top;
 			redraw = true;
 		}
 	} else {
-		impl->wrap_info->add_lines(impl->top, t3_win_get_height(window) - 1);
+		impl->wrap_info->add_lines(impl->top, lines);
 		redraw = true;
 	}
 }
 
-void text_window_t::pgup(void) {
+void text_window_t::scroll_up(int lines) {
 	if (impl->top.line == 0 && impl->top.pos == 0)
 		return;
 
-	impl->wrap_info->sub_lines(impl->top, t3_win_get_height(window) - 1);
+	impl->wrap_info->sub_lines(impl->top, lines);
 	redraw = true;
 }
 
@@ -145,17 +133,17 @@ bool text_window_t::process_key(key_t key) {
 			activate();
 			break;
 		case EKEY_DOWN:
-			inc_y();
+			scroll_down(1);
 			break;
 		case EKEY_UP:
-			dec_y();
+			scroll_up(1);
 			break;
 		case EKEY_PGUP:
-			pgup();
+			scroll_up(t3_win_get_height(window) - 1);
 			break;
 		case EKEY_PGDN:
 		case ' ':
-			pgdn();
+			scroll_down(t3_win_get_height(window) - 1);
 			break;
 		case EKEY_HOME | EKEY_CTRL:
 		case EKEY_HOME:
@@ -257,6 +245,30 @@ void text_window_t::set_tabsize(int size) {
 
 int text_window_t::get_text_height(void) {
 	return impl->wrap_info->get_size();
+}
+
+bool text_window_t::process_mouse_event(mouse_event_t event) {
+	if (event.window != window || event.type != EMOUSE_BUTTON_PRESS)
+		return true;
+	if (event.button_state & EMOUSE_SCROLL_UP)
+		scroll_up(3);
+	else if (event.button_state & EMOUSE_SCROLL_DOWN)
+		scroll_down(3);
+	return true;
+}
+
+void text_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
+	int scroll = step == scrollbar_t::BACK_SMALL ? -3 :
+		step == scrollbar_t::FWD_SMALL ? 3 :
+		step == scrollbar_t::BACK_MEDIUM ? -t3_win_get_height(window) / 2 :
+		step == scrollbar_t::FWD_MEDIUM ? t3_win_get_height(window) / 2 :
+		step == scrollbar_t::BACK_PAGE ? -(t3_win_get_height(window) - 1) :
+		step == scrollbar_t::FWD_PAGE ? (t3_win_get_height(window) - 1) : 0;
+
+	if (scroll < 0)
+		scroll_up(-scroll);
+	else
+		scroll_down(scroll);
 }
 
 }; // namespace

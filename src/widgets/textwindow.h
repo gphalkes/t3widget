@@ -26,10 +26,9 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		struct implementation_t;
 		pimpl_ptr<implementation_t>::t impl;
 
-		void inc_y(void);
-		void dec_y(void);
-		void pgdn(void);
-		void pgup(void);
+		void scroll_up(int lines);
+		void scroll_down(int lines);
+		void scrollbar_clicked(scrollbar_t::step_t step);
 
 	public:
 		text_window_t(text_buffer_t *_text = NULL, bool with_scrollbar = true);
@@ -39,6 +38,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		virtual void set_focus(bool _focus);
 		virtual void focus_set(widget_t *target);
 		virtual bool is_child(widget_t *component);
+		virtual bool process_mouse_event(mouse_event_t event);
 
 		void set_scrollbar(bool with_scrollbar);
 		void set_text(text_buffer_t *_text);
