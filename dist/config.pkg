@@ -447,7 +447,7 @@ EOF
 	PKGCONFIG_DESC="Dialog toolkit library"
 	PKGCONFIG_VERSION="<VERSION>"
 	PKGCONFIG_URL="http://os.ghalkes.nl/t3/libt3widget.html"
-	PKGCONFIG_CFLAGS="-I${includedir}/t3/widget"
+	PKGCONFIG_CFLAGS="-I\${includedir}/t3/widget"
 	PKGCONFIG_LIBS="-lt3widget"
 	PKGCONFIG_LIBS_PRIVATE="${PKGCONFIG_LIBS_PRIVATE} ${PTHREADLIBS} ${CONFIGLIBS} -lunistring"
 
