@@ -114,17 +114,18 @@ static void init_external_clipboard(bool init) {
 		if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == NULL) {
 			lprintf("External clipboard module does not export interface symbol\n");
 			lt_dlclose(extclipboard_mod);
+			extclipboard_mod = NULL;
 			return;
 		}
 		if (extclipboard_calls->version != EXTCLIPBOARD_VERSION) {
 			lprintf("External clipboard module has incompatible version\n");
-			extclipboard_mod = NULL;
 			lt_dlclose(extclipboard_mod);
+			extclipboard_mod = NULL;
 		}
 		if (!extclipboard_calls->init()) {
 			lprintf("Failed to initialize external clipboard module\n");
-			extclipboard_calls = NULL;
 			lt_dlclose(extclipboard_mod);
+			extclipboard_calls = NULL;
 		}
 #endif
 	} else {
@@ -132,8 +133,8 @@ static void init_external_clipboard(bool init) {
 		if (extclipboard_calls != NULL) {
 			extclipboard_calls->stop();
 			extclipboard_calls = NULL;
+			lt_dlclose(extclipboard_mod);
 		}
-		lt_dlclose(extclipboard_mod);
 		lt_dlexit();
 #endif
 	}
