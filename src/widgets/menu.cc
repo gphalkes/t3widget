@@ -24,17 +24,33 @@
 using namespace std;
 namespace t3_widget {
 
-menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), current_menu(0), old_menu(0),
+struct menu_bar_t::implementation_t {
+	int current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
+		old_menu; /**< Previously active window. */
+	int start_col; /**< Column where the next menu will start. */
+	bool hidden, /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
+		/** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input focus.
+			See the comments at #set_focus for details.
+		*/
+		has_focus;
+
+	std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
+	int button_down_idx; /** Index of menu on which the left button was pressed down. */
+
+	implementation_t(bool _hidden) : current_menu(0), old_menu(0),
 		start_col(0), hidden(_hidden), has_focus(false), button_down_idx(-1)
-{
+	{}
+};
+
+menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_t(_hidden)) {
 	// Menu bar should be above normal widgets
 	t3_win_set_depth(window, -1);
-	if (hidden)
+	if (impl->hidden)
 		t3_win_hide(window);
 }
 
 menu_bar_t::~menu_bar_t(void) {
-	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
+	for (vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
 		delete *iter;
 }
 
@@ -47,36 +63,36 @@ void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
 }
 
 void menu_bar_t::add_menu(menu_panel_t *menu) {
-	menus.push_back(menu);
+	impl->menus.push_back(menu);
 	menu->set_menu_bar(this);
-	menu->set_position(None, start_col);
-	start_col += menu->label.get_width() + 2;
+	menu->set_position(None, impl->start_col);
+	impl->start_col += menu->label.get_width() + 2;
 	redraw = true;
 }
 
 void menu_bar_t::remove_menu(menu_panel_t *menu) {
 	int idx = 0;
-	for (std::vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++, idx++) {
+	for (std::vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++, idx++) {
 		if (*iter == menu) {
 			menu->set_menu_bar(NULL);
 
-			if (current_menu == idx) {
-				if (has_focus) {
+			if (impl->current_menu == idx) {
+				if (impl->has_focus) {
 					(*iter)->hide();
 					next_menu();
-					menus[current_menu]->show();
+					impl->menus[impl->current_menu]->show();
 				}
-			} else if (current_menu > idx) {
-				current_menu--;
+			} else if (impl->current_menu > idx) {
+				impl->current_menu--;
 			}
-			old_menu = 0; // Make sure old_menu isn't out of bounds
+			impl->old_menu = 0; // Make sure impl->old_menu isn't out of bounds
 
-			start_col = t3_win_get_x((*iter)->get_base_window());
-			iter = menus.erase(iter);
-			/* Move all the remaining menus to their new position. */
-			for (; iter != menus.end(); iter++) {
-				(*iter)->set_position(None, start_col);
-				start_col += (*iter)->label.get_width() + 2;
+			impl->start_col = t3_win_get_x((*iter)->get_base_window());
+			iter = impl->menus.erase(iter);
+			/* Move all the remaining impl->menus to their new position. */
+			for (; iter != impl->menus.end(); iter++) {
+				(*iter)->set_position(None, impl->start_col);
+				impl->start_col += (*iter)->label.get_width() + 2;
 			}
 			redraw = true;
 			return;
@@ -85,25 +101,25 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
 }
 
 void menu_bar_t::close(void) {
-	has_focus = false;
-	if (hidden)
+	impl->has_focus = false;
+	if (impl->hidden)
 		t3_win_hide(window);
-	draw_menu_name(menus[current_menu], false);
-	menus[current_menu]->hide();
+	draw_menu_name(impl->menus[impl->current_menu], false);
+	impl->menus[impl->current_menu]->hide();
 }
 
 void menu_bar_t::next_menu(void) {
-	current_menu++;
-	current_menu %= menus.size();
+	impl->current_menu++;
+	impl->current_menu %= impl->menus.size();
 }
 
 void menu_bar_t::previous_menu(void) {
-	current_menu += menus.size() - 1;
-	current_menu %= menus.size();
+	impl->current_menu += impl->menus.size() - 1;
+	impl->current_menu %= impl->menus.size();
 }
 
 bool menu_bar_t::process_key(key_t key) {
-	if (menus.size() == 0)
+	if (impl->menus.size() == 0)
 		return false;
 
 	switch (key) {
@@ -126,24 +142,24 @@ bool menu_bar_t::set_size(optint height, optint width) {
 void menu_bar_t::update_contents(void) {
 	if (redraw) {
 		draw();
-		if (has_focus)
-			draw_menu_name(menus[current_menu], true);
-		old_menu = current_menu;
+		if (impl->has_focus)
+			draw_menu_name(impl->menus[impl->current_menu], true);
+		impl->old_menu = impl->current_menu;
 	}
 
-	if (!has_focus)
+	if (!impl->has_focus)
 		return;
 
-	if (old_menu == current_menu) {
-		menus[current_menu]->update_contents();
+	if (impl->old_menu == impl->current_menu) {
+		impl->menus[impl->current_menu]->update_contents();
 		return;
 	}
-	menus[old_menu]->hide();
-	menus[current_menu]->show();
-	draw_menu_name(menus[old_menu], false);
-	draw_menu_name(menus[current_menu], true);
-	old_menu = current_menu;
-	menus[current_menu]->update_contents();
+	impl->menus[impl->old_menu]->hide();
+	impl->menus[impl->current_menu]->show();
+	draw_menu_name(impl->menus[impl->old_menu], false);
+	draw_menu_name(impl->menus[impl->current_menu], true);
+	impl->old_menu = impl->current_menu;
+	impl->menus[impl->current_menu]->update_contents();
 }
 
 void menu_bar_t::set_focus(bool focus) {
@@ -151,25 +167,25 @@ void menu_bar_t::set_focus(bool focus) {
 }
 
 void menu_bar_t::show(void) {
-	if (!has_focus) {
-		has_focus = true;
+	if (!impl->has_focus) {
+		impl->has_focus = true;
 		redraw = true;
-		if (!hidden)
+		if (!impl->hidden)
 			t3_win_show(window);
-		draw_menu_name(menus[current_menu], true);
-		menus[current_menu]->show();
+		draw_menu_name(impl->menus[impl->current_menu], true);
+		impl->menus[impl->current_menu]->show();
 	}
 }
 
 bool menu_bar_t::is_hotkey(key_t key) {
 	if (key == EKEY_F10 || key == '0') {
-		old_menu = current_menu = 0;
+		impl->old_menu = impl->current_menu = 0;
 		return true;
 	}
 
-	for (int i = 0; i < (int) menus.size(); i++) {
-		if (menus[i]->label.is_hotkey(key)) {
-			old_menu = current_menu = i;
+	for (int i = 0; i < (int) impl->menus.size(); i++) {
+		if (impl->menus[i]->label.is_hotkey(key)) {
+			impl->old_menu = impl->current_menu = i;
 			return true;
 		}
 	}
@@ -180,11 +196,11 @@ bool menu_bar_t::accepts_focus(void) { return false; }
 
 bool menu_bar_t::process_mouse_event(mouse_event_t event) {
 	if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT)) {
-		button_down_idx = coord_to_menu_idx(event.x);
+		impl->button_down_idx = coord_to_menu_idx(event.x);
 	} else if (event.button_state & EMOUSE_CLICKED_LEFT) {
 		int clicked_idx = coord_to_menu_idx(event.x);
-		if (clicked_idx != -1 && clicked_idx == button_down_idx) {
-			current_menu = clicked_idx;
+		if (clicked_idx != -1 && clicked_idx == impl->button_down_idx) {
+			impl->current_menu = clicked_idx;
 			show();
 		}
 	}
@@ -196,7 +212,7 @@ int menu_bar_t::coord_to_menu_idx(int x) {
 	int idx;
 	int menu_start;
 
-	for (iter = menus.begin(), idx = 0; iter != menus.end(); iter++, idx++) {
+	for (iter = impl->menus.begin(), idx = 0; iter != impl->menus.end(); iter++, idx++) {
 		menu_start = t3_win_get_x((*iter)->get_base_window()) + 2;
 		if (x < menu_start)
 			return -1;
@@ -210,13 +226,13 @@ void menu_bar_t::draw(void) {
 	redraw = false;
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addchrep(window, ' ', attributes.menubar, t3_win_get_width(window));
-	for (vector<menu_panel_t *>::iterator iter = menus.begin(); iter != menus.end(); iter++)
+	for (vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
 		draw_menu_name(*iter, false);
 }
 
 void menu_bar_t::set_hidden(bool _hidden) {
-	hidden = _hidden;
-	if (hidden)
+	impl->hidden = _hidden;
+	if (impl->hidden)
 		t3_win_hide(window);
 	else
 		t3_win_show(window);

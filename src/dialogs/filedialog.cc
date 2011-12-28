@@ -240,9 +240,9 @@ void file_dialog_t::refresh_view(void) {
 }
 
 void open_file_dialog_t::filter_text_field_t::set_focus(bool _focus) {
-	bool old_focus = focus;
+	bool old_focus = has_focus();
 	text_field_t::set_focus(_focus);
-	if (old_focus && !focus)
+	if (old_focus && !has_focus())
 		lose_focus();
 }
 
