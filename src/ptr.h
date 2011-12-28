@@ -56,8 +56,11 @@ class smartptr_base {
    of scope. The difference with the Boost scoped_ptr is that the objects are not
    deallocated when assigning a different value. Their main use is to ensure
    deallocation during exception handling, and storing of temporary values.
+
+   Furthermore, these pointer wrappers are more generic, in that a functor can
+   be passed to perform the clean-up, instead of requiring delete.
 */
-#define _DEFINE_cleanup_ptr \
+#define _DEFINE_CLEANUP_PTR \
 	public: \
 		~cleanup_ptr(void) { if (smartptr_base<T>::p_ != NULL) { D d; d(smartptr_base<T>::p_); } } \
 		cleanup_ptr(void) {} \
@@ -69,49 +72,49 @@ class smartptr_base {
 
 template <typename T, typename D = delete_functor<T> >
 class cleanup_ptr : public smartptr_base<T> {
-	_DEFINE_cleanup_ptr
+	_DEFINE_CLEANUP_PTR
 };
 
 template <typename T, typename D>
 class cleanup_ptr<T[], D> : public smartptr_base<T> {
-	_DEFINE_cleanup_ptr
+	_DEFINE_CLEANUP_PTR
 };
-#undef _DEFINE_cleanup_ptr
+#undef _DEFINE_CLEANUP_PTR
+
+/* Because the last parameter is a template, it may contain commas. These are
+   interpreted by the preprocessor as argument separators, which we don't want
+   because it will complain about a wrong number of arguments. So we use a
+   trick: we define a variadic macro, and use __VA_ARGS__ in the places where
+   we want the template.
+*/
+#define _DEFINE_CLEANUP_PTR_VARIANT(name, ...) \
+	public: \
+		name(void) {} \
+		name(T *p) { cleanup_ptr<T, __VA_ARGS__ >::p_ = p; } \
+		T* operator= (T *p) { return cleanup_ptr<T, __VA_ARGS__ >::p_ = p; } \
+	private: \
+		name& operator= (const name &p) { (void) p; return *this; } \
+		name(const name &p) { (void) p; }
 
 template <typename T, void (*f)(T *)>
 class cleanup_func_ptr : public cleanup_ptr<T, free_func<T, f> > {
-	public: \
-		cleanup_func_ptr(void) {} \
-		cleanup_func_ptr(T *p) { cleanup_ptr<T, free_func<T, f> >::p_ = p; } \
-		T* operator= (T *p) { return cleanup_ptr<T, free_func<T, f> >::p_ = p; } \
-	private: \
-		cleanup_func_ptr& operator= (const cleanup_func_ptr &p) { (void) p; return *this; } \
-		cleanup_func_ptr(const cleanup_func_ptr &p) { (void) p; }
+	_DEFINE_CLEANUP_PTR_VARIANT(cleanup_func_ptr, free_func<T, f>)
 };
 
 template <typename T, typename U, U (*f)(T *)>
 class cleanup_func2_ptr : public cleanup_ptr<T, free_func2<T, U, f> > {
-	public: \
-		cleanup_func2_ptr(void) {} \
-		cleanup_func2_ptr(T *p) { cleanup_ptr<T, free_func2<T, U, f> >::p_ = p; } \
-		T* operator= (T *p) { return cleanup_ptr<T, free_func2<T, U, f> >::p_ = p; } \
-	private: \
-		cleanup_func2_ptr& operator= (const cleanup_func2_ptr &p) { (void) p; return *this; } \
-		cleanup_func2_ptr(const cleanup_func2_ptr &p) { (void) p; }
+	_DEFINE_CLEANUP_PTR_VARIANT(cleanup_func2_ptr, free_func2<T, U, f>)
 };
 
 template <typename T>
 class cleanup_free_ptr : public cleanup_ptr<T, free_func<void, free> > {
-	public: \
-		cleanup_free_ptr(void) {} \
-		cleanup_free_ptr(T *p) { cleanup_ptr<T, free_func<void, free> >::p_ = p; } \
-		T* operator= (T *p) { return cleanup_ptr<T, free_func<void, free> >::p_ = p; } \
-	private: \
-		cleanup_free_ptr& operator= (const cleanup_free_ptr &p) { (void) p; return *this; } \
-		cleanup_free_ptr(const cleanup_free_ptr &p) { (void) p; }
+	_DEFINE_CLEANUP_PTR_VARIANT(cleanup_free_ptr, free_func<void, free>)
 };
+#undef _DEFINE_CLEANUP_PTR_VARIANT
 
-/* Pointer wrapper using reference linking. */
+/* Pointer wrapper using reference linking. These can be allocated on the stack
+   in their entirety, in contrast to reference counted pointers which always
+   have a heap allocated part. These will never throw a bad_alloc exception. */
 #define _DEFINE_LINKED_PTR \
 	public: \
 		linked_ptr(void) : next(this), prev(this) {} \

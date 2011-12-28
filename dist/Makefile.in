@@ -60,7 +60,7 @@ SILENTLDLT=@echo '[LDLT]' $@ ;
 
 OBJECTS=<OBJECTS>
 
-all: src/libt3widget.la libt3widget.pc $(X11MODULE)
+all: src/libt3widget.la $(X11MODULE)
 
 .PHONY: all clean dist-clean install uninstall
 .SUFFIXES: .cc .o .lo .la .mo .po
@@ -85,15 +85,6 @@ src/libt3widget-x11.la: src/x11.lo src/libt3widget.la
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \
 		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) \
 		-Lsrc -lt3widget -rpath $(libdir)
-
-libt3widget.pc: libt3widget.pc.in
-	@{ echo '/^prefix=/c\' ; echo 'prefix=$(prefix)' ; } > .sedscript
-	@LIBDIR=$(libdir); if [ "$${LIBDIR#$(prefix)}" != "$${LIBDIR}" ] ; then LIBDIR="\$${prefix}$${LIBDIR#$(prefix)}" ; fi ; \
-		{ echo '/^libdir=/c\' ; echo "libdir=$${LIBDIR}" ; } >> .sedscript
-	@INCLUDEDIR=$(includedir); if [ "$${INCLUDEDIR#$(prefix)}" != "$${INCLUDEDIR}" ] ; then \
-		INCLUDEDIR="\$${prefix}$${INCLUDEDIR#$(prefix)}" ; fi ; \
-		{ echo '/^includedir=/c\' ; echo "includedir=$${INCLUDEDIR}" ; } >> .sedscript
-	sed -f .sedscript $< > $@
 
 # Macros to make DESTDIR support more readable
 _libdir=$(DESTDIR)$(libdir)
