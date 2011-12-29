@@ -116,12 +116,20 @@ template <typename T> _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, f
 
 /* Pointer wrapper using reference linking. These can be allocated on the stack
    in their entirety, in contrast to reference counted pointers which always
-   have a heap allocated part. These will never throw a bad_alloc exception. */
+   have a heap allocated part. These will never throw a bad_alloc exception.
+
+   Note that in link_p we use several dirty tricks: we need a pointer to other.
+   However, taking the address of a reference doesn't work. So we use
+   other.next->prev, which points to other. Furthermore, we go through our own
+   pointer to other to modify it, because simply trying to modify other is not
+   allowed because it is const. Not having it const causes problems elsewhere.
+*/
 #define _T3_WIDGET_DEFINE_LINKED_PTR \
 	public: \
 		linked_ptr_base(void) : next(this), prev(this) {} \
 		linked_ptr_base(T *p) { set_p(p); } \
 		linked_ptr_base(const linked_ptr_base &other) { link_p(other); } \
+		~linked_ptr_base(void) { set_p(NULL); } \
 		linked_ptr_base& operator= (const linked_ptr_base &other) { link_p(other); return *this; } \
 		T* operator= (T *p) { set_p(p); return smartptr_base<T>::p_; } \
 	private: \
@@ -129,7 +137,7 @@ template <typename T> _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, f
 			if (smartptr_base<T>::p_ == p) \
 				return; \
 			if (smartptr_base<T>::p_ != NULL) { \
-				if (next == this) { \
+				if (next == this && prev == this) { \
 					D d; \
 					d(smartptr_base<T>::p_); \
 				} else { \
@@ -143,7 +151,7 @@ template <typename T> _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, f
 		} \
 		void link_p(const linked_ptr_base &other) { \
 			set_p(other.p_); \
-			next = other.next; \
+			next = other.next->prev; \
 			prev = other.prev; \
 			prev->next = this; \
 			next->prev = this; \

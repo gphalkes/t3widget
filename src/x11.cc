@@ -53,7 +53,7 @@ struct incr_send_data_t {
 	Atom property;
 	size_t offset;
 
-	incr_send_data_t(Window _window, linked_ptr<string>::t _data, Atom _property) : window(_window),
+	incr_send_data_t(Window _window, linked_ptr<string>::t &_data, Atom _property) : window(_window),
 		data(_data), property(_property), offset(0) {}
 };
 typedef list<incr_send_data_t> incr_send_list_t;
@@ -272,6 +272,7 @@ static void handle_property_notify(XEvent &event) {
 				if (size == 0) {
 					XSelectInput(display, iter->window, 0);
 					incr_sends.erase(iter);
+					break;
 				}
 				iter->offset += size;
 				break;
