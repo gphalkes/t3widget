@@ -69,6 +69,7 @@ static Time conversion_started_at;
 
 static Display *display;
 static Window root, window;
+static int wakeup_pipe[2];
 
 static size_t max_data;
 
@@ -148,11 +149,12 @@ static long retrieve_data(void) {
 }
 
 /** Claim a selection. */
-static void claim(Time *since, Atom selection) {
-	XSetSelectionOwner(display, selection, window, *since);
+static Time claim(Time since, Atom selection) {
+	XSetSelectionOwner(display, selection, window, since);
 	if (XGetSelectionOwner(display, selection) != window)
-		*since = CurrentTime;
+		since = CurrentTime;
 	pthread_cond_signal(&clipboard_signal);
+	return since;
 }
 
 /** Send data requested by another X client.
@@ -232,12 +234,10 @@ static void handle_property_notify(XEvent &event) {
 						atoms[UTF8_STRING], atoms[GDK_SELECTION], window, conversion_started_at);
 					break;
 				case CLAIM_CLIPBOARD:
-					clipboard_owner_since = event.xproperty.time;
-					claim(&clipboard_owner_since, atoms[CLIPBOARD]);
+					clipboard_owner_since = claim(event.xproperty.time, atoms[CLIPBOARD]);
 					break;
 				case CLAIM_PRIMARY:
-					primary_owner_since = event.xproperty.time;
-					claim(&primary_owner_since, atoms[PRIMARY]);
+					primary_owner_since = claim(event.xproperty.time, atoms[PRIMARY]);
 					break;
 				default:
 					break;
@@ -284,21 +284,42 @@ static void handle_property_notify(XEvent &event) {
 /** Thread to process incoming events. */
 static void *process_events(void *arg) {
 	XEvent event;
+	fd_set saved_read_fds;
+	int fd_max;
+
 	(void) arg;
 
 	pthread_mutex_lock(&clipboard_mutex);
+	FD_ZERO(&saved_read_fds);
+	FD_SET(ConnectionNumber(display), &saved_read_fds);
+	FD_SET(wakeup_pipe[0], &saved_read_fds);
+	if (wakeup_pipe[0] < ConnectionNumber(display))
+		fd_max = ConnectionNumber(display);
+	else
+		fd_max = wakeup_pipe[0];
+	fd_max++;
+
 	while (1) {
-		if (!XPending(display)) {
+		while (!XPending(display)) {
 			fd_set read_fds;
 
 			/* Use select to wait for more events when there are no more left. In
 			   this case we also release the mutex, such that the rest of the library
 			   may interact with the clipboard. */
-			FD_ZERO(&read_fds);
-			FD_SET(ConnectionNumber(display), &read_fds);
+			read_fds = saved_read_fds;
 			pthread_mutex_unlock(&clipboard_mutex);
-			select(ConnectionNumber(display) + 1, &read_fds, NULL, NULL, NULL);
+			select(fd_max, &read_fds, NULL, NULL, NULL);
+
+			/* Clear data from wake-up pipe */
+			if (FD_ISSET(wakeup_pipe[0], &read_fds)) {
+				char buffer[8];
+				read(wakeup_pipe[0], buffer, sizeof(buffer));
+			}
 			pthread_mutex_lock(&clipboard_mutex);
+			if (x11_error || end_connection) {
+				pthread_mutex_unlock(&clipboard_mutex);
+				return NULL;
+			}
 		}
 		if (x11_error || end_connection) {
 			pthread_mutex_unlock(&clipboard_mutex);
@@ -441,9 +462,9 @@ static void stop_x11(void) {
 	   have stopped already. Also, if this is the case, the connection is broken,
 	   which means we can't send anything anyway. Thus we skip the client message
 	   if x11_error is set. */
-	if (!x11_error) {
+	if (!x11_error)
 		XCloseDisplay(display);
-	}
+
 	pthread_cancel(x11_event_thread);
 	pthread_mutex_unlock(&clipboard_mutex);
 	pthread_join(x11_event_thread, &result);
@@ -506,6 +527,9 @@ static bool init_x11(void) {
 	if (x11_error)
 		goto error_exit;
 
+	if (pipe(wakeup_pipe) < 0)
+		goto error_exit;
+
 	x11_initialized = true;
 	pthread_create(&x11_event_thread, NULL, process_events, NULL);
 	lprintf("X11 interface initialized\n");
@@ -544,6 +568,8 @@ static linked_ptr<string>::t get_selection(bool clipboard) {
 	struct timespec timeout = timeout_time(1000000);
 	linked_ptr<string>::t result;
 
+	/* NOTE: the clipboard is supposed to be locked when this routine is called. */
+
 	/* If X11 was not initialized, or an IO error occured, we can skip the stuff
 	   below, because it won't work. */
 	if (!x11_working())
@@ -555,6 +581,7 @@ static linked_ptr<string>::t get_selection(bool clipboard) {
 		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
 		XFlush(display);
+		write(wakeup_pipe[1], &wakeup_pipe, 1);
 		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) != ETIMEDOUT &&
 				conversion_succeeded)
 			result = new string(retrieved_data);
@@ -596,13 +623,13 @@ static void claim_selection(bool clipboard, string *data) {
 		primary_data = data;
 	}
 
-	if (data != NULL) {
+	if (data != NULL)
 		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
-	} else {
+	else
 		XSetSelectionOwner(display, atoms[clipboard ? CLIPBOARD : PRIMARY], None, CurrentTime);
-	}
 
 	XFlush(display);
+	write(wakeup_pipe[1], &wakeup_pipe, 1);
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
@@ -626,6 +653,7 @@ static void release_selections(void) {
 	if (primary_owner_since != CurrentTime)
 		XSetSelectionOwner(display, atoms[PRIMARY], None, CurrentTime);
 	XFlush(display);
+	write(wakeup_pipe[1], &wakeup_pipe, 1);
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
