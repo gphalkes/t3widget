@@ -964,7 +964,10 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 		delete_block_internal(delete_start, delete_end, NULL);
 
 		if (delete_end.line == selection_start.line) {
-			selection_start.pos -= delete_end.pos;
+			if (selection_start.pos > delete_end.pos)
+				selection_start.pos -= delete_end.pos;
+			else
+				selection_start.pos = 0;
 		} else if (delete_end.line == selection_end.line) {
 			if (selection_end.pos > delete_end.pos)
 				cursor.pos = selection_end.pos -= delete_end.pos;
@@ -981,6 +984,7 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 		last_undo->get_text()->append(undo_text);
 		undo_list.add(last_undo);
 	}
+	cursor.line = selection_end.line;
 	return true;
 }
 
