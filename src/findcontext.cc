@@ -94,22 +94,14 @@ finder_t &finder_t::operator=(finder_t& other) {
 	if (&other == this)
 		return *this;
 
-	delete matcher;
-	delete replacement;
-	if (regex != NULL)
-		pcre_free(regex);
-
 	flags = other.flags;
-	matcher = other.matcher();
-	regex = other.regex();
+	matcher = other.matcher.release();
+	regex = other.regex.release();
 	memcpy(ovector, other.ovector, sizeof(ovector));
 	captures = other.captures;
 	found = other.found;
-	replacement = other.replacement();
+	replacement = other.replacement.release();
 
-	other.matcher = NULL;
-	other.regex = NULL;
-	other.replacement = NULL;
 	return *this;
 }
 
