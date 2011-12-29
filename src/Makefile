@@ -80,7 +80,7 @@ CXXFLAGS += `pkg-config --cflags libpcre`
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
-CXXFLAGS += -DWITH_X11 -DWITH_LT_DLADVISE
+CXXFLAGS += -DWITH_X11
 CXXFLAGS += -DX11_MOD_NAME=\"$(PWD)/.libs/x11.mod\"
 
 LDLIBS.libt3widget.la += -L$(CURDIR)/t3window/.libs -lt3window
@@ -94,10 +94,13 @@ CXXFLAGS += -DHAS_DLFCN
 LDLIBS.libt3widget.la += -ldl
 #~ LDLIBS.libt3widget.la += -lltdl
 
+#~ CXXFLAGS.x11 += `pkg-config --cflags x11` -DUSE_XLIB
+#~ LDLIBS.x11.la += `pkg-config --libs x11`
 
-CXXFLAGS.x11 += `pkg-config --cflags x11`
+CXXFLAGS.x11 += `pkg-config --cflags xcb`
+LDLIBS.x11.la += `pkg-config --libs xcb`
+
 LDLIBS.x11.la += -module -avoid-version -L.libs -lt3widget -shrext .mod
-LDLIBS.x11.la += `pkg-config --libs x11`
 
 links:
 	@[ -L transcript ] || ln -s ../../../transcript/src transcript

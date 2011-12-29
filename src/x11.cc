@@ -13,8 +13,6 @@
 */
 #include <stdlib.h>
 #include <sys/time.h>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
 #include <cstring>
 #include <string>
 #include <pthread.h>
@@ -33,395 +31,129 @@
 #include "extclipboard.h"
 
 // FIXME: remove incr_sends on long periods of inactivity
+//~ #define USE_XLIB
+
+#ifdef USE_XLIB
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+#else
+#include <xcb/xcb.h>
+#endif
+
 
 using namespace std;
 
 namespace t3_widget {
 
-enum clipboard_action_t {
-	ACTION_NONE,
-	CONVERT_CLIPBOARD,
-	CONVERT_PRIMARY,
-	CLAIM_CLIPBOARD,
-	CLAIM_PRIMARY,
-	RELEASE_SELECTIONS
-};
-
-struct incr_send_data_t {
-	Window window;
-	linked_ptr<string>::t data;
-	Atom property;
-	size_t offset;
-
-	incr_send_data_t(Window _window, linked_ptr<string>::t &_data, Atom _property) : window(_window),
-		data(_data), property(_property), offset(0) {}
-};
-typedef list<incr_send_data_t> incr_send_list_t;
-static incr_send_list_t incr_sends;
-
-static clipboard_action_t action;
-static bool conversion_succeeded;
-
-/* Use CurrentTime as "Invalid" value, as it will never be returned by anything. */
-static Time clipboard_owner_since = CurrentTime,
-	primary_owner_since = CurrentTime;
-static Time conversion_started_at;
-
-static Display *display;
-static Window root, window;
-static int wakeup_pipe[2];
-
-static size_t max_data;
-
-static bool receive_incr;
-
-static pthread_t x11_event_thread;
-static pthread_mutex_t clipboard_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
 
 static bool x11_initialized;
 static bool x11_error;
 static bool end_connection;
 
-static const char *atom_names[] = {
-	"CLIPBOARD",
-	"PRIMARY",
-	"TARGETS",
-	"TIMESTAMP",
-	"MULTIPLE",
-	"UTF8_STRING",
-	"GDK_SELECTION", // Use same name as GDK to save on atoms
-	"INCR",
-	"ATOM",
-	"ATOM_PAIR",
-};
-enum {
-	CLIPBOARD,
-	PRIMARY,
-	/* The following 4 targets must remain in this order and consecutive. */
-	TARGETS,
-	TIMESTAMP,
-	MULTIPLE,
-	UTF8_STRING,
 
-	GDK_SELECTION,
-	INCR,
-	ATOM,
-	ATOM_PAIR,
-};
-#define ATOM_COUNT (sizeof(atom_names) / sizeof(atom_names[0]))
-static Atom atoms[ATOM_COUNT];
+#ifdef USE_XLIB
+typedef Atom x11_atom_t;
+typedef Time x11_time_t;
+typedef Window x11_window_t;
 
+typedef XEvent x11_event_t;
+typedef XPropertyEvent x11_property_event_t;
+typedef XSelectionEvent x11_selection_event_t;
+typedef XSelectionClearEvent x11_selection_clear_event_t;
+typedef XSelectionRequestEvent x11_selection_request_event_t;
 
-#define DATA_BLOCK_SIZE 4000
-static string retrieved_data;
+#define X11_PROPERTY_REPLACE PropModeReplace
+#define X11_PROPERTY_APPEND PropModeAppend
+#define X11_PROPERTY_PREPEND PropModePrepend
+#define X11_CURRENT_TIME CurrentTime
+#define X11_ATOM_WM_NAME XA_WM_NAME
+#define X11_ATOM_STRING XA_STRING
+#define X11_PROPERTY_NOTIFY PropertyNotify
+#define X11_SELECTION_NOTIFY SelectionNotify
+#define X11_SELECTION_CLEAR SelectionClear
+#define X11_SELECTION_REQUEST SelectionRequest
+#define X11_ATOM_NONE None
+#define X11_PROPERTY_NEW_VALUE PropertyNewValue
+#define X11_PROPERTY_DELETE PropertyDelete
+#define x11_response_type type
 
-/** Retrieve data set by another X client on our window.
-    @return The number of bytes received, or -1 on failure.
-*/
-static long retrieve_data(void) {
-	Atom actual_type;
-	int actual_format;
-	unsigned long nitems, bytes_after;
-	unsigned char *prop = NULL;
-	unsigned long offset = 0;
+static Display *display;
+static int wakeup_pipe[2];
 
-	do {
-		/* To limit the size of the transfer, we get the data in smallish blocks.
-		   That is, at most 16K. This will in most cases result in a single transfer,
-		   but in some cases we must iterate until we have all data. In that case
-		   we need to set offset, which happens to be in 4 byte words rather than
-		   bytes. */
-		if (XGetWindowProperty(display, window, atoms[GDK_SELECTION], offset / 4,
-			DATA_BLOCK_SIZE, False, atoms[UTF8_STRING], &actual_type, &actual_format,
-			&nitems, &bytes_after, &prop) != Success)
-		{
-			retrieved_data.clear();
-			return -1;
-		} else {
-			retrieved_data.append((char *) prop, nitems);
-			offset += nitems;
-			XFree(prop);
-		}
-		prop = NULL;
-	} while (bytes_after);
-	return offset;
+static void x11_flush(void) {
+	XFlush(display);
+	write(wakeup_pipe[1], &wakeup_pipe, 1);
 }
 
-/** Claim a selection. */
-static Time claim(Time since, Atom selection) {
-	XSetSelectionOwner(display, selection, window, since);
-	if (XGetSelectionOwner(display, selection) != window)
-		since = CurrentTime;
-	pthread_cond_signal(&clipboard_signal);
-	return since;
+static void x11_set_selection_owner(x11_atom_t selection, x11_window_t win, x11_time_t since) {
+	XSetSelectionOwner(display, selection, win, since);
 }
 
-/** Send data requested by another X client.
-    @param requestor The @c Window of the requesting X client.
-    @param target The requested conversion.
-    @param property The property which must be used for sending the data.
-    @param data The data to send.
-    @param since The timestamp at which we aquired the requested selection.
-    @return A boolean indicating succes.
-*/
-static bool send_selection(Window requestor, Atom target, Atom property, linked_ptr<string>::t data, Time since) {
-	if (target == atoms[TARGETS]) {
-		/* The atoms are arranged such that the targets we have available are consecutive. */
-		XChangeProperty(display, requestor, property, atoms[ATOM], 32, PropModeReplace, (unsigned char *) &atoms[TARGETS], 4);
-		return true;
-	} else if (target == atoms[TIMESTAMP]) {
-		XChangeProperty(display, requestor, property, atoms[TIMESTAMP], 32, PropModeReplace, (unsigned char *) &since, 1);
-		return true;
-	} else if (target == atoms[UTF8_STRING]) {
-		if (data == NULL)
-			return false;
-		/* If the data is too large to send in a single go (which is an arbitrary number,
-		   unless limited by the maximum request size), we use the INCR protocol. */
-		if (data->size() > max_data) {
-			XChangeProperty(display, requestor, property, atoms[UTF8_STRING], 8, PropModeReplace,
-				(unsigned char *) data->data(), data->size());
-		} else {
-			long size = data->size();
-			incr_sends.push_back(incr_send_data_t(requestor, data, property));
-			XSelectInput(display, requestor, PropertyChangeMask);
-			XChangeProperty(display, requestor, property, atoms[INCR], 32, PropModeReplace, (unsigned char *) &size, 1);
-		}
-		return true;
-	} else if (target == atoms[MULTIPLE]) {
-		Atom actual_type, *requested_conversions;
-		int actual_format;
-		unsigned long nitems, bytes_after, i;
-
-		if (XGetWindowProperty(display, requestor, property, 0, 100, False, atoms[ATOM_PAIR],
-				&actual_type, &actual_format, &nitems, &bytes_after, (unsigned char **) &requested_conversions) != Success ||
-				bytes_after != 0 || nitems & 1)
-			return false;
-
-		for (i = 0; i < nitems; i += 2) {
-			if (requested_conversions[i] == atoms[MULTIPLE] || !send_selection(requestor, requested_conversions[i],
-					requested_conversions[i + 1], data, since))
-				requested_conversions[i + 1] = None;
-		}
-		XChangeProperty(display, requestor, property, atoms[ATOM_PAIR], 32, PropModeReplace,
-			(unsigned char *) requested_conversions, nitems);
-		return true;
-	} else {
-		return false;
-	}
+static x11_window_t x11_get_selection_owner(x11_atom_t selection) {
+	return XGetSelectionOwner(display, selection);
 }
 
-/** Handle an incoming PropertyNotify event.
-
-    There are so many different things which may be going on when we receive a
-    PropertyNotify event, that it has its own routine.
-*/
-static void handle_property_notify(XEvent &event) {
-	if (event.xproperty.window == window) {
-		if (event.xproperty.atom == XA_WM_NAME) {
-			/* If we changed the name atom of our window, we needed a timestamp
-			   to perform another request. The request we want to perform is
-			   signalled by the action variable. */
-			switch (action) {
-				case CONVERT_CLIPBOARD:
-				case CONVERT_PRIMARY:
-					retrieved_data.clear();
-					conversion_succeeded = false;
-					conversion_started_at = event.xproperty.time;
-					/* Make sure that the target property does not exist */
-					XDeleteProperty(display, window, atoms[GDK_SELECTION]);
-					XConvertSelection(display, atoms[action == CONVERT_CLIPBOARD ? CLIPBOARD : PRIMARY],
-						atoms[UTF8_STRING], atoms[GDK_SELECTION], window, conversion_started_at);
-					break;
-				case CLAIM_CLIPBOARD:
-					clipboard_owner_since = claim(event.xproperty.time, atoms[CLIPBOARD]);
-					break;
-				case CLAIM_PRIMARY:
-					primary_owner_since = claim(event.xproperty.time, atoms[PRIMARY]);
-					break;
-				default:
-					break;
-			}
-		} else if (event.xproperty.atom == atoms[GDK_SELECTION]) {
-			/* This event may happen all the time, but in some cases it means there
-			   is more data to receive for an INCR transfer. */
-			if (receive_incr && event.xproperty.state == PropertyNewValue) {
-				long result;
-				if ((result = retrieve_data()) <= 0) {
-					receive_incr = false;
-					conversion_succeeded = result == 0;
-					pthread_cond_signal(&clipboard_signal);
-				}
-				XDeleteProperty(display, window, atoms[GDK_SELECTION]);
-			}
-		}
-	} else {
-		if (event.xproperty.state != PropertyDelete || incr_sends.empty())
-			return;
-
-		/* In this case we received a PropertyNotify for a window that is not ours.
-		   That should only happen if we are trying to do an INCR send to another
-		   client. */
-		for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
-			if (iter->window == event.xproperty.window) {
-				unsigned long size = iter->data->size() - iter->offset;
-				if (size > max_data)
-					size = max_data;
-				XChangeProperty(display, iter->window, iter->property, atoms[UTF8_STRING], 8, PropModeReplace,
-					(unsigned char *) iter->data->data() + iter->offset, size);
-				if (size == 0) {
-					XSelectInput(display, iter->window, 0);
-					incr_sends.erase(iter);
-					break;
-				}
-				iter->offset += size;
-				break;
-			}
-		}
-	}
+static void x11_change_property(x11_window_t win, x11_atom_t property, x11_atom_t type,
+		int format, int mode, unsigned char *data, int nelements)
+{
+	XChangeProperty(display, win, property, type, format, mode, data, nelements);
 }
 
-/** Thread to process incoming events. */
-static void *process_events(void *arg) {
-	XEvent event;
-	fd_set saved_read_fds;
+static bool x11_get_window_property(x11_window_t win, x11_atom_t property, long long_offset,
+	long long_length, bool del, x11_atom_t req_type, x11_atom_t *actual_type_return,
+	int *actual_format_return, unsigned long *nitems_return, unsigned long *bytes_after_return,
+	unsigned char **prop_return)
+{
+	return XGetWindowProperty(display, win, property, long_offset, long_length, del, req_type, actual_type_return,
+		actual_format_return, nitems_return, bytes_after_return, prop_return) == Success;
+}
+
+static void x11_select_prop_change(x11_window_t win, bool interested) {
+	XSelectInput(display, win, interested ? PropertyChangeMask : 0);
+}
+
+static void x11_free_property_data(void *data) {
+	XFree(data);
+}
+
+static void x11_delete_property(x11_window_t win, x11_atom_t property) {
+	XDeleteProperty(display, win, property);
+}
+
+static void x11_convert_selection(x11_atom_t selection, x11_atom_t type, x11_atom_t property, x11_window_t win, x11_time_t req_time) {
+	XConvertSelection(display, selection, type, property, win, req_time);
+}
+
+static void x11_send_event(x11_window_t win, bool propagate, long event_mask, x11_event_t *event_send) {
+	XSendEvent(display, win, propagate, event_mask, event_send);
+}
+
+static void x11_close_display(void) {
+	XCloseDisplay(display);
+}
+
+static x11_event_t *x11_probe_event(void) {
+	static XEvent event;
+	if (!XPending(display))
+		return NULL;
+	XNextEvent(display, &event);
+	return &event;
+}
+
+static void x11_free_event(x11_event_t *event) {
+	(void) event;
+}
+
+static int x11_fill_fds(fd_set *fds) {
 	int fd_max;
-
-	(void) arg;
-
-	pthread_mutex_lock(&clipboard_mutex);
-	FD_ZERO(&saved_read_fds);
-	FD_SET(ConnectionNumber(display), &saved_read_fds);
-	FD_SET(wakeup_pipe[0], &saved_read_fds);
+	FD_ZERO(fds);
+	FD_SET(ConnectionNumber(display), fds);
+	FD_SET(wakeup_pipe[0], fds);
 	if (wakeup_pipe[0] < ConnectionNumber(display))
 		fd_max = ConnectionNumber(display);
 	else
 		fd_max = wakeup_pipe[0];
-	fd_max++;
-
-	while (1) {
-		while (!XPending(display)) {
-			fd_set read_fds;
-
-			/* Use select to wait for more events when there are no more left. In
-			   this case we also release the mutex, such that the rest of the library
-			   may interact with the clipboard. */
-			read_fds = saved_read_fds;
-			pthread_mutex_unlock(&clipboard_mutex);
-			select(fd_max, &read_fds, NULL, NULL, NULL);
-
-			/* Clear data from wake-up pipe */
-			if (FD_ISSET(wakeup_pipe[0], &read_fds)) {
-				char buffer[8];
-				read(wakeup_pipe[0], buffer, sizeof(buffer));
-			}
-			pthread_mutex_lock(&clipboard_mutex);
-			if (x11_error || end_connection) {
-				pthread_mutex_unlock(&clipboard_mutex);
-				return NULL;
-			}
-		}
-		if (x11_error || end_connection) {
-			pthread_mutex_unlock(&clipboard_mutex);
-			return NULL;
-		}
-		XNextEvent(display, &event);
-
-		switch (event.type) {
-			case PropertyNotify:
-				handle_property_notify(event);
-				break;
-
-			case SelectionNotify: {
-				/* Conversion failed. */
-				if (event.xselection.property == None) {
-					if (action == CONVERT_CLIPBOARD || action == CONVERT_PRIMARY)
-						pthread_cond_signal(&clipboard_signal);
-					break;
-				}
-
-				if (action != CONVERT_CLIPBOARD && action != CONVERT_PRIMARY) {
-					XDeleteProperty(display, window, event.xselection.property);
-					break;
-				}
-
-				if (event.xselection.property != atoms[GDK_SELECTION] ||
-						event.xselection.time != conversion_started_at ||
-						(action == CONVERT_CLIPBOARD && event.xselection.selection != atoms[CLIPBOARD]) ||
-						(action == CONVERT_PRIMARY && event.xselection.selection != atoms[PRIMARY]) ||
-						(event.xselection.target != atoms[UTF8_STRING] && event.xselection.target != atoms[INCR]))
-				{
-					XDeleteProperty(display, window, event.xselection.property);
-					pthread_cond_signal(&clipboard_signal);
-					break;
-				}
-
-				if (event.xselection.target == atoms[INCR]) {
-					/* OK, here we go. The selection owner uses the INCR protocol. Shudder. */
-					receive_incr = true;
-				} else if (event.xselection.target == atoms[UTF8_STRING]) {
-					if (retrieve_data() >= 0)
-						conversion_succeeded = true;
-					pthread_cond_signal(&clipboard_signal);
-				} else {
-					pthread_cond_signal(&clipboard_signal);
-				}
-				XDeleteProperty(display, window, atoms[GDK_SELECTION]);
-				break;
-			}
-			case SelectionClear:
-				if (event.xselectionclear.selection == atoms[CLIPBOARD]) {
-					clipboard_owner_since = CurrentTime;
-					clipboard_data = NULL;
-				} else if (event.xselectionclear.selection == atoms[PRIMARY]) {
-					primary_owner_since = CurrentTime;
-					primary_data = NULL;
-				}
-
-				if ((action == RELEASE_SELECTIONS && clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime) ||
-						action == CLAIM_CLIPBOARD || action == CLAIM_PRIMARY)
-					pthread_cond_signal(&clipboard_signal);
-				break;
-
-			case SelectionRequest: {
-				XEvent reply;
-				linked_ptr<string>::t data;
-				Time since;
-
-				/* Some other X11 client is requesting our selection. */
-
-				reply.type = SelectionNotify;
-				reply.xselection.requestor = event.xselectionrequest.requestor;
-				reply.xselection.selection = event.xselectionrequest.selection;
-				reply.xselection.target = event.xselectionrequest.target;
-				if (event.xselectionrequest.target == atoms[MULTIPLE] && event.xselectionrequest.property == None) {
-					reply.xselection.property = None;
-				} else {
-					reply.xselection.property = event.xselectionrequest.property == None ? event.xselectionrequest.target:
-						event.xselectionrequest.property;
-					if (event.xselectionrequest.selection == atoms[CLIPBOARD] && clipboard_owner_since != CurrentTime) {
-						data = clipboard_data;
-						since = clipboard_owner_since;
-					} else if (event.xselectionrequest.selection == atoms[PRIMARY] && primary_owner_since != CurrentTime) {
-						data = primary_data;
-						since = primary_owner_since;
-					} else {
-						reply.xselection.property = None;
-					}
-				}
-
-				if (reply.xselection.property != None && !send_selection(event.xselectionrequest.requestor,
-						event.xselectionrequest.target, reply.xselection.property, data, since))
-					reply.xselection.property = None;
-
-				XSendEvent(display, event.xselectionrequest.requestor, False, 0, &reply);
-				break;
-			}
-			default:
-				break;
-		}
-	}
-	return NULL;
+	return fd_max + 1;
 }
 
 /** Handle error reports, i.e. BadAtom and such, from the server. */
@@ -450,6 +182,514 @@ static int io_error_handler(Display *_display) {
 	return 0;
 }
 
+#else
+typedef xcb_atom_t x11_atom_t;
+typedef xcb_timestamp_t x11_time_t;
+typedef xcb_window_t x11_window_t;
+
+typedef xcb_generic_event_t x11_event_t;
+typedef xcb_property_notify_event_t x11_property_event_t;
+typedef xcb_selection_notify_event_t x11_selection_event_t;
+typedef xcb_selection_clear_event_t x11_selection_clear_event_t;
+typedef xcb_selection_request_event_t x11_selection_request_event_t;
+
+#define X11_PROPERTY_REPLACE XCB_PROP_MODE_REPLACE
+#define X11_PROPERTY_APPEND XCB_PROP_MODE_APPEND
+#define X11_PROPERTY_PREPEND XCB_PROP_MODE_PREPEND
+#define X11_CURRENT_TIME XCB_TIME_CURRENT_TIME
+#define X11_ATOM_WM_NAME XCB_ATOM_WM_NAME
+#define X11_ATOM_STRING XCB_ATOM_STRING
+#define X11_PROPERTY_NOTIFY XCB_PROPERTY_NOTIFY
+#define X11_SELECTION_NOTIFY XCB_SELECTION_NOTIFY
+#define X11_SELECTION_CLEAR XCB_SELECTION_CLEAR
+#define X11_SELECTION_REQUEST XCB_SELECTION_REQUEST
+#define X11_ATOM_NONE XCB_ATOM_NONE
+#define X11_PROPERTY_NEW_VALUE XCB_PROPERTY_NEW_VALUE
+#define X11_PROPERTY_DELETE XCB_PROPERTY_DELETE
+#define x11_response_type response_type
+static xcb_connection_t *connection;
+
+static void x11_flush(void) {
+	xcb_flush(connection);
+}
+
+static void x11_set_selection_owner(x11_atom_t selection, x11_window_t win, x11_time_t since) {
+	xcb_set_selection_owner(connection, win, selection, since);
+}
+
+static x11_window_t x11_get_selection_owner(x11_atom_t selection) {
+	xcb_window_t result;
+	xcb_get_selection_owner_cookie_t cookie = xcb_get_selection_owner(connection, selection);
+	xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(connection, cookie, NULL);
+
+	if (reply == NULL) {
+		x11_error = true;
+		return XCB_WINDOW_NONE;
+	}
+
+	result = reply->owner;
+	free(reply);
+	return result;
+}
+
+static void x11_change_property(x11_window_t win, x11_atom_t property, x11_atom_t type,
+		int format, int mode, unsigned char *data, int nelements)
+{
+	xcb_change_property(connection, mode, win, property, type, format, nelements, data);
+}
+
+static xcb_get_property_reply_t *property_reply;
+
+static bool x11_get_window_property(x11_window_t win, x11_atom_t property, long long_offset,
+	long long_length, bool del, x11_atom_t req_type, x11_atom_t *actual_type_return,
+	int *actual_format_return, unsigned long *nitems_return, unsigned long *bytes_after_return,
+	unsigned char **prop_return)
+{
+	xcb_get_property_cookie_t cookie = xcb_get_property(connection, del, win, property, req_type, long_offset, long_length);
+	property_reply = xcb_get_property_reply(connection, cookie, NULL);
+
+	if (property_reply == NULL)
+		return false;
+
+	*nitems_return = xcb_get_property_value_length(property_reply);
+	*prop_return = (unsigned char *) xcb_get_property_value(property_reply);
+	*actual_type_return = property_reply->type;
+	*actual_format_return = property_reply->format;
+	*bytes_after_return = property_reply->bytes_after;
+	return true;
+}
+
+static void x11_select_prop_change(x11_window_t win, bool interested) {
+	uint32_t value = interested ? XCB_EVENT_MASK_PROPERTY_CHANGE : 0;
+	xcb_change_window_attributes(connection, win, XCB_CW_EVENT_MASK, &value);
+}
+
+static void x11_free_property_data(void *data) {
+	(void) data;
+	free(property_reply);
+}
+
+static void x11_delete_property(x11_window_t win, x11_atom_t property) {
+	xcb_delete_property(connection, win, property);
+}
+
+static void x11_convert_selection(x11_atom_t selection, x11_atom_t type, x11_atom_t property, x11_window_t win, x11_time_t req_time) {
+	xcb_convert_selection(connection, win, selection, type, property, req_time);
+}
+
+static void x11_send_event(x11_window_t win, bool propagate, long event_mask, x11_event_t *event_send) {
+	xcb_send_event(connection, propagate, win, event_mask, (const char *) event_send);
+}
+
+static void x11_close_display(void) {
+	xcb_disconnect(connection);
+}
+
+static x11_event_t *x11_probe_event(void) {
+	xcb_flush(connection);
+	return xcb_poll_for_event(connection);
+}
+
+static void x11_free_event(x11_event_t *event) {
+	free(event);
+}
+
+static int x11_fill_fds(fd_set *fds) {
+	int fd = xcb_get_file_descriptor(connection);
+	FD_ZERO(fds);
+	FD_SET(fd, fds);
+	return fd + 1;
+}
+
+#endif
+
+enum clipboard_action_t {
+	ACTION_NONE,
+	CONVERT_CLIPBOARD,
+	CONVERT_PRIMARY,
+	CLAIM_CLIPBOARD,
+	CLAIM_PRIMARY,
+	RELEASE_SELECTIONS
+};
+
+struct incr_send_data_t {
+	x11_window_t window;
+	linked_ptr<string>::t data;
+	x11_atom_t property;
+	size_t offset;
+
+	incr_send_data_t(x11_window_t _window, linked_ptr<string>::t &_data, x11_atom_t _property) : window(_window),
+		data(_data), property(_property), offset(0) {}
+};
+typedef list<incr_send_data_t> incr_send_list_t;
+static incr_send_list_t incr_sends;
+
+static clipboard_action_t action;
+static bool conversion_succeeded;
+
+/* Use X11_CURRENT_TIME as "Invalid" value, as it will never be returned by anything. */
+static x11_time_t clipboard_owner_since = X11_CURRENT_TIME,
+	primary_owner_since = X11_CURRENT_TIME;
+static x11_time_t conversion_started_at;
+
+
+static x11_window_t window;
+
+static size_t max_data;
+
+static bool receive_incr;
+
+static pthread_t x11_event_thread;
+static pthread_mutex_t clipboard_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
+
+static const char *atom_names[] = {
+	"CLIPBOARD",
+	"PRIMARY",
+	"TARGETS",
+	"TIMESTAMP",
+	"MULTIPLE",
+	"UTF8_STRING",
+	"GDK_SELECTION", // Use same name as GDK to save on atoms
+	"INCR",
+	"ATOM",
+	"ATOM_PAIR",
+};
+enum {
+	CLIPBOARD,
+	PRIMARY,
+	/* The following 4 targets must remain in this order and consecutive. */
+	TARGETS,
+	TIMESTAMP,
+	MULTIPLE,
+	UTF8_STRING,
+
+	GDK_SELECTION,
+	INCR,
+	ATOM,
+	ATOM_PAIR,
+};
+#define ATOM_COUNT (sizeof(atom_names) / sizeof(atom_names[0]))
+static x11_atom_t atoms[ATOM_COUNT];
+
+
+#define DATA_BLOCK_SIZE 4000
+static string retrieved_data;
+
+
+
+/** Retrieve data set by another X client on our window.
+    @return The number of bytes received, or -1 on failure.
+*/
+static long retrieve_data(void) {
+	x11_atom_t actual_type;
+	int actual_format;
+	unsigned long nitems, bytes_after;
+	unsigned char *prop = NULL;
+	unsigned long offset = 0;
+
+	do {
+		/* To limit the size of the transfer, we get the data in smallish blocks.
+		   That is, at most 16K. This will in most cases result in a single transfer,
+		   but in some cases we must iterate until we have all data. In that case
+		   we need to set offset, which happens to be in 4 byte words rather than
+		   bytes. */
+		if (!x11_get_window_property(window, atoms[GDK_SELECTION], offset / 4,
+			DATA_BLOCK_SIZE, false, atoms[UTF8_STRING], &actual_type, &actual_format,
+			&nitems, &bytes_after, &prop))
+		{
+			lprintf("x11_get_window_property(false): nitems: %lu, bytes_after: %lu\n", nitems, bytes_after);
+			retrieved_data.clear();
+			return -1;
+		} else {
+			lprintf("x11_get_window_property(true): nitems: %lu, bytes_after: %lu\n", nitems, bytes_after);
+			retrieved_data.append((char *) prop, nitems);
+			offset += nitems;
+			x11_free_property_data(prop);
+		}
+		prop = NULL;
+	} while (bytes_after);
+	return offset;
+}
+
+/** Claim a selection. */
+static x11_time_t claim(x11_time_t since, x11_atom_t selection) {
+	x11_set_selection_owner(selection, window, since);
+	if (x11_get_selection_owner(selection) != window)
+		since = X11_CURRENT_TIME;
+	pthread_cond_signal(&clipboard_signal);
+	return since;
+}
+
+/** Send data requested by another X client.
+    @param requestor The @c x11_window_t of the requesting X client.
+    @param target The requested conversion.
+    @param property The property which must be used for sending the data.
+    @param data The data to send.
+    @param since The timestamp at which we aquired the requested selection.
+    @return A boolean indicating succes.
+*/
+static bool send_selection(x11_window_t requestor, x11_atom_t target, x11_atom_t property, linked_ptr<string>::t data, x11_time_t since) {
+	if (target == atoms[TARGETS]) {
+		/* The atoms are arranged such that the targets we have available are consecutive. */
+		x11_change_property(requestor, property, atoms[ATOM], 32, X11_PROPERTY_REPLACE, (unsigned char *) &atoms[TARGETS], 4);
+		return true;
+	} else if (target == atoms[TIMESTAMP]) {
+		x11_change_property(requestor, property, atoms[TIMESTAMP], 32, X11_PROPERTY_REPLACE, (unsigned char *) &since, 1);
+		return true;
+	} else if (target == atoms[UTF8_STRING]) {
+		if (data == NULL)
+			return false;
+		/* If the data is too large to send in a single go (which is an arbitrary number,
+		   unless limited by the maximum request size), we use the INCR protocol. */
+		if (data->size() > max_data) {
+			x11_change_property(requestor, property, atoms[UTF8_STRING], 8, X11_PROPERTY_REPLACE,
+				(unsigned char *) data->data(), data->size());
+		} else {
+			long size = data->size();
+			incr_sends.push_back(incr_send_data_t(requestor, data, property));
+			x11_select_prop_change(requestor, true);
+			x11_change_property(requestor, property, atoms[INCR], 32, X11_PROPERTY_REPLACE, (unsigned char *) &size, 1);
+		}
+		return true;
+	} else if (target == atoms[MULTIPLE]) {
+		x11_atom_t actual_type, *requested_conversions;
+		int actual_format;
+		unsigned long nitems, bytes_after, i;
+
+		if (!x11_get_window_property(requestor, property, 0, 100, false, atoms[ATOM_PAIR],
+				&actual_type, &actual_format, &nitems, &bytes_after, (unsigned char **) &requested_conversions) ||
+				bytes_after != 0 || nitems & 1)
+			return false;
+
+		for (i = 0; i < nitems; i += 2) {
+			if (requested_conversions[i] == atoms[MULTIPLE] || !send_selection(requestor, requested_conversions[i],
+					requested_conversions[i + 1], data, since))
+				requested_conversions[i + 1] = X11_ATOM_NONE;
+		}
+		x11_change_property(requestor, property, atoms[ATOM_PAIR], 32, X11_PROPERTY_REPLACE,
+			(unsigned char *) requested_conversions, nitems);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/** Handle an incoming PropertyNotify event.
+
+    There are so many different things which may be going on when we receive a
+    PropertyNotify event, that it has its own routine.
+*/
+static void handle_property_notify(x11_property_event_t *event) {
+	if (event->window == window) {
+		if (event->atom == X11_ATOM_WM_NAME) {
+			/* If we changed the name atom of our window, we needed a timestamp
+			   to perform another request. The request we want to perform is
+			   signalled by the action variable. */
+			switch (action) {
+				case CONVERT_CLIPBOARD:
+				case CONVERT_PRIMARY:
+					lprintf("Starting conversion\n");
+					retrieved_data.clear();
+					conversion_succeeded = false;
+					conversion_started_at = event->time;
+					/* Make sure that the target property does not exist */
+					x11_delete_property(window, atoms[GDK_SELECTION]);
+					x11_convert_selection(atoms[action == CONVERT_CLIPBOARD ? CLIPBOARD : PRIMARY],
+						atoms[UTF8_STRING], atoms[GDK_SELECTION], window, conversion_started_at);
+					break;
+				case CLAIM_CLIPBOARD:
+					clipboard_owner_since = claim(event->time, atoms[CLIPBOARD]);
+					break;
+				case CLAIM_PRIMARY:
+					primary_owner_since = claim(event->time, atoms[PRIMARY]);
+					break;
+				default:
+					break;
+			}
+		} else if (event->atom == atoms[GDK_SELECTION]) {
+			/* This event may happen all the time, but in some cases it means there
+			   is more data to receive for an INCR transfer. */
+			if (receive_incr && event->state == X11_PROPERTY_NEW_VALUE) {
+				long result;
+				if ((result = retrieve_data()) <= 0) {
+					receive_incr = false;
+					conversion_succeeded = result == 0;
+					pthread_cond_signal(&clipboard_signal);
+				}
+				x11_delete_property(window, atoms[GDK_SELECTION]);
+			}
+		}
+	} else {
+		if (event->state != X11_PROPERTY_DELETE || incr_sends.empty())
+			return;
+
+		/* In this case we received a PropertyNotify for a window that is not ours.
+		   That should only happen if we are trying to do an INCR send to another
+		   client. */
+		for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
+			if (iter->window == event->window) {
+				unsigned long size = iter->data->size() - iter->offset;
+				if (size > max_data)
+					size = max_data;
+				x11_change_property(iter->window, iter->property, atoms[UTF8_STRING], 8, X11_PROPERTY_REPLACE,
+					(unsigned char *) iter->data->data() + iter->offset, size);
+				if (size == 0) {
+					x11_select_prop_change(iter->window, false);
+					incr_sends.erase(iter);
+					return;
+				}
+				iter->offset += size;
+				return;
+			}
+		}
+		x11_select_prop_change(event->window, false);
+	}
+}
+
+/** Thread to process incoming events. */
+static void *process_events(void *arg) {
+	x11_event_t *event;
+	fd_set saved_read_fds;
+	int fd_max;
+
+	(void) arg;
+
+	pthread_mutex_lock(&clipboard_mutex);
+	fd_max = x11_fill_fds(&saved_read_fds);
+
+	while (1) {
+		while ((event = x11_probe_event()) == NULL) {
+			fd_set read_fds;
+
+			/* Use select to wait for more events when there are no more left. In
+			   this case we also release the mutex, such that the rest of the library
+			   may interact with the clipboard. */
+			read_fds = saved_read_fds;
+			pthread_mutex_unlock(&clipboard_mutex);
+			select(fd_max, &read_fds, NULL, NULL, NULL);
+#ifdef USE_XLIB
+			/* Clear data from wake-up pipe */
+			if (FD_ISSET(wakeup_pipe[0], &read_fds)) {
+				char buffer[8];
+				read(wakeup_pipe[0], buffer, sizeof(buffer));
+			}
+#endif
+			pthread_mutex_lock(&clipboard_mutex);
+			if (x11_error || end_connection) {
+				pthread_mutex_unlock(&clipboard_mutex);
+				return NULL;
+			}
+		}
+		if (x11_error || end_connection) {
+			pthread_mutex_unlock(&clipboard_mutex);
+			return NULL;
+		}
+
+		switch (event->x11_response_type & ~0x80) {
+			case X11_PROPERTY_NOTIFY:
+				handle_property_notify((x11_property_event_t *) event);
+				break;
+
+			case X11_SELECTION_NOTIFY: {
+				x11_selection_event_t *selection_notify = (x11_selection_event_t *) event;
+				lprintf("Conversion notify\n");
+				/* Conversion failed. */
+				if (selection_notify->property == X11_ATOM_NONE) {
+					if (action == CONVERT_CLIPBOARD || action == CONVERT_PRIMARY)
+						pthread_cond_signal(&clipboard_signal);
+					break;
+				}
+
+				if (action != CONVERT_CLIPBOARD && action != CONVERT_PRIMARY) {
+					x11_delete_property(window, selection_notify->property);
+					break;
+				}
+
+				if (selection_notify->property != atoms[GDK_SELECTION] ||
+						selection_notify->time != conversion_started_at ||
+						(action == CONVERT_CLIPBOARD && selection_notify->selection != atoms[CLIPBOARD]) ||
+						(action == CONVERT_PRIMARY && selection_notify->selection != atoms[PRIMARY]) ||
+						(selection_notify->target != atoms[UTF8_STRING] && selection_notify->target != atoms[INCR]))
+				{
+					x11_delete_property(window, selection_notify->property);
+					pthread_cond_signal(&clipboard_signal);
+					break;
+				}
+
+				if (selection_notify->target == atoms[INCR]) {
+					/* OK, here we go. The selection owner uses the INCR protocol. Shudder. */
+					receive_incr = true;
+				} else if (selection_notify->target == atoms[UTF8_STRING]) {
+					if (retrieve_data() >= 0)
+						conversion_succeeded = true;
+					pthread_cond_signal(&clipboard_signal);
+				} else {
+					pthread_cond_signal(&clipboard_signal);
+				}
+				x11_delete_property(window, atoms[GDK_SELECTION]);
+				break;
+			}
+			case X11_SELECTION_CLEAR: {
+				x11_selection_clear_event_t *clear_event = (x11_selection_clear_event_t *) event;
+				if (clear_event->selection == atoms[CLIPBOARD]) {
+					clipboard_owner_since = X11_CURRENT_TIME;
+					clipboard_data = NULL;
+				} else if (clear_event->selection == atoms[PRIMARY]) {
+					primary_owner_since = X11_CURRENT_TIME;
+					primary_data = NULL;
+				}
+
+				if ((action == RELEASE_SELECTIONS && clipboard_owner_since == X11_CURRENT_TIME && primary_owner_since == X11_CURRENT_TIME) ||
+						action == CLAIM_CLIPBOARD || action == CLAIM_PRIMARY)
+					pthread_cond_signal(&clipboard_signal);
+				break;
+			}
+			case X11_SELECTION_REQUEST: {
+				x11_selection_event_t reply;
+				linked_ptr<string>::t data;
+				x11_time_t since;
+				x11_selection_request_event_t *request_event = (x11_selection_request_event_t *) event;
+
+				/* Some other X11 client is requesting our selection. */
+
+				reply.x11_response_type = X11_SELECTION_NOTIFY;
+				reply.requestor = request_event->requestor;
+				reply.selection = request_event->selection;
+				reply.target = request_event->target;
+				if (request_event->target == atoms[MULTIPLE] && request_event->property == X11_ATOM_NONE) {
+					reply.property = X11_ATOM_NONE;
+				} else {
+					reply.property = request_event->property == X11_ATOM_NONE ? request_event->target:
+						request_event->property;
+					if (request_event->selection == atoms[CLIPBOARD] && clipboard_owner_since != X11_CURRENT_TIME) {
+						data = clipboard_data;
+						since = clipboard_owner_since;
+					} else if (request_event->selection == atoms[PRIMARY] && primary_owner_since != X11_CURRENT_TIME) {
+						data = primary_data;
+						since = primary_owner_since;
+					} else {
+						reply.property = X11_ATOM_NONE;
+					}
+				}
+
+				if (reply.property != X11_ATOM_NONE && !send_selection(request_event->requestor,
+						request_event->target, reply.property, data, since))
+					reply.property = X11_ATOM_NONE;
+
+				x11_send_event(request_event->requestor, false, 0, (x11_event_t *) &reply);
+				break;
+			}
+			default:
+				lprintf("Unknown event\n");
+				break;
+		}
+		x11_free_event(event);
+	}
+	return NULL;
+}
+
+
 /** Stop the X11 event processing. */
 static void stop_x11(void) {
 	void *result;
@@ -463,18 +703,19 @@ static void stop_x11(void) {
 	   which means we can't send anything anyway. Thus we skip the client message
 	   if x11_error is set. */
 	if (!x11_error)
-		XCloseDisplay(display);
+		x11_close_display();
 
 	pthread_cancel(x11_event_thread);
 	pthread_mutex_unlock(&clipboard_mutex);
 	pthread_join(x11_event_thread, &result);
 }
 
+#ifdef USE_XLIB
 /** Initialize the X11 connection. */
 static bool init_x11(void) {
-	int black;
+	x11_window_t root;
 	char **atom_names_local = NULL;
-	long max_request;
+	int black;
 	size_t i;
 
 	/* The XInternAtoms call expects an array of char *, not of const char *. Thus
@@ -497,11 +738,11 @@ static bool init_x11(void) {
 	if ((display = XOpenDisplay(NULL)) == NULL)
 		goto error_exit;
 
-	max_request = XMaxRequestSize(display);
-	if (max_request > DATA_BLOCK_SIZE * 4 + 100)
+	max_data = XMaxRequestSize(display);
+	if (max_data > DATA_BLOCK_SIZE * 4 + 100)
 		max_data = DATA_BLOCK_SIZE * 4;
 	else
-		max_data = max_request - 100;
+		max_data = max_data - 100;
 
 	root = XDefaultRootWindow(display);
 	black = BlackPixel(display, DefaultScreen(display));
@@ -520,7 +761,7 @@ static bool init_x11(void) {
 	free(atom_names_local);
 	atom_names_local = NULL;
 
-	XSelectInput(display, window, PropertyChangeMask);
+	x11_select_prop_change(window, true);
 
 	/* Discard all events, but process errors. */
 	XSync(display, True);
@@ -545,6 +786,58 @@ error_exit:
 		XCloseDisplay(display);
 	return false;
 }
+#else
+
+static bool init_x11(void) {
+	uint32_t values[2];
+	uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+	xcb_generic_error_t *error = NULL;
+	cleanup_func_ptr<xcb_connection_t, xcb_disconnect>::t local_connection;
+	xcb_screen_t *screen;
+	xcb_intern_atom_cookie_t cookies[ATOM_COUNT];
+	size_t i;
+
+	if ((local_connection = xcb_connect(NULL, NULL)) == NULL)
+		return false;
+
+	for (i = 0; i < ATOM_COUNT; i++)
+		cookies[i] = xcb_intern_atom(local_connection, 0, strlen(atom_names[i]), atom_names[i]);
+	for (i = 0; i < ATOM_COUNT; i++) {
+		xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(local_connection, cookies[i], NULL);
+		if (reply == NULL)
+			return false;
+
+		atoms[i] = reply->atom;
+		free(reply);
+	}
+
+	max_data = xcb_get_maximum_request_length(local_connection);
+	if (max_data > DATA_BLOCK_SIZE * 4 + 100)
+		max_data = DATA_BLOCK_SIZE * 4;
+	else
+		max_data = max_data - 100;
+
+	screen = xcb_setup_roots_iterator(xcb_get_setup(local_connection)).data;
+	window = xcb_generate_id(local_connection);
+	values[0] = screen->white_pixel;
+	values[1] = XCB_EVENT_MASK_PROPERTY_CHANGE;
+
+	if ((error = xcb_request_check(local_connection, xcb_create_window_checked(local_connection, 0, window, screen->root, 0, 0, 1, 1, 0,
+			XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, mask, values))) != NULL)
+	{
+		free(error);
+		return false;
+	}
+
+	xcb_flush(local_connection);
+
+	connection = local_connection.release();
+	x11_initialized = true;
+	pthread_create(&x11_event_thread, NULL, process_events, NULL);
+	return true;
+}
+
+#endif
 
 #define x11_working() (x11_initialized && !x11_error)
 
@@ -577,11 +870,10 @@ static linked_ptr<string>::t get_selection(bool clipboard) {
 
 	/* If we currently own the selection that is requested, there is no need to go
 	   through the X server. */
-	if ((clipboard && clipboard_owner_since == CurrentTime) || (!clipboard && primary_owner_since == CurrentTime)) {
+	if ((clipboard && clipboard_owner_since == X11_CURRENT_TIME) || (!clipboard && primary_owner_since == X11_CURRENT_TIME)) {
 		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
-		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
-		XFlush(display);
-		write(wakeup_pipe[1], &wakeup_pipe, 1);
+		x11_change_property(window, X11_ATOM_WM_NAME, X11_ATOM_STRING, 8, X11_PROPERTY_APPEND, NULL, 0);
+		x11_flush();
 		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) != ETIMEDOUT &&
 				conversion_succeeded)
 			result = new string(retrieved_data);
@@ -607,7 +899,7 @@ static void claim_selection(bool clipboard, string *data) {
 
 	if (clipboard) {
 		/* If we don't own the selection, reseting is a no-op. */
-		if (clipboard_owner_since == CurrentTime && data == NULL) {
+		if (clipboard_owner_since == X11_CURRENT_TIME && data == NULL) {
 			pthread_mutex_unlock(&clipboard_mutex);
 			return;
 		}
@@ -615,7 +907,7 @@ static void claim_selection(bool clipboard, string *data) {
 		clipboard_data = data;
 	} else {
 		/* If we don't own the selection, reseting is a no-op. */
-		if (primary_owner_since == CurrentTime && data == NULL) {
+		if (primary_owner_since == X11_CURRENT_TIME && data == NULL) {
 			pthread_mutex_unlock(&clipboard_mutex);
 			return;
 		}
@@ -624,12 +916,11 @@ static void claim_selection(bool clipboard, string *data) {
 	}
 
 	if (data != NULL)
-		XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8, PropModeAppend, NULL, 0);
+		x11_change_property(window, X11_ATOM_WM_NAME, X11_ATOM_STRING, 8, X11_PROPERTY_APPEND, NULL, 0);
 	else
-		XSetSelectionOwner(display, atoms[clipboard ? CLIPBOARD : PRIMARY], None, CurrentTime);
+		x11_set_selection_owner(atoms[clipboard ? CLIPBOARD : PRIMARY], X11_ATOM_NONE, X11_CURRENT_TIME);
 
-	XFlush(display);
-	write(wakeup_pipe[1], &wakeup_pipe, 1);
+	x11_flush();
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
@@ -642,18 +933,17 @@ static void release_selections(void) {
 		return;
 
 	pthread_mutex_lock(&clipboard_mutex);
-	if (clipboard_owner_since == CurrentTime && primary_owner_since == CurrentTime) {
+	if (clipboard_owner_since == X11_CURRENT_TIME && primary_owner_since == X11_CURRENT_TIME) {
 		pthread_mutex_unlock(&clipboard_mutex);
 		return;
 	}
 
 	action = RELEASE_SELECTIONS;
-	if (clipboard_owner_since != CurrentTime)
-		XSetSelectionOwner(display, atoms[CLIPBOARD], None, CurrentTime);
-	if (primary_owner_since != CurrentTime)
-		XSetSelectionOwner(display, atoms[PRIMARY], None, CurrentTime);
-	XFlush(display);
-	write(wakeup_pipe[1], &wakeup_pipe, 1);
+	if (clipboard_owner_since != X11_CURRENT_TIME)
+		x11_set_selection_owner(atoms[CLIPBOARD], X11_ATOM_NONE, X11_CURRENT_TIME);
+	if (primary_owner_since != X11_CURRENT_TIME)
+		x11_set_selection_owner(atoms[PRIMARY], X11_ATOM_NONE, X11_CURRENT_TIME);
+	x11_flush();
 	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
