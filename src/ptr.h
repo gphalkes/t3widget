@@ -43,7 +43,6 @@ class smartptr_base {
 	public:
 		T* operator-> (void) const { return p_; }
 		T& operator* (void) const { return *p_; }
-		T** operator& (void) { return &p_; }
 		T* operator() (void) const { return p_; }
 		operator T* (void) { return p_; }
 		T* get(void) { return p_; }
@@ -82,6 +81,7 @@ class name { \
 		~cleanup_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) { D d; d(smartptr_base<T>::p_); } } \
 		cleanup_ptr_base(void) {} \
 		cleanup_ptr_base(T *p) { smartptr_base<T>::p_ = p; } \
+		T** operator& (void) { return &smartptr_base<T>::p_; } \
 		T* operator= (T *p) { \
 			if (smartptr_base<T>::p_ == p) \
 				return p; \
