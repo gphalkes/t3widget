@@ -31,8 +31,18 @@
 #include "extclipboard.h"
 
 // FIXME: remove incr_sends on long periods of inactivity
-//~ #define USE_XLIB
+/* This file contains parallel implementation of the X11 integration by use of
+   Xlib or XCB. The Xlib implementation unfortunately has an ugly work-around:
+   it uses a self-pipe trick to ensure that the event processing thread always
+   wakes up. This is required because XFlush does more than advertised, i.e. it
+   also reads from the socket. Under certain circumstances, this may prevent
+   the event processing thread from waking up.
 
+   To maintain the same implementation method for both Xlib and XCB, a small
+   sacrifice to good coding practice has been made in the XCB implementation:
+   the reply from xcb_get_property_reply is saved in a global variable, and
+   free'd in x11_free_property_data. The last routine _ignores_ its argument.
+*/
 #ifdef USE_XLIB
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -182,6 +192,13 @@ static int io_error_handler(Display *_display) {
 	return 0;
 }
 
+static void x11_acknowledge_wakeup(fd_set *fds) {
+	/* Clear data from wake-up pipe */
+	if (FD_ISSET(wakeup_pipe[0], fds)) {
+		char buffer[8];
+		read(wakeup_pipe[0], buffer, sizeof(buffer));
+	}
+}
 #else
 typedef xcb_atom_t x11_atom_t;
 typedef xcb_timestamp_t x11_time_t;
@@ -301,6 +318,10 @@ static int x11_fill_fds(fd_set *fds) {
 	return fd + 1;
 }
 
+static void x11_acknowledge_wakeup(fd_set *fds) {
+	(void) fds;
+}
+
 #endif
 
 enum clipboard_action_t {
@@ -398,11 +419,9 @@ static long retrieve_data(void) {
 			DATA_BLOCK_SIZE, false, atoms[UTF8_STRING], &actual_type, &actual_format,
 			&nitems, &bytes_after, &prop))
 		{
-			lprintf("x11_get_window_property(false): nitems: %lu, bytes_after: %lu\n", nitems, bytes_after);
 			retrieved_data.clear();
 			return -1;
 		} else {
-			lprintf("x11_get_window_property(true): nitems: %lu, bytes_after: %lu\n", nitems, bytes_after);
 			retrieved_data.append((char *) prop, nitems);
 			offset += nitems;
 			x11_free_property_data(prop);
@@ -489,7 +508,6 @@ static void handle_property_notify(x11_property_event_t *event) {
 			switch (action) {
 				case CONVERT_CLIPBOARD:
 				case CONVERT_PRIMARY:
-					lprintf("Starting conversion\n");
 					retrieved_data.clear();
 					conversion_succeeded = false;
 					conversion_started_at = event->time;
@@ -568,14 +586,8 @@ static void *process_events(void *arg) {
 			read_fds = saved_read_fds;
 			pthread_mutex_unlock(&clipboard_mutex);
 			select(fd_max, &read_fds, NULL, NULL, NULL);
-#ifdef USE_XLIB
-			/* Clear data from wake-up pipe */
-			if (FD_ISSET(wakeup_pipe[0], &read_fds)) {
-				char buffer[8];
-				read(wakeup_pipe[0], buffer, sizeof(buffer));
-			}
-#endif
-			pthread_mutex_lock(&clipboard_mutex);
+			x11_acknowledge_wakeup(&read_fds);
+ 			pthread_mutex_lock(&clipboard_mutex);
 			if (x11_error || end_connection) {
 				pthread_mutex_unlock(&clipboard_mutex);
 				return NULL;
