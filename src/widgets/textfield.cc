@@ -743,9 +743,7 @@ void text_field_t::drop_down_list_t::update_view(void) {
 }
 
 void text_field_t::drop_down_list_t::set_autocomplete(string_list_base_t *_completions) {
-	if (completions != NULL)
-		delete completions;
-
+	/* completions is a cleanup_ptr, thus it will be deleted if it is not NULL. */
 	if (dynamic_cast<file_list_t *>(_completions) != NULL)
 		completions = new filtered_file_list_t((file_list_t *) _completions);
 	else

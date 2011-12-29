@@ -34,8 +34,7 @@ struct list_pane_t::implementation_t {
 
 list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator)) {
 	init_unbacked_window(1, 3, true);
-	impl->widgets_window = (t3_window_t *) window;
-	window = NULL;
+	impl->widgets_window = window.release();
 
 	init_unbacked_window(1, 4);
 	t3_win_set_parent(impl->widgets_window, window);

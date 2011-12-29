@@ -3,49 +3,54 @@ Version 0.1.7:
 	- Allow finalizing of the library, to allow release of all memory for
 	  debugging purposes.
 	- Use dlopen/dlsym/dlclose directly if available, instead of using libltdl.
+	- The text_window_t widget now also supports mouse actions.
+
+	Bug fixes:
+	- Replace using regular expressions and \1 .. \9 references caused a buffer
+	  overrun.
 
 Version 0.1.6:
 	New features:
-	- Support for the XTerm mouse protocol
-	- Integration with the X11 clipboard and primary selection
+	- Support for the XTerm mouse protocol.
+	- Integration with the X11 clipboard and primary selection.
 
 	Miscelaneous changes:
-	- Use libunistring instead of libt3unicode
-	- API changes for text_buffer_t
-	- Labels and hotkeys for find dialog changed
+	- Use libunistring instead of libt3unicode.
+	- API changes for text_buffer_t.
+	- Labels and hotkeys for find dialog changed.
 
 	Bug fixes:
 	- Scrollbar now only shows the slider at the end position if the end of the
-	  content is in range
+	  content is in range.
 
 Version 0.1.5:
 	New features:
-	- Allow grouping of several undo items in text_buffer_t
-	- "Replace in selection" now working
-	- Autocompletion support in edit_window_t
+	- Allow grouping of several undo items in text_buffer_t.
+	- "Replace in selection" now working.
+	- Autocompletion support in edit_window_t.
 
 	Bug fixes:
 	- "Replace all" now stops even if the search string occurs in the
-	  replacement string
+	  replacement string.
 	- Fix the default colorscheme such that text remains readable when the
-	  cursor or selection are over a highlighted section
+	  cursor or selection are over a highlighted section.
 
 Version 0.1.4:
 	New features:
 	- Allow coloring of text in edit_window_t through subclassing of
-	  edit_window_t and text_line_t (used for syntax highlighting in Tilde)
+	  edit_window_t and text_line_t (used for syntax highlighting in Tilde).
 
 	Bug fixes:
-	- Invisible scrollbar in list pane
+	- Invisible scrollbar in list pane.
 
 Version 0.1.3:
 	Bug fixes:
-	- Fix crash on unsetting wrap on buffer
-	- Fix handling of end key in wrap mode
-	- Show cursor when on the first character of the line if it is zero-width
+	- Fix crash on unsetting wrap on buffer.
+	- Fix handling of end key in wrap mode.
+	- Show cursor when on the first character of the line if it is zero-width.
 
 	New features:
-	- Faster handling of large text buffers
+	- Faster handling of large text buffers.
 
 Version 0.1.2:
 	Bug fixes:

@@ -97,7 +97,6 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
 		impl->scrollbar->set_size(t3_win_get_height(window), None);
 		impl->wrap_info->set_wrap_width(t3_win_get_width(window));
 	} else {
-		delete impl->scrollbar;
 		impl->scrollbar = NULL;
 		impl->wrap_info->set_wrap_width(t3_win_get_width(window) + 1);
 	}

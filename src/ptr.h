@@ -69,9 +69,9 @@ class name { \
 }
 
 /* Pointer wrapper which automatically de-allocate its objects when going out
-   of scope. The difference with the Boost scoped_ptr is that the objects are not
-   deallocated when assigning a different value. Their main use is to ensure
-   deallocation during exception handling, and storing of temporary values.
+   of scope. The difference with the Boost scoped_ptr is that the objects can
+   be released. Their main use is to ensure deallocation during exception
+   handling, and storing of temporary values.
 
    Furthermore, these pointer wrappers are more generic than the std::auto_ptr,
    in that a functor can be passed to perform the clean-up, instead of
@@ -82,7 +82,16 @@ class name { \
 		~cleanup_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) { D d; d(smartptr_base<T>::p_); } } \
 		cleanup_ptr_base(void) {} \
 		cleanup_ptr_base(T *p) { smartptr_base<T>::p_ = p; } \
-		T* operator= (T *p) { return smartptr_base<T>::p_ = p; } \
+		T* operator= (T *p) { \
+			if (smartptr_base<T>::p_ == p) \
+				return p; \
+			if (smartptr_base<T>::p_ != NULL) { \
+				D d; \
+				d(smartptr_base<T>::p_); \
+			} \
+			return smartptr_base<T>::p_ = p; \
+		} \
+		T *release(void) { T *p = smartptr_base<T>::p_; smartptr_base<T>::p_ = NULL; return p; } \
 	private: \
 		cleanup_ptr_base& operator= (const cleanup_ptr_base &p) { (void) p; return *this; } \
 		cleanup_ptr_base(const cleanup_ptr_base &p) { (void) p; }
@@ -117,6 +126,8 @@ template <typename T> _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, f
 		T* operator= (T *p) { set_p(p); return smartptr_base<T>::p_; } \
 	private: \
 		void set_p(T *p) { \
+			if (smartptr_base<T>::p_ == p) \
+				return; \
 			if (smartptr_base<T>::p_ != NULL) { \
 				if (next == this) { \
 					D d; \

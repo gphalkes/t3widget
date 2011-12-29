@@ -29,7 +29,6 @@ class T3_WIDGET_API smart_label_text_t {
 
 	public:
 		smart_label_text_t(const char *spec, bool _addColon = false);
-		smart_label_text_t(smart_label_text_t *other);
 		virtual ~smart_label_text_t(void);
 		void draw(t3_window_t *win, int attr, bool selected = false);
 		int get_width(void);
@@ -38,7 +37,6 @@ class T3_WIDGET_API smart_label_text_t {
 
 class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
 	public:
-		smart_label_t(smart_label_text_t *spec);
 		smart_label_t(const char *spec, bool _addColon = false);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);

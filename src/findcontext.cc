@@ -71,7 +71,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 			   de-allocation. */
 			matcher = new string_matcher_t(folded_needle, folded_needle_size);
 			/* Avoid de-allocation of folded_needle if creating the string matcher succeeds. */
-			folded_needle = NULL;
+			folded_needle.release();
 		} else {
 			matcher = new string_matcher_t(search_for);
 		}
