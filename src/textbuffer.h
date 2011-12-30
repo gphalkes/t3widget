@@ -33,21 +33,34 @@ class wrap_info_t;
 
 class T3_WIDGET_API text_buffer_t {
 	friend class wrap_info_t;
+	private:
+		struct implementation_t {
+			lines_t lines;
+			text_coordinate_t selection_start;
+			text_coordinate_t selection_end;
+			selection_mode_t selection_mode;
+
+			undo_list_t undo_list;
+			text_coordinate_t last_undo_position;
+			undo_type_t last_undo_type;
+			undo_t *last_undo;
+
+			text_line_factory_t *line_factory;
+
+			implementation_t(text_line_factory_t *_line_factory) : selection_start(-1, 0), selection_end(-1, 0),
+				selection_mode(selection_mode_t::NONE), last_undo_type(UNDO_NONE), last_undo(NULL),
+				line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory)
+			{}
+		};
+		pimpl_ptr<implementation_t>::t impl;
+
 	protected:
-		lines_t lines;
-		text_coordinate_t selection_start;
-		text_coordinate_t selection_end;
-		selection_mode_t selection_mode;
-
-		undo_list_t undo_list;
-		text_coordinate_t last_undo_position;
-		undo_type_t last_undo_type;
-		undo_t *last_undo;
-
-		text_line_factory_t *line_factory;
-
 		undo_t *get_undo(undo_type_t type);
 		undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
+		undo_t *get_undo(undo_type_t type, text_coordinate_t start, text_coordinate_t end);
+
+		void set_undo_mark(void);
+
 		void locate_pos(void);
 		void locate_pos(text_coordinate_t *coord) const;
 		void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
@@ -57,6 +70,9 @@ class T3_WIDGET_API text_buffer_t {
 		bool break_line_internal(const std::string *indent = NULL);
 
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
+
+		text_line_t *get_line_data_nonconst(int idx);
+		text_line_factory_t *get_line_factory(void);
 
 		virtual void prepare_paint_line(int line);
 

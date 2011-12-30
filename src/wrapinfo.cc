@@ -56,7 +56,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	for (i = wrap_data[line]->size() - 1; i > 0 && (*wrap_data[line])[i] > pos; i--) {}
 
 	if (local) {
-		break_pos = text->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width - 1, tabsize);
+		break_pos = text->impl->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width - 1, tabsize);
 		if (i < wrap_data[line]->size() - 1 && break_pos.pos == (*wrap_data[line])[i + 1])
 			return;
 	}
@@ -67,7 +67,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	wrap_data[line]->erase(wrap_data[line]->begin() + i + 1, wrap_data[line]->end());
 
 	while (1) {
-		break_pos = text->lines[line]->find_next_break_pos(wrap_data[line]->back(), wrap_width - 1, tabsize);
+		break_pos = text->impl->lines[line]->find_next_break_pos(wrap_data[line]->back(), wrap_width - 1, tabsize);
 		if (break_pos.pos > 0)
 			wrap_data[line]->push_back(break_pos.pos);
 		else
@@ -107,14 +107,14 @@ void wrap_info_t::set_text_buffer(text_buffer_t *_text) {
 
 	rewrap_connection = text->connect_rewrap_required(sigc::mem_fun(this, &wrap_info_t::rewrap));
 
-	if (wrap_data.size() > text->lines.size())
-		delete_lines(text->lines.size(), wrap_data.size());
+	if (wrap_data.size() > text->impl->lines.size())
+		delete_lines(text->impl->lines.size(), wrap_data.size());
 
 	for (size_t i = 0; i < wrap_data.size(); i++)
 		rewrap_line(i, 0, false);
 
-	if (wrap_data.size() < text->lines.size())
-		insert_lines(wrap_data.size(), text->lines.size());
+	if (wrap_data.size() < text->impl->lines.size())
+		insert_lines(wrap_data.size(), text->impl->lines.size());
 }
 
 void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
@@ -199,11 +199,11 @@ int wrap_info_t::calculate_screen_pos(void) const {
 int wrap_info_t::calculate_screen_pos(const text_coordinate_t *where) const {
 	int sub_line;
 	sub_line = find_line(text->cursor);
-	return text->lines[where->line]->calculate_screen_width((*wrap_data[where->line])[sub_line], where->pos, tabsize);
+	return text->impl->lines[where->line]->calculate_screen_width((*wrap_data[where->line])[sub_line], where->pos, tabsize);
 }
 
 int wrap_info_t::calculate_line_pos(int line, int pos, int sub_line) const {
-	return text->lines[line]->calculate_line_pos((*wrap_data[line])[sub_line],
+	return text->impl->lines[line]->calculate_line_pos((*wrap_data[line])[sub_line],
 		sub_line + 1 < (int) wrap_data[line]->size() ? (*wrap_data[line])[sub_line + 1] - 1: INT_MAX, pos, tabsize);
 }
 
@@ -219,7 +219,7 @@ void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line, text_line
 	if (tabsize <= 0)
 		info->flags |= text_line_t::TAB_AS_CONTROL;
 	info->tabsize = tabsize;
-	text->lines[line.line]->paint_line(win, info);
+	text->impl->lines[line.line]->paint_line(win, info);
 }
 
 }; // namespace
