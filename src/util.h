@@ -24,20 +24,25 @@
 
 namespace t3_widget {
 
-/** Class defining integers with a separate validity check. */
-class T3_WIDGET_API optint {
+/** Class defining values with a separate validity check. */
+template <class T>
+class T3_WIDGET_API optional {
 	private:
-		int value; /**< Integer value, if #initialized is @c true. */
+		T value; /**< Value, if #initialized is @c true. */
 		bool initialized; /**< Boolean indicating whether #value has been initialized. */
 
 	public:
-		optint(void) : value(0), initialized(false) {}
-		optint(int _value) : value(_value), initialized(true) {}
-		bool is_valid(void) { return initialized; }
-		operator int (void) const { if (!initialized) throw(0); return (int) value; }
-		optint & operator=(const optint &other) { initialized = other.initialized; value = other.value; return *this; }
-		optint & operator=(const int other) { initialized = true; value = other; return *this; }
+		optional(void) : initialized(false) {}
+		optional(T _value) : value(_value), initialized(true) {}
+		bool is_valid(void) const { return initialized; }
+		void unset(void) { initialized = false; }
+		operator T (void) const { if (!initialized) throw(0); return (T) value; }
+		T operator()(void) const  { if (!initialized) throw(0); return (T) value; }
+		optional & operator=(const optional &other) { initialized = other.initialized; value = other.value; return *this; }
+		optional & operator=(const T other) { initialized = true; value = other; return *this; }
 };
+
+typedef optional<int> optint;
 /** Standard uninitialized @ref optint value. */
 T3_WIDGET_API extern const optint None;
 
