@@ -4,10 +4,18 @@ Version 0.1.7:
 	  debugging purposes.
 	- Use dlopen/dlsym/dlclose directly if available, instead of using libltdl.
 	- The text_window_t widget now also supports mouse actions.
+	- Use XCB instead of Xlib if available.
+	- Change many classes to use the private implementation idiom, to achieve a
+	  more stable ABI.
 
 	Bug fixes:
 	- Replace using regular expressions and \1 .. \9 references caused a buffer
 	  overrun.
+	- Unindent selection would cause a crash if the selection started before
+	  the whitespace to be removed.
+	- Unindent selection would move the cursor to the last line to be
+	  unindented.
+	- Hickups in the X11 integration module have been solved.
 
 Version 0.1.6:
 	New features:

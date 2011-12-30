@@ -17,8 +17,11 @@ CXXFLAGS=-O2
 
 # Configuration flags and libraries. Include flags here to compile and link
 # against the libpcre, libsigc++, libunistring, libt3key, libt3window and
-# libtranscript libraries. Also add libltdl if you wish to build the X11
-# integration module (see below).
+# libtranscript libraries.
+# If you wish to build the X11 module, also add -DWITH_X11 and either the
+# libs and flags for XCB or -DUSE_XLIB and the Xlib library. Furthermore, you
+# need to add either -DHAS_DLFCN and the library for dlopen/dlsym/dlclose, or
+# libltdl. See also the X11MODULE variable below.
 CONFIGFLAGS=
 CONFIGLIBS=
 

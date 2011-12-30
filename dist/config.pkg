@@ -433,10 +433,23 @@ EOF
 			fi
 		fi
 
+		clean_cxx
+		cat > .configcxx.cc <<EOF
+#include <stdlib.h>
+#include <xcb/xcb.h>
+
+int main(int argc, char *argv[]) {
+	xcb_connection_t *c = xcb_connect(NULL, NULL);
+}
+EOF
 		if [ -z "$HAS_DYNAMIC" ] ; then
 			check_message_result "!! Could not find dlfcn functions or libltdl. libt3widget will not provide X11 clipboard integration."
+		elif pkgconfig xcb X11 test_link_cxx ; then
+			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
+			CONFIGLIBS="$DL_LIBS"
+			X11MODULE=src/libt3widget-x11.la
 		elif basic_x11 ; then
-			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
+			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 -DUSE_XLIB $DL_FLAGS"
 			CONFIGLIBS="$DL_LIBS"
 			X11MODULE=src/libt3widget-x11.la
 		else
