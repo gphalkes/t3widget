@@ -33,7 +33,19 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 				virtual bool accepts_focus(void);
 		};
 
-		struct implementation_t;
+		struct implementation_t {
+			size_t top_idx, current;
+			cleanup_t3_window_ptr widgets_window;
+			widgets_t widgets;
+			bool has_focus;
+			scrollbar_t scrollbar;
+			bool indicator;
+			cleanup_ptr<indicator_widget_t>::t indicator_widget;
+
+			implementation_t(bool _indicator) : top_idx(0), current(0),
+				has_focus(false), scrollbar(true), indicator(_indicator)
+			{}
+		};
 		pimpl_ptr<implementation_t>::t impl;
 
 

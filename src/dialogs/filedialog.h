@@ -25,7 +25,24 @@ namespace t3_widget {
 
 class T3_WIDGET_API file_dialog_t : public dialog_t {
 	private:
-		struct implementation_t;
+		struct implementation_t {
+			file_name_list_t names;
+			filtered_file_list_t view;
+			std::string current_dir, lang_codeset_filter;
+
+			int name_offset;
+
+			file_pane_t *file_pane;
+			frame_t *file_pane_frame;
+			text_field_t *file_line;
+			button_t *cancel_button, *ok_button;
+			checkbox_t *show_hidden_box;
+			smart_label_t *show_hidden_label;
+			bool option_widget_set;
+			sigc::connection cancel_button_up_connection, ok_button_up_connection;
+
+			implementation_t(void) : view(&names), option_widget_set(false) {}
+		};
 		pimpl_ptr<implementation_t>::t impl;
 
 	protected:
@@ -56,7 +73,12 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 			T3_WIDGET_SIGNAL(lose_focus, void);
 		};
 
-		struct implementation_t;
+		struct implementation_t {
+			int filter_offset,
+				filter_width;
+			filter_text_field_t *filter_line;
+			smart_label_t *filter_label;
+		};
 		pimpl_ptr<implementation_t>::t impl;
 
 		virtual const std::string *get_filter(void);
@@ -72,7 +94,9 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
 	private:
 		static std::string empty_filter;
 
-		struct implementation_t;
+		struct implementation_t {
+			button_t *create_button;
+		};
 		pimpl_ptr<implementation_t>::t impl;
 
 	protected:

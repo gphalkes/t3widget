@@ -23,23 +23,24 @@
 using namespace std;
 namespace t3_widget {
 
-message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_t(5, width, _title),
-		max_text_height(MESSAGEDIALOG_MAX_LINES)
+message_dialog_t::implementation_t::implementation_t(void) : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
+
+message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_t(5, width, _title), impl(new implementation_t())
 {
 	va_list ap;
 	button_t *button;
 	const char *button_name;
 	int total_width = 0;
 
-	text_window = new text_window_t(NULL, false);
-	text_window->set_size(1, width - 2);
-	text_window->set_position(1, 1);
-	text_window->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
-	text_window->connect_activate(activate_internal.make_slot());
-	text_window->set_tabsize(0);
-	text_window->set_enabled(false);
+	impl->text_window = new text_window_t(NULL, false);
+	impl->text_window->set_size(1, width - 2);
+	impl->text_window->set_position(1, 1);
+	impl->text_window->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
+	impl->text_window->connect_activate(activate_internal.make_slot());
+	impl->text_window->set_tabsize(0);
+	impl->text_window->set_enabled(false);
 
-	push_back(text_window);
+	push_back(impl->text_window);
 
 	va_start(ap, _title);
 	while ((button_name = va_arg(ap, const char *)) != NULL) {
@@ -68,7 +69,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 }
 
 message_dialog_t::~message_dialog_t(void) {
-	delete text_window->get_text();
+	delete impl->text_window->get_text();
 }
 
 void message_dialog_t::set_message(const char *message, size_t length) {
@@ -76,34 +77,34 @@ void message_dialog_t::set_message(const char *message, size_t length) {
 	text_buffer_t *text = new text_buffer_t();
 	int text_height;
 
-	text_window->set_size(None, t3_win_get_width(window) - 2);
+	impl->text_window->set_size(None, t3_win_get_width(window) - 2);
 
 	text->append_text(message, length);
-	old_text = text_window->get_text();
-	text_window->set_text(text);
+	old_text = impl->text_window->get_text();
+	impl->text_window->set_text(text);
 	delete old_text;
 
-	text_window->set_anchor(this, 0);
-	text_window->set_position(1, 1);
-	text_window->set_scrollbar(false);
-	text_window->set_enabled(false);
+	impl->text_window->set_anchor(this, 0);
+	impl->text_window->set_position(1, 1);
+	impl->text_window->set_scrollbar(false);
+	impl->text_window->set_enabled(false);
 
-	text_height = text_window->get_text_height();
-	if (text_height > max_text_height) {
-		height = max_text_height + 4;
-		text_window->set_scrollbar(true);
-		text_window->set_enabled(true);
+	text_height = impl->text_window->get_text_height();
+	if (text_height > impl->max_text_height) {
+		impl->height = impl->max_text_height + 4;
+		impl->text_window->set_scrollbar(true);
+		impl->text_window->set_enabled(true);
 	} else if (text_height == 1) {
 		text_coordinate_t coord(0, INT_MAX);
-		height = 5;
-		text_window->set_size(1, text->calculate_screen_pos(&coord, 0));
-		text_window->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
-		text_window->set_position(1, 0);
+		impl->height = 5;
+		impl->text_window->set_size(1, text->calculate_screen_pos(&coord, 0));
+		impl->text_window->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
+		impl->text_window->set_position(1, 0);
 	} else {
-		height = text_height + 4;
+		impl->height = text_height + 4;
 	}
-	text_window->set_size(height - 4, None);
-	set_size(height, None);
+	impl->text_window->set_size(impl->height - 4, None);
+	set_size(impl->height, None);
 	update_contents();
 }
 
@@ -130,7 +131,7 @@ sigc::connection message_dialog_t::connect_activate(const sigc::slot<void> &_slo
 }
 
 void message_dialog_t::set_max_text_height(int max) {
-	max_text_height = max;
+	impl->max_text_height = max;
 }
 
 }; // namespace

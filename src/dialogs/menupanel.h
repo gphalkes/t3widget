@@ -26,13 +26,21 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 	friend class menu_bar_t;
 	friend class menu_item_t;
 	private:
-		int width, label_width, hotkey_width;
-		smart_label_text_t label;
-		menu_bar_t *menu_bar;
+		struct implementation_t {
+			int width, label_width, hotkey_width;
+			smart_label_text_t label;
+			menu_bar_t *menu_bar;
+
+			implementation_t(const char *name) : label(name), menu_bar(NULL) {}
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 		void signal(int id);
 		void close(void);
 		void set_menu_bar(menu_bar_t *_menu_bar);
+		void draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const;
+		int get_label_width(void) const;
+		bool is_hotkey(key_t key) const;
 
 	protected:
 		virtual bool is_child(widget_t *widget);

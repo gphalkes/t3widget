@@ -21,10 +21,10 @@
 using namespace std;
 namespace t3_widget {
 
-menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar) : dialog_t(3, 5, NULL), label(name), menu_bar(NULL) {
-	width = 5;
-	label_width = 1;
-	hotkey_width = 0;
+menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar) : dialog_t(3, 5, NULL), impl(new implementation_t(name)) {
+	impl->width = 5;
+	impl->label_width = 1;
+	impl->hotkey_width = 0;
 	if (_menu_bar != NULL)
 		_menu_bar->add_menu(this);
 }
@@ -32,12 +32,12 @@ menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar) : dialog_t(3
 bool menu_panel_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_LEFT:
-			if (menu_bar != NULL)
-				menu_bar->previous_menu();
+			if (impl->menu_bar != NULL)
+				impl->menu_bar->previous_menu();
 			break;
 		case EKEY_RIGHT:
-			if (menu_bar != NULL)
-				menu_bar->next_menu();
+			if (impl->menu_bar != NULL)
+				impl->menu_bar->next_menu();
 			break;
 		case EKEY_UP:
 			focus_previous();
@@ -60,8 +60,8 @@ bool menu_panel_t::process_key(key_t key) {
 		case EKEY_SHIFT | '\t':
 			break;
 		case EKEY_ESC:
-			if (menu_bar != NULL)
-				menu_bar->close();
+			if (impl->menu_bar != NULL)
+				impl->menu_bar->close();
 			break;
 		case EKEY_NL:
 		case ' ':
@@ -94,15 +94,15 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 	int i;
 	(void) _width;
 	for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++)
-		(*iter)->set_size(None, width - 2);
+		(*iter)->set_size(None, impl->width - 2);
 
-	result = dialog_t::set_size(height, width);
+	result = dialog_t::set_size(height, impl->width);
 	return result;
 }
 
 void menu_panel_t::close(void) {
-	if (menu_bar != NULL)
-		menu_bar->close();
+	if (impl->menu_bar != NULL)
+		impl->menu_bar->close();
 }
 
 menu_item_base_t *menu_panel_t::add_item(const char *_label, const char *hotkey, int id) {
@@ -114,11 +114,11 @@ menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
 	push_back(item);
 	item->set_position(widgets.size(), None);
 
-	hotkey_width = max(hotkey_width, item->get_hotkey_width());
-	label_width = max(label_width, item->get_label_width());
-	if (hotkey_width + label_width > width - 2)
-		width = hotkey_width + label_width + 2;
-	set_size(widgets.size() + 2, width);
+	impl->hotkey_width = max(impl->hotkey_width, item->get_hotkey_width());
+	impl->label_width = max(impl->label_width, item->get_label_width());
+	if (impl->hotkey_width + impl->label_width > impl->width - 2)
+		impl->width = impl->hotkey_width + impl->label_width + 2;
+	set_size(widgets.size() + 2, impl->width);
 	return item;
 }
 
@@ -143,47 +143,59 @@ void menu_panel_t::remove_item(menu_item_base_t *item) {
 	return;
 
 resize_panel:
-	width = 5;
-	label_width = 1;
-	hotkey_width = 0;
+	impl->width = 5;
+	impl->label_width = 1;
+	impl->hotkey_width = 0;
 	for (iter = widgets.begin(), i = 1; iter != widgets.end(); iter++, i++) {
 		(*iter)->set_position(i, None);
 		label_item = dynamic_cast<menu_item_t *>(*iter);
 		if (label_item != NULL) {
-			hotkey_width = max(hotkey_width, label_item->get_hotkey_width());
-			label_width = max(label_width, label_item->get_label_width());
+			impl->hotkey_width = max(impl->hotkey_width, label_item->get_hotkey_width());
+			impl->label_width = max(impl->label_width, label_item->get_label_width());
 		}
-		if (hotkey_width + label_width > width - 2)
-			width = hotkey_width + label_width + 2;
+		if (impl->hotkey_width + impl->label_width > impl->width - 2)
+			impl->width = impl->hotkey_width + impl->label_width + 2;
 	}
-	set_size(widgets.size() + 2, width);
+	set_size(widgets.size() + 2, impl->width);
 }
 
 void menu_panel_t::signal(int id) {
-	if (menu_bar != NULL)
-		menu_bar->activate(id);
+	if (impl->menu_bar != NULL)
+		impl->menu_bar->activate(id);
 }
 
 void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
-	if (menu_bar == _menu_bar)
+	if (impl->menu_bar == _menu_bar)
 		return;
 
 	if (_menu_bar == NULL) {
-		menu_bar = NULL;
+		impl->menu_bar = NULL;
 		t3_win_set_anchor(window, NULL, 0);
 	} else {
-		if (menu_bar != NULL)
-			menu_bar->remove_menu(this);
-		menu_bar = _menu_bar;
-		t3_win_set_anchor(window, menu_bar->get_base_window(), 0);
+		if (impl->menu_bar != NULL)
+			impl->menu_bar->remove_menu(this);
+		impl->menu_bar = _menu_bar;
+		t3_win_set_anchor(window, impl->menu_bar->get_base_window(), 0);
 	}
+}
+
+void menu_panel_t::draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const {
+	impl->label.draw(draw_window, attr, selected);
+}
+
+int menu_panel_t::get_label_width(void) const {
+	return impl->label.get_width();
+}
+
+bool menu_panel_t::is_hotkey(key_t key) const {
+	return impl->label.is_hotkey(key);
 }
 
 bool menu_panel_t::is_child(widget_t *widget) {
 	/* We use a little hack here. The menu bar widget isn't actually one of our
 	   children. But by claiming it is, it will receive the mouse events that it
 	   should, even when this panel is visible. */
-	if (widget == menu_bar)
+	if (widget == impl->menu_bar)
 		return true;
 	return dialog_t::is_child(widget);
 }

@@ -22,16 +22,6 @@
 using namespace std;
 namespace t3_widget {
 
-struct text_window_t::implementation_t {
-	cleanup_ptr<scrollbar_t>::t scrollbar;
-	text_buffer_t *text;
-	cleanup_ptr<wrap_info_t>::t wrap_info;
-	text_coordinate_t top;
-	bool focus;
-
-	implementation_t(void) : top(0, 0), focus(false) {}
-};
-
 text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget_t(11, 11), impl(new implementation_t()) {
 	/* Note: we use a dirty trick here: the last position of the window is obscured by
 	   the impl->scrollbar-> However, the last position will only contain the wrap character

@@ -21,54 +21,54 @@ using namespace std;
 namespace t3_widget {
 
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text) :
-		dialog_t(height, width, _("Input Handling"))
+		dialog_t(height, width, _("Input Handling")), impl(new implementation_t())
 {
 	button_t *ok_button, *cancel_button;
 	smart_label_t *enable_simulate_label, *disable_timeout_label, *close_remark_label;
 
-	text = _text == NULL ? get_default_text() : _text;
+	impl->text = _text == NULL ? get_default_text() : _text;
 
-	text_window = new text_window_t(text);
-	text_frame = new frame_t(frame_t::COVER_RIGHT);
-	text_frame->set_child(text_window);
-	text_frame->set_size(height - 9, width - 2);
-	text_frame->set_position(1, 1);
+	impl->text_window = new text_window_t(impl->text);
+	impl->text_frame = new frame_t(frame_t::COVER_RIGHT);
+	impl->text_frame->set_child(impl->text_window);
+	impl->text_frame->set_size(height - 9, width - 2);
+	impl->text_frame->set_position(1, 1);
 
-	label_frame = new frame_t();
-	label_frame->set_anchor(text_frame, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
-	label_frame->set_position(0, 0);
-	label_frame->set_size(3, 18);
+	impl->label_frame = new frame_t();
+	impl->label_frame->set_anchor(impl->text_frame, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
+	impl->label_frame->set_position(0, 0);
+	impl->label_frame->set_size(3, 18);
 
-	key_label = new label_t("");
-	key_label->set_accepts_focus(false);
-	key_label->set_align(label_t::ALIGN_CENTER);
-	label_frame->set_child(key_label);
+	impl->key_label = new label_t("");
+	impl->key_label->set_accepts_focus(false);
+	impl->key_label->set_align(label_t::ALIGN_CENTER);
+	impl->label_frame->set_child(impl->key_label);
 
-	enable_simulate_box = new checkbox_t();
-	enable_simulate_box->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_PARENT(T3_ANCHOR_BOTTOMLEFT));
-	enable_simulate_box->set_position(-5, 2);
-	enable_simulate_box->connect_toggled(sigc::mem_fun(this, &input_selection_dialog_t::check_state));
-	enable_simulate_box->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
-	enable_simulate_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
-	enable_simulate_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
+	impl->enable_simulate_box = new checkbox_t();
+	impl->enable_simulate_box->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_PARENT(T3_ANCHOR_BOTTOMLEFT));
+	impl->enable_simulate_box->set_position(-5, 2);
+	impl->enable_simulate_box->connect_toggled(sigc::mem_fun(this, &input_selection_dialog_t::check_state));
+	impl->enable_simulate_box->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
+	impl->enable_simulate_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	impl->enable_simulate_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
 
 	enable_simulate_label = new smart_label_t("'Esc <letter>' simulates Meta+<letter>");
-	enable_simulate_label->set_anchor(enable_simulate_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	enable_simulate_label->set_anchor(impl->enable_simulate_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	enable_simulate_label->set_position(0, 1);
 
 	close_remark_label = new smart_label_t("(Requires 'Esc Esc' to close menu or dialog)");
 	close_remark_label->set_anchor(enable_simulate_label, 0);
 	close_remark_label->set_position(1, 0);
 
-	disable_timeout_box = new checkbox_t();
-	disable_timeout_box->set_anchor(enable_simulate_box, 0);
-	disable_timeout_box->set_position(2, 0);
-	disable_timeout_box->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
-	disable_timeout_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
-	disable_timeout_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
+	impl->disable_timeout_box = new checkbox_t();
+	impl->disable_timeout_box->set_anchor(impl->enable_simulate_box, 0);
+	impl->disable_timeout_box->set_position(2, 0);
+	impl->disable_timeout_box->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
+	impl->disable_timeout_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	impl->disable_timeout_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
 
 	disable_timeout_label = new smart_label_t("Disable timeout on Esc");
-	disable_timeout_label->set_anchor(disable_timeout_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	disable_timeout_label->set_anchor(impl->disable_timeout_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	disable_timeout_label->set_position(0, 1);
 
 	cancel_button = new button_t(_("Cancel"));
@@ -86,12 +86,12 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
 
-	push_back(text_frame);
-	push_back(label_frame);
-	push_back(enable_simulate_box);
+	push_back(impl->text_frame);
+	push_back(impl->label_frame);
+	push_back(impl->enable_simulate_box);
 	push_back(enable_simulate_label);
 	push_back(close_remark_label);
-	push_back(disable_timeout_box);
+	push_back(impl->disable_timeout_box);
 	push_back(disable_timeout_label);
 	push_back(ok_button);
 	push_back(cancel_button);
@@ -106,7 +106,7 @@ bool input_selection_dialog_t::set_size(optint height, optint width) {
 		width = t3_win_get_width(window);
 
 	result = dialog_t::set_size(height, width);
-	result &= text_frame->set_size(height - 9, width - 2);
+	result &= impl->text_frame->set_size(height - 9, width - 2);
 	return result;
 }
 
@@ -114,7 +114,7 @@ bool input_selection_dialog_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_ESC:
 		case EKEY_ESC | EKEY_META:
-			set_key_timeout(old_timeout);
+			set_key_timeout(impl->old_timeout);
 			close();
 			return true;
 		case '\t' | EKEY_META:
@@ -131,25 +131,25 @@ bool input_selection_dialog_t::process_key(key_t key) {
 				buffer_contents_length = strlen(buffer);
 				buffer_contents_length += t3_utf8_put(key & ~EKEY_META, buffer + buffer_contents_length);
 				buffer[buffer_contents_length] = 0;
-				key_label->set_text(buffer);
+				impl->key_label->set_text(buffer);
 				return true;
 			}
 			if (!dialog_t::process_key(key))
-				key_label->set_text("<other>");
+				impl->key_label->set_text("<other>");
 			return true;
 	}
 }
 
 void input_selection_dialog_t::show(void) {
-	old_timeout = get_key_timeout();
+	impl->old_timeout = get_key_timeout();
 	set_key_timeout(-1000);
-	if (old_timeout <= 0) {
-		enable_simulate_box->set_state(true);
-		disable_timeout_box->set_state(old_timeout == 0);
-		disable_timeout_box->set_enabled(true);
+	if (impl->old_timeout <= 0) {
+		impl->enable_simulate_box->set_state(true);
+		impl->disable_timeout_box->set_state(impl->old_timeout == 0);
+		impl->disable_timeout_box->set_enabled(true);
 	} else {
-		enable_simulate_box->set_state(false);
-		disable_timeout_box->set_enabled(false);
+		impl->enable_simulate_box->set_state(false);
+		impl->disable_timeout_box->set_enabled(false);
 	}
 	dialog_t::show();
 }
@@ -198,18 +198,18 @@ text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 }
 
 void input_selection_dialog_t::cancel(void) {
-	set_key_timeout(old_timeout);
+	set_key_timeout(impl->old_timeout);
 	close();
 }
 
 void input_selection_dialog_t::ok_activated(void) {
 	hide();
-	set_key_timeout(enable_simulate_box->get_state() ? (disable_timeout_box->get_state() ? 0 : -1000) : 100);
+	set_key_timeout(impl->enable_simulate_box->get_state() ? (impl->disable_timeout_box->get_state() ? 0 : -1000) : 100);
 	activate();
 }
 
 void input_selection_dialog_t::check_state(void) {
-	disable_timeout_box->set_enabled(enable_simulate_box->get_state());
+	impl->disable_timeout_box->set_enabled(impl->enable_simulate_box->get_state());
 }
 
 }; // namespace

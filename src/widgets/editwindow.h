@@ -48,7 +48,41 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static sigc::connection replace_buttons_connection;
 		static sigc::connection init_connected;
 
-		struct implementation_t;
+		struct implementation_t {
+			cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
+				indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
+			cleanup_ptr<scrollbar_t>::t scrollbar; /**< Scrollbar on the right of the text. */
+			int screen_pos; /**< Cached position of cursor in screen coordinates. */
+			int tabsize; /**< Width of a tab, in cells. */
+			bool focus; /**< Boolean indicating whether this edit_window_t has the input focus. */
+			bool tab_spaces; /**< Boolean indicating whether to use spaces for tab. */
+			/** Associated find dialog.
+				By default this is the shared dialog, but can be set to a different one.
+			*/
+			find_dialog_t *find_dialog;
+			finder_t *finder; /**< Object used for find actions in the text. */
+			wrap_type_t wrap_type; /**< The wrap_type_t used for display. */
+			wrap_info_t *wrap_info; /**< Required information for wrapped display, or @c NULL if not in use. */
+			/** The top-left coordinate in the text.
+				This is either a proper text_coordinate_t when wrapping is disabled, or
+				a line and sub-line (pos @c member) coordinate when wrapping is enabled.
+			*/
+			text_coordinate_t top_left;
+			int ins_mode, /**< Current insert/overwrite mode. */
+				last_set_pos; /**< Last horiziontal position set by user action. */
+			bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
+			bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
+
+			cleanup_ptr<autocompleter_t>::t autocompleter; /**< Object used for autocompletion. */
+			cleanup_ptr<autocomplete_panel_t>::t autocomplete_panel; /**< Panel for showing autocomplete options. */
+			bool autocomplete_panel_shown; /**< Boolean indicating whether the autocompletions are currently being shown. */
+
+			implementation_t(void) : tab_spaces(false), find_dialog(NULL), finder(NULL),
+				wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0),
+				auto_indent(true), indent_aware_home(true), autocompleter(NULL), autocomplete_panel(NULL),
+				autocomplete_panel_shown(false)
+			{}
+		};
 		pimpl_ptr<implementation_t>::t impl;
 
 		/** Function to initialize the shared dialogs and data. */
@@ -79,9 +113,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Handle page-up key. */
 		void pgup(void);
 		/** Handle home key. */
-		void home(void);
+		void home_key(void);
 		/** Handle end key. */
-		void end(void);
+		void end_key(void);
 		/** Reset the selection. */
 		void reset_selection(void);
 		/** Set the selection mode based on the current key pressed by the user. */

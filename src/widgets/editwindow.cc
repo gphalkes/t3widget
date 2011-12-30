@@ -44,43 +44,6 @@ sigc::connection edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(e
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-
-struct edit_window_t::implementation_t {
-	cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
-		indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
-	cleanup_ptr<scrollbar_t>::t scrollbar; /**< Scrollbar on the right of the text. */
-	int screen_pos; /**< Cached position of cursor in screen coordinates. */
-	int tabsize; /**< Width of a tab, in cells. */
-	bool focus; /**< Boolean indicating whether this edit_window_t has the input focus. */
-	bool tab_spaces; /**< Boolean indicating whether to use spaces for tab. */
-	/** Associated find dialog.
-		By default this is the shared dialog, but can be set to a different one.
-	*/
-	find_dialog_t *find_dialog;
-	finder_t *finder; /**< Object used for find actions in the text. */
-	wrap_type_t wrap_type; /**< The wrap_type_t used for display. */
-	wrap_info_t *wrap_info; /**< Required information for wrapped display, or @c NULL if not in use. */
-	/** The top-left coordinate in the text.
-		This is either a proper text_coordinate_t when wrapping is disabled, or
-		a line and sub-line (pos @c member) coordinate when wrapping is enabled.
-	*/
-	text_coordinate_t top_left;
-	int ins_mode, /**< Current insert/overwrite mode. */
-		last_set_pos; /**< Last horiziontal position set by user action. */
-	bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
-	bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
-
-	cleanup_ptr<autocompleter_t>::t autocompleter; /**< Object used for autocompletion. */
-	cleanup_ptr<autocomplete_panel_t>::t autocomplete_panel; /**< Panel for showing autocomplete options. */
-	bool autocomplete_panel_shown; /**< Boolean indicating whether the autocompletions are currently being shown. */
-
-	implementation_t(void) : tab_spaces(false), find_dialog(NULL), finder(NULL),
-		wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0),
-		auto_indent(true), indent_aware_home(true), autocompleter(NULL), autocomplete_panel(NULL),
-		autocomplete_panel_shown(false)
-	{}
-};
-
 void edit_window_t::init(bool _init) {
 	if (_init) {
 		/* Construct these from t3_widget::init, such that the locale is set correctly and
@@ -499,7 +462,7 @@ void edit_window_t::pgup(void) {
 	ensure_cursor_on_screen();
 }
 
-void edit_window_t::home(void) {
+void edit_window_t::home_key(void) {
 	const text_line_t *line;
 	int pos;
 
@@ -527,7 +490,7 @@ void edit_window_t::home(void) {
 	impl->last_set_pos = impl->screen_pos;
 }
 
-void edit_window_t::end(void) {
+void edit_window_t::end_key(void) {
 	if (impl->wrap_type == wrap_type_t::NONE) {
 		text->cursor.pos = text->get_line_max(text->cursor.line);
 	} else {
@@ -760,7 +723,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 		case EKEY_HOME | EKEY_SHIFT:
 		case EKEY_HOME:
-			home();
+			home_key();
 			break;
 		case EKEY_HOME | EKEY_CTRL | EKEY_SHIFT:
 		case EKEY_HOME | EKEY_CTRL:
@@ -771,7 +734,7 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 		case EKEY_END | EKEY_SHIFT:
 		case EKEY_END:
-			end();
+			end_key();
 			break;
 		case EKEY_END | EKEY_CTRL | EKEY_SHIFT:
 		case EKEY_END | EKEY_CTRL: {

@@ -25,12 +25,15 @@ namespace t3_widget {
 
 class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 	private:
-		cleanup_ptr<text_buffer_t>::t text;
-		frame_t *text_frame, *label_frame;
-		text_window_t *text_window;
-		label_t *key_label;
-		checkbox_t *enable_simulate_box, *disable_timeout_box;
-		int old_timeout;
+		struct implementation_t {
+			cleanup_ptr<text_buffer_t>::t text;
+			frame_t *text_frame, *label_frame;
+			text_window_t *text_window;
+			label_t *key_label;
+			checkbox_t *enable_simulate_box, *disable_timeout_box;
+			int old_timeout;
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 	public:
 		input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);

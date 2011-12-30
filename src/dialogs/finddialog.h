@@ -28,20 +28,21 @@ class replace_buttons_dialog_t;
 class finder_t;
 
 class T3_WIDGET_API find_dialog_t : public dialog_t {
-	protected:
-		friend class replace_buttons_dialog_t;
-
-		smart_label_t *replace_label;
-		text_field_t *find_line, *replace_line;
-		checkbox_t *whole_word_checkbox,
-			*match_case_checkbox,
-			*regex_checkbox,
-			*wrap_checkbox,
-			*transform_backslash_checkbox,
-			*reverse_direction_checkbox;
-		button_t *in_selection_button, *replace_all_button;
-		sigc::connection find_button_up_connection;
-		int state; // State of all the checkboxes converted to FIND_* flags
+	private:
+		struct implementation_t {
+			smart_label_t *replace_label;
+			text_field_t *find_line, *replace_line;
+			checkbox_t *whole_word_checkbox,
+				*match_case_checkbox,
+				*regex_checkbox,
+				*wrap_checkbox,
+				*transform_backslash_checkbox,
+				*reverse_direction_checkbox;
+			button_t *in_selection_button, *replace_all_button;
+			sigc::connection find_button_up_connection;
+			int state; // State of all the checkboxes converted to FIND_* flags
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 		void backward_toggled(void);
 		void icase_toggled(void);
@@ -63,8 +64,11 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
 };
 
 class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
-	protected:
-		button_t *find_button, *replace_button;
+	private:
+		struct implementation_t {
+			button_t *find_button, *replace_button;
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 	public:
 		replace_buttons_dialog_t(void);

@@ -25,8 +25,13 @@ class text_line_t;
 
 class T3_WIDGET_API message_dialog_t : public dialog_t {
 	private:
-		text_window_t *text_window;
-		int height, max_text_height;
+		struct implementation_t {
+			text_window_t *text_window;
+			int height, max_text_height;
+
+			implementation_t(void);
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 		virtual bool process_key(key_t key);
 

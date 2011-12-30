@@ -18,20 +18,6 @@
 using namespace std;
 namespace t3_widget {
 
-struct list_pane_t::implementation_t {
-	size_t top_idx, current;
-	cleanup_t3_window_ptr widgets_window;
-	widgets_t widgets;
-	bool has_focus;
-	scrollbar_t scrollbar;
-	bool indicator;
-	cleanup_ptr<indicator_widget_t>::t indicator_widget;
-
-	implementation_t(bool _indicator) : top_idx(0), current(0),
-		has_focus(false), scrollbar(true), indicator(_indicator)
-	{}
-};
-
 list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator)) {
 	init_unbacked_window(1, 3, true);
 	impl->widgets_window = window.release();

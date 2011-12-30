@@ -18,12 +18,21 @@
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/textbuffer.h>
 #include <t3widget/interfaces.h>
+#include <t3widget/wrapinfo.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
 	private:
-		struct implementation_t;
+		struct implementation_t {
+			cleanup_ptr<scrollbar_t>::t scrollbar;
+			text_buffer_t *text;
+			cleanup_ptr<wrap_info_t>::t wrap_info;
+			text_coordinate_t top;
+			bool focus;
+
+			implementation_t(void) : top(0, 0), focus(false) {}
+		};
 		pimpl_ptr<implementation_t>::t impl;
 
 		void scroll_up(int lines);

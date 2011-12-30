@@ -18,26 +18,6 @@
 using namespace std;
 namespace t3_widget {
 
-struct file_pane_t::implementation_t {
-	scrollbar_t scrollbar; /**< Scrollbar displayed at the bottom. */
-	size_t top_idx, /**< Index of the first item displayed. */
-		current; /**< Index of the currently highlighted item. */
-	file_list_t *file_list; /**< List of files to display. */
-	bool focus; /**< Boolean indicating whether this file_pane_t has the input focus. */
-	text_field_t *field; /**< The text_field_t which is the alternative input method for providing a file name. */
-	int column_widths[_T3_WDIGET_FP_MAX_COLUMNS], /**< Width in cells of the various columns. */
-		column_positions[_T3_WDIGET_FP_MAX_COLUMNS], /**< Left-most position for each column. */
-		columns_visible, /**< The number of columns that are visible currently. */
-		scrollbar_range; /**< Visible range for scrollbar setting. */
-	sigc::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
-
-	implementation_t(void) : scrollbar(false), top_idx(0), current(0), file_list(NULL),
-		focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
-	{}
-};
-
-
-
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 /* FIXME: we should not distribute left-over space among shown columns, but show partial column instead
 	this is more intuitive for the user. */

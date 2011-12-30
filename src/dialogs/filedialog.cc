@@ -27,25 +27,6 @@ namespace t3_widget {
 
 static key_t nul = 0;
 
-struct file_dialog_t::implementation_t {
-	file_name_list_t names;
-	filtered_file_list_t view;
-	std::string current_dir, lang_codeset_filter;
-
-	int name_offset;
-
-	file_pane_t *file_pane;
-	frame_t *file_pane_frame;
-	text_field_t *file_line;
-	button_t *cancel_button, *ok_button;
-	checkbox_t *show_hidden_box;
-	smart_label_t *show_hidden_label;
-	bool option_widget_set;
-	sigc::connection cancel_button_up_connection, ok_button_up_connection;
-
-	implementation_t(void) : view(&names), option_widget_set(false) {}
-};
-
 /* FIXME: TODO:
 	- path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
 	- optimize the case where filter is "*"
@@ -268,13 +249,6 @@ void file_dialog_t::refresh_view(void) {
 }
 
 //=========================== open_file_dialog_t ============================
-struct open_file_dialog_t::implementation_t {
-	int filter_offset,
-		filter_width;
-	filter_text_field_t *filter_line;
-	smart_label_t *filter_label;
-};
-
 void open_file_dialog_t::filter_text_field_t::set_focus(bool _focus) {
 	bool old_focus = has_focus();
 	text_field_t::set_focus(_focus);
@@ -325,11 +299,6 @@ void open_file_dialog_t::reset(void) {
 }
 
 //=========================== save_as_dialog_t ============================
-
-struct save_as_dialog_t::implementation_t {
-	button_t *create_button;
-};
-
 string save_as_dialog_t::empty_filter("*");
 
 save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height, width, "Save File As"), impl(new implementation_t()) {

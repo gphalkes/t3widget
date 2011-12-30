@@ -24,24 +24,6 @@
 using namespace std;
 namespace t3_widget {
 
-struct menu_bar_t::implementation_t {
-	int current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
-		old_menu; /**< Previously active window. */
-	int start_col; /**< Column where the next menu will start. */
-	bool hidden, /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
-		/** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input focus.
-			See the comments at #set_focus for details.
-		*/
-		has_focus;
-
-	std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
-	int button_down_idx; /** Index of menu on which the left button was pressed down. */
-
-	implementation_t(bool _hidden) : current_menu(0), old_menu(0),
-		start_col(0), hidden(_hidden), has_focus(false), button_down_idx(-1)
-	{}
-};
-
 menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_t(_hidden)) {
 	// Menu bar should be above normal widgets
 	t3_win_set_depth(window, -1);
@@ -58,7 +40,7 @@ void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
 	int attr = selected ? attributes.menubar_selected : attributes.menubar;
 	t3_win_set_paint(window, 0, t3_win_get_x(menu->get_base_window()) + 1);
 	t3_win_addch(window, ' ', attr);
-	menu->label.draw(window, attr, selected);
+	menu->draw_label(window, attr, selected);
 	t3_win_addch(window, ' ', attr);
 }
 
@@ -66,7 +48,7 @@ void menu_bar_t::add_menu(menu_panel_t *menu) {
 	impl->menus.push_back(menu);
 	menu->set_menu_bar(this);
 	menu->set_position(None, impl->start_col);
-	impl->start_col += menu->label.get_width() + 2;
+	impl->start_col += menu->get_label_width() + 2;
 	redraw = true;
 }
 
@@ -92,7 +74,7 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
 			/* Move all the remaining impl->menus to their new position. */
 			for (; iter != impl->menus.end(); iter++) {
 				(*iter)->set_position(None, impl->start_col);
-				impl->start_col += (*iter)->label.get_width() + 2;
+				impl->start_col += (*iter)->get_label_width() + 2;
 			}
 			redraw = true;
 			return;
@@ -184,7 +166,7 @@ bool menu_bar_t::is_hotkey(key_t key) {
 	}
 
 	for (int i = 0; i < (int) impl->menus.size(); i++) {
-		if (impl->menus[i]->label.is_hotkey(key)) {
+		if (impl->menus[i]->is_hotkey(key)) {
 			impl->old_menu = impl->current_menu = i;
 			return true;
 		}
@@ -216,7 +198,7 @@ int menu_bar_t::coord_to_menu_idx(int x) {
 		menu_start = t3_win_get_x((*iter)->get_base_window()) + 2;
 		if (x < menu_start)
 			return -1;
-		if (x < menu_start + (*iter)->label.get_width())
+		if (x < menu_start + (*iter)->get_label_width())
 			return idx;
 	}
 	return -1;

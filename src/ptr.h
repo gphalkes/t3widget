@@ -172,26 +172,18 @@ class linked_ptr_base<T[], D> : public smartptr_base<T> {
    use the same pattern. */
 template <typename T, typename D = delete_functor<T> > _T3_WIDGET_TYPEDEF(linked_ptr, linked_ptr_base<T, D>);
 
-/* Auto pointer class, which instantiates its destroy function where the
-   constructor is instantiated. This prevents the default destructor to be
-   synthesized for incomplete types, thus allowing truly private implementation.
-
-   Because these pointers are meant only for private implemenation purposes,
-   no assignment is possible, and only the constructor with argument is
-   available.
+/* The following pointers are meant only for private implemenation purposes,
+   therfore no assignment is possible, and only the constructor with argument
+   is available. Other than that, they are normal auto-pointers.
 */
 template <typename T>
 class pimpl_ptr_base : public smartptr_base<T> {
 	public:
-		~pimpl_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) do_delete(smartptr_base<T>::p_); }
-		pimpl_ptr_base(T *p) : do_delete(do_delete_impl) { smartptr_base<T>::p_ = p; }
+		~pimpl_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) delete smartptr_base<T>::p_; }
+		pimpl_ptr_base(T *p) { smartptr_base<T>::p_ = p; }
 	private:
-		void (*do_delete)(T *t);
-
 		pimpl_ptr_base& operator= (const pimpl_ptr_base &p) { (void) p; return *this; }
 		pimpl_ptr_base(const pimpl_ptr_base &p) { (void) p; }
-
-		static void do_delete_impl(T *t) { delete t; }
 };
 /* We also typedef what would be the basic variant, such that all type names
    use the same pattern. */
