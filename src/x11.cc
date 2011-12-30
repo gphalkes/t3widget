@@ -461,7 +461,7 @@ static bool send_selection(x11_window_t requestor, x11_atom_t target, x11_atom_t
 			return false;
 		/* If the data is too large to send in a single go (which is an arbitrary number,
 		   unless limited by the maximum request size), we use the INCR protocol. */
-		if (data->size() > max_data) {
+		if (data->size() < max_data) {
 			x11_change_property(requestor, property, atoms[UTF8_STRING], 8, X11_PROPERTY_REPLACE,
 				(unsigned char *) data->data(), data->size());
 		} else {
@@ -577,7 +577,7 @@ static void *process_events(void *arg) {
 	fd_max = x11_fill_fds(&saved_read_fds);
 
 	while (1) {
-		while ((event = x11_probe_event()) == NULL) {
+		while (!x11_error && !end_connection && (event = x11_probe_event()) == NULL) {
 			fd_set read_fds;
 
 			/* Use select to wait for more events when there are no more left. In
@@ -588,10 +588,6 @@ static void *process_events(void *arg) {
 			select(fd_max, &read_fds, NULL, NULL, NULL);
 			x11_acknowledge_wakeup(&read_fds);
  			pthread_mutex_lock(&clipboard_mutex);
-			if (x11_error || end_connection) {
-				pthread_mutex_unlock(&clipboard_mutex);
-				return NULL;
-			}
 		}
 		if (x11_error || end_connection) {
 			pthread_mutex_unlock(&clipboard_mutex);
@@ -693,7 +689,6 @@ static void *process_events(void *arg) {
 				break;
 			}
 			default:
-				lprintf("Unknown event\n");
 				break;
 		}
 		x11_free_event(event);
