@@ -18,15 +18,20 @@ CXXFLAGS=-O2
 # Configuration flags and libraries. Include flags here to compile and link
 # against the libpcre, libsigc++, libunistring, libt3key, libt3window and
 # libtranscript libraries.
-# If you wish to build the X11 module, also add -DWITH_X11 and either the
-# libs and flags for XCB or -DUSE_XLIB and the Xlib library. Furthermore, you
+# If you wish to build the X11 module, also add -DWITH_X11. See also the
+# X11MODULE, X11_FLAGS and X11_LIBS variables below. Furthermore, you
 # need to add either -DHAS_DLFCN and the library for dlopen/dlsym/dlclose, or
-# libltdl. See also the X11MODULE variable below.
+# libltdl.
 CONFIGFLAGS=
 CONFIGLIBS=
 
 # Target to define for X11 integration module. Leave blank if not desired.
 X11MODULE=src/libt3widget-x11.la
+
+# Libs and flags for XCB or -DUSE_XLIB and the libs and flags for the Xlib
+# library.
+X11_FLAGS=
+X11_LIBS=
 
 # Gettext configuration
 # GETTEXTFLAGS should contain -DUSE_GETTEXT to enable gettext translations
@@ -80,14 +85,19 @@ dist-clean: clean
 		$(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL \
 		-DX11_MOD_NAME=\"$(libdir)/libt3widget-x11.mod\" -c -o $@ $<
 
+src/x11.lo: src/x11.cc
+	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) \
+		$(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL \
+		$(X11_FLAGS) -c -o $@ $<
+
 src/libt3widget.la: $(OBJECTS)
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> \
 		$(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
 
 src/libt3widget-x11.la: src/x11.lo src/libt3widget.la
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \
-		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) \
-		-Lsrc -lt3widget -rpath $(libdir)
+		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(X11_LIBS) $(GETTEXTLIBS) \
+		-rpath $(libdir)
 
 # Macros to make DESTDIR support more readable
 _libdir=$(DESTDIR)$(libdir)

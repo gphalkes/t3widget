@@ -445,12 +445,13 @@ EOF
 		if [ -z "$HAS_DYNAMIC" ] ; then
 			check_message_result "!! Could not find dlfcn functions or libltdl. libt3widget will not provide X11 clipboard integration."
 		elif pkgconfig xcb X11 test_link_cxx ; then
-			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11"
+			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
 			CONFIGLIBS="$DL_LIBS"
 			X11MODULE=src/libt3widget-x11.la
 		elif basic_x11 ; then
-			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 -DUSE_XLIB $DL_FLAGS"
+			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
 			CONFIGLIBS="$DL_LIBS"
+			X11_FLAGS="${X11_FLAGS} -DUSE_XLIB"
 			X11MODULE=src/libt3widget-x11.la
 		else
 			check_message_result "!! Could not find X11 library. libt3widget will not provide X11 clipboard integration."
@@ -466,8 +467,8 @@ EOF
 
 	gen_pkgconfig libt3widget
 	create_makefile "CONFIGFLAGS=${CONFIGFLAGS} ${LIBSIGCPP_FLAGS} ${LIBTRANSCRIPT_FLAGS} \
-		${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS} ${X11_FLAGS}" \
+		${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
 		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring \
-		${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS} ${X11_LIBS}" \
-		"X11MODULE=${X11MODULE}"
+		${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}" \
+		"X11MODULE=${X11MODULE}" "X11_FLAGS=${X11_FLAGS}" "X11_LIBS=${X11_LIBS}"
 }
