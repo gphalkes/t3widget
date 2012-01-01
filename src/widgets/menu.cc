@@ -152,8 +152,7 @@ void menu_bar_t::show(void) {
 	if (!impl->has_focus) {
 		impl->has_focus = true;
 		redraw = true;
-		if (!impl->hidden)
-			t3_win_show(window);
+		t3_win_show(window);
 		draw_menu_name(impl->menus[impl->current_menu], true);
 		impl->menus[impl->current_menu]->show();
 	}
