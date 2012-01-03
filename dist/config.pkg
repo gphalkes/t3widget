@@ -1,4 +1,4 @@
-# Copyright (C) 2011 G.P. Halkes
+# Copyright (C) 2011-2012 G.P. Halkes
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3, as
 # published by the Free Software Foundation.
@@ -439,7 +439,12 @@ EOF
 #include <xcb/xcb.h>
 
 int main(int argc, char *argv[]) {
+	int value;
 	xcb_connection_t *c = xcb_connect(NULL, NULL);
+	value = XCB_TIME_CURRENT_TIME;
+	value = XCB_ATOM_WM_NAME;
+	value = XCB_ATOM_STRING;
+	value = XCB_ATOM_NONE;
 }
 EOF
 		if [ -z "$HAS_DYNAMIC" ] ; then

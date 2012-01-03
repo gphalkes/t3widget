@@ -1,3 +1,8 @@
+Version 0.1.8:
+	Bug fixes:
+	- Show the menu bar when in hidden mode and a menu is activated.
+	- Added check for required XCB constants, to prevent build failures.
+
 Version 0.1.7:
 	New features:
 	- Allow finalizing of the library, to allow release of all memory for
