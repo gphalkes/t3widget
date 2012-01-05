@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig libt3key/0.1.3 LIBT3KEY test_link_cxx PKGCONFIG_REQUIRES_PRIVATE || \
+	pkgconfig libt3key/0.2.0 LIBT3KEY test_link_cxx PKGCONFIG_REQUIRES_PRIVATE || \
 		error "!! Can not find libt3key. libt3key is required to compile libt3widget."
 
 	clean_cxx

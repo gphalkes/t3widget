@@ -1,3 +1,7 @@
+Version 0.1.9:
+	New features:
+	- Follow libt3key 0.2.0 API change.
+
 Version 0.1.8:
 	Bug fixes:
 	- Show the menu bar when in hidden mode and a menu is activated.

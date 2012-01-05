@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 G.P. Halkes
+/* Copyright (C) 2011-2012 G.P. Halkes
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 3, as
    published by the Free Software Foundation.
@@ -420,6 +420,9 @@ unknown_sequence:
 		while ((alted_key = get_next_converted_key()) < 0 && read_keychar(1)) {}
 		if (alted_key < 0)
 			return -1;
+		/* We need to do single key mapping as well here. */
+		if ((alted_key & EKEY_KEY_MASK) < 128 && map_single[alted_key & EKEY_KEY_MASK] != 0)
+			alted_key = map_single[alted_key & EKEY_KEY_MASK];
 		return alted_key | EKEY_META;
 	} else if (sequence.idx == 1) {
 		return drop_single_esc ? -2 : EKEY_ESC;
@@ -633,14 +636,14 @@ static bool is_function_key(const char *str) {
 	if (str[0] != 'f' || !(str[1] >= '0' && str[1] <= '9'))
 		return false;
 
-	/* ... third either a digit, + or nothing ... */
-	if (str[2] == 0 || str[2] == '+')
+	/* ... third either a digit, - or nothing ... */
+	if (str[2] == 0 || str[2] == '-')
 		return true;
 	if (!(str[2] >= '0' && str[2] <= '9'))
 		return false;
 
-	/* ... fourth either + or nothing. */
-	if (str[3] == 0 || str[3] == '+')
+	/* ... fourth either - or nothing. */
+	if (str[3] == 0 || str[3] == '-')
 		return true;
 
 	return false;
@@ -700,15 +703,15 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	map_single[10] = EKEY_NL;
 	map_single[13] = EKEY_NL;
 
-	if ((key_node = t3_key_get_named_node(keymap, "%enter")) != NULL) {
+	if ((key_node = t3_key_get_named_node(keymap, "_enter")) != NULL) {
 		t3_term_putp(key_node->string);
 		enter = key_node->string;
 	}
-	if ((key_node = t3_key_get_named_node(keymap, "%leave")) != NULL)
+	if ((key_node = t3_key_get_named_node(keymap, "_leave")) != NULL)
 		leave = key_node->string;
-	if ((key_node = t3_key_get_named_node(keymap, "%shiftfn")) != NULL)
+	if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != NULL)
 		shiftfn = key_node->string;
-	if (t3_key_get_named_node(keymap, "%xterm_mouse")) {
+	if (t3_key_get_named_node(keymap, "_xterm_mouse")) {
 		/* Start out in ALL_UTF mode. The decode_xterm_mouse routine will switch back
 		   to a different mode if necessary. */
 		xterm_mouse_reporting = XTERM_MOUSE_ALL_UTF;
@@ -722,7 +725,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	   - sort the map for quick searching
 	*/
 	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
-		if (key_node->key[0] == '%')
+		if (key_node->key[0] == '_')
 			continue;
 		if (key_node->string[0] == 27)
 			map_count++;
@@ -732,7 +735,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
 
 	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
-		if (key_node->key[0] == '%')
+		if (key_node->key[0] == '_')
 			continue;
 
 		if (key_node->string[0] == 27) {
@@ -746,7 +749,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 					key_strings[i].string[j] != 0 && key_node->key[j] != 0; j++)
 			{}
 
-			if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '+' || key_node->key[j] == 0)))
+			if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '-' || key_node->key[j] == 0)))
 				continue;
 
 			if (key_node->string[0] != 27) {
