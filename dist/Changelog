@@ -1,3 +1,7 @@
+Version 0.1.10:
+	Bug fixes:
+	- Fix double free in find operation.
+
 Version 0.1.9:
 	New features:
 	- Follow libt3key 0.2.0 API change.

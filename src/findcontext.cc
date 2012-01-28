@@ -185,8 +185,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 					c_size = folded_size;
 					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), NULL, NULL, (uint8_t *) (char *) folded, &c_size);
 					if (c != folded) {
-						lprintf("folded: %p, c: %p\n", (char *) folded, c);
-						free(folded);
+						// Previous value of folded will be automatically deleted.
 						folded = const_cast<char *>(c);
 						folded_size = c_size;
 					}
@@ -220,8 +219,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 					c_size = folded_size;
 					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), NULL, NULL, (uint8_t *) (char *) folded, &c_size);
 					if (c != folded) {
-						lprintf("folded: %p, c: %p\n", (char *) folded, c);
-						free(folded);
+						// Previous value of folded will be automatically deleted.
 						folded = const_cast<char *>(c);
 						folded_size = c_size;
 					}
