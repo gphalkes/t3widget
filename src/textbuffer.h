@@ -115,7 +115,9 @@ class T3_WIDGET_API text_buffer_t {
 		void delete_block(text_coordinate_t start, text_coordinate_t end);
 		bool replace_block(text_coordinate_t start, text_coordinate_t end, const std::string *block);
 		bool indent_selection(int tabsize, bool tab_spaces);
+		bool indent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize, bool tab_spaces);
 		bool unindent_selection(int tabsize);
+		bool unindent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize);
 		bool unindent_line(int tabsize);
 		void set_selection_from_find(find_result_t *result);
 

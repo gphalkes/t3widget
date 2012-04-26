@@ -851,16 +851,19 @@ selection_mode_t text_buffer_t::get_selection_mode(void) const {
 }
 
 bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
+	if (impl->selection_mode == selection_mode_t::NONE && impl->selection_start.line != impl->selection_end.line)
+		return true;
+	return indent_block(impl->selection_start, impl->selection_end, tabsize, tab_spaces);
+}
+
+bool text_buffer_t::indent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize, bool tab_spaces) {
 	int end_line;
 	text_coordinate_t insert_at;
 	string str, *undo_text;
 	undo_t *undo;
 	text_line_t *indent;
 
-	if (impl->selection_mode == selection_mode_t::NONE && impl->selection_start.line != impl->selection_end.line)
-		return true;
-
-	undo = get_undo(UNDO_INDENT, impl->selection_start, impl->selection_end);
+	undo = get_undo(UNDO_INDENT, start, end);
 
 	if (tab_spaces)
 		str.append(tabsize, ' ');
@@ -868,13 +871,13 @@ bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 		str.append(1, '\t');
 
 	insert_at.pos = 0;
-	if (impl->selection_end.line < impl->selection_start.line) {
-		insert_at.line = impl->selection_end.line;
-		end_line = impl->selection_start.line;
+	if (end.line < start.line) {
+		insert_at.line = end.line;
+		end_line = start.line;
 	} else {
-		insert_at.line = impl->selection_start.line;
-		end_line = impl->selection_end.line;
-		if (impl->selection_end.pos == 0)
+		insert_at.line = start.line;
+		end_line = end.line;
+		if (end.pos == 0)
 			end_line--;
 	}
 	undo_text = undo->get_text();
@@ -885,14 +888,14 @@ bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 		indent = impl->line_factory->new_text_line_t(&str);
 		insert_block_internal(insert_at, indent);
 	}
-	impl->selection_start.pos = 0;
-	if (impl->selection_end.pos == 0) {
+	start.pos = 0;
+	if (end.pos == 0) {
 		undo_text->append(1, 'X'); // Simply add a non-space/tab as marker
-		cursor.line = impl->selection_end.line;
+		cursor.line = end.line;
 	} else {
-		impl->selection_end.pos += tab_spaces ? tabsize : 1;
+		end.pos += tab_spaces ? tabsize : 1;
 	}
-	cursor.pos = impl->selection_end.pos;
+	cursor.pos = end.pos;
 
 	return true;
 }
@@ -940,21 +943,24 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 }
 
 bool text_buffer_t::unindent_selection(int tabsize) {
+	if (impl->selection_mode == selection_mode_t::NONE && impl->selection_start.line != impl->selection_end.line)
+		return true;
+	return unindent_block(impl->selection_start, impl->selection_end, tabsize);
+}
+
+bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize) {
 	int end_line;
 	text_coordinate_t delete_start, delete_end;
 	string undo_text;
 	bool text_changed = false;
 
-	if (impl->selection_mode == selection_mode_t::NONE && impl->selection_start.line != impl->selection_end.line)
-		return true;
-
-	if (impl->selection_end.line < impl->selection_start.line) {
-		delete_start.line = impl->selection_end.line;
+	if (end.line < start.line) {
+		delete_start.line = end.line;
 		end_line = impl->selection_start.line;
 	} else {
-		delete_start.line = impl->selection_start.line;
-		end_line = impl->selection_end.line;
-		if (impl->selection_end.pos == 0)
+		delete_start.line = start.line;
+		end_line = end.line;
+		if (end.pos == 0)
 			end_line--;
 	}
 
@@ -978,26 +984,26 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 		delete_end.line = delete_start.line;
 		delete_block_internal(delete_start, delete_end, NULL);
 
-		if (delete_end.line == impl->selection_start.line) {
-			if (impl->selection_start.pos > delete_end.pos)
-				impl->selection_start.pos -= delete_end.pos;
+		if (delete_end.line == start.line) {
+			if (start.pos > delete_end.pos)
+				start.pos -= delete_end.pos;
 			else
-				impl->selection_start.pos = 0;
-		} else if (delete_end.line == impl->selection_end.line) {
-			if (impl->selection_end.pos > delete_end.pos)
-				cursor.pos = impl->selection_end.pos -= delete_end.pos;
+				start.pos = 0;
+		} else if (delete_end.line == end.line) {
+			if (end.pos > delete_end.pos)
+				cursor.pos = end.pos -= delete_end.pos;
 			else
-				cursor.pos = impl->selection_end.pos = 0;
+				cursor.pos = end.pos = 0;
 		}
 	}
-	if (impl->selection_end.line > impl->selection_start.line && end_line != impl->selection_end.line)
+	if (end.line > start.line && end_line != end.line)
 		undo_text.append(1, 'X'); // Simply add a non-space/tab as marker
 
 	if (text_changed) {
-		undo_t *undo = get_undo(UNDO_UNINDENT, impl->selection_start, impl->selection_end);
+		undo_t *undo = get_undo(UNDO_UNINDENT, start, end);
 		undo->get_text()->append(undo_text);
 	}
-	cursor.line = impl->selection_end.line;
+	cursor.line = end.line;
 	return true;
 }
 
