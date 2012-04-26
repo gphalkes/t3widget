@@ -482,8 +482,11 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
 		}
 
 		cclass = get_class(&buffer, i);
+		if (buffer[i] < 32 && (buffer[i] != '\t' || tabsize == 0))
+			cclass = CLASS_GRAPH;
+
 		if (!graph_seen) {
-			if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH || (buffer[i] < 32 && (buffer[i] != '\t' || tabsize == 0))) {
+			if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH) {
 				graph_seen = true;
 				last_was_graph = true;
 			}
@@ -491,7 +494,7 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
 		} else if (cclass == CLASS_WHITESPACE && last_was_graph) {
 			possible_break.pos = adjust_position(i, 1);
 			last_was_graph = false;
-		} else if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH || (buffer[i] < 32 && (buffer[i] != '\t' || tabsize == 0))) {
+		} else if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH) {
 			last_was_graph = true;
 		}
 	}

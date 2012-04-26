@@ -1,3 +1,10 @@
+Version 0.1.11:
+	New features:
+	- Text lines and edit windows now have options for showing tabs.
+
+	Bug fixes:
+	- Tabs are now handled better when using line wrapping.
+
 Version 0.1.10:
 	Bug fixes:
 	- Fix double free in find operation.
