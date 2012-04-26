@@ -261,7 +261,7 @@ bool text_buffer_t::selection_empty(void) const {
 void text_buffer_t::set_selection_end(bool update_primary)  {
 	impl->selection_end = cursor;
 	if (update_primary)
-		set_primary(convert_selection());
+		set_primary(convert_block(impl->selection_start, impl->selection_end));
 }
 
 text_coordinate_t text_buffer_t::get_selection_start(void) const { return impl->selection_start; }
@@ -454,13 +454,13 @@ bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end
 	return true;
 }
 
-string *text_buffer_t::convert_selection(void) {
+string *text_buffer_t::convert_block(text_coordinate_t start, text_coordinate_t end) {
 	text_coordinate_t current_start, current_end;
 	string *retval;
 	int i;
 
-	current_start = impl->selection_start;
-	current_end = impl->selection_end;
+	current_start = start;
+	current_end = end;
 
 	/* Don't do anything on empty selection */
 	if (current_start.line == current_end.line && current_start.pos == current_end.pos)
@@ -724,7 +724,7 @@ void text_buffer_t::set_selection_from_find(find_result_t *result) {
 
 	cursor = get_selection_end();
 	impl->selection_mode = selection_mode_t::SHIFT;
-	set_primary(convert_selection());
+	set_primary(convert_block(impl->selection_start, impl->selection_end));
 }
 
 bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) const {

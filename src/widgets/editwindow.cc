@@ -1066,7 +1066,7 @@ void edit_window_t::cut_copy(bool cut) {
 			return;
 		}
 
-		set_clipboard(text->convert_selection());
+		set_clipboard(text->convert_block(text->get_selection_start(), text->get_selection_end()));
 
 		if (cut)
 			delete_selection();

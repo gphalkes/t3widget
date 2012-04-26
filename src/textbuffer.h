@@ -126,7 +126,7 @@ class T3_WIDGET_API text_buffer_t {
 		void replace(finder_t *finder, find_result_t *result);
 
 		bool is_modified(void) const;
-		std::string *convert_selection(void);
+		std::string *convert_block(text_coordinate_t start, text_coordinate_t end);
 		int apply_undo(void);
 		int apply_redo(void);
 		void start_undo_block(void);
