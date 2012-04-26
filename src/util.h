@@ -127,7 +127,8 @@ _T3_WIDGET_ENUM(attribute_t,
 	MENUBAR,
 	MENUBAR_SELECTED,
 	BACKGROUND,
-	SHADOW
+	SHADOW,
+	META_TEXT
 );
 /** @var attribute_t::NON_PRINT
     Attribute specifier for non-printable characters. */

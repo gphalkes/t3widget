@@ -52,6 +52,7 @@ void set_color_mode(bool on) {
 		attributes.menubar = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
 		attributes.menubar_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
 		attributes.shadow = T3_ATTR_BG_BLACK;
+		attributes.meta_text = T3_ATTR_FG_CYAN;
 	} else {
 		attributes.non_print = T3_ATTR_UNDERLINE;
 		attributes.selection_cursor = T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
@@ -70,6 +71,7 @@ void set_color_mode(bool on) {
 		attributes.menubar = T3_ATTR_REVERSE;
 		attributes.menubar_selected = 0;
 		attributes.shadow = T3_ATTR_REVERSE;
+		attributes.meta_text = T3_ATTR_UNDERLINE;
 	}
 	attributes.background = attributes.dialog;
 	t3_win_set_default_attrs(NULL, attributes.background);
@@ -133,6 +135,9 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 		case attribute_t::SHADOW:
 			attributes.shadow = value;
 			break;
+		case attribute_t::META_TEXT:
+			attributes.meta_text = value;
+			break;
 		default:
 			return;
 	}
@@ -178,6 +183,8 @@ t3_attr_t get_attribute(attribute_t attribute) {
 			return attributes.background;
 		case attribute_t::SHADOW:
 			return attributes.shadow;
+		case attribute_t::META_TEXT:
+			return attributes.meta_text;
 		default:
 			return 0;
 	}

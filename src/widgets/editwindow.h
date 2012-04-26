@@ -72,6 +72,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 				last_set_pos; /**< Last horiziontal position set by user action. */
 			bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
 			bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
+			bool show_tabs; /**< Boolean indicating whether to explicitly show tabs. */
 
 			cleanup_ptr<autocompleter_t>::t autocompleter; /**< Object used for autocompletion. */
 			cleanup_ptr<autocomplete_panel_t>::t autocomplete_panel; /**< Panel for showing autocomplete options. */
@@ -79,8 +80,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 			implementation_t(void) : tab_spaces(false), find_dialog(NULL), finder(NULL),
 				wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0),
-				auto_indent(true), indent_aware_home(true), autocompleter(NULL), autocomplete_panel(NULL),
-				autocomplete_panel_shown(false)
+				auto_indent(true), indent_aware_home(true), show_tabs(false), autocompleter(NULL),
+				autocomplete_panel(NULL), autocomplete_panel_shown(false)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
@@ -238,6 +239,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_auto_indent(bool _auto_indent);
 		/** Set indent aware home. */
 		void set_indent_aware_home(bool _indent_aware_home);
+		/** Set show_tabs. */
+		void set_show_tabs(bool _show_tabs);
 
 		/** Get the size of a tab. */
 		int get_tabsize(void);
@@ -249,6 +252,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		bool get_auto_indent(void);
 		/** Get indent aware home. */
 		bool get_indent_aware_home(void);
+		/** Get show tabs. */
+		bool get_show_tabs(void);
 
 		/** Save the current view parameters, to allow them to be restored later. */
 		view_parameters_t *save_view_parameters(void);
@@ -272,6 +277,7 @@ class edit_window_t::view_parameters_t {
 		int ins_mode, last_set_pos;
 		bool auto_indent;
 		bool indent_aware_home;
+		bool show_tabs;
 
 		view_parameters_t(edit_window_t *view);
 		void apply_parameters(edit_window_t *view) const;
@@ -283,6 +289,7 @@ class edit_window_t::view_parameters_t {
 		void set_tab_spaces(bool _tab_spaces);
 		void set_auto_indent(bool _auto_indent);
 		void set_indent_aware_home(bool _indent_aware_home);
+		void set_show_tabs(bool _show_tabs);
 };
 
 class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t {

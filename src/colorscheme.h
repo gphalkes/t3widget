@@ -49,6 +49,8 @@ struct attributes_t {
 
 	t3_attr_t shadow;
 	t3_attr_t background;
+
+	t3_attr_t meta_text;
 };
 
 /** @internal The default attributes for the different display elements. */

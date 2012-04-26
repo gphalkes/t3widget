@@ -196,7 +196,7 @@ void text_buffer_t::paint_line(t3_window_t *win, int line, text_line_t::paint_in
 	prepare_paint_line(line);
 	info->start = 0;
 	info->max = INT_MAX;
-	info->flags = 0;
+	info->flags &= ~text_line_t::BREAK;
 	impl->lines[line]->paint_line(win, info);
 }
 

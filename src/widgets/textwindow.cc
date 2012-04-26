@@ -176,6 +176,7 @@ void text_window_t::update_contents(void) {
 	info.selection_end = -1;
 	info.cursor = -1;
 	info.leftcol = 0;
+	info.flags = 0;
 
 	text_coordinate_t end = impl->wrap_info->get_end();
 	text_coordinate_t draw_line = impl->top;

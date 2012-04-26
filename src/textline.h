@@ -41,7 +41,8 @@ class T3_WIDGET_API text_line_t {
 			SPACECLEAR = (1<<2),
 			TAB_AS_CONTROL = (1<<3),
 			EXTEND_SELECTION = (1<<4),
-			DEBUG_LINE = (1<<5)
+			DEBUG_LINE = (1<<5),
+			SHOW_TABS = (1<<6)
 		};
 
 		struct paint_info_t {
@@ -74,6 +75,7 @@ class T3_WIDGET_API text_line_t {
 
 	private:
 		static char spaces[_T3_MAX_TAB];
+		static char dashes[_T3_MAX_TAB];
 		static char dots[16];
 		static const char *control_map;
 		static const char *wrap_symbol;

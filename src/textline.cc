@@ -29,6 +29,7 @@ using namespace std;
 namespace t3_widget {
 
 char text_line_t::spaces[_T3_MAX_TAB];
+char text_line_t::dashes[_T3_MAX_TAB];
 char text_line_t::dots[16];
 const char *text_line_t::control_map = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]_^";
 const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";
@@ -309,8 +310,16 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 			total += tabspaces;
 			if (total >= size)
 				total = size;
-			if (total > info->leftcol)
-				t3_win_addnstr(win, spaces, total - info->leftcol, selection_attr);
+			if (total > info->leftcol) {
+				if (flags & text_line_t::SHOW_TABS) {
+					selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
+					if (total - info->leftcol > 1)
+						t3_win_addnstr(win, dashes, total - info->leftcol - 1, selection_attr);
+					t3_win_addch(win, '>', selection_attr);
+				} else {
+					t3_win_addnstr(win, spaces, total - info->leftcol, selection_attr);
+				}
+			}
 		} else if ((unsigned char) buffer[i] < 32) {
 			total += 2;
 			// If total > info->leftcol than only the right side character is visible
@@ -359,16 +368,27 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 			total += accumulated;
 			accumulated = 0;
 			tabspaces = info->tabsize - (total % info->tabsize);
-			if (total + tabspaces >= size)
-				tabspaces = size - total;
+			/*if (total + tabspaces >= size)
+				tabspaces = size - total;*/
 			if (i == info->cursor) {
-				t3_win_addch(win, ' ', selection_attr);
+				char cursor_char = (flags & text_line_t::SHOW_TABS) ? (tabspaces > 1 ? '<' : '>') : ' ';
+				t3_win_addch(win, cursor_char, selection_attr);
 				tabspaces--;
 				total++;
 				selection_attr = i >= info->selection_start && i < info->selection_end ? info->selected_attr : info->normal_attr;
 			}
-			if (tabspaces > 0)
-				t3_win_addnstr(win, spaces, tabspaces, selection_attr);
+			if (tabspaces > 0) {
+				if (flags & text_line_t::SHOW_TABS) {
+					selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
+					if (tabspaces > 1)
+						t3_win_addch(win, i == info->cursor ? '-' : '<', selection_attr);
+					if (tabspaces > 2)
+						t3_win_addnstr(win, dashes, tabspaces - 2, selection_attr);
+					t3_win_addch(win, '>', selection_attr);
+				} else {
+					t3_win_addnstr(win, spaces, tabspaces, selection_attr);
+				}
+			}
 			total += tabspaces;
 			print_from = i + 1;
 		} else if ((unsigned char) buffer[i] < 32) {
@@ -423,7 +443,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	if (flags & text_line_t::BREAK) {
 		for (; total < size; total++)
 			t3_win_addch(win, ' ', info->normal_attr);
-		t3_win_addstr(win, wrap_symbol, t3_term_combine_attrs(attributes.non_print, info->normal_attr));
+		t3_win_addstr(win, wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info->normal_attr));
 	} else if (flags & text_line_t::SPACECLEAR) {
 		for (; total + sizeof(spaces) < (size_t) size; total += sizeof(spaces))
 			t3_win_addnstr(win, spaces, sizeof(spaces), (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
@@ -721,6 +741,7 @@ const string *text_line_t::get_data(void) const {
 
 void text_line_t::init(void) {
 	memset(spaces, ' ', sizeof(spaces));
+	memset(dashes, '-', sizeof(dashes));
 	memset(dots, '.', sizeof(dots));
 	if (!t3_term_can_draw(wrap_symbol, strlen(wrap_symbol)))
 		wrap_symbol = "$";

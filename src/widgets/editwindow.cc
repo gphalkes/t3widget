@@ -219,6 +219,7 @@ void edit_window_t::repaint_screen(void) {
 	info.tabsize = impl->tabsize;
 	info.normal_attr = 0;
 	info.selected_attr = attributes.text_selected;
+	info.flags = impl->show_tabs ? text_line_t::SHOW_TABS : 0;
 
 	if (impl->wrap_type == wrap_type_t::NONE) {
 		info.leftcol = impl->top_left.pos;
@@ -244,6 +245,7 @@ void edit_window_t::repaint_screen(void) {
 		text_coordinate_t end_coord = impl->wrap_info->get_end();
 		text_coordinate_t draw_line = impl->top_left;
 		info.leftcol = 0;
+
 		for (i = 0; i < t3_win_get_height(impl->edit_window); i++, impl->wrap_info->add_lines(draw_line, 1)) {
 			info.selection_start = draw_line.line == current_start.line ? current_start.pos : -1;
 			if (draw_line.line >= current_start.line) {
@@ -1288,6 +1290,10 @@ void edit_window_t::set_indent_aware_home(bool _indent_aware_home) {
 	impl->indent_aware_home = _indent_aware_home;
 }
 
+void edit_window_t::set_show_tabs(bool _show_tabs) {
+	impl->show_tabs = _show_tabs;
+}
+
 int edit_window_t::get_tabsize(void) {
 	return impl->tabsize;
 }
@@ -1306,6 +1312,10 @@ bool edit_window_t::get_auto_indent(void) {
 
 bool edit_window_t::get_indent_aware_home(void) {
 	return impl->indent_aware_home;
+}
+
+bool edit_window_t::get_show_tabs(void) {
+	return impl->show_tabs;
 }
 
 edit_window_t::view_parameters_t *edit_window_t::save_view_parameters(void) {
@@ -1451,10 +1461,11 @@ edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
 	last_set_pos = view->impl->last_set_pos;
 	auto_indent = view->impl->auto_indent;
 	indent_aware_home = view->impl->indent_aware_home;
+	show_tabs = view->impl->show_tabs;
 }
 
 edit_window_t::view_parameters_t::view_parameters_t(void) : top_left(0, 0), wrap_type(wrap_type_t::NONE), tabsize(8),
-		tab_spaces(false), ins_mode(0), last_set_pos(0), auto_indent(true), indent_aware_home(true)
+		tab_spaces(false), ins_mode(0), last_set_pos(0), auto_indent(true), indent_aware_home(true), show_tabs(false)
 {}
 
 void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) const {
@@ -1473,6 +1484,7 @@ void edit_window_t::view_parameters_t::apply_parameters(edit_window_t *view) con
 	view->impl->last_set_pos = last_set_pos;
 	view->impl->auto_indent = auto_indent;
 	view->impl->indent_aware_home = indent_aware_home;
+	view->impl->show_tabs = show_tabs;
 }
 
 
@@ -1481,6 +1493,7 @@ void edit_window_t::view_parameters_t::set_wrap(wrap_type_t _wrap_type) { wrap_t
 void edit_window_t::view_parameters_t::set_tab_spaces(bool _tab_spaces) { tab_spaces = _tab_spaces; }
 void edit_window_t::view_parameters_t::set_auto_indent(bool _auto_indent) { auto_indent = _auto_indent; }
 void edit_window_t::view_parameters_t::set_indent_aware_home(bool _indent_aware_home) { indent_aware_home = _indent_aware_home; }
+void edit_window_t::view_parameters_t::set_show_tabs(bool _show_tabs) { show_tabs = _show_tabs; }
 
 
 //====================== autocomplete_panel_t ========================
