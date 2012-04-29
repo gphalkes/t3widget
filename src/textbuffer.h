@@ -121,6 +121,16 @@ class T3_WIDGET_API text_buffer_t {
 		bool unindent_line(int tabsize);
 		void set_selection_from_find(find_result_t *result);
 
+		/** Find a substring in the text.
+		    @param finder The ::finder_t used to locate the substring.
+		    @param result The previous find result and the location in which the result will be returned.
+		    @param reverse Reverse the direction of the find action.
+
+		    The @p result parameter is both an input and an output parameter. On input it should contain
+		    the coordinates of the last found substring, or the location of the cursor in both @c start and
+		    @c end members if no previous substring is available. The @c start should always be before
+		    @c end.
+		*/
 		bool find(finder_t *finder, find_result_t *result, bool reverse = false) const;
 		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) const;
 		void replace(finder_t *finder, find_result_t *result);

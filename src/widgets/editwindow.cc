@@ -561,9 +561,8 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
 	switch (action) {
 		case find_action_t::FIND:
-			result.line = text->cursor.line;
-			result.start = text->cursor.pos;
-			result.end = text->cursor.pos;
+			result.start = text->cursor;
+			result.end = text->cursor;
 
 			if (!text->find(local_finder, &result))
 				goto not_found;
@@ -580,18 +579,16 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			}
 			break;
 		case find_action_t::REPLACE:
-			result.line = text->get_selection_start().line;
-			result.start = text->get_selection_start().pos;
-			result.end = text->get_selection_end().pos;
+			result.start = text->get_selection_start();
+			result.end = text->get_selection_end();
 			text->replace(local_finder, &result);
 			redraw = true;
 			/* FALLTHROUGH */
 			if (0) {
 		case find_action_t::SKIP:
 				/* This part is skipped when the action is replace */
-				result.line = text->get_selection_start().line;
-				result.start = text->get_selection_start().pos;
-				result.end = text->get_selection_end().pos;
+				result.start = text->get_selection_start();
+				result.end = text->get_selection_end();
 			}
 			if (!text->find(local_finder, &result)) {
 				ensure_cursor_on_screen();
@@ -1167,18 +1164,15 @@ void edit_window_t::find_replace(bool replace) {
 void edit_window_t::find_next(bool backward) {
 	find_result_t result;
 	if (text->get_selection_mode() == selection_mode_t::NONE) {
-		result.line = text->cursor.line;
-		result.start = text->cursor.pos;
-		result.end = text->cursor.pos;
+		result.start = text->cursor;
+		result.end = text->cursor;
 	} else {
 		if (text->get_selection_start() < text->get_selection_end()) {
-			result.line = text->get_selection_start().line;
-			result.start = text->get_selection_start().pos;
-			result.end = text->get_selection_end().pos;
+			result.start = text->get_selection_start();
+			result.end = text->get_selection_end();
 		} else {
-			result.line = text->get_selection_start().line;
-			result.start = text->get_selection_end().pos;
-			result.end = text->get_selection_start().pos;
+			result.start = text->get_selection_end();
+			result.end = text->get_selection_start();
 		}
 	}
 

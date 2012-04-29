@@ -129,8 +129,8 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		ovector[1] = -1;
 		found = false;
 
-		start = result->start;
-		end = result->end;
+		start = result->start.pos;
+		end = result->end.pos;
 
 		if ((size_t) end >= haystack->size())
 			end = haystack->size();
@@ -156,8 +156,8 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		}
 		if (!found)
 			return false;
-		result->start = ovector[0];
-		result->end = ovector[1];
+		result->start.pos = ovector[0];
+		result->end.pos = ovector[1];
 		return true;
 	} else {
 		string substr;
@@ -166,9 +166,9 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		const char *c;
 
 		if (reverse)
-			start = result->end >= 0 && (size_t) result->end > haystack->size() ? haystack->size() : (size_t) result->end;
+			start = result->end.pos >= 0 && (size_t) result->end.pos > haystack->size() ? haystack->size() : (size_t) result->end.pos;
 		else
-			start = result->start >= 0 && (size_t) result->start > haystack->size() ? haystack->size() : (size_t) result->start;
+			start = result->start.pos >= 0 && (size_t) result->start.pos > haystack->size() ? haystack->size() : (size_t) result->start.pos;
 		curr_char = start;
 
 		if (reverse) {
@@ -176,7 +176,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 			while((size_t) curr_char > 0) {
 				next_char = adjust_position(haystack, curr_char, -1);
 
-				if (next_char < result->start)
+				if (next_char < result->start.pos)
 					return false;
 
 				substr.clear();
@@ -198,8 +198,8 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 						(!(flags & find_flags_t::WHOLE_WORD) ||
 						check_boundaries(haystack, next_char, adjust_position(haystack, start, -match_result))))
 				{
-					result->end = adjust_position(haystack, start, -match_result);
-					result->start = next_char;
+					result->end.pos = adjust_position(haystack, start, -match_result);
+					result->start.pos = next_char;
 					return true;
 				}
 				curr_char = next_char;
@@ -210,7 +210,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 			while((size_t) curr_char < haystack->size()) {
 				next_char = adjust_position(haystack, curr_char, 1);
 
-				if (next_char > result->end)
+				if (next_char > result->end.pos)
 					return false;
 
 				substr.clear();
@@ -232,8 +232,8 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 						(!(flags & find_flags_t::WHOLE_WORD) ||
 						check_boundaries(haystack, adjust_position(haystack, start, match_result), next_char)))
 				{
-					result->start = adjust_position(haystack, start, match_result);
-					result->end = next_char;
+					result->start.pos = adjust_position(haystack, start, match_result);
+					result->end.pos = next_char;
 					return true;
 				}
 				curr_char = next_char;

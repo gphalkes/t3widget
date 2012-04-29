@@ -28,7 +28,7 @@ namespace t3_widget {
     this struct does not contain line references.
 */
 struct find_result_t {
-	int line, start, end;
+	text_coordinate_t start, end;
 };
 
 /** Class holding the context of a find operation. */

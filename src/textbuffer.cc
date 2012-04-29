@@ -716,11 +716,9 @@ int text_buffer_t::apply_redo(void) {
 }
 
 void text_buffer_t::set_selection_from_find(find_result_t *result) {
-	impl->selection_start.line = result->line;
-	impl->selection_start.pos = result->start;
+	impl->selection_start = result->start;
 
-	impl->selection_end.line = result->line;
-	impl->selection_end.pos = result->end;
+	impl->selection_end = result->end;
 
 	cursor = get_selection_end();
 	impl->selection_mode = selection_mode_t::SHIFT;
@@ -730,22 +728,25 @@ void text_buffer_t::set_selection_from_find(find_result_t *result) {
 bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) const {
 	size_t start, idx;
 
-	start = idx = cursor.line;
+	/* Note: the value of result->start.line and result->end.line are ignored after the
+	   search has started. The finder->match function does not take those values into
+	   account. */
 
 	// Perform search
 	if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
-		result->end = impl->selection_mode != selection_mode_t::NONE ? impl->selection_start.pos : cursor.pos;
-		result->start = 0;
+		start = idx = result->start.line;
+		result->end = result->start;
+		result->start.pos = 0;
 		if (finder->match(impl->lines[idx]->get_data(), result, true)) {
-			result->line = idx;
+			result->start.line = result->end.line = idx;
 			return true;
 		}
 
-		result->end = INT_MAX;
+		result->end.pos = INT_MAX;
 		for (; idx > 0; ) {
 			idx--;
 			if (finder->match(impl->lines[idx]->get_data(), result, true)) {
-				result->line = idx;
+				result->start.line = result->end.line = idx;
 				return true;
 			}
 		}
@@ -756,22 +757,23 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 		for (idx = impl->lines.size(); idx > start; ) {
 			idx--;
 			if (finder->match(impl->lines[idx]->get_data(), result, true)) {
-				result->line = idx;
+				result->start.line = result->end.line = idx;
 				return true;
 			}
 		}
 	} else {
-		result->start = cursor.pos;
-		result->end = INT_MAX;
+		start = idx = result->end.line;
+		result->start = result->end;
+		result->end.pos = INT_MAX;
 		if (finder->match(impl->lines[idx]->get_data(), result, false)) {
-			result->line = idx;
+			result->start.line = result->end.line = idx;
 			return true;
 		}
 
-		result->start = 0;
+		result->start.pos = 0;
 		for (idx++; idx < impl->lines.size(); idx++) {
 			if (finder->match(impl->lines[idx]->get_data(), result, false)) {
-				result->line = idx;
+				result->start.line = result->end.line = idx;
 				return true;
 			}
 		}
@@ -781,7 +783,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 
 		for (idx = 0; idx <= start; idx++) {
 			if (finder->match(impl->lines[idx]->get_data(), result, false)) {
-				result->line = idx;
+				result->start.line = result->end.line = idx;
 				return true;
 			}
 		}
@@ -793,20 +795,22 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) const {
 	size_t idx;
 
-	result->start = start.pos;
-	result->end = INT_MAX;
+	/* Note: the finder->match function does not take value of result->start.line
+	   and result->end.line into account. */
+	result->start = start;
+	result->end.pos = INT_MAX;
 
 	for (idx = start.line; idx < impl->lines.size() && idx < (size_t) end.line; idx++) {
 		if (finder->match(impl->lines[idx]->get_data(), result, false)) {
-			result->line = idx;
+			result->start.line = result->end.line = idx;
 			return true;
 		}
-		result->start = 0;
+		result->start.pos = 0;
 	}
 
-	result->end = end.pos;
+	result->end = end;
 	if (idx < impl->lines.size() && finder->match(impl->lines[idx]->get_data(), result, false)) {
-		result->line = idx;
+		result->start.line = result->end.line = idx;
 		return true;
 	}
 
@@ -814,16 +818,15 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
 }
 
 void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
-	text_coordinate_t start(result->line, result->start), end(result->line, result->end);
 	string *replacement_str;
 
 	if (result->start == result->end)
 		return;
 
-	replacement_str = finder->get_replacement(impl->lines[result->line]->get_data());
+	replacement_str = finder->get_replacement(impl->lines[result->start.line]->get_data());
 
-	replace_block(start, end, replacement_str);
-	result->start = cursor.pos;
+	replace_block(result->start, result->end, replacement_str);
+	result->end = cursor;
 	delete replacement_str;
 }
 
