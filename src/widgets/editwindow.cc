@@ -561,6 +561,10 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
 	switch (action) {
 		case find_action_t::FIND:
+			result.line = text->cursor.line;
+			result.start = text->cursor.pos;
+			result.end = text->cursor.pos;
+
 			if (!text->find(local_finder, &result))
 				goto not_found;
 
@@ -582,7 +586,13 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			text->replace(local_finder, &result);
 			redraw = true;
 			/* FALLTHROUGH */
+			if (0) {
 		case find_action_t::SKIP:
+				/* This part is skipped when the action is replace */
+				result.line = text->get_selection_start().line;
+				result.start = text->get_selection_start().pos;
+				result.end = text->get_selection_end().pos;
+			}
 			if (!text->find(local_finder, &result)) {
 				ensure_cursor_on_screen();
 				goto not_found;
@@ -1156,6 +1166,22 @@ void edit_window_t::find_replace(bool replace) {
 
 void edit_window_t::find_next(bool backward) {
 	find_result_t result;
+	if (text->get_selection_mode() == selection_mode_t::NONE) {
+		result.line = text->cursor.line;
+		result.start = text->cursor.pos;
+		result.end = text->cursor.pos;
+	} else {
+		if (text->get_selection_start() < text->get_selection_end()) {
+			result.line = text->get_selection_start().line;
+			result.start = text->get_selection_start().pos;
+			result.end = text->get_selection_end().pos;
+		} else {
+			result.line = text->get_selection_start().line;
+			result.start = text->get_selection_end().pos;
+			result.end = text->get_selection_start().pos;
+		}
+	}
+
 	if (!text->find(impl->finder != NULL ? impl->finder : &global_finder, &result, backward)) {
 		//FIXME: show search string
 		message_dialog->set_message("Search string not found");

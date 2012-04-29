@@ -814,7 +814,7 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
 }
 
 void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
-	text_coordinate_t start(result->line, result->start), end (result->line, result->end);
+	text_coordinate_t start(result->line, result->start), end(result->line, result->end);
 	string *replacement_str;
 
 	if (result->start == result->end)
@@ -823,6 +823,7 @@ void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
 	replacement_str = finder->get_replacement(impl->lines[result->line]->get_data());
 
 	replace_block(start, end, replacement_str);
+	result->start = cursor.pos;
 	delete replacement_str;
 }
 
