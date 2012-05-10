@@ -734,7 +734,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 
 	// Perform search
 	if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
-		result->end = impl->selection_mode != selection_mode_t::NONE ? impl->selection_start.pos : cursor.pos;
+		result->end = result->start;
 		result->start = 0;
 		if (finder->match(impl->lines[idx]->get_data(), result, true)) {
 			result->line = idx;
@@ -823,7 +823,6 @@ void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
 	replacement_str = finder->get_replacement(impl->lines[result->line]->get_data());
 
 	replace_block(start, end, replacement_str);
-	result->start = cursor.pos;
 	delete replacement_str;
 }
 
