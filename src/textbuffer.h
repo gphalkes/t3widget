@@ -126,10 +126,10 @@ class T3_WIDGET_API text_buffer_t {
 		    @param result The previous find result and the location in which the result will be returned.
 		    @param reverse Reverse the direction of the find action.
 
-		    The @p result parameter is both an input and an output parameter. On input it should contain
-		    the coordinates of the last found substring, or the location of the cursor in both @c start and
-		    @c end members if no previous substring is available. The @c start should always be before
-		    @c end.
+		    The @p result parameter is both an input and an output parameter. On input
+		    it should contain in its @c start member the location of the start of
+		    the previously found string, or @c cursor if no previous string was
+		    (yet) found.
 		*/
 		bool find(finder_t *finder, find_result_t *result, bool reverse = false) const;
 		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) const;

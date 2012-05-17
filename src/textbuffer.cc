@@ -732,6 +732,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 	   search has started. The finder->match function does not take those values into
 	   account. */
 
+
 	// Perform search
 	if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
 		start = idx = result->start.line;
@@ -762,8 +763,8 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 			}
 		}
 	} else {
-		start = idx = result->end.line;
-		result->start = result->end;
+		start = idx = cursor.line;
+		result->start = cursor;
 		result->end.pos = INT_MAX;
 		if (finder->match(impl->lines[idx]->get_data(), result, false)) {
 			result->start.line = result->end.line = idx;
@@ -826,7 +827,6 @@ void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
 	replacement_str = finder->get_replacement(impl->lines[result->start.line]->get_data());
 
 	replace_block(result->start, result->end, replacement_str);
-	result->end = cursor;
 	delete replacement_str;
 }
 

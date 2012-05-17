@@ -562,7 +562,6 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 	switch (action) {
 		case find_action_t::FIND:
 			result.start = text->cursor;
-			result.end = text->cursor;
 
 			if (!text->find(local_finder, &result))
 				goto not_found;
@@ -588,7 +587,6 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 		case find_action_t::SKIP:
 				/* This part is skipped when the action is replace */
 				result.start = text->get_selection_start();
-				result.end = text->get_selection_end();
 			}
 			if (!text->find(local_finder, &result)) {
 				ensure_cursor_on_screen();
@@ -1165,15 +1163,12 @@ void edit_window_t::find_next(bool backward) {
 	find_result_t result;
 	if (text->get_selection_mode() == selection_mode_t::NONE) {
 		result.start = text->cursor;
-		result.end = text->cursor;
+
 	} else {
-		if (text->get_selection_start() < text->get_selection_end()) {
+		if (text->get_selection_start() < text->get_selection_end())
 			result.start = text->get_selection_start();
-			result.end = text->get_selection_end();
-		} else {
+		else
 			result.start = text->get_selection_end();
-			result.end = text->get_selection_start();
-		}
 	}
 
 	if (!text->find(impl->finder != NULL ? impl->finder : &global_finder, &result, backward)) {
