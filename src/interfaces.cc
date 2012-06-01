@@ -140,6 +140,12 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 						(event.button_state & EMOUSE_ALL_BUTTONS) != 0)
 					active_dialog->focus_set(widget);
 				handled = true;
+				/* Stop handling if the dialog is no longer active. This happens for
+				   for example when the active dialog is closed by the button, or worse,
+				   deleted. In the latter case, trying to go up the hierarchy will
+				   access free'd memory, which may cause a segfault. */
+				if (active_dialog != dialog_t::active_dialogs.back())
+					return handled;
 			}
 		}
 		win = t3_win_get_parent(win);
