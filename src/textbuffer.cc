@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 G.P. Halkes
+/* Copyright (C) 2011-2012 G.P. Halkes
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 3, as
    published by the Free Software Foundation.
@@ -855,7 +855,7 @@ selection_mode_t text_buffer_t::get_selection_mode(void) const {
 }
 
 bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
-	#warning FIXME: move this check to calls of indent_selection
+	//FIXME: move this check to calls of indent_selection
 	if (impl->selection_mode == selection_mode_t::NONE && impl->selection_start.line != impl->selection_end.line)
 		return true;
 	return indent_block(impl->selection_start, impl->selection_end, tabsize, tab_spaces);
@@ -948,7 +948,7 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 }
 
 bool text_buffer_t::unindent_selection(int tabsize) {
-	#warning FIXME: move this check to calls of unindent_selection
+	//FIXME: move this check to calls of unindent_selection
 	if (impl->selection_mode == selection_mode_t::NONE && impl->selection_start.line != impl->selection_end.line)
 		return true;
 	return unindent_block(impl->selection_start, impl->selection_end, tabsize);
@@ -1016,7 +1016,7 @@ bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &
 bool text_buffer_t::unindent_line(int tabsize) {
 	text_coordinate_t delete_start(cursor.line, 0), delete_end(cursor.line, 0);
 
-	#warning FIXME: move this check to calls of unindent_line
+	//FIXME: move this check to calls of unindent_line
 	if (impl->selection_mode != selection_mode_t::NONE)
 		set_selection_mode(selection_mode_t::NONE);
 

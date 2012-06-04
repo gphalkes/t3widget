@@ -1,9 +1,13 @@
 Version 0.1.11:
 	New features:
 	- Text lines and edit windows now have options for showing tabs.
+	- Changed the text_buffer_t API w.r.t. handling of the selection and find
+	  results.
 
 	Bug fixes:
 	- Tabs are now handled better when using line wrapping.
+	- Stop propagating mouse events to dialogs that are no longer the active
+	  dialog.
 
 Version 0.1.10:
 	Bug fixes:
