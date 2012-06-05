@@ -546,12 +546,17 @@ bool text_field_t::has_focus(void) const {
 #define DDL_HEIGHT 6
 
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
-		top_idx(0), field(_field)
+		top_idx(0), field(_field), scrollbar(true)
 {
 	if ((window = t3_win_new(NULL, DDL_HEIGHT, t3_win_get_width(_field->get_base_window()), 1, 0, INT_MIN)) == NULL)
 		throw(-1);
 	t3_win_set_anchor(window, field->get_base_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	register_mouse_target(window);
+
+	set_widget_parent(&scrollbar);
+	scrollbar.set_size(DDL_HEIGHT - 1, 1);
+	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	//~ scrollbar.connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
 
 	focus = false;
 	current = 0;
@@ -564,16 +569,22 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 		case EKEY_DOWN:
 			if (current + 1 < length) {
 				current++;
-				if (current - top_idx > 4)
+				if (current - top_idx > 4) {
 					top_idx++;
+					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
+					scrollbar.update_contents();
+				}
 				field->set_text((*completions)[current]);
 			}
 			break;
 		case EKEY_UP:
 			if (current > 0) {
 				current--;
-				if (top_idx > current)
+				if (top_idx > current) {
 					top_idx = current;
+					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
+					scrollbar.update_contents();
+				}
 				field->set_text((*completions)[current]);
 			} else {
 				focus = false;
@@ -595,6 +606,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 		default:
 			focus = false;
 			field->impl->in_drop_down_list = false;
+			#warning FIXME: this does not work very well for the navigation keys
 			return field->process_key(key);
 	}
 	return true;
@@ -623,6 +635,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	if (completions == NULL)
 		return;
 
+	scrollbar.update_contents();
 	file_list = dynamic_cast<file_list_t *>(completions());
 	width = t3_win_get_width(window);
 
@@ -697,6 +710,7 @@ void text_field_t::drop_down_list_t::update_view(void) {
 			completions->reset_filter();
 		else
 			completions->set_filter(sigc::bind(sigc::ptr_fun(string_compare_filter), field->impl->line->get_data()));
+		scrollbar.set_parameters(completions->size(), 0, DDL_HEIGHT - 1);
 	}
 }
 
@@ -727,6 +741,15 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 		return true;
 	}
 	return false;
+}
+
+void text_field_t::drop_down_list_t::focus_set(widget_t *target) {
+	(void) target;
+	set_focus(true);
+}
+
+bool text_field_t::drop_down_list_t::is_child(widget_t *widget) {
+	return widget == &scrollbar;
 }
 
 }; // namespace

@@ -20,13 +20,14 @@
 #include <t3widget/textline.h>
 #include <t3widget/contentlist.h>
 #include <t3widget/widgets/smartlabel.h>
+#include <t3widget/widgets/scrollbar.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
 	private:
 		/** Drop-down list implementation for text_field_t. */
-		class drop_down_list_t : public virtual window_component_t, public mouse_target_t {
+		class drop_down_list_t : public virtual window_component_t, public mouse_target_t, public container_t {
 			private:
 				size_t current, /**< Index of the currently selected item. */
 					top_idx; /**< Index of the top-most displayed item. */
@@ -35,6 +36,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				text_field_t *field; /**< text_field_t this drop-down list is created for. */
 
 				cleanup_ptr<filtered_list_base_t>::t completions; /**< List of possible selections. */
+				scrollbar_t scrollbar;
 			public:
 				drop_down_list_t(text_field_t *_field);
 				virtual bool process_key(key_t key);
@@ -53,6 +55,9 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				bool empty(void);
 
 				virtual bool process_mouse_event(mouse_event_t event);
+
+				virtual void focus_set(widget_t *target);
+				virtual bool is_child(widget_t *component);
 		};
 
 		struct implementation_t {
