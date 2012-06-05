@@ -543,12 +543,15 @@ bool text_field_t::has_focus(void) const {
 /*======================
   == drop_down_list_t ==
   ======================*/
+#define DDL_HEIGHT 6
+
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
 		top_idx(0), field(_field)
 {
-	if ((window = t3_win_new(NULL, 6, t3_win_get_width(_field->get_base_window()), 1, 0, INT_MIN)) == NULL)
+	if ((window = t3_win_new(NULL, DDL_HEIGHT, t3_win_get_width(_field->get_base_window()), 1, 0, INT_MIN)) == NULL)
 		throw(-1);
 	t3_win_set_anchor(window, field->get_base_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	register_mouse_target(window);
 
 	focus = false;
 	current = 0;
@@ -607,7 +610,7 @@ bool text_field_t::drop_down_list_t::set_size(optint height, optint width) {
 
 	(void) height;
 
-	result = t3_win_resize(window, 6, width);
+	result = t3_win_resize(window, DDL_HEIGHT, width);
 	redraw = true;
 	return result;
 }
@@ -628,17 +631,17 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < (DDL_HEIGHT - 1); i++) {
 		t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
 		t3_win_set_paint(window, i, width - 1);
 		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
 	}
-	t3_win_set_paint(window, 5, 0);
+	t3_win_set_paint(window, (DDL_HEIGHT - 1), 0);
 	t3_win_addch(window, T3_ACS_LLCORNER, T3_ATTR_ACS);
 	t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
 	t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
-	for (i = 0, idx = top_idx; i < 5 && idx < completions->size(); i++, idx++) {
+	for (i = 0, idx = top_idx; i < (DDL_HEIGHT - 1) && idx < completions->size(); i++, idx++) {
 		text_line_t::paint_info_t info;
 		text_line_t file_name_line((*completions)[idx]);
 		bool paint_selected = focus && idx == current;
@@ -710,5 +713,19 @@ bool text_field_t::drop_down_list_t::empty(void) {
 }
 
 void text_field_t::drop_down_list_t::force_redraw(void) {}
+
+bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
+	if (event.button_state == EMOUSE_CLICKED_LEFT) {
+		if (event.modifier_state != 0 || event.y > DDL_HEIGHT - 1 || event.y + top_idx >= completions->size())
+			return true;
+
+		focus = false;
+		field->impl->in_drop_down_list = false;
+		t3_win_hide(window);
+		field->set_text((*completions)[event.y + top_idx]);
+		return true;
+	}
+	return false;
+}
 
 }; // namespace

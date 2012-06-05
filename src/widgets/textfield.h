@@ -26,7 +26,7 @@ namespace t3_widget {
 class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
 	private:
 		/** Drop-down list implementation for text_field_t. */
-		class drop_down_list_t : public window_component_t {
+		class drop_down_list_t : public virtual window_component_t, public mouse_target_t {
 			private:
 				size_t current, /**< Index of the currently selected item. */
 					top_idx; /**< Index of the top-most displayed item. */
@@ -51,6 +51,8 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				void set_autocomplete(string_list_base_t *completions);
 				/** Return whether the autocompletion list is empty. */
 				bool empty(void);
+
+				virtual bool process_mouse_event(mouse_event_t event);
 		};
 
 		struct implementation_t {
