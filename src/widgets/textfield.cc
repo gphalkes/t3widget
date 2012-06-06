@@ -540,6 +540,15 @@ bool text_field_t::has_focus(void) const {
 	return impl->focus;
 }
 
+void text_field_t::focus_set(widget_t *target) {
+	(void) target;
+	set_focus(true);
+}
+
+bool text_field_t::is_child(widget_t *component) {
+	return impl->drop_down_list != NULL && impl->drop_down_list->is_child(component);
+}
+
 /*======================
   == drop_down_list_t ==
   ======================*/
@@ -556,10 +565,27 @@ text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
 	set_widget_parent(&scrollbar);
 	scrollbar.set_size(DDL_HEIGHT - 1, 1);
 	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	//~ scrollbar.connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
+	scrollbar.connect_clicked(sigc::mem_fun(this, &text_field_t::drop_down_list_t::scrollbar_clicked));
 
 	focus = false;
 	current = 0;
+}
+
+void text_field_t::drop_down_list_t::ensure_cursor_on_screen(void) {
+	size_t saved_top_idx = top_idx;
+	if (current < top_idx) {
+		top_idx = current;
+	} else if (current - top_idx > DDL_HEIGHT - 2) {
+		if (current > DDL_HEIGHT - 2)
+			top_idx = current - (DDL_HEIGHT - 2);
+		else
+			top_idx = 0;
+	}
+
+	if (top_idx != saved_top_idx) {
+		scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
+		scrollbar.update_contents();
+	}
 }
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
@@ -569,22 +595,14 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 		case EKEY_DOWN:
 			if (current + 1 < length) {
 				current++;
-				if (current - top_idx > DDL_HEIGHT - 2) {
-					top_idx++;
-					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
-					scrollbar.update_contents();
-				}
+				ensure_cursor_on_screen();
 				field->set_text((*completions)[current]);
 			}
 			break;
 		case EKEY_UP:
 			if (current > 0) {
 				current--;
-				if (top_idx > current) {
-					top_idx = current;
-					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
-					scrollbar.update_contents();
-				}
+				ensure_cursor_on_screen();
 				field->set_text((*completions)[current]);
 			} else {
 				focus = false;
@@ -598,14 +616,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 				current += DDL_HEIGHT - 2;
 				if (current >= length)
 					current = length - 1;
-				if (current - top_idx > DDL_HEIGHT - 2) {
-					if (current > DDL_HEIGHT - 2)
-						top_idx = current - (DDL_HEIGHT - 2);
-					else
-						top_idx = 0;
-					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
-					scrollbar.update_contents();
-				}
+				ensure_cursor_on_screen();
 				field->set_text((*completions)[current]);
 			}
 			break;
@@ -615,11 +626,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 					current -= DDL_HEIGHT - 2;
 				else
 					current = 0;
-				if (top_idx > current) {
-					top_idx = current;
-					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
-					scrollbar.update_contents();
-				}
+				ensure_cursor_on_screen();
 				field->set_text((*completions)[current]);
 			}
 			break;
@@ -759,7 +766,7 @@ bool text_field_t::drop_down_list_t::empty(void) {
 void text_field_t::drop_down_list_t::force_redraw(void) {}
 
 bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
-	if (event.button_state == EMOUSE_CLICKED_LEFT) {
+	if (event.button_state == EMOUSE_CLICKED_LEFT && event.x > 0 && event.window == window) {
 		if (event.modifier_state != 0 || event.y > DDL_HEIGHT - 1 || event.y + top_idx >= completions->size())
 			return true;
 
@@ -780,6 +787,38 @@ void text_field_t::drop_down_list_t::focus_set(widget_t *target) {
 
 bool text_field_t::drop_down_list_t::is_child(widget_t *widget) {
 	return widget == &scrollbar;
+}
+
+void text_field_t::drop_down_list_t::scrollbar_clicked(scrollbar_t::step_t step) {
+	size_t length = completions->size();
+	size_t saved_top_idx = top_idx;
+
+	if (step == scrollbar_t::FWD_SMALL) {
+		if (top_idx + (DDL_HEIGHT - 1) + 2 < length)
+			top_idx += 2;
+		else if (length >= DDL_HEIGHT - 1)
+			top_idx = length - (DDL_HEIGHT - 1);
+	} else if (step == scrollbar_t::FWD_MEDIUM || step == scrollbar_t::FWD_PAGE) {
+		if (top_idx + (DDL_HEIGHT - 1) + (DDL_HEIGHT - 2) < length)
+			top_idx += DDL_HEIGHT - 2;
+		else if (length >= DDL_HEIGHT - 1)
+			top_idx = length - (DDL_HEIGHT - 1);
+	} else if (step == scrollbar_t::BACK_SMALL) {
+		if (top_idx > 2)
+			top_idx -= 2;
+		else
+			top_idx = 0;
+	} else if (step == scrollbar_t::BACK_MEDIUM || step == scrollbar_t::BACK_PAGE) {
+		if (top_idx > (DDL_HEIGHT - 2))
+			top_idx -= DDL_HEIGHT - 2;
+		else
+			top_idx = 0;
+	}
+
+	if (top_idx != saved_top_idx) {
+		scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
+		scrollbar.update_contents();
+	}
 }
 
 }; // namespace

@@ -24,7 +24,9 @@
 
 namespace t3_widget {
 
-class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t {
+class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t,
+		public container_t
+{
 	private:
 		/** Drop-down list implementation for text_field_t. */
 		class drop_down_list_t : public virtual window_component_t, public mouse_target_t, public container_t {
@@ -37,6 +39,9 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 				cleanup_ptr<filtered_list_base_t>::t completions; /**< List of possible selections. */
 				scrollbar_t scrollbar;
+
+				void ensure_cursor_on_screen(void);
+				void scrollbar_clicked(scrollbar_t::step_t step);
 			public:
 				drop_down_list_t(text_field_t *_field);
 				virtual bool process_key(key_t key);
@@ -156,6 +161,9 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 		virtual void bad_draw_recheck(void);
 		virtual bool process_mouse_event(mouse_event_t event);
+
+		virtual void focus_set(widget_t *target);
+		virtual bool is_child(widget_t *component);
 
 	T3_WIDGET_SIGNAL(activate, void);
 };

@@ -37,12 +37,12 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
 		void set_parameters(int _range, int _start, int _used);
 
 		enum step_t {
-			FWD_SMALL,
-			FWD_MEDIUM,
-			FWD_PAGE,
-			BACK_SMALL,
-			BACK_MEDIUM,
-			BACK_PAGE
+			FWD_SMALL, /**< Mouse click on arrow symbol. */
+			FWD_MEDIUM, /**< Scroll wheel over bar. */
+			FWD_PAGE, /**< Mouse click on space between arrow and indicator. */
+			BACK_SMALL, /**< Mouse click on arrow symbol. */
+			BACK_MEDIUM, /**< Scroll wheel over bar. */
+			BACK_PAGE /**< Mouse click on space between arrow and indicator. */
 		};
 
 		T3_WIDGET_SIGNAL(clicked, void, step_t);
