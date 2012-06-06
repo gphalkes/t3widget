@@ -1519,6 +1519,7 @@ edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent)
 	if ((shadow_window = t3_win_new(parent->get_base_window(), 7, 7, 1, 1, -9)) == NULL)
 		throw bad_alloc();
 	t3_win_set_anchor(shadow_window, window, 0);
+	register_mouse_target(window);
 
 	list_pane.set_size(5, 6);
 	list_pane.set_position(1, 1);
@@ -1595,11 +1596,13 @@ void edit_window_t::autocomplete_panel_t::show(void) {
 	t3_win_show(window);
 	t3_win_show(shadow_window);
 	list_pane.set_focus(true);
+	grab_mouse();
 }
 
 void edit_window_t::autocomplete_panel_t::hide(void) {
 	t3_win_hide(window);
 	t3_win_hide(shadow_window);
+	release_mouse_grab();
 }
 
 void edit_window_t::autocomplete_panel_t::force_redraw(void) {
@@ -1613,6 +1616,13 @@ void edit_window_t::autocomplete_panel_t::focus_set(window_component_t *target) 
 
 bool edit_window_t::autocomplete_panel_t::is_child(window_component_t *widget) {
 	return widget == &list_pane || list_pane.is_child(widget);
+}
+
+bool edit_window_t::autocomplete_panel_t::process_mouse_event(mouse_event_t event) {
+	lprintf("autocompl: mouse event: %d\n", (int) event.type);
+	if ((event.type & EMOUSE_OUTSIDE_GRAB) && (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_RELEASE)
+		hide();
+	return true;
 }
 
 void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *completions) {

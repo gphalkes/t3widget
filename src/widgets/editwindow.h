@@ -292,7 +292,7 @@ class edit_window_t::view_parameters_t {
 		void set_show_tabs(bool _show_tabs);
 };
 
-class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t {
+class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t, public mouse_target_t {
 	private:
 		cleanup_t3_window_ptr shadow_window;
 		list_pane_t list_pane;
@@ -309,6 +309,7 @@ class edit_window_t::autocomplete_panel_t : public virtual window_component_t, p
 		virtual void force_redraw(void);
 		virtual void focus_set(window_component_t *target);
 		virtual bool is_child(window_component_t *widget);
+		virtual bool process_mouse_event(mouse_event_t event);
 
 		void set_completions(string_list_base_t *completions);
 		size_t get_selected_idx(void) const;
