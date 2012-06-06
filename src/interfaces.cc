@@ -96,8 +96,9 @@ static long timediff(struct timeval a, struct timeval b) {
 
 bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	static t3_window_t *button_down_win = NULL;
+	static int button_down_x, button_down_y;
 	/* Information for handling double clicks. */
-	static t3_window_t *last_click_win = NULL;
+	static t3_window_t *last_click_win;
 	static struct timeval last_click_time = { 0, 0 };
 	static short last_click_buttons = 0;
 
@@ -109,10 +110,12 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	win = event.window;
 	if (event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 && (event.button_state & 7) != 0) {
 		button_down_win = event.window;
+		button_down_x = event.x;
+		button_down_y = event.y;
 		if (button_down_win != last_click_win)
 			last_click_win = NULL;
 	} else if (event.type == EMOUSE_BUTTON_RELEASE) {
-		if (button_down_win == win) {
+		if (button_down_win == win && button_down_x == event.x && button_down_y == event.y) {
 			struct timeval now;
 			/* Set CLICKED event for released buttons */
 			event.button_state |= (event.previous_button_state & EMOUSE_CLICK_BUTTONS) << EMOUSE_ALL_BUTTONS_COUNT;
