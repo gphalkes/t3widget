@@ -569,7 +569,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 		case EKEY_DOWN:
 			if (current + 1 < length) {
 				current++;
-				if (current - top_idx > 4) {
+				if (current - top_idx > DDL_HEIGHT - 2) {
 					top_idx++;
 					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
 					scrollbar.update_contents();
@@ -593,6 +593,36 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 				update_contents();
 			}
 			break;
+		case EKEY_PGDN:
+			if (current + 1 < length) {
+				current += DDL_HEIGHT - 2;
+				if (current >= length)
+					current = length - 1;
+				if (current - top_idx > DDL_HEIGHT - 2) {
+					if (current > DDL_HEIGHT - 2)
+						top_idx = current - (DDL_HEIGHT - 2);
+					else
+						top_idx = 0;
+					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
+					scrollbar.update_contents();
+				}
+				field->set_text((*completions)[current]);
+			}
+			break;
+		case EKEY_PGUP:
+			if (current > 0) {
+				if (current > DDL_HEIGHT - 2)
+					current -= DDL_HEIGHT - 2;
+				else
+					current = 0;
+				if (top_idx > current) {
+					top_idx = current;
+					scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
+					scrollbar.update_contents();
+				}
+				field->set_text((*completions)[current]);
+			}
+			break;
 		case EKEY_NL:
 			focus = false;
 			field->impl->in_drop_down_list = false;
@@ -605,8 +635,9 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 			break;
 		default:
 			focus = false;
+			// Make sure that the cursor will be visible, by forcing a redraw of the field
+			field->redraw = true;
 			field->impl->in_drop_down_list = false;
-			#warning FIXME: this does not work very well for the navigation keys
 			return field->process_key(key);
 	}
 	return true;
@@ -688,7 +719,6 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 void text_field_t::drop_down_list_t::set_focus(bool _focus) {
 	focus = _focus;
 	if (focus) {
-		current = 0;
 		field->set_text((*completions)[current]);
 		t3_term_hide_cursor();
 	}
