@@ -1213,14 +1213,14 @@ void edit_window_t::bad_draw_recheck(void) {
 	widget_t::force_redraw();
 }
 
-void edit_window_t::focus_set(widget_t *target) {
+void edit_window_t::focus_set(window_component_t *target) {
 	if (impl->autocomplete_panel_shown)
 		impl->autocomplete_panel->focus_set(target);
 	else
 		set_focus(true);
 }
 
-bool edit_window_t::is_child(widget_t *widget) {
+bool edit_window_t::is_child(window_component_t *widget) {
 	return widget == impl->scrollbar || impl->autocomplete_panel->is_child(widget);
 }
 
@@ -1607,11 +1607,11 @@ void edit_window_t::autocomplete_panel_t::force_redraw(void) {
 	redraw = true;
 }
 
-void edit_window_t::autocomplete_panel_t::focus_set(widget_t *target) {
+void edit_window_t::autocomplete_panel_t::focus_set(window_component_t *target) {
 	list_pane.focus_set(target);
 }
 
-bool edit_window_t::autocomplete_panel_t::is_child(widget_t *widget) {
+bool edit_window_t::autocomplete_panel_t::is_child(window_component_t *widget) {
 	return widget == &list_pane || list_pane.is_child(widget);
 }
 

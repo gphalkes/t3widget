@@ -61,8 +61,8 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 				virtual bool process_mouse_event(mouse_event_t event);
 
-				virtual void focus_set(widget_t *target);
-				virtual bool is_child(widget_t *component);
+				virtual void focus_set(window_component_t *target);
+				virtual bool is_child(window_component_t *component);
 		};
 
 		struct implementation_t {
@@ -162,8 +162,8 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual void bad_draw_recheck(void);
 		virtual bool process_mouse_event(mouse_event_t event);
 
-		virtual void focus_set(widget_t *target);
-		virtual bool is_child(widget_t *component);
+		virtual void focus_set(window_component_t *target);
+		virtual bool is_child(window_component_t *component);
 
 	T3_WIDGET_SIGNAL(activate, void);
 };

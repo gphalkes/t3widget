@@ -191,7 +191,7 @@ bool menu_panel_t::is_hotkey(key_t key) const {
 	return impl->label.is_hotkey(key);
 }
 
-bool menu_panel_t::is_child(widget_t *widget) {
+bool menu_panel_t::is_child(window_component_t *widget) {
 	/* We use a little hack here. The menu bar widget isn't actually one of our
 	   children. But by claiming it is, it will receive the mouse events that it
 	   should, even when this panel is visible. */

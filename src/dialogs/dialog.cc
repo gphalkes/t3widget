@@ -261,8 +261,9 @@ void dialog_t::focus_previous(void) {
 	(*current_widget)->set_focus(true);
 }
 
-void dialog_t::focus_set(widget_t *target) {
-	if (!target->accepts_focus())
+void dialog_t::focus_set(window_component_t *target) {
+	widget_t *target_widget = dynamic_cast<widget_t *>(target);
+	if (target_widget == NULL || !target_widget->accepts_focus())
 		return;
 
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
@@ -287,7 +288,7 @@ void dialog_t::focus_set(widget_t *target) {
 	}
 }
 
-bool dialog_t::is_child(widget_t *widget) {
+bool dialog_t::is_child(window_component_t *widget) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (*iter == widget) {
 			return true;

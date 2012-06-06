@@ -216,12 +216,12 @@ void text_window_t::set_focus(bool _focus) {
 	impl->focus = _focus;
 }
 
-void text_window_t::focus_set(widget_t *target) {
+void text_window_t::focus_set(window_component_t *target) {
 	(void) target;
 	set_focus(true);
 }
 
-bool text_window_t::is_child(widget_t *component) {
+bool text_window_t::is_child(window_component_t *component) {
 	return component == impl->scrollbar;
 }
 

@@ -42,7 +42,7 @@ list_pane_t::~list_pane_t(void) {
 		delete *iter;
 }
 
-bool list_pane_t::set_widget_parent(widget_t *widget) {
+bool list_pane_t::set_widget_parent(window_component_t *widget) {
 	return t3_win_set_parent(widget->get_base_window(), impl->widgets_window);
 }
 
@@ -207,7 +207,7 @@ void list_pane_t::force_redraw(void) {
 		impl->indicator_widget->force_redraw();
 }
 
-void list_pane_t::focus_set(widget_t *target) {
+void list_pane_t::focus_set(window_component_t *target) {
 	widgets_t::iterator iter;
 	size_t idx;
 	size_t old_current = impl->current;
@@ -240,7 +240,7 @@ void list_pane_t::focus_set(widget_t *target) {
 	}
 }
 
-bool list_pane_t::is_child(widget_t *widget) {
+bool list_pane_t::is_child(window_component_t *widget) {
 	if (widget == &impl->scrollbar || widget == impl->indicator_widget)
 		return true;
 

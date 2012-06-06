@@ -70,8 +70,8 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		virtual void update_contents(void);
 		virtual void set_focus(bool focus);
 		virtual void force_redraw(void);
-		virtual void focus_set(widget_t *target);
-		virtual bool is_child(widget_t *component);
+		virtual void focus_set(window_component_t *target);
+		virtual bool is_child(window_component_t *component);
 
 		/** Divide the available screen space over one more widget.
 		    @param widget The widget to add.

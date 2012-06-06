@@ -43,7 +43,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 		bool is_hotkey(key_t key) const;
 
 	protected:
-		virtual bool is_child(widget_t *widget);
+		virtual bool is_child(window_component_t *widget);
 
 	public:
 		menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);

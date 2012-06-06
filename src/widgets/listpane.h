@@ -54,7 +54,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		void scrollbar_clicked(scrollbar_t::step_t step);
 
 	protected:
-		virtual bool set_widget_parent(widget_t *widget);
+		virtual bool set_widget_parent(window_component_t *widget);
 
 	public:
 		list_pane_t(bool _indicator);
@@ -66,8 +66,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		virtual void set_focus(bool focus);
 		virtual void set_anchor(window_component_t *anchor, int relation);
 		virtual void force_redraw(void);
-		virtual void focus_set(widget_t *target);
-		virtual bool is_child(widget_t *widget);
+		virtual void focus_set(window_component_t *target);
+		virtual bool is_child(window_component_t *widget);
 		virtual bool process_mouse_event(mouse_event_t event);
 		void reset(void);
 		void update_positions(void);

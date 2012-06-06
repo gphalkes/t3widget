@@ -221,12 +221,12 @@ void file_pane_t::set_focus(bool _focus) {
 		draw_line(impl->current, impl->focus);
 }
 
-void file_pane_t::focus_set(widget_t *target) {
+void file_pane_t::focus_set(window_component_t *target) {
 	(void) target;
 	set_focus(true);
 }
 
-bool file_pane_t::is_child(widget_t *widget) {
+bool file_pane_t::is_child(window_component_t *widget) {
 	return widget == &impl->scrollbar;
 }
 

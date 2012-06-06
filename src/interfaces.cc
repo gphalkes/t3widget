@@ -26,11 +26,11 @@ window_component_t::window_component_t(void) : window(NULL) {}
 window_component_t::~window_component_t(void) {}
 t3_window_t *window_component_t::get_base_window(void) { return window; }
 
-bool container_t::set_widget_parent(widget_t *widget) {
+bool container_t::set_widget_parent(window_component_t *widget) {
 	return t3_win_set_parent(widget->get_base_window(), window);
 }
 
-void container_t::unset_widget_parent(widget_t *widget) {
+void container_t::unset_widget_parent(window_component_t *widget) {
 	t3_win_set_parent(widget->get_base_window(), widget_t::default_parent);
 }
 
@@ -38,6 +38,8 @@ center_component_t::center_component_t(void) : center_window(this) {}
 void center_component_t::set_center_window(window_component_t *_center_window) { center_window = _center_window; }
 
 mouse_target_t::mouse_target_map_t mouse_target_t::targets;
+mouse_target_t *mouse_target_t::grab_target;
+t3_window_t *mouse_target_t::grab_window;
 
 mouse_target_t::mouse_target_t(bool use_window) {
 	if (use_window && window != NULL)
@@ -61,6 +63,27 @@ start_over:
 			goto start_over;
 		}
 	}
+
+	if (grab_target == this)
+		grab_target = NULL;
+}
+
+void mouse_target_t::grab_mouse(void) {
+	if (grab_target != NULL)
+		return;
+
+	for (mouse_target_map_t::iterator iter = targets.begin(); iter != targets.end(); iter++) {
+		if (iter->second == this) {
+			grab_target = this;
+			grab_window = iter->first;
+			return;
+		}
+	}
+}
+
+void mouse_target_t::release_mouse_grab(void) {
+	if (grab_target == this)
+		grab_target = NULL;
 }
 
 static long timediff(struct timeval a, struct timeval b) {
@@ -123,22 +146,34 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	while (win != NULL) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
-			widget_t *widget = dynamic_cast<widget_t *>(iter->second);
-
-			if (widget != NULL && !active_dialog->is_child(widget))
-				return handled;
-
 			mouse_event_t local_event = event;
+
+			if (grab_target == NULL) {
+				if (iter->second != NULL && !active_dialog->is_child(iter->second))
+					return handled;
+			} else {
+				container_t *grab_container = dynamic_cast<container_t *>(grab_target);
+				if (((grab_container != NULL) && (iter->second == NULL || (!grab_container->is_child(iter->second) &&
+						(window_component_t *) grab_container != iter->second))) ||
+						(grab_container == NULL && grab_target != iter->second))
+				{
+					local_event.type |= EMOUSE_OUTSIDE_GRAB;
+					local_event.x -= t3_win_get_abs_x(grab_window);
+					local_event.y -= t3_win_get_abs_y(grab_window);
+					return handled | grab_target->process_mouse_event(local_event);
+				}
+			}
+
 			local_event.x -= t3_win_get_abs_x(win);
 			local_event.y -= t3_win_get_abs_y(win);
 			if (iter->second->process_mouse_event(local_event)) {
 				/* If the active dialog has not changed by processing the event,
 				   and the event is a button press, we should focus the widget that
 				   received the event. */
-				if (!handled && widget != NULL && active_dialog == dialog_t::active_dialogs.back() &&
+				if (!handled && iter->second != NULL && active_dialog == dialog_t::active_dialogs.back() &&
 						event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 &&
 						(event.button_state & EMOUSE_ALL_BUTTONS) != 0)
-					active_dialog->focus_set(widget);
+					active_dialog->focus_set(iter->second);
 				handled = true;
 				/* Stop handling if the dialog is no longer active. This happens for
 				   for example when the active dialog is closed by the button, or worse,

@@ -164,7 +164,10 @@ enum {
 enum {
 	EMOUSE_BUTTON_PRESS,
 	EMOUSE_BUTTON_RELEASE,
-	EMOUSE_MOTION
+	EMOUSE_MOTION,
+
+	/* Bit to set when reporting events outside the grabing window. */
+	EMOUSE_OUTSIDE_GRAB = (1<<15)
 };
 
 /** Retrieve a key from the input queue. */

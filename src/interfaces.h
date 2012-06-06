@@ -77,14 +77,14 @@ class widget_t;
 class T3_WIDGET_API container_t : private virtual window_component_t {
 	protected:
 		/** Make @p widget a child window of this container_t, by setting its parent window. */
-		virtual bool set_widget_parent(widget_t *widget);
+		virtual bool set_widget_parent(window_component_t *widget);
 		/** Unset the parent window for a @p widget. */
-		virtual void unset_widget_parent(widget_t *widget);
+		virtual void unset_widget_parent(window_component_t *widget);
 	public:
 		/** Set the focus to a specific window component. */
-		virtual void focus_set(widget_t *target) = 0;
+		virtual void focus_set(window_component_t *target) = 0;
 		/** Determine whether a window_compnent_t is a child of the container_t. */
-		virtual bool is_child(widget_t *component) = 0;
+		virtual bool is_child(window_component_t *component) = 0;
 };
 
 /** Base class for components which need to center dialogs.
@@ -114,6 +114,8 @@ class T3_WIDGET_API mouse_target_t : private virtual window_component_t {
 	typedef std::map<t3_window_t *, mouse_target_t *> mouse_target_map_t;
 	private:
 		static mouse_target_map_t targets;
+		static mouse_target_t *grab_target;
+		static t3_window_t *grab_window;
 	protected:
 		mouse_target_t(bool use_window = true);
 
@@ -126,6 +128,16 @@ class T3_WIDGET_API mouse_target_t : private virtual window_component_t {
 		*/
 		virtual bool process_mouse_event(mouse_event_t event) = 0;
 		~mouse_target_t(void);
+
+		/** Grab all future mouse events.
+
+		    Ensure that all mouse events are reported to the current ::mouse_target_t,
+		    and not to the ::mouse_target_t that should normally receive them. The
+		    grab should released using #release_mouse_grab.
+		*/
+		void grab_mouse(void);
+		/** Release a previous mouse grab. */
+		void release_mouse_grab(void);
 
 		static bool handle_mouse_event(mouse_event_t event);
 };

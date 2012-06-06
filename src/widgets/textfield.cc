@@ -510,6 +510,10 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 			set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
 		ensure_cursor_on_screen();
 		redraw = true;
+	} else if (impl->drop_down_list_shown && (event.type & EMOUSE_OUTSIDE_GRAB)) {
+		impl->in_drop_down_list = false;
+		impl->drop_down_list_shown = false;
+		impl->drop_down_list->hide();
 	}
 	impl->dont_select_on_focus = true;
 	return true;
@@ -540,13 +544,13 @@ bool text_field_t::has_focus(void) const {
 	return impl->focus;
 }
 
-void text_field_t::focus_set(widget_t *target) {
+void text_field_t::focus_set(window_component_t *target) {
 	(void) target;
 	set_focus(true);
 }
 
-bool text_field_t::is_child(widget_t *component) {
-	return impl->drop_down_list != NULL && impl->drop_down_list->is_child(component);
+bool text_field_t::is_child(window_component_t *component) {
+	return impl->drop_down_list != NULL && (component == impl->drop_down_list || impl->drop_down_list->is_child(component));
 }
 
 /*======================
@@ -732,10 +736,12 @@ void text_field_t::drop_down_list_t::set_focus(bool _focus) {
 }
 
 void text_field_t::drop_down_list_t::show(void) {
+	field->grab_mouse();
 	t3_win_show(window);
 }
 
 void text_field_t::drop_down_list_t::hide(void) {
+	field->release_mouse_grab();
 	t3_win_hide(window);
 }
 
@@ -782,12 +788,12 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 	return false;
 }
 
-void text_field_t::drop_down_list_t::focus_set(widget_t *target) {
+void text_field_t::drop_down_list_t::focus_set(window_component_t *target) {
 	(void) target;
 	set_focus(true);
 }
 
-bool text_field_t::drop_down_list_t::is_child(widget_t *widget) {
+bool text_field_t::drop_down_list_t::is_child(window_component_t *widget) {
 	return widget == &scrollbar;
 }
 

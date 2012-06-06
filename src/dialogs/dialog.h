@@ -71,8 +71,8 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		    event originating from this dialog. */
 		virtual void close(void);
 
-		virtual bool is_child(widget_t *widget);
-		virtual void focus_set(widget_t *target);
+		virtual bool is_child(window_component_t *widget);
+		virtual void focus_set(window_component_t *target);
 
 	public:
 		/** Destroy this dialog.
