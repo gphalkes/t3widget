@@ -727,7 +727,7 @@ void text_field_t::drop_down_list_t::set_focus(bool _focus) {
 	focus = _focus;
 	if (focus) {
 		field->set_text((*completions)[current]);
-		t3_term_hide_cursor();
+		ensure_cursor_on_screen();
 	}
 }
 
@@ -776,6 +776,8 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 		t3_win_hide(window);
 		field->set_text((*completions)[event.y + top_idx]);
 		return true;
+	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
+		scrollbar_clicked(event.button_state == EMOUSE_SCROLL_UP ? scrollbar_t::BACK_MEDIUM : scrollbar_t::FWD_MEDIUM);
 	}
 	return false;
 }
