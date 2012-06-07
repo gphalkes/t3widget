@@ -1,3 +1,7 @@
+Version 0.1.12:
+	New features:
+	- Much improved mouse handling for text fields and autocomplete pop-ups.
+
 Version 0.1.11:
 	New features:
 	- Text lines and edit windows now have options for showing tabs.

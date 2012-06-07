@@ -142,6 +142,9 @@ class T3_WIDGET_API text_buffer_t {
 		void start_undo_block(void);
 		void end_undo_block(void);
 
+		void goto_next_word_boundary(void);
+		void goto_previous_word_boundary(void);
+
 		//FIXME: make these members private again
 		text_coordinate_t cursor;
 

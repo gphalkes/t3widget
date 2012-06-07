@@ -42,6 +42,8 @@ text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts
 	reserve(buffersize);
 }
 
+text_line_t::~text_line_t(void) {}
+
 void text_line_t::fill_line(const char *_buffer, int length) {
 	size_t char_bytes, round_trip_bytes;
 	key_t next;
@@ -563,6 +565,33 @@ int text_line_t::get_previous_word(int start) const {
 	return cclass != CLASS_WHITESPACE ? savePos : -1;
 }
 
+int text_line_t::get_next_word_boundary(int start) const {
+	int i, cclass;
+
+	cclass = get_class(&buffer, start);
+
+	for (i = adjust_position(start, 1); (size_t) i < buffer.size() && get_class(&buffer, i) == cclass; i = adjust_position(i, 1)) {}
+
+	return (size_t) i;
+}
+
+int text_line_t::get_previous_word_boundary(int start) const {
+	int i, cclass, savePos;
+
+	if (start <= 0)
+		return 0;
+
+	cclass = get_class(&buffer, start);
+	savePos = start;
+
+	for (i = adjust_position(start, -1); i > 0 && get_class(&buffer, i) == cclass; i = adjust_position(i, -1))
+		savePos = i;
+
+	if (i == 0 && get_class(&buffer, i) == cclass)
+		return 0;
+
+	return savePos;
+}
 
 void text_line_t::insert_bytes(int pos, const char *bytes, int space) {
 	buffer.insert(pos, bytes, space);

@@ -99,6 +99,7 @@ class T3_WIDGET_API text_line_t {
 		text_line_t(const char *_buffer, text_line_factory_t *_factory = NULL);
 		text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = NULL);
 		text_line_t(const std::string *str, text_line_factory_t *_factory = NULL);
+		virtual ~text_line_t(void);
 
 		void set_text(const char *_buffer);
 		void set_text(const char *_buffer, size_t length);
@@ -138,6 +139,9 @@ class T3_WIDGET_API text_line_t {
 		bool is_bad_draw(int pos) const;
 
 		const std::string *get_data(void) const;
+
+		int get_next_word_boundary(int start) const;
+		int get_previous_word_boundary(int start) const;
 
 		static void init(void);
 

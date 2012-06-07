@@ -14,6 +14,7 @@
 COMPILER := gcc
 
 SOURCES.libt3widget.la := \
+	autocompleter.cc \
 	clipboard.cc \
 	colorscheme.cc \
 	contentlist.cc \

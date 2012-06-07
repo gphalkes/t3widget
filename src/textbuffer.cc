@@ -246,6 +246,14 @@ void text_buffer_t::goto_previous_word(void) {
 		cursor.pos = 0;
 }
 
+void text_buffer_t::goto_next_word_boundary(void) {
+	cursor.pos = impl->lines[cursor.line]->get_next_word_boundary(cursor.pos);
+}
+
+void text_buffer_t::goto_previous_word_boundary(void) {
+	cursor.pos = impl->lines[cursor.line]->get_previous_word_boundary(cursor.pos);
+}
+
 void text_buffer_t::adjust_position(int adjust) {
 	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, adjust);
 }
