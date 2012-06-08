@@ -468,7 +468,19 @@ void text_field_t::bad_draw_recheck(void) {
 }
 
 bool text_field_t::process_mouse_event(mouse_event_t event) {
-	if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
+	if (event.button_state & EMOUSE_TRIPLE_CLICKED_LEFT) {
+		impl->selection_mode = selection_mode_t::SHIFT;
+		impl->selection_start_pos = 0;
+		impl->pos = impl->line->get_length();
+		ensure_cursor_on_screen();
+		redraw = true;
+	} else if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
+		impl->selection_mode = selection_mode_t::SHIFT;
+		impl->selection_start_pos = impl->line->get_previous_word_boundary(impl->pos);
+		impl->pos = impl->line->get_next_word_boundary(impl->pos);
+		ensure_cursor_on_screen();
+		redraw = true;
+	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
 		if ((event.modifier_state & EMOUSE_SHIFT) == 0) {
 			reset_selection();
 		} else if (impl->selection_mode == selection_mode_t::NONE) {
