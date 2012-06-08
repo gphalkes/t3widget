@@ -472,12 +472,14 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 		impl->selection_mode = selection_mode_t::SHIFT;
 		impl->selection_start_pos = 0;
 		impl->pos = impl->line->get_length();
+		set_selection_end(true);
 		ensure_cursor_on_screen();
 		redraw = true;
 	} else if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
 		impl->selection_mode = selection_mode_t::SHIFT;
 		impl->selection_start_pos = impl->line->get_previous_word_boundary(impl->pos);
 		impl->pos = impl->line->get_next_word_boundary(impl->pos);
+		set_selection_end(true);		
 		ensure_cursor_on_screen();
 		redraw = true;
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
