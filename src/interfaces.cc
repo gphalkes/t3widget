@@ -98,9 +98,13 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	static t3_window_t *button_down_win = NULL;
 	static int button_down_x, button_down_y;
 	/* Information for handling double clicks. */
-	static t3_window_t *last_click_win;
-	static struct timeval last_click_time = { 0, 0 };
-	static short last_click_buttons = 0;
+	static struct {
+		t3_window_t *win;
+		int x, y;
+		struct timeval time;
+		short buttons;
+		bool was_double;
+	} last_click = { NULL, 0, 0, { 0, 0 }, 0, false };
 
 	bool handled = false;
 	t3_window_t *win;
@@ -112,8 +116,8 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		button_down_win = event.window;
 		button_down_x = event.x;
 		button_down_y = event.y;
-		if (button_down_win != last_click_win)
-			last_click_win = NULL;
+		if (button_down_win != last_click.win)
+			last_click.win = NULL;
 	} else if (event.type == EMOUSE_BUTTON_RELEASE) {
 		if (button_down_win == win && button_down_x == event.x && button_down_y == event.y) {
 			struct timeval now;
@@ -122,19 +126,28 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 
 			gettimeofday(&now, NULL);
 			//FIXME: make DOUBLECLICK_TIMEOUT configurable
-			if (last_click_win == button_down_win && timediff(now, last_click_time) < DOUBLECLICK_TIMEOUT &&
-					(last_click_buttons & event.button_state) != 0)
+			if (last_click.win == button_down_win && timediff(now, last_click.time) < DOUBLECLICK_TIMEOUT &&
+					(last_click.buttons & event.button_state) != 0 && last_click.x == event.x && last_click.y == event.y)
 			{
-				/* Set DOUBLE_CLICKED event for appropriate buttons */
-				event.button_state |= (event.button_state & last_click_buttons) << EMOUSE_CLICK_BUTTONS_COUNT;
-				last_click_win = NULL;
+				/* Set DOUBLE_CLICKED or TRIPLE_CLICKED event for appropriate buttons */
+				event.button_state |= (event.button_state & last_click.buttons) <<
+					(EMOUSE_CLICK_BUTTONS_COUNT * (last_click.was_double ? 2 : 1));
+				if (last_click.was_double) {
+					last_click.win = NULL;
+				} else {
+					last_click.was_double = !last_click.was_double;
+					last_click.time = now;
+				}
 			} else {
-				last_click_win = button_down_win;
-				last_click_time = now;
-				last_click_buttons = event.button_state & (EMOUSE_CLICK_BUTTONS << EMOUSE_ALL_BUTTONS_COUNT);
+				last_click.win = button_down_win;
+				last_click.time = now;
+				last_click.buttons = event.button_state & (EMOUSE_CLICK_BUTTONS << EMOUSE_ALL_BUTTONS_COUNT);
+				last_click.x = event.x;
+				last_click.y = event.y;
+				last_click.was_double = false;
 			}
 		} else {
-			last_click_win = NULL;
+			last_click.win = NULL;
 		}
 
 		win = button_down_win;

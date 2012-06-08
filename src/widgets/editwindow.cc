@@ -1225,12 +1225,13 @@ bool edit_window_t::is_child(window_component_t *widget) {
 }
 
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
-	/*FIXME:
-		- handle double clicking for word selection
-		- handle triple clicking for line selection
-	*/
 	if (event.window == impl->edit_window) {
-		if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
+		if (event.button_state & EMOUSE_TRIPLE_CLICKED_LEFT) {
+			text->cursor.pos = 0;
+			text->set_selection_mode(selection_mode_t::SHIFT);
+			text->cursor.pos = text->get_line_max(text->cursor.line);
+			text->set_selection_end(true);
+		} else if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
 			text->goto_previous_word_boundary();
 			text->set_selection_mode(selection_mode_t::SHIFT);
 			text->goto_next_word_boundary();
