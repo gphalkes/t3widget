@@ -247,14 +247,11 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
 		if (idx > impl->file_list->size())
 			return true;
 		if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
-			if (impl->current == idx) {
-				activate(impl->file_list->get_fs_name(impl->current));
-			} else {
-				impl->current = idx;
-				redraw = true;
-			}
+			activate(impl->file_list->get_fs_name(impl->current));
 		} else if (event.button_state & EMOUSE_BUTTON_LEFT) {
 			impl->current = idx;
+			if (impl->field != NULL)
+				impl->field->set_text((*impl->file_list)[impl->current]->c_str());
 			redraw = true;
 			return true;
 		}
