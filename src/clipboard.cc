@@ -121,6 +121,7 @@ static void init_external_clipboard(bool init) {
 			lprintf("External clipboard module has incompatible version\n");
 			lt_dlclose(extclipboard_mod);
 			extclipboard_mod = NULL;
+			return;
 		}
 		if (!extclipboard_calls->init()) {
 			lprintf("Failed to initialize external clipboard module\n");

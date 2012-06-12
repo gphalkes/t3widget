@@ -303,8 +303,15 @@ static void x11_close_display(void) {
 }
 
 static x11_event_t *x11_probe_event(void) {
+	x11_event_t *result;
 	xcb_flush(connection);
-	return xcb_poll_for_event(connection);
+	result = xcb_poll_for_event(connection);
+	/* FIXME: we really should figure out what causes this to happen, and if we can
+	   recover. But for now we just set the x11_error to true, to prevent the
+	   interface from becoming unresponsive. */
+	if (result == NULL && xcb_connection_has_error(connection))
+		x11_error = true;
+	return result;
 }
 
 static void x11_free_event(x11_event_t *event) {
@@ -577,7 +584,7 @@ static void *process_events(void *arg) {
 	fd_max = x11_fill_fds(&saved_read_fds);
 
 	while (1) {
-		while (!x11_error && !end_connection && (event = x11_probe_event()) == NULL) {
+		while ((event = x11_probe_event()) == NULL && !x11_error && !end_connection) {
 			fd_set read_fds;
 
 			/* Use select to wait for more events when there are no more left. In
@@ -932,8 +939,7 @@ static void claim_selection(bool clipboard, string *data) {
 	/* FIXME: we really should figure out what causes this to happen, and if we can
 	   recover. But for now we just set the x11_error to true, to prevent the
 	   interface from becoming unresponsive. */
-	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) == ETIMEDOUT)
-		x11_error = true;
+	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
 }
@@ -956,11 +962,7 @@ static void release_selections(void) {
 	if (primary_owner_since != X11_CURRENT_TIME)
 		x11_set_selection_owner(atoms[PRIMARY], X11_ATOM_NONE, X11_CURRENT_TIME);
 	x11_flush();
-	/* FIXME: we really should figure out what causes this to happen, and if we can
-	   recover. But for now we just set the x11_error to true, to prevent the
-	   interface from becoming unresponsive. */
-	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) == ETIMEDOUT)
-		x11_error = true;
+	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
 }
