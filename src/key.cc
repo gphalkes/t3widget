@@ -143,6 +143,7 @@ static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
 static transcript_t *conversion_handle;
 
+static pthread_mutex_t key_timeout_lock = PTHREAD_MUTEX_INITIALIZER;
 static int key_timeout = -1;
 static bool drop_single_esc = true;
 
@@ -282,9 +283,7 @@ static void *read_keys(void *arg) {
 				case QUIT_SIGNAL:
 					/* Exit thread */
 					close(signal_pipe[0]);
-					close(signal_pipe[1]);
 					signal_pipe[0] = -1;
-					signal_pipe[1] = -1;
 					leave = NULL;
 					return NULL;
 				case WINCH_SIGNAL:
@@ -301,7 +300,9 @@ static void *read_keys(void *arg) {
 
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
+				pthread_mutex_lock(&key_timeout_lock);
 				c = decode_sequence(true);
+				pthread_mutex_unlock(&key_timeout_lock);
 				if (c < 0)
 					continue;
 				else if (drop_single_esc && c == (EKEY_ESC | EKEY_META))
@@ -874,6 +875,8 @@ static void stop_keys(void) {
 	void *retval;
 	char quit_signal = QUIT_SIGNAL;
 	nosig_write(signal_pipe[1], &quit_signal, 1);
+	close(signal_pipe[1]);
+	signal_pipe[1] = -1;
 	pthread_join(read_key_thread, &retval);
 	if (xterm_mouse_reporting)
 		t3_term_putp(disable_mouse);
@@ -881,6 +884,7 @@ static void stop_keys(void) {
 }
 
 void set_key_timeout(int msec) {
+	pthread_mutex_lock(&key_timeout_lock);
 	if (msec == 0) {
 		key_timeout = -1;
 		drop_single_esc = true;
@@ -891,10 +895,15 @@ void set_key_timeout(int msec) {
 		key_timeout = msec;
 		drop_single_esc = false;
 	}
+	pthread_mutex_unlock(&key_timeout_lock);
 }
 
 int get_key_timeout(void) {
-	return key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
+	int result;
+	pthread_mutex_lock(&key_timeout_lock);
+	result = key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
+	pthread_mutex_unlock(&key_timeout_lock);
+	return result;
 }
 
 void signal_update(void) {
