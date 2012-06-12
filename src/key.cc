@@ -591,7 +591,7 @@ convert_mouse_event:
 		return -1;
 
 	event.modifier_state = (buttons >> 2) & 7;
-	event.window = t3_win_at_location(event.y, event.x);
+	event.window = NULL;
 	mouse_event_buffer.push_back(event);
 	return EKEY_MOUSE_EVENT;
 }

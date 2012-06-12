@@ -841,6 +841,7 @@ static bool init_x11(void) {
 	connection = local_connection.release();
 	x11_initialized = true;
 	pthread_create(&x11_event_thread, NULL, process_events, NULL);
+	lprintf("X11 interface initialized\n");
 	return true;
 }
 
@@ -928,7 +929,11 @@ static void claim_selection(bool clipboard, string *data) {
 		x11_set_selection_owner(atoms[clipboard ? CLIPBOARD : PRIMARY], X11_ATOM_NONE, X11_CURRENT_TIME);
 
 	x11_flush();
-	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
+	/* FIXME: we really should figure out what causes this to happen, and if we can
+	   recover. But for now we just set the x11_error to true, to prevent the
+	   interface from becoming unresponsive. */
+	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) == ETIMEDOUT)
+		x11_error = true;
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
 }
@@ -951,7 +956,11 @@ static void release_selections(void) {
 	if (primary_owner_since != X11_CURRENT_TIME)
 		x11_set_selection_owner(atoms[PRIMARY], X11_ATOM_NONE, X11_CURRENT_TIME);
 	x11_flush();
-	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
+	/* FIXME: we really should figure out what causes this to happen, and if we can
+	   recover. But for now we just set the x11_error to true, to prevent the
+	   interface from becoming unresponsive. */
+	if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) == ETIMEDOUT)
+		x11_error = true;
 	action = ACTION_NONE;
 	pthread_mutex_unlock(&clipboard_mutex);
 }

@@ -981,8 +981,8 @@ void edit_window_t::update_contents(void) {
 	/* TODO: see if we can optimize this somewhat by not redrawing the whole thing
 	   on every key.
 
-	   - cursor-only movements mostly don't require entire redraws
-
+	   - cursor-only movements mostly don't require entire redraws [well, that depends:
+	      for matching brace/parenthesis it may require more than a single line update]
 	*/
 
 	if (impl->autocomplete_panel_shown)

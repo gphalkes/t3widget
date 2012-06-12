@@ -111,7 +111,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	mouse_target_map_t::iterator iter;
 	dialog_t *active_dialog;
 
-	win = event.window;
+	win = event.window = t3_win_at_location(event.y, event.x);
 	if (event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 && (event.button_state & 7) != 0) {
 		button_down_win = event.window;
 		button_down_x = event.x;
