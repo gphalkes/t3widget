@@ -221,6 +221,9 @@ int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) co
 	if (pos == 0)
 		return start;
 
+	if (start == 0 && starts_with_combining)
+		pos--;
+
 	for (i = start; (size_t) i < buffer.size() && i < max; i += byte_width_from_first(i)) {
 		if (buffer[i] == '\t')
 			total += tabsize - (total % tabsize);
@@ -341,7 +344,16 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	if (starts_with_combining && info->leftcol == 0 && info->start == 0) {
 		selection_attr = get_draw_attrs(0, info);
 		paint_part(win, " ", true, 1, t3_term_combine_attrs(attributes.non_print, selection_attr));
-		accumulated++;
+
+		print_from = i;
+
+		/* Find the first non-zero-width char, and paint all zero-width chars now. */
+		while ((size_t) i < buffer.size() && i < info->max && width_at(i) == 0)
+			i += byte_width_from_first(i);
+
+		//FIXME: some chars are non-printable! These may need different handling
+		paint_part(win, buffer.data() + print_from, true, i - print_from, t3_term_combine_attrs(attributes.non_print, selection_attr));
+		total++;
 	} else {
 		/* Skip to first non-zero-width char */
 		while ((size_t) i < buffer.size() && i < info->max && width_at(i) == 0)
