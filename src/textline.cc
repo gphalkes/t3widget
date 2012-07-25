@@ -351,7 +351,8 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 		while ((size_t) i < buffer.size() && i < info->max && width_at(i) == 0)
 			i += byte_width_from_first(i);
 
-		//FIXME: some chars are non-printable! These may need different handling
+		/* Note that non-printable characters will be discarded by libt3window. Thus
+		   we don't have to filter for them here. */
 		paint_part(win, buffer.data() + print_from, true, i - print_from, t3_term_combine_attrs(attributes.non_print, selection_attr));
 		total++;
 	} else {

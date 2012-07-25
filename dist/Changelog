@@ -1,3 +1,9 @@
+Version 0.1.13:
+	Bug fixes:
+	- Prevent unprintable zero-width characters at the start of a line from
+	  being printed separately.
+	- Fix cursor positioning for zero-width characters at the start of a line.
+
 Version 0.1.12:
 	New features:
 	- Much improved mouse handling for text fields and autocomplete pop-ups.
