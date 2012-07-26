@@ -584,7 +584,13 @@ static void *process_events(void *arg) {
 	fd_max = x11_fill_fds(&saved_read_fds);
 
 	while (1) {
-		while ((event = x11_probe_event()) == NULL && !x11_error && !end_connection) {
+		/* The order of the checks here is important: we check the end_connection
+		   first, because that means the connection may be closed. We also check
+		   for errors on the connection here, because probing when the connection
+		   is no longer valid makes no sense. Then of course we probe for events.
+		   But the probe for events may detect another error, so we check the
+		   x11_error flag again before continuing. */
+		while (!end_connection && !x11_error && (event = x11_probe_event()) == NULL && !x11_error) {
 			fd_set read_fds;
 
 			/* Use select to wait for more events when there are no more left. In

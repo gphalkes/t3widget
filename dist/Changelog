@@ -3,6 +3,7 @@ Version 0.1.13:
 	- Prevent unprintable zero-width characters at the start of a line from
 	  being printed separately.
 	- Fix cursor positioning for zero-width characters at the start of a line.
+	- Fix invalid memory access in X11 handling.
 
 Version 0.1.12:
 	New features:
