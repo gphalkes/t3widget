@@ -93,8 +93,6 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Function pointer for calling insert/replace depending on insert/overwrite status. */
 		static bool (text_buffer_t::*proces_char[])(key_t);
 
-		/** Ensure that the cursor is visible. */
-		void ensure_cursor_on_screen(void);
 		/** Redraw the contents of the edit_window_t. */
 		void repaint_screen(void);
 		/** Handle cursor right key. */
@@ -156,6 +154,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		/** Convert coordinates relative to the edit window to a text_coordinate_t. */
 		text_coordinate_t xy_to_text_coordinate(int x, int y);
+		/** Ensure that the cursor is visible. */
+		void ensure_cursor_on_screen(void);
 	public:
 		class view_parameters_t;
 
