@@ -1,3 +1,8 @@
+Version 0.1.14:
+	Miscelaneous:
+	- Changed the visibility of ensure_cursor_on_screen in edit_window_t from
+	  private to protected.
+
 Version 0.1.13:
 	Bug fixes:
 	- Prevent unprintable zero-width characters at the start of a line from
