@@ -305,13 +305,13 @@ void file_pane_t::update_column_widths(void) {
 			impl->top_idx + i * height < impl->file_list->size(); i++)
 	{
 		update_column_width(i, impl->top_idx + i * height);
-		sum_width += impl->column_widths[i] + 1;
+		sum_width += impl->column_widths[i] + 2;
 	}
 
 	impl->columns_visible = i;
 	if (sum_width > width) {
 		if (i > 1) {
-			sum_width -= impl->column_widths[i - 1] + 1;
+			sum_width -= impl->column_widths[i - 1] + 2;
 			impl->columns_visible = i - 1;
 		} else {
 			impl->column_widths[0] = width;
