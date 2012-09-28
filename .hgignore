@@ -13,3 +13,4 @@ src/.objects
 src/.libs
 doc/API
 tmp/
+testsuite/work
