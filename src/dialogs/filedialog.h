@@ -25,7 +25,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API file_dialog_t : public dialog_t {
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			file_name_list_t names;
 			filtered_file_list_t view;
 			std::string current_dir, lang_codeset_filter;

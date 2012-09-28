@@ -29,7 +29,7 @@ class finder_t;
 
 class T3_WIDGET_API find_dialog_t : public dialog_t {
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			smart_label_t *replace_label;
 			text_field_t *find_line, *replace_line;
 			checkbox_t *whole_word_checkbox,

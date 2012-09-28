@@ -73,7 +73,7 @@ void set_color_mode(bool on) {
 		attributes.shadow = T3_ATTR_REVERSE;
 		attributes.meta_text = T3_ATTR_UNDERLINE;
 	}
-	attributes.background = attributes.dialog;
+	attributes.background = 0;
 	t3_win_set_default_attrs(NULL, attributes.background);
 	dialog_t::force_redraw_all();
 }

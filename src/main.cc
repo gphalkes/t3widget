@@ -172,6 +172,8 @@ struct terminal_mapping_t {
 
 static terminal_mapping_t terminal_mapping[] = {
 	{"xterm", TERM_XTERM},
+	{"xterm-256color", TERM_XTERM},
+	{"xterm-88color", TERM_XTERM},
 	{NULL, TERM_NONE}
 };
 

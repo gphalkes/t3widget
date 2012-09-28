@@ -34,7 +34,7 @@ class wrap_info_t;
 class T3_WIDGET_API text_buffer_t {
 	friend class wrap_info_t;
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			lines_t lines;
 			text_coordinate_t selection_start;
 			text_coordinate_t selection_end;

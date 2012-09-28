@@ -21,7 +21,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 	private:
-		class indicator_widget_t : public widget_t {
+		class T3_WIDGET_LOCAL indicator_widget_t : public widget_t {
 			private:
 				bool has_focus;
 			public:
@@ -33,7 +33,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 				virtual bool accepts_focus(void);
 		};
 
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			size_t top_idx, current;
 			cleanup_t3_window_ptr widgets_window;
 			widgets_t widgets;

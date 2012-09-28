@@ -29,7 +29,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 {
 	private:
 		/** Drop-down list implementation for text_field_t. */
-		class drop_down_list_t : public virtual window_component_t, public mouse_target_t, public container_t {
+		class T3_WIDGET_LOCAL drop_down_list_t : public virtual window_component_t, public mouse_target_t, public container_t {
 			private:
 				size_t current, /**< Index of the currently selected item. */
 					top_idx; /**< Index of the top-most displayed item. */
@@ -65,7 +65,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				virtual bool is_child(window_component_t *component);
 		};
 
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			int pos, /**< Cursor position in bytes. */
 				screen_pos, /**< Cursor position in screen cells. */
 				leftcol, /**< The first (left-most) shown column in screen cells. */

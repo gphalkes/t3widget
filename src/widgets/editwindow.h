@@ -37,7 +37,7 @@ class replace_buttons_dialog_t;
 /** Class implementing an edit widget. */
 class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
 	private:
-		class autocomplete_panel_t;
+		class T3_WIDGET_LOCAL autocomplete_panel_t;
 
 		static goto_dialog_t *goto_dialog;
 		static sigc::connection goto_connection;
@@ -48,7 +48,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static sigc::connection replace_buttons_connection;
 		static sigc::connection init_connected;
 
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
 				indicator_window; /**< Window holding the line, column, modified, etc. information line at the bottom. */
 			cleanup_ptr<scrollbar_t>::t scrollbar; /**< Scrollbar on the right of the text. */
@@ -157,7 +157,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Ensure that the cursor is visible. */
 		void ensure_cursor_on_screen(void);
 	public:
-		class view_parameters_t;
+		class T3_WIDGET_API view_parameters_t;
 
 		/** Create a new edit_window_t.
 		    @param _text The text to display in the edit_window_t.
@@ -266,7 +266,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void autocomplete(void);
 };
 
-class edit_window_t::view_parameters_t {
+class T3_WIDGET_API edit_window_t::view_parameters_t {
 	friend class edit_window_t;
 
 	private:
@@ -292,7 +292,9 @@ class edit_window_t::view_parameters_t {
 		void set_show_tabs(bool _show_tabs);
 };
 
-class edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t, public mouse_target_t {
+class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t,
+		public mouse_target_t
+{
 	private:
 		cleanup_t3_window_ptr shadow_window;
 		list_pane_t list_pane;

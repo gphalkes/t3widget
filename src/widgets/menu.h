@@ -27,7 +27,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 	friend class menu_panel_t;
 
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			int current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
 				old_menu; /**< Previously active window. */
 			int start_col; /**< Column where the next menu will start. */

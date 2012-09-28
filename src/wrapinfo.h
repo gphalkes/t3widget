@@ -32,7 +32,7 @@ typedef std::vector<wrap_points_t *> wrap_data_t;
     the index in the array of wrap points for the line indicated by the @c line
     field.
 */
-class wrap_info_t {
+class T3_WIDGET_LOCAL wrap_info_t {
 	private:
 		wrap_data_t wrap_data;
 		text_buffer_t *text;

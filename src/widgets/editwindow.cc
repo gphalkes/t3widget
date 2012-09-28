@@ -18,7 +18,7 @@
 #include "main.h"
 #include "dialogs/gotodialog.h"
 #include "dialogs/finddialog.h"
-#include "editwindow.h"
+#include "widgets/editwindow.h"
 #include "util.h"
 #include "colorscheme.h"
 #include "internal.h"

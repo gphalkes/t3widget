@@ -39,7 +39,7 @@ struct free_func2 {
 };
 
 template <typename T>
-class smartptr_base {
+class T3_WIDGET_API smartptr_base {
 	public:
 		T* operator-> (void) const { return p_; }
 		T& operator* (void) const { return *p_; }
@@ -60,7 +60,7 @@ class smartptr_base {
    be considered separate macro parameters, we use a simple trick: we use a
    variadic macro, and use __VA_ARGS__ where we want the template. */
 #define _T3_WIDGET_TYPEDEF(name, ...) \
-class name { \
+class T3_WIDGET_API name { \
 	public: \
 		typedef __VA_ARGS__ t; \
 	private: \
@@ -97,12 +97,12 @@ class name { \
 		cleanup_ptr_base(const cleanup_ptr_base &p) { (void) p; }
 
 template <typename T, typename D>
-class cleanup_ptr_base : public smartptr_base<T> {
+class T3_WIDGET_API cleanup_ptr_base : public smartptr_base<T> {
 	_T3_WIDGET_DEFINE_CLEANUP_PTR
 };
 
 template <typename T, typename D>
-class cleanup_ptr_base<T[], D> : public smartptr_base<T> {
+class T3_WIDGET_API cleanup_ptr_base<T[], D> : public smartptr_base<T> {
 	_T3_WIDGET_DEFINE_CLEANUP_PTR
 };
 #undef _T3_WIDGET_DEFINE_CLEANUP_PTR
@@ -159,12 +159,12 @@ template <typename T> _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, f
 		linked_ptr_base *next, *prev; \
 
 template <typename T, typename D>
-class linked_ptr_base : public smartptr_base<T> {
+class T3_WIDGET_API linked_ptr_base : public smartptr_base<T> {
 	_T3_WIDGET_DEFINE_LINKED_PTR
 };
 
 template <typename T, typename D>
-class linked_ptr_base<T[], D> : public smartptr_base<T> {
+class T3_WIDGET_API linked_ptr_base<T[], D> : public smartptr_base<T> {
 	_T3_WIDGET_DEFINE_LINKED_PTR
 };
 
@@ -177,7 +177,7 @@ template <typename T, typename D = delete_functor<T> > _T3_WIDGET_TYPEDEF(linked
    is available. Other than that, they are normal auto-pointers.
 */
 template <typename T>
-class pimpl_ptr_base : public smartptr_base<T> {
+class T3_WIDGET_API pimpl_ptr_base : public smartptr_base<T> {
 	public:
 		~pimpl_ptr_base(void) { if (smartptr_base<T>::p_ != NULL) delete smartptr_base<T>::p_; }
 		pimpl_ptr_base(T *p) { smartptr_base<T>::p_ = p; }

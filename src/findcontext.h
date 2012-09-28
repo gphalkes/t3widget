@@ -27,7 +27,7 @@ namespace t3_widget {
     In the current situation, find operations work on a single line. Therefore
     this struct does not contain line references.
 */
-struct find_result_t {
+struct T3_WIDGET_API find_result_t {
 	text_coordinate_t start, end;
 };
 

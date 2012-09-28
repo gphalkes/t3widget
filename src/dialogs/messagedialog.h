@@ -25,7 +25,7 @@ class text_line_t;
 
 class T3_WIDGET_API message_dialog_t : public dialog_t {
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			text_window_t *text_window;
 			int height, max_text_height;
 

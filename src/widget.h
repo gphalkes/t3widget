@@ -17,6 +17,7 @@
 #include <t3widget/main.h>
 
 #include <t3widget/dialogs/dialog.h>
+#include <t3widget/dialogs/attributepickerdialog.h>
 #include <t3widget/dialogs/filedialog.h>
 #include <t3widget/dialogs/inputselectiondialog.h>
 #include <t3widget/dialogs/insertchardialog.h>

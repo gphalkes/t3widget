@@ -26,7 +26,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 	friend class menu_bar_t;
 	friend class menu_item_t;
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			int width, label_width, hotkey_width;
 			smart_label_text_t label;
 			menu_bar_t *menu_bar;

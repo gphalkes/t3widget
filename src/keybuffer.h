@@ -30,7 +30,7 @@ namespace t3_widget {
 
 /** Class implmementing a mutex-protected queue of items. */
 template <class T>
-class item_buffer_t {
+class T3_WIDGET_LOCAL item_buffer_t {
 	protected:
 		/** The list of item symbols. */
 		std::deque<T> items;
@@ -80,7 +80,7 @@ class item_buffer_t {
 };
 
 /** Class implmementing a mutex-protected queue of key symbols. */
-class key_buffer_t : public item_buffer_t<key_t> {
+class T3_WIDGET_LOCAL key_buffer_t : public item_buffer_t<key_t> {
 	public:
 		/** Append an item to the list, but only if it is not already in the queue. */
 		void push_back_unique(key_t key) {

@@ -28,7 +28,7 @@ namespace t3_widget {
 /** A widget displaying the contents of a directory. */
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 	private:
-		struct implementation_t {
+		struct T3_WIDGET_LOCAL implementation_t {
 			scrollbar_t scrollbar; /**< Scrollbar displayed at the bottom. */
 			size_t top_idx, /**< Index of the first item displayed. */
 				current; /**< Index of the currently highlighted item. */

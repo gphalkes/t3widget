@@ -45,7 +45,7 @@ class T3_WIDGET_API text_line_t {
 			SHOW_TABS = (1<<6)
 		};
 
-		struct paint_info_t {
+		struct T3_WIDGET_API paint_info_t {
 			int start;	// Byte position of the start of the line (0 unless line wrapping is in effect)
 			int leftcol; // First cell to draw
 
@@ -61,7 +61,7 @@ class T3_WIDGET_API text_line_t {
 			//string highlighting;
 		};
 
-		struct break_pos_t {
+		struct T3_WIDGET_API break_pos_t {
 			int pos;
 			int flags;
 		};
@@ -159,7 +159,7 @@ class T3_WIDGET_API text_line_factory_t {
 		virtual text_line_t *new_text_line_t(const std::string *str);
 };
 
-extern text_line_factory_t default_text_line_factory;
+T3_WIDGET_API extern text_line_factory_t default_text_line_factory;
 
 }; // namespace
 #endif
