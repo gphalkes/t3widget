@@ -31,6 +31,7 @@ class main_window_t : public main_window_base_t {
 			if (id == REMOVE_MENU_ID) {
 				menu->remove_menu(empty_panel);
 				panel->remove_item(remove);
+				delete remove;
 			}
 		}
 };

@@ -25,10 +25,6 @@ build_test() {
 	LINE=`grep -n '@CLASS@' ../test.cc | head -n1  | sed -r 's/^([0-9]+).*/\1+1/' | bc`
 	{
 		echo '#line 1 "../test.cc"'
-		#~ sed "/@CLASS@/{c\\
-#~ #line 1 \"$TEST/test.cc\"
-#~ r $TEST/test.cc
-#~ }" ../test.cc
 		sed "/@CLASS@/{s%@CLASS@%#line 1 \"$TEST/test.cc\"%;r $TEST/test.cc
 a #line $LINE \"../test.cc\"
 }" ../test.cc

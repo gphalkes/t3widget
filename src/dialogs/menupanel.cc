@@ -136,6 +136,7 @@ void menu_panel_t::remove_item(menu_item_base_t *item) {
 
 	for (iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if ((*iter) == item) {
+			unset_widget_parent(item);
 			widgets.erase(iter);
 			goto resize_panel;
 		}

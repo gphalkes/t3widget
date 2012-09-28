@@ -52,25 +52,20 @@ bool menu_item_t::process_key(key_t key) {
 }
 
 void menu_item_t::update_contents(void) {
-	int spaces;
 
 	if (!redraw)
 		return;
 	redraw = false;
 
 	t3_win_set_paint(window, 0, 0);
+	t3_win_clrtoeol(window);
+	t3_win_set_paint(window, 0, 1);
 	t3_win_set_default_attrs(window, has_focus ? attributes.dialog_selected: attributes.dialog);
-	t3_win_addch(window, ' ', 0);
 	label->draw(window, 0, has_focus);
 
-	spaces = t3_win_get_width(window) - 3 - label->get_width();
 	if (hotkey != NULL) {
-		spaces -= t3_term_strwidth(hotkey) - 1;
-		t3_win_addchrep(window, ' ', 0, spaces);
+		t3_win_set_paint(window, 0, t3_win_get_width(window) - t3_term_strwidth(hotkey) - 1);
 		t3_win_addstr(window, hotkey, 0);
-		t3_win_addch(window, ' ', 0);
-	} else {
-		t3_win_addchrep(window, ' ', 0, spaces);
 	}
 }
 
