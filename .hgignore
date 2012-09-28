@@ -14,3 +14,4 @@ src/.libs
 doc/API
 tmp/
 testsuite/work
+testsuite/testlog*.txt
