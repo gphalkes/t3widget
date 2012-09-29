@@ -22,12 +22,13 @@ namespace t3_widget {
 class T3_WIDGET_API goto_dialog_t : public dialog_t {
 	private:
 		text_field_t *number_line;
+
+		void ok_activate(void);
 	public:
 		goto_dialog_t(void);
 		virtual bool set_size(optint height, optint width);
 		void reset(void);
 
-		void ok_activate(void);
 
 	T3_WIDGET_SIGNAL(activate, void, int);
 };

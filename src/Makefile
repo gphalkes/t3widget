@@ -29,6 +29,7 @@ SOURCES.libt3widget.la := \
 	undo.cc \
 	util.cc \
 	wrapinfo.cc \
+	dialogs/attributepickerdialog.cc \
 	dialogs/dialog.cc \
 	dialogs/filedialog.cc \
 	dialogs/finddialog.cc \
