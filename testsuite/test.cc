@@ -95,6 +95,10 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "init failed\n");
 		exit(EXIT_FAILURE);
 	}
+	#ifdef CALL_INIT
+	CALL_INIT
+	#endif
+
 	main_window_t *main_window = new main_t();
 	main_window->show();
 	set_key_timeout(100);

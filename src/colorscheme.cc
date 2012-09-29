@@ -26,6 +26,14 @@ void init_attributes(void) {
 	set_color_mode(true);
 }
 
+static t3_attr_t ensure_color(t3_attr_t value) {
+	if ((value & T3_ATTR_FG_MASK) == 0)
+		value |= T3_ATTR_FG_DEFAULT;
+	if ((value & T3_ATTR_BG_MASK) == 0)
+		value |= T3_ATTR_BG_DEFAULT;
+	return value;
+}
+
 void set_color_mode(bool on) {
 	/* Only actually switch to color mode if the terminal supports (sufficient) color. */
 	if (on) {
@@ -43,7 +51,6 @@ void set_color_mode(bool on) {
 		attributes.text = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLUE;
 		attributes.text_selected = T3_ATTR_FG_BLUE | T3_ATTR_BG_WHITE;
 		attributes.highlight = T3_ATTR_FG_BLUE;
-		attributes.highlight_selected = T3_ATTR_FG_YELLOW;
 		attributes.dialog = T3_ATTR_FG_BLACK | T3_ATTR_BG_WHITE;
 		attributes.dialog_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
 		attributes.button = attributes.dialog;
@@ -62,7 +69,6 @@ void set_color_mode(bool on) {
 		attributes.text = 0;
 		attributes.text_selected = T3_ATTR_REVERSE;
 		attributes.highlight = T3_ATTR_UNDERLINE;
-		attributes.highlight_selected = 0;
 		attributes.dialog = 0;
 		attributes.dialog_selected = T3_ATTR_REVERSE;
 		attributes.button = 0;
@@ -73,6 +79,25 @@ void set_color_mode(bool on) {
 		attributes.shadow = T3_ATTR_REVERSE;
 		attributes.meta_text = T3_ATTR_UNDERLINE;
 	}
+	/* The attributes fall into two categories:
+	   - full attributes
+	   - highlight attributes
+	   Highlight attributes are partial attributes which will be added to
+	   other attributes, while the full attributes define the complete rendering.
+	   In full attributes, the color should not be left unspecified, at least
+	   not in the default setting.
+	*/
+	attributes.text = ensure_color(attributes.text);
+	attributes.text_selected = ensure_color(attributes.text_selected);
+	attributes.dialog = ensure_color(attributes.dialog);
+	attributes.dialog_selected = ensure_color(attributes.dialog_selected);
+	attributes.button = ensure_color(attributes.button);
+	attributes.button_selected = ensure_color(attributes.button_selected);
+	attributes.scrollbar = ensure_color(attributes.scrollbar);
+	attributes.menubar = ensure_color(attributes.menubar);
+	attributes.menubar_selected = ensure_color(attributes.menubar_selected);
+	attributes.shadow = ensure_color(attributes.shadow);
+
 	attributes.background = 0;
 	t3_win_set_default_attrs(NULL, attributes.background);
 	dialog_t::force_redraw_all();
@@ -103,9 +128,6 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 			break;
 		case attribute_t::HIGHLIGHT:
 			attributes.highlight = value;
-			break;
-		case attribute_t::HIGHLIGHT_SELECTED:
-			attributes.highlight_selected = value;
 			break;
 		case attribute_t::DIALOG:
 			attributes.dialog = value;
@@ -163,8 +185,6 @@ t3_attr_t get_attribute(attribute_t attribute) {
 			return attributes.text_selected;
 		case attribute_t::HIGHLIGHT:
 			return attributes.highlight;
-		case attribute_t::HIGHLIGHT_SELECTED:
-			return attributes.highlight_selected;
 		case attribute_t::DIALOG:
 			return attributes.dialog;
 		case attribute_t::DIALOG_SELECTED:
