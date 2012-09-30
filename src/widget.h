@@ -31,6 +31,7 @@
 #include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/dummywidget.h>
 #include <t3widget/widgets/editwindow.h>
+#include <t3widget/widgets/expander.h>
 #include <t3widget/widgets/filepane.h>
 #include <t3widget/widgets/frame.h>
 #include <t3widget/widgets/label.h>

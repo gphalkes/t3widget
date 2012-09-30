@@ -29,6 +29,13 @@ class T3_WIDGET_API window_component_t {
 		/** The t3_window_t used for presenting this item on screen (see libt3window). */
 		cleanup_t3_window_ptr window;
 	public:
+		enum focus_t {
+			FOCUS_OUT = 0,
+			FOCUS_SET,
+			FOCUS_IN_FWD,
+			FOCUS_IN_BCK
+		};
+
 		/** Base constructor. */
 		window_component_t(void);
 		/** Base destructor. */
@@ -63,7 +70,7 @@ class T3_WIDGET_API window_component_t {
 		    Which window_component_t actually receives the input events is handled outside of
 		    the window_component_t.
 		*/
-		virtual void set_focus(bool focus) = 0;
+		virtual void set_focus(focus_t focus) = 0;
 		/** Display the window_component_t. */
 		virtual void show(void) = 0;
 		/** Hide the window_component_t. */

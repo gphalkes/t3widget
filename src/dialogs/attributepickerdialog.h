@@ -71,6 +71,9 @@ class T3_WIDGET_LOCAL attribute_picker_dialog_t::color_picker_t : public widget_
 		virtual void update_contents(void);
 		virtual bool process_mouse_event(mouse_event_t event);
 
+		int get_height(void);
+		int get_width(void);
+
 		t3_attr_t get_color(void);
 
 	T3_WIDGET_SIGNAL(activated, void);

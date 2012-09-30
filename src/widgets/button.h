@@ -49,7 +49,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 		    of the button_t based on the text width is used. */
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual bool is_hotkey(key_t key);
 
 		virtual bool process_mouse_event(mouse_event_t event);

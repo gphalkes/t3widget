@@ -28,7 +28,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 				indicator_widget_t(void);
 				virtual bool process_key(key_t key);
 				virtual void update_contents(void);
-				virtual void set_focus(bool focus);
+				virtual void set_focus(focus_t focus);
 				virtual bool set_size(optint height, optint width);
 				virtual bool accepts_focus(void);
 		};
@@ -63,7 +63,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual void set_anchor(window_component_t *anchor, int relation);
 		virtual void force_redraw(void);
 		virtual void focus_set(window_component_t *target);

@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "dialogs/attributepickerdialog.h"
 #include "widgets/frame.h"
+#include "widgets/expander.h"
 #include "colorscheme.h"
 
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 18
@@ -27,6 +28,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 {
 	smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
 	frame_t *test_line_frame;
+	expander_t *fg_expander;
 
 	impl->underline_box = new checkbox_t(false);
 	impl->underline_box->set_position(1, 2);
@@ -91,14 +93,23 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	test_line_frame = new frame_t();
 	test_line_frame->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	test_line_frame->set_position(1, -2);
-	impl->test_line = new test_line_t(4, "Text");
+	impl->test_line = new test_line_t(4, "Abcd");
 	test_line_frame->set_size(3, 6);
 	test_line_frame->set_child(impl->test_line);
 
 	impl->fg_picker = new color_picker_t(true);
-	impl->fg_picker->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	impl->fg_picker->set_position(1, 0);
+	fg_expander = new expander_t("_Foreground color");
+	fg_expander->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	fg_expander->set_position(1, 0);
+	fg_expander->set_child(impl->fg_picker);
+	fg_expander->set_size(impl->fg_picker->get_height() + 1, impl->fg_picker->get_width());
+	fg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	fg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+//	fg_expander->connect_expanded(sigc::mem_fun(this, &attribute_picker_dialog_t::fg_expanded));
+/*	impl->fg_picker->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	impl->fg_picker->set_position(1, 0);*/
 	impl->fg_picker->connect_selection_changed(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
+
 
 	push_back(impl->underline_box);
 	push_back(underline_label);
@@ -110,7 +121,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	push_back(reverse_label);
 	push_back(impl->blink_box);
 	push_back(blink_label);
-	push_back(impl->fg_picker);
+//	push_back(impl->fg_picker);
+	push_back(fg_expander);
 	push_back(test_line_frame);
 }
 
@@ -278,7 +290,7 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 		}
 		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
 	}
-
+#warning FIXME: only draw arrows when the widget has focus
 	if (current_color == -2) {
 		t3_win_set_paint(window, 1, 1);
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS);
@@ -368,5 +380,8 @@ t3_attr_t attribute_picker_dialog_t::color_picker_t::get_color(void) {
 	return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color) : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0)) :
 		(current_color >= 0 ? T3_ATTR_BG(current_color) : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
 }
+
+int attribute_picker_dialog_t::color_picker_t::get_height(void) { return t3_win_get_height(window); }
+int attribute_picker_dialog_t::color_picker_t::get_width(void) { return t3_win_get_width(window); }
 
 }; // namespace

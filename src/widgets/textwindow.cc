@@ -210,7 +210,7 @@ void text_window_t::update_contents(void) {
 	}
 }
 
-void text_window_t::set_focus(bool _focus) {
+void text_window_t::set_focus(focus_t _focus) {
 	if (impl->focus != _focus)
 		redraw = true;
 	impl->focus = _focus;
@@ -218,7 +218,7 @@ void text_window_t::set_focus(bool _focus) {
 
 void text_window_t::focus_set(window_component_t *target) {
 	(void) target;
-	set_focus(true);
+	set_focus(window_component_t::FOCUS_SET);
 }
 
 bool text_window_t::is_child(window_component_t *component) {

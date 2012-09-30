@@ -99,7 +99,7 @@ void label_t::update_contents(void) {
 	delete line;
 }
 
-void label_t::set_focus(bool _focus) {
+void label_t::set_focus(focus_t _focus) {
 	redraw = true;
 	focus = _focus;
 }

@@ -40,7 +40,7 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 		menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual void show(void);
 		virtual void hide(void);
 		virtual bool is_hotkey(key_t key);
@@ -54,7 +54,7 @@ class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
 		menu_separator_t(menu_panel_t *_parent);
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual void show(void);
 		virtual void hide(void);
 		virtual bool accepts_focus(void);

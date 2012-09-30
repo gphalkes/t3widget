@@ -56,6 +56,7 @@ void list_pane_t::ensure_cursor_on_screen(void) {
 
 bool list_pane_t::process_key(key_t key) {
 	size_t old_current = impl->current;
+	window_component_t::focus_t focus_type;
 	int height;
 
 	switch (key) {
@@ -63,17 +64,21 @@ bool list_pane_t::process_key(key_t key) {
 			if (impl->current + 1 >= impl->widgets.size())
 				return true;
 			impl->current++;
+			focus_type = window_component_t::FOCUS_IN_FWD;
 			break;
 		case EKEY_UP:
 			if (impl->current == 0)
 				return true;
 			impl->current--;
+			focus_type = window_component_t::FOCUS_IN_BCK;
 			break;
 		case EKEY_END:
 			impl->current = impl->widgets.size() - 1;
+			focus_type = window_component_t::FOCUS_SET;
 			break;
 		case EKEY_HOME:
 			impl->current = 0;
+			focus_type = window_component_t::FOCUS_SET;
 			break;
 		case EKEY_PGDN:
 			height = t3_win_get_height(window);
@@ -86,6 +91,7 @@ bool list_pane_t::process_key(key_t key) {
 				else
 					impl->top_idx = impl->widgets.size() - height;
 			}
+			focus_type = window_component_t::FOCUS_SET;
 			break;
 		case EKEY_PGUP:
 			height = t3_win_get_height(window);
@@ -95,6 +101,7 @@ bool list_pane_t::process_key(key_t key) {
 				impl->current -= height;
 				impl->top_idx -= height;
 			}
+			focus_type = window_component_t::FOCUS_SET;
 			break;
 		case EKEY_NL:
 			if (impl->widgets.size() > 0)
@@ -106,8 +113,8 @@ bool list_pane_t::process_key(key_t key) {
 			return false;
 	}
 	if (impl->current != old_current) {
-		impl->widgets[old_current]->set_focus(false);
-		impl->widgets[impl->current]->set_focus(impl->has_focus);
+		impl->widgets[old_current]->set_focus(window_component_t::FOCUS_OUT);
+		impl->widgets[impl->current]->set_focus(impl->has_focus ? focus_type : window_component_t::FOCUS_OUT);
 		selection_changed();
 	}
 	ensure_cursor_on_screen();
@@ -162,7 +169,7 @@ void list_pane_t::update_contents(void) {
 		(*iter)->update_contents();
 }
 
-void list_pane_t::set_focus(bool focus) {
+void list_pane_t::set_focus(focus_t focus) {
 	impl->has_focus = focus;
 	if (impl->current < impl->widgets.size())
 		impl->widgets[impl->current]->set_focus(focus);
@@ -213,7 +220,7 @@ void list_pane_t::focus_set(window_component_t *target) {
 	size_t old_current = impl->current;
 
 	if (target == &impl->scrollbar || target == impl->indicator_widget) {
-		set_focus(true);
+		set_focus(window_component_t::FOCUS_SET);
 		return;
 	}
 
@@ -230,12 +237,12 @@ void list_pane_t::focus_set(window_component_t *target) {
 		impl->current = idx;
 		if (impl->has_focus) {
 			if (impl->current != old_current) {
-				impl->widgets[old_current]->set_focus(false);
-				impl->widgets[impl->current]->set_focus(impl->has_focus);
+				impl->widgets[old_current]->set_focus(window_component_t::FOCUS_OUT);
+				impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
 				selection_changed();
 			}
 		} else {
-			set_focus(true);
+			set_focus(window_component_t::FOCUS_SET);
 		}
 	}
 }
@@ -275,10 +282,11 @@ void list_pane_t::push_front(widget_t *widget) {
 
 void list_pane_t::pop_back(void) {
 	if (impl->current + 1 == impl->widgets.size()) {
-		impl->widgets[impl->current]->set_focus(false);
+		impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
 		if (impl->current > 0) {
 			impl->current--;
-			impl->widgets[impl->current]->set_focus(impl->has_focus);
+			if (impl->has_focus)
+				impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
 		}
 	}
 	unset_widget_parent(impl->widgets.back());
@@ -288,9 +296,9 @@ void list_pane_t::pop_back(void) {
 
 void list_pane_t::pop_front(void) {
 	if (impl->current == 0) {
-		impl->widgets[0]->set_focus(false);
-		if (impl->widgets.size() > 1)
-			impl->widgets[1]->set_focus(impl->has_focus);
+		impl->widgets[0]->set_focus(window_component_t::FOCUS_OUT);
+		if (impl->widgets.size() > 1 && impl->has_focus)
+			impl->widgets[1]->set_focus(window_component_t::FOCUS_SET);
 	} else {
 		impl->current--;
 	}
@@ -379,7 +387,7 @@ void list_pane_t::indicator_widget_t::update_contents(void) {
 	t3_win_addch(window, T3_ACS_LARROW, T3_ATTR_ACS | (has_focus ? attributes.dialog_selected : attributes.dialog));
 }
 
-void list_pane_t::indicator_widget_t::set_focus(bool focus) {
+void list_pane_t::indicator_widget_t::set_focus(focus_t focus) {
 	has_focus = focus;
 	redraw = true;
 }

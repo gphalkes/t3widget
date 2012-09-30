@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef T3_WIDGET_FRAME_H
-#define T3_WIDGET_FRAME_H
+#ifndef T3_WIDGET_EXPANDER_H
+#define T3_WIDGET_EXPANDER_H
 
 #include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/smartlabel.h>
@@ -20,7 +20,7 @@
 namespace t3_widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
-class T3_WIDGET_API expander_t : public widget_t, public container_t {
+class T3_WIDGET_API expander_t : public widget_t, public container_t, public focus_widget_t {
 	private:
 		enum {
 			FOCUS_NONE,
@@ -43,7 +43,7 @@ class T3_WIDGET_API expander_t : public widget_t, public container_t {
 
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
-		virtual void set_focus(bool _focus);
+		virtual void set_focus(focus_t _focus);
 		virtual bool set_size(optint height, optint width);
 		virtual bool is_hotkey(key_t key);
 		virtual void set_enabled(bool enable);

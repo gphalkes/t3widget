@@ -144,7 +144,7 @@ void menu_bar_t::update_contents(void) {
 	impl->menus[impl->current_menu]->update_contents();
 }
 
-void menu_bar_t::set_focus(bool focus) {
+void menu_bar_t::set_focus(focus_t focus) {
 	(void) focus;
 }
 

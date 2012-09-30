@@ -103,7 +103,7 @@ bool text_field_t::process_key(key_t key) {
 			if (impl->drop_down_list != NULL && !impl->drop_down_list->empty() && impl->line->get_length() > 0) {
 				impl->in_drop_down_list = true;
 				impl->drop_down_list_shown = true;
-				impl->drop_down_list->set_focus(true);
+				impl->drop_down_list->set_focus(window_component_t::FOCUS_SET);
 				impl->drop_down_list->show();
 			} else {
 				move_focus_down();
@@ -366,7 +366,7 @@ void text_field_t::update_contents(void) {
 	t3_win_addch(window, impl->line->calculate_screen_width(impl->leftcol, INT_MAX, 0) > t3_win_get_width(window) - 2 ? ')' : ']', 0);
 }
 
-void text_field_t::set_focus(bool _focus) {
+void text_field_t::set_focus(focus_t _focus) {
 	impl->focus = _focus;
 	redraw = true;
 	if (impl->focus) {
@@ -381,7 +381,7 @@ void text_field_t::set_focus(bool _focus) {
 			impl->drop_down_list->update_view();
 	} else {
 		if (impl->drop_down_list != NULL) {
-			impl->drop_down_list->set_focus(false);
+			impl->drop_down_list->set_focus(window_component_t::FOCUS_OUT);
 			impl->drop_down_list_shown = false;
 			impl->drop_down_list->hide();
 		}
@@ -479,7 +479,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 		impl->selection_mode = selection_mode_t::SHIFT;
 		impl->selection_start_pos = impl->line->get_previous_word_boundary(impl->pos);
 		impl->pos = impl->line->get_next_word_boundary(impl->pos);
-		set_selection_end(true);		
+		set_selection_end(true);
 		ensure_cursor_on_screen();
 		redraw = true;
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) && event.previous_button_state == 0) {
@@ -560,7 +560,7 @@ bool text_field_t::has_focus(void) const {
 
 void text_field_t::focus_set(window_component_t *target) {
 	(void) target;
-	set_focus(true);
+	set_focus(window_component_t::FOCUS_SET);
 }
 
 bool text_field_t::is_child(window_component_t *component) {
@@ -741,7 +741,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 	}
 }
 
-void text_field_t::drop_down_list_t::set_focus(bool _focus) {
+void text_field_t::drop_down_list_t::set_focus(focus_t _focus) {
 	focus = _focus;
 	if (focus) {
 		field->set_text((*completions)[current]);
@@ -804,7 +804,7 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 
 void text_field_t::drop_down_list_t::focus_set(window_component_t *target) {
 	(void) target;
-	set_focus(true);
+	set_focus(window_component_t::FOCUS_SET);
 }
 
 bool text_field_t::drop_down_list_t::is_child(window_component_t *widget) {

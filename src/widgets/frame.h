@@ -48,7 +48,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
 		void set_child(widget_t *_child);
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual bool set_size(optint height, optint width);
  		virtual bool accepts_focus(void);
 		virtual bool is_hotkey(key_t key);

@@ -65,7 +65,7 @@ void checkbox_t::update_contents(void) {
 	t3_win_addch(window, ']', 0);
 }
 
-void checkbox_t::set_focus(bool focus) {
+void checkbox_t::set_focus(focus_t focus) {
 	if (has_focus != focus)
 		redraw = true;
 

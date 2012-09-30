@@ -83,7 +83,7 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual void show(void);
 		virtual void hide(void);
 		virtual void force_redraw(void);

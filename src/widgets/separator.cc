@@ -48,7 +48,7 @@ void separator_t::update_contents(void) {
 	}
 }
 
-void separator_t::set_focus(bool focus) { (void) focus; }
+void separator_t::set_focus(focus_t focus) { (void) focus; }
 bool separator_t::accepts_focus(void) { return false; }
 
 }; // namespace

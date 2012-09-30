@@ -111,7 +111,7 @@ void smart_label_t::update_contents(void) {
 	draw(window, attributes.dialog);
 }
 
-void smart_label_t::set_focus(bool focus) { (void) focus; }
+void smart_label_t::set_focus(focus_t focus) { (void) focus; }
 
 bool smart_label_t::is_hotkey(key_t key) {
 	return smart_label_text_t::is_hotkey(key);

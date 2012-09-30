@@ -36,7 +36,7 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
 		    A checkbox_t has a fixed size, so both @p height and @p width are ignored. */
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual bool is_hotkey(key_t key);
 		virtual bool process_mouse_event(mouse_event_t event);
 		/** Set the enabled status of this widget.

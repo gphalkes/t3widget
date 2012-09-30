@@ -215,7 +215,7 @@ void file_pane_t::update_contents(void) {
 	impl->scrollbar.update_contents();
 }
 
-void file_pane_t::set_focus(bool _focus) {
+void file_pane_t::set_focus(focus_t _focus) {
 	impl->focus = _focus;
 	if (impl->file_list != NULL)
 		draw_line(impl->current, impl->focus);
@@ -223,7 +223,7 @@ void file_pane_t::set_focus(bool _focus) {
 
 void file_pane_t::focus_set(window_component_t *target) {
 	(void) target;
-	set_focus(true);
+	set_focus(window_component_t::FOCUS_SET);
 }
 
 bool file_pane_t::is_child(window_component_t *widget) {

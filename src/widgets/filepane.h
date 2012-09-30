@@ -71,7 +71,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool _focus);
+		virtual void set_focus(focus_t _focus);
 
 		virtual void focus_set(window_component_t *target);
 		virtual bool is_child(window_component_t *component);

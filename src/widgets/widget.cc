@@ -92,7 +92,7 @@ bool widget_t::is_shown(void) {
 	return shown;
 }
 
-void widget_t::set_focus(bool focus) { (void) focus; return; }
+void widget_t::set_focus(focus_t focus) { (void) focus; return; }
 
 bool widget_t::process_mouse_event(mouse_event_t event) {
 	lprintf("Default mouse handling for %s (%d)\n", typeid(*this).name(), accepts_focus());

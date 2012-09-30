@@ -1040,7 +1040,7 @@ void edit_window_t::update_contents(void) {
 	t3_win_addstr(impl->indicator_window, info, 0);
 }
 
-void edit_window_t::set_focus(bool _focus) {
+void edit_window_t::set_focus(focus_t _focus) {
 	if (_focus != impl->focus) {
 		impl->focus = _focus;
 		hide_autocomplete();
@@ -1217,7 +1217,7 @@ void edit_window_t::focus_set(window_component_t *target) {
 	if (impl->autocomplete_panel_shown)
 		impl->autocomplete_panel->focus_set(target);
 	else
-		set_focus(true);
+		set_focus(window_component_t::FOCUS_SET);
 }
 
 bool edit_window_t::is_child(window_component_t *widget) {
@@ -1528,7 +1528,7 @@ edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent)
 
 	list_pane.set_size(5, 6);
 	list_pane.set_position(1, 1);
-	list_pane.set_focus(true);
+	list_pane.set_focus(window_component_t::FOCUS_SET);
 	set_widget_parent(&list_pane);
 }
 
@@ -1592,7 +1592,7 @@ void edit_window_t::autocomplete_panel_t::update_contents(void) {
 	list_pane.update_contents();
 }
 
-void edit_window_t::autocomplete_panel_t::set_focus(bool _focus) {
+void edit_window_t::autocomplete_panel_t::set_focus(focus_t _focus) {
 	(void) _focus;
 	//ignore?
 }
@@ -1600,7 +1600,7 @@ void edit_window_t::autocomplete_panel_t::set_focus(bool _focus) {
 void edit_window_t::autocomplete_panel_t::show(void) {
 	t3_win_show(window);
 	t3_win_show(shadow_window);
-	list_pane.set_focus(true);
+	list_pane.set_focus(window_component_t::FOCUS_SET);
 	grab_mouse();
 }
 

@@ -77,7 +77,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual void show(void);
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);

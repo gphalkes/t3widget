@@ -68,7 +68,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 		virtual bool is_enabled(void);
 		/** Query the visibility status of this widget. */
 		virtual bool is_shown(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual bool process_mouse_event(mouse_event_t event);
 };
 

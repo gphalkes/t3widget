@@ -32,10 +32,6 @@ main_window_base_t::main_window_base_t(void) : dialog_t() {
 		throw bad_alloc();
 	t3_win_show(window);
 	connect_resize(sigc::mem_fun(this, &main_window_base_t::set_size_real));
-
-	widgets.push_front(dialog_t::dummy);
-	current_widget = widgets.begin();
-	dialog_t::active_dialogs.push_front(this);
 }
 
 bool main_window_base_t::set_size(optint height, optint width) {
@@ -54,8 +50,27 @@ void main_window_base_t::update_contents(void) {
 	dialog_t::update_contents();
 }
 
-void main_window_base_t::show(void) {}
-void main_window_base_t::hide(void) {}
+void main_window_base_t::show(void) {
+	for (current_widget = widgets.begin();
+		current_widget != widgets.end() && !(*current_widget)->accepts_focus();
+		current_widget++)
+	{}
+
+	if (current_widget == widgets.end()) {
+		widgets.push_front(dummy);
+		current_widget = widgets.begin();
+	}
+
+	dialog_t::active_dialogs.push_front(this);
+	if (dialog_t::active_dialogs.back() == this)
+		set_focus(window_component_t::FOCUS_SET);
+
+	t3_win_show(window);
+	if (shadow_window != NULL)
+		t3_win_show(shadow_window);
+}
+
+void main_window_base_t::close(void) {}
 
 void main_window_base_t::set_size_real(int height, int width) {
 	t3_win_resize(window, height, width);

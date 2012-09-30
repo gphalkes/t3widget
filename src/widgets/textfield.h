@@ -48,7 +48,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 				virtual void set_position(optint top, optint left);
 				virtual bool set_size(optint height, optint width);
 				virtual void update_contents(void);
-				virtual void set_focus(bool focus);
+				virtual void set_focus(focus_t focus);
 				virtual void show(void);
 				virtual void hide(void);
 				virtual void force_redraw(void);
@@ -132,7 +132,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool _focus);
+		virtual void set_focus(focus_t _focus);
 		virtual void show(void);
 		virtual void hide(void);
 		/** Set the text of the text_field_t. */

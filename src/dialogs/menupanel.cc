@@ -46,15 +46,15 @@ bool menu_panel_t::process_key(key_t key) {
 			focus_next();
 			break;
 		case EKEY_HOME:
-			(*current_widget)->set_focus(false);
+			(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 			current_widget = widgets.begin();
-			(*current_widget)->set_focus(true);
+			(*current_widget)->set_focus(window_component_t::FOCUS_SET);
 			break;
 		case EKEY_END:
-			(*current_widget)->set_focus(false);
+			(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 			current_widget = widgets.end();
 			current_widget--;
-			(*current_widget)->set_focus(true);
+			(*current_widget)->set_focus(window_component_t::FOCUS_SET);
 			break;
 		case '\t':
 		case EKEY_SHIFT | '\t':
@@ -71,9 +71,9 @@ bool menu_panel_t::process_key(key_t key) {
 			for (widgets_t::iterator iter = widgets.begin();
 					iter != widgets.end(); iter++) {
 				if ((*iter)->accepts_focus() && (*iter)->is_hotkey(key)) {
-					(*current_widget)->set_focus(false);
+					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 					current_widget = iter;
-					(*current_widget)->set_focus(true);
+					(*current_widget)->set_focus(window_component_t::FOCUS_SET);
 					(*current_widget)->process_key(EKEY_HOTKEY);
 					return true;
 				}

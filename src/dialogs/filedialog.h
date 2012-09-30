@@ -69,7 +69,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 	private:
 		class T3_WIDGET_API filter_text_field_t : public text_field_t {
 			public:
-				virtual void set_focus(bool _focus);
+				virtual void set_focus(focus_t _focus);
 			T3_WIDGET_SIGNAL(lose_focus, void);
 		};
 

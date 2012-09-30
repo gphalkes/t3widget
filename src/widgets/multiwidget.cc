@@ -46,7 +46,7 @@ void multi_widget_t::update_contents(void) {
 		iter->widget->update_contents();
 }
 
-void multi_widget_t::set_focus(bool focus) {
+void multi_widget_t::set_focus(focus_t focus) {
 	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (iter->takes_focus)
 			iter->widget->set_focus(focus);
@@ -156,7 +156,7 @@ void multi_widget_t::set_enabled(bool enable) {
 
 void multi_widget_t::focus_set(window_component_t *target) {
 	(void) target;
-	set_focus(true);
+	set_focus(window_component_t::FOCUS_SET);
 }
 
 bool multi_widget_t::is_child(window_component_t *widget) {

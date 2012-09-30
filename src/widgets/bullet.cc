@@ -36,7 +36,7 @@ void bullet_t::update_contents(void) {
 		t3_win_addch(window, ' ', has_focus ? T3_ATTR_REVERSE : 0);
 }
 
-void bullet_t::set_focus(bool focus) {
+void bullet_t::set_focus(focus_t focus) {
 	has_focus = focus;
 }
 

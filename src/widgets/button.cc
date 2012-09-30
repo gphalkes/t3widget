@@ -89,7 +89,7 @@ void button_t::update_contents(void) {
 	t3_win_addstr(window, is_default ? ">]" : " ]", attr);
 }
 
-void button_t::set_focus(bool focus) {
+void button_t::set_focus(focus_t focus) {
 	if (focus != has_focus)
 		redraw = true;
 

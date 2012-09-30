@@ -69,7 +69,7 @@ void menu_item_t::update_contents(void) {
 	}
 }
 
-void menu_item_t::set_focus(bool focus) {
+void menu_item_t::set_focus(focus_t focus) {
 	menu_item_base_t::set_focus(focus);
 	if (focus != has_focus)
 		redraw = true;
@@ -114,7 +114,7 @@ void menu_separator_t::update_contents(void) {
 	t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, t3_win_get_width(window));
 }
 
-void menu_separator_t::set_focus(bool focus) {
+void menu_separator_t::set_focus(focus_t focus) {
 	(void) focus;
 }
 

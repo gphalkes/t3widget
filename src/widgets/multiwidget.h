@@ -36,7 +36,7 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual bool accepts_focus(void);
 		virtual void force_redraw(void);
 		virtual void set_enabled(bool enable);

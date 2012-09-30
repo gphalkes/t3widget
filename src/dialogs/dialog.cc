@@ -62,8 +62,10 @@ dialog_t::~dialog_t() {
 			break;
 		}
 	}
-	for (widgets_t::iterator widget_iter = widgets.begin(); widget_iter != widgets.end(); widget_iter++)
-		delete *widget_iter;
+	for (widgets_t::iterator widget_iter = widgets.begin(); widget_iter != widgets.end(); widget_iter++) {
+		if (*widget_iter != dummy)
+			delete *widget_iter;
+	}
 }
 
 void dialog_t::activate_dialog(void) {
@@ -71,7 +73,7 @@ void dialog_t::activate_dialog(void) {
 		if (this == active_dialogs.back())
 			return;
 
-		active_dialogs.back()->set_focus(false);
+		active_dialogs.back()->set_focus(window_component_t::FOCUS_OUT);
 		if (active) {
 			for (dialogs_t::iterator iter = active_dialogs.begin(); iter != active_dialogs.end(); iter++) {
 				if (*iter == this) {
@@ -83,7 +85,7 @@ void dialog_t::activate_dialog(void) {
 	}
 
 	active = true;
-	set_focus(true);
+	set_focus(window_component_t::FOCUS_SET);
 	dialog_depth -= 2;
 	t3_win_set_depth(window, dialog_depth);
 	if (shadow_window != NULL)
@@ -94,9 +96,9 @@ void dialog_t::activate_dialog(void) {
 void dialog_t::deactivate_dialog(void) {
 	this->active = false;
 	if (this == active_dialogs.back()) {
-		this->set_focus(false);
+		this->set_focus(window_component_t::FOCUS_OUT);
 		active_dialogs.pop_back();
-		active_dialogs.back()->set_focus(true);
+		active_dialogs.back()->set_focus(window_component_t::FOCUS_SET);
 		dialog_depth = t3_win_get_depth(active_dialogs.back()->window);
 		return;
 	}
@@ -115,9 +117,9 @@ bool dialog_t::process_key(key_t key) {
 				iter != widgets.end(); iter++) {
 			if ((*iter)->is_enabled() && (*iter)->is_hotkey(key & ~EKEY_META)) {
 				if ((*iter)->accepts_focus()) {
-					(*current_widget)->set_focus(false);
+					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 					current_widget = iter;
-					(*current_widget)->set_focus(true);
+					(*current_widget)->set_focus(window_component_t::FOCUS_SET);
 				}
 				if ((*iter)->process_key(EKEY_HOTKEY))
 					return true;
@@ -201,7 +203,7 @@ void dialog_t::update_contents(void) {
 		(*iter)->update_contents();
 }
 
-void dialog_t::set_focus(bool focus) {
+void dialog_t::set_focus(focus_t focus) {
 	(*current_widget)->set_focus(focus);
 }
 
@@ -238,18 +240,18 @@ void dialog_t::close(void) {
 }
 
 void dialog_t::focus_next(void) {
-	(*current_widget)->set_focus(false);
+	(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 	do {
 		current_widget++;
 		if (current_widget == widgets.end())
 			current_widget = widgets.begin();
 	} while (!(*current_widget)->accepts_focus());
 
-	(*current_widget)->set_focus(true);
+	(*current_widget)->set_focus(window_component_t::FOCUS_IN_FWD);
 }
 
 void dialog_t::focus_previous(void) {
-	(*current_widget)->set_focus(false);
+	(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 
 	do {
 		if (current_widget == widgets.begin())
@@ -258,7 +260,7 @@ void dialog_t::focus_previous(void) {
 		current_widget--;
 	} while (!(*current_widget)->accepts_focus());
 
-	(*current_widget)->set_focus(true);
+	(*current_widget)->set_focus(window_component_t::FOCUS_IN_BCK);
 }
 
 void dialog_t::focus_set(window_component_t *target) {
@@ -269,16 +271,16 @@ void dialog_t::focus_set(window_component_t *target) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (*iter == target) {
 			if (*current_widget != *iter) {
-				(*current_widget)->set_focus(false);
+				(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 				current_widget = iter;
-				(*current_widget)->set_focus(true);
+				(*current_widget)->set_focus(window_component_t::FOCUS_SET);
 			}
 			return;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
 			if (container != NULL && container->is_child(target)) {
 				if (*current_widget != *iter) {
-					(*current_widget)->set_focus(false);
+					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 					current_widget = iter;
 				}
 				container->focus_set(target);
@@ -304,6 +306,8 @@ bool dialog_t::is_child(window_component_t *widget) {
 void dialog_t::push_back(widget_t *widget) {
 	if (!set_widget_parent(widget))
 		return;
+	if (widgets.size() > 0 && widgets.front() == dummy)
+		widgets.pop_front();
 	widgets.push_back(widget);
 }
 

@@ -22,10 +22,16 @@ expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), ch
 	label.set_position(0, 2);
 	if ((symbol_window = t3_win_new(window, 1, 2, 0, 0, 0)) == NULL)
 		throw bad_alloc();
+	set_widget_parent(&label);
 }
 
 void expander_t::set_child(widget_t *_child) {
 	/* FIXME: connect to move_focus_XXX events. */
+	if (child == NULL && is_expanded) {
+		t3_win_resize(window, 1, t3_win_get_width(window));
+		is_expanded = false;
+		redraw = true;
+	}
 	child = _child;
 	set_widget_parent(child);
 	child->set_anchor(this, 0);
@@ -35,10 +41,17 @@ void expander_t::set_child(widget_t *_child) {
 
 bool expander_t::process_key(key_t key) {
 	if (focus == FOCUS_SELF) {
-		if (child != NULL && (key == '\t' || key == EKEY_DOWN)) {
-			focus = FOCUS_CHILD;
+		if (is_expanded && child != NULL && (key == '\t' || key == EKEY_DOWN)) {
+			if (child->accepts_focus()) {
+				focus = FOCUS_CHILD;
+				child->set_focus(window_component_t::FOCUS_IN_FWD);
+			}
 			return true;
-		} else if (key == ' ' || key == EKEY_NL) {
+		} else if (key == EKEY_DOWN && !is_expanded) {
+			move_focus_down();
+		} else if (key == EKEY_UP) {
+			move_focus_up();
+		} else if (key == ' ' || key == EKEY_NL || key == EKEY_HOTKEY) {
 			if (!is_expanded && child != NULL) {
 				t3_win_resize(window, full_height, t3_win_get_width(window));
 				is_expanded = true;
@@ -46,7 +59,7 @@ bool expander_t::process_key(key_t key) {
 				child->show();
 				if (child->accepts_focus()) {
 					focus = FOCUS_CHILD;
-					child->set_focus(true);
+					child->set_focus(window_component_t::FOCUS_IN_FWD);
 				}
 			} else if (is_expanded) {
 				if (child != NULL)
@@ -80,14 +93,19 @@ void expander_t::update_contents(void) {
 	t3_win_addch(symbol_window, is_expanded ? T3_ACS_DARROW : T3_ACS_RARROW, 0);
 }
 
-void expander_t::set_focus(bool _focus) {
+void expander_t::set_focus(focus_t _focus) {
 	/* FIXME: can we somehow determine where the focus came from, such that when
 	   we shift-tab into this, we can set the focus to the child iso ourselves. */
-	if (_focus) {
-		focus = FOCUS_SELF;
+	if (_focus != window_component_t::FOCUS_OUT) {
+		if (_focus == window_component_t::FOCUS_SET || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
+			focus = FOCUS_SELF;
+		} else {
+			focus = FOCUS_CHILD;
+			child->set_focus(_focus);
+		}
 	} else {
 		if (focus == FOCUS_CHILD && child != NULL)
-			child->set_focus(false);
+			child->set_focus(window_component_t::FOCUS_OUT);
 		focus = FOCUS_NONE;
 	}
 	redraw = true;
@@ -129,7 +147,7 @@ void expander_t::force_redraw(void) {
 void expander_t::focus_set(window_component_t *target) {
 	container_t *container;
 	if (target == child)
-		child->set_focus(true);
+		child->set_focus(window_component_t::FOCUS_SET);
 	container = dynamic_cast<container_t *>((widget_t *) child);
 	if (container != NULL)
 		container->focus_set(target);

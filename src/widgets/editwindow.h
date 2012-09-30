@@ -168,7 +168,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool focus);
+		virtual void set_focus(focus_t focus);
 		virtual void force_redraw(void);
 		virtual void bad_draw_recheck(void);
 
@@ -305,7 +305,7 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public virtual windo
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(bool _focus);
+		virtual void set_focus(focus_t _focus);
 		virtual void show(void);
 		virtual void hide(void);
 		virtual void force_redraw(void);
