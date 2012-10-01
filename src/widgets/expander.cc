@@ -60,7 +60,9 @@ bool expander_t::process_key(key_t key) {
 				child->show();
 				if (child->accepts_focus()) {
 					focus = FOCUS_CHILD;
-					child->set_focus(window_component_t::FOCUS_IN_FWD);
+					child->set_focus(window_component_t::FOCUS_SET);
+				} else {
+					focus = FOCUS_SELF;
 				}
 			} else if (is_expanded) {
 				if (child != NULL)
@@ -76,6 +78,7 @@ bool expander_t::process_key(key_t key) {
 		if (!result && key == (EKEY_SHIFT | '\t')) {
 			focus = FOCUS_SELF;
 			result = true;
+			child->set_focus(window_component_t::FOCUS_OUT);
 		}
 		return result;
 	}
@@ -97,17 +100,17 @@ void expander_t::update_contents(void) {
 void expander_t::set_focus(focus_t _focus) {
 	/* FIXME: can we somehow determine where the focus came from, such that when
 	   we shift-tab into this, we can set the focus to the child iso ourselves. */
-	if (_focus != window_component_t::FOCUS_OUT) {
+	if (_focus == window_component_t::FOCUS_OUT) {
+		if (focus == FOCUS_CHILD && child != NULL)
+			child->set_focus(window_component_t::FOCUS_OUT);
+		focus = FOCUS_NONE;
+	} else {
 		if (_focus == window_component_t::FOCUS_SET || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
 			focus = FOCUS_SELF;
 		} else {
 			focus = FOCUS_CHILD;
 			child->set_focus(_focus);
 		}
-	} else {
-		if (focus == FOCUS_CHILD && child != NULL)
-			child->set_focus(window_component_t::FOCUS_OUT);
-		focus = FOCUS_NONE;
 	}
 	redraw = true;
 }
@@ -147,8 +150,10 @@ void expander_t::force_redraw(void) {
 
 void expander_t::focus_set(window_component_t *target) {
 	container_t *container;
-	if (target == child)
+	if (target == child) {
+		focus = FOCUS_CHILD;
 		child->set_focus(window_component_t::FOCUS_SET);
+	}
 	container = dynamic_cast<container_t *>((widget_t *) child);
 	if (container != NULL)
 		container->focus_set(target);

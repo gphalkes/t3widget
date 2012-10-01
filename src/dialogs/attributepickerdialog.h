@@ -61,7 +61,7 @@ class T3_WIDGET_LOCAL attribute_picker_dialog_t::test_line_t : public widget_t {
 class T3_WIDGET_LOCAL attribute_picker_dialog_t::color_picker_t : public widget_t {
 	private:
 		int max_color, current_color;
-		bool fg;
+		bool fg, has_focus;
 
 		int xy_to_color(int x, int y);
 	public:
@@ -70,6 +70,7 @@ class T3_WIDGET_LOCAL attribute_picker_dialog_t::color_picker_t : public widget_
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
 		virtual bool process_mouse_event(mouse_event_t event);
+		virtual void set_focus(focus_t focus);
 
 		t3_attr_t get_color(void);
 

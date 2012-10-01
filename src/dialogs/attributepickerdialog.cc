@@ -16,6 +16,7 @@
 #include "widgets/frame.h"
 #include "widgets/expander.h"
 #include "colorscheme.h"
+#include "log.h"
 
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 18
 #define ATTRIBUTE_PICKER_DIALOG_WIDTH 43
@@ -196,7 +197,7 @@ void attribute_picker_dialog_t::test_line_t::set_attribute(t3_attr_t _attr) {
 #warning FIXME: need to handle changes in number of colors
 //FIXME: handle terminals which only do color pairs, although maybe it is better to make a separate widget for that
 #define COLORS_PER_LINE 36
-attribute_picker_dialog_t::color_picker_t::color_picker_t(bool _fg) : current_color(-2), fg(_fg) {
+attribute_picker_dialog_t::color_picker_t::color_picker_t(bool _fg) : current_color(-2), fg(_fg), has_focus(false) {
 	t3_term_caps_t terminal_capabilities;
 	t3_term_get_caps(&terminal_capabilities);
 
@@ -260,6 +261,7 @@ bool attribute_picker_dialog_t::color_picker_t::set_size(optint height, optint w
 	return true;
 }
 
+#warning FIXME: do not draw anew everytime
 void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 	int i, max;
 	t3_term_caps_t terminal_capabilities;
@@ -291,36 +293,44 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 		}
 		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
 	}
-#warning FIXME: only draw arrows when the widget has focus
 	if (current_color == -2) {
 		t3_win_set_paint(window, 1, 1);
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS);
-		t3_win_set_paint(window, 0, 1);
-		t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
-		t3_win_set_paint(window, 1, 0);
-		t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		if (has_focus) {
+			t3_win_set_paint(window, 0, 1);
+			t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
+			t3_win_set_paint(window, 1, 0);
+			t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		}
 	} else if (current_color == -1) {
 		t3_win_set_paint(window, 1, 2);
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | T3_ATTR_BG_DEFAULT | (fg ? T3_ATTR_REVERSE : 0));
-		t3_win_set_paint(window, 0, 2);
-		t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
-		t3_win_set_paint(window, 1, 0);
-		t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		if (has_focus) {
+			t3_win_set_paint(window, 0, 2);
+			t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
+			t3_win_set_paint(window, 1, 0);
+			t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		}
 	} else if (current_color < 16) {
 		t3_win_set_paint(window, 1, current_color + 3);
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | T3_ATTR_BG(current_color));
-		t3_win_set_paint(window, 0, current_color + 3);
-		t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
-		t3_win_set_paint(window, 1, 0);
-		t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		if (has_focus) {
+			t3_win_set_paint(window, 0, current_color + 3);
+			t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
+			t3_win_set_paint(window, 1, 0);
+			t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		}
 	} else {
 		t3_win_set_paint(window, (current_color - 16) / COLORS_PER_LINE + 2, (current_color - 16) % COLORS_PER_LINE + 1);
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | T3_ATTR_BG(current_color));
-		t3_win_set_paint(window, 0, (current_color - 16) % COLORS_PER_LINE + 1);
-		t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
-		t3_win_set_paint(window, (current_color - 16) / COLORS_PER_LINE + 2, 0);
-		t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		if (has_focus) {
+			t3_win_set_paint(window, 0, (current_color - 16) % COLORS_PER_LINE + 1);
+			t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
+			t3_win_set_paint(window, (current_color - 16) / COLORS_PER_LINE + 2, 0);
+			t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
+		}
 	}
+
 	t3_win_set_paint(window, t3_win_get_height(window) - 1, 1);
 	t3_win_addstr(window, " Color: ", 0);
 	if (current_color == -2) {
@@ -380,6 +390,12 @@ bool attribute_picker_dialog_t::color_picker_t::process_mouse_event(mouse_event_
 t3_attr_t attribute_picker_dialog_t::color_picker_t::get_color(void) {
 	return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color) : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0)) :
 		(current_color >= 0 ? T3_ATTR_BG(current_color) : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
+}
+
+void attribute_picker_dialog_t::color_picker_t::set_focus(focus_t focus) {
+	lprintf("focus in: %d\n", focus);
+	has_focus = focus != window_component_t::FOCUS_OUT;
+	redraw = true;
 }
 
 }; // namespace
