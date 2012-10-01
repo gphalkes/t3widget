@@ -13,12 +13,13 @@
 */
 #include "widgets/expander.h"
 #include "colorscheme.h"
+#include "log.h"
 
 using namespace std;
 namespace t3_widget {
 
 expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), child(NULL), full_height(2) {
-	init_unbacked_window(1, label.get_width() + 2);
+	init_unbacked_window(1, label.get_width() + 2, true);
 	label.set_position(0, 2);
 	set_widget_parent(&label);
 	label.set_accepts_focus(true);
@@ -174,6 +175,9 @@ void expander_t::focus_set(window_component_t *target) {
 	if (target == child) {
 		focus = FOCUS_CHILD;
 		child->set_focus(window_component_t::FOCUS_SET);
+	} else if (target == this || target == &label) {
+		focus = FOCUS_SELF;
+		label.set_focus(window_component_t::FOCUS_SET);
 	}
 	container = dynamic_cast<container_t *>((widget_t *) child);
 	if (container != NULL)
@@ -182,10 +186,38 @@ void expander_t::focus_set(window_component_t *target) {
 
 bool expander_t::is_child(window_component_t *component) {
 	container_t *container;
-	if (component == child)
+	if (component == child || component == &label)
 		return true;
 	container = dynamic_cast<container_t *>((widget_t *) child);
 	return container != NULL && container->is_child(component);
+}
+
+bool expander_t::process_mouse_event(mouse_event_t event) {
+	if (event.y == 0 && event.x < label.get_width() + 2) {
+		if (event.button_state & EMOUSE_CLICKED_LEFT) {
+			if (!is_expanded && child != NULL) {
+				t3_win_resize(window, full_height, t3_win_get_width(window));
+				is_expanded = true;
+				redraw = true;
+				child->show();
+				if (child->accepts_focus()) {
+					focus = FOCUS_CHILD;
+					child->set_focus(window_component_t::FOCUS_SET);
+					label.set_focus(window_component_t::FOCUS_OUT);
+				}
+				expanded(true);
+			} else if (is_expanded) {
+				if (child != NULL)
+					child->hide();
+				t3_win_resize(window, 1, t3_win_get_width(window));
+				is_expanded = false;
+				redraw = true;
+				expanded(false);
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
 }; // namespace

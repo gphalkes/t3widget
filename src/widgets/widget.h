@@ -44,7 +44,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 		/** Initialize the #window with a @c t3_window_t with @p height and @p width. */
 		void init_window(int height, int width, bool register_as_mouse_target = true);
 		/** Initialize the #window with an unbacked @c t3_window_t with @p height and @p width. */
-		void init_unbacked_window(int height, int width, bool reg = false);
+		void init_unbacked_window(int height, int width, bool register_as_mouse_target = false);
 
 	public:
 		/** Query whether key is a hotkey for this widget. */

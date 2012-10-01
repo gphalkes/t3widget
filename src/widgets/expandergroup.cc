@@ -198,10 +198,14 @@ bool expander_group_t::is_hotkey(key_t key) {
 //		virtual void set_enabled(bool enable);
 //		virtual void force_redraw(void);
 void expander_group_t::focus_set(window_component_t *target) {
+	bool had_focus = impl->has_focus;
 	impl->has_focus = true;
-	for (expanders_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {
-		if ((*iter)->is_child(target)) {
-			(*iter)->focus_set(target);
+	for (int i = 0; i < (int) impl->children.size(); i++) {
+		if (impl->children[i] == target || impl->children[i]->is_child(target)) {
+			if (had_focus && i != impl->current_child)
+				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
+			impl->current_child = i;
+			impl->children[impl->current_child]->focus_set(target);
 			return;
 		}
 	}
@@ -209,7 +213,7 @@ void expander_group_t::focus_set(window_component_t *target) {
 
 bool expander_group_t::is_child(window_component_t *component) {
 	for (expanders_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {
-		if ((*iter)->is_child(component))
+		if (*iter == component || (*iter)->is_child(component))
 			return true;
 	}
 	return false;

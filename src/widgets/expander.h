@@ -51,6 +51,7 @@ class T3_WIDGET_API expander_t : public widget_t, public container_t, public foc
 		virtual void force_redraw(void);
 		virtual void focus_set(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
+		virtual bool process_mouse_event(mouse_event_t event);
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);
 };
