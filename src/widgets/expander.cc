@@ -23,6 +23,7 @@ expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), ch
 	if ((symbol_window = t3_win_new(window, 1, 2, 0, 0, 0)) == NULL)
 		throw bad_alloc();
 	set_widget_parent(&label);
+	t3_win_show(symbol_window);
 }
 
 void expander_t::set_child(widget_t *_child) {

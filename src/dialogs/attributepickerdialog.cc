@@ -102,7 +102,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	fg_expander->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	fg_expander->set_position(1, 0);
 	fg_expander->set_child(impl->fg_picker);
-	fg_expander->set_size(impl->fg_picker->get_height() + 1, impl->fg_picker->get_width());
+	fg_expander->set_size(t3_win_get_height(impl->fg_picker->get_base_window()) + 1,
+		t3_win_get_width(impl->fg_picker->get_base_window()));
 	fg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	fg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 //	fg_expander->connect_expanded(sigc::mem_fun(this, &attribute_picker_dialog_t::fg_expanded));
@@ -380,8 +381,5 @@ t3_attr_t attribute_picker_dialog_t::color_picker_t::get_color(void) {
 	return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color) : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0)) :
 		(current_color >= 0 ? T3_ATTR_BG(current_color) : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
 }
-
-int attribute_picker_dialog_t::color_picker_t::get_height(void) { return t3_win_get_height(window); }
-int attribute_picker_dialog_t::color_picker_t::get_width(void) { return t3_win_get_width(window); }
 
 }; // namespace
