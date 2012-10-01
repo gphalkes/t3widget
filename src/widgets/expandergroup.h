@@ -25,10 +25,13 @@ class T3_WIDGET_API expander_group_t : public widget_t, public container_t, publ
 	private:
 		typedef std::deque<expander_t *> expanders_t;
 
-		expanders_t children;
-		expanders_t::iterator current_child;
-		int expanded_child;
-		bool has_focus;
+		struct T3_WIDGET_LOCAL implementation_t {
+			expanders_t children;
+			int current_child, expanded_child, hotkey_activated;
+			bool has_focus;
+			implementation_t(void) : current_child(-1), expanded_child(-1), hotkey_activated(-1), has_focus(false) {}
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 		void focus_next(void);
 		void focus_previous(void);
@@ -49,7 +52,7 @@ class T3_WIDGET_API expander_group_t : public widget_t, public container_t, publ
 		virtual void set_focus(focus_t _focus);
 		virtual bool set_size(optint height, optint width);
 		virtual bool accepts_focus(void);
-//		virtual bool is_hotkey(key_t key);
+		virtual bool is_hotkey(key_t key);
 //		virtual void set_enabled(bool enable);
 //		virtual void force_redraw(void);
 		virtual void focus_set(window_component_t *target);

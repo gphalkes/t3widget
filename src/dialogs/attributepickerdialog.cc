@@ -16,7 +16,6 @@
 #include "widgets/frame.h"
 #include "widgets/expander.h"
 #include "colorscheme.h"
-#include "log.h"
 
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 8
 #define ATTRIBUTE_PICKER_DIALOG_WIDTH 43
@@ -210,7 +209,6 @@ void attribute_picker_dialog_t::test_line_t::set_attribute(t3_attr_t _attr) {
 
 //================================================================================
 
-#warning FIXME: need to handle changes in number of colors
 //FIXME: handle terminals which only do color pairs, although maybe it is better to make a separate widget for that
 #define COLORS_PER_LINE 36
 attribute_picker_dialog_t::color_picker_t::color_picker_t(bool _fg) : current_color(-2), fg(_fg), has_focus(false) {
@@ -411,7 +409,6 @@ t3_attr_t attribute_picker_dialog_t::color_picker_t::get_color(void) {
 }
 
 void attribute_picker_dialog_t::color_picker_t::set_focus(focus_t focus) {
-	lprintf("focus in: %d\n", focus);
 	has_focus = focus != window_component_t::FOCUS_OUT;
 	redraw = true;
 }
