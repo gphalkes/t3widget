@@ -261,7 +261,7 @@ bool attribute_picker_dialog_t::color_picker_t::set_size(optint height, optint w
 	return true;
 }
 
-#warning FIXME: do not draw anew everytime
+// FIXME: do not draw anew everytime
 void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 	int i, max;
 	t3_term_caps_t terminal_capabilities;

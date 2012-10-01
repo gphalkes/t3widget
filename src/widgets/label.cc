@@ -119,6 +119,6 @@ int label_t::get_text_width(void) const {
 }
 
 void label_t::set_accepts_focus(bool _can_focus) { can_focus = _can_focus; }
-bool label_t::accepts_focus(void) { return can_focus; }
+bool label_t::accepts_focus(void) { return can_focus && widget_t::accepts_focus(); }
 
 }; // namespace

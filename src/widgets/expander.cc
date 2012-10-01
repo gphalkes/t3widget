@@ -20,9 +20,10 @@ namespace t3_widget {
 expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), child(NULL), full_height(2) {
 	init_unbacked_window(1, label.get_width() + 2);
 	label.set_position(0, 2);
+	set_widget_parent(&label);
+	label.set_accepts_focus(true);
 	if ((symbol_window = t3_win_new(window, 1, 2, 0, 0, 0)) == NULL)
 		throw bad_alloc();
-	set_widget_parent(&label);
 	t3_win_show(symbol_window);
 }
 
@@ -46,6 +47,7 @@ bool expander_t::process_key(key_t key) {
 			if (child->accepts_focus()) {
 				focus = FOCUS_CHILD;
 				child->set_focus(window_component_t::FOCUS_IN_FWD);
+				label.set_focus(window_component_t::FOCUS_OUT);
 			}
 			return true;
 		} else if (key == EKEY_DOWN && !is_expanded) {
@@ -61,8 +63,7 @@ bool expander_t::process_key(key_t key) {
 				if (child->accepts_focus()) {
 					focus = FOCUS_CHILD;
 					child->set_focus(window_component_t::FOCUS_SET);
-				} else {
-					focus = FOCUS_SELF;
+					label.set_focus(window_component_t::FOCUS_OUT);
 				}
 			} else if (is_expanded) {
 				if (child != NULL)
@@ -77,6 +78,7 @@ bool expander_t::process_key(key_t key) {
 		bool result = child->process_key(key);
 		if (!result && key == (EKEY_SHIFT | '\t')) {
 			focus = FOCUS_SELF;
+			label.set_focus(window_component_t::FOCUS_SET);
 			result = true;
 			child->set_focus(window_component_t::FOCUS_OUT);
 		}
@@ -103,10 +105,12 @@ void expander_t::set_focus(focus_t _focus) {
 	if (_focus == window_component_t::FOCUS_OUT) {
 		if (focus == FOCUS_CHILD && child != NULL)
 			child->set_focus(window_component_t::FOCUS_OUT);
+		label.set_focus(window_component_t::FOCUS_OUT);
 		focus = FOCUS_NONE;
 	} else {
 		if (_focus == window_component_t::FOCUS_SET || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
 			focus = FOCUS_SELF;
+			label.set_focus(window_component_t::FOCUS_SET);
 		} else {
 			focus = FOCUS_CHILD;
 			child->set_focus(_focus);
