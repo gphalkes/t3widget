@@ -11,44 +11,47 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef T3_WIDGET_EXPANDER_H
-#define T3_WIDGET_EXPANDER_H
+#ifndef T3_WIDGET_EXPANDERGROUP_H
+#define T3_WIDGET_EXPANDERGROUP_H
 
+#include <deque>
 #include <t3widget/widgets/widget.h>
-#include <t3widget/widgets/smartlabel.h>
+#include <t3widget/widgets/expander.h>
 
 namespace t3_widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
-class T3_WIDGET_API expander_t : public widget_t, public container_t, public focus_widget_t {
+class T3_WIDGET_API expander_group_t : public widget_t, public container_t, public focus_widget_t {
 	private:
-		enum {
-			FOCUS_NONE,
-			FOCUS_SELF,
-			FOCUS_CHILD
-		} focus;
-		bool is_expanded;
-		smart_label_t label;
-		cleanup_t3_window_ptr symbol_window;
-		cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
-		int full_height;
+		typedef std::deque<expander_t *> expanders_t;
 
+		expanders_t children;
+		expanders_t::iterator current_child;
+		int expanded_child;
+		bool has_focus;
+
+		void focus_next(void);
+		void focus_previous(void);
 	public:
 		/** Create a new expander_t.
 		    @param _text The text for the smart_label_t shown next to the expander symbol.
 		*/
-		expander_t(const char *_text);
+		expander_group_t(void);
+		~expander_group_t(void);
+
 		/** Set the child widget. */
-		void set_child(widget_t *_child);
+		void add_child(expander_t *child);
+		void child_expanded(bool is_expanded, int child_idx);
 		void collapse(void);
 
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
 		virtual void set_focus(focus_t _focus);
 		virtual bool set_size(optint height, optint width);
-		virtual bool is_hotkey(key_t key);
-		virtual void set_enabled(bool enable);
-		virtual void force_redraw(void);
+		virtual bool accepts_focus(void);
+//		virtual bool is_hotkey(key_t key);
+//		virtual void set_enabled(bool enable);
+//		virtual void force_redraw(void);
 		virtual void focus_set(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
 

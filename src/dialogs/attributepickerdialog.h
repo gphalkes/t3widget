@@ -17,6 +17,7 @@
 #include <t3widget/interfaces.h>
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/checkbox.h>
+#include <t3widget/widgets/expandergroup.h>
 
 namespace t3_widget {
 
@@ -29,11 +30,13 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 			checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
 			test_line_t *test_line;
 			color_picker_t *fg_picker, *bg_picker;
+			expander_group_t *expander_group;
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
 		void attribute_changed(void);
 		void ok_activate(void);
+		void group_expanded(bool state);
 		t3_attr_t get_attribute(void);
 
 	public:
@@ -73,6 +76,7 @@ class T3_WIDGET_LOCAL attribute_picker_dialog_t::color_picker_t : public widget_
 		virtual void set_focus(focus_t focus);
 
 		t3_attr_t get_color(void);
+		void set_color(t3_attr_t attr);
 
 	T3_WIDGET_SIGNAL(activated, void);
 	T3_WIDGET_SIGNAL(selection_changed, void);

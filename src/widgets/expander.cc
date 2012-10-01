@@ -33,12 +33,27 @@ void expander_t::set_child(widget_t *_child) {
 		t3_win_resize(window, 1, t3_win_get_width(window));
 		is_expanded = false;
 		redraw = true;
+		expanded(false);
 	}
 	child = _child;
 	set_widget_parent(child);
 	child->set_anchor(this, 0);
 	child->set_position(1, 0);
 	child->set_size(full_height - 1, t3_win_get_width(window));
+}
+
+void expander_t::collapse(void) {
+	if (is_expanded) {
+		if (focus == FOCUS_CHILD) {
+			child->set_focus(window_component_t::FOCUS_OUT);
+			focus = FOCUS_SELF;
+			label.set_focus(window_component_t::FOCUS_SET);
+		}
+		child->hide();
+		is_expanded = false;
+		t3_win_resize(window, 1, t3_win_get_width(window));
+		redraw = true;
+	}
 }
 
 bool expander_t::process_key(key_t key) {
@@ -65,12 +80,14 @@ bool expander_t::process_key(key_t key) {
 					child->set_focus(window_component_t::FOCUS_SET);
 					label.set_focus(window_component_t::FOCUS_OUT);
 				}
+				expanded(true);
 			} else if (is_expanded) {
 				if (child != NULL)
 					child->hide();
 				t3_win_resize(window, 1, t3_win_get_width(window));
 				is_expanded = false;
 				redraw = true;
+				expanded(false);
 			}
 			return true;
 		}

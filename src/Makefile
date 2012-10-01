@@ -45,6 +45,7 @@ SOURCES.libt3widget.la := \
 	widgets/dummywidget.cc \
 	widgets/editwindow.cc \
 	widgets/expander.cc \
+	widgets/expandergroup.cc \
 	widgets/filepane.cc \
 	widgets/frame.cc \
 	widgets/label.cc \
