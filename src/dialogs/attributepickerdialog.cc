@@ -144,6 +144,7 @@ void attribute_picker_dialog_t::ok_activate(void) {
 }
 
 void attribute_picker_dialog_t::group_expanded(bool state) {
+	(void) state;
 	set_size(t3_win_get_height(impl->expander_group->get_base_window()) + ATTRIBUTE_PICKER_DIALOG_HEIGHT, None);
 }
 
@@ -292,7 +293,7 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 	t3_win_set_paint(window, 1, 1);
 	t3_win_addch(window, ' ', 0);
-	t3_win_addch(window, ' ', T3_ATTR_BG_DEFAULT | (fg ? T3_ATTR_REVERSE : 0));
+	t3_win_addch(window, ' ', T3_ATTR_BG_DEFAULT | (fg ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT : T3_ATTR_BG_DEFAULT));
 
 	max = max_color + 1 < 16 ? max_color + 1 : 16;
 
@@ -308,6 +309,7 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 		}
 		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
 	}
+
 	if (current_color == -2) {
 		t3_win_set_paint(window, 1, 1);
 		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS);
@@ -319,7 +321,8 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 		}
 	} else if (current_color == -1) {
 		t3_win_set_paint(window, 1, 2);
-		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | T3_ATTR_BG_DEFAULT | (fg ? T3_ATTR_REVERSE : 0));
+		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (fg ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT |
+			((attributes.dialog & T3_ATTR_FG_MASK) << 9): T3_ATTR_BG_DEFAULT));
 		if (has_focus) {
 			t3_win_set_paint(window, 0, 2);
 			t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
