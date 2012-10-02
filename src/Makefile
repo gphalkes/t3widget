@@ -42,6 +42,7 @@ SOURCES.libt3widget.la := \
 	widgets/bullet.cc \
 	widgets/button.cc \
 	widgets/checkbox.cc \
+	widgets/colorpicker.cc \
 	widgets/dummywidget.cc \
 	widgets/editwindow.cc \
 	widgets/expander.cc \

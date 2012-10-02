@@ -18,13 +18,13 @@
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/expandergroup.h>
+#include <t3widget/widgets/colorpicker.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 	private:
 		class T3_WIDGET_LOCAL test_line_t;
-		class T3_WIDGET_LOCAL color_picker_t;
 
 		struct T3_WIDGET_LOCAL implementation_t {
 			checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
@@ -69,38 +69,6 @@ class T3_WIDGET_LOCAL attribute_picker_dialog_t::test_line_t : public widget_t {
 		virtual bool accepts_focus(void);
 
 		void set_attribute(t3_attr_t _attr);
-};
-
-class T3_WIDGET_LOCAL attribute_picker_dialog_t::color_picker_t : public widget_t {
-	private:
-		int max_color, current_color;
-		bool fg, has_focus;
-		t3_attr_t undefined_colors;
-
-		int xy_to_color(int x, int y);
-	public:
-		color_picker_t(bool _fg);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual bool process_mouse_event(mouse_event_t event);
-		virtual void set_focus(focus_t focus);
-
-		/** Change the rendering of the default colors.
-		    @param attr The colors to use for the default colors.
-
-		    When selecting colors, sometimes the result will be combined with
-		    another set of colors. The undefined color will then be overriden with
-		    the color to combine with. To show the user what the effect of choosing
-		    the undefined color is, you can set the colors to use for the undefined
-		    colors with this function.
-		*/
-		void set_undefined_colors(t3_attr_t attr);
-		t3_attr_t get_color(void);
-		void set_color(t3_attr_t attr);
-
-	T3_WIDGET_SIGNAL(activated, void);
-	T3_WIDGET_SIGNAL(selection_changed, void);
 };
 
 }; // namespace
