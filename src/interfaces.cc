@@ -53,6 +53,10 @@ void mouse_target_t::register_mouse_target(t3_window_t *target) {
 		targets[target] = this;
 }
 
+void mouse_target_t::unregister_mouse_target(t3_window_t *target) {
+	targets.erase(target);
+}
+
 mouse_target_t::~mouse_target_t(void) {
 	/* Can't use iter anymore after erasing, so we have to start our search all over
 	   once we have found ourselves. */

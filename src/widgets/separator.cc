@@ -17,7 +17,7 @@
 using namespace std;
 namespace t3_widget {
 
-separator_t::separator_t(bool _horizontal) : widget_t(1, 1), horizontal(_horizontal) {}
+separator_t::separator_t(bool _horizontal) : widget_t(1, 1, false), horizontal(_horizontal) {}
 
 bool separator_t::set_size(optint height, optint width) {
 	bool result = true;

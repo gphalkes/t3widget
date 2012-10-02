@@ -81,7 +81,10 @@ void checkbox_t::set_state(bool _state) {
 }
 
 void checkbox_t::set_label(smart_label_t *_label) {
+	if (label != NULL)
+		unregister_mouse_target(label->get_base_window());
 	label = _label;
+	register_mouse_target(label->get_base_window());
 }
 
 bool checkbox_t::is_hotkey(key_t key) {

@@ -35,9 +35,9 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	underline_label = new smart_label_t("_Underline");
 	underline_label->set_anchor(impl->underline_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	underline_label->set_position(0, 1);
+	impl->underline_box->set_label(underline_label);
 	impl->underline_box->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	impl->underline_box->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
-	impl->underline_box->set_label(underline_label);
 	impl->underline_box->connect_toggled(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
 	impl->underline_box->connect_activate(sigc::mem_fun0(this, &attribute_picker_dialog_t::ok_activate));
 
@@ -48,6 +48,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	bold_label = new smart_label_t("_Bold");
 	bold_label->set_anchor(impl->bold_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	bold_label->set_position(0, 1);
+	impl->bold_box->set_label(bold_label);
 	impl->bold_box->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	impl->bold_box->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	impl->bold_box->connect_toggled(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
@@ -60,6 +61,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	dim_label = new smart_label_t("_Dim");
 	dim_label->set_anchor(impl->dim_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	dim_label->set_position(0, 1);
+	impl->dim_box->set_label(dim_label);
 	impl->dim_box->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	impl->dim_box->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	impl->dim_box->connect_toggled(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
@@ -72,6 +74,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	reverse_label = new smart_label_t("_Reverse video");
 	reverse_label->set_anchor(impl->reverse_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	reverse_label->set_position(0, 1);
+	impl->reverse_box->set_label(reverse_label);
 	impl->reverse_box->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	impl->reverse_box->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	impl->reverse_box->connect_toggled(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
@@ -84,12 +87,12 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	blink_label = new smart_label_t("Bl_ink");
 	blink_label->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	blink_label->set_position(0, 1);
+	impl->blink_box->set_label(blink_label);
 	impl->blink_box->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	impl->blink_box->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	impl->blink_box->connect_toggled(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
 	impl->blink_box->connect_activate(sigc::mem_fun0(this, &attribute_picker_dialog_t::ok_activate));
 
-	//FIXME: need to make the text and size configurable etc.
 	test_line_frame = new frame_t();
 	test_line_frame->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	test_line_frame->set_position(1, -2);

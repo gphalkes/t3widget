@@ -31,8 +31,8 @@ bool widget_t::is_hotkey(key_t key) {
 
 bool widget_t::accepts_focus(void) { return enabled && shown; }
 
-widget_t::widget_t(int height, int width) : redraw(true), enabled(true), shown(true) {
-	init_window(height, width);
+widget_t::widget_t(int height, int width, bool register_as_mouse_target) : redraw(true), enabled(true), shown(true) {
+	init_window(height, width, register_as_mouse_target);
 }
 
 widget_t::widget_t(void) : redraw(true), enabled(true), shown(true) {}

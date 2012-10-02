@@ -91,7 +91,7 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 
 //======= smart_label_t =======
 smart_label_t::smart_label_t(const char *spec, bool _add_colon) :
-	smart_label_text_t(spec, _add_colon), widget_t(1, get_width()) {}
+	smart_label_text_t(spec, _add_colon), widget_t(1, get_width(), false) {}
 
 bool smart_label_t::process_key(key_t key) { (void) key; return false; }
 

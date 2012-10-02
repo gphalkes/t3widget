@@ -27,7 +27,7 @@ label_t::label_t(const char *_text) : text(_text), align(ALIGN_LEFT), focus(fals
 	int width = text_width = t3_term_strwidth(text.c_str());
 	if (width == 0)
 		width = 1;
-	init_window(1, width);
+	init_window(1, width, false);
 }
 
 

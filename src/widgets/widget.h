@@ -34,7 +34,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 			shown; /**< Widget is shown. */
 
 		/** Constructor which creates a default @c t3_window_t with @p height and @p width. */
-		widget_t(int height, int width);
+		widget_t(int height, int width, bool register_as_mouse_target = true);
 		/** Constructor which does not create a default t3_window_t.
 		    This constructor should only rarely be necessary. Widgets using this
 		    constructor should call either #init_window, or #init_unbacked_window.

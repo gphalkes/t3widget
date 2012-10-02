@@ -129,6 +129,10 @@ class T3_WIDGET_API mouse_target_t : private virtual window_component_t {
 	public:
 		/** Register a window to receive mouse events. */
 		void register_mouse_target(t3_window_t *target);
+
+		/** Unregister a window to receive mouse events. */
+		void unregister_mouse_target(t3_window_t *target);
+
 		/** Process a mouse event.
 		    @return A boolean indicating whether this mouse_target_t handled the
 		        mouse event.
