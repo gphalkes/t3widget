@@ -15,6 +15,7 @@
 #include "dialogs/attributepickerdialog.h"
 #include "widgets/frame.h"
 #include "widgets/expander.h"
+#include "widgets/button.h"
 #include "colorscheme.h"
 
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 8
@@ -29,6 +30,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
 	frame_t *test_line_frame;
 	expander_t *fg_expander, *bg_expander;
+	button_t *ok_button, *cancel_button;
 
 	impl->underline_box = new checkbox_t(false);
 	impl->underline_box->set_position(1, 2);
@@ -122,6 +124,28 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	impl->expander_group->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	impl->expander_group->connect_expanded(sigc::mem_fun(this, &attribute_picker_dialog_t::group_expanded));
 
+	cancel_button = new button_t("_Cancel", false);
+	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
+	cancel_button->set_position(-1, -2);
+
+	cancel_button->connect_activate(sigc::mem_fun(this, &attribute_picker_dialog_t::close));
+	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	/* Nasty trick: registering a callback twice will call the callback twice. We need to do
+	   FOCUS_PREVIOUS twice here to emulate moving up, because the ok_button is in the way. */
+	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	cancel_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	ok_button = new button_t("_OK", true);
+	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	ok_button->set_position(0, -2);
+
+	ok_button->connect_activate(sigc::mem_fun(this, &attribute_picker_dialog_t::ok_activate));
+	ok_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	ok_button->connect_move_focus_right(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	/* Nasty trick: registering a callback twice will call the callback twice. We need to do
+	   FOCUS_NEXT twice here to emulate moving up, because the ok_button is in the way. */
+	ok_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	ok_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 
 	push_back(impl->underline_box);
 	push_back(underline_label);
@@ -135,10 +159,12 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	push_back(blink_label);
 	push_back(impl->expander_group);
 	push_back(test_line_frame);
+	push_back(ok_button);
+	push_back(cancel_button);
 }
 
 void attribute_picker_dialog_t::attribute_changed(void) {
-	impl->test_line->set_attribute(get_attribute());
+	impl->test_line->set_attribute(t3_term_combine_attrs(get_attribute(), impl->base_attributes));
 }
 
 void attribute_picker_dialog_t::ok_activate(void) {
@@ -177,9 +203,15 @@ void attribute_picker_dialog_t::set_attribute(t3_attr_t attr) {
 	impl->bg_picker->set_color(attr);
 }
 
+void attribute_picker_dialog_t::set_base_attributes(t3_attr_t attr) {
+	impl->base_attributes = attr;
+	impl->fg_picker->set_undefined_colors(attr);
+	impl->bg_picker->set_undefined_colors(attr);
+	attribute_changed();
+}
 
 //================================================================================
-attribute_picker_dialog_t::test_line_t::test_line_t(int width, const char *_text) : widget_t(1, width), text(_text), attr(0) {}
+attribute_picker_dialog_t::test_line_t::test_line_t(int width, const char *_text) : widget_t(1, width, false), text(_text), attr(0) {}
 
 bool attribute_picker_dialog_t::test_line_t::process_key(key_t key) {
 	(void) key;
@@ -214,7 +246,9 @@ void attribute_picker_dialog_t::test_line_t::set_attribute(t3_attr_t _attr) {
 
 //FIXME: handle terminals which only do color pairs, although maybe it is better to make a separate widget for that
 #define COLORS_PER_LINE 36
-attribute_picker_dialog_t::color_picker_t::color_picker_t(bool _fg) : current_color(-2), fg(_fg), has_focus(false) {
+attribute_picker_dialog_t::color_picker_t::color_picker_t(bool _fg) : current_color(-2), fg(_fg), has_focus(false),
+	undefined_colors(0)
+{
 	t3_term_caps_t terminal_capabilities;
 	t3_term_get_caps(&terminal_capabilities);
 
@@ -293,7 +327,8 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 	t3_win_clrtobot(window);
 	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 	t3_win_set_paint(window, 1, 1);
-	t3_win_addch(window, ' ', 0);
+	t3_win_addch(window, ' ', (fg ? T3_ATTR_REVERSE | ((undefined_colors & T3_ATTR_FG_MASK) >> 9) :
+		(undefined_colors & T3_ATTR_BG_MASK)));
 	t3_win_addch(window, ' ', T3_ATTR_BG_DEFAULT | (fg ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT : T3_ATTR_BG_DEFAULT));
 
 	max = max_color + 1 < 16 ? max_color + 1 : 16;
@@ -313,7 +348,8 @@ void attribute_picker_dialog_t::color_picker_t::update_contents(void) {
 
 	if (current_color == -2) {
 		t3_win_set_paint(window, 1, 1);
-		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS);
+		t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (fg ? T3_ATTR_REVERSE | ((undefined_colors & T3_ATTR_FG_MASK) >> 9) |
+			((attributes.dialog & T3_ATTR_FG_MASK) << 9) : (undefined_colors & T3_ATTR_BG_MASK)));
 		if (has_focus) {
 			t3_win_set_paint(window, 0, 1);
 			t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
@@ -406,14 +442,18 @@ bool attribute_picker_dialog_t::color_picker_t::process_mouse_event(mouse_event_
 	return true;
 }
 
-t3_attr_t attribute_picker_dialog_t::color_picker_t::get_color(void) {
-	return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color) : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0)) :
-		(current_color >= 0 ? T3_ATTR_BG(current_color) : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
-}
-
 void attribute_picker_dialog_t::color_picker_t::set_focus(focus_t focus) {
 	has_focus = focus != window_component_t::FOCUS_OUT;
 	redraw = true;
+}
+
+void attribute_picker_dialog_t::color_picker_t::set_undefined_colors(t3_attr_t attr) {
+	undefined_colors = attr & (T3_ATTR_FG_MASK | T3_ATTR_BG_MASK);
+}
+
+t3_attr_t attribute_picker_dialog_t::color_picker_t::get_color(void) {
+	return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color) : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0)) :
+		(current_color >= 0 ? T3_ATTR_BG(current_color) : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
 }
 
 void attribute_picker_dialog_t::color_picker_t::set_color(t3_attr_t attr) {
