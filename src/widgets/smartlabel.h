@@ -36,8 +36,6 @@ class T3_WIDGET_API smart_label_text_t {
 };
 
 class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
-	private:
-		bool can_focus, has_focus;
 	public:
 		smart_label_t(const char *spec, bool _addColon = false);
 		virtual bool process_key(key_t key);
@@ -47,9 +45,6 @@ class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
 
 		virtual bool is_hotkey(key_t key);
 		virtual bool accepts_focus(void);
-
-		/** Set whether this smart_label_t accepts the input focus. */
-		void set_accepts_focus(bool _can_focus);
 };
 
 }; // namespace

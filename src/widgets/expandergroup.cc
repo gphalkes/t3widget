@@ -205,7 +205,11 @@ void expander_group_t::focus_set(window_component_t *target) {
 			if (had_focus && i != impl->current_child)
 				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
 			impl->current_child = i;
-			impl->children[impl->current_child]->focus_set(target);
+
+			if (impl->children[impl->current_child] == target)
+				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_SET);
+			else
+				impl->children[impl->current_child]->focus_set(target);
 			return;
 		}
 	}

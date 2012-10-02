@@ -91,7 +91,7 @@ bool smart_label_text_t::is_hotkey(key_t key) {
 
 //======= smart_label_t =======
 smart_label_t::smart_label_t(const char *spec, bool _add_colon) :
-	smart_label_text_t(spec, _add_colon), widget_t(1, get_width()), can_focus(false), has_focus(false) {}
+	smart_label_text_t(spec, _add_colon), widget_t(1, get_width()) {}
 
 bool smart_label_t::process_key(key_t key) { (void) key; return false; }
 
@@ -107,21 +107,16 @@ void smart_label_t::update_contents(void) {
 	if (!redraw)
 		return;
 	redraw = false;
-	t3_win_set_default_attrs(window, has_focus ? attributes.dialog_selected : attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
-	draw(window, 0, has_focus);
+	draw(window, attributes.dialog);
 }
 
-void smart_label_t::set_focus(focus_t focus) {
-	has_focus = focus != window_component_t::FOCUS_OUT;
-	redraw = true;
-}
+void smart_label_t::set_focus(focus_t focus) { (void) focus; }
 
 bool smart_label_t::is_hotkey(key_t key) {
 	return smart_label_text_t::is_hotkey(key);
 }
 
-bool smart_label_t::accepts_focus(void) { return can_focus && widget_t::accepts_focus(); }
-void smart_label_t::set_accepts_focus(bool _can_focus) { can_focus = _can_focus; }
+bool smart_label_t::accepts_focus(void) { return false; }
 
 }; // namespace

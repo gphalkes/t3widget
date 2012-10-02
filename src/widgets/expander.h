@@ -25,10 +25,10 @@ class T3_WIDGET_API expander_t : public widget_t, public container_t, public foc
 		enum {
 			FOCUS_NONE,
 			FOCUS_SELF,
-			FOCUS_CHILD
+			FOCUS_CHILD,
 		} focus;
 		bool is_expanded;
-		smart_label_t label;
+		smart_label_text_t label;
 		cleanup_t3_window_ptr symbol_window;
 		cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
 		int full_height;
