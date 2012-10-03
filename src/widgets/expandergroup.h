@@ -17,46 +17,22 @@
 #include <deque>
 #include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/expander.h>
+#include <t3widget/widgets/widgetgroup.h>
 
 namespace t3_widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
-class T3_WIDGET_API expander_group_t : public widget_t, public container_t, public focus_widget_t {
+class T3_WIDGET_API expander_group_t : public widget_group_t {
 	private:
-		typedef std::deque<expander_t *> expanders_t;
+		int expanded_child;
 
-		struct T3_WIDGET_LOCAL implementation_t {
-			expanders_t children;
-			int current_child, expanded_child, hotkey_activated;
-			bool has_focus;
-			implementation_t(void) : current_child(-1), expanded_child(-1), hotkey_activated(-1), has_focus(false) {}
-		};
-		pimpl_ptr<implementation_t>::t impl;
-
-		void focus_next(void);
-		void focus_previous(void);
+		void child_expanded(bool is_expanded, int child_idx);
 	public:
-		/** Create a new expander_t.
-		    @param _text The text for the smart_label_t shown next to the expander symbol.
-		*/
 		expander_group_t(void);
-		~expander_group_t(void);
 
 		/** Set the child widget. */
-		void add_child(expander_t *child);
-		void child_expanded(bool is_expanded, int child_idx);
+		virtual void add_child(widget_t *child);
 		void collapse(void);
-
-		virtual bool process_key(key_t key);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
-		virtual bool set_size(optint height, optint width);
-		virtual bool accepts_focus(void);
-		virtual bool is_hotkey(key_t key);
-//		virtual void set_enabled(bool enable);
-//		virtual void force_redraw(void);
-		virtual void focus_set(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);
 };

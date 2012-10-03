@@ -183,6 +183,8 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
 	color_str = " Color: ";
 
 	max_color = terminal_capabilities.colors - 1;
+	if (max_color > 255)
+		max_color = 255;
 	color_to_xy(max_color, x, y);
 
 	init_window(y + 2, COLORS_PER_LINE + 2);
@@ -249,6 +251,8 @@ color_pair_picker_t::color_pair_picker_t(void) : color_picker_base_t(true) {
 	color_str = " Color pair: ";
 
 	max_color = terminal_capabilities.pairs - 1;
+	if (max_color > 255)
+		max_color = 255;
 	color_to_xy(max_color, x, y);
 
 	init_window(y + 1, COLORS_PER_LINE + 2);

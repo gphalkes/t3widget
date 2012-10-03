@@ -27,7 +27,7 @@ expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), ch
 }
 
 void expander_t::set_child(widget_t *_child) {
-	/* FIXME: connect to move_focus_XXX events. */
+	/* FIXME: connect to move_focus_XXX events. (requires dynamic_cast'ing to focus_widget_t) */
 	if (child == NULL && is_expanded) {
 		t3_win_resize(window, 1, t3_win_get_width(window));
 		is_expanded = false;

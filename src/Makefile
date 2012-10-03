@@ -60,7 +60,8 @@ SOURCES.libt3widget.la := \
 	widgets/split.cc \
 	widgets/textfield.cc \
 	widgets/textwindow.cc \
-	widgets/widget.cc
+	widgets/widget.cc \
+	widgets/widgetgroup.cc
 
 SOURCES.x11.la := x11.cc
 
