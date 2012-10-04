@@ -69,15 +69,6 @@ bool widget_vgroup_t::process_key(key_t key) {
 	if (impl->children.size() == 0)
 		return false;
 
-	if (key == EKEY_HOTKEY) {
-		if (impl->hotkey_activated >= 0) {
-			int idx = impl->hotkey_activated;
-			impl->hotkey_activated = -1;
-			return impl->children[idx]->process_key(key);
-		}
-		return false;
-	}
-
 	if (impl->children[impl->current_child]->process_key(key))
 		return true;
 
@@ -109,7 +100,6 @@ void widget_vgroup_t::update_contents(void) {
 }
 
 void widget_vgroup_t::set_focus(focus_t focus) {
-	bool had_focus = impl->has_focus;
 	impl->has_focus = focus != window_component_t::FOCUS_OUT && impl->children.size() > 0;
 	if (impl->children.size() == 0)
 		return;
@@ -118,17 +108,6 @@ void widget_vgroup_t::set_focus(focus_t focus) {
 			impl->children[impl->current_child]->set_focus(focus);
 			break;
 		case window_component_t::FOCUS_SET:
-			if (impl->hotkey_activated >= 0) {
-				if (had_focus) {
-					if (impl->current_child == impl->hotkey_activated)
-						return;
-					impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
-				}
-				impl->current_child = impl->hotkey_activated;
-				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_SET);
-				return;
-			}
-			/* FALLTHROUGH */
 		case window_component_t::FOCUS_IN_FWD:
 			for (impl->current_child = 0; impl->current_child < (int) impl->children.size() &&
 				!impl->children[impl->current_child]->accepts_focus(); impl->current_child++) {}
@@ -176,16 +155,6 @@ bool widget_vgroup_t::accepts_focus(void) {
 	return false;
 }
 
-bool widget_vgroup_t::is_hotkey(key_t key) {
-	for (int i = 0; i < (int) impl->children.size(); i++) {
-		if (impl->children[i]->is_hotkey(key)) {
-			impl->hotkey_activated = i;
-			return true;
-		}
-	}
-	return false;
-}
-
 void widget_vgroup_t::force_redraw(void) {
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++)
 		(*iter)->force_redraw();
@@ -220,6 +189,24 @@ bool widget_vgroup_t::is_child(window_component_t *component) {
 			return true;
 	}
 	return false;
+}
+
+widget_t *widget_vgroup_t::is_child_hotkey(key_t key) {
+	widget_container_t *widget_container;
+	widget_t *hotkey_child;
+	lprintf("running is_child_hotkey\n");
+	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {
+		if ((*iter)->is_hotkey(key)) {
+			lprintf("Found!\n");
+			return (*iter);
+		}
+		widget_container = dynamic_cast<widget_container_t *>(*iter);
+		if ((hotkey_child = widget_container->is_child_hotkey(key)) != NULL) {
+			lprintf("Found!\n");
+			return hotkey_child;
+		}
+	}
+	return NULL;
 }
 
 

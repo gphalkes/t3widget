@@ -114,12 +114,29 @@ void dialog_t::deactivate_dialog(void) {
 bool dialog_t::process_key(key_t key) {
 	if ((key & EKEY_META) || key == EKEY_F10) {
 		for (widgets_t::iterator iter = widgets.begin();
-				iter != widgets.end(); iter++) {
-			if ((*iter)->is_enabled() && (*iter)->is_hotkey(key & ~EKEY_META)) {
+				iter != widgets.end(); iter++)
+		{
+			widget_container_t *widget_container;
+			widget_t *hotkey_target;
+
+			if (!(*iter)->is_enabled())
+				continue;
+
+			if ((*iter)->is_hotkey(key & ~EKEY_META)) {
 				if ((*iter)->accepts_focus()) {
 					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 					current_widget = iter;
 					(*current_widget)->set_focus(window_component_t::FOCUS_SET);
+				}
+				if ((*iter)->process_key(EKEY_HOTKEY))
+					return true;
+			} else if ((widget_container = dynamic_cast<widget_container_t *>(*iter)) != NULL &&
+					(hotkey_target = widget_container->is_child_hotkey(key)) != NULL)
+			{
+				if (hotkey_target->accepts_focus()) {
+					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+					current_widget = iter;
+					widget_container->set_child_focus(hotkey_target);
 				}
 				if ((*iter)->process_key(EKEY_HOTKEY))
 					return true;

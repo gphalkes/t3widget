@@ -18,7 +18,7 @@
 using namespace std;
 namespace t3_widget {
 
-expander_t::expander_t(const char *_text) : is_expanded(false), child_hotkey(false), label(_text), child(NULL), full_height(2) {
+expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), child(NULL), full_height(2) {
 	init_unbacked_window(1, label.get_width() + 2);
 	if ((symbol_window = t3_win_new(window, 1, 2 + label.get_width(), 0, 0, 0)) == NULL)
 		throw bad_alloc();
@@ -83,6 +83,7 @@ void expander_t::collapse(void) {
 }
 
 bool expander_t::process_key(key_t key) {
+	lprintf("Handling key %08x focus: %d\n", key, focus);
 	if (focus == FOCUS_SELF) {
 		if (is_expanded && child != NULL && (key == '\t' || key == EKEY_DOWN)) {
 			if (child->accepts_focus()) {
@@ -141,7 +142,7 @@ void expander_t::update_contents(void) {
 	t3_win_set_default_attrs(symbol_window, (focus == FOCUS_SELF ? attributes.dialog_selected : attributes.dialog));
 	t3_win_addch(symbol_window, is_expanded ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS);
 	t3_win_addch(symbol_window, ' ', 0);
-	label.draw(symbol_window, 0, true);
+	label.draw(symbol_window, 0, focus == FOCUS_SELF);
 }
 
 void expander_t::set_focus(focus_t _focus) {
@@ -149,10 +150,9 @@ void expander_t::set_focus(focus_t _focus) {
 		if (focus == FOCUS_CHILD && child != NULL)
 			child->set_focus(window_component_t::FOCUS_OUT);
 		focus = FOCUS_NONE;
-	} else if ((_focus == window_component_t::FOCUS_SET && !child_hotkey) || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
+	} else if (_focus == window_component_t::FOCUS_SET || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
 		focus = FOCUS_SELF;
 	} else {
-		child_hotkey = false;
 		focus = FOCUS_CHILD;
 		child->set_focus(_focus);
 	}
@@ -178,13 +178,7 @@ bool expander_t::set_size(optint height, optint width) {
 }
 
 bool expander_t::is_hotkey(key_t key) {
-	if (label.is_hotkey(key))
-		return true;
-	if (is_expanded && child != NULL && child->is_hotkey(key)) {
-		child_hotkey = true;
-		return true;
-	}
-	return false;
+	return label.is_hotkey(key);
 }
 
 void expander_t::set_enabled(bool enable) {
@@ -215,8 +209,20 @@ bool expander_t::is_child(window_component_t *component) {
 	container_t *container;
 	if (component == child)
 		return true;
-	container = dynamic_cast<container_t *>((widget_t *) child);
+	container = dynamic_cast<container_t *>(child());
 	return container != NULL && container->is_child(component);
+}
+
+widget_t *expander_t::is_child_hotkey(key_t key) {
+	widget_container_t *widget_container;
+
+	if (!is_expanded || child == NULL)
+		return NULL;
+
+	if (child->is_hotkey(key))
+		return child;
+	widget_container = dynamic_cast<widget_container_t *>(child());
+	return widget_container == NULL ? NULL : widget_container->is_child_hotkey(key);
 }
 
 bool expander_t::process_mouse_event(mouse_event_t event) {

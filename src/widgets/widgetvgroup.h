@@ -23,13 +23,13 @@ namespace t3_widget {
     This widget is useful for packing multiple widgets into for example a
     single frame_t or expander_t.
 */
-class T3_WIDGET_API widget_vgroup_t : public widget_t, public container_t, public focus_widget_t {
+class T3_WIDGET_API widget_vgroup_t : public widget_t, public widget_container_t, public focus_widget_t {
 	private:
 		struct T3_WIDGET_LOCAL implementation_t {
 			widgets_t children;
-			int current_child, hotkey_activated;
+			int current_child;
 			bool has_focus;
-			implementation_t(void) : current_child(-1), hotkey_activated(-1), has_focus(false) {}
+			implementation_t(void) : current_child(-1), has_focus(false) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
@@ -47,10 +47,10 @@ class T3_WIDGET_API widget_vgroup_t : public widget_t, public container_t, publi
 		virtual void set_focus(focus_t _focus);
 		virtual bool set_size(optint height, optint width);
 		virtual bool accepts_focus(void);
-		virtual bool is_hotkey(key_t key);
 		virtual void force_redraw(void);
 		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
+		virtual widget_t *is_child_hotkey(key_t key);
 
 		/** Set the child widget. */
 		virtual void add_child(widget_t *child);

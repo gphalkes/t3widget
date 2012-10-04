@@ -20,14 +20,14 @@
 namespace t3_widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
-class T3_WIDGET_API expander_t : public widget_t, public container_t, public focus_widget_t {
+class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, public focus_widget_t {
 	private:
 		enum {
 			FOCUS_NONE,
 			FOCUS_SELF,
 			FOCUS_CHILD,
 		} focus;
-		bool is_expanded, child_hotkey;
+		bool is_expanded;
 		smart_label_text_t label;
 		cleanup_t3_window_ptr symbol_window;
 		cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
@@ -54,6 +54,7 @@ class T3_WIDGET_API expander_t : public widget_t, public container_t, public foc
 		virtual void force_redraw(void);
 		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
+		virtual widget_t *is_child_hotkey(key_t key);
 		virtual bool process_mouse_event(mouse_event_t event);
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);

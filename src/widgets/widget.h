@@ -92,6 +92,11 @@ class T3_WIDGET_API focus_widget_t {
 	T3_WIDGET_SIGNAL(move_focus_down, void);
 };
 
+class T3_WIDGET_API widget_container_t : public container_t {
+	public:
+		virtual widget_t *is_child_hotkey(key_t key) = 0;
+};
+
 typedef std::deque<widget_t *> widgets_t;
 
 }; // namespace
