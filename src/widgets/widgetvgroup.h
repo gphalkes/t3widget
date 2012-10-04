@@ -49,7 +49,7 @@ class T3_WIDGET_API widget_vgroup_t : public widget_t, public container_t, publi
 		virtual bool accepts_focus(void);
 		virtual bool is_hotkey(key_t key);
 		virtual void force_redraw(void);
-		virtual void focus_set(window_component_t *target);
+		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
 
 		/** Set the child widget. */

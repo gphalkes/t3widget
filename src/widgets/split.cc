@@ -99,7 +99,7 @@ void split_t::force_redraw(void) {
 		(*iter)->force_redraw();
 }
 
-void split_t::focus_set(window_component_t *target) {
+void split_t::set_child_focus(window_component_t *target) {
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (*iter == target) {
 			if (*current != *iter) {
@@ -115,7 +115,7 @@ void split_t::focus_set(window_component_t *target) {
 					(*current)->set_focus(window_component_t::FOCUS_OUT);
 					current = iter;
 				}
-				container->focus_set(target);
+				container->set_child_focus(target);
 				return;
 			}
 		}

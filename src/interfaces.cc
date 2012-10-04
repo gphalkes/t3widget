@@ -193,7 +193,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				if (!handled && iter->second != NULL && active_dialog == dialog_t::active_dialogs.back() &&
 						event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 &&
 						(event.button_state & EMOUSE_ALL_BUTTONS) != 0)
-					active_dialog->focus_set(iter->second);
+					active_dialog->set_child_focus(iter->second);
 				handled = true;
 				/* Stop handling if the dialog is no longer active. This happens for
 				   for example when the active dialog is closed by the button, or worse,

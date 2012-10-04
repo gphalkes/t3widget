@@ -308,10 +308,10 @@ void replace_buttons_dialog_t::reshow(find_action_t button) {
 	show();
 	switch (button) {
 		case find_action_t::REPLACE:
-			focus_set(impl->replace_button);
+			set_child_focus(impl->replace_button);
 			break;
 		case find_action_t::SKIP:
-			focus_set(impl->find_button);
+			set_child_focus(impl->find_button);
 			break;
 		default:
 			break;

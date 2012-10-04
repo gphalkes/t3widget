@@ -191,7 +191,7 @@ void widget_vgroup_t::force_redraw(void) {
 		(*iter)->force_redraw();
 }
 
-void widget_vgroup_t::focus_set(window_component_t *target) {
+void widget_vgroup_t::set_child_focus(window_component_t *target) {
 	bool had_focus = impl->has_focus;
 	impl->has_focus = true;
 	for (int i = 0; i < (int) impl->children.size(); i++) {
@@ -207,7 +207,7 @@ void widget_vgroup_t::focus_set(window_component_t *target) {
 			if (impl->children[impl->current_child] == target)
 				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_SET);
 			else
-				container->focus_set(target);
+				container->set_child_focus(target);
 			return;
 		}
 	}

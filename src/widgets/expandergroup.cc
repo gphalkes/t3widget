@@ -18,6 +18,7 @@ using namespace std;
 namespace t3_widget {
 
 expander_group_t::expander_group_t(void) : expanded_widget(NULL) {}
+expander_group_t::~expander_group_t(void) {}
 
 void expander_group_t::add_expander(expander_t *expander) {
 	if (expander == NULL)

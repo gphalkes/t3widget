@@ -214,7 +214,7 @@ void list_pane_t::force_redraw(void) {
 		impl->indicator_widget->force_redraw();
 }
 
-void list_pane_t::focus_set(window_component_t *target) {
+void list_pane_t::set_child_focus(window_component_t *target) {
 	widgets_t::iterator iter;
 	size_t idx;
 	size_t old_current = impl->current;

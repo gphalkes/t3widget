@@ -558,7 +558,7 @@ bool text_field_t::has_focus(void) const {
 	return impl->focus;
 }
 
-void text_field_t::focus_set(window_component_t *target) {
+void text_field_t::set_child_focus(window_component_t *target) {
 	(void) target;
 	set_focus(window_component_t::FOCUS_SET);
 }
@@ -802,7 +802,7 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 	return false;
 }
 
-void text_field_t::drop_down_list_t::focus_set(window_component_t *target) {
+void text_field_t::drop_down_list_t::set_child_focus(window_component_t *target) {
 	(void) target;
 	set_focus(window_component_t::FOCUS_SET);
 }

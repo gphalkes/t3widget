@@ -54,7 +54,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
 		virtual bool is_hotkey(key_t key);
 		virtual void set_enabled(bool enable);
 		virtual void force_redraw(void);
-		virtual void focus_set(window_component_t *target);
+		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
 
 	private:

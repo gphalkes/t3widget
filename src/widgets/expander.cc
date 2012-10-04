@@ -198,7 +198,7 @@ void expander_t::force_redraw(void) {
 		child->force_redraw();
 }
 
-void expander_t::focus_set(window_component_t *target) {
+void expander_t::set_child_focus(window_component_t *target) {
 	if (target == child) {
 		focus = FOCUS_CHILD;
 		child->set_focus(window_component_t::FOCUS_SET);
@@ -206,7 +206,7 @@ void expander_t::focus_set(window_component_t *target) {
 		container_t * container = dynamic_cast<container_t *>((widget_t *) child);
 		if (container != NULL) {
 			focus = FOCUS_CHILD;
-			container->focus_set(target);
+			container->set_child_focus(target);
 		}
 	}
 }

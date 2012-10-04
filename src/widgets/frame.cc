@@ -85,13 +85,13 @@ bool frame_t::is_hotkey(key_t key) { return child != NULL ? child->is_hotkey(key
 void frame_t::set_enabled(bool enable) { if (child != NULL) child->set_enabled(enable); }
 void frame_t::force_redraw(void) { if (child != NULL) child->force_redraw(); }
 
-void frame_t::focus_set(window_component_t *target) {
+void frame_t::set_child_focus(window_component_t *target) {
 	container_t *container;
 	if (target == child)
 		child->set_focus(window_component_t::FOCUS_SET);
 	container = dynamic_cast<container_t *>((widget_t *) child);
 	if (container != NULL)
-		container->focus_set(target);
+		container->set_child_focus(target);
 }
 
 

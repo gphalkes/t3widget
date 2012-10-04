@@ -154,7 +154,7 @@ void multi_widget_t::set_enabled(bool enable) {
 		iter->widget->set_enabled(enable);
 }
 
-void multi_widget_t::focus_set(window_component_t *target) {
+void multi_widget_t::set_child_focus(window_component_t *target) {
 	(void) target;
 	set_focus(window_component_t::FOCUS_SET);
 }

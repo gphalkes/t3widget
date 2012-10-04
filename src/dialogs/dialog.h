@@ -72,7 +72,7 @@ class T3_WIDGET_API dialog_t : public virtual window_component_t, public contain
 		virtual void close(void);
 
 		virtual bool is_child(window_component_t *widget);
-		virtual void focus_set(window_component_t *target);
+		virtual void set_child_focus(window_component_t *target);
 
 	public:
 		/** Destroy this dialog.

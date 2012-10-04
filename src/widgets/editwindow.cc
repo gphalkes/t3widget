@@ -1213,9 +1213,9 @@ void edit_window_t::bad_draw_recheck(void) {
 	widget_t::force_redraw();
 }
 
-void edit_window_t::focus_set(window_component_t *target) {
+void edit_window_t::set_child_focus(window_component_t *target) {
 	if (impl->autocomplete_panel_shown)
-		impl->autocomplete_panel->focus_set(target);
+		impl->autocomplete_panel->set_child_focus(target);
 	else
 		set_focus(window_component_t::FOCUS_SET);
 }
@@ -1615,8 +1615,8 @@ void edit_window_t::autocomplete_panel_t::force_redraw(void) {
 	redraw = true;
 }
 
-void edit_window_t::autocomplete_panel_t::focus_set(window_component_t *target) {
-	list_pane.focus_set(target);
+void edit_window_t::autocomplete_panel_t::set_child_focus(window_component_t *target) {
+	list_pane.set_child_focus(target);
 }
 
 bool edit_window_t::autocomplete_panel_t::is_child(window_component_t *widget) {

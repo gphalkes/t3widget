@@ -89,7 +89,7 @@ class T3_WIDGET_API container_t : private virtual window_component_t {
 		virtual void unset_widget_parent(window_component_t *widget);
 	public:
 		/** Set the focus to a specific window component. */
-		virtual void focus_set(window_component_t *target) = 0;
+		virtual void set_child_focus(window_component_t *target) = 0;
 		/** Determine whether a window_compnent_t is a child of the container_t. */
 		virtual bool is_child(window_component_t *component) = 0;
 };

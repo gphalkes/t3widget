@@ -172,7 +172,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		virtual void force_redraw(void);
 		virtual void bad_draw_recheck(void);
 
-		virtual void focus_set(window_component_t *target);
+		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *widget);
 		virtual bool process_mouse_event(mouse_event_t event);
 
@@ -309,7 +309,7 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public virtual windo
 		virtual void show(void);
 		virtual void hide(void);
 		virtual void force_redraw(void);
-		virtual void focus_set(window_component_t *target);
+		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *widget);
 		virtual bool process_mouse_event(mouse_event_t event);
 

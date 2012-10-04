@@ -216,7 +216,7 @@ void text_window_t::set_focus(focus_t _focus) {
 	impl->focus = _focus;
 }
 
-void text_window_t::focus_set(window_component_t *target) {
+void text_window_t::set_child_focus(window_component_t *target) {
 	(void) target;
 	set_focus(window_component_t::FOCUS_SET);
 }

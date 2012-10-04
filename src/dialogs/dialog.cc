@@ -263,7 +263,7 @@ void dialog_t::focus_previous(void) {
 	(*current_widget)->set_focus(window_component_t::FOCUS_IN_BCK);
 }
 
-void dialog_t::focus_set(window_component_t *target) {
+void dialog_t::set_child_focus(window_component_t *target) {
 	widget_t *target_widget = dynamic_cast<widget_t *>(target);
 	if (target_widget == NULL || !target_widget->accepts_focus())
 		return;
@@ -283,7 +283,7 @@ void dialog_t::focus_set(window_component_t *target) {
 					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 					current_widget = iter;
 				}
-				container->focus_set(target);
+				container->set_child_focus(target);
 				return;
 			}
 		}

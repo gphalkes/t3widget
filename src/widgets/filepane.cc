@@ -221,7 +221,7 @@ void file_pane_t::set_focus(focus_t _focus) {
 		draw_line(impl->current, impl->focus);
 }
 
-void file_pane_t::focus_set(window_component_t *target) {
+void file_pane_t::set_child_focus(window_component_t *target) {
 	(void) target;
 	set_focus(window_component_t::FOCUS_SET);
 }

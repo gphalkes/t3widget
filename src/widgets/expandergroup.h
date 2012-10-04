@@ -27,9 +27,10 @@ class T3_WIDGET_API expander_group_t {
 		void widget_expanded(bool is_expanded, expander_t *source);
 	public:
 		expander_group_t(void);
+		virtual ~expander_group_t(void);
 
 		/** Set the child widget. */
-		virtual void add_expander(expander_t *expander);
+		void add_expander(expander_t *expander);
 		void collapse(void);
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);
