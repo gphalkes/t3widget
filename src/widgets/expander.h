@@ -27,11 +27,14 @@ class T3_WIDGET_API expander_t : public widget_t, public container_t, public foc
 			FOCUS_SELF,
 			FOCUS_CHILD,
 		} focus;
-		bool is_expanded;
+		bool is_expanded, child_hotkey;
 		smart_label_text_t label;
 		cleanup_t3_window_ptr symbol_window;
 		cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
 		int full_height;
+		sigc::connection move_up_connection, move_down_connection, move_right_connection, move_left_connection;
+
+		void focus_up_from_child(void);
 
 	public:
 		/** Create a new expander_t.

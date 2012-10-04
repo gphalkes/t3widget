@@ -18,7 +18,7 @@
 using namespace std;
 namespace t3_widget {
 
-expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), child(NULL), full_height(2) {
+expander_t::expander_t(const char *_text) : is_expanded(false), child_hotkey(false), label(_text), child(NULL), full_height(2) {
 	init_unbacked_window(1, label.get_width() + 2);
 	if ((symbol_window = t3_win_new(window, 1, 2 + label.get_width(), 0, 0, 0)) == NULL)
 		throw bad_alloc();
@@ -26,19 +26,47 @@ expander_t::expander_t(const char *_text) : is_expanded(false), label(_text), ch
 	register_mouse_target(symbol_window);
 }
 
+void expander_t::focus_up_from_child(void) {
+	if (focus != FOCUS_CHILD || child == NULL)
+		return;
+	child->set_focus(window_component_t::FOCUS_OUT);
+	focus = FOCUS_SELF;
+	redraw = true;
+}
+
 void expander_t::set_child(widget_t *_child) {
+	focus_widget_t *focus_child;
 	/* FIXME: connect to move_focus_XXX events. (requires dynamic_cast'ing to focus_widget_t) */
-	if (child == NULL && is_expanded) {
-		t3_win_resize(window, 1, t3_win_get_width(window));
-		is_expanded = false;
-		redraw = true;
-		expanded(false);
+	if (child != NULL) {
+		unset_widget_parent(child);
+		move_up_connection.disconnect();
+		move_down_connection.disconnect();
+		move_right_connection.disconnect();
+		move_left_connection.disconnect();
+	}
+
+	if (_child == NULL) {
+		if (is_expanded) {
+			t3_win_resize(window, 1, t3_win_get_width(window));
+			is_expanded = false;
+			redraw = true;
+			expanded(false);
+		}
+		child = _child;
+		return;
 	}
 	child = _child;
 	set_widget_parent(child);
 	child->set_anchor(this, 0);
 	child->set_position(1, 0);
 	child->set_size(full_height - 1, t3_win_get_width(window));
+	focus_child = dynamic_cast<focus_widget_t *>(child());
+	if (focus_child != NULL) {
+		move_up_connection = focus_child->connect_move_focus_up(sigc::mem_fun(this, &expander_t::focus_up_from_child));
+		move_down_connection = focus_child->connect_move_focus_down(move_focus_down.make_slot());
+		move_right_connection = focus_child->connect_move_focus_right(move_focus_right.make_slot());
+		move_left_connection = focus_child->connect_move_focus_left(move_focus_left.make_slot());
+	}
 }
 
 void expander_t::collapse(void) {
@@ -66,6 +94,10 @@ bool expander_t::process_key(key_t key) {
 			move_focus_down();
 		} else if (key == EKEY_UP) {
 			move_focus_up();
+		} else if (key == EKEY_RIGHT) {
+			move_focus_right();
+		} else if (key == EKEY_LEFT) {
+			move_focus_left();
 		} else if (key == ' ' || key == EKEY_NL || key == EKEY_HOTKEY) {
 			if (!is_expanded && child != NULL) {
 				t3_win_resize(window, full_height, t3_win_get_width(window));
@@ -117,9 +149,10 @@ void expander_t::set_focus(focus_t _focus) {
 		if (focus == FOCUS_CHILD && child != NULL)
 			child->set_focus(window_component_t::FOCUS_OUT);
 		focus = FOCUS_NONE;
-	} else if (_focus == window_component_t::FOCUS_SET || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
+	} else if ((_focus == window_component_t::FOCUS_SET && !child_hotkey) || _focus == window_component_t::FOCUS_IN_FWD || child == NULL || !is_expanded) {
 		focus = FOCUS_SELF;
 	} else {
+		child_hotkey = false;
 		focus = FOCUS_CHILD;
 		child->set_focus(_focus);
 	}
@@ -145,7 +178,13 @@ bool expander_t::set_size(optint height, optint width) {
 }
 
 bool expander_t::is_hotkey(key_t key) {
-	return label.is_hotkey(key);
+	if (label.is_hotkey(key))
+		return true;
+	if (is_expanded && child != NULL && child->is_hotkey(key)) {
+		child_hotkey = true;
+		return true;
+	}
+	return false;
 }
 
 void expander_t::set_enabled(bool enable) {

@@ -26,7 +26,7 @@ void expander_group_t::add_child(widget_t *child) {
 		return;
 	expander_child->connect_expanded(sigc::bind(sigc::mem_fun(this, &expander_group_t::child_expanded), (int) impl->children.size()));
 	expander_child->collapse();
-	widget_group_t::add_child(child);
+	widget_vgroup_t::add_child(child);
 }
 
 void expander_group_t::child_expanded(bool is_expanded, int child_idx) {

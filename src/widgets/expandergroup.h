@@ -22,7 +22,7 @@
 namespace t3_widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
-class T3_WIDGET_API expander_group_t : public widget_group_t {
+class T3_WIDGET_API expander_group_t : public widget_vgroup_t {
 	private:
 		int expanded_child;
 
