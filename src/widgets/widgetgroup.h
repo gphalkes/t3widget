@@ -23,7 +23,7 @@ namespace t3_widget {
     This widget is useful for packing multiple widgets into for example a
     single frame_t or expander_t.
 */
-class T3_WIDGET_API widget_vgroup_t : public widget_t, public widget_container_t, public focus_widget_t {
+class T3_WIDGET_API widget_group_t : public widget_t, public widget_container_t, public focus_widget_t {
 	private:
 		struct T3_WIDGET_LOCAL implementation_t {
 			widgets_t children;
@@ -39,8 +39,8 @@ class T3_WIDGET_API widget_vgroup_t : public widget_t, public widget_container_t
 		/** Create a new expander_t.
 		    @param _text The text for the smart_label_t shown next to the expander symbol.
 		*/
-		widget_vgroup_t(void);
-		~widget_vgroup_t(void);
+		widget_group_t(void);
+		~widget_group_t(void);
 
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);

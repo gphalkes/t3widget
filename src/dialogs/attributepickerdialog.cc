@@ -28,7 +28,6 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 {
 	smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
 	frame_t *test_line_frame;
-	expander_t *fg_expander, *bg_expander;
 	button_t *ok_button, *cancel_button;
 
 	impl->underline_box = new checkbox_t(false);
@@ -103,28 +102,29 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 
 	impl->fg_picker = new color_picker_t(true);
 	impl->fg_picker->connect_selection_changed(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
-	fg_expander = new expander_t("_Foreground color");
-	fg_expander->set_child(impl->fg_picker);
-	fg_expander->set_size(t3_win_get_height(impl->fg_picker->get_base_window()) + 1, None);
+	impl->fg_expander = new expander_t("_Foreground color");
+	impl->fg_expander->set_child(impl->fg_picker);
+	impl->fg_expander->set_size(t3_win_get_height(impl->fg_picker->get_base_window()) + 1,
+		t3_win_get_width(impl->fg_picker->get_base_window()));
+	impl->fg_expander->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	impl->fg_expander->set_position(1, 0);
+	impl->fg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	impl->fg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 
 	impl->bg_picker = new color_picker_t(false);
 	impl->bg_picker->connect_selection_changed((sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed)));
-	bg_expander = new expander_t("B_ackground color");
-	bg_expander->set_child(impl->bg_picker);
-	bg_expander->set_size(t3_win_get_height(impl->bg_picker->get_base_window()) + 1, None);
-
-	impl->expander_vgroup = new widget_vgroup_t();
-	impl->expander_vgroup->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	impl->expander_vgroup->set_position(1, 0);
-	impl->expander_vgroup->set_size(None, t3_win_get_width(impl->fg_picker->get_base_window()));
-	impl->expander_vgroup->add_child(fg_expander);
-	impl->expander_vgroup->add_child(bg_expander);
-	impl->expander_vgroup->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	impl->expander_vgroup->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	impl->bg_expander = new expander_t("B_ackground color");
+	impl->bg_expander->set_child(impl->bg_picker);
+	impl->bg_expander->set_size(t3_win_get_height(impl->bg_picker->get_base_window()) + 1,
+		t3_win_get_width(impl->bg_picker->get_base_window()));
+	impl->bg_expander->set_anchor(impl->fg_expander, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+	impl->bg_expander->set_position(0, 0);
+	impl->bg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	impl->bg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 
 	impl->expander_group = new expander_group_t();
-	impl->expander_group->add_expander(fg_expander);
-	impl->expander_group->add_expander(bg_expander);
+	impl->expander_group->add_expander(impl->fg_expander);
+	impl->expander_group->add_expander(impl->bg_expander);
 	impl->expander_group->connect_expanded(sigc::mem_fun(this, &attribute_picker_dialog_t::group_expanded));
 
 	cancel_button = new button_t("_Cancel", false);
@@ -160,7 +160,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	push_back(reverse_label);
 	push_back(impl->blink_box);
 	push_back(blink_label);
-	push_back(impl->expander_vgroup);
+	push_back(impl->fg_expander);
+	push_back(impl->bg_expander);
 	push_back(test_line_frame);
 	push_back(ok_button);
 	push_back(cancel_button);
@@ -176,8 +177,9 @@ void attribute_picker_dialog_t::ok_activate(void) {
 
 void attribute_picker_dialog_t::group_expanded(bool state) {
 	(void) state;
-	impl->expander_vgroup->set_size(None, None);
-	set_size(t3_win_get_height(impl->expander_vgroup->get_base_window()) + ATTRIBUTE_PICKER_DIALOG_HEIGHT, None);
+	set_size(t3_win_get_height(impl->fg_expander->get_base_window()) +
+		t3_win_get_height(impl->bg_expander->get_base_window()) +
+		ATTRIBUTE_PICKER_DIALOG_HEIGHT, None);
 }
 
 t3_attr_t attribute_picker_dialog_t::get_attribute(void) {

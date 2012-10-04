@@ -17,7 +17,7 @@
 #include <t3widget/interfaces.h>
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/checkbox.h>
-#include <t3widget/widgets/widgetvgroup.h>
+#include <t3widget/widgets/expander.h>
 #include <t3widget/widgets/expandergroup.h>
 #include <t3widget/widgets/colorpicker.h>
 
@@ -31,8 +31,8 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 			checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
 			test_line_t *test_line;
 			color_picker_t *fg_picker, *bg_picker;
-			widget_vgroup_t *expander_vgroup;
 			cleanup_ptr<expander_group_t>::t expander_group;
+			expander_t *fg_expander, *bg_expander;
 			t3_attr_t base_attributes;
 			implementation_t(void) : base_attributes(0) {}
 		};
