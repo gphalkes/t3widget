@@ -15,23 +15,21 @@
 #define T3_WIDGET_EXPANDERGROUP_H
 
 #include <deque>
-#include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/expander.h>
-#include <t3widget/widgets/widgetgroup.h>
 
 namespace t3_widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
-class T3_WIDGET_API expander_group_t : public widget_vgroup_t {
+class T3_WIDGET_API expander_group_t {
 	private:
-		int expanded_child;
+		expander_t *expanded_widget;
 
-		void child_expanded(bool is_expanded, int child_idx);
+		void widget_expanded(bool is_expanded, expander_t *source);
 	public:
 		expander_group_t(void);
 
 		/** Set the child widget. */
-		virtual void add_child(widget_t *child);
+		virtual void add_expander(expander_t *expander);
 		void collapse(void);
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);

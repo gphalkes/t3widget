@@ -17,39 +17,32 @@
 using namespace std;
 namespace t3_widget {
 
-expander_group_t::expander_group_t(void) : expanded_child(-1) {}
+expander_group_t::expander_group_t(void) : expanded_widget(NULL) {}
 
-void expander_group_t::add_child(widget_t *child) {
-	expander_t *expander_child = dynamic_cast<expander_t *>(child);
-
-	if (expander_child == NULL)
+void expander_group_t::add_expander(expander_t *expander) {
+	if (expander == NULL)
 		return;
-	expander_child->connect_expanded(sigc::bind(sigc::mem_fun(this, &expander_group_t::child_expanded), (int) impl->children.size()));
-	expander_child->collapse();
-	widget_vgroup_t::add_child(child);
+	expander->connect_expanded(sigc::bind(sigc::mem_fun(this, &expander_group_t::widget_expanded), expander));
+	expander->collapse();
 }
 
-void expander_group_t::child_expanded(bool is_expanded, int child_idx) {
+void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
 	if (is_expanded) {
-		if (expanded_child >= 0) {
-			expander_t *expander_child = dynamic_cast<expander_t *>(impl->children[expanded_child]);
-			if (expander_child != NULL)
-				expander_child->collapse();
-		}
-		expanded_child = child_idx;
+		if (expanded_widget != NULL)
+			expanded_widget->collapse();
+		expanded_widget = source;
 	} else {
-		expanded_child = -1;
+		if (source == expanded_widget)
+			expanded_widget = NULL;
 	}
-	set_size(None, None);
 	expanded(is_expanded);
 }
 
 void expander_group_t::collapse(void) {
-	if (expanded_child >= 0) {
-		expander_t *expander_child = dynamic_cast<expander_t *>(impl->children[expanded_child]);
-		if (expander_child == NULL)
-			return;
-		expander_child->collapse();
+	if (expanded_widget != NULL) {
+		expanded_widget->collapse();
+		expanded_widget = NULL;
+		expanded(false);
 	}
 }
 
