@@ -22,17 +22,23 @@ namespace t3_widget {
 /** A widget showing an expander, which allows hiding another widget. */
 class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, public focus_widget_t {
 	private:
-		enum {
+		enum expander_focus_t {
 			FOCUS_NONE,
 			FOCUS_SELF,
 			FOCUS_CHILD,
-		} focus;
-		bool is_expanded;
-		smart_label_text_t label;
-		cleanup_t3_window_ptr symbol_window;
-		cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
-		int full_height;
-		sigc::connection move_up_connection, move_down_connection, move_right_connection, move_left_connection;
+		};
+
+		struct implementation_t {
+			expander_focus_t focus;
+			bool is_expanded;
+			smart_label_text_t label;
+			cleanup_t3_window_ptr symbol_window;
+			cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
+			int full_height;
+			sigc::connection move_up_connection, move_down_connection, move_right_connection, move_left_connection;
+			implementation_t(const char *text) : is_expanded(false), label(text), child(NULL), full_height(2) {}
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 		void focus_up_from_child(void);
 
@@ -40,7 +46,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 		/** Create a new expander_t.
 		    @param _text The text for the smart_label_t shown next to the expander symbol.
 		*/
-		expander_t(const char *_text);
+		expander_t(const char *text);
 		/** Set the child widget. */
 		void set_child(widget_t *_child);
 		void collapse(void);

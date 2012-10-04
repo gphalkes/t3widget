@@ -7,6 +7,8 @@ Version 0.2.0:
 	- Changed the set_focus call in window_component_t to change the argument
 	  from bool to an enum indicating where the focus came from as well.
 	- Renamed focus_set to set_child_focus in container_t
+	- Added widget_container_t which serves better as a baseclass for widgets
+	  which group multiple widgets together.
 
 Version 0.1.14:
 	Miscelaneous:
