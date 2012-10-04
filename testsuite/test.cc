@@ -53,6 +53,11 @@ class main_t : public main_window_t {
 		}
 };
 
+static main_window_t *main_window;
+static void cleanup(void) {
+	delete main_window;
+}
+
 int main(int argc, char *argv[]) {
 	struct rlimit vm_limit;
 	getrlimit(RLIMIT_AS, &vm_limit);
@@ -95,11 +100,13 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "init failed\n");
 		exit(EXIT_FAILURE);
 	}
+	delete params;
 	#ifdef CALL_INIT
 	CALL_INIT
 	#endif
 
-	main_window_t *main_window = new main_t();
+	main_window = new main_t();
+	atexit(::cleanup);
 	main_window->show();
 	set_key_timeout(100);
 	main_loop();

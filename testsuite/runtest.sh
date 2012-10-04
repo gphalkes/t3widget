@@ -16,16 +16,16 @@ rm *
 build_test
 
 unset PRINT_SUBTEST
-if [ "`ls $TEST/recording* | wc -l`" -gt 1 ] ; then
-	PRINT_SUBTEST=1
-fi
+[ "`ls $TEST/recording* | wc -l`" -gt 1 ] && PRINT_SUBTEST=1
+
 
 for RECORDING in $TEST/recording* ; do
-	SUBTEST="${RECORDING#recording.}"
-	if [
-	../../../../record/src/tdreplay -lreplay.log ${REPLAYOPTS:--k1} $TEST/recording || fail "!! Terminal output is different"
-	if [ -e "$TEST/test.log" ] ; then
-		if ! diff -q "$TEST/test.log" test.log ; then
+	SUBTEST="${RECORDING##*recording}"
+	[ -n "$PRINT_SUBTEST" ] && echo "-- subtest ${SUBTEST#.}" >&2
+
+	../../../../record/src/tdreplay -lreplay.log ${REPLAYOPTS:--k1} $TEST/recording${SUBTEST} || fail "!! Terminal output is different"
+	if [ -e "$TEST/test.log${SUBTEST}" ] ; then
+		if ! diff -q "$TEST/test.log${SUBTEST}" test.log ; then
 			fail "!! test.log is different"
 		fi
 	else
@@ -33,6 +33,7 @@ for RECORDING in $TEST/recording* ; do
 			fail "!! test.log is different"
 		fi
 	fi
+done
 
 [ "$QUIET" = 1 ] || echo "Test passed" >&2
 exit 0

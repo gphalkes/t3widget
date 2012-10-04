@@ -31,7 +31,7 @@ total=0
 export QUIET=1
 
 for i in `find "$TEST" -maxdepth 1 -mindepth 1 -type d | sort` ; do
-	[ -e "$i/recording" ] || continue
+	`ls -U "$i/recording"* 2>/dev/null >/dev/null` || continue
 	echo "=== Testing $i ===" >&2
 	echo "=== Testing $i ==="
 	if ! "$DIR"/runtest.sh "$i" ; then

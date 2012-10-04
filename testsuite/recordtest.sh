@@ -5,18 +5,19 @@ DIR="`dirname \"$0\"`"
 
 
 if [ $# -eq 0 ] ; then
-	fail "Usage: recordtest.sh <test>"
+	fail "Usage: recordtest.sh <test> [<subtest>]"
 fi
 
-TEST="$PWD/$1"
-
-shift
+setup_TEST "$1"
 cd_workdir
 
 rm *
 
 build_test
 
-../../../../record/src/tdrecord -o $TEST/recording -e T3WINDOW_OPTS $RECORDOPTS ./test -t || fail "!! Could not record test"
+[ $# -gt 1 ] && [ -n "$2" ] && SUBTEST=".$2"
+
+../../../../record/src/tdrecord -o $TEST/recording$SUBTEST -e T3WINDOW_OPTS $RECORDOPTS ./test -t || fail "!! Could not record test"
+[ -s test.log ] && mv test.log $TEST/test.log$SUBTEST
 
 exit 0

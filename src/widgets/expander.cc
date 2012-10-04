@@ -199,9 +199,7 @@ void expander_t::force_redraw(void) {
 }
 
 void expander_t::focus_set(window_component_t *target) {
-	if (target == this) {
-		focus = FOCUS_SELF;
-	} else if (target == child) {
+	if (target == child) {
 		focus = FOCUS_CHILD;
 		child->set_focus(window_component_t::FOCUS_SET);
 	} else {
