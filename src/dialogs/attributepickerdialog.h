@@ -17,7 +17,7 @@
 #include <t3widget/interfaces.h>
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/checkbox.h>
-#include <t3widget/widgets/widgetgroup.h>
+#include <t3widget/widgets/widgetvgroup.h>
 #include <t3widget/widgets/expandergroup.h>
 #include <t3widget/widgets/colorpicker.h>
 
