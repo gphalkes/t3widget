@@ -18,7 +18,7 @@
 
 namespace t3_widget {
 
-/** A widget aggregating several widgets vertically into a single widget.
+/** A widget aggregating several widgets into a single widget.
 
     This widget is useful for packing multiple widgets into for example a
     single frame_t or expander_t.

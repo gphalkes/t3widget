@@ -19,19 +19,21 @@
 
 namespace t3_widget {
 
-/** A widget showing an expander, which allows hiding another widget. */
+/** A class to group a set of expander widgets such that at most one is expanded at a time. */
 class T3_WIDGET_API expander_group_t {
 	private:
 		expander_t *expanded_widget;
+		int height, expanded_height;
 
 		void widget_expanded(bool is_expanded, expander_t *source);
 	public:
 		expander_group_t(void);
 		virtual ~expander_group_t(void);
 
-		/** Set the child widget. */
+		/** Add an expander to the group. */
 		void add_expander(expander_t *expander);
 		void collapse(void);
+		int get_group_height(void);
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);
 };

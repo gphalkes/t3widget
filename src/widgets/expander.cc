@@ -67,6 +67,7 @@ void expander_t::set_child(widget_t *_child) {
 		impl->move_right_connection = focus_child->connect_move_focus_right(move_focus_right.make_slot());
 		impl->move_left_connection = focus_child->connect_move_focus_left(move_focus_left.make_slot());
 	}
+	set_size(t3_win_get_height(impl->child->get_base_window()) + 1, t3_win_get_width(impl->child->get_base_window()));
 }
 
 void expander_t::collapse(void) {

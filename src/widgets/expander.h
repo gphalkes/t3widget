@@ -47,7 +47,11 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 		    @param _text The text for the smart_label_t shown next to the expander symbol.
 		*/
 		expander_t(const char *text);
-		/** Set the child widget. */
+		/** Set the child widget.
+
+		    @note This also automatically sets the size of the expander_t to wrap
+		    the child widget.
+		*/
 		void set_child(widget_t *_child);
 		void collapse(void);
 

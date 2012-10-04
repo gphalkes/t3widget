@@ -104,8 +104,6 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	impl->fg_picker->connect_selection_changed(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
 	impl->fg_expander = new expander_t("_Foreground color");
 	impl->fg_expander->set_child(impl->fg_picker);
-	impl->fg_expander->set_size(t3_win_get_height(impl->fg_picker->get_base_window()) + 1,
-		t3_win_get_width(impl->fg_picker->get_base_window()));
 	impl->fg_expander->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->fg_expander->set_position(1, 0);
 	impl->fg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
@@ -115,8 +113,6 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	impl->bg_picker->connect_selection_changed((sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed)));
 	impl->bg_expander = new expander_t("B_ackground color");
 	impl->bg_expander->set_child(impl->bg_picker);
-	impl->bg_expander->set_size(t3_win_get_height(impl->bg_picker->get_base_window()) + 1,
-		t3_win_get_width(impl->bg_picker->get_base_window()));
 	impl->bg_expander->set_anchor(impl->fg_expander, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->bg_expander->set_position(0, 0);
 	impl->bg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
@@ -177,8 +173,7 @@ void attribute_picker_dialog_t::ok_activate(void) {
 
 void attribute_picker_dialog_t::group_expanded(bool state) {
 	(void) state;
-	set_size(t3_win_get_height(impl->fg_expander->get_base_window()) +
-		t3_win_get_height(impl->bg_expander->get_base_window()) +
+	set_size(impl->expander_group->get_group_height() +
 		ATTRIBUTE_PICKER_DIALOG_HEIGHT, None);
 }
 
