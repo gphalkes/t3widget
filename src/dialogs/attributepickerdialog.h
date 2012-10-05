@@ -40,6 +40,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 
 		void attribute_changed(void);
 		void ok_activate(void);
+		void default_activate(void);
 		void group_expanded(bool state);
 		t3_attr_t get_attribute(void);
 
@@ -56,7 +57,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 		void set_base_attributes(t3_attr_t attr);
 
 	T3_WIDGET_SIGNAL(attribute_selected, void, t3_attr_t);
-
+	T3_WIDGET_SIGNAL(default_selected, void);
 };
 
 class T3_WIDGET_LOCAL attribute_picker_dialog_t::test_line_t : public widget_t {

@@ -37,7 +37,6 @@ struct attributes_t {
 	t3_attr_t text_selected;
 	/* High-light attributes for hot keys. */
 	t3_attr_t hotkey_highlight;
-	t3_attr_t highlight_selected;
 
 	t3_attr_t dialog;
 	t3_attr_t dialog_selected;

@@ -4,10 +4,11 @@ DIR="`dirname \"$0\"`"
 . "$DIR"/_common.sh
 
 
-if [ $# -ne 1 ] ; then
-	fail "Usage: runtest.sh <dir with test>"
+if [ $# -eq 0 ] ; then
+	fail "Usage: viewtest.sh <dir with test> [<subtest>]"
 fi
 
 setup_TEST "$1"
+[ $# -gt 1 ] && [ -n "$1" ] && SUBTEST=".$2"
 
-$DIR/../../../record/src/tdview $REPLAYOPTS $TEST/recording || fail "!! Terminal output is different"
+$DIR/../../../record/src/tdview $REPLAYOPTS $TEST/recording$SUBTEST || fail "!! Terminal output is different"

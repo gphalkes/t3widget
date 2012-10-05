@@ -28,7 +28,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 {
 	smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
 	frame_t *test_line_frame;
-	button_t *ok_button, *cancel_button;
+	button_t *ok_button, *cancel_button, *default_button;
 
 	impl->underline_box = new checkbox_t(false);
 	impl->underline_box->set_position(1, 2);
@@ -58,7 +58,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	impl->dim_box = new checkbox_t(false);
 	impl->dim_box->set_anchor(impl->bold_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->dim_box->set_position(1, 0);
-	dim_label = new smart_label_t("_Dim");
+	dim_label = new smart_label_t("Di_m");
 	dim_label->set_anchor(impl->dim_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	dim_label->set_position(0, 1);
 	impl->dim_box->set_label(dim_label);
@@ -126,23 +126,33 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	cancel_button = new button_t("_Cancel", false);
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
-
 	cancel_button->connect_activate(sigc::mem_fun(this, &attribute_picker_dialog_t::close));
 	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	/* Nasty trick: registering a callback twice will call the callback twice. We need to do
-	   FOCUS_PREVIOUS twice here to emulate moving up, because the ok_button is in the way. */
+	/* Nasty trick: registering a callback three times will call the callback three times. We need to do
+	   FOCUS_PREVIOUS three times here to emulate moving up, because the ok_button and default_button are in the way. */
+	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
-	ok_button = new button_t("_OK", true);
-	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	ok_button->set_position(0, -2);
 
+	default_button = new button_t("_Default");
+	default_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	default_button->set_position(0, -2);
+	default_button->connect_activate(default_selected.make_slot());
+	default_button->connect_move_focus_left(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	default_button->connect_move_focus_right(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	default_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	default_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+	default_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	default_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+
+	ok_button = new button_t("_OK", true);
+	ok_button->set_anchor(default_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun(this, &attribute_picker_dialog_t::ok_activate));
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	ok_button->connect_move_focus_right(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
-	/* Nasty trick: registering a callback twice will call the callback twice. We need to do
-	   FOCUS_NEXT twice here to emulate moving up, because the ok_button is in the way. */
+	ok_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	ok_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 	ok_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 
@@ -160,6 +170,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	push_back(impl->bg_expander);
 	push_back(test_line_frame);
 	push_back(ok_button);
+	push_back(default_button);
 	push_back(cancel_button);
 }
 
