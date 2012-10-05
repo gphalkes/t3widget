@@ -261,9 +261,9 @@ t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *in
 	t3_attr_t retval = get_base_attr(i, info);
 
 	if (i >= info->selection_start && i < info->selection_end)
-		retval = i == info->cursor ? t3_term_combine_attrs(attributes.selection_cursor2, retval) : info->selected_attr;
+		retval = i == info->cursor ? t3_term_combine_attrs(attributes.text_selection_cursor2, retval) : info->selected_attr;
 	else if (i == info->cursor)
-		retval = t3_term_combine_attrs(i == info->selection_end ? attributes.selection_cursor : attributes.text_cursor, retval);
+		retval = t3_term_combine_attrs(i == info->selection_end ? attributes.text_selection_cursor : attributes.text_cursor, retval);
 
 	if (is_bad_draw(i))
 		retval = t3_term_combine_attrs(attributes.bad_draw, retval);

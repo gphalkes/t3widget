@@ -71,7 +71,7 @@ void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
 	} else {
 		t3_win_addnstr(window, text, underline_start, attr);
 		t3_win_addnstr(window, text + underline_start, underline_length,
-			selected ? attr : t3_term_combine_attrs(attributes.highlight, attr));
+			selected ? attr : t3_term_combine_attrs(attributes.hotkey_highlight, attr));
 		t3_win_addnstr(window, text + underline_start + underline_length, text_length - underline_start - underline_length, attr);
 	}
 	if (add_colon)

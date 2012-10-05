@@ -29,14 +29,14 @@ namespace t3_widget {
 struct attributes_t {
 	/* Text related attributes. */
 	t3_attr_t non_print;
-	t3_attr_t selection_cursor;
-	t3_attr_t selection_cursor2;
+	t3_attr_t text_selection_cursor;
+	t3_attr_t text_selection_cursor2;
 	t3_attr_t bad_draw;
 	t3_attr_t text_cursor;
 	t3_attr_t text;
 	t3_attr_t text_selected;
 	/* High-light attributes for hot keys. */
-	t3_attr_t highlight;
+	t3_attr_t hotkey_highlight;
 	t3_attr_t highlight_selected;
 
 	t3_attr_t dialog;

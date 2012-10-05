@@ -44,13 +44,13 @@ void set_color_mode(bool on) {
 
 	if (on) {
 		attributes.non_print = T3_ATTR_UNDERLINE;
-		attributes.selection_cursor = T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN;
-		attributes.selection_cursor2 = T3_ATTR_FG_BLUE | T3_ATTR_BG_GREEN;
+		attributes.text_selection_cursor = T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN;
+		attributes.text_selection_cursor2 = T3_ATTR_FG_BLUE | T3_ATTR_BG_GREEN;
 		attributes.bad_draw = T3_ATTR_FG_RED;
 		attributes.text_cursor = T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN;
 		attributes.text = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLUE;
 		attributes.text_selected = T3_ATTR_FG_BLUE | T3_ATTR_BG_WHITE;
-		attributes.highlight = T3_ATTR_FG_BLUE;
+		attributes.hotkey_highlight = T3_ATTR_FG_BLUE;
 		attributes.dialog = T3_ATTR_FG_BLACK | T3_ATTR_BG_WHITE;
 		attributes.dialog_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
 		attributes.button = attributes.dialog;
@@ -62,13 +62,13 @@ void set_color_mode(bool on) {
 		attributes.meta_text = T3_ATTR_FG_CYAN;
 	} else {
 		attributes.non_print = T3_ATTR_UNDERLINE;
-		attributes.selection_cursor = T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
-		attributes.selection_cursor2 = T3_ATTR_UNDERLINE | T3_ATTR_REVERSE | T3_ATTR_BLINK;
+		attributes.text_selection_cursor = T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
+		attributes.text_selection_cursor2 = T3_ATTR_UNDERLINE | T3_ATTR_REVERSE | T3_ATTR_BLINK;
 		attributes.bad_draw = T3_ATTR_BOLD;
 		attributes.text_cursor = T3_ATTR_REVERSE;
 		attributes.text = 0;
 		attributes.text_selected = T3_ATTR_REVERSE;
-		attributes.highlight = T3_ATTR_UNDERLINE;
+		attributes.hotkey_highlight = T3_ATTR_UNDERLINE;
 		attributes.dialog = 0;
 		attributes.dialog_selected = T3_ATTR_REVERSE;
 		attributes.button = 0;
@@ -108,11 +108,11 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 		case attribute_t::NON_PRINT:
 			attributes.non_print = value;
 			break;
-		case attribute_t::SELECTION_CURSOR:
-			attributes.selection_cursor = value;
+		case attribute_t::TEXT_SELECTION_CURSOR:
+			attributes.text_selection_cursor = value;
 			break;
-		case attribute_t::SELECTION_CURSOR2:
-			attributes.selection_cursor2 = value;
+		case attribute_t::TEXT_SELECTION_CURSOR2:
+			attributes.text_selection_cursor2 = value;
 			break;
 		case attribute_t::BAD_DRAW:
 			attributes.bad_draw = value;
@@ -126,8 +126,8 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 		case attribute_t::TEXT_SELECTED:
 			attributes.text_selected = value;
 			break;
-		case attribute_t::HIGHLIGHT:
-			attributes.highlight = value;
+		case attribute_t::HOTKEY_HIGHLIGHT:
+			attributes.hotkey_highlight = value;
 			break;
 		case attribute_t::DIALOG:
 			attributes.dialog = value;
@@ -171,10 +171,10 @@ t3_attr_t get_attribute(attribute_t attribute) {
 	switch (attribute) {
 		case attribute_t::NON_PRINT:
 			return attributes.non_print;
-		case attribute_t::SELECTION_CURSOR:
-			return attributes.selection_cursor;
-		case attribute_t::SELECTION_CURSOR2:
-			return attributes.selection_cursor2;
+		case attribute_t::TEXT_SELECTION_CURSOR:
+			return attributes.text_selection_cursor;
+		case attribute_t::TEXT_SELECTION_CURSOR2:
+			return attributes.text_selection_cursor2;
 		case attribute_t::BAD_DRAW:
 			return attributes.bad_draw;
 		case attribute_t::TEXT_CURSOR:
@@ -183,8 +183,8 @@ t3_attr_t get_attribute(attribute_t attribute) {
 			return attributes.text;
 		case attribute_t::TEXT_SELECTED:
 			return attributes.text_selected;
-		case attribute_t::HIGHLIGHT:
-			return attributes.highlight;
+		case attribute_t::HOTKEY_HIGHLIGHT:
+			return attributes.hotkey_highlight;
 		case attribute_t::DIALOG:
 			return attributes.dialog;
 		case attribute_t::DIALOG_SELECTED:

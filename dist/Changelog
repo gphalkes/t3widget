@@ -1,13 +1,13 @@
 Version 0.2.0:
 	New features:
 	- New dialog: attribute_selector_t
-	- New widgets: expander_t, color_picker_t, widget_vgroup_t
+	- New widgets: expander_t, color_picker_t, widget_group_t
 
 	Miscelaneous:
 	- Changed the set_focus call in window_component_t to change the argument
 	  from bool to an enum indicating where the focus came from as well.
 	- Renamed focus_set to set_child_focus in container_t
-	- Added widget_container_t which serves better as a baseclass for widgets
+	- Added widget_container_t which serves better as a base class for widgets
 	  which group multiple widgets together.
 
 Version 0.1.14:
