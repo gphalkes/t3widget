@@ -70,8 +70,8 @@ void expander_t::set_child(widget_t *_child) {
 	set_size(t3_win_get_height(impl->child->get_base_window()) + 1, t3_win_get_width(impl->child->get_base_window()));
 }
 
-void expander_t::collapse(void) {
-	if (impl->is_expanded) {
+void expander_t::set_expanded(bool expand) {
+	if (!expand && impl->is_expanded) {
 		if (impl->focus == FOCUS_CHILD) {
 			impl->child->set_focus(window_component_t::FOCUS_OUT);
 			impl->focus = FOCUS_SELF;
@@ -80,6 +80,13 @@ void expander_t::collapse(void) {
 		impl->is_expanded = false;
 		t3_win_resize(window, 1, t3_win_get_width(window));
 		redraw = true;
+		expanded(false);
+	} else if (expand && !impl->is_expanded && impl->child != NULL) {
+		impl->child->show();
+		impl->is_expanded = true;
+		t3_win_resize(window, impl->full_height, t3_win_get_width(window));
+		redraw = true;
+		expanded(true);
 	}
 }
 

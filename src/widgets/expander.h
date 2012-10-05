@@ -53,7 +53,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 		    the child widget.
 		*/
 		void set_child(widget_t *_child);
-		void collapse(void);
+		void set_expanded(bool expand);
 
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);

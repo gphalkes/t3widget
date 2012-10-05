@@ -24,15 +24,14 @@ void expander_group_t::add_expander(expander_t *expander) {
 	if (expander == NULL)
 		return;
 	expander->connect_expanded(sigc::bind(sigc::mem_fun(this, &expander_group_t::widget_expanded), expander));
-	expander->collapse();
+	expander->set_expanded(false);
 	height++;
 }
 
 void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
 	if (is_expanded) {
 		if (expanded_widget != NULL) {
-			expanded_widget->collapse();
-			height -= expanded_height;
+			expanded_widget->set_expanded(false);
 		}
 		expanded_height = t3_win_get_height(source->get_base_window()) - 1;
 		height += expanded_height;
@@ -48,7 +47,7 @@ void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
 
 void expander_group_t::collapse(void) {
 	if (expanded_widget != NULL) {
-		expanded_widget->collapse();
+		expanded_widget->set_expanded(false);
 		expanded_widget = NULL;
 		expanded(false);
 	}
