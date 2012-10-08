@@ -54,6 +54,7 @@ bool set_color_mode(bool on) {
 	attributes.hotkey_highlight = get_default_attribute(attribute_t::HOTKEY_HIGHLIGHT, on);
 	attributes.dialog = get_default_attribute(attribute_t::DIALOG, on);
 	attributes.dialog_selected = get_default_attribute(attribute_t::DIALOG_SELECTED, on);
+	attributes.button_selected = get_default_attribute(attribute_t::BUTTON_SELECTED, on);
 	attributes.scrollbar = get_default_attribute(attribute_t::SCROLLBAR, on);
 	attributes.menubar = get_default_attribute(attribute_t::MENUBAR, on);
 	attributes.menubar_selected = get_default_attribute(attribute_t::MENUBAR_SELECTED, on);
@@ -97,6 +98,9 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 			break;
 		case attribute_t::DIALOG_SELECTED:
 			attributes.dialog_selected = value;
+			break;
+		case attribute_t::BUTTON_SELECTED:
+			attributes.button_selected = value;
 			break;
 		case attribute_t::SCROLLBAR:
 			attributes.scrollbar = value;
@@ -146,6 +150,8 @@ t3_attr_t get_attribute(attribute_t attribute) {
 			return attributes.dialog;
 		case attribute_t::DIALOG_SELECTED:
 			return attributes.dialog_selected;
+		case attribute_t::BUTTON_SELECTED:
+			return attributes.button_selected;
 		case attribute_t::SCROLLBAR:
 			return attributes.scrollbar;
 		case attribute_t::MENUBAR:
@@ -193,6 +199,8 @@ t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode) {
 			return ensure_color(color_mode ? T3_ATTR_FG_BLACK | T3_ATTR_BG_WHITE : 0);
 		case attribute_t::DIALOG_SELECTED:
 			return ensure_color(color_mode ? T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK : T3_ATTR_REVERSE);
+		case attribute_t::BUTTON_SELECTED:
+			return ensure_color(color_mode ? T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN : T3_ATTR_REVERSE);
 		case attribute_t::SCROLLBAR:
 			return ensure_color(color_mode ? T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK : T3_ATTR_REVERSE);
 		case attribute_t::MENUBAR:
