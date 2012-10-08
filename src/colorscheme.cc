@@ -34,73 +34,36 @@ static t3_attr_t ensure_color(t3_attr_t value) {
 	return value;
 }
 
-void set_color_mode(bool on) {
+bool set_color_mode(bool on) {
+	bool result = true;
 	/* Only actually switch to color mode if the terminal supports (sufficient) color. */
 	if (on) {
 		t3_term_caps_t terminal_caps;
 		t3_term_get_caps(&terminal_caps);
 		on = terminal_caps.colors >= 8;
+		result = on;
 	}
 
-	if (on) {
-		attributes.non_print = T3_ATTR_UNDERLINE;
-		attributes.text_selection_cursor = T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN;
-		attributes.text_selection_cursor2 = T3_ATTR_FG_BLUE | T3_ATTR_BG_GREEN;
-		attributes.bad_draw = T3_ATTR_FG_RED;
-		attributes.text_cursor = T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN;
-		attributes.text = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLUE;
-		attributes.text_selected = T3_ATTR_FG_BLUE | T3_ATTR_BG_WHITE;
-		attributes.hotkey_highlight = T3_ATTR_FG_BLUE;
-		attributes.dialog = T3_ATTR_FG_BLACK | T3_ATTR_BG_WHITE;
-		attributes.dialog_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
-		attributes.button = attributes.dialog;
-		attributes.button_selected = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
-		attributes.scrollbar = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
-		attributes.menubar = T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN;
-		attributes.menubar_selected = T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK;
-		attributes.shadow = T3_ATTR_BG_BLACK;
-		attributes.meta_text = T3_ATTR_FG_CYAN;
-	} else {
-		attributes.non_print = T3_ATTR_UNDERLINE;
-		attributes.text_selection_cursor = T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
-		attributes.text_selection_cursor2 = T3_ATTR_UNDERLINE | T3_ATTR_REVERSE | T3_ATTR_BLINK;
-		attributes.bad_draw = T3_ATTR_BOLD;
-		attributes.text_cursor = T3_ATTR_REVERSE;
-		attributes.text = 0;
-		attributes.text_selected = T3_ATTR_REVERSE;
-		attributes.hotkey_highlight = T3_ATTR_UNDERLINE;
-		attributes.dialog = 0;
-		attributes.dialog_selected = T3_ATTR_REVERSE;
-		attributes.button = 0;
-		attributes.button_selected = T3_ATTR_REVERSE;
-		attributes.scrollbar = T3_ATTR_REVERSE;
-		attributes.menubar = T3_ATTR_REVERSE;
-		attributes.menubar_selected = 0;
-		attributes.shadow = T3_ATTR_REVERSE;
-		attributes.meta_text = T3_ATTR_UNDERLINE;
-	}
-	/* The attributes fall into two categories:
-	   - full attributes
-	   - highlight attributes
-	   Highlight attributes are partial attributes which will be added to
-	   other attributes, while the full attributes define the complete rendering.
-	   In full attributes, the color should not be left unspecified, at least
-	   not in the default setting.
-	*/
-	attributes.text = ensure_color(attributes.text);
-	attributes.text_selected = ensure_color(attributes.text_selected);
-	attributes.dialog = ensure_color(attributes.dialog);
-	attributes.dialog_selected = ensure_color(attributes.dialog_selected);
-	attributes.button = ensure_color(attributes.button);
-	attributes.button_selected = ensure_color(attributes.button_selected);
-	attributes.scrollbar = ensure_color(attributes.scrollbar);
-	attributes.menubar = ensure_color(attributes.menubar);
-	attributes.menubar_selected = ensure_color(attributes.menubar_selected);
-	attributes.shadow = ensure_color(attributes.shadow);
+	attributes.non_print = get_default_attribute(attribute_t::NON_PRINT, on);
+	attributes.text_selection_cursor = get_default_attribute(attribute_t::TEXT_SELECTION_CURSOR, on);
+	attributes.text_selection_cursor2 = get_default_attribute(attribute_t::TEXT_SELECTION_CURSOR2, on);
+	attributes.bad_draw = get_default_attribute(attribute_t::BAD_DRAW, on);
+	attributes.text_cursor = get_default_attribute(attribute_t::TEXT_CURSOR, on);
+	attributes.text = get_default_attribute(attribute_t::TEXT, on);
+	attributes.text_selected = get_default_attribute(attribute_t::TEXT_SELECTED, on);
+	attributes.hotkey_highlight = get_default_attribute(attribute_t::HOTKEY_HIGHLIGHT, on);
+	attributes.dialog = get_default_attribute(attribute_t::DIALOG, on);
+	attributes.dialog_selected = get_default_attribute(attribute_t::DIALOG_SELECTED, on);
+	attributes.scrollbar = get_default_attribute(attribute_t::SCROLLBAR, on);
+	attributes.menubar = get_default_attribute(attribute_t::MENUBAR, on);
+	attributes.menubar_selected = get_default_attribute(attribute_t::MENUBAR_SELECTED, on);
+	attributes.shadow = get_default_attribute(attribute_t::SHADOW, on);
+	attributes.meta_text = get_default_attribute(attribute_t::META_TEXT, on);
+	attributes.background = get_default_attribute(attribute_t::BACKGROUND, on);
 
-	attributes.background = 0;
 	t3_win_set_default_attrs(NULL, attributes.background);
 	dialog_t::force_redraw_all();
+	return result;
 }
 
 void set_attribute(attribute_t attribute, t3_attr_t value) {
@@ -134,12 +97,6 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 			break;
 		case attribute_t::DIALOG_SELECTED:
 			attributes.dialog_selected = value;
-			break;
-		case attribute_t::BUTTON:
-			attributes.button = value;
-			break;
-		case attribute_t::BUTTON_SELECTED:
-			attributes.button_selected = value;
 			break;
 		case attribute_t::SCROLLBAR:
 			attributes.scrollbar = value;
@@ -189,10 +146,6 @@ t3_attr_t get_attribute(attribute_t attribute) {
 			return attributes.dialog;
 		case attribute_t::DIALOG_SELECTED:
 			return attributes.dialog_selected;
-		case attribute_t::BUTTON:
-			return attributes.button;
-		case attribute_t::BUTTON_SELECTED:
-			return attributes.button_selected;
 		case attribute_t::SCROLLBAR:
 			return attributes.scrollbar;
 		case attribute_t::MENUBAR:
@@ -205,6 +158,53 @@ t3_attr_t get_attribute(attribute_t attribute) {
 			return attributes.shadow;
 		case attribute_t::META_TEXT:
 			return attributes.meta_text;
+		default:
+			return 0;
+	}
+}
+
+t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode) {
+	/* The attributes fall into two categories:
+	   - full attributes
+	   - highlight attributes
+	   Highlight attributes are partial attributes which will be added to
+	   other attributes, while the full attributes define the complete rendering.
+	   In full attributes, the color should not be left unspecified, at least
+	   not in the default setting.
+	*/
+	switch (attribute) {
+		case attribute_t::NON_PRINT:
+			return T3_ATTR_UNDERLINE;
+		case attribute_t::TEXT_SELECTION_CURSOR:
+			return color_mode ? T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN : T3_ATTR_UNDERLINE | T3_ATTR_BLINK;
+		case attribute_t::TEXT_SELECTION_CURSOR2:
+			return color_mode ? T3_ATTR_FG_BLUE | T3_ATTR_BG_GREEN : T3_ATTR_UNDERLINE | T3_ATTR_REVERSE | T3_ATTR_BLINK;
+		case attribute_t::BAD_DRAW:
+			return color_mode ? T3_ATTR_FG_RED : T3_ATTR_BOLD;
+		case attribute_t::TEXT_CURSOR:
+			return color_mode ? T3_ATTR_FG_BLUE | T3_ATTR_BG_CYAN :  T3_ATTR_REVERSE;
+		case attribute_t::TEXT:
+			return ensure_color(color_mode ? T3_ATTR_FG_WHITE | T3_ATTR_BG_BLUE : 0);
+		case attribute_t::TEXT_SELECTED:
+			return ensure_color(color_mode ? T3_ATTR_FG_BLUE | T3_ATTR_BG_WHITE : T3_ATTR_REVERSE);
+		case attribute_t::HOTKEY_HIGHLIGHT:
+			return color_mode ? T3_ATTR_FG_BLUE : T3_ATTR_UNDERLINE;
+		case attribute_t::DIALOG:
+			return ensure_color(color_mode ? T3_ATTR_FG_BLACK | T3_ATTR_BG_WHITE : 0);
+		case attribute_t::DIALOG_SELECTED:
+			return ensure_color(color_mode ? T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK : T3_ATTR_REVERSE);
+		case attribute_t::SCROLLBAR:
+			return ensure_color(color_mode ? T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK : T3_ATTR_REVERSE);
+		case attribute_t::MENUBAR:
+			return ensure_color(color_mode ? T3_ATTR_FG_BLACK | T3_ATTR_BG_CYAN : T3_ATTR_REVERSE);
+		case attribute_t::MENUBAR_SELECTED:
+			return ensure_color(color_mode ? T3_ATTR_FG_WHITE | T3_ATTR_BG_BLACK : 0);
+		case attribute_t::BACKGROUND:
+			return 0;
+		case attribute_t::SHADOW:
+			return ensure_color(color_mode ? T3_ATTR_BG_BLACK : T3_ATTR_REVERSE);
+		case attribute_t::META_TEXT:
+			return color_mode ? T3_ATTR_FG_CYAN : T3_ATTR_UNDERLINE;
 		default:
 			return 0;
 	}

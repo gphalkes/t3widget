@@ -98,7 +98,7 @@ void dialog_t::deactivate_dialog(void) {
 	if (this == active_dialogs.back()) {
 		this->set_focus(window_component_t::FOCUS_OUT);
 		active_dialogs.pop_back();
-		active_dialogs.back()->set_focus(window_component_t::FOCUS_SET);
+		active_dialogs.back()->set_focus(window_component_t::FOCUS_REVERT);
 		dialog_depth = t3_win_get_depth(active_dialogs.back()->window);
 		return;
 	}

@@ -32,6 +32,7 @@ void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
 	if (is_expanded) {
 		if (expanded_widget != NULL) {
 			expanded_widget->set_expanded(false);
+			/* This will generate another signal which will reduce the height. */
 		}
 		expanded_height = t3_win_get_height(source->get_base_window()) - 1;
 		height += expanded_height;

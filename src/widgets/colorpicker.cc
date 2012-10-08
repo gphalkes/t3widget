@@ -165,7 +165,10 @@ void color_picker_base_t::update_contents(void) {
 
 void color_picker_base_t::paint_color_name(int color) {
 	if (color == -2) {
-		t3_win_addstr(window, "Undefined", 0);
+		if ((fg && (undefined_colors & T3_ATTR_FG_MASK)) || (!fg && (undefined_colors & T3_ATTR_BG_MASK)))
+			t3_win_addstr(window, "Base", 0);
+		else
+			t3_win_addstr(window, "Undefined", 0);
 	} else if (current_color == -1) {
 		t3_win_addstr(window, "Terminal default", 0);
 	} else {
@@ -193,8 +196,8 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
 t3_attr_t color_picker_t::get_paint_attr(int color) {
 	switch (color) {
 		case -2:
-			return fg ? T3_ATTR_REVERSE | ((undefined_colors & T3_ATTR_FG_MASK) >> 9) |
-				((attributes.dialog & T3_ATTR_FG_MASK) << 9) : (undefined_colors & T3_ATTR_BG_MASK);
+			return fg ? (attributes.dialog & T3_ATTR_FG_MASK) |
+				((undefined_colors & T3_ATTR_FG_MASK) << 9) : (undefined_colors & T3_ATTR_BG_MASK);
 		case -1:
 			return fg ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT |
 				((attributes.dialog & T3_ATTR_FG_MASK) << 9): T3_ATTR_BG_DEFAULT;

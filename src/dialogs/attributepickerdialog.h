@@ -23,13 +23,13 @@
 
 namespace t3_widget {
 
+class T3_WIDGET_API attribute_test_line_t;
+
 class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 	private:
-		class T3_WIDGET_LOCAL test_line_t;
-
 		struct T3_WIDGET_LOCAL implementation_t {
 			checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
-			test_line_t *test_line;
+			attribute_test_line_t *test_line;
 			color_picker_t *fg_picker, *bg_picker;
 			cleanup_ptr<expander_group_t>::t expander_group;
 			expander_t *fg_expander, *bg_expander;
@@ -60,12 +60,11 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 	T3_WIDGET_SIGNAL(default_selected, void);
 };
 
-class T3_WIDGET_LOCAL attribute_picker_dialog_t::test_line_t : public widget_t {
+class T3_WIDGET_API attribute_test_line_t : public widget_t {
 	private:
-		std::string text;
 		t3_attr_t attr;
 	public:
-		test_line_t(int width, const char *_text);
+		attribute_test_line_t(void);
 		virtual bool process_key(key_t key);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);

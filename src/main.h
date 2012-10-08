@@ -171,9 +171,9 @@ T3_WIDGET_API void cleanup(void);
     libt3widget by default starts in black and white mode, as most terminals
     support the limited attributes required. This function allows switching to
     and from color mode. If the terminal does not support (enough) colors,
-    switching to color mode will not do anything.
+    switching to color mode will not do anything and @c false will be returned.
 */
-T3_WIDGET_API void set_color_mode(bool on);
+T3_WIDGET_API bool set_color_mode(bool on);
 /** Change the setting of a default attribute.
     See the @ref attribute_t enum for possible values.
 */
@@ -182,6 +182,10 @@ T3_WIDGET_API void set_attribute(attribute_t attribute, t3_attr_t value);
     See the @ref attribute_t enum for possible values.
 */
 T3_WIDGET_API t3_attr_t get_attribute(attribute_t attribute);
+/** Retrieve the default setting of a default attribute.
+    See the @ref attribute_t enum for possible values.
+*/
+T3_WIDGET_API t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode);
 /** Get the version of the libt3widget library used at runtime. */
 T3_WIDGET_API long get_version(void);
 

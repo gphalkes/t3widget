@@ -96,7 +96,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	test_line_frame = new frame_t();
 	test_line_frame->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	test_line_frame->set_position(1, -2);
-	impl->test_line = new test_line_t(4, "Abcd");
+	impl->test_line = new attribute_test_line_t();
 	test_line_frame->set_size(3, 6);
 	test_line_frame->set_child(impl->test_line);
 
@@ -213,6 +213,8 @@ void attribute_picker_dialog_t::set_attribute(t3_attr_t attr) {
 	impl->reverse_box->set_state(attr & T3_ATTR_REVERSE);
 	impl->fg_picker->set_color(attr);
 	impl->bg_picker->set_color(attr);
+	impl->expander_group->collapse();
+	attribute_changed();
 }
 
 void attribute_picker_dialog_t::set_base_attributes(t3_attr_t attr) {
@@ -223,33 +225,32 @@ void attribute_picker_dialog_t::set_base_attributes(t3_attr_t attr) {
 }
 
 //================================================================================
-attribute_picker_dialog_t::test_line_t::test_line_t(int width, const char *_text) : widget_t(1, width, false), text(_text), attr(0) {}
+attribute_test_line_t::attribute_test_line_t(void) : widget_t(1, 4, false), attr(0) {}
 
-bool attribute_picker_dialog_t::test_line_t::process_key(key_t key) {
+bool attribute_test_line_t::process_key(key_t key) {
 	(void) key;
 	return false;
 }
 
-bool attribute_picker_dialog_t::test_line_t::set_size(optint height, optint width) {
+bool attribute_test_line_t::set_size(optint height, optint width) {
 	(void) height;
-	if (width.is_valid())
-		return t3_win_resize(window, 1, width);
+	(void) width;
 	return true;
 }
 
-void attribute_picker_dialog_t::test_line_t::update_contents(void) {
+void attribute_test_line_t::update_contents(void) {
 	if (!redraw)
 		return;
 	t3_win_set_default_attrs(window, attr);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtoeol(window);
 	t3_win_set_paint(window, 0, 0);
-	t3_win_addstr(window, text.c_str(), 0);
+	t3_win_addstr(window, "Abcd", 0);
 }
 
-bool attribute_picker_dialog_t::test_line_t::accepts_focus(void) { return false; }
+bool attribute_test_line_t::accepts_focus(void) { return false; }
 
-void attribute_picker_dialog_t::test_line_t::set_attribute(t3_attr_t _attr) {
+void attribute_test_line_t::set_attribute(t3_attr_t _attr) {
 	redraw = true;
 	attr = _attr;
 }

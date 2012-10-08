@@ -21,24 +21,48 @@ widget_group_t::widget_group_t(void) : impl(new implementation_t()) {
 	init_unbacked_window(1, 1);
 }
 
-void widget_group_t::focus_next(void) {
-	if (impl->current_child + 1 < (int) impl->children.size()) {
-		impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
-		impl->current_child++;
-		impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_IN_FWD);
-	} else {
-		move_focus_down();
+bool widget_group_t::focus_next_int(void) {
+	int next;
+
+	if (!impl->has_focus)
+		return false;
+
+	for (next = impl->current_child + 1; next < (int) impl->children.size(); next++) {
+		if (impl->children[next]->accepts_focus()) {
+			impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
+			impl->current_child = next;
+			impl->children[next]->set_focus(window_component_t::FOCUS_IN_FWD);
+			return true;
+		}
 	}
+	return false;
+}
+
+bool widget_group_t::focus_previous_int(void) {
+	int next;
+
+	if (!impl->has_focus)
+		return false;
+
+	for (next = impl->current_child - 1; next >= 0; next--) {
+		if (impl->children[next]->accepts_focus()) {
+			impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
+			impl->current_child = next;
+			impl->children[next]->set_focus(window_component_t::FOCUS_IN_BCK);
+			return true;
+		}
+	}
+	return false;
+}
+
+void widget_group_t::focus_next(void) {
+	if (!focus_next_int())
+		move_focus_down();
 }
 
 void widget_group_t::focus_previous(void) {
-	if (impl->current_child > 0) {
-		impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
-		impl->current_child--;
-		impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_IN_BCK);
-	} else {
+	if (!focus_previous_int())
 		move_focus_up();
-	}
 }
 
 void widget_group_t::add_child(widget_t *child) {
@@ -62,23 +86,11 @@ bool widget_group_t::process_key(key_t key) {
 		return true;
 
 	if (key == '\t') {
-		if (impl->current_child + 1 < (int) impl->children.size()) {
-			if (impl->has_focus)
-				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
-			++impl->current_child;
-			if (impl->has_focus)
-				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_IN_FWD);
+		if (focus_next_int())
 			return true;
-		}
 	} else if (key == (EKEY_SHIFT | '\t')) {
-		if (impl->current_child > 0) {
-			if (impl->has_focus)
-				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
-			--impl->current_child;
-			if (impl->has_focus)
-				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_IN_FWD);
+		if (focus_previous_int())
 			return true;
-		}
 	}
 	return false;
 }
@@ -108,6 +120,9 @@ void widget_group_t::set_focus(focus_t focus) {
 			impl->children[impl->current_child]->set_focus(focus);
 			break;
 		}
+		case window_component_t::FOCUS_REVERT:
+			impl->children[impl->current_child]->set_focus(focus);
+			break;
 		default:
 			break;
 	}
@@ -175,7 +190,7 @@ widget_t *widget_group_t::is_child_hotkey(key_t key) {
 			return (*iter);
 
 		widget_container = dynamic_cast<widget_container_t *>(*iter);
-		if ((hotkey_child = widget_container->is_child_hotkey(key)) != NULL)
+		if (widget_container != NULL && (hotkey_child = widget_container->is_child_hotkey(key)) != NULL)
 			return hotkey_child;
 	}
 	return NULL;

@@ -72,11 +72,11 @@ void button_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	attr = has_focus ? attributes.button_selected : 0;
+	attr = has_focus ? attributes.dialog_selected : 0;
 
 	width = t3_win_get_width(window);
 
-	t3_win_set_default_attrs(window, attributes.button);
+	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addstr(window, is_default ? "[<" : "[ ", attr);
 	if (width > text_width + 4)

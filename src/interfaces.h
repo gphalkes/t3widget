@@ -33,7 +33,8 @@ class T3_WIDGET_API window_component_t {
 			FOCUS_OUT = 0,
 			FOCUS_SET,
 			FOCUS_IN_FWD,
-			FOCUS_IN_BCK
+			FOCUS_IN_BCK,
+			FOCUS_REVERT
 		};
 
 		/** Base constructor. */

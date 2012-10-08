@@ -33,8 +33,8 @@ class T3_WIDGET_API widget_group_t : public widget_t, public widget_container_t,
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		void focus_next(void);
-		void focus_previous(void);
+		bool focus_next_int(void);
+		bool focus_previous_int(void);
 	public:
 		/** Create a new expander_t.
 		    @param _text The text for the smart_label_t shown next to the expander symbol.
@@ -54,6 +54,9 @@ class T3_WIDGET_API widget_group_t : public widget_t, public widget_container_t,
 
 		/** Set the child widget. */
 		virtual void add_child(widget_t *child);
+
+		void focus_next(void);
+		void focus_previous(void);
 };
 
 }; // namespace

@@ -78,6 +78,7 @@ bool checkbox_t::get_state(void) {
 
 void checkbox_t::set_state(bool _state) {
 	state = !!_state;
+	redraw = true;
 }
 
 void checkbox_t::set_label(smart_label_t *_label) {

@@ -40,8 +40,6 @@ struct attributes_t {
 
 	t3_attr_t dialog;
 	t3_attr_t dialog_selected;
-	t3_attr_t button;
-	t3_attr_t button_selected;
 	t3_attr_t scrollbar;
 	t3_attr_t menubar;
 	t3_attr_t menubar_selected;
