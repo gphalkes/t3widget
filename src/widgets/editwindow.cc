@@ -1154,8 +1154,9 @@ void edit_window_t::find_replace(bool replace) {
 	}
 	dialog->center_over(center_window);
 	dialog->set_replace(replace);
-	//FIXME: set selected text in dialog
-	//dialog->set_text(text->get_selected_text());
+
+	if (!text->selection_empty() && text->get_selection_start().line == text->get_selection_end().line)
+		dialog->set_text(text->convert_block(text->get_selection_start(), text->get_selection_end()));
 	dialog->show();
 }
 
