@@ -45,7 +45,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 		t3_attr_t get_attribute(void);
 
 	public:
-		attribute_picker_dialog_t(const char *_title = "Attribute");
+		attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
 		void set_attribute(t3_attr_t attr);
 		/** Set the base attributes for the attribute picker.
 		    @param attr The base attributes to use

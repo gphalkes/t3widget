@@ -824,7 +824,13 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 		sched_param.sched_priority = 0;
 	pthread_setschedparam(read_key_thread, SCHED_FIFO, &sched_param);
 #endif
-
+#ifdef DEBUG
+	/* Using pthread_yield here results in somewhat more deterministic results. Without it,
+	   there are sometimes issues wrt the update based on the terminal character set
+	   detection. However, it does not really matter which order is used, except for
+	   when we are executing our testsuite. Thus for DEBUG compiles, we add pthread_yield. */
+	pthread_yield();
+#endif
 	return result;
 
 return_error:

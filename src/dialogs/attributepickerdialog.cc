@@ -22,7 +22,7 @@
 
 namespace t3_widget {
 
-attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
+attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool with_default) :
 	dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH, _title),
 	impl(new implementation_t())
 {
@@ -135,19 +135,21 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
 	cancel_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
 
-	default_button = new button_t("_Default");
-	default_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	default_button->set_position(0, -2);
-	default_button->connect_activate(default_selected.make_slot());
-	default_button->connect_move_focus_left(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	default_button->connect_move_focus_right(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
-	default_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	default_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	default_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
-	default_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	if (with_default) {
+		default_button = new button_t("_Default");
+		default_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+		default_button->set_position(0, -2);
+		default_button->connect_activate(default_selected.make_slot());
+		default_button->connect_move_focus_left(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+		default_button->connect_move_focus_right(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+		default_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+		default_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+		default_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+		default_button->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	}
 
 	ok_button = new button_t("_OK", true);
-	ok_button->set_anchor(default_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	ok_button->set_anchor(with_default ? default_button : cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
 	ok_button->connect_activate(sigc::mem_fun(this, &attribute_picker_dialog_t::ok_activate));
 	ok_button->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
@@ -170,7 +172,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title) :
 	push_back(impl->bg_expander);
 	push_back(test_line_frame);
 	push_back(ok_button);
-	push_back(default_button);
+	if (with_default)
+		push_back(default_button);
 	push_back(cancel_button);
 }
 

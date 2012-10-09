@@ -5,7 +5,7 @@ DIR="`dirname \"$0\"`"
 
 
 if [ $# -eq 0 ] ; then
-	fail "Usage: showtestdiff.sh <test> [<subtest>]"
+	fail "Usage: accepttest.sh <test> [<subtest>]"
 fi
 
 setup_TEST "$1"
