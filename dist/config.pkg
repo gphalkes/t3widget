@@ -452,12 +452,12 @@ EOF
 		elif pkgconfig xcb X11 test_link_cxx ; then
 			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
 			CONFIGLIBS="$DL_LIBS"
-			X11MODULE=src/libt3widget-x11.la
+			X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 		elif basic_x11 ; then
 			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
 			CONFIGLIBS="$DL_LIBS"
 			X11_FLAGS="${X11_FLAGS} -DUSE_XLIB"
-			X11MODULE=src/libt3widget-x11.la
+			X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 		else
 			check_message_result "!! Could not find X11 library. libt3widget will not provide X11 clipboard integration."
 		fi

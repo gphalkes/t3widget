@@ -112,7 +112,7 @@ void multi_widget_t::resize_widgets(void) {
 	if (proportion_sum > 0) {
 		int width = t3_win_get_width(window);
 		double scale = (double) (width - fixed_sum) / proportion_sum;
-		int size;
+		int size = 0;
 
 		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
@@ -120,7 +120,7 @@ void multi_widget_t::resize_widgets(void) {
 			iter->calculated_width = (int) (scale * iter->width);
 			if (iter->calculated_width == 0)
 				iter->calculated_width = 1;
-			size = iter->calculated_width;
+			size += iter->calculated_width;
 		}
 		//FIXME: this will do for now, but should be slightly smarter
 		if (size > width - fixed_sum) {

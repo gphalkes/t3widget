@@ -155,7 +155,7 @@ void widget_group_t::set_child_focus(window_component_t *target) {
 	bool had_focus = impl->has_focus;
 	impl->has_focus = true;
 	for (int i = 0; i < (int) impl->children.size(); i++) {
-		container_t *container;
+		container_t *container = NULL;
 
 		if (impl->children[i] == target || ((container = dynamic_cast<container_t *>(impl->children[i])) != NULL &&
 				container->is_child(target)))

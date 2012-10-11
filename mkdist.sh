@@ -31,7 +31,7 @@ OBJECTS="`echo \"${SOURCES} ${GENSOURCES} ${AUXSOURCES}\" | tr ' ' '\n' | sed -r
 #FIXME: somehow verify binary compatibility, and print an error if not compatible
 LIBVERSION="${VERSIONINFO%%:*}"
 
-sed -r -i "s%<LIBVERSION>%${LIBVERSION}%g" ${TOPDIR}/Makefile.in
+sed -r -i "s%<LIBVERSION>%${LIBVERSION}%g" ${TOPDIR}/Makefile.in ${TOPDIR}/config.pkg
 
 sed -r -i "s%<OBJECTS>%${OBJECTS}%g;
 s%<VERSIONINFO>%${VERSIONINFO}%g" ${TOPDIR}/Makefile.in

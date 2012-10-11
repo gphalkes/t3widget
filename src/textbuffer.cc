@@ -915,7 +915,7 @@ bool text_buffer_t::indent_block(text_coordinate_t &start, text_coordinate_t &en
 
 bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 	int first_line, last_line;
-	size_t pos = 0, next_pos;
+	size_t pos = 0, next_pos = 0;
 	string *undo_text;
 
 	if (undo->get_start().line < undo->get_end().line) {

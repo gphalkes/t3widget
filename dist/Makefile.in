@@ -26,7 +26,7 @@ CONFIGFLAGS=
 CONFIGLIBS=
 
 # Target to define for X11 integration module. Leave blank if not desired.
-X11MODULE=src/libt3widget-x11.la
+X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 
 # Libs and flags for XCB or -DUSE_XLIB and the libs and flags for the Xlib
 # library.
@@ -75,7 +75,7 @@ all: src/libt3widget.la $(X11MODULE)
 .IGNORE: uninstall
 
 clean:
-	rm -rf src/*.lo src/.libs src/libt3widget.la
+	rm -rf src/*.lo src/.libs src/libt3widget.la $(X11MODULE)
 
 dist-clean: clean
 	rm -rf Makefile config.log libt3widget.pc
@@ -83,7 +83,7 @@ dist-clean: clean
 .cc.lo:
 	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) \
 		$(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL \
-		-DX11_MOD_NAME=\"$(libdir)/libt3widget-x11.mod\" -c -o $@ $<
+		-DX11_MOD_NAME=\"$(libdir)/libt3widget<LIBVERSION>-x11.mod\" -c -o $@ $<
 
 src/x11.lo: src/x11.cc
 	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) \
@@ -94,7 +94,7 @@ src/libt3widget.la: $(OBJECTS)
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> \
 		$(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
 
-src/libt3widget-x11.la: src/x11.lo src/libt3widget.la
+src/libt3widget<LIBVERSION>-x11.la: src/x11.lo src/libt3widget.la
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \
 		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(X11_LIBS) $(GETTEXTLIBS) \
 		-rpath $(libdir)
@@ -122,8 +122,8 @@ install: all
 	$(INSTALL) -d $(_pkgconfigdir)
 	$(INSTALL) -m0644 libt3widget.pc $(_pkgconfigdir)
 	if [ -n "$(X11MODULE)" ] ; then \
-		$(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget-x11.la $(_libdir) ; \
-		chmod 0644 $(_libdir)/libt3widget-x11.la ; \
+		$(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget<LIBVERSION>-x11.la $(_libdir) ; \
+		chmod 0644 $(_libdir)/libt3widget<LIBVERSION>-x11.la ; \
 	fi
 
 
