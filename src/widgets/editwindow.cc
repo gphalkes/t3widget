@@ -225,6 +225,9 @@ void edit_window_t::repaint_screen(void) {
 
 	if (impl->wrap_type == wrap_type_t::NONE) {
 		info.leftcol = impl->top_left.pos;
+		info.start = 0;
+		info.max = INT_MAX;
+
 		for (i = 0; i < t3_win_get_height(impl->edit_window) && (i + impl->top_left.line) < text->size(); i++) {
 			if (impl->top_left.line + i < impl->repaint_min || impl->top_left.line + i > impl->repaint_max)
 				continue;
@@ -420,6 +423,7 @@ void edit_window_t::pgdn(void) {
 		if (!impl->wrap_info->add_lines(new_top_left, t3_win_get_height(impl->edit_window))) {
 			impl->top_left = new_top_left;
 			impl->wrap_info->sub_lines(impl->top_left, 1);
+			update_repaint_lines(0, INT_MAX);
 		}
 
 		if (need_adjust)
@@ -469,6 +473,7 @@ void edit_window_t::pgup(void) {
 		}
 
 		impl->wrap_info->sub_lines(impl->top_left, t3_win_get_height(impl->edit_window) - 1);
+		update_repaint_lines(0, INT_MAX);
 
 		if (need_adjust)
 			text->cursor.pos = impl->wrap_info->calculate_line_pos(text->cursor.line, impl->last_set_pos, new_cursor.pos);
@@ -1314,6 +1319,7 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
 		impl->top_left.pos = impl->wrap_info->find_line(impl->top_left);
 	}
 	impl->wrap_type = wrap;
+	update_repaint_lines(0, INT_MAX);
 	ensure_cursor_on_screen();
 }
 

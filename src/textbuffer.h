@@ -99,7 +99,7 @@ class T3_WIDGET_API text_buffer_t {
 		void adjust_position(int adjust);
 		int width_at_cursor(void) const;
 
-		void paint_line(t3_window_t *win, int line, text_line_t::paint_info_t *info);
+		void paint_line(t3_window_t *win, int line, const text_line_t::paint_info_t *info);
 		void goto_next_word(void);
 		void goto_previous_word(void);
 

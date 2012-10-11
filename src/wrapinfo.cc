@@ -218,8 +218,10 @@ void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line, text_line
 	}
 	if (tabsize <= 0)
 		info->flags |= text_line_t::TAB_AS_CONTROL;
+	else
+		info->flags &= ~text_line_t::TAB_AS_CONTROL;
 	info->tabsize = tabsize;
-	text->impl->lines[line.line]->paint_line(win, info);
+	text->paint_line(win, line.line, info);
 }
 
 }; // namespace
