@@ -3,6 +3,8 @@ Version 0.2.0:
 	- New dialog: attribute_selector_t
 	- New widgets: expander_t, color_picker_t, color_pair_picker_t,
 	  widget_group_t
+	- The text to find from a find dialog opened from the edit_window_t widget
+	  is now set from the current selection if applicable.
 
 	Miscelaneous:
 	- Changed the set_focus call in window_component_t to change the argument
@@ -10,9 +12,12 @@ Version 0.2.0:
 	- Renamed focus_set to set_child_focus in container_t
 	- Added widget_container_t which serves better as a base class for widgets
 	  which group multiple widgets together.
+	- Added a parameter to widget_t constructor to allow not registering a
+	  widget as a mouse target.
 
 	Bug fixes:
 	- Update the visual state of a checkbox on calling set_state.
+	- Fix menu item drawing after removal of an item from a menu.
 
 Version 0.1.14:
 	Miscelaneous:
