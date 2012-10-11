@@ -30,11 +30,11 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 		struct T3_WIDGET_LOCAL implementation_t {
 			checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
 			attribute_test_line_t *test_line;
-			color_picker_t *fg_picker, *bg_picker;
+			color_picker_base_t *fg_picker, *bg_picker;
 			cleanup_ptr<expander_group_t>::t expander_group;
 			expander_t *fg_expander, *bg_expander;
 			t3_attr_t base_attributes;
-			implementation_t(void) : base_attributes(0) {}
+			implementation_t(void) : fg_picker(NULL), bg_picker(NULL), expander_group(NULL), base_attributes(0) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
@@ -46,6 +46,8 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 
 	public:
 		attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
+		virtual void show(void);
+
 		void set_attribute(t3_attr_t attr);
 		/** Set the base attributes for the attribute picker.
 		    @param attr The base attributes to use

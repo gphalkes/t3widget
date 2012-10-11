@@ -28,7 +28,10 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
 {
 	smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
 	frame_t *test_line_frame;
-	button_t *ok_button, *cancel_button, *default_button;
+	button_t *ok_button, *cancel_button, *default_button = NULL;
+	t3_term_caps_t capabilities;
+
+	t3_term_get_caps(&capabilities);
 
 	impl->underline_box = new checkbox_t(false);
 	impl->underline_box->set_position(1, 2);
@@ -100,28 +103,38 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
 	test_line_frame->set_size(3, 6);
 	test_line_frame->set_child(impl->test_line);
 
-	impl->fg_picker = new color_picker_t(true);
-	impl->fg_picker->connect_selection_changed(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
-	impl->fg_expander = new expander_t("_Foreground color");
-	impl->fg_expander->set_child(impl->fg_picker);
-	impl->fg_expander->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	impl->fg_expander->set_position(1, 0);
-	impl->fg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	impl->fg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+	if (capabilities.cap_flags & (T3_TERM_CAP_FG | T3_TERM_CAP_CP)) {
+		impl->expander_group = new expander_group_t();
 
-	impl->bg_picker = new color_picker_t(false);
-	impl->bg_picker->connect_selection_changed((sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed)));
-	impl->bg_expander = new expander_t("B_ackground color");
-	impl->bg_expander->set_child(impl->bg_picker);
-	impl->bg_expander->set_anchor(impl->fg_expander, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	impl->bg_expander->set_position(0, 0);
-	impl->bg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
-	impl->bg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+		if (capabilities.cap_flags & T3_TERM_CAP_FG) {
+			impl->fg_picker = new color_picker_t(true);
+			impl->fg_expander = new expander_t("_Foreground color");
+		} else {
+			impl->fg_picker = new color_pair_picker_t();
+			impl->fg_expander = new expander_t("Color _pair");
+		}
+		impl->fg_picker->connect_selection_changed(sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
+		impl->fg_expander->set_child(impl->fg_picker);
+		impl->fg_expander->set_anchor(impl->blink_box, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+		impl->fg_expander->set_position(1, 0);
+		impl->fg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+		impl->fg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+		impl->expander_group->add_expander(impl->fg_expander);
 
-	impl->expander_group = new expander_group_t();
-	impl->expander_group->add_expander(impl->fg_expander);
-	impl->expander_group->add_expander(impl->bg_expander);
-	impl->expander_group->connect_expanded(sigc::mem_fun(this, &attribute_picker_dialog_t::group_expanded));
+		if (capabilities.cap_flags & T3_TERM_CAP_BG) {
+			impl->bg_picker = new color_picker_t(false);
+			impl->bg_picker->connect_selection_changed((sigc::mem_fun(this, &attribute_picker_dialog_t::attribute_changed)));
+			impl->bg_expander = new expander_t("B_ackground color");
+			impl->bg_expander->set_child(impl->bg_picker);
+			impl->bg_expander->set_anchor(impl->fg_expander, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+			impl->bg_expander->set_position(0, 0);
+			impl->bg_expander->connect_move_focus_up(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
+			impl->bg_expander->connect_move_focus_down(sigc::mem_fun(this, &attribute_picker_dialog_t::focus_next));
+			impl->expander_group->add_expander(impl->bg_expander);
+		}
+
+		impl->expander_group->connect_expanded(sigc::mem_fun(this, &attribute_picker_dialog_t::group_expanded));
+	}
 
 	cancel_button = new button_t("_Cancel", false);
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
@@ -168,8 +181,11 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
 	push_back(reverse_label);
 	push_back(impl->blink_box);
 	push_back(blink_label);
-	push_back(impl->fg_expander);
-	push_back(impl->bg_expander);
+	if (capabilities.cap_flags & (T3_TERM_CAP_FG | T3_TERM_CAP_CP)) {
+		push_back(impl->fg_expander);
+		if (capabilities.cap_flags & T3_TERM_CAP_BG)
+			push_back(impl->bg_expander);
+	}
 	push_back(test_line_frame);
 	push_back(ok_button);
 	if (with_default)
@@ -203,8 +219,10 @@ t3_attr_t attribute_picker_dialog_t::get_attribute(void) {
 		result |= T3_ATTR_BLINK;
 	if (impl->reverse_box->get_state())
 		result |= T3_ATTR_REVERSE;
-	result |= impl->fg_picker->get_color();
-	result |= impl->bg_picker->get_color();
+	if (impl->fg_picker != NULL)
+		result |= impl->fg_picker->get_color();
+	if (impl->bg_picker != NULL)
+		result |= impl->bg_picker->get_color();
 	return result;
 }
 
@@ -214,17 +232,26 @@ void attribute_picker_dialog_t::set_attribute(t3_attr_t attr) {
 	impl->dim_box->set_state(attr & T3_ATTR_DIM);
 	impl->blink_box->set_state(attr & T3_ATTR_BLINK);
 	impl->reverse_box->set_state(attr & T3_ATTR_REVERSE);
-	impl->fg_picker->set_color(attr);
-	impl->bg_picker->set_color(attr);
-	impl->expander_group->collapse();
+	if (impl->fg_picker != NULL)
+		impl->fg_picker->set_color(attr);
+	if (impl->bg_picker != NULL)
+		impl->bg_picker->set_color(attr);
 	attribute_changed();
 }
 
 void attribute_picker_dialog_t::set_base_attributes(t3_attr_t attr) {
 	impl->base_attributes = attr;
-	impl->fg_picker->set_undefined_colors(attr);
-	impl->bg_picker->set_undefined_colors(attr);
+	if (impl->fg_picker != NULL)
+		impl->fg_picker->set_undefined_colors(attr);
+	if (impl->bg_picker != NULL)
+		impl->bg_picker->set_undefined_colors(attr);
 	attribute_changed();
+}
+
+void attribute_picker_dialog_t::show(void) {
+	if (impl->expander_group != NULL)
+		impl->expander_group->collapse();
+	dialog_t::show();
 }
 
 //================================================================================
