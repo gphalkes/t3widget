@@ -57,7 +57,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 	public:
 		virtual bool set_size(optint height, optint width);
 		void change_dir(const std::string *dir);
-		virtual void set_file(const char *file);
+		virtual int set_file(const char *file);
 		void refresh_view(void);
 		void set_options_widget(widget_t *options);
 		virtual void reset(void);

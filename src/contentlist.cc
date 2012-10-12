@@ -104,15 +104,17 @@ bool file_name_list_t::is_dir(size_t idx) const {
 	return files[idx].is_dir;
 }
 
-void file_name_list_t::load_directory(string *dir_name) {
+int file_name_list_t::load_directory(string *dir_name) {
 	struct dirent *entry;
 	DIR *dir;
 
 	files.clear();
+	if (dir_name->compare("/") != 0)
+		files.push_back(file_name_entry_t("..", "..", true));
 
 	if ((dir = opendir(dir_name->c_str())) == NULL) {
 		content_changed();
-		throw errno;
+		return errno;
 	}
 
 	// Make sure errno is clear on EOF
@@ -120,7 +122,7 @@ void file_name_list_t::load_directory(string *dir_name) {
 	while ((entry = readdir(dir)) != NULL) {
 		string utf8_name;
 
-		if (strcmp(entry->d_name, ".") == 0 || (dir_name->compare("/") == 0 && strcmp(entry->d_name, "..") == 0))
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 			continue;
 
 		convert_lang_codeset(entry->d_name, &utf8_name, true);
@@ -132,16 +134,18 @@ void file_name_list_t::load_directory(string *dir_name) {
 		errno = 0;
 	}
 
+	sort(files.begin(), files.end(), compare_entries);
+
 	if (errno != 0) {
 		int error = errno;
 		closedir(dir);
 		content_changed();
-		throw error;
+		return error;
 	}
 	closedir(dir);
 
-	sort(files.begin(), files.end(), compare_entries);
 	content_changed();
+	return 0;
 }
 
 file_name_list_t &file_name_list_t::operator=(const file_name_list_t& other) {

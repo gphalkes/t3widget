@@ -18,6 +18,8 @@ Version 0.2.0:
 	Bug fixes:
 	- Update the visual state of a checkbox on calling set_state.
 	- Fix menu item drawing after removal of an item from a menu.
+	- When file_dialog_t::set_file is called for an unreadable directory, it no
+	  longer crashes the program.
 
 Version 0.1.14:
 	Miscelaneous:

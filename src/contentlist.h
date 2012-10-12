@@ -105,7 +105,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 		virtual const std::string *get_fs_name(size_t idx) const;
 		virtual bool is_dir(size_t idx) const;
 		/** Load the contents of @p dir_name into this list. */
-		void load_directory(std::string *dir_name);
+		int load_directory(std::string *dir_name);
 		/** Compare this list with @p other. */
 		file_name_list_t &operator=(const file_name_list_t& other);
 };

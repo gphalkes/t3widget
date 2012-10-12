@@ -146,9 +146,10 @@ bool file_dialog_t::set_size(optint height, optint width) {
 	return result;
 }
 
-void file_dialog_t::set_file(const char *file) {
+int file_dialog_t::set_file(const char *file) {
 	size_t idx;
 	string file_string;
+	int result;
 
 	impl->current_dir = get_directory(file);
 
@@ -157,7 +158,8 @@ void file_dialog_t::set_file(const char *file) {
 	else
 		file_string = file;
 
-	impl->names.load_directory(&impl->current_dir);
+	result = impl->names.load_directory(&impl->current_dir);
+
 	idx = file_string.rfind('/');
 	if (idx != string::npos)
 		file_string.erase(0, idx + 1);
@@ -165,6 +167,7 @@ void file_dialog_t::set_file(const char *file) {
 	impl->file_line->set_autocomplete(&impl->names);
 	impl->file_line->set_text(&file_string);
 	refresh_view();
+	return result;
 }
 
 void file_dialog_t::reset(void) {
@@ -182,7 +185,7 @@ void file_dialog_t::ok_callback(const string *file) {
 	if (file->size() == 0)
 		return;
 
-	if (is_dir(&impl->current_dir, file->c_str())) {
+	if (is_dir(&impl->current_dir, file->c_str()) || file->compare("..") == 0) {
 		change_dir(file);
 		impl->file_line->set_text("");
 	} else {
@@ -200,6 +203,8 @@ void file_dialog_t::ok_callback(const string *file) {
 void file_dialog_t::change_dir(const string *dir) {
 	file_name_list_t new_names;
 	string new_dir, file_string;
+	int error;
+
 	if (dir->compare("..") == 0) {
 		size_t idx = impl->current_dir.rfind('/');
 
@@ -220,9 +225,7 @@ void file_dialog_t::change_dir(const string *dir) {
 	}
 
 	/* Check whether we can load the dir. If not, show message and don't change state. */
-	try {
-		new_names.load_directory(&new_dir);
-	} catch (int error) {
+	if ((error = new_names.load_directory(&new_dir)) != 0) {
 		string message = _("Couldn't change to directory '");
 		message += dir->c_str();
 		message += "': ";
