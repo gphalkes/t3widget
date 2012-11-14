@@ -327,7 +327,7 @@ string get_directory(const char *directory) {
 			} else {
 				dirstring.erase(idx);
 				if (stat(dirstring.c_str(), &dir_info) < 0)
-					throw errno;
+					dirstring = get_working_directory();
 			}
 		}
 	}
