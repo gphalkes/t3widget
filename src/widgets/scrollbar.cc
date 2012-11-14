@@ -70,6 +70,11 @@ void scrollbar_t::update_contents(void) {
 	slider_size = (int) (blocks_per_line * used);
 	if (slider_size == 0)
 		slider_size = 1;
+	/* Rounding errors may cause incorrect slider sizing. This is normally not a
+	   problem, except for the case where the slider should be maximal. */
+	else if (range <= used)
+		slider_size = length - 2;
+
 	/* Recalulate the number of blocks per line, because the slider may actually
 	   be larger than it should be. */
 	if (range <= used)

@@ -1,3 +1,10 @@
+Version 0.2.1:
+	Bug fixes:
+	- Fix a crash on summoning the Open File dialog when the current file is in
+	  a non-existent directory.
+	- Fix scrollbar slider sizing for texts which do not span the entire
+	  screen.
+
 Version 0.2.0:
 	New features:
 	- New dialog: attribute_selector_t
