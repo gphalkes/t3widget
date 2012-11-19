@@ -300,6 +300,8 @@ static void *read_keys(void *arg) {
 
 		while ((c = get_next_converted_key()) >= 0) {
 			if (c == EKEY_ESC) {
+				key_t modifiers = t3_term_get_modifiers_hack();
+
 				pthread_mutex_lock(&key_timeout_lock);
 				c = decode_sequence(true);
 				pthread_mutex_unlock(&key_timeout_lock);
@@ -309,6 +311,9 @@ static void *read_keys(void *arg) {
 					c = EKEY_ESC;
 				else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0)
 					c = (c & ~EKEY_KEY_MASK) | map_single[c & EKEY_KEY_MASK];
+
+				if (c == '\t' || (c >= 0x110000 && c < 0x111000 && c != EKEY_NL))
+					c |= modifiers * EKEY_CTRL;
 			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
