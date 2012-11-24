@@ -1,4 +1,4 @@
-Version 0.3.0:
+Version 0.2.2:
 	New features:
 	- Use libt3window's new functionality to retrieve modifiers.
 
