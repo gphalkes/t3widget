@@ -1483,6 +1483,7 @@ void edit_window_t::scroll(int lines) {
 		else
 			impl->wrap_info->add_lines(impl->top_left, lines);
 	}
+	update_repaint_lines(0, INT_MAX);
 }
 
 void edit_window_t::scrollbar_clicked(scrollbar_t::step_t step) {

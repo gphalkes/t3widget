@@ -2,6 +2,9 @@ Version 0.2.2:
 	New features:
 	- Use libt3window's new functionality to retrieve modifiers.
 
+	Bug fixes:
+	- Update the edit_window_t contents on scrollbar click (#7).
+
 Version 0.2.1:
 	Bug fixes:
 	- Fix a crash on summoning the Open File dialog when the current file is in
