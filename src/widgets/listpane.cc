@@ -183,6 +183,14 @@ bool list_pane_t::process_mouse_event(mouse_event_t event) {
 			event.window != impl->widgets_window)
 	{
 		activate();
+	} else if (event.type == EMOUSE_BUTTON_RELEASE &&
+			(event.button_state & EMOUSE_CLICKED_LEFT) &&
+			event.window != impl->widgets_window)
+	{
+		impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
+		impl->current = event.y;
+		impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
+		selection_changed();
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 		scroll((event.button_state & EMOUSE_SCROLL_UP) ? -3 : 3);
 	}

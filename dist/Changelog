@@ -3,6 +3,7 @@ Version 0.2.2:
 	- Use libt3window's new functionality to retrieve modifiers.
 
 	Bug fixes:
+	- Make single click work for list_pane_t (#3).
 	- Update the edit_window_t contents on scrollbar click (#7).
 
 Version 0.2.1:
