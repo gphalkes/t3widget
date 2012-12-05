@@ -5,6 +5,8 @@ Version 0.2.2:
 	Bug fixes:
 	- Make single click work for list_pane_t (#3).
 	- Update the edit_window_t contents on scrollbar click (#7).
+	- Ungrab the mouse if there is a selection in a text-field drop-down list.
+	- Hide the drop-down list on pressing enter in a text field.
 
 Version 0.2.1:
 	Bug fixes:

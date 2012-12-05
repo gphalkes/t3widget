@@ -241,6 +241,11 @@ bool text_field_t::process_key(key_t key) {
 			break;
 
 		case EKEY_NL:
+			if (impl->drop_down_list_shown) {
+				impl->drop_down_list->hide();
+				impl->in_drop_down_list = false;
+				impl->drop_down_list_shown = false;
+			}
 			activate();
 			break;
 
@@ -793,7 +798,7 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 		focus = false;
 		field->impl->in_drop_down_list = false;
 		field->impl->drop_down_list_shown = false;
-		t3_win_hide(window);
+		hide();
 		field->set_text((*completions)[event.y + top_idx]);
 		return true;
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
