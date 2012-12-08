@@ -79,7 +79,6 @@ CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
 CXXFLAGS += -D_T3_WIDGET_DEBUG
 CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -DHAS_STRDUP
-CXXFLAGS += -I$(CURDIR)
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags libpcre`
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
@@ -88,9 +87,9 @@ CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
 CXXFLAGS += -DX11_MOD_NAME=\"$(PWD)/.libs/x11.mod\"
 
-LDLIBS.libt3widget.la += -L$(CURDIR)/t3window/.libs -lt3window
-LDLIBS.libt3widget.la += -L$(CURDIR)/transcript/.libs -ltranscript
-LDLIBS.libt3widget.la += -L$(CURDIR)/t3key/.libs -lt3key
+LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3window/.libs -lt3window
+LDLIBS.libt3widget.la += -L$(CURDIR)/../include/transcript/.libs -ltranscript
+LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3key/.libs -lt3key
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
 LDLIBS.libt3widget.la += `pkg-config --libs sigc++-2.0`
 LDLIBS.libt3widget.la += -lunistring
@@ -107,11 +106,6 @@ LDLIBS.x11.la += `pkg-config --libs xcb`
 
 LDLIBS.x11.la += -module -avoid-version -L.libs -lt3widget -shrext .mod
 
-links:
-	@[ -L transcript ] || ln -s ../../../transcript/src transcript
-	@[ -L t3window ] || ln -s ../../window/src t3window
-	@[ -L t3key ] || ln -s ../../key/src t3key
-	@[ -L t3widget ] || ln -s . t3widget
 
 x11.la: | libt3widget.la
 

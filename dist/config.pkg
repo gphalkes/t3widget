@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext x11"
+EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext x11 lfs"
 LTSHARED=1
 DEFAULT_LINGUAS=nl
 SWITCHES="+x11"
@@ -74,22 +74,6 @@ checkfunction() {
 }
 checkfunction_compile() {
 	checkfunction_internal test_compile_cxx "$@"
-}
-
-# Make these functions available for the gettext and x11 extensions
-test_link() {
-	[ -f .config.c ] && mv .config.c .configcxx.cc
-	test_link_cxx "$@"
-}
-
-test_compile() {
-	[ -f .config.c ] && mv .config.c .configcxx.cc
-	test_compile_cxx "$@"
-}
-
-clean_c() {
-	clean .config.c
-	clean_cxx
 }
 
 config() {
