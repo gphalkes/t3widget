@@ -35,7 +35,7 @@ static enum { // Mouse reporting states:
 
 #ifdef HAS_GPM
 #include <gpm.h>
-
+#include <linux/keyboard.h>
 static bool use_gpm;
 #endif
 
@@ -214,14 +214,12 @@ static bool process_gpm_event() {
 		return false;
 	}
 
-	lprintf("Mouse event received: %d\n", gpm_event.type);
 	mouse_event.previous_button_state = mouse_button_state;
 	mouse_event.button_state = mouse_button_state;
 	mouse_event.x = gpm_event.x - 1;
 	mouse_event.y = gpm_event.y - 1;
 
 	if (gpm_event.type & GPM_DOWN) {
-		lprintf("Mouse button down\n");
 		mouse_event.type = EMOUSE_BUTTON_PRESS;
 		if (gpm_event.buttons & GPM_B_LEFT)
 			mouse_event.button_state = mouse_button_state |= EMOUSE_BUTTON_LEFT;
@@ -230,7 +228,6 @@ static bool process_gpm_event() {
 		if (gpm_event.buttons & GPM_B_MIDDLE)
 			mouse_event.button_state = mouse_button_state |= EMOUSE_BUTTON_MIDDLE;
 	} else if (gpm_event.type & GPM_UP) {
-		lprintf("Mouse button up\n");
 		mouse_event.type = EMOUSE_BUTTON_RELEASE;
 		if (gpm_event.buttons & GPM_B_LEFT)
 			mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_LEFT;
@@ -239,13 +236,17 @@ static bool process_gpm_event() {
 		if (gpm_event.buttons & GPM_B_MIDDLE)
 			mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_MIDDLE;
 	} else if (gpm_event.type & GPM_DRAG) {
-		lprintf("Mouse drag\n");
 		mouse_event.type = EMOUSE_MOTION;
 	}
-	lprintf("prv: %d, bst: %d, mbst: %d\n", mouse_event.previous_button_state, mouse_event.button_state, mouse_button_state);
-	/* FIXME: handle modifiers. Check how FreeBSD gpm implementation does this. */
+
 	mouse_event.window = NULL;
 	mouse_event.modifier_state = 0;
+	if (gpm_event.modifiers & (1 << KG_SHIFT))
+		mouse_event.modifier_state |= EMOUSE_SHIFT;
+	if (gpm_event.modifiers & ((1 << KG_ALT) | (1 << KG_ALTGR)))
+		mouse_event.modifier_state |= EMOUSE_META;
+	if (gpm_event.modifiers & (1 << KG_CTRL))
+		mouse_event.modifier_state |= EMOUSE_CTRL;
 	mouse_event_buffer.push_back(mouse_event);
 	return true;
 }

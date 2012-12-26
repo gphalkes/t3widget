@@ -14,12 +14,13 @@
 EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext x11 lfs"
 LTSHARED=1
 DEFAULT_LINGUAS=nl
-SWITCHES="+x11"
+SWITCHES="+x11 +gpm"
 USERHELP=print_help
 INSTALLDIRS="libdir docdir includedir"
 
 print_help() {
 	echo "  --without-x11           Do not include X11 integration"
+	echo "  --without-gpm           Do not include GPM support"
 }
 
 test_select() {
@@ -444,6 +445,29 @@ EOF
 			X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 		else
 			check_message_result "!! Could not find X11 library. libt3widget will not provide X11 clipboard integration."
+		fi
+	fi
+
+	if [ yes = "${with_gpm}" ] ; then
+		clean_cxx
+		cat > .configcxx.cc <<EOF
+#include <gpm.h>
+#include <linux/keyboard.h>
+
+int main(int argc, char *argv[]) {
+	Gpm_Connect connect;
+	Gpm_Event event;
+
+	Gpm_Open(&connect, 0);
+	Gpm_GetEvent(&event);
+	event.modifiers = (1 << KG_SHIFT);
+}
+EOF
+		if test_link_cxx "GPM" TESTLIBS="-lgpm" ; then
+			CONFIGFLAGS="$CONFIGFLAGS -DHAS_GPM"
+			CONFIGLIBS="-lgpm"
+		else
+			check_message_result "!! Could not locate GPM. libt3widget will not provide GPM support."
 		fi
 	fi
 

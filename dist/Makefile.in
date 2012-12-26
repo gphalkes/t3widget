@@ -21,7 +21,8 @@ CXXFLAGS=-O2
 # If you wish to build the X11 module, also add -DWITH_X11. See also the
 # X11MODULE, X11_FLAGS and X11_LIBS variables below. Furthermore, you
 # need to add either -DHAS_DLFCN and the library for dlopen/dlsym/dlclose, or
-# libltdl.
+# libltdl. If GPM support is available, add -DHAS_GPM to CONFIGFLAGS and -lgpm
+# to CONFIGLIBS.
 CONFIGFLAGS=
 CONFIGLIBS=
 

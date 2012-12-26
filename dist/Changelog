@@ -1,6 +1,7 @@
 Version 0.2.2:
 	New features:
 	- Use libt3window's new functionality to retrieve modifiers.
+	- GPM (General Purpose Mouse) support, to enable mouse on the linux console.
 
 	Bug fixes:
 	- Make single click work for list_pane_t (#3).
