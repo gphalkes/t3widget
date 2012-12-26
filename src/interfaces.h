@@ -19,6 +19,7 @@
 #include <t3window/window.h>
 
 #include <t3widget/key.h>
+#include <t3widget/mouse.h>
 #include <t3widget/util.h>
 
 namespace t3_widget {

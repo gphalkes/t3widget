@@ -22,6 +22,14 @@
 #include <sigc++/sigc++.h>
 #include <t3widget/key.h>
 
+#ifdef HAS_SELECT_H
+#include <sys/select.h>
+#else
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 #include "widget_api.h"
 #include "main.h"
 #include "log.h"
@@ -81,6 +89,31 @@ T3_WIDGET_LOCAL void deinit_keys(void);
 T3_WIDGET_LOCAL void reinit_keys(void);
 /** Insert a key to the queue, marked to ensure it is not interpreted by any widget except text widgets. */
 T3_WIDGET_LOCAL void insert_protected_key(t3_widget::key_t key);
+/** Read chars into buffer for processing. */
+T3_WIDGET_LOCAL bool read_keychar(int timeout);
+
+/* char_buffer for key and mouse handling. Has to be shared between key.cc and
+   mouse.cc because of XTerm in-band mouse reporting. */
+extern char char_buffer[32];
+extern int char_buffer_fill;
+
+/** Initialize the mouse handling code. */
+T3_WIDGET_LOCAL void init_mouse_reporting(bool xterm_mouse);
+/** Switch off mouse reporting to allow other applications to function. */
+T3_WIDGET_LOCAL void deinit_mouse_reporting(void);
+/** Switch back to mouse reporting after using #deinit_mouse_reporting. */
+T3_WIDGET_LOCAL void reinit_mouse_reporting(void);
+/** Stop mouse reporting all together before program termination. */
+T3_WIDGET_LOCAL void stop_mouse_reporting(void);
+/** Decode an xterm mouse event. */
+T3_WIDGET_LOCAL bool decode_xterm_mouse(void);
+/** Report whether XTerm mouse reporting is active. */
+T3_WIDGET_LOCAL bool use_xterm_mouse_reporting(void);
+/** Set bit(s) for mouse event fd. */
+T3_WIDGET_LOCAL void fd_set_mouse_fd(fd_set *readset, int *max_fd);
+/** Check the mouse event fd for events, if appropriate bits in @p readset indicate available data. */
+T3_WIDGET_LOCAL bool check_mouse_fd(fd_set *readset);
+
 
 enum {
 	CLASS_WHITESPACE,
@@ -91,5 +124,6 @@ enum {
 
 /** Get the character class associated with the character at a specific position in a string. */
 T3_WIDGET_LOCAL int get_class(const std::string *str, int pos);
+
 }; // namespace
 #endif

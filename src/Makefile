@@ -23,6 +23,7 @@ SOURCES.libt3widget.la := \
 	key.cc \
 	log.cc \
 	main.cc \
+	mouse.cc \
 	stringmatcher.cc \
 	textbuffer.cc \
 	textline.cc \
@@ -86,6 +87,7 @@ CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
 CXXFLAGS += -DX11_MOD_NAME=\"$(PWD)/.libs/x11.mod\"
+CXXFLAGS += -DHAS_GPM
 
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3window/.libs -lt3window
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/transcript/.libs -ltranscript
@@ -93,6 +95,7 @@ LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3key/.libs -lt3key
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
 LDLIBS.libt3widget.la += `pkg-config --libs sigc++-2.0`
 LDLIBS.libt3widget.la += -lunistring
+LDLIBS.libt3widget.la += -lgpm
 
 CXXFLAGS += -DHAS_DLFCN
 LDLIBS.libt3widget.la += -ldl

@@ -18,19 +18,10 @@
 #include <transcript/transcript.h>
 #include <cerrno>
 
-#ifdef HAS_SELECT_H
-#include <sys/select.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-
 #ifdef HAS_SCHED_FUNCS
 #include <sched.h>
 #endif
 
-#include <t3window/window.h>
 #include <t3key/key.h>
 
 #include "util.h"
@@ -126,19 +117,15 @@ static int map_count;
 static key_t map_single[128];
 
 static const char *leave, *enter;
-static const char *disable_mouse = "\033[?1005l\033[?1002l\033[?1000l";
-static const char *enable_mouse = "\033[?1000h\033[?1002h\033[?1005h";
 
 static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
 
 static key_buffer_t key_buffer;
-static mouse_event_buffer_t mouse_event_buffer;
-static int mouse_button_state;
 static pthread_t read_key_thread;
 
-static char char_buffer[32];
-static int char_buffer_fill;
+char char_buffer[32];
+int char_buffer_fill;
 static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
 static transcript_t *conversion_handle;
@@ -150,15 +137,9 @@ static bool drop_single_esc = true;
 /* Used in decode_sequence and comparison routine to communicate whether the current
    sequence is a prefix of any known sequence. */
 static bool is_prefix;
-static enum { // Mouse reporting states:
-	XTERM_MOUSE_NONE, // disabled
-	XTERM_MOUSE_SINGLE_BYTE, // using a single byte for each coordinate and button state
-	XTERM_MOUSE_COORD_UTF, // using UTF-like encoding for coordinates, but not for button state (xterm 262-267)
-	XTERM_MOUSE_ALL_UTF // using UTF-like encoding for coordinates and button state
-} xterm_mouse_reporting;
+
 
 static key_t decode_sequence(bool outer);
-static int decode_xterm_mouse(void);
 static void stop_keys(void);
 
 static void convert_next_key(void) {
@@ -233,7 +214,7 @@ static void unget_keychar(int c) {
 	char_buffer_fill++;
 }
 
-static bool read_keychar(int timeout) {
+bool read_keychar(int timeout) {
 	key_t c;
 
 	while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL) {
@@ -262,6 +243,7 @@ static void *read_keys(void *arg) {
 	int retval;
 	key_t c;
 	fd_set readset;
+	int max_fd;
 
 	(void) arg;
 
@@ -269,8 +251,10 @@ static void *read_keys(void *arg) {
 		FD_ZERO(&readset);
 		FD_SET(0, &readset);
 		FD_SET(signal_pipe[0], &readset);
+		max_fd = signal_pipe[0];
+		fd_set_mouse_fd(&readset, &max_fd);
 
-		retval = select(signal_pipe[0] + 1, &readset, NULL, NULL, NULL);
+		retval = select(max_fd + 1, &readset, NULL, NULL, NULL);
 
 		if (retval < 0)
 			continue;
@@ -294,6 +278,9 @@ static void *read_keys(void *arg) {
 					continue;
 			}
 		}
+
+		if (check_mouse_fd(&readset))
+			key_buffer.push_back(EKEY_MOUSE_EVENT);
 
 		if (FD_ISSET(0, &readset))
 			read_keychar(-1);
@@ -325,10 +312,6 @@ static void *read_keys(void *arg) {
 
 key_t read_key(void) {
 	return key_buffer.pop_front();
-}
-
-mouse_event_t read_mouse_event(void) {
-	return mouse_event_buffer.pop_front();
 }
 
 static int compare_sequence_with_mapping(const void *key, const void *mapping) {
@@ -385,17 +368,17 @@ static key_t decode_sequence(bool outer) {
 
 			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised. */
 			if (sequence.data[1] == '[' && !is_prefix) {
-				if (sequence.idx == 3 && xterm_mouse_reporting && c == 'M') {
+				if (sequence.idx == 3 && c == 'M' && use_xterm_mouse_reporting()) {
 					if (!outer) {
 						/* If this is not the outer decode_sequence call, push everything
 						   back onto the character list, and do nothing. A next call to
 						   decode_sequence will take care of the mouse handling. */
-						unget_keychar(c);
+						unget_keychar('M');
 						unget_keychar('[');
 						unget_keychar(EKEY_ESC);
 						return -1;
 					}
-					return decode_xterm_mouse();
+					return decode_xterm_mouse() ? EKEY_MOUSE_EVENT : -1;
 				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
 					return -1;
 				} else if (c < 0x20 || c > 0x7f) {
@@ -445,162 +428,6 @@ unknown_sequence:
 	if (x < 0) \
 		return -1; \
 } while (0)
-
-#define ensure_buffer_fill() do { \
-	while (char_buffer_fill == idx) { \
-		if (!read_keychar(1)) { \
-			xterm_mouse_reporting = XTERM_MOUSE_SINGLE_BYTE; \
-			goto convert_mouse_event; \
-		} \
-	} \
-} while (0)
-
-/** Decode an XTerm mouse event.
-
-    This routine would have been simple, had it not been for the fact that the
-    original XTerm mouse protocol is a little broken, and it is hard to detect
-    whether the fix is present. First of all, the original protocol can not
-    handle coordinates above 223. This is due to the fact that a coordinate is
-    encoded as coordinate + 32 (and coordinates start at 1).
-
-    Once screens got big enough to make terminals more than 223 columns wide,
-    a fix was implemented, which uses UTF-8 encoding (but only using at most
-    2 bytes, instead of simply using the full range). However, to accomodate
-    clients which simply assumed all input was UTF-8 encoded, several versions
-    later the buttons were encoded as UTF-8 as well. Thus we now have three
-    different versions of the XTerm mouse reporting protocol.
-
-    This wouldn't be so bad, if it wasn't for all those terminal emulators out
-    there claiming to be XTerm. They make detection of the specific version of
-    the protocol practically impossible, because they may report any version
-    number in response to a "Send Device Attributes" request. Thus, this
-    routine tries to do automatic switching, based on the received mouse
-    reports.
-
-    Autodetection logic:
-    - start by assuming full UTF-8 encoded mode
-    - if the buttons have the top bit set, but are not properly UTF-8 encoded,
-      assume that only the coordinates have been UTF-8 encoded
-    - if a coordinate is not properly UTF-8 encoded, assume single byte coding
-    - if during the examination of the coordinate we find that not enough bytes
-      are available to decode, assume single byte coding. (This situation can
-      not be caused by incorrecly assuming that the buttons are UTF-8 encoded,
-      because then the first coordinate byte would be invalid.)
-*/
-static int decode_xterm_mouse(void) {
-	mouse_event_t event;
-	int buttons, idx, i;
-
-	while (char_buffer_fill < 3) {
-		if (!read_keychar(1))
-			return -1;
-	}
-
-	if (xterm_mouse_reporting > XTERM_MOUSE_SINGLE_BYTE) {
-		idx = 1;
-		if ((char_buffer[0] & 0x80) && xterm_mouse_reporting == XTERM_MOUSE_ALL_UTF) {
-			if ((char_buffer[0] & 0xc0) != 0xc0 || (char_buffer[1] & 0xc0) != 0x80)
-				xterm_mouse_reporting = XTERM_MOUSE_COORD_UTF;
-			else
-				idx = 2;
-		}
-		for (i = 0; i < 2; i++) {
-			ensure_buffer_fill();
-			if ((char_buffer[idx] & 0x80) && xterm_mouse_reporting >= XTERM_MOUSE_COORD_UTF) {
-				idx++;
-				ensure_buffer_fill();
-				if ((char_buffer[idx - 1] & 0xc0) != 0xc0 || (char_buffer[idx] & 0xc0) != 0x80) {
-					xterm_mouse_reporting = XTERM_MOUSE_SINGLE_BYTE;
-					goto convert_mouse_event;
-				}
-			}
-			idx++;
-		}
-	}
-
-#define DECODE_UTF() (char_buffer[idx] & 0x80 ? (idx += 2, ((((unsigned char) char_buffer[idx - 2] & ~0xc0) << 6) | \
-	((unsigned char) char_buffer[idx - 1] & ~0xc0))) : char_buffer[idx++])
-
-convert_mouse_event:
-	idx = 0;
-	switch (xterm_mouse_reporting) {
-		case XTERM_MOUSE_SINGLE_BYTE:
-			buttons = (unsigned char) char_buffer[0];
-			event.x = (unsigned char) char_buffer[1];
-			event.y = (unsigned char) char_buffer[2];
-			idx = 3;
-			break;
-		case XTERM_MOUSE_COORD_UTF:
-			buttons = (unsigned char) char_buffer[0];
-			idx = 1;
-			goto convert_coordinates;
-		case XTERM_MOUSE_ALL_UTF:
-			buttons = DECODE_UTF();
-		convert_coordinates:
-			event.x = DECODE_UTF();
-			event.y = DECODE_UTF();
-			break;
-		default:
-			return -1;
-	}
-	char_buffer_fill -= idx;
-	memmove(char_buffer, char_buffer + idx, char_buffer_fill);
-
-	event.x = event.x <= 32 ? event.x = -1 : event.x - 33;
-	event.y = event.y <= 32 ? event.y = -1 : event.y - 33;
-	event.previous_button_state = mouse_button_state;
-	buttons -= 32;
-
-	if (buttons & 64) {
-		event.type = EMOUSE_BUTTON_PRESS;
-		switch (buttons & 3) {
-			case 0:
-				event.button_state = mouse_button_state | EMOUSE_SCROLL_UP;
-				break;
-			case 1:
-				event.button_state = mouse_button_state | EMOUSE_SCROLL_DOWN;
-				break;
-			default:
-				event.button_state = mouse_button_state;
-				break;
-		}
-	} else if (buttons & 32) {
-		event.type = EMOUSE_MOTION;
-		/* Trying to decode the button state here is pretty much useless, because
-		   it can only encode a single button. The saved mouse_button_state is
-		   more accurate. */
-		event.button_state = mouse_button_state;
-	} else {
-		event.type = EMOUSE_BUTTON_PRESS;
-		switch (buttons & 3) {
-			case 0:
-				event.button_state = mouse_button_state |= EMOUSE_BUTTON_LEFT;
-				break;
-			case 1:
-				event.button_state = mouse_button_state |= EMOUSE_BUTTON_MIDDLE;
-				break;
-			case 2:
-				event.button_state = mouse_button_state |= EMOUSE_BUTTON_RIGHT;
-				break;
-			default:
-				event.type = EMOUSE_BUTTON_RELEASE;
-				event.button_state = mouse_button_state = 0;
-				break;
-		}
-	}
-	/* Due to the fact that the XTerm mouse protocol doesn't say which mouse button
-	   was released, we assume that all buttons are released on a  button release
-	   event. However, when multiple buttons are pressed simultaneously, this may
-	   result in button release events where no buttons where previously thought
-	   to be depressed. We filter those out here. */
-	if (event.type == EMOUSE_BUTTON_RELEASE && event.previous_button_state == 0)
-		return -1;
-
-	event.modifier_state = (buttons >> 2) & 7;
-	event.window = NULL;
-	mouse_event_buffer.push_back(event);
-	return EKEY_MOUSE_EVENT;
-}
 
 void insert_protected_key(key_t key) {
 	if (key >= 0)
@@ -717,12 +544,8 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 		leave = key_node->string;
 	if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != NULL)
 		shiftfn = key_node->string;
-	if (t3_key_get_named_node(keymap, "_xterm_mouse")) {
-		/* Start out in ALL_UTF mode. The decode_xterm_mouse routine will switch back
-		   to a different mode if necessary. */
-		xterm_mouse_reporting = XTERM_MOUSE_ALL_UTF;
-		t3_term_putp(enable_mouse);
-	}
+
+	init_mouse_reporting(t3_key_get_named_node(keymap, "_xterm_mouse") != NULL);
 
 	/* Load all the known keys from the terminfo database.
 	   - find out how many sequences there are
@@ -852,15 +675,13 @@ return_error:
 #undef RETURN_ERROR
 
 void deinit_keys(void) {
-	if (xterm_mouse_reporting)
-		t3_term_putp(disable_mouse);
+	deinit_mouse_reporting();
 	t3_term_putp(leave);
 }
 
 void reinit_keys(void) {
 	t3_term_putp(enter);
-	if (xterm_mouse_reporting)
-		t3_term_putp(enable_mouse);
+	reinit_mouse_reporting();
 }
 
 void cleanup_keys(void) {
@@ -889,8 +710,7 @@ static void stop_keys(void) {
 	close(signal_pipe[1]);
 	signal_pipe[1] = -1;
 	pthread_join(read_key_thread, &retval);
-	if (xterm_mouse_reporting)
-		t3_term_putp(disable_mouse);
+	stop_mouse_reporting();
 	t3_term_putp(leave);
 }
 
