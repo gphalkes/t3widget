@@ -406,8 +406,30 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 }
 
 void file_pane_t::search(const std::string *text) {
-	(void) text;
+	size_t i, j;
+	size_t longest_match = 0;
+	size_t longest_match_idx = 0;
+
+	for (i = 0; i < impl->file_list->size(); i++) {
+		for (j = 0; j < (*impl->file_list)[i]->size() && j < text->size(); j++) {
+			if ((*(*impl->file_list)[i])[j] != (*text)[j])
+				break;
+		}
+		// Adjust match length to start of UTF-8 character.
+		while (j > 0 && ((*text)[j] & 0xC0) == 0x80)
+			j--;
+		if (j > longest_match) {
+			longest_match = j;
+			longest_match_idx = i;
+		}
+	}
+	if (longest_match > 0 && impl->current != longest_match_idx) {
+		impl->current = longest_match_idx;
+		redraw = true;
+		ensure_cursor_on_screen();
+	}
 }
+
 //============================ search_panel_t ==========================
 #define SEARCH_PANEL_WIDTH 12
 file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : parent(_parent), redraw(true) {
