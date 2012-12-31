@@ -353,8 +353,12 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 			return;
 		impl->top_idx += height;
 	} else if (step == scrollbar_t::FWD_PAGE) {
-		/* FIXME: This one is tricky. The question is whether there are enough
-			items to fill the view after the current page. */
+		if (impl->current + 2 * height >= impl->file_list->size()) {
+			impl->current = impl->file_list->size() - 1;
+		} else {
+			impl->current += 2 * height;
+			impl->top_idx += 2 * height;
+		}
 	} else if (step == scrollbar_t::BACK_SMALL || step == scrollbar_t::BACK_MEDIUM || step == scrollbar_t::BACK_PAGE) {
 		if (impl->top_idx == 0)
 			return;
@@ -363,9 +367,15 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		else
 			impl->top_idx -= height;
 	} else if (step == scrollbar_t::BACK_PAGE) {
-		/* FIXME: This one is tricky. The question is how many columns we should
-			go back to fill the page. If we go back to far we will jump over
-			a column, which is confusing for the user. */
+		if (impl->current < (size_t) 2 * height) {
+			impl->current = 0;
+		} else {
+			impl->current -= 2 * height;
+			if (impl->top_idx < (size_t) 2 * height)
+				impl->top_idx = 0;
+			else
+				impl->top_idx -= 2 * height;
+		}
 	}
 
 	update_column_widths();
