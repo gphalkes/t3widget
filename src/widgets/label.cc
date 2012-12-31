@@ -55,7 +55,7 @@ void label_t::update_contents(void) {
 	redraw = false;
 
 	width = t3_win_get_width(window);
-	text_line_t *line = new text_line_t(&text);
+	text_line_t line(&text);
 	text_line_t::paint_info_t paint_info;
 
 	t3_win_set_default_attrs(window, focus ? attributes.dialog_selected : attributes.dialog);
@@ -95,8 +95,7 @@ void label_t::update_contents(void) {
 	paint_info.normal_attr = 0;
 	paint_info.selected_attr = 0;
 
-	line->paint_line(window, &paint_info);
-	delete line;
+	line.paint_line(window, &paint_info);
 }
 
 void label_t::set_focus(focus_t _focus) {
