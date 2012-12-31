@@ -26,6 +26,7 @@ file_pane_t::file_pane_t(void) : widget_t(3, 3), impl(new implementation_t())
 	set_widget_parent(&impl->scrollbar);
 	impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	impl->scrollbar.connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
+	impl->search_panel = new search_panel_t(this);
 }
 
 file_pane_t::~file_pane_t(void) {
@@ -62,6 +63,11 @@ bool file_pane_t::process_key(key_t key) {
 	int height;
 	if (impl->file_list == NULL)
 		return false;
+
+	if (impl->search_panel_shown) {
+		if (impl->search_panel->process_key(key))
+			return true;
+	}
 
 	switch (key) {
 		case EKEY_DOWN:
@@ -130,6 +136,11 @@ bool file_pane_t::process_key(key_t key) {
 			activate(impl->file_list->get_fs_name(impl->current));
 			return true;
 		default:
+			if (key >= 32 && key < 0x110000) {
+				impl->search_panel->show();
+				impl->search_panel->process_key(key);
+				return true;
+			}
 			return false;
 	}
 	if (impl->file_list->size() != 0) {
@@ -195,6 +206,8 @@ void file_pane_t::draw_line(int idx, bool selected) {
 void file_pane_t::update_contents(void) {
 	size_t max_idx, i;
 	int height;
+
+	impl->search_panel->update_contents();
 
 	if (!redraw)
 		return;
@@ -390,6 +403,137 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 
 	if (impl->file_list->size() != 0 && impl->field != NULL)
 		impl->field->set_text((*impl->file_list)[impl->current]->c_str());
+}
+
+void file_pane_t::search(const std::string *text) {
+	(void) text;
+}
+//============================ search_panel_t ==========================
+#define SEARCH_PANEL_WIDTH 12
+file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : parent(_parent), redraw(true) {
+	if ((window = t3_win_new(NULL, 3, SEARCH_PANEL_WIDTH, -1, -12, INT_MIN)) == NULL)
+		throw bad_alloc();
+	t3_win_set_anchor(window, parent->get_base_window(), T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	if ((shadow_window = t3_win_new(NULL, 3, SEARCH_PANEL_WIDTH, 0, -11, INT_MIN + 1)) == NULL)
+		throw bad_alloc();
+	t3_win_set_anchor(shadow_window, parent->get_base_window(), T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+	register_mouse_target(window);
+}
+
+bool file_pane_t::search_panel_t::process_key(key_t key) {
+	switch (key) {
+		case EKEY_BS:
+			text.backspace_char(text.get_length(), NULL);
+			redraw = true;
+			return true;
+		case EKEY_ESC:
+			hide();
+			return true;
+		default:
+			if (key < 32)
+				break;
+
+			key &= ~EKEY_PROTECT;
+			if (key == 10)
+				break;
+
+			if (key >= 0x110000)
+				break;
+			text.append_char(key, NULL);
+			parent->search(text.get_data());
+			redraw = true;
+			return true;
+	}
+	hide();
+	return false;
+}
+
+void file_pane_t::search_panel_t::set_position(optint top, optint left) {
+	(void) top;
+	(void) left;
+}
+
+bool file_pane_t::search_panel_t::set_size(optint height, optint width) {
+	(void) height;
+	(void) width;
+	return true;
+}
+
+void file_pane_t::search_panel_t::update_contents(void) {
+	if (!redraw)
+		return;
+
+	t3_win_set_default_attrs(window, attributes.dialog);
+	t3_win_set_default_attrs(shadow_window, attributes.shadow);
+
+	t3_win_set_paint(window, 0, 0);
+	t3_win_clrtobot(window);
+
+	text_line_t::paint_info_t paint_info;
+	int text_width = text.calculate_screen_width(0, INT_MAX, 0);
+
+	paint_info.start = 0;
+	paint_info.leftcol = SEARCH_PANEL_WIDTH - 2 < text_width ? text_width - SEARCH_PANEL_WIDTH + 2 : 0;
+	paint_info.size = SEARCH_PANEL_WIDTH - 2;
+	paint_info.max = INT_MAX;
+	paint_info.tabsize = 0;
+	paint_info.flags = text_line_t::TAB_AS_CONTROL;
+	paint_info.selection_start = -1;
+	paint_info.selection_end = -1;
+	paint_info.cursor = -1;
+	paint_info.normal_attr = 0;
+	paint_info.selected_attr = 0;
+
+	t3_win_set_paint(window, 1, 1);
+	text.paint_line(window, &paint_info);
+	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
+
+	int x = t3_win_get_width(shadow_window) - 1;
+	for (int i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
+		t3_win_set_paint(shadow_window, i - 1, x);
+		t3_win_addch(shadow_window, ' ', 0);
+	}
+	t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
+	t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
+
+	redraw = false;
+}
+
+void file_pane_t::search_panel_t::set_focus(focus_t _focus) {
+	(void) _focus;
+}
+
+void file_pane_t::search_panel_t::show(void) {
+	text.set_text("");
+	redraw = true;
+	t3_win_show(window);
+	t3_win_show(shadow_window);
+	parent->impl->search_panel_shown = true;
+	grab_mouse();
+}
+
+void file_pane_t::search_panel_t::hide(void) {
+	t3_win_hide(window);
+	t3_win_hide(shadow_window);
+	parent->impl->search_panel_shown = false;
+	release_mouse_grab();
+}
+
+void file_pane_t::search_panel_t::force_redraw(void) {
+	redraw = true;
+}
+
+bool file_pane_t::search_panel_t::process_mouse_event(mouse_event_t event) {
+	if ((event.type & EMOUSE_OUTSIDE_GRAB) && (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_PRESS) {
+		hide();
+		if (event.window == parent->window()) {
+			event.type &= ~EMOUSE_OUTSIDE_GRAB;
+			event.x += t3_win_get_abs_x(window) - t3_win_get_abs_x(parent->get_base_window());
+			event.y += t3_win_get_abs_y(window) - t3_win_get_abs_y(parent->get_base_window());
+			parent->process_mouse_event(event);
+		}
+	}
+	return true;
 }
 
 }; // namespace

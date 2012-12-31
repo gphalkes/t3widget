@@ -28,6 +28,8 @@ namespace t3_widget {
 /** A widget displaying the contents of a directory. */
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 	private:
+		class search_panel_t;
+
 		struct T3_WIDGET_LOCAL implementation_t {
 			scrollbar_t scrollbar; /**< Scrollbar displayed at the bottom. */
 			size_t top_idx, /**< Index of the first item displayed. */
@@ -40,9 +42,12 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 				columns_visible, /**< The number of columns that are visible currently. */
 				scrollbar_range; /**< Visible range for scrollbar setting. */
 			sigc::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
+			bool search_panel_shown; /**< Boolean indicating whether the search panel is active. */
+			cleanup_ptr<search_panel_t>::t search_panel;
 
 			implementation_t(void) : scrollbar(false), top_idx(0), current(0), file_list(NULL),
-				focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
+				focus(false), field(NULL), columns_visible(0), scrollbar_range(1),
+				search_panel_shown(false)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
@@ -59,6 +64,8 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		void content_changed(void);
 
 		void scrollbar_clicked(scrollbar_t::step_t step);
+
+		void search(const std::string *text);
 
 	public:
 		file_pane_t(void);
@@ -87,6 +94,27 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 
 	T3_WIDGET_SIGNAL(activate, void, const std::string *);
 };
+
+
+class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public virtual window_component_t, public mouse_target_t {
+	private:
+		cleanup_t3_window_ptr shadow_window;
+		file_pane_t *parent;
+		bool redraw;
+		text_line_t text;
+	public:
+		search_panel_t(file_pane_t *_parent);
+		virtual bool process_key(key_t key);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
+		virtual void update_contents(void);
+		virtual void set_focus(focus_t _focus);
+		virtual void show(void);
+		virtual void hide(void);
+		virtual void force_redraw(void);
+		virtual bool process_mouse_event(mouse_event_t event);
+};
+
 
 }; // namespace
 

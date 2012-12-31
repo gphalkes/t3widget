@@ -1665,7 +1665,6 @@ bool edit_window_t::autocomplete_panel_t::is_child(window_component_t *widget) {
 }
 
 bool edit_window_t::autocomplete_panel_t::process_mouse_event(mouse_event_t event) {
-	lprintf("autocompl: mouse event: %d\n", (int) event.type);
 	if ((event.type & EMOUSE_OUTSIDE_GRAB) && (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_RELEASE)
 		hide();
 	return true;
