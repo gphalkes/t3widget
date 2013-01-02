@@ -13,7 +13,7 @@
 */
 #include "colorscheme.h"
 #include "widgets/filepane.h"
-#include "log.h"
+#include "main.h"
 
 using namespace std;
 namespace t3_widget {
@@ -450,6 +450,11 @@ bool file_pane_t::search_panel_t::process_key(key_t key) {
 			return true;
 		case EKEY_ESC:
 			hide();
+			return true;
+		case EKEY_F9:
+			insert_char_dialog->center_over(parent);
+			insert_char_dialog->reset();
+			insert_char_dialog->show();
 			return true;
 		default:
 			if (key < 32)
