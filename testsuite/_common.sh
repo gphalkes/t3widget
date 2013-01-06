@@ -30,7 +30,7 @@ a #line $LINE \"../test.cc\"
 }" ../test.cc
 	} > test.cc
 
-	g++ -g -Wall `pkg-config --cflags sigc++-2.0` -I../../src test.cc -L../../src/.libs/ -lt3widget -L../../../window/src/.libs \
-		-lt3window `pkg-config --libs sigc++-2.0` -o test \
+	g++ -g -Wall `pkg-config --cflags sigc++-2.0` -I../../src -I../../include test.cc -L../../src/.libs/ \
+		-lt3widget -L../../../window/src/.libs -lt3window `pkg-config --libs sigc++-2.0` -o test \
 		-Wl,-rpath=$PWD/../../src/.libs:$PWD/../../../window/src/.libs:$PWD/../../../key/src/.libs:$PWD/../../../config/src/.libs:$PWD/../../../transcript/src/.libs || fail "!! Could not compile test"
 }
