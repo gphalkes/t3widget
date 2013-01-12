@@ -1,13 +1,18 @@
-Version 0.2.2:
+Version 0.3.0:
 	New features:
 	- Use libt3window's new functionality to retrieve modifiers.
-	- GPM (General Purpose Mouse) support, to enable mouse on the linux console.
+	- GPM (General Purpose Mouse) support, to enable mouse on the linux console
+	  (#11).
+	- Implemented search panel for the file pane, such that a user can type
+	  (part) of the file name to search (#9).
 
 	Bug fixes:
 	- Make single click work for list_pane_t (#3).
 	- Update the edit_window_t contents on scrollbar click (#7).
 	- Ungrab the mouse if there is a selection in a text-field drop-down list.
 	- Hide the drop-down list on pressing enter in a text field.
+	- Compile with Large File Support if such support is available on the
+	  platform.
 
 Version 0.2.1:
 	Bug fixes:

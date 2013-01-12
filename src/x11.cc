@@ -574,7 +574,7 @@ static void handle_property_notify(x11_property_event_t *event) {
 
 /** Thread to process incoming events. */
 static void *process_events(void *arg) {
-	x11_event_t *event;
+	x11_event_t *event = NULL; /* Shut up compiler by initializing. */
 	fd_set saved_read_fds;
 	int fd_max;
 
