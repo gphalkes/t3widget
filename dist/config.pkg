@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 }
 EOF
 	test_link_cxx "libunistring" "TESTLIBS=-lunistring" || \
-		error "!! Can not find libunistring library. Libunistring is required to compile libt3window."
+		error "!! Can not find libunistring library. Libunistring is required to compile libt3widget."
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
