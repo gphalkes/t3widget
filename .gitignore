@@ -1,4 +1,3 @@
-syntax: glob
 src/x11.la
 src/t3widget
 src/widget_errors.h
