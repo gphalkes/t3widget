@@ -17,7 +17,7 @@ build_test
 
 [ $# -gt 1 ] && [ -n "$2" ] && SUBTEST=".$2"
 
-../../../../record/src/tdrecord -o $TEST/recording$SUBTEST -e T3WINDOW_OPTS $RECORDOPTS ./test -t || fail "!! Could not record test"
+tdrecord -o $TEST/recording$SUBTEST -e T3WINDOW_OPTS $RECORDOPTS ./test -t || fail "!! Could not record test"
 [ -s test.log ] && mv test.log $TEST/test.log$SUBTEST
 
 exit 0

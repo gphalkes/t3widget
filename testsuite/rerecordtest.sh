@@ -17,7 +17,7 @@ build_test
 
 [ $# -gt 1 ] && [ -n "$1" ] && SUBTEST=".$2"
 
-../../../../record/src/tdrerecord -s -o $TEST/recording$SUBTEST.new $TEST/recording$SUBTEST || fail "!! Could not rerecord test"
+tdrerecord -s -o $TEST/recording$SUBTEST.new $TEST/recording$SUBTEST || fail "!! Could not rerecord test"
 [ -s test.log ] && mv test.log $TEST/test.log$SUBTEST.new
 
 exit 0

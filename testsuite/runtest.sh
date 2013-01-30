@@ -23,7 +23,7 @@ for RECORDING in $TEST/recording* ; do
 	SUBTEST="${RECORDING##*recording}"
 	[ -n "$PRINT_SUBTEST" ] && echo "-- subtest ${SUBTEST#.}" >&2
 
-	../../../../record/src/tdreplay -lreplay.log ${REPLAYOPTS:--k1} $TEST/recording${SUBTEST} || fail "!! Terminal output is different"
+	tdreplay -lreplay.log ${REPLAYOPTS:--k1} $TEST/recording${SUBTEST} || fail "!! Terminal output is different"
 	if [ -e "$TEST/test.log${SUBTEST}" ] ; then
 		if ! diff -q "$TEST/test.log${SUBTEST}" test.log ; then
 			fail "!! test.log is different"

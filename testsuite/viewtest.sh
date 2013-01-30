@@ -11,4 +11,4 @@ fi
 setup_TEST "$1"
 [ $# -gt 1 ] && [ -n "$1" ] && SUBTEST=".$2"
 
-$DIR/../../../record/src/tdview $REPLAYOPTS $TEST/recording$SUBTEST || fail "!! Terminal output is different"
+tdview $REPLAYOPTS $TEST/recording$SUBTEST || fail "!! Terminal output is different"
