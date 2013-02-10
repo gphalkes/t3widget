@@ -436,8 +436,10 @@ void insert_protected_key(key_t key) {
 
 static void sigwinch_handler(int param) {
 	char winch_signal = WINCH_SIGNAL;
+	int saved_errno = errno;
 	(void) param;
 	nosig_write(signal_pipe[1], &winch_signal, 1);
+	errno = saved_errno;
 }
 
 static key_t map_kp(key_t kp) {
