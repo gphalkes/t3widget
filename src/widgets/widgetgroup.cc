@@ -182,7 +182,7 @@ bool widget_group_t::is_child(window_component_t *component) {
 	return false;
 }
 
-widget_t *widget_group_t::is_child_hotkey(key_t key) {
+bool widget_group_t::is_hotkey(key_t key) {
 	widget_container_t *widget_container;
 	widget_t *hotkey_child;
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {

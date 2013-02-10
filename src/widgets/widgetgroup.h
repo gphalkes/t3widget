@@ -23,7 +23,7 @@ namespace t3_widget {
     This widget is useful for packing multiple widgets into for example a
     single frame_t or expander_t.
 */
-class T3_WIDGET_API widget_group_t : public widget_t, public widget_container_t, public focus_widget_t {
+class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public focus_widget_t {
 	private:
 		struct T3_WIDGET_LOCAL implementation_t {
 			widgets_t children;
@@ -36,9 +36,6 @@ class T3_WIDGET_API widget_group_t : public widget_t, public widget_container_t,
 		bool focus_next_int(void);
 		bool focus_previous_int(void);
 	public:
-		/** Create a new expander_t.
-		    @param _text The text for the smart_label_t shown next to the expander symbol.
-		*/
 		widget_group_t(void);
 		~widget_group_t(void);
 
@@ -50,9 +47,9 @@ class T3_WIDGET_API widget_group_t : public widget_t, public widget_container_t,
 		virtual void force_redraw(void);
 		virtual void set_child_focus(window_component_t *target);
 		virtual bool is_child(window_component_t *component);
-		virtual widget_t *is_child_hotkey(key_t key);
+		virtual bool is_hotkey(key_t key);
 
-		/** Set the child widget. */
+		/** Add a child widget. */
 		virtual void add_child(widget_t *child);
 
 		void focus_next(void);
