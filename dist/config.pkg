@@ -471,6 +471,16 @@ EOF
 		fi
 	fi
 
+	cat .configcxx.cc <<EOF
+#include <string>
+int main(int argc, char *argv[]) {
+	string test;
+	test.shrink_to_fit();
+	return 0;
+}
+EOF
+	test_link_cxx "shrink_to_fit in string" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRING_SHRINK_TO_FIT"
+
 	PKGCONFIG_DESC="Dialog toolkit library"
 	PKGCONFIG_VERSION="<VERSION>"
 	PKGCONFIG_URL="http://os.ghalkes.nl/t3/libt3widget.html"

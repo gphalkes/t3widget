@@ -88,6 +88,7 @@ CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
 CXXFLAGS += -DX11_MOD_NAME=\"$(PWD)/.libs/x11.mod\"
 CXXFLAGS += -DHAS_GPM
+#~ CXXFLAGS += -DHAS_VECTOR_SHRINK_TO_FIT
 
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3window/.libs -lt3window
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/transcript/.libs -ltranscript

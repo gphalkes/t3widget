@@ -192,7 +192,11 @@ void text_line_t::insert(text_line_t *other, int pos) {
 }
 
 void text_line_t::minimize(void) {
+#ifdef HAS_STRING_SHRINK_TO_FIT
+	buffer.shrink_to_fit();
+#else
 	reserve(0);
+#endif
 }
 
 /* Calculate the screen width of the characters from 'start' to 'pos' with tabsize 'tabsize' */
