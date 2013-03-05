@@ -18,6 +18,8 @@ build_test
 unset PRINT_SUBTEST
 [ "`ls $TEST/recording* | wc -l`" -gt 1 ] && PRINT_SUBTEST=1
 
+# Try to prime the FS cache
+ldd test > /dev/null
 
 for RECORDING in $TEST/recording* ; do
 	SUBTEST="${RECORDING##*recording}"
