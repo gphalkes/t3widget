@@ -942,13 +942,6 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 		pos = next_pos + 1;
 	}
 	cursor = undo->get_end();
-	if (type == UNDO_UNINDENT) {
-		pos = undo_text->rfind('X', pos - 2);
-		if (pos == string::npos)
-		    cursor.pos += undo_text->size() - 1;
-		else
-			cursor.pos += next_pos - pos - 1;
-	}
 	return true;
 }
 
@@ -1002,9 +995,9 @@ bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &
 				start.pos = 0;
 		} else if (delete_end.line == end.line) {
 			if (end.pos > delete_end.pos)
-				cursor.pos = end.pos -= delete_end.pos;
+				cursor.pos = end.pos - delete_end.pos;
 			else
-				cursor.pos = end.pos = 0;
+				cursor.pos = 0;
 		}
 	}
 	if (end.line > start.line && end_line != end.line)
@@ -1020,6 +1013,8 @@ bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &
 
 bool text_buffer_t::unindent_line(int tabsize) {
 	text_coordinate_t delete_start(cursor.line, 0), delete_end(cursor.line, 0);
+	text_coordinate_t saved_cursor;
+	undo_t *undo;
 
 	//FIXME: move this check to calls of unindent_line
 	if (impl->selection_mode != selection_mode_t::NONE)
@@ -1038,7 +1033,15 @@ bool text_buffer_t::unindent_line(int tabsize) {
 	if (delete_end.pos == 0)
 		return true;
 
-	delete_block_internal(delete_start, delete_end, get_undo(UNDO_DELETE_BLOCK, delete_start, delete_end));
+	undo = get_undo(UNDO_UNINDENT, delete_start, cursor);
+	undo->get_text()->append(*data, 0, delete_end.pos);
+	undo->get_text()->append("X");
+
+	/* delete_block_interal sets the cursor position to the position where the
+	   block was removed. In this particular case, that is not desired. */
+	saved_cursor = cursor;
+	delete_block_internal(delete_start, delete_end, NULL);
+	cursor = saved_cursor;
 	if (cursor.pos > delete_end.pos)
 		cursor.pos -= delete_end.pos;
 	else

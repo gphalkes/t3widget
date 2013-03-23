@@ -39,4 +39,4 @@ def get_replacements(mkdist):
 	]
 
 def finalize(mkdist):
-	os.symlink('.', os.path.join(mkdist.topdir, 't3widget'))
+	os.symlink('.', os.path.join(mkdist.topdir, 'src', 't3widget'))

@@ -200,7 +200,8 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond;
 pthread_t thread;
 
-void *thread_func(void *) {
+void *thread_func(void *arg) {
+	(void) arg;
 	return NULL;
 }
 
