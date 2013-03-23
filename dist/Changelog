@@ -1,3 +1,8 @@
+Version 0.3.1:
+	Bug fixes:
+	- Ensure correct cursor position after line unindent and undo of line
+	  unindent (#16).
+
 Version 0.3.0:
 	New features:
 	- Use libt3window's new functionality to retrieve modifiers.
