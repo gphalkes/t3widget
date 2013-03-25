@@ -115,9 +115,10 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	mouse_target_map_t::iterator iter;
 	dialog_t *active_dialog;
 
-	win = event.window = t3_win_at_location(event.y, event.x);
+	win = t3_win_at_location(event.y, event.x);
+
 	if (event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 && (event.button_state & 7) != 0) {
-		button_down_win = event.window;
+		button_down_win = win;
 		button_down_x = event.x;
 		button_down_y = event.y;
 		if (button_down_win != last_click.win)
@@ -159,6 +160,11 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	} else if (button_down_win != NULL) {
 		win = button_down_win;
 	}
+
+	/* Set the window member of the event. In principle this is simply the window
+	   visible at the location the event happened. However, button event handling
+	   above may have changed this. */
+	event.window = win;
 
 	active_dialog = dialog_t::active_dialogs.back();
 
