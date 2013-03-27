@@ -84,7 +84,7 @@ bool menu_item_t::is_hotkey(key_t key) {
 }
 
 bool menu_item_t::process_mouse_event(mouse_event_t event) {
-	if (event.button_state & EMOUSE_CLICKED_LEFT) {
+	if (event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT)) {
 		parent->close();
 		parent->signal(id);
 	}
