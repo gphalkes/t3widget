@@ -32,6 +32,7 @@ SOURCES.libt3widget.la := \
 	wrapinfo.cc \
 	dialogs/attributepickerdialog.cc \
 	dialogs/dialog.cc \
+	dialogs/dialogbase.cc \
 	dialogs/filedialog.cc \
 	dialogs/finddialog.cc \
 	dialogs/gotodialog.cc \

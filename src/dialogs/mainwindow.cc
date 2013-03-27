@@ -51,23 +51,11 @@ void main_window_base_t::update_contents(void) {
 }
 
 void main_window_base_t::show(void) {
-	for (current_widget = widgets.begin();
-		current_widget != widgets.end() && !(*current_widget)->accepts_focus();
-		current_widget++)
-	{}
-
-	if (current_widget == widgets.end()) {
-		widgets.push_front(dummy);
-		current_widget = widgets.begin();
-	}
+	dialog_base_t::show();
 
 	dialog_t::active_dialogs.push_front(this);
 	if (dialog_t::active_dialogs.back() == this)
 		set_focus(window_component_t::FOCUS_SET);
-
-	t3_win_show(window);
-	if (shadow_window != NULL)
-		t3_win_show(shadow_window);
 }
 
 void main_window_base_t::close(void) {}
