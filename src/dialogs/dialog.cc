@@ -25,8 +25,7 @@ popup_t *dialog_t::active_popup;
 int dialog_t::dialog_depth;
 
 dialog_t::dialog_t(int height, int width, const char *_title) : dialog_base_t(height, width, true), active(false), title(_title)
-{
-}
+{}
 
 /** Create a new ::dialog_t.
 
@@ -168,10 +167,33 @@ void dialog_t::close(void) {
 	closed();
 }
 
+bool dialog_t::is_child(window_component_t *widget) {
+	if (active_popup != NULL && active_popup->is_child(widget))
+		return true;
+	return dialog_base_t::is_child(widget);
+}
+
+void dialog_t::set_child_focus(window_component_t *target) {
+	if (active_popup != NULL && active_popup->is_child(target)) {
+		active_popup->set_child_focus(target);
+		return;
+	}
+	dialog_base_t::set_child_focus(target);
+}
+
 void dialog_t::set_active_popup(popup_t *popup) {
-	if (active_popup != NULL)
-		active_popup->hide();
+	popup_t *prev_active = active_popup;
 	active_popup = popup;
+	if (prev_active != NULL)
+		prev_active->dialog_base_t::hide();
+}
+
+void dialog_t::update_dialogs(void) {
+	for (dialogs_t::iterator iter = dialog_t::active_dialogs.begin();
+		iter != dialog_t::active_dialogs.end(); iter++)
+	(*iter)->update_contents();
+	if (active_popup)
+		active_popup->update_contents();
 }
 
 }; // namespace

@@ -321,10 +321,7 @@ complex_error_t init(const init_parameters_t *params) {
 void iterate(void) {
 	key_t key;
 
-	for (dialogs_t::iterator iter = dialog_t::active_dialogs.begin();
-			iter != dialog_t::active_dialogs.end(); iter++)
-		(*iter)->update_contents();
-
+	dialog_t::update_dialogs();
 	t3_term_update();
 	key = read_key();
 	if (key == EKEY_MOUSE_EVENT) {

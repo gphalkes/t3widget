@@ -75,8 +75,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 			bool show_tabs; /**< Boolean indicating whether to explicitly show tabs. */
 
 			cleanup_ptr<autocompleter_t>::t autocompleter; /**< Object used for autocompletion. */
-			cleanup_ptr<autocomplete_panel_t>::t autocomplete_panel; /**< Panel for showing autocomplete options. */
-			bool autocomplete_panel_shown; /**< Boolean indicating whether the autocompletions are currently being shown. */
+			autocomplete_panel_t *autocomplete_panel; /**< Panel for showing autocomplete options. */
 
 			int repaint_min, /**< First line to repaint. */
 			    repaint_max; /**< Last line to repaint. */
@@ -84,7 +83,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 			implementation_t(void) : tab_spaces(false), find_dialog(NULL), finder(NULL),
 				wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0),
 				auto_indent(true), indent_aware_home(true), show_tabs(false), autocompleter(NULL),
-				autocomplete_panel(NULL), autocomplete_panel_shown(false), repaint_min(0), repaint_max(INT_MAX)
+				autocomplete_panel(NULL), repaint_min(0), repaint_max(INT_MAX)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
@@ -152,8 +151,6 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    The autocomplete panel activate, only if there is a possible autocompletion.
 		*/
 		void activate_autocomplete(bool autocomplete_single);
-		/** Hide the autocompletion panel. */
-		void hide_autocomplete(void);
 
 		/** Convert coordinates relative to the edit window to a text_coordinate_t. */
 		text_coordinate_t xy_to_text_coordinate(int x, int y);
@@ -300,26 +297,14 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
 		void set_show_tabs(bool _show_tabs);
 };
 
-class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public virtual window_component_t, public virtual container_t,
-		public mouse_target_t
-{
+class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
 	private:
-		cleanup_t3_window_ptr shadow_window;
 		list_pane_t list_pane;
-		bool redraw;
 	public:
 		autocomplete_panel_t(edit_window_t *parent);
 		virtual bool process_key(key_t key);
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
-		virtual void show(void);
-		virtual void hide(void);
-		virtual void force_redraw(void);
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *widget);
-		virtual bool process_mouse_event(mouse_event_t event);
 
 		void set_completions(string_list_base_t *completions);
 		size_t get_selected_idx(void) const;

@@ -19,12 +19,23 @@
 namespace t3_widget {
 
 /** Base class for dialogs. */
-class T3_WIDGET_API popup_t : public dialog_base_t {
+class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
 	private:
+		friend class dialog_t;
+
 		bool draw;
+		bool shown;
 	protected:
-		popup_t(int height, int width, bool shadow, bool _draw);
+		popup_t(int height, int width, bool shadow = true, bool _draw = true);
+
+	public:
+		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
+		virtual void show(void);
+		virtual void hide(void);
+		virtual bool process_mouse_event(mouse_event_t event);
+
+		bool is_shown(void);
 };
 
 } // namespace

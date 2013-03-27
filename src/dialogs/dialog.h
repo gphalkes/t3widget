@@ -27,13 +27,17 @@ class complex_error_t;
 class T3_WIDGET_API dialog_t : public dialog_base_t {
 	private:
 		friend void iterate(void);
+		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
-		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
+		friend class popup_t;
 
 		static dialogs_t active_dialogs; /**< Dialog stack. */
 		static popup_t *active_popup; /**< Currently active ::popup_t. */
 		static int dialog_depth; /**< Depth of the top most dialog in the window stack. */
+
+		static void set_active_popup(popup_t *popup);
+		static void update_dialogs(void);
 
 		void activate_dialog(void); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
 		void deactivate_dialog(void); /**< Remove this dialog from the dialog stack. Called from #hide. */
@@ -53,13 +57,15 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		    event originating from this dialog. */
 		virtual void close(void);
 
+		virtual bool is_child(window_component_t *widget);
+		virtual void set_child_focus(window_component_t *target);
+
 	public:
 		virtual bool process_key(key_t key);
 		virtual void update_contents(void);
 		virtual void show(void);
 		virtual void hide(void);
 
-		static void set_active_popup(popup_t *popup);
 
 	/** @fn sigc::connection connect_closed(const sigc::slot<void> &_slot)
 	    Connect a callback to the #closed signal.
