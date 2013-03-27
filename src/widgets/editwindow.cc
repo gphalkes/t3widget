@@ -1445,7 +1445,12 @@ text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
 			coord.line = text->size() - 1;
 			x = INT_MAX;
 		}
-		coord.pos = text->calculate_line_pos(coord.line, x, impl->tabsize);
+		if (coord.line < 0) {
+			coord.line = 0;
+			coord.pos = 0;
+		} else {
+			coord.pos = text->calculate_line_pos(coord.line, x, impl->tabsize);
+		}
 	} else {
 		coord.line = impl->top_left.line;
 		y += impl->top_left.pos;
