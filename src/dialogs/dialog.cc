@@ -21,6 +21,7 @@ using namespace std;
 namespace t3_widget {
 
 dialogs_t dialog_t::active_dialogs;
+popup_t *dialog_t::active_popup;
 int dialog_t::dialog_depth;
 
 dialog_t::dialog_t(int height, int width, const char *_title) : dialog_base_t(height, width, true), active(false), title(_title)
@@ -56,10 +57,16 @@ void dialog_t::activate_dialog(void) {
 	if (shadow_window != NULL)
 		t3_win_set_depth(shadow_window, dialog_depth + 1);
 	active_dialogs.push_back(this);
+	if (active_popup != NULL)
+		active_popup->hide();
 }
 
 void dialog_t::deactivate_dialog(void) {
 	this->active = false;
+
+	if (active_popup != NULL)
+		active_popup->hide();
+
 	if (this == active_dialogs.back()) {
 		this->set_focus(window_component_t::FOCUS_OUT);
 		active_dialogs.pop_back();
@@ -77,6 +84,11 @@ void dialog_t::deactivate_dialog(void) {
 }
 
 bool dialog_t::process_key(key_t key) {
+	if (active_popup != NULL) {
+		if (active_popup->process_key(key))
+			return true;
+	}
+
 	if ((key & EKEY_META) || key == EKEY_F10) {
 		for (widgets_t::iterator iter = widgets.begin();
 				iter != widgets.end(); iter++)
@@ -154,6 +166,12 @@ void dialog_t::hide(void) {
 void dialog_t::close(void) {
 	hide();
 	closed();
+}
+
+void dialog_t::set_active_popup(popup_t *popup) {
+	if (active_popup != NULL)
+		active_popup->hide();
+	active_popup = popup;
 }
 
 }; // namespace

@@ -15,6 +15,7 @@
 #define T3_WIDGET_DIALOGS_H
 
 #include <t3widget/dialogs/dialogbase.h>
+#include <t3widget/dialogs/popup.h>
 
 namespace t3_widget {
 
@@ -31,6 +32,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
 
 		static dialogs_t active_dialogs; /**< Dialog stack. */
+		static popup_t *active_popup; /**< Currently active ::popup_t. */
 		static int dialog_depth; /**< Depth of the top most dialog in the window stack. */
 
 		void activate_dialog(void); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
@@ -56,6 +58,8 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		virtual void update_contents(void);
 		virtual void show(void);
 		virtual void hide(void);
+
+		static void set_active_popup(popup_t *popup);
 
 	/** @fn sigc::connection connect_closed(const sigc::slot<void> &_slot)
 	    Connect a callback to the #closed signal.

@@ -41,6 +41,7 @@ SOURCES.libt3widget.la := \
 	dialogs/mainwindow.cc \
 	dialogs/menupanel.cc \
 	dialogs/messagedialog.cc \
+	dialogs/popup.cc \
 	widgets/bullet.cc \
 	widgets/button.cc \
 	widgets/checkbox.cc \
