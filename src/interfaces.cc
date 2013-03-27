@@ -183,10 +183,12 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 						(window_component_t *) grab_container != iter->second))) ||
 						(grab_container == NULL && grab_target != iter->second))
 				{
-					local_event.type |= EMOUSE_OUTSIDE_GRAB;
-					local_event.x -= t3_win_get_abs_x(grab_window);
-					local_event.y -= t3_win_get_abs_y(grab_window);
-					return handled | grab_target->process_mouse_event(local_event);
+					mouse_event_t grab_event = local_event;
+					grab_event.type |= EMOUSE_OUTSIDE_GRAB;
+					grab_event.x -= t3_win_get_abs_x(grab_window);
+					grab_event.y -= t3_win_get_abs_y(grab_window);
+					if (handled | grab_target->process_mouse_event(grab_event))
+						return true;
 				}
 			}
 

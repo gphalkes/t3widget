@@ -182,7 +182,8 @@ bool list_pane_t::process_mouse_event(mouse_event_t event) {
 			(event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
 			event.window != impl->widgets_window)
 	{
-		activate();
+		if (!impl->single_click_activate)
+			activate();
 	} else if (event.type == EMOUSE_BUTTON_RELEASE &&
 			(event.button_state & EMOUSE_CLICKED_LEFT) &&
 			event.window != impl->widgets_window)
@@ -191,6 +192,8 @@ bool list_pane_t::process_mouse_event(mouse_event_t event) {
 		impl->current = event.y;
 		impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
 		selection_changed();
+		if (impl->single_click_activate)
+			activate();
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 		scroll((event.button_state & EMOUSE_SCROLL_UP) ? -3 : 3);
 	}
@@ -374,6 +377,10 @@ void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		step == scrollbar_t::FWD_SMALL ? 3 :
 		step == scrollbar_t::FWD_MEDIUM ? t3_win_get_height(window) / 2 :
 		step == scrollbar_t::FWD_PAGE ? t3_win_get_height(window) : 0);
+}
+
+void list_pane_t::set_single_click_activate(bool sca) {
+	impl->single_click_activate = sca;
 }
 
 //=========== Indicator widget ================

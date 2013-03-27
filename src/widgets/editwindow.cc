@@ -958,7 +958,7 @@ bool edit_window_t::process_key(key_t key) {
 			if (key == 10)
 				return false;
 
-			if (key >= 0x110000)
+			if (key >= EKEY_FIRST_SPECIAL)
 				return false;
 
 			local_insmode = impl->ins_mode;
@@ -1541,13 +1541,15 @@ edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent)
 	list_pane.set_size(5, 6);
 	list_pane.set_position(1, 1);
 	list_pane.set_focus(window_component_t::FOCUS_SET);
+	list_pane.set_single_click_activate(true);
+
 	push_back(&list_pane);
 }
 
 bool edit_window_t::autocomplete_panel_t::process_key(key_t key) {
 	if (popup_t::process_key(key))
 		return true;
-	if (key <= 0x20 || key >= 0x110000)
+	if (key <= 0x20 || key >= EKEY_FIRST_SPECIAL)
 		hide();
 	return false;
 }

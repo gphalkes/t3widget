@@ -16,6 +16,7 @@
 
 #include <string>
 
+#include <t3widget/dialogs/popup.h>
 #include <t3widget/widgets/widget.h>
 #include <t3widget/contentlist.h>
 #include <t3widget/widgets/scrollbar.h>
@@ -42,12 +43,10 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 				columns_visible, /**< The number of columns that are visible currently. */
 				scrollbar_range; /**< Visible range for scrollbar setting. */
 			sigc::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
-			bool search_panel_shown; /**< Boolean indicating whether the search panel is active. */
-			cleanup_ptr<search_panel_t>::t search_panel;
+			search_panel_t *search_panel;
 
 			implementation_t(void) : scrollbar(false), top_idx(0), current(0), file_list(NULL),
-				focus(false), field(NULL), columns_visible(0), scrollbar_range(1),
-				search_panel_shown(false)
+				focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
@@ -96,7 +95,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 };
 
 
-class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public virtual window_component_t, public mouse_target_t {
+class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
 	private:
 		cleanup_t3_window_ptr shadow_window;
 		file_pane_t *parent;
@@ -108,10 +107,7 @@ class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public virtual window_compon
 		virtual void set_position(optint top, optint left);
 		virtual bool set_size(optint height, optint width);
 		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
 		virtual void show(void);
-		virtual void hide(void);
-		virtual void force_redraw(void);
 		virtual bool process_mouse_event(mouse_event_t event);
 };
 

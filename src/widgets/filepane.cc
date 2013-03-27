@@ -64,11 +64,6 @@ bool file_pane_t::process_key(key_t key) {
 	if (impl->file_list == NULL)
 		return false;
 
-	if (impl->search_panel_shown) {
-		if (impl->search_panel->process_key(key))
-			return true;
-	}
-
 	switch (key) {
 		case EKEY_DOWN:
 			if (impl->current + 1 >= impl->file_list->size())
@@ -136,7 +131,7 @@ bool file_pane_t::process_key(key_t key) {
 			activate(impl->file_list->get_fs_name(impl->current));
 			return true;
 		default:
-			if (key >= 32 && key < 0x110000) {
+			if (key >= 32 && key < EKEY_FIRST_SPECIAL) {
 				impl->search_panel->show();
 				impl->search_panel->process_key(key);
 				return true;
@@ -432,14 +427,9 @@ void file_pane_t::search(const std::string *text) {
 
 //============================ search_panel_t ==========================
 #define SEARCH_PANEL_WIDTH 12
-file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : parent(_parent), redraw(true) {
-	if ((window = t3_win_new(NULL, 3, SEARCH_PANEL_WIDTH, -1, -12, INT_MIN)) == NULL)
-		throw bad_alloc();
+file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : popup_t(3, SEARCH_PANEL_WIDTH), parent(_parent) {
 	t3_win_set_anchor(window, parent->get_base_window(), T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	if ((shadow_window = t3_win_new(NULL, 3, SEARCH_PANEL_WIDTH, 0, -11, INT_MIN + 1)) == NULL)
-		throw bad_alloc();
-	t3_win_set_anchor(shadow_window, parent->get_base_window(), T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	register_mouse_target(window);
+	t3_win_move(window, -1, 1);
 }
 
 bool file_pane_t::search_panel_t::process_key(key_t key) {
@@ -451,11 +441,6 @@ bool file_pane_t::search_panel_t::process_key(key_t key) {
 		case EKEY_ESC:
 			hide();
 			return true;
-		case EKEY_F9:
-			insert_char_dialog->center_over(parent);
-			insert_char_dialog->reset();
-			insert_char_dialog->show();
-			return true;
 		default:
 			if (key < 32)
 				break;
@@ -464,7 +449,7 @@ bool file_pane_t::search_panel_t::process_key(key_t key) {
 			if (key == 10)
 				break;
 
-			if (key >= 0x110000)
+			if (key >= EKEY_FIRST_SPECIAL)
 				break;
 			text.append_char(key, NULL);
 			parent->search(text.get_data());
@@ -472,7 +457,7 @@ bool file_pane_t::search_panel_t::process_key(key_t key) {
 			return true;
 	}
 	hide();
-	return false;
+	return popup_t::process_key(key);
 }
 
 void file_pane_t::search_panel_t::set_position(optint top, optint left) {
@@ -490,11 +475,7 @@ void file_pane_t::search_panel_t::update_contents(void) {
 	if (!redraw)
 		return;
 
-	t3_win_set_default_attrs(window, attributes.dialog);
-	t3_win_set_default_attrs(shadow_window, attributes.shadow);
-
-	t3_win_set_paint(window, 0, 0);
-	t3_win_clrtobot(window);
+	popup_t::update_contents();
 
 	text_line_t::paint_info_t paint_info;
 	int text_width = text.calculate_screen_width(0, INT_MAX, 0);
@@ -504,7 +485,7 @@ void file_pane_t::search_panel_t::update_contents(void) {
 	paint_info.size = SEARCH_PANEL_WIDTH - 2;
 	paint_info.max = INT_MAX;
 	paint_info.tabsize = 0;
-	paint_info.flags = text_line_t::TAB_AS_CONTROL;
+	paint_info.flags = text_line_t::TAB_AS_CONTROL | text_line_t::SPACECLEAR;
 	paint_info.selection_start = -1;
 	paint_info.selection_end = -1;
 	paint_info.cursor = -1;
@@ -513,54 +494,19 @@ void file_pane_t::search_panel_t::update_contents(void) {
 
 	t3_win_set_paint(window, 1, 1);
 	text.paint_line(window, &paint_info);
-	t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
-
-	int x = t3_win_get_width(shadow_window) - 1;
-	for (int i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
-		t3_win_set_paint(shadow_window, i - 1, x);
-		t3_win_addch(shadow_window, ' ', 0);
-	}
-	t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
-	t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
-
-	redraw = false;
-}
-
-void file_pane_t::search_panel_t::set_focus(focus_t _focus) {
-	(void) _focus;
 }
 
 void file_pane_t::search_panel_t::show(void) {
+	popup_t::show();
 	text.set_text("");
-	redraw = true;
-	t3_win_show(window);
-	t3_win_show(shadow_window);
-	parent->impl->search_panel_shown = true;
-	grab_mouse();
-}
-
-void file_pane_t::search_panel_t::hide(void) {
-	t3_win_hide(window);
-	t3_win_hide(shadow_window);
-	parent->impl->search_panel_shown = false;
-	release_mouse_grab();
-}
-
-void file_pane_t::search_panel_t::force_redraw(void) {
-	redraw = true;
 }
 
 bool file_pane_t::search_panel_t::process_mouse_event(mouse_event_t event) {
 	if ((event.type & EMOUSE_OUTSIDE_GRAB) && (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_PRESS) {
 		hide();
-		if (event.window == parent->window()) {
-			event.type &= ~EMOUSE_OUTSIDE_GRAB;
-			event.x += t3_win_get_abs_x(window) - t3_win_get_abs_x(parent->get_base_window());
-			event.y += t3_win_get_abs_y(window) - t3_win_get_abs_y(parent->get_base_window());
-			parent->process_mouse_event(event);
-		}
+		return false;
 	}
 	return true;
 }
 
-}; // namespace
+} // namespace

@@ -40,10 +40,12 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 			bool has_focus;
 			scrollbar_t scrollbar;
 			bool indicator;
+			bool single_click_activate;
 			cleanup_ptr<indicator_widget_t>::t indicator_widget;
 
 			implementation_t(bool _indicator) : top_idx(0), current(0),
-				has_focus(false), scrollbar(true), indicator(_indicator)
+				has_focus(false), scrollbar(true), indicator(_indicator),
+				single_click_activate(false)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
@@ -89,6 +91,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
 		size_t get_current(void) const;
 		void set_current(size_t idx);
+
+		void set_single_click_activate(bool sca);
 
 	T3_WIDGET_SIGNAL(activate, void);
 	T3_WIDGET_SIGNAL(selection_changed, void);

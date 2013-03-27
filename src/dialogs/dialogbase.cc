@@ -42,10 +42,11 @@ dialog_base_t::dialog_base_t(int height, int width, bool has_shadow) : redraw(tr
 	if (has_shadow) {
 		if ((shadow_window = t3_win_new(NULL, height, width, 1, 1, 1)) == NULL)
 			throw bad_alloc();
+		t3_win_set_anchor(shadow_window, window, 0);
 	}
-	t3_win_set_anchor(shadow_window, window, 0);
 	dialog_base_list.push_back(this);
 	t3_win_set_restrict(window, NULL);
+	current_widget = widgets.begin();
 }
 
 /** Create a new ::dialog_base_t.
@@ -89,7 +90,8 @@ bool dialog_base_t::set_size(optint height, optint width) {
 		width = t3_win_get_width(window);
 
 	result &= (t3_win_resize(window, height, width) == 0);
-	result &= (t3_win_resize(shadow_window, height, width) == 0);
+	if (shadow_window != NULL)
+		result &= (t3_win_resize(shadow_window, height, width) == 0);
 	return result;
 }
 
@@ -100,7 +102,6 @@ void dialog_base_t::update_contents(void) {
 
 		redraw = false;
 		t3_win_set_default_attrs(window, attributes.dialog);
-		t3_win_set_default_attrs(shadow_window, attributes.shadow);
 
 		/* Just clear the whole thing and redraw */
 		t3_win_set_paint(window, 0, 0);
@@ -108,13 +109,16 @@ void dialog_base_t::update_contents(void) {
 
 		t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 
-		x = t3_win_get_width(shadow_window) - 1;
-		for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
-			t3_win_set_paint(shadow_window, i - 1, x);
-			t3_win_addch(shadow_window, ' ', 0);
+		if (shadow_window != NULL) {
+			t3_win_set_default_attrs(shadow_window, attributes.shadow);
+			x = t3_win_get_width(shadow_window) - 1;
+			for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
+				t3_win_set_paint(shadow_window, i - 1, x);
+				t3_win_addch(shadow_window, ' ', 0);
+			}
+			t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
+			t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
 		}
-		t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
-		t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
 	}
 
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
@@ -122,7 +126,8 @@ void dialog_base_t::update_contents(void) {
 }
 
 void dialog_base_t::set_focus(focus_t focus) {
-	(*current_widget)->set_focus(focus);
+	if (current_widget != widgets.end())
+		(*current_widget)->set_focus(focus);
 }
 
 void dialog_base_t::show(void) {
