@@ -32,6 +32,7 @@ SOURCES.libt3widget.la := \
 	wrapinfo.cc \
 	dialogs/attributepickerdialog.cc \
 	dialogs/dialog.cc \
+	dialogs/dialogbase.cc \
 	dialogs/filedialog.cc \
 	dialogs/finddialog.cc \
 	dialogs/gotodialog.cc \
@@ -40,6 +41,7 @@ SOURCES.libt3widget.la := \
 	dialogs/mainwindow.cc \
 	dialogs/menupanel.cc \
 	dialogs/messagedialog.cc \
+	dialogs/popup.cc \
 	widgets/bullet.cc \
 	widgets/button.cc \
 	widgets/checkbox.cc \

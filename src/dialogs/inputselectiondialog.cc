@@ -122,7 +122,7 @@ bool input_selection_dialog_t::process_key(key_t key) {
 		case EKEY_LEFT | EKEY_META:
 			return dialog_t::process_key(key & ~EKEY_META);
 		default:
-			if ((key & ~EKEY_META) < 0x110000 && (key & ~EKEY_META) > 0x20) {
+			if ((key & ~EKEY_META) < EKEY_FIRST_SPECIAL && (key & ~EKEY_META) > 0x20) {
 				char buffer[100];
 				size_t buffer_contents_length = 0;
 				buffer[0] = 0;

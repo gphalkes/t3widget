@@ -20,51 +20,14 @@
 #include <t3widget/textline.h>
 #include <t3widget/contentlist.h>
 #include <t3widget/widgets/smartlabel.h>
-#include <t3widget/widgets/scrollbar.h>
+#include <t3widget/widgets/listpane.h>
 
 namespace t3_widget {
 
-class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t,
-		public container_t
+class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t
 {
 	private:
-		/** Drop-down list implementation for text_field_t. */
-		class T3_WIDGET_LOCAL drop_down_list_t : public virtual window_component_t, public mouse_target_t, public container_t {
-			private:
-				size_t current, /**< Index of the currently selected item. */
-					top_idx; /**< Index of the top-most displayed item. */
-				bool focus, /**< Boolean indicating whether this drop_down_list_t has the input focus. */
-					redraw; /**< Boolean indicating whether this drop_down_list_t needs to be redrawn. */
-				text_field_t *field; /**< text_field_t this drop-down list is created for. */
-
-				cleanup_ptr<filtered_list_base_t>::t completions; /**< List of possible selections. */
-				scrollbar_t scrollbar;
-
-				void ensure_cursor_on_screen(void);
-				void scrollbar_clicked(scrollbar_t::step_t step);
-			public:
-				drop_down_list_t(text_field_t *_field);
-				virtual bool process_key(key_t key);
-				virtual void set_position(optint top, optint left);
-				virtual bool set_size(optint height, optint width);
-				virtual void update_contents(void);
-				virtual void set_focus(focus_t focus);
-				virtual void show(void);
-				virtual void hide(void);
-				virtual void force_redraw(void);
-				/** Request that the drop-down is filtered based on the contents of the text_field_t it is asscociated with. */
-				void update_view(void);
-				/** Set the list of autocompletion options. */
-				void set_autocomplete(string_list_base_t *completions);
-				/** Return whether the autocompletion list is empty. */
-				bool empty(void);
-
-				virtual bool process_mouse_event(mouse_event_t event);
-
-				virtual void set_child_focus(window_component_t *target);
-				virtual bool is_child(window_component_t *component);
-		};
-
+		class T3_WIDGET_LOCAL drop_down_list_t;
 		struct T3_WIDGET_LOCAL implementation_t {
 			int pos, /**< Cursor position in bytes. */
 				screen_pos, /**< Cursor position in screen cells. */
@@ -75,7 +38,6 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 			selection_mode_t selection_mode; /**< Selection mode. */
 			bool focus, /**< Boolean indicating whether this text_field_t has the input focus. */
 				in_drop_down_list, /**< Boolean indicating whether the "cursor" is in the drop-down list. */
-				drop_down_list_shown, /**< Boolean indicating whether the drop-down list is currently shown. */
 				/** Boolean indicating whether not to select the whole text on regaining focus.
 					This boolean exists mostly to facilitate the "Insert Character" dialog. When
 					the text_field_t regains focus after the dialog closes, it should not select
@@ -94,14 +56,13 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 			smart_label_t *label; /**< Label associated with this text_field_t. */
 
-			cleanup_ptr<drop_down_list_t>::t drop_down_list;
+			drop_down_list_t *drop_down_list;
 
 			implementation_t(void) : pos(0),
 				screen_pos(0),
 				leftcol(0),
 				focus(false),
 				in_drop_down_list(false),
-				drop_down_list_shown(false),
 				dont_select_on_focus(false),
 				edited(false),
 				line(new text_line_t()),
@@ -162,10 +123,37 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual void bad_draw_recheck(void);
 		virtual bool process_mouse_event(mouse_event_t event);
 
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
-
 	T3_WIDGET_SIGNAL(activate, void);
+};
+
+/** Drop-down list implementation for text_field_t. */
+class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
+	private:
+		text_field_t *field; /**< text_field_t this drop-down list is created for. */
+
+		cleanup_ptr<filtered_list_base_t>::t completions; /**< List of possible selections. */
+		list_pane_t list_pane;
+
+		void update_list_pane(void);
+		void item_activated(void);
+		void selection_changed(void);
+	public:
+		drop_down_list_t(text_field_t *_field);
+		virtual bool process_key(key_t key);
+		virtual void set_position(optint top, optint left);
+		virtual bool set_size(optint height, optint width);
+		virtual void update_contents(void);
+		virtual void set_focus(focus_t focus) ;
+		virtual void show(void);
+		virtual void hide(void);
+		virtual bool process_mouse_event(mouse_event_t key);
+
+		/** Request that the drop-down is filtered based on the contents of the text_field_t it is asscociated with. */
+		void update_view(void);
+		/** Set the list of autocompletion options. */
+		void set_autocomplete(string_list_base_t *completions);
+		/** Return whether the autocompletion list is empty. */
+		bool empty(void);
 };
 
 }; // namespace

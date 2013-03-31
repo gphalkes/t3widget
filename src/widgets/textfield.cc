@@ -18,6 +18,7 @@
 #include "colorscheme.h"
 #include "internal.h"
 #include "widgets/textfield.h"
+#include "widgets/label.h"
 #include "clipboard.h"
 #include "log.h"
 
@@ -93,18 +94,16 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 }
 
 bool text_field_t::process_key(key_t key) {
-	if (impl->in_drop_down_list)
-		return impl->drop_down_list->process_key(key);
-
 	set_selection(key);
 
 	switch (key) {
 		case EKEY_DOWN:
 			if (impl->drop_down_list != NULL && !impl->drop_down_list->empty() && impl->line->get_length() > 0) {
 				impl->in_drop_down_list = true;
-				impl->drop_down_list_shown = true;
-				impl->drop_down_list->set_focus(window_component_t::FOCUS_SET);
 				impl->drop_down_list->show();
+				impl->drop_down_list->set_focus(window_component_t::FOCUS_SET);
+				reset_selection();
+				redraw = true;
 			} else {
 				move_focus_down();
 			}
@@ -241,10 +240,9 @@ bool text_field_t::process_key(key_t key) {
 			break;
 
 		case EKEY_NL:
-			if (impl->drop_down_list_shown) {
+			if (impl->drop_down_list->is_shown()) {
 				impl->drop_down_list->hide();
 				impl->in_drop_down_list = false;
-				impl->drop_down_list_shown = false;
 			}
 			activate();
 			break;
@@ -259,14 +257,6 @@ bool text_field_t::process_key(key_t key) {
 
 		case EKEY_HOTKEY:
 			return true;
-
-		case EKEY_ESC:
-			if (impl->drop_down_list_shown) {
-				impl->drop_down_list_shown = false;
-				impl->drop_down_list->hide();
-				return true;
-			}
-			return false;
 
 		default:
 			if (key < 31)
@@ -314,14 +304,12 @@ bool text_field_t::set_size(optint height, optint width) {
 }
 
 void text_field_t::update_contents(void) {
-
+	lprintf("Update contents (%d)\n", redraw);
 	if (impl->drop_down_list != NULL && impl->edited) {
 		impl->drop_down_list->update_view();
 		if (!impl->drop_down_list->empty() && impl->line->get_length() > 0) {
-			impl->drop_down_list_shown = true;
 			impl->drop_down_list->show();
 		} else {
-			impl->drop_down_list_shown = false;
 			impl->drop_down_list->hide();
 		}
 	}
@@ -331,6 +319,7 @@ void text_field_t::update_contents(void) {
 
 	if (!redraw)
 		return;
+
 	impl->edited = false;
 	redraw = false;
 
@@ -363,6 +352,7 @@ void text_field_t::update_contents(void) {
 		info.selection_start = impl->selection_end_pos;
 		info.selection_end = impl->selection_start_pos;
 	}
+	lprintf("focus: %d, in_ddl: %d\n", impl->focus, impl->in_drop_down_list);
 	info.cursor = impl->focus && !impl->in_drop_down_list ? impl->pos : -1;
 	info.normal_attr = attributes.dialog;
 	info.selected_attr = attributes.dialog_selected;
@@ -372,6 +362,7 @@ void text_field_t::update_contents(void) {
 }
 
 void text_field_t::set_focus(focus_t _focus) {
+	lprintf("set focus %d\n", _focus);
 	impl->focus = _focus;
 	redraw = true;
 	if (impl->focus) {
@@ -387,7 +378,6 @@ void text_field_t::set_focus(focus_t _focus) {
 	} else {
 		if (impl->drop_down_list != NULL) {
 			impl->drop_down_list->set_focus(window_component_t::FOCUS_OUT);
-			impl->drop_down_list_shown = false;
 			impl->drop_down_list->hide();
 		}
 		impl->in_drop_down_list = false;
@@ -400,10 +390,8 @@ void text_field_t::show(void) {
 }
 
 void text_field_t::hide(void) {
-	if (impl->drop_down_list != NULL) {
-		impl->drop_down_list_shown = false;
+	if (impl->drop_down_list != NULL)
 		impl->drop_down_list->hide();
-	}
 	widget_t::hide();
 }
 
@@ -529,10 +517,6 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 			set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
 		ensure_cursor_on_screen();
 		redraw = true;
-	} else if (impl->drop_down_list_shown && (event.type & EMOUSE_OUTSIDE_GRAB)) {
-		impl->in_drop_down_list = false;
-		impl->drop_down_list_shown = false;
-		impl->drop_down_list->hide();
 	}
 	impl->dont_select_on_focus = true;
 	return true;
@@ -563,114 +547,64 @@ bool text_field_t::has_focus(void) const {
 	return impl->focus;
 }
 
-void text_field_t::set_child_focus(window_component_t *target) {
-	(void) target;
-	set_focus(window_component_t::FOCUS_SET);
-}
-
-bool text_field_t::is_child(window_component_t *component) {
-	return impl->drop_down_list != NULL && (component == impl->drop_down_list || impl->drop_down_list->is_child(component));
-}
-
 /*======================
   == drop_down_list_t ==
   ======================*/
 #define DDL_HEIGHT 6
 
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
-		top_idx(0), field(_field), scrollbar(true)
+		popup_t(DDL_HEIGHT, t3_win_get_width(_field->get_base_window()), false, false),
+		field(_field), list_pane(false)
 {
-	if ((window = t3_win_new(NULL, DDL_HEIGHT, t3_win_get_width(_field->get_base_window()), 1, 0, INT_MIN)) == NULL)
-		throw(-1);
 	t3_win_set_anchor(window, field->get_base_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-	register_mouse_target(window);
+	t3_win_move(window, 1, 0);
 
-	set_widget_parent(&scrollbar);
-	scrollbar.set_size(DDL_HEIGHT - 1, 1);
-	scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-	scrollbar.connect_clicked(sigc::mem_fun(this, &text_field_t::drop_down_list_t::scrollbar_clicked));
+	list_pane.set_size(DDL_HEIGHT - 1, t3_win_get_width(window) - 1);
+	list_pane.set_position(0, 1);
+	list_pane.connect_activate(sigc::mem_fun(this, &text_field_t::drop_down_list_t::item_activated));
+	list_pane.connect_selection_changed(sigc::mem_fun(this, &text_field_t::drop_down_list_t::selection_changed));
+	list_pane.set_single_click_activate(true);
 
-	focus = false;
-	current = 0;
-}
-
-void text_field_t::drop_down_list_t::ensure_cursor_on_screen(void) {
-	size_t saved_top_idx = top_idx;
-	if (current < top_idx) {
-		top_idx = current;
-	} else if (current - top_idx > DDL_HEIGHT - 2) {
-		if (current > DDL_HEIGHT - 2)
-			top_idx = current - (DDL_HEIGHT - 2);
-		else
-			top_idx = 0;
-	}
-
-	if (top_idx != saved_top_idx) {
-		scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
-		scrollbar.update_contents();
-	}
+	push_back(&list_pane);
 }
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
-	size_t length = completions->size();
+	if (!field->impl->in_drop_down_list) {
+		if (key == EKEY_ESC) {
+			hide();
+			return true;
+		}
+		return false;
+	}
 
 	switch (key) {
-		case EKEY_DOWN:
-			if (current + 1 < length) {
-				current++;
-				ensure_cursor_on_screen();
-				field->set_text((*completions)[current]);
-			}
-			break;
 		case EKEY_UP:
-			if (current > 0) {
-				current--;
-				ensure_cursor_on_screen();
-				field->set_text((*completions)[current]);
-			} else {
-				focus = false;
+			if (list_pane.get_current() == 0) {
+				list_pane.set_focus(FOCUS_OUT);
 				field->impl->in_drop_down_list = false;
 				field->redraw = true;
-				update_contents();
 			}
 			break;
-		case EKEY_PGDN:
-			if (current + 1 < length) {
-				current += DDL_HEIGHT - 2;
-				if (current >= length)
-					current = length - 1;
-				ensure_cursor_on_screen();
-				field->set_text((*completions)[current]);
-			}
-			break;
+		case EKEY_DOWN:
 		case EKEY_PGUP:
-			if (current > 0) {
-				if (current > DDL_HEIGHT - 2)
-					current -= DDL_HEIGHT - 2;
-				else
-					current = 0;
-				ensure_cursor_on_screen();
-				field->set_text((*completions)[current]);
-			}
+		case EKEY_PGDN:
 			break;
+		case EKEY_END:
+		case EKEY_HOME:
+			return false;
 		case EKEY_NL:
-			focus = false;
-			field->impl->in_drop_down_list = false;
-			t3_win_hide(window);
-			return field->process_key(key);
-		case EKEY_ESC:
-			field->impl->in_drop_down_list = false;
-			field->impl->drop_down_list_shown = false;
-			t3_win_hide(window);
-			break;
+			hide();
+			return false;
 		default:
-			focus = false;
-			// Make sure that the cursor will be visible, by forcing a redraw of the field
-			field->redraw = true;
-			field->impl->in_drop_down_list = false;
-			return field->process_key(key);
+			if (key >= 32 && key < EKEY_FIRST_SPECIAL) {
+				list_pane.set_focus(FOCUS_OUT);
+				// Make sure that the cursor will be visible, by forcing a redraw of the field
+				field->redraw = true;
+				field->impl->in_drop_down_list = false;
+				return false;
+			}
 	}
-	return true;
+	return popup_t::process_key(key);
 }
 
 void text_field_t::drop_down_list_t::set_position(optint top, optint left) {
@@ -680,99 +614,63 @@ void text_field_t::drop_down_list_t::set_position(optint top, optint left) {
 
 bool text_field_t::drop_down_list_t::set_size(optint height, optint width) {
 	bool result;
-
 	(void) height;
-
-	result = t3_win_resize(window, DDL_HEIGHT, width);
-	redraw = true;
+	result = popup_t::set_size(DDL_HEIGHT, width);
+	result &= list_pane.set_size(DDL_HEIGHT - 1, width - 1);
 	return result;
 }
 
 void text_field_t::drop_down_list_t::update_contents(void) {
-	size_t i, idx;
-	file_list_t *file_list;
-	int width;
+	bool saved_redraw = redraw;
+	int i, width;
 
-	if (completions == NULL)
-		return;
-
-	scrollbar.update_contents();
-	file_list = dynamic_cast<file_list_t *>(completions());
-	width = t3_win_get_width(window);
-
-	/* We don't optimize for the case when nothing changes, because almost all
-	   update_contents calls will happen when something has changed. */
-	t3_win_set_default_attrs(window, attributes.dialog);
-	t3_win_set_paint(window, 0, 0);
-	t3_win_clrtobot(window);
-	for (i = 0; i < (DDL_HEIGHT - 1); i++) {
-		t3_win_set_paint(window, i, 0);
-		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
-		t3_win_set_paint(window, i, width - 1);
-		t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
-	}
-	t3_win_set_paint(window, (DDL_HEIGHT - 1), 0);
-	t3_win_addch(window, T3_ACS_LLCORNER, T3_ATTR_ACS);
-	t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
-	t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
-	for (i = 0, idx = top_idx; i < (DDL_HEIGHT - 1) && idx < completions->size(); i++, idx++) {
-		text_line_t::paint_info_t info;
-		text_line_t file_name_line((*completions)[idx]);
-		bool paint_selected = focus && idx == current;
-
-		t3_win_set_paint(window, i, 1);
-
-		info.start = 0;
-		info.leftcol = 0;
-		info.max = INT_MAX;
-		info.size = width - 2;
-		info.tabsize = 0;
-		info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL | (paint_selected ? text_line_t::EXTEND_SELECTION : 0);
-		info.selection_start = -1;
-		info.selection_end = paint_selected ? INT_MAX : -1;
-		info.cursor = -1;
-		info.normal_attr = 0;
-		info.selected_attr = attributes.dialog_selected;
-
-		file_name_line.paint_line(window, &info);
-
-		if (file_list != NULL && file_list->is_dir(idx)) {
-			int length = file_name_line.get_length();
-			if (length < width) {
-				t3_win_set_paint(window, i, length + 1);
-				t3_win_addch(window, '/', paint_selected ? attributes.dialog_selected : 0);
-			}
+	popup_t::update_contents();
+	if (saved_redraw) {
+		width = t3_win_get_width(window);
+		t3_win_set_default_attrs(window, attributes.dialog);
+		t3_win_set_paint(window, 0, 0);
+		t3_win_clrtobot(window);
+		for (i = 0; i < (DDL_HEIGHT - 1); i++) {
+			t3_win_set_paint(window, i, 0);
+			t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
+			t3_win_set_paint(window, i, width - 1);
+			t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
 		}
+		t3_win_set_paint(window, (DDL_HEIGHT - 1), 0);
+		t3_win_addch(window, T3_ACS_LLCORNER, T3_ATTR_ACS);
+		t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
+		t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
 	}
 }
 
-void text_field_t::drop_down_list_t::set_focus(focus_t _focus) {
-	focus = _focus;
-	if (focus) {
-		field->set_text((*completions)[current]);
-		ensure_cursor_on_screen();
-	}
+void text_field_t::drop_down_list_t::set_focus(focus_t focus) {
+	if (focus && field->impl->in_drop_down_list)
+		field->set_text((*completions)[list_pane.get_current()]);
+	popup_t::set_focus(focus);
+}
+
+
+void text_field_t::drop_down_list_t::hide() {
+	field->impl->in_drop_down_list = false;
+	field->redraw = true;
+	popup_t::hide();
 }
 
 void text_field_t::drop_down_list_t::show(void) {
-	field->grab_mouse();
-	t3_win_show(window);
-}
-
-void text_field_t::drop_down_list_t::hide(void) {
-	field->release_mouse_grab();
-	t3_win_hide(window);
+	if (!is_shown()) {
+		popup_t::show();
+		list_pane.set_focus(FOCUS_OUT);
+	}
 }
 
 void text_field_t::drop_down_list_t::update_view(void) {
-	top_idx = current = 0;
 
 	if (completions != NULL) {
 		if (field->impl->line->get_length() == 0)
 			completions->reset_filter();
 		else
 			completions->set_filter(sigc::bind(sigc::ptr_fun(string_compare_filter), field->impl->line->get_data()));
-		scrollbar.set_parameters(completions->size(), 0, DDL_HEIGHT - 1);
+		update_list_pane();
 	}
 }
 
@@ -782,70 +680,41 @@ void text_field_t::drop_down_list_t::set_autocomplete(string_list_base_t *_compl
 		completions = new filtered_file_list_t((file_list_t *) _completions);
 	else
 		completions = new filtered_string_list_t(_completions);
+	update_list_pane();
 }
 
 bool text_field_t::drop_down_list_t::empty(void) {
 	return completions->size() == 0;
 }
 
-void text_field_t::drop_down_list_t::force_redraw(void) {}
-
 bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
-	if (event.button_state == EMOUSE_CLICKED_LEFT && event.x > 0 && event.window == window) {
-		if (event.modifier_state != 0 || event.y > DDL_HEIGHT - 1 || event.y + top_idx >= completions->size())
-			return true;
-
-		focus = false;
-		field->impl->in_drop_down_list = false;
-		field->impl->drop_down_list_shown = false;
+	if ((event.type & EMOUSE_OUTSIDE_GRAB) && (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_PRESS) {
 		hide();
-		field->set_text((*completions)[event.y + top_idx]);
-		return true;
-	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
-		scrollbar_clicked(event.button_state == EMOUSE_SCROLL_UP ? scrollbar_t::BACK_MEDIUM : scrollbar_t::FWD_MEDIUM);
+		return false;
 	}
-	return false;
+	return true;
 }
 
-void text_field_t::drop_down_list_t::set_child_focus(window_component_t *target) {
-	(void) target;
-	set_focus(window_component_t::FOCUS_SET);
-}
-
-bool text_field_t::drop_down_list_t::is_child(window_component_t *widget) {
-	return widget == &scrollbar;
-}
-
-void text_field_t::drop_down_list_t::scrollbar_clicked(scrollbar_t::step_t step) {
-	size_t length = completions->size();
-	size_t saved_top_idx = top_idx;
-
-	if (step == scrollbar_t::FWD_SMALL) {
-		if (top_idx + (DDL_HEIGHT - 1) + 2 < length)
-			top_idx += 2;
-		else if (length >= DDL_HEIGHT - 1)
-			top_idx = length - (DDL_HEIGHT - 1);
-	} else if (step == scrollbar_t::FWD_MEDIUM || step == scrollbar_t::FWD_PAGE) {
-		if (top_idx + (DDL_HEIGHT - 1) + (DDL_HEIGHT - 2) < length)
-			top_idx += DDL_HEIGHT - 2;
-		else if (length >= DDL_HEIGHT - 1)
-			top_idx = length - (DDL_HEIGHT - 1);
-	} else if (step == scrollbar_t::BACK_SMALL) {
-		if (top_idx > 2)
-			top_idx -= 2;
-		else
-			top_idx = 0;
-	} else if (step == scrollbar_t::BACK_MEDIUM || step == scrollbar_t::BACK_PAGE) {
-		if (top_idx > (DDL_HEIGHT - 2))
-			top_idx -= DDL_HEIGHT - 2;
-		else
-			top_idx = 0;
+void text_field_t::drop_down_list_t::update_list_pane(void) {
+	while (!list_pane.empty()) {
+		widget_t *widget = list_pane.back();
+		list_pane.pop_back();
+		delete widget;
 	}
 
-	if (top_idx != saved_top_idx) {
-		scrollbar.set_parameters(completions->size(), top_idx, DDL_HEIGHT - 1);
-		scrollbar.update_contents();
+	for (size_t i = 0; i < completions->size(); i++) {
+		label_t *label = new label_t((*completions)[i]->c_str());
+		list_pane.push_back(label);
 	}
+}
+
+void text_field_t::drop_down_list_t::item_activated(void) {
+	field->set_text((*completions)[list_pane.get_current()]);
+	hide();
+}
+
+void text_field_t::drop_down_list_t::selection_changed(void) {
+	field->set_text((*completions)[list_pane.get_current()]);
 }
 
 }; // namespace

@@ -299,7 +299,7 @@ static void *read_keys(void *arg) {
 				else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0)
 					c = (c & ~EKEY_KEY_MASK) | map_single[c & EKEY_KEY_MASK];
 
-				if (c == '\t' || (c >= 0x110000 && c < 0x111000 && c != EKEY_NL))
+				if (c == '\t' || (c >= EKEY_FIRST_SPECIAL && c < 0x111000 && c != EKEY_NL))
 					c |= modifiers * EKEY_CTRL;
 			} else if (c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
