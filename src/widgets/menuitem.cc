@@ -31,6 +31,11 @@ bool menu_item_base_t::set_size(optint height, optint width) {
 	return t3_win_resize(window, 1, width);
 }
 
+void menu_item_base_t::process_mouse_event_from_menu(mouse_event_t event) {
+	(void) event;
+}
+
+
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id) :
 		menu_item_base_t(_parent), label(new smart_label_t(_label)), hotkey(_hotkey), id(_id)
 {
@@ -83,12 +88,12 @@ bool menu_item_t::is_hotkey(key_t key) {
 	return label->is_hotkey(key);
 }
 
-bool menu_item_t::process_mouse_event(mouse_event_t event) {
+void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
 	if (event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT)) {
 		parent->close();
 		parent->signal(id);
 	}
-	return true;
+	return;
 }
 
 int menu_item_t::get_label_width(void) {

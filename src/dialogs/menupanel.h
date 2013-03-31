@@ -44,7 +44,10 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 
 	protected:
 		virtual bool is_child(window_component_t *widget);
-		void set_focus_from_xy(int x, int y);
+
+		/* Menu panels get their events from the menu_t, because that grabs the
+		   mouse as soon as it is activated. */
+		void process_mouse_event_from_menu(mouse_event_t event);
 
 	public:
 		menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);

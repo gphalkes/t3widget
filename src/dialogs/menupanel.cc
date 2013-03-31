@@ -100,6 +100,19 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 	return result;
 }
 
+void menu_panel_t::process_mouse_event_from_menu(mouse_event_t event) {
+	if (event.x < 1 || event.x > t3_win_get_width(window) - 2 || event.y < 1 || event.y > t3_win_get_height(window) - 2)
+		return;
+	(*current_widget)->set_focus(FOCUS_OUT);
+	current_widget = widgets.begin() + (event.y - 1);
+	event.y = 0;
+	event.x--;
+	(*current_widget)->set_focus(FOCUS_SET);
+	((menu_item_base_t *) (*current_widget))->process_mouse_event_from_menu(event);
+	return;
+}
+
+
 void menu_panel_t::close(void) {
 	if (impl->menu_bar != NULL)
 		impl->menu_bar->close();
@@ -194,14 +207,6 @@ bool menu_panel_t::is_hotkey(key_t key) const {
 
 bool menu_panel_t::is_child(window_component_t *widget) {
 	return dialog_t::is_child(widget);
-}
-
-void menu_panel_t::set_focus_from_xy(int x, int y) {
-	if (x < 1 || x > t3_win_get_width(window) - 2 || y < 1 || y > t3_win_get_height(window) - 2)
-		return;
-	(*current_widget)->set_focus(FOCUS_OUT);
-	current_widget = widgets.begin() + (y - 1);
-	(*current_widget)->set_focus(FOCUS_SET);
 }
 
 }; // namespace

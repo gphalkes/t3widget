@@ -212,16 +212,15 @@ bool menu_bar_t::process_mouse_event(mouse_event_t event) {
 			}
 		}
 	} else if (outside_area) {
-		if (event.type != EMOUSE_MOTION) {
+		if (event.type == EMOUSE_BUTTON_RELEASE) {
 			close();
-			return false;
-		}
-	} else {
-		if (event.type == EMOUSE_MOTION) {
-			impl->menus[impl->current_menu]->set_focus_from_xy(event.x - current_menu_x, event.y - 1);
 			return true;
 		}
-		return false;
+	} else {
+		event.x -= current_menu_x;
+		event.y -= 1;
+		impl->menus[impl->current_menu]->process_mouse_event_from_menu(event);
+		return true;
 	}
 	return true;
 }
