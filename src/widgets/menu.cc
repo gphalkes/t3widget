@@ -88,6 +88,7 @@ void menu_bar_t::close(void) {
 		t3_win_hide(window);
 	draw_menu_name(impl->menus[impl->current_menu], false);
 	impl->menus[impl->current_menu]->hide();
+	release_mouse_grab();
 }
 
 void menu_bar_t::next_menu(void) {
@@ -155,7 +156,13 @@ void menu_bar_t::show(void) {
 		t3_win_show(window);
 		draw_menu_name(impl->menus[impl->current_menu], true);
 		impl->menus[impl->current_menu]->show();
+		grab_mouse();
 	}
+}
+
+void menu_bar_t::hide() {
+	release_mouse_grab();
+	widget_t::hide();
 }
 
 bool menu_bar_t::is_hotkey(key_t key) {
@@ -176,14 +183,44 @@ bool menu_bar_t::is_hotkey(key_t key) {
 bool menu_bar_t::accepts_focus(void) { return false; }
 
 bool menu_bar_t::process_mouse_event(mouse_event_t event) {
-	if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT)) {
-		impl->button_down_idx = coord_to_menu_idx(event.x);
-	} else if (event.button_state & EMOUSE_CLICKED_LEFT) {
-		int clicked_idx = coord_to_menu_idx(event.x);
-		if (clicked_idx != -1 && clicked_idx == impl->button_down_idx) {
-			impl->current_menu = clicked_idx;
-			show();
+	bool outside_area, on_bar;
+	int current_menu_x;
+
+	event.type &= ~EMOUSE_OUTSIDE_GRAB;
+
+	if (event.y == 0) {
+		outside_area = event.x < 0 || event.x >= t3_win_get_width(window);
+		on_bar = !outside_area;
+	} else {
+		int current_menu_width = t3_win_get_width(impl->menus[impl->current_menu]->get_base_window());
+		int current_menu_height = t3_win_get_height(impl->menus[impl->current_menu]->get_base_window());
+		current_menu_x = t3_win_get_x(impl->menus[impl->current_menu]->get_base_window());
+
+		outside_area = event.x < current_menu_x || event.x >= current_menu_x + current_menu_width ||
+				event.y > current_menu_height || event.y < 0;
+		on_bar = false;
+	}
+
+	if (on_bar) {
+		if ((event.type == EMOUSE_BUTTON_PRESS || event.type == EMOUSE_MOTION) && (event.button_state & EMOUSE_BUTTON_LEFT)) {
+			int clicked_idx = coord_to_menu_idx(event.x);
+			if (event.y == 0) {
+				if (clicked_idx != -1) {
+					impl->current_menu = clicked_idx;
+					show();
+				}
+			}
 		}
+	} else if (outside_area) {
+		if (event.type == EMOUSE_BUTTON_RELEASE) {
+			close();
+			return true;
+		}
+	} else {
+		event.x -= current_menu_x;
+		event.y -= 1;
+		impl->menus[impl->current_menu]->process_mouse_event_from_menu(event);
+		return true;
 	}
 	return true;
 }

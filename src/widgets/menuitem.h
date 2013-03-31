@@ -21,7 +21,12 @@ namespace t3_widget {
 
 class T3_WIDGET_API menu_item_base_t : public widget_t {
 	protected:
+		friend class menu_panel_t;
 		menu_panel_t *parent;
+
+		/* Menu items get their events from the menu_t (via the menu_panel_t),
+		   because that grabs the mouse as soon as it is activated. */
+		virtual void process_mouse_event_from_menu(mouse_event_t event);
 
 	public:
 		menu_item_base_t(menu_panel_t *_parent) : widget_t(1, 4), parent(_parent) {}
@@ -36,6 +41,10 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 		int id;
 		bool has_focus;
 
+		/* Menu items get their events from the menu_t (via the menu_panel_t),
+		   because that grabs the mouse as soon as it is activated. */
+		virtual void process_mouse_event_from_menu(mouse_event_t event);
+
 	public:
 		menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
 		virtual bool process_key(key_t key);
@@ -44,7 +53,6 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 		virtual void show(void);
 		virtual void hide(void);
 		virtual bool is_hotkey(key_t key);
-		virtual bool process_mouse_event(mouse_event_t event);
 		int get_label_width(void);
 		int get_hotkey_width(void);
 };

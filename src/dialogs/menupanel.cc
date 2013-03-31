@@ -100,6 +100,19 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 	return result;
 }
 
+void menu_panel_t::process_mouse_event_from_menu(mouse_event_t event) {
+	if (event.x < 1 || event.x > t3_win_get_width(window) - 2 || event.y < 1 || event.y > t3_win_get_height(window) - 2)
+		return;
+	(*current_widget)->set_focus(FOCUS_OUT);
+	current_widget = widgets.begin() + (event.y - 1);
+	event.y = 0;
+	event.x--;
+	(*current_widget)->set_focus(FOCUS_SET);
+	((menu_item_base_t *) (*current_widget))->process_mouse_event_from_menu(event);
+	return;
+}
+
+
 void menu_panel_t::close(void) {
 	if (impl->menu_bar != NULL)
 		impl->menu_bar->close();
@@ -193,11 +206,6 @@ bool menu_panel_t::is_hotkey(key_t key) const {
 }
 
 bool menu_panel_t::is_child(window_component_t *widget) {
-	/* We use a little hack here. The menu bar widget isn't actually one of our
-	   children. But by claiming it is, it will receive the mouse events that it
-	   should, even when this panel is visible. */
-	if (widget == impl->menu_bar)
-		return true;
 	return dialog_t::is_child(widget);
 }
 
