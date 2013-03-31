@@ -20,16 +20,14 @@
 
 namespace t3_widget {
 
-scrollbar_t::scrollbar_t(bool _vertical) :
-	length(3), range(1), start(0), used(1), vertical(_vertical), before(0), slider_size(length - 2)
-{
+scrollbar_t::scrollbar_t(bool _vertical) : impl(new implementation_t(_vertical)) {
 	int width, height;
 
-	if (vertical) {
+	if (impl->vertical) {
 		width = 1;
-		height = length;
+		height = impl->length;
 	} else {
-		width = length;
+		width = impl->length;
 		height = 1;
 	}
 
@@ -43,15 +41,15 @@ bool scrollbar_t::process_key(key_t key) {
 
 bool scrollbar_t::set_size(optint height, optint width) {
 	bool result = true;
-	if (vertical) {
+	if (impl->vertical) {
 		if (height.is_valid()) {
-			length = height;
-			result = t3_win_resize(window, length, 1);
+			impl->length = height;
+			result = t3_win_resize(window, impl->length, 1);
 		}
 	} else {
 		if (width.is_valid()) {
-			length = width;
-			result = t3_win_resize(window, 1, length);
+			impl->length = width;
+			result = t3_win_resize(window, 1, impl->length);
 		}
 	}
 	redraw = true;
@@ -66,52 +64,52 @@ void scrollbar_t::update_contents(void) {
 		return;
 	redraw = false;
 
-	blocks_per_line = (double) (length - 2) / range;
-	slider_size = (int) (blocks_per_line * used);
-	if (slider_size == 0)
-		slider_size = 1;
+	blocks_per_line = (double) (impl->length - 2) / impl->range;
+	impl->slider_size = (int) (blocks_per_line * impl->used);
+	if (impl->slider_size == 0)
+		impl->slider_size = 1;
 	/* Rounding errors may cause incorrect slider sizing. This is normally not a
 	   problem, except for the case where the slider should be maximal. */
-	else if (range <= used)
-		slider_size = length - 2;
+	else if (impl->range <= impl->used)
+		impl->slider_size = impl->length - 2;
 
 	/* Recalulate the number of blocks per line, because the slider may actually
 	   be larger than it should be. */
-	if (range <= used)
+	if (impl->range <= impl->used)
 		blocks_per_line = strtod("Inf", NULL);
 	else
-		blocks_per_line = (double) (length - 2 - slider_size) / (range - used + 1);
+		blocks_per_line = (double) (impl->length - 2 - impl->slider_size) / (impl->range - impl->used + 1);
 
-	before = (int) ceil(blocks_per_line * start);
-	if (before >= length - 2)
-		before = length - 3;
-	if (before > 1 && before + slider_size == length - 2 && used + start < range)
-		before--;
-	else if (used + start == range)
-		before = length - 2 - slider_size;
+	impl->before = (int) ceil(blocks_per_line * impl->start);
+	if (impl->before >= impl->length - 2)
+		impl->before = impl->length - 3;
+	if (impl->before > 1 && impl->before + impl->slider_size == impl->length - 2 && impl->used + impl->start < impl->range)
+		impl->before--;
+	else if (impl->used + impl->start == impl->range)
+		impl->before = impl->length - 2 - impl->slider_size;
 
 	t3_win_set_paint(window, 0, 0);
-	t3_win_addch(window, vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | attributes.scrollbar);
+	t3_win_addch(window, impl->vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | attributes.scrollbar);
 
-	for (i = 1; i < length - 1 && i < before + 1; i++) {
-		if (vertical)
+	for (i = 1; i < impl->length - 1 && i < impl->before + 1; i++) {
+		if (impl->vertical)
 			t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
 	}
-	for (; i < length - 1 && i < before + slider_size + 1; i++) {
-		if (vertical)
+	for (; i < impl->length - 1 && i < impl->before + impl->slider_size + 1; i++) {
+		if (impl->vertical)
 			t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, ' ', attributes.scrollbar);
 	}
-	for (; i < length - 1; i++) {
-		if (vertical)
+	for (; i < impl->length - 1; i++) {
+		if (impl->vertical)
 			t3_win_set_paint(window, i, 0);
 		t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
 	}
 
-	if (vertical)
-		t3_win_set_paint(window, length - 1, 0);
-	t3_win_addch(window, vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | attributes.scrollbar);
+	if (impl->vertical)
+		t3_win_set_paint(window, impl->length - 1, 0);
+	t3_win_addch(window, impl->vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | attributes.scrollbar);
 }
 
 
@@ -122,15 +120,15 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 	/* FIXME: allow drag of slider */
 	if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) != 0) {
 		int pos;
-		pos = vertical ? event.y : event.x;
+		pos = impl->vertical ? event.y : event.x;
 
 		if (pos == 0)
 			clicked(BACK_SMALL);
-		else if (pos == length - 1)
+		else if (pos == impl->length - 1)
 			clicked(FWD_SMALL);
-		else if (pos <= before)
+		else if (pos <= impl->before)
 			clicked(BACK_PAGE);
-		else if (pos > before + slider_size)
+		else if (pos > impl->before + impl->slider_size)
 			clicked(FWD_PAGE);
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 		clicked((event.button_state & EMOUSE_SCROLL_UP) ? BACK_MEDIUM : FWD_MEDIUM);
@@ -140,13 +138,13 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 }
 
 void scrollbar_t::set_parameters(int _range, int _start, int _used) {
-	if (range == _range && start == _start && used == _used)
+	if (impl->range == _range && impl->start == _start && impl->used == _used)
 		return;
 
 	redraw = true;
-	range = _range;
-	start = _start;
-	used = _used;
+	impl->range = _range;
+	impl->start = _start;
+	impl->used = _used;
 }
 
 }; // namespace

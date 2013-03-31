@@ -20,10 +20,15 @@ namespace t3_widget {
 
 class T3_WIDGET_API scrollbar_t : public widget_t {
 	private:
-		int length;
-		int range, start, used;
-		bool vertical;
-		int before, slider_size;
+		struct T3_WIDGET_LOCAL implementation_t {
+			int length;
+			int range, start, used;
+			bool vertical;
+			int before, slider_size;
+			implementation_t(bool _vertical) : length(3), range(1), start(0), used(1),
+				vertical(_vertical), before(0), slider_size(length - 2) {}
+		};
+		pimpl_ptr<implementation_t>::t impl;
 
 	public:
 		scrollbar_t(bool _vertical);
@@ -46,6 +51,7 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
 		};
 
 		T3_WIDGET_SIGNAL(clicked, void, step_t);
+		T3_WIDGET_SIGNAL(dragged, void, int);
 };
 
 }; // namespace
