@@ -304,7 +304,6 @@ bool text_field_t::set_size(optint height, optint width) {
 }
 
 void text_field_t::update_contents(void) {
-	lprintf("Update contents (%d)\n", redraw);
 	if (impl->drop_down_list != NULL && impl->edited) {
 		impl->drop_down_list->update_view();
 		if (!impl->drop_down_list->empty() && impl->line->get_length() > 0) {

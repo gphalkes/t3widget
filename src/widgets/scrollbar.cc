@@ -118,7 +118,24 @@ void scrollbar_t::set_focus(focus_t focus) { (void) focus; }
 
 bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 	/* FIXME: allow drag of slider */
-	if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) != 0) {
+	if (event.type == EMOUSE_MOTION && impl->dragging) {
+		int location = (impl->vertical ? event.y : event.x) - 1 - impl->button_down_pos;
+
+		if (location == 0) {
+			return 0;
+		} else if (location == impl->length - 2 - impl->slider_size) {
+			return impl->range - impl->used;
+		}
+
+		double blocks_per_line = (double) (impl->length - 2) / impl->range;
+		dragged(blocks_per_line * location);
+	} else if (event.type == EMOUSE_BUTTON_PRESS) {
+		int location = (impl->vertical ? event.y : event.x) - 1;
+		if (location >= impl->before && location < impl->before + impl->slider_size) {
+			impl->dragging = true;
+			impl->button_down_pos = location - impl->before;
+		}
+	} else if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) && !impl->dragging) {
 		int pos;
 		pos = impl->vertical ? event.y : event.x;
 
@@ -130,6 +147,8 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 			clicked(BACK_PAGE);
 		else if (pos > impl->before + impl->slider_size)
 			clicked(FWD_PAGE);
+	} else if (event.type == EMOUSE_BUTTON_RELEASE && impl->dragging) {
+		impl->dragging = false;
 	} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 		clicked((event.button_state & EMOUSE_SCROLL_UP) ? BACK_MEDIUM : FWD_MEDIUM);
 	}

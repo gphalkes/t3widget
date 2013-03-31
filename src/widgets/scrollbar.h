@@ -23,10 +23,12 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
 		struct T3_WIDGET_LOCAL implementation_t {
 			int length;
 			int range, start, used;
-			bool vertical;
 			int before, slider_size;
+			int button_down_pos;
+			bool vertical;
+			bool dragging;
 			implementation_t(bool _vertical) : length(3), range(1), start(0), used(1),
-				vertical(_vertical), before(0), slider_size(length - 2) {}
+				before(0), slider_size(length - 2), vertical(_vertical), dragging(false) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
