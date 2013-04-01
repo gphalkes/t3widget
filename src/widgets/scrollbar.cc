@@ -124,7 +124,7 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 			/* Do nothing */
 		} if (location == 0) {
 			dragged(0);
-		} else if (location == impl->length - 2 - impl->slider_size) {
+		} else if (location >= impl->length - 2 - impl->slider_size) {
 			dragged(impl->range - impl->used);
 		} else {
 			double lines_per_block = (double) (impl->range - impl->used + 1) / (impl->length - 2 - impl->slider_size);

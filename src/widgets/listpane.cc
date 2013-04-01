@@ -30,6 +30,7 @@ list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator
 	impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	impl->scrollbar.set_size(1, None);
 	impl->scrollbar.connect_clicked(sigc::mem_fun(this, &list_pane_t::scrollbar_clicked));
+	impl->scrollbar.connect_dragged(sigc::mem_fun(this, &list_pane_t::scrollbar_dragged));
 
 	if (impl->indicator) {
 		impl->indicator_widget = new indicator_widget_t();
@@ -370,6 +371,7 @@ void list_pane_t::scroll(int change) {
 		(change > 0 && impl->top_idx + t3_win_get_height(window) + change >= impl->widgets.size()) ?
 			impl->widgets.size() - t3_win_get_height(window) : impl->top_idx + change;
 }
+
 void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 	scroll(step == scrollbar_t::BACK_SMALL ? -3 :
 		step == scrollbar_t::BACK_MEDIUM ? -t3_win_get_height(window) / 2 :
@@ -377,6 +379,13 @@ void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		step == scrollbar_t::FWD_SMALL ? 3 :
 		step == scrollbar_t::FWD_MEDIUM ? t3_win_get_height(window) / 2 :
 		step == scrollbar_t::FWD_PAGE ? t3_win_get_height(window) : 0);
+}
+
+void list_pane_t::scrollbar_dragged(int start) {
+	if (start >= 0 && (size_t) start <= impl->widgets.size()) {
+		impl->top_idx = start;
+		redraw = true;
+	}
 }
 
 void list_pane_t::set_single_click_activate(bool sca) {
