@@ -9,3 +9,5 @@
 /tmp/
 /testsuite/work
 /testsuite/testlog*.txt
+/doc/doxygen.conf
+/doc/DoxygenLayout.xml

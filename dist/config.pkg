@@ -80,6 +80,27 @@ checkfunction_compile() {
 config() {
 	clean_cxx
 	cat > .configcxx.cc <<EOF
+#include <math.h>
+int main(int argc, char *argv[]) {
+	floor(0.5);
+	ceil(0.5);
+	return 0;
+}
+EOF
+	if test_compile_cxx "math functions" ; then
+		if test_link_cxx "math functions in standard library" ; then
+			:
+		elif test_link_cxx "math functions in -lm" ; then
+			CONFIGLIBS="$CONFIGLIBS -lm"
+		else
+			error "!! Can not find library for basic math functions"
+		fi
+	else
+		error "!! Can not find basic math functions"
+	fi
+
+	clean_cxx
+	cat > .configcxx.cc <<EOF
 #include <sigc++/sigc++.h>
 sigc::connection conn;
 sigc::signal<void, int> sig;
@@ -472,15 +493,19 @@ EOF
 		fi
 	fi
 
-	cat .configcxx.cc <<EOF
+	cat > .configcxx.cc <<EOF
 #include <string>
 int main(int argc, char *argv[]) {
-	string test;
+	std::string test;
 	test.shrink_to_fit();
 	return 0;
 }
 EOF
-	test_link_cxx "shrink_to_fit in string" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRING_SHRINK_TO_FIT"
+	if test_link_cxx "shrink_to_fit in string" ; then
+		CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRING_SHRINK_TO_FIT"
+	elif test_link_cxx "shrink_to_fit in string with -std=c++11" TESTFLAGS="-std=c++11" ; then
+		CONFIGFLAGS="${CONFIGFLAGS} -std=c++11 -DHAS_STRING_SHRINK_TO_FIT"
+	fi
 
 	PKGCONFIG_DESC="Dialog toolkit library"
 	PKGCONFIG_VERSION="<VERSION>"

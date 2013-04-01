@@ -93,7 +93,7 @@ src/x11.lo: src/x11.cc
 
 src/libt3widget.la: $(OBJECTS)
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -version-info <VERSIONINFO> \
-		$(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -lm -rpath $(libdir)
+		$(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(CONFIGLIBS) $(GETTEXTLIBS) -rpath $(libdir)
 
 src/libt3widget<LIBVERSION>-x11.la: src/x11.lo src/libt3widget.la
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \

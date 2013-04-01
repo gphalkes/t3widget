@@ -1,3 +1,14 @@
+Version 0.4.0:
+	New features:
+	- Draggable menus.
+	- Draggable scrollbars.
+
+	Bug fixes:
+	- Fix cursor handling for unindent of single lines.
+	- Fix report window for mouse event.
+	- Check bounds on arguments to text_buffer_t::calculate_line_pos in
+	  edit_window_t::xy_to_text_coordinate.
+
 Version 0.3.1:
 	Bug fixes:
 	- Ensure correct cursor position after line unindent and undo of line

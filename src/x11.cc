@@ -104,7 +104,7 @@ static x11_window_t x11_get_selection_owner(x11_atom_t selection) {
 }
 
 static void x11_change_property(x11_window_t win, x11_atom_t property, x11_atom_t type,
-		int format, int mode, unsigned char *data, int nelements)
+		int format, int mode, const unsigned char *data, int nelements)
 {
 	XChangeProperty(display, win, property, type, format, mode, data, nelements);
 }
@@ -250,7 +250,7 @@ static x11_window_t x11_get_selection_owner(x11_atom_t selection) {
 }
 
 static void x11_change_property(x11_window_t win, x11_atom_t property, x11_atom_t type,
-		int format, int mode, unsigned char *data, int nelements)
+		int format, int mode, const unsigned char *data, int nelements)
 {
 	xcb_change_property(connection, mode, win, property, type, format, nelements, data);
 }
@@ -470,7 +470,7 @@ static bool send_selection(x11_window_t requestor, x11_atom_t target, x11_atom_t
 		   unless limited by the maximum request size), we use the INCR protocol. */
 		if (data->size() < max_data) {
 			x11_change_property(requestor, property, atoms[UTF8_STRING], 8, X11_PROPERTY_REPLACE,
-				(unsigned char *) data->data(), data->size());
+				(const unsigned char *) data->data(), data->size());
 		} else {
 			long size = data->size();
 			incr_sends.push_back(incr_send_data_t(requestor, data, property));
@@ -558,7 +558,7 @@ static void handle_property_notify(x11_property_event_t *event) {
 				if (size > max_data)
 					size = max_data;
 				x11_change_property(iter->window, iter->property, atoms[UTF8_STRING], 8, X11_PROPERTY_REPLACE,
-					(unsigned char *) iter->data->data() + iter->offset, size);
+					(const unsigned char *) iter->data->data() + iter->offset, size);
 				if (size == 0) {
 					x11_select_prop_change(iter->window, false);
 					incr_sends.erase(iter);

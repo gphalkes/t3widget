@@ -14,12 +14,6 @@
 all: doxygen
 .PHONY: all
 
-doxygen: doxygen.conf DoxygenLayout.xml
-	doxygen doxygen.conf
-
-clean::
-	rm -rf API 2> /dev/null
-
-.PHONY: clean doxygen
-#~ T3NAME:=widget
-#~ include ../../t3shared/doc-rules.mk
+T3NAME:=widget
+T3CXX:=1
+include ../../t3shared/doc-rules.mk
