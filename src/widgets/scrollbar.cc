@@ -117,18 +117,19 @@ bool scrollbar_t::accepts_focus(void) { return false; }
 void scrollbar_t::set_focus(focus_t focus) { (void) focus; }
 
 bool scrollbar_t::process_mouse_event(mouse_event_t event) {
-	/* FIXME: allow drag of slider */
 	if (event.type == EMOUSE_MOTION && impl->dragging) {
 		int location = (impl->vertical ? event.y : event.x) - 1 - impl->button_down_pos;
 
-		if (location == 0) {
-			return 0;
+		if (impl->used >= impl->range) {
+			/* Do nothing */
+		} if (location == 0) {
+			dragged(0);
 		} else if (location == impl->length - 2 - impl->slider_size) {
-			return impl->range - impl->used;
+			dragged(impl->range - impl->used);
+		} else {
+			double lines_per_block = (double) (impl->range - impl->used + 1) / (impl->length - 2 - impl->slider_size);
+			dragged(floor(location * lines_per_block));
 		}
-
-		double blocks_per_line = (double) (impl->length - 2) / impl->range;
-		dragged(blocks_per_line * location);
 	} else if (event.type == EMOUSE_BUTTON_PRESS) {
 		int location = (impl->vertical ? event.y : event.x) - 1;
 		if (location >= impl->before && location < impl->before + impl->slider_size) {

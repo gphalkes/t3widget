@@ -131,6 +131,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 
 		void scroll(int lines);
 		void scrollbar_clicked(scrollbar_t::step_t step);
+		void scrollbar_dragged(int start);
 		void autocomplete_activated(void);
 
 	protected:

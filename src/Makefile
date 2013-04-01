@@ -99,6 +99,7 @@ LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
 LDLIBS.libt3widget.la += `pkg-config --libs sigc++-2.0`
 LDLIBS.libt3widget.la += -lunistring
 LDLIBS.libt3widget.la += -lgpm
+LDLIBS.libt3widget.la += -lm
 
 CXXFLAGS += -DHAS_DLFCN
 LDLIBS.libt3widget.la += -ldl

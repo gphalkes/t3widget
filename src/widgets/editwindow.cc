@@ -84,6 +84,7 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 	impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	impl->scrollbar->set_size(10, None);
 	impl->scrollbar->connect_clicked(sigc::mem_fun(this, &edit_window_t::scrollbar_clicked));
+	impl->scrollbar->connect_dragged(sigc::mem_fun(this, &edit_window_t::scrollbar_dragged));
 
 	set_text(_text == NULL ? new text_buffer_t() : _text, params);
 
@@ -1474,6 +1475,15 @@ void edit_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		step == scrollbar_t::FWD_MEDIUM ? t3_win_get_height(impl->edit_window) / 2 :
 		step == scrollbar_t::BACK_PAGE ? -(t3_win_get_height(impl->edit_window) - 1) :
 		step == scrollbar_t::FWD_PAGE ? (t3_win_get_height(impl->edit_window) - 1) : 0);
+}
+
+void edit_window_t::scrollbar_dragged(int start) {
+	if (impl->wrap_type == wrap_type_t::NONE) {
+		if (start >= 0 && start + t3_win_get_height(impl->edit_window) <= text->size() && start != impl->top_left.line) {
+			impl->top_left.line = start;
+			update_repaint_lines(0, INT_MAX);
+		}
+	}
 }
 
 void edit_window_t::update_repaint_lines(int start, int end) {
