@@ -26,6 +26,7 @@ file_pane_t::file_pane_t(void) : widget_t(3, 3), impl(new implementation_t())
 	set_widget_parent(&impl->scrollbar);
 	impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	impl->scrollbar.connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
+	impl->scrollbar.connect_dragged(sigc::mem_fun(this, &file_pane_t::scrollbar_dragged));
 	impl->search_panel = new search_panel_t(this);
 }
 
@@ -55,7 +56,6 @@ void file_pane_t::ensure_cursor_on_screen(void) {
 	if (impl->top_idx != old_top_idx) {
 		update_column_widths();
 		ensure_cursor_on_screen();
-		impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	}
 }
 
@@ -160,7 +160,6 @@ bool file_pane_t::set_size(optint height, optint width) {
 		update_column_widths();
 		impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
 		ensure_cursor_on_screen();
-		impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	}
 	redraw = true;
 	return result;
@@ -220,6 +219,7 @@ void file_pane_t::update_contents(void) {
 	for (i = impl->top_idx, max_idx = min(impl->top_idx + impl->columns_visible * height, impl->file_list->size()); i < max_idx; i++)
 		draw_line(i, impl->focus && i == impl->current);
 
+	impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	impl->scrollbar.update_contents();
 }
 
@@ -345,7 +345,6 @@ void file_pane_t::content_changed(void) {
 	impl->top_idx = 0;
 	update_column_widths();
 	impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
-	impl->scrollbar.set_parameters(impl->scrollbar_range, 0, impl->columns_visible * height);
 	redraw = true;
 }
 
@@ -393,11 +392,19 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		impl->current = impl->file_list->size() - 1;
 	else if (impl->current >= impl->top_idx + impl->columns_visible * height)
 		impl->current = impl->top_idx + impl->columns_visible * height - 1;
-	impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
 	redraw = true;
 
 	if (impl->file_list->size() != 0 && impl->field != NULL)
 		impl->field->set_text((*impl->file_list)[impl->current]->c_str());
+}
+
+void file_pane_t::scrollbar_dragged(int start) {
+	int height = t3_win_get_height(window) - 1;
+	size_t new_top_idx = (start / height) * height;
+	if (start >= 0 && new_top_idx < impl->file_list->size() && new_top_idx != impl->top_idx) {
+		impl->top_idx = new_top_idx;
+		redraw = true;
+	}
 }
 
 void file_pane_t::search(const std::string *text) {
