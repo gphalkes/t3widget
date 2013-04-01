@@ -351,7 +351,6 @@ void text_field_t::update_contents(void) {
 		info.selection_start = impl->selection_end_pos;
 		info.selection_end = impl->selection_start_pos;
 	}
-	lprintf("focus: %d, in_ddl: %d\n", impl->focus, impl->in_drop_down_list);
 	info.cursor = impl->focus && !impl->in_drop_down_list ? impl->pos : -1;
 	info.normal_attr = attributes.dialog;
 	info.selected_attr = attributes.dialog_selected;

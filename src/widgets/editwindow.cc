@@ -1483,6 +1483,26 @@ void edit_window_t::scrollbar_dragged(int start) {
 			impl->top_left.line = start;
 			update_repaint_lines(0, INT_MAX);
 		}
+	} else {
+		text_coordinate_t new_top_left(0, 0);
+		int count = 0;
+
+		if (start < 0 || start + t3_win_get_height(impl->edit_window) > impl->wrap_info->get_size())
+			return;
+
+		for (new_top_left.line = 0; new_top_left.line < text->size() && count < start; new_top_left.line++)
+			count += impl->wrap_info->get_line_count(new_top_left.line);
+
+		if (count > start) {
+			new_top_left.line--;
+			count -= impl->wrap_info->get_line_count(new_top_left.line);
+			new_top_left.pos = start - count;
+		}
+
+		if (new_top_left == impl->top_left || new_top_left.line < 0)
+			return;
+		impl->top_left = new_top_left;
+		update_repaint_lines(0, INT_MAX);
 	}
 }
 

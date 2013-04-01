@@ -33,6 +33,7 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget
 		impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 		impl->scrollbar->set_size(11, None);
 		impl->scrollbar->connect_clicked(sigc::mem_fun(this, &text_window_t::scrollbar_clicked));
+		impl->scrollbar->connect_dragged(sigc::mem_fun(this, &text_window_t::scrollbar_dragged));
 	}
 
 	if (_text == NULL)
@@ -259,6 +260,28 @@ void text_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		scroll_up(-scroll);
 	else
 		scroll_down(scroll);
+}
+
+void text_window_t::scrollbar_dragged(int start) {
+	text_coordinate_t new_top_left(0, 0);
+	int count = 0;
+
+	if (start < 0 || start + t3_win_get_height(window) > impl->wrap_info->get_size())
+		return;
+
+	for (new_top_left.line = 0; new_top_left.line < impl->text->size() && count < start; new_top_left.line++)
+		count += impl->wrap_info->get_line_count(new_top_left.line);
+
+	if (count > start) {
+		new_top_left.line--;
+		count -= impl->wrap_info->get_line_count(new_top_left.line);
+		new_top_left.pos = start - count;
+	}
+
+	if (new_top_left == impl->top || new_top_left.line < 0)
+		return;
+	impl->top = new_top_left;
+	redraw = true;
 }
 
 }; // namespace

@@ -38,6 +38,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		void scroll_up(int lines);
 		void scroll_down(int lines);
 		void scrollbar_clicked(scrollbar_t::step_t step);
+		void scrollbar_dragged(int start);
 
 	public:
 		text_window_t(text_buffer_t *_text = NULL, bool with_scrollbar = true);
