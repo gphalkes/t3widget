@@ -1,3 +1,8 @@
+Version 0.4.1:
+	Bug fixes:
+	- Fix a segmentation fault on pressing enter in a text field without drop
+	  down list.
+
 Version 0.4.0:
 	New features:
 	- Draggable menus.
