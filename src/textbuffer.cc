@@ -965,6 +965,8 @@ bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &
 	if (end.line < start.line) {
 		delete_start.line = end.line;
 		end_line = start.line;
+		if (start.pos == 0)
+			end_line--;
 	} else {
 		delete_start.line = start.line;
 		end_line = end.line;
