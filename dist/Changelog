@@ -3,6 +3,7 @@ Version 0.4.2:
 	- Allow scroll wheel to function on scrollbar again.
 	- Do not (un)indent the bottom line of the selection if the selection starts
 	  below the end and on column 0.
+	- Properly reset application-keypad mode.
 
 Version 0.4.1:
 	Bug fixes:

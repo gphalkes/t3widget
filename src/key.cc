@@ -268,7 +268,6 @@ static void *read_keys(void *arg) {
 					/* Exit thread */
 					close(signal_pipe[0]);
 					signal_pipe[0] = -1;
-					leave = NULL;
 					return NULL;
 				case WINCH_SIGNAL:
 					key_buffer.push_back_unique(EKEY_RESIZE);
@@ -665,7 +664,6 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 
 return_error:
 	cleanup_keys();
-	leave = NULL;
 	if (signal_pipe[0] != -1) {
 		close(signal_pipe[0]);
 		close(signal_pipe[1]);
