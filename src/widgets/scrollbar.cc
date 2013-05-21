@@ -130,7 +130,7 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
 			double lines_per_block = (double) (impl->range - impl->used + 1) / (impl->length - 2 - impl->slider_size);
 			dragged(floor(location * lines_per_block));
 		}
-	} else if (event.type == EMOUSE_BUTTON_PRESS) {
+	} else if (event.type == EMOUSE_BUTTON_PRESS && event.button_state & EMOUSE_BUTTON_LEFT) {
 		int location = (impl->vertical ? event.y : event.x) - 1;
 		if (location >= impl->before && location < impl->before + impl->slider_size) {
 			impl->dragging = true;
