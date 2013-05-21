@@ -884,6 +884,8 @@ bool text_buffer_t::indent_block(text_coordinate_t &start, text_coordinate_t &en
 	if (end.line < start.line) {
 		insert_at.line = end.line;
 		end_line = start.line;
+		if (start.pos == 0)
+			end_line--;
 	} else {
 		insert_at.line = start.line;
 		end_line = end.line;

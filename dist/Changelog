@@ -1,7 +1,7 @@
 Version 0.4.2:
 	Bug fixes:
 	- Allow scroll wheel to function on scrollbar again.
-	- Do not unindent the bottom line of the selection if the selection starts
+	- Do not (un)indent the bottom line of the selection if the selection starts
 	  below the end and on column 0.
 
 Version 0.4.1:
