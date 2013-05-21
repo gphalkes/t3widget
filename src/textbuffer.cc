@@ -926,6 +926,10 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 	undo_text = undo->get_text();
 	for (; first_line <= last_line; first_line++) {
 		next_pos = undo_text->find('X', pos);
+
+		if (next_pos == string::npos)
+			next_pos = undo_text->size();
+
 		if (type == UNDO_INDENT) {
 			text_coordinate_t delete_start, delete_end;
 			delete_start.line = delete_end.line = first_line;
