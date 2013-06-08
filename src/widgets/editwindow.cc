@@ -1570,15 +1570,16 @@ void edit_window_t::view_parameters_t::set_show_tabs(bool _show_tabs) { show_tab
 
 //====================== autocomplete_panel_t ========================
 
-edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent) : popup_t(7, 7), list_pane(false) {
+edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent) : popup_t(7, 7), list_pane(NULL) {
 	t3_win_set_anchor(window, parent->get_base_window(), 0);
 
-	list_pane.set_size(5, 6);
-	list_pane.set_position(1, 1);
-	list_pane.set_focus(window_component_t::FOCUS_SET);
-	list_pane.set_single_click_activate(true);
+	list_pane = new list_pane_t(false);
+	list_pane->set_size(5, 6);
+	list_pane->set_position(1, 1);
+	list_pane->set_focus(window_component_t::FOCUS_SET);
+	list_pane->set_single_click_activate(true);
 
-	push_back(&list_pane);
+	push_back(list_pane);
 }
 
 bool edit_window_t::autocomplete_panel_t::process_key(key_t key) {
@@ -1615,7 +1616,7 @@ void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left
 bool edit_window_t::autocomplete_panel_t::set_size(optint height, optint width) {
 	bool result;
 	result = popup_t::set_size(height, width);
-	result &= list_pane.set_size(t3_win_get_height(window) - 2, t3_win_get_width(window) - 1);
+	result &= list_pane->set_size(t3_win_get_height(window) - 2, t3_win_get_width(window) - 1);
 	return result;
 }
 
@@ -1623,20 +1624,20 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
 	int new_width = 1;
 	int new_height;
 
-	while (!list_pane.empty()) {
-		widget_t *widget = list_pane.back();
-		list_pane.pop_back();
+	while (!list_pane->empty()) {
+		widget_t *widget = list_pane->back();
+		list_pane->pop_back();
 		delete widget;
 	}
 
 	for (size_t i = 0; i < completions->size(); i++) {
 		label_t *label = new label_t((*completions)[i]->c_str());
-		list_pane.push_back(label);
+		list_pane->push_back(label);
 		if (label->get_text_width() > new_width)
 			new_width = label->get_text_width();
 	}
 
-	new_height = list_pane.size() + 2;
+	new_height = list_pane->size() + 2;
 	if (new_height > 7)
 		new_height = 7;
 	else if (new_height < 5)
@@ -1646,11 +1647,11 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
 }
 
 size_t edit_window_t::autocomplete_panel_t::get_selected_idx(void) const {
-	return list_pane.get_current();
+	return list_pane->get_current();
 }
 
 void edit_window_t::autocomplete_panel_t::connect_activate(const sigc::slot<void> &slot) {
-	list_pane.connect_activate(slot);
+	list_pane->connect_activate(slot);
 }
 
 }; // namespace

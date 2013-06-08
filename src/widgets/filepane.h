@@ -43,7 +43,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 				columns_visible, /**< The number of columns that are visible currently. */
 				scrollbar_range; /**< Visible range for scrollbar setting. */
 			sigc::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
-			search_panel_t *search_panel;
+			cleanup_ptr<search_panel_t>::t search_panel;
 
 			implementation_t(void) : scrollbar(false), top_idx(0), current(0), file_list(NULL),
 				focus(false), field(NULL), columns_visible(0), scrollbar_range(1)

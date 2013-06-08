@@ -552,18 +552,19 @@ bool text_field_t::has_focus(void) const {
 
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
 		popup_t(DDL_HEIGHT, t3_win_get_width(_field->get_base_window()), false, false),
-		field(_field), list_pane(false)
+		field(_field), list_pane(NULL)
 {
 	t3_win_set_anchor(window, field->get_base_window(), T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	t3_win_move(window, 1, 0);
 
-	list_pane.set_size(DDL_HEIGHT - 1, t3_win_get_width(window) - 1);
-	list_pane.set_position(0, 1);
-	list_pane.connect_activate(sigc::mem_fun(this, &text_field_t::drop_down_list_t::item_activated));
-	list_pane.connect_selection_changed(sigc::mem_fun(this, &text_field_t::drop_down_list_t::selection_changed));
-	list_pane.set_single_click_activate(true);
+	list_pane = new list_pane_t(false);
+	list_pane->set_size(DDL_HEIGHT - 1, t3_win_get_width(window) - 1);
+	list_pane->set_position(0, 1);
+	list_pane->connect_activate(sigc::mem_fun(this, &text_field_t::drop_down_list_t::item_activated));
+	list_pane->connect_selection_changed(sigc::mem_fun(this, &text_field_t::drop_down_list_t::selection_changed));
+	list_pane->set_single_click_activate(true);
 
-	push_back(&list_pane);
+	push_back(list_pane);
 }
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
@@ -577,8 +578,8 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 
 	switch (key) {
 		case EKEY_UP:
-			if (list_pane.get_current() == 0) {
-				list_pane.set_focus(FOCUS_OUT);
+			if (list_pane->get_current() == 0) {
+				list_pane->set_focus(FOCUS_OUT);
 				field->impl->in_drop_down_list = false;
 				field->redraw = true;
 			}
@@ -595,7 +596,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
 			return false;
 		default:
 			if (key >= 32 && key < EKEY_FIRST_SPECIAL) {
-				list_pane.set_focus(FOCUS_OUT);
+				list_pane->set_focus(FOCUS_OUT);
 				// Make sure that the cursor will be visible, by forcing a redraw of the field
 				field->redraw = true;
 				field->impl->in_drop_down_list = false;
@@ -614,7 +615,7 @@ bool text_field_t::drop_down_list_t::set_size(optint height, optint width) {
 	bool result;
 	(void) height;
 	result = popup_t::set_size(DDL_HEIGHT, width);
-	result &= list_pane.set_size(DDL_HEIGHT - 1, width - 1);
+	result &= list_pane->set_size(DDL_HEIGHT - 1, width - 1);
 	return result;
 }
 
@@ -643,7 +644,7 @@ void text_field_t::drop_down_list_t::update_contents(void) {
 
 void text_field_t::drop_down_list_t::set_focus(focus_t focus) {
 	if (focus && field->impl->in_drop_down_list)
-		field->set_text((*completions)[list_pane.get_current()]);
+		field->set_text((*completions)[list_pane->get_current()]);
 	popup_t::set_focus(focus);
 }
 
@@ -657,7 +658,7 @@ void text_field_t::drop_down_list_t::hide() {
 void text_field_t::drop_down_list_t::show(void) {
 	if (!is_shown()) {
 		popup_t::show();
-		list_pane.set_focus(FOCUS_OUT);
+		list_pane->set_focus(FOCUS_OUT);
 	}
 }
 
@@ -694,25 +695,25 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 }
 
 void text_field_t::drop_down_list_t::update_list_pane(void) {
-	while (!list_pane.empty()) {
-		widget_t *widget = list_pane.back();
-		list_pane.pop_back();
+	while (!list_pane->empty()) {
+		widget_t *widget = list_pane->back();
+		list_pane->pop_back();
 		delete widget;
 	}
 
 	for (size_t i = 0; i < completions->size(); i++) {
 		label_t *label = new label_t((*completions)[i]->c_str());
-		list_pane.push_back(label);
+		list_pane->push_back(label);
 	}
 }
 
 void text_field_t::drop_down_list_t::item_activated(void) {
-	field->set_text((*completions)[list_pane.get_current()]);
+	field->set_text((*completions)[list_pane->get_current()]);
 	hide();
 }
 
 void text_field_t::drop_down_list_t::selection_changed(void) {
-	field->set_text((*completions)[list_pane.get_current()]);
+	field->set_text((*completions)[list_pane->get_current()]);
 }
 
 }; // namespace

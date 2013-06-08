@@ -26,7 +26,7 @@ class dialog_base_t;
 typedef std::list<dialog_base_t *> dialog_base_list_t;
 class dialog_t;
 
-class T3_WIDGET_API dialog_base_t : public virtual t3_widget::window_component_t, public t3_widget::container_t {
+class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public container_t {
 	private:
 		friend class dialog_t;
 

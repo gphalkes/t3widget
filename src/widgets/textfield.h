@@ -56,7 +56,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 			smart_label_t *label; /**< Label associated with this text_field_t. */
 
-			drop_down_list_t *drop_down_list;
+			cleanup_ptr<drop_down_list_t>::t drop_down_list;
 
 			implementation_t(void) : pos(0),
 				screen_pos(0),
@@ -132,7 +132,7 @@ class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
 		text_field_t *field; /**< text_field_t this drop-down list is created for. */
 
 		cleanup_ptr<filtered_list_base_t>::t completions; /**< List of possible selections. */
-		list_pane_t list_pane;
+		list_pane_t *list_pane;
 
 		void update_list_pane(void);
 		void item_activated(void);

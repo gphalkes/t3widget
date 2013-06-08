@@ -75,7 +75,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 			bool show_tabs; /**< Boolean indicating whether to explicitly show tabs. */
 
 			cleanup_ptr<autocompleter_t>::t autocompleter; /**< Object used for autocompletion. */
-			autocomplete_panel_t *autocomplete_panel; /**< Panel for showing autocomplete options. */
+			cleanup_ptr<autocomplete_panel_t>::t autocomplete_panel; /**< Panel for showing autocomplete options. */
 
 			int repaint_min, /**< First line to repaint. */
 			    repaint_max; /**< Last line to repaint. */
@@ -300,7 +300,7 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
 
 class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
 	private:
-		list_pane_t list_pane;
+		list_pane_t *list_pane;
 	public:
 		autocomplete_panel_t(edit_window_t *parent);
 		virtual bool process_key(key_t key);
