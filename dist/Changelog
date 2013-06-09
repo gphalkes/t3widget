@@ -4,6 +4,7 @@ Version 0.4.2:
 	- Do not (un)indent the bottom line of the selection if the selection starts
 	  below the end and on column 0.
 	- Properly reset application-keypad mode.
+	- Fix several memory leaks related to popups.
 
 Version 0.4.1:
 	Bug fixes:
