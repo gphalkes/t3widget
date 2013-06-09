@@ -18,6 +18,7 @@ build_test
 [ $# -gt 1 ] && [ -n "$1" ] && SUBTEST=".$2"
 
 tdrerecord -o $TEST/recording$SUBTEST.new $TEST/recording$SUBTEST || fail "!! Could not rerecord test"
+fixup_test $TEST/recording$SUBTEST.new
 [ -s test.log ] && mv test.log $TEST/test.log$SUBTEST.new
 
 if ! tdcompare -v $TEST/recording$SUBTEST{,.new} ; then
