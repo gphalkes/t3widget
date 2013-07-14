@@ -275,8 +275,11 @@ void edit_window_t::repaint_screen(void) {
 			t3_win_clrtoeol(impl->edit_window);
 			impl->wrap_info->paint_line(impl->edit_window, draw_line, &info);
 
-			if (draw_line.line == end_coord.line && draw_line.pos == end_coord.pos)
+			if (draw_line.line == end_coord.line && draw_line.pos == end_coord.pos) {
+				/* Increase i, to make sure this line is not erased. */
+				i++;
 				break;
+			}
 		}
 	}
 	/* Clear the bottom part of the window (if applicable). */

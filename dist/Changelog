@@ -1,3 +1,7 @@
+Version 0.4.3:
+	Bug fixes:
+	- Don't erase the last line of wrapped text in the edit window.
+
 Version 0.4.2:
 	Bug fixes:
 	- Allow scroll wheel to function on scrollbar again.
