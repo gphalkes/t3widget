@@ -163,6 +163,7 @@ T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
 T3_WIDGET_API std::string get_working_directory(void);
 T3_WIDGET_API std::string get_directory(const char *directory);
+T3_WIDGET_API void sanitize_dir(std::string *directory);
 T3_WIDGET_API bool is_dir(const std::string *current_dir, const char *name);
 
 T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from);

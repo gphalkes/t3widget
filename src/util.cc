@@ -334,6 +334,16 @@ string get_directory(const char *directory) {
 	return dirstring;
 }
 
+void sanitize_dir(string *directory) {
+	size_t idx;
+	while ((idx = directory->find("//", idx)) != string::npos) {
+		directory->erase(idx, 1);
+	}
+	while (directory->size() > 1 && (*directory)[directory->size() - 1] == '/') {
+		directory->erase(directory->size() - 1);
+	}
+}
+
 bool is_dir(const string *current_dir, const char *name) {
 	struct stat file_info;
 	string file;

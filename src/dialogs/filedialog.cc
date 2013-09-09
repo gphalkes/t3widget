@@ -152,6 +152,7 @@ int file_dialog_t::set_file(const char *file) {
 	int result;
 
 	impl->current_dir = get_directory(file);
+	sanitize_dir(&impl->current_dir);
 
 	if (file == NULL)
 		file_string.clear();
@@ -223,6 +224,8 @@ void file_dialog_t::change_dir(const string *dir) {
 			new_dir += "/";
 		new_dir += *dir;
 	}
+
+	sanitize_dir(&new_dir);
 
 	/* Check whether we can load the dir. If not, show message and don't change state. */
 	if ((error = new_names.load_directory(&new_dir)) != 0) {
