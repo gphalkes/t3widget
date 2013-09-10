@@ -531,6 +531,7 @@ static void handle_property_notify(x11_property_event_t *event) {
 					break;
 				default:
 					break;
+				action = ACTION_NONE;
 			}
 		} else if (event->atom == atoms[GDK_SELECTION]) {
 			/* This event may happen all the time, but in some cases it means there
@@ -614,7 +615,6 @@ static void *process_events(void *arg) {
 
 			case X11_SELECTION_NOTIFY: {
 				x11_selection_event_t *selection_notify = (x11_selection_event_t *) event;
-				lprintf("Conversion notify\n");
 				/* Conversion failed. */
 				if (selection_notify->property == X11_ATOM_NONE) {
 					if (action == CONVERT_CLIPBOARD || action == CONVERT_PRIMARY)
@@ -678,10 +678,11 @@ static void *process_events(void *arg) {
 				reply.requestor = request_event->requestor;
 				reply.selection = request_event->selection;
 				reply.target = request_event->target;
+				reply.time = request_event->time;
 				if (request_event->target == atoms[MULTIPLE] && request_event->property == X11_ATOM_NONE) {
 					reply.property = X11_ATOM_NONE;
 				} else {
-					reply.property = request_event->property == X11_ATOM_NONE ? request_event->target:
+					reply.property = request_event->property == X11_ATOM_NONE ? request_event->target :
 						request_event->property;
 					if (request_event->selection == atoms[CLIPBOARD] && clipboard_owner_since != X11_CURRENT_TIME) {
 						data = clipboard_data;

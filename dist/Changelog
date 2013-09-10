@@ -1,3 +1,11 @@
+Version 0.4.4:
+	Bug fixes:
+	- Remove superfluous / characters from directory names in the file dialog,
+	  which prevented .. from working correctly.
+	- Fix incorrect value types in return statements in widget_group::is_hotkey.
+	- Correctly set the time member in the SelectionNotify events sent for
+	  X11 clipboard conversions. This fixes hangs when pasting in other clients.
+
 Version 0.4.3:
 	Bug fixes:
 	- Don't erase the last line of wrapped text in the edit window.
