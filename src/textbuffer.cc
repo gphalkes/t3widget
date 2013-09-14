@@ -207,17 +207,18 @@ void text_buffer_t::goto_next_word(void) {
 	line = impl->lines[cursor.line];
 
 	/* Use -1 as an indicator for end of line */
-	if (cursor.pos >= line->get_length())
+	if (cursor.pos >= line->get_length()) {
 		cursor.pos = -1;
-	else if (cursor.pos >= 0)
+		/* Keep skipping to next line if no word can be found */
+		while (cursor.pos < 0) {
+			if ((size_t) cursor.line + 1 >= impl->lines.size())
+				break;
+			line = impl->lines[++cursor.line];
+			cursor.pos = line->get_next_word(-1);
+		}
+	}
+	else if (cursor.pos >= 0) {
 		cursor.pos = line->get_next_word(cursor.pos);
-
-	/* Keep skipping to next line if no word can be found */
-	while (cursor.pos < 0) {
-		if ((size_t) cursor.line + 1 >= impl->lines.size())
-			break;
-		line = impl->lines[++cursor.line];
-		cursor.pos = line->get_next_word(-1);
 	}
 
 	/* Convert cursor.line and cursor.pos to text coordinate again. */
