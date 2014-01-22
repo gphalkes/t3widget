@@ -537,7 +537,7 @@ void edit_window_t::reset_selection(void) {
 	text->set_selection_mode(selection_mode_t::NONE);
 }
 
-void edit_window_t::set_selection_mode(key_t key) {
+bool edit_window_t::set_selection_mode(key_t key) {
 	selection_mode_t selection_mode = text->get_selection_mode();
 	switch (key & ~(EKEY_CTRL | EKEY_META | EKEY_SHIFT)) {
 		case EKEY_END:
@@ -549,7 +549,22 @@ void edit_window_t::set_selection_mode(key_t key) {
 		case EKEY_UP:
 		case EKEY_DOWN:
 			if ((selection_mode == selection_mode_t::SHIFT || selection_mode == selection_mode_t::ALL) && !(key & EKEY_SHIFT)) {
+				bool done = false;
+				if (key == EKEY_LEFT) {
+					if (text->get_selection_start() < text->get_selection_end())
+						text->cursor = text->get_selection_start();
+					else
+						text->cursor = text->get_selection_end();
+					done = true;
+				} else if (key == EKEY_RIGHT) {
+					if (text->get_selection_start() < text->get_selection_end())
+						text->cursor = text->get_selection_end();
+					else
+						text->cursor = text->get_selection_start();
+					done = true;
+				}
 				reset_selection();
+				return done;
 			} else if ((key & EKEY_SHIFT) && selection_mode != selection_mode_t::MARK) {
 				text->set_selection_mode(selection_mode_t::SHIFT);
 			}
@@ -557,6 +572,7 @@ void edit_window_t::set_selection_mode(key_t key) {
 		default:
 			break;
 	}
+	return false;
 }
 
 void edit_window_t::delete_selection(void) {
@@ -704,7 +720,8 @@ not_found:
 
 //FIXME: make every action into a separate function for readability
 bool edit_window_t::process_key(key_t key) {
-	set_selection_mode(key);
+	if (set_selection_mode(key))
+		return true;
 
 	switch (key) {
 		case EKEY_RIGHT | EKEY_SHIFT:
@@ -950,6 +967,7 @@ bool edit_window_t::process_key(key_t key) {
 					space.append(1, '\t');
 				text->insert_block(&space);
 				ensure_cursor_on_screen();
+				impl->last_set_pos = impl->screen_pos;
 			}
 			break;
 		default: {

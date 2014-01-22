@@ -1,3 +1,8 @@
+Version :
+	Bug fixes:
+	- Fix movement of cursor after inserting a tab.
+	- Fix movement of cursor on pressing left or right when text is selected.
+
 Version 0.4.4:
 	Bug fixes:
 	- Remove superfluous / characters from directory names in the file dialog,

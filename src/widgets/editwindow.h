@@ -120,7 +120,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Reset the selection. */
 		void reset_selection(void);
 		/** Set the selection mode based on the current key pressed by the user. */
-		void set_selection_mode(key_t key);
+		bool set_selection_mode(key_t key);
 		/** Delete the selection. */
 		void delete_selection(void);
 
