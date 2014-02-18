@@ -19,6 +19,7 @@
 #include "internal.h"
 #include "widgets/textfield.h"
 #include "widgets/label.h"
+#include "t3window/utf8.h"
 #include "clipboard.h"
 #include "log.h"
 
@@ -209,6 +210,22 @@ bool text_field_t::process_key(key_t key) {
 			if (copy_buffer != NULL) {
 				text_line_t insert_line(copy_buffer);
 
+				// Don't allow pasting of values that do not match the filter
+				if (impl->filter_keys != NULL) {
+					const string *insert_data = insert_line.get_data();
+					size_t insert_data_length = insert_data->size();
+					size_t bytes_read;
+					do {
+						key_t c;
+						bytes_read = insert_data_length;
+						c = t3_utf8_get(insert_data->data() + insert_data->size() - insert_data_length, &bytes_read);
+						if ((find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size, c) ==
+								impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept)
+							return true;
+						insert_data_length -= bytes_read;
+					} while (insert_data_length > 0 && bytes_read > 0);
+				}
+
 				if (impl->selection_mode != selection_mode_t::NONE)
 					delete_selection(false);
 
@@ -269,7 +286,8 @@ bool text_field_t::process_key(key_t key) {
 				return false;
 
 			if (impl->filter_keys != NULL &&
-					(find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size, key) == impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept)
+					(find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size, key) ==
+						impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept)
 				return false;
 
 			if (impl->selection_mode != selection_mode_t::NONE)
