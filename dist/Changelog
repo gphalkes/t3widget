@@ -1,4 +1,4 @@
-Version :
+Version 0.4.5:
 	Bug fixes:
 	- Fix movement of cursor after inserting a tab.
 	- Fix movement of cursor on pressing left or right when text is selected.
