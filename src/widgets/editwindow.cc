@@ -1266,6 +1266,8 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 			text->set_selection_mode(selection_mode_t::SHIFT);
 			text->goto_next_word_boundary();
 			text->set_selection_end(true);
+			ensure_cursor_on_screen();
+			impl->last_set_pos = impl->screen_pos;
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) &&
 				event.previous_button_state == 0)
 		{
@@ -1277,6 +1279,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 			if ((event.modifier_state & EMOUSE_SHIFT) != 0)
 				text->set_selection_end();
 			ensure_cursor_on_screen();
+			impl->last_set_pos = impl->screen_pos;
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
 			reset_selection();
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
@@ -1286,6 +1289,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 					text->insert_block(primary);
 			)
 			ensure_cursor_on_screen();
+			impl->last_set_pos = impl->screen_pos;
 		} else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
 			scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3);
 		} else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
@@ -1301,6 +1305,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 			if (text->get_selection_mode() != selection_mode_t::NONE)
 				text->set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
 			ensure_cursor_on_screen();
+			impl->last_set_pos = impl->screen_pos;
 		}
 	}
 	return true;
