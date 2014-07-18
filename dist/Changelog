@@ -1,3 +1,10 @@
+Version 0.4.6:
+	Bug fixes:
+	- Fix movement of cursor after mouse positioning.
+	- Fix crash when clicking below the entered text in wrap mode.
+	- Fix sanitizing of directory names, which would start at a random point,
+	  instead of at the start of the string.
+
 Version 0.4.5:
 	Bug fixes:
 	- Fix movement of cursor after inserting a tab.

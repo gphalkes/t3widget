@@ -1042,7 +1042,7 @@ void edit_window_t::update_contents(void) {
 			count += impl->wrap_info->get_line_count(i);
 		count += impl->top_left.pos;
 
-		impl->scrollbar->set_parameters(max(impl->wrap_info->get_size(), count + t3_win_get_height(impl->edit_window)),
+		impl->scrollbar->set_parameters(max(impl->wrap_info->get_text_size(), count + t3_win_get_height(impl->edit_window)),
 			count, t3_win_get_height(impl->edit_window));
 	}
 	impl->scrollbar->update_contents();
@@ -1513,7 +1513,7 @@ void edit_window_t::scrollbar_dragged(int start) {
 		text_coordinate_t new_top_left(0, 0);
 		int count = 0;
 
-		if (start < 0 || start + t3_win_get_height(impl->edit_window) > impl->wrap_info->get_size())
+		if (start < 0 || start + t3_win_get_height(impl->edit_window) > impl->wrap_info->get_text_size())
 			return;
 
 		for (new_top_left.line = 0; new_top_left.line < text->size() && count < start; new_top_left.line++)

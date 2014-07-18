@@ -26,7 +26,8 @@ wrap_info_t::~wrap_info_t(void) {
 		delete *iter;
 }
 
-int wrap_info_t::get_size() const { return size; }
+int wrap_info_t::get_size(void) const { return wrap_data.size(); }
+int wrap_info_t::get_text_size() const { return size; }
 
 void wrap_info_t::delete_lines(int first, int last) {
 	for (wrap_data_t::iterator iter = wrap_data.begin() + first; iter != wrap_data.begin() + last; iter++) {

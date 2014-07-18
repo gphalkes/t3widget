@@ -205,7 +205,7 @@ void text_window_t::update_contents(void) {
 	count += impl->top.pos;
 
 	if (impl->scrollbar != NULL) {
-		impl->scrollbar->set_parameters(max(impl->wrap_info->get_size(), count + t3_win_get_height(window)),
+		impl->scrollbar->set_parameters(max(impl->wrap_info->get_text_size(), count + t3_win_get_height(window)),
 			count, t3_win_get_height(window));
 		impl->scrollbar->update_contents();
 	}
@@ -235,7 +235,7 @@ void text_window_t::set_tabsize(int size) {
 }
 
 int text_window_t::get_text_height(void) {
-	return impl->wrap_info->get_size();
+	return impl->wrap_info->get_text_size();
 }
 
 bool text_window_t::process_mouse_event(mouse_event_t event) {
@@ -266,7 +266,7 @@ void text_window_t::scrollbar_dragged(int start) {
 	text_coordinate_t new_top_left(0, 0);
 	int count = 0;
 
-	if (start < 0 || start + t3_win_get_height(window) > impl->wrap_info->get_size())
+	if (start < 0 || start + t3_win_get_height(window) > impl->wrap_info->get_text_size())
 		return;
 
 	for (new_top_left.line = 0; new_top_left.line < impl->text->size() && count < start; new_top_left.line++)

@@ -51,6 +51,7 @@ class T3_WIDGET_LOCAL wrap_info_t {
 		wrap_info_t(int width, int tabsize = 8);
 		~wrap_info_t(void);
 		int get_size(void) const;
+		int get_text_size(void) const;
 
 		void set_wrap_width(int width);
 		void set_tabsize(int _tabsize);

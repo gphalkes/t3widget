@@ -335,7 +335,7 @@ string get_directory(const char *directory) {
 }
 
 void sanitize_dir(string *directory) {
-	size_t idx;
+	size_t idx = 0;
 	while ((idx = directory->find("//", idx)) != string::npos) {
 		directory->erase(idx, 1);
 	}
