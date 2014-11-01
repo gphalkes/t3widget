@@ -434,7 +434,7 @@ void file_pane_t::search(const std::string *text) {
 
 //============================ search_panel_t ==========================
 #define SEARCH_PANEL_WIDTH 12
-file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : popup_t(3, SEARCH_PANEL_WIDTH), parent(_parent) {
+file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : popup_t(3, SEARCH_PANEL_WIDTH), parent(_parent), redraw(false) {
 	t3_win_set_anchor(window, parent->get_base_window(), T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	t3_win_move(window, -1, 1);
 }

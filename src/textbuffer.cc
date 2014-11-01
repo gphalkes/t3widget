@@ -142,9 +142,7 @@ bool text_buffer_t::append_text(const char *text) {
 bool text_buffer_t::append_text(const char *text, size_t _size) {
 	bool result;
 	text_coordinate_t at(impl->lines.size() - 1, INT_MAX);
-	text_line_t *append = impl->line_factory->new_text_line_t(text, _size);
-	result = insert_block_internal(at, append);
-	delete append;
+	result = insert_block_internal(at, impl->line_factory->new_text_line_t(text, _size));
 	return result;
 }
 
@@ -363,6 +361,12 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 			undo->get_text()->append(*impl->lines[end.line]->get_data());
 			delete impl->lines[end.line];
 		}
+	} else {
+		for (i = start.line; i < end.line; i++)
+			delete impl->lines[i];
+
+		if (end.pos != 0)
+			delete impl->lines[end.line];
 	}
 	end.line++;
 	impl->lines.erase(impl->lines.begin() + start.line, impl->lines.begin() + end.line);
@@ -409,23 +413,22 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
 	}
 
 	cursor.line = insert_at.line;
+	delete block;
 	return true;
 }
 
 bool text_buffer_t::insert_block(const string *block) {
 	text_coordinate_t cursor_at_start = cursor;
 	text_line_t *converted_block = impl->line_factory->new_text_line_t(block);
+	std::string sanitized_block(*converted_block->get_data());
 	undo_t *undo;
 
-	if (!insert_block_internal(cursor, converted_block)) {
-		delete converted_block;
+	if (!insert_block_internal(cursor, converted_block))
 		return false;
-	}
 
 	undo = get_undo(UNDO_ADD_BLOCK, cursor_at_start, cursor);
 	//FIXME: clone may return NULL!
-	undo->get_text()->append(*converted_block->get_data());
-	delete converted_block;
+	undo->get_text()->append(sanitized_block);
 
 	return true;
 }
@@ -433,6 +436,7 @@ bool text_buffer_t::insert_block(const string *block) {
 bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end, const string *block) {
 	undo_double_text_triple_coord_t *undo;
 	text_line_t *converted_block;
+	std::string sanitized_block;
 
 //FIXME: check that everything succeeds and return false if it doesn't
 	//FIXME: make sure original state is restored on failing sub action
@@ -449,11 +453,11 @@ bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end
 		start = end;
 
 	converted_block = impl->line_factory->new_text_line_t(block);
+	sanitized_block = *converted_block->get_data();
 	//FIXME: insert_block_internal may fail!!!
 	insert_block_internal(start, converted_block);
 
-	undo->get_replacement()->append(*converted_block->get_data());
-	delete converted_block;
+	undo->get_replacement()->append(sanitized_block);
 	undo->set_new_end(cursor);
 
 	impl->undo_list.add(undo);
@@ -582,7 +586,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 		case UNDO_ADD_REDO:
 		case UNDO_DELETE:
 			start = current->get_start();
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
 			if (type == UNDO_DELETE)
 				cursor = start;
@@ -597,14 +600,12 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			end = current->get_end();
 			if (end.line < start.line || (end.line == start.line && end.pos < start.pos))
 				start = end;
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
 			cursor = end;
 			break;
 		case UNDO_BACKSPACE:
 			start = current->get_start();
 			start.pos -= current->get_text()->size();
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
 			break;
 		case UNDO_BACKSPACE_REDO:
@@ -616,7 +617,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			end = start = current->get_start();
 			end.pos += current->get_replacement()->size();
 			delete_block_internal(start, end, NULL);
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
 			cursor = start;
 			break;
@@ -624,7 +624,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			end = start = current->get_start();
 			end.pos += current->get_text()->size();
 			delete_block_internal(start, end, NULL);
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_replacement()));
 			break;
 		case UNDO_REPLACE_BLOCK:
@@ -634,7 +633,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 				start = end;
 			end = current->get_new_end();
 			delete_block_internal(start, end, NULL);
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
 			cursor = current->get_end();
 			break;
@@ -644,7 +642,6 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			delete_block_internal(start, end, NULL);
 			if (end.line < start.line || (end.line == start.line && end.pos < start.pos))
 				start = end;
-			//FIXME: insert_block_internal may fail, in which case we must clean up the block
 			insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_replacement()));
 			break;
 		case UNDO_BACKSPACE_NEWLINE:

@@ -83,7 +83,7 @@ class T3_WIDGET_API window_component_t {
 
 class widget_t;
 /** Base class for window_component_t's that are the parents of other window_component_t's */
-class T3_WIDGET_API container_t : private virtual window_component_t {
+class T3_WIDGET_API container_t : protected virtual window_component_t {
 	protected:
 		/** Make @p widget a child window of this container_t, by setting its parent window. */
 		virtual bool set_widget_parent(window_component_t *widget);
@@ -106,7 +106,7 @@ class T3_WIDGET_API container_t : private virtual window_component_t {
     allow both cases, this interface defines a function to set the
     window_component_t used for centering.
 */
-class T3_WIDGET_API center_component_t : private virtual window_component_t {
+class T3_WIDGET_API center_component_t : protected virtual window_component_t {
 	protected:
 		/** The window_component_t to center over. */
 		window_component_t *center_window;
@@ -119,7 +119,7 @@ class T3_WIDGET_API center_component_t : private virtual window_component_t {
 		virtual void set_center_window(window_component_t *_center_window);
 };
 
-class T3_WIDGET_API mouse_target_t : private virtual window_component_t {
+class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 	typedef std::map<t3_window_t *, mouse_target_t *> mouse_target_map_t;
 	private:
 		static mouse_target_map_t targets;
