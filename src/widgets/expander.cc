@@ -227,7 +227,7 @@ bool expander_t::is_child(window_component_t *component) {
 widget_t *expander_t::is_child_hotkey(key_t key) {
 	widget_container_t *widget_container;
 
-	if (!impl->is_expanded || impl->child == NULL)
+	if (!impl->is_expanded || impl->child == NULL || !impl->child->is_shown() || !impl->child->is_enabled())
 		return NULL;
 
 	if (impl->child->is_hotkey(key))

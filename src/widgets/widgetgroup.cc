@@ -185,6 +185,9 @@ bool widget_group_t::is_child(window_component_t *component) {
 bool widget_group_t::is_hotkey(key_t key) {
 	widget_container_t *widget_container;
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {
+		if (!(*iter)->is_enabled() || !(*iter)->is_shown())
+			continue;
+
 		if ((*iter)->is_hotkey(key))
 			return true;
 
@@ -194,6 +197,5 @@ bool widget_group_t::is_hotkey(key_t key) {
 	}
 	return false;
 }
-
 
 }; // namespace

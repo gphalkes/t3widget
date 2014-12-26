@@ -95,7 +95,7 @@ bool dialog_t::process_key(key_t key) {
 			widget_container_t *widget_container;
 			widget_t *hotkey_target;
 
-			if (!(*iter)->is_enabled())
+			if (!(*iter)->is_enabled() || !(*iter)->is_shown())
 				continue;
 
 			if ((*iter)->is_hotkey(key & ~EKEY_META)) {
