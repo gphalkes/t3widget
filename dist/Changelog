@@ -1,3 +1,9 @@
+Version 0.4.7:
+	Bug fixes:
+	- Fix crashes due to invisible widgets getting activated through hotkeys.
+	- Fix read of uninitialized value.
+	- Fix memory leaks in edit widget undo/redo.
+
 Version 0.4.6:
 	Bug fixes:
 	- Fix movement of cursor after mouse positioning.
