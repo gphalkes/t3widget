@@ -182,6 +182,8 @@ void dialog_t::set_child_focus(window_component_t *target) {
 }
 
 void dialog_t::set_active_popup(popup_t *popup) {
+	if (popup == active_popup)
+		return;
 	popup_t *prev_active = active_popup;
 	active_popup = popup;
 	if (prev_active != NULL)

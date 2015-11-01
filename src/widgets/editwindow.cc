@@ -995,7 +995,7 @@ bool edit_window_t::process_key(key_t key) {
 			impl->last_set_pos = impl->screen_pos;
 			if (impl->autocomplete_panel->is_shown())
 				activate_autocomplete(false);
-			return true;
+			break;
 		}
 	}
 	return true;
