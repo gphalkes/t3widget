@@ -444,6 +444,7 @@ void text_field_t::set_text(const char *text) {
 void text_field_t::set_text(const char *text, size_t size) {
 	impl->line->set_text(text, size);
 	impl->pos = impl->line->get_length();
+	impl->leftcol = 0;
 	ensure_cursor_on_screen();
 	redraw = true;
 }
