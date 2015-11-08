@@ -1,3 +1,10 @@
+Version 0.4.8:
+	Bug fixes:
+	- Fix setting of visible part of the text in the text_field_t when changing
+	  the contents using set_text.
+	- Fix re-activating an already active popup. Re-activating the currently
+	  active popup would cause the popup to be hidden.
+
 Version 0.4.7:
 	Bug fixes:
 	- Fix crashes due to invisible widgets getting activated through hotkeys.

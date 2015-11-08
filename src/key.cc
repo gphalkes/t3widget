@@ -527,8 +527,8 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	/* EKEY_ESC is defined as 27, so no need to map */
 	map_single[28] = EKEY_CTRL | '\\';
 	map_single[29] = EKEY_CTRL | ']';
-	map_single[30] = EKEY_CTRL | '_';
-	map_single[31] = EKEY_CTRL | '^';
+	map_single[30] = EKEY_CTRL | '^';
+	map_single[31] = EKEY_CTRL | '_';
 
 	/* Add a few default keys which will help on terminals with little information
 	   available. */

@@ -573,6 +573,8 @@ void text_buffer_t::set_undo_mark(void) {
 	impl->last_undo_type = UNDO_NONE;
 }
 
+// FIXME: re-implement the complex block operations in terms of UNDO_BLOCK_START/END and the simple operations.
+
 int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 	text_coordinate_t start, end;
 
