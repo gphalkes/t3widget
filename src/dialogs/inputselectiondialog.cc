@@ -47,10 +47,10 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	impl->enable_simulate_box = new checkbox_t();
 	impl->enable_simulate_box->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_PARENT(T3_ANCHOR_BOTTOMLEFT));
 	impl->enable_simulate_box->set_position(-5, 2);
-	impl->enable_simulate_box->connect_toggled(sigc::mem_fun(this, &input_selection_dialog_t::check_state));
-	impl->enable_simulate_box->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
-	impl->enable_simulate_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
-	impl->enable_simulate_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
+	impl->enable_simulate_box->connect_toggled(signals::mem_fun(this, &input_selection_dialog_t::check_state));
+	impl->enable_simulate_box->connect_activate(signals::mem_fun(this, &input_selection_dialog_t::ok_activated));
+	impl->enable_simulate_box->connect_move_focus_up(signals::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	impl->enable_simulate_box->connect_move_focus_down(signals::mem_fun(this, &input_selection_dialog_t::focus_next));
 
 	enable_simulate_label = new smart_label_t("'Esc <letter>' simulates Meta+<letter>");
 	enable_simulate_label->set_anchor(impl->enable_simulate_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -63,9 +63,9 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	impl->disable_timeout_box = new checkbox_t();
 	impl->disable_timeout_box->set_anchor(impl->enable_simulate_box, 0);
 	impl->disable_timeout_box->set_position(2, 0);
-	impl->disable_timeout_box->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
-	impl->disable_timeout_box->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
-	impl->disable_timeout_box->connect_move_focus_down(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
+	impl->disable_timeout_box->connect_activate(signals::mem_fun(this, &input_selection_dialog_t::ok_activated));
+	impl->disable_timeout_box->connect_move_focus_up(signals::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	impl->disable_timeout_box->connect_move_focus_down(signals::mem_fun(this, &input_selection_dialog_t::focus_next));
 
 	disable_timeout_label = new smart_label_t("Disable timeout on Esc");
 	disable_timeout_label->set_anchor(impl->disable_timeout_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -74,17 +74,17 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	cancel_button = new button_t(_("Cancel"));
 	cancel_button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	cancel_button->set_position(-1, -2);
-	cancel_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::cancel));
-	cancel_button->connect_move_focus_left(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
-	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
-	cancel_button->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	cancel_button->connect_activate(signals::mem_fun(this, &input_selection_dialog_t::cancel));
+	cancel_button->connect_move_focus_left(signals::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	cancel_button->connect_move_focus_up(signals::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	cancel_button->connect_move_focus_up(signals::mem_fun(this, &input_selection_dialog_t::focus_previous));
 
 	ok_button = new button_t(_("Ok"), true);
 	ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	ok_button->set_position(0, -2);
-	ok_button->connect_activate(sigc::mem_fun(this, &input_selection_dialog_t::ok_activated));
-	ok_button->connect_move_focus_right(sigc::mem_fun(this, &input_selection_dialog_t::focus_next));
-	ok_button->connect_move_focus_up(sigc::mem_fun(this, &input_selection_dialog_t::focus_previous));
+	ok_button->connect_activate(signals::mem_fun(this, &input_selection_dialog_t::ok_activated));
+	ok_button->connect_move_focus_right(signals::mem_fun(this, &input_selection_dialog_t::focus_next));
+	ok_button->connect_move_focus_up(signals::mem_fun(this, &input_selection_dialog_t::focus_previous));
 
 	push_back(impl->text_frame);
 	push_back(impl->label_frame);

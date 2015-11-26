@@ -31,7 +31,7 @@ main_window_base_t::main_window_base_t(void) : dialog_t() {
 	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MAX)) == NULL)
 		throw bad_alloc();
 	t3_win_show(window);
-	connect_resize(sigc::mem_fun(this, &main_window_base_t::set_size_real));
+	connect_resize(signals::mem_fun(this, &main_window_base_t::set_size_real));
 }
 
 bool main_window_base_t::set_size(optint height, optint width) {

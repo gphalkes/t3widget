@@ -168,8 +168,8 @@ class T3_WIDGET_API bad_draw_recheck_t {
 	private:
 		/** List of widgets to signal on completion of the terminal capability detection. */
 		static std::list<bad_draw_recheck_t *> to_signal;
-		/** sigc::connection used to initialize the connection to the @c terminal_settings_changed signal. */
-		static sigc::connection initialized;
+		/** signals::connection used to initialize the connection to the @c terminal_settings_changed signal. */
+		static signals::connection initialized;
 		/** Callback function called on the @c terminal_settings_changed signal. */
 		static void bad_draw_recheck_all(void);
 

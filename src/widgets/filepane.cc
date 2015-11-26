@@ -25,8 +25,8 @@ file_pane_t::file_pane_t(void) : widget_t(3, 3), impl(new implementation_t())
 {
 	set_widget_parent(&impl->scrollbar);
 	impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-	impl->scrollbar.connect_clicked(sigc::mem_fun(this, &file_pane_t::scrollbar_clicked));
-	impl->scrollbar.connect_dragged(sigc::mem_fun(this, &file_pane_t::scrollbar_dragged));
+	impl->scrollbar.connect_clicked(signals::mem_fun(this, &file_pane_t::scrollbar_clicked));
+	impl->scrollbar.connect_dragged(signals::mem_fun(this, &file_pane_t::scrollbar_dragged));
 	impl->search_panel = new search_panel_t(this);
 }
 
@@ -277,7 +277,7 @@ void file_pane_t::set_file_list(file_list_t *_file_list) {
 		impl->content_changed_connection.disconnect();
 
 	impl->file_list = _file_list;
-	impl->content_changed_connection = impl->file_list->connect_content_changed(sigc::mem_fun(this, &file_pane_t::content_changed));
+	impl->content_changed_connection = impl->file_list->connect_content_changed(signals::mem_fun(this, &file_pane_t::content_changed));
 	impl->top_idx = 0;
 	content_changed();
 	redraw = true;

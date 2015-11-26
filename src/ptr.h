@@ -14,6 +14,8 @@
 #ifndef T3_WIDGET_PTR_H
 #define T3_WIDGET_PTR_H
 
+// FIXME: pretty much everything in here should be replacable by std::unique_ptr and std::shared_ptr
+
 #include <cstdlib>
 
 namespace t3_widget {

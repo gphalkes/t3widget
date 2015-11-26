@@ -95,22 +95,22 @@ T3_WIDGET_API extern insert_char_dialog_t *insert_char_dialog;
 T3_WIDGET_API extern message_dialog_t *message_dialog;
 
 /** Connect a callback to the @c resize signal. */
-T3_WIDGET_API sigc::connection connect_resize(const sigc::slot<void, int, int> &slot);
+T3_WIDGET_API signals::connection connect_resize(const signals::slot<void, int, int> &slot);
 /** Connect a callback to the @c update_notification signal.
     The @c update_notification signal is sent in response to #signal_update function.
 */
-T3_WIDGET_API sigc::connection connect_update_notification(const sigc::slot<void> &slot);
+T3_WIDGET_API signals::connection connect_update_notification(const signals::slot<void> &slot);
 /** Connect a callback to the @c on_init signal.
     The @c on_init signal is emitted after initialization is complete. The signal
     is provided to allow initialization of global variables after initialization
     is complete, but without knowledge of when #init is called.
 */
-T3_WIDGET_API sigc::connection connect_on_init(const sigc::slot<void, bool> &slot);
+T3_WIDGET_API signals::connection connect_on_init(const signals::slot<void, bool> &slot);
 /** Connect a callback to the @c terminal_settings_changed signal.
     The @c terminal_settings_changed signal is emitted when the libt3window
     library has completed the terminal capability detection.
 */
-T3_WIDGET_API sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot);
+T3_WIDGET_API signals::connection connect_terminal_settings_changed(const signals::slot<void> &slot);
 
 /** Initialize the libt3widget library.
 

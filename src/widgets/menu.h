@@ -96,7 +96,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		*/
 		void set_hidden(bool _hidden);
 
-	/** @fn sigc::connection connect_activate(const sigc::slot<void, int> &_slot)
+	/** @fn signals::connection connect_activate(const signals::slot<void, int> &_slot)
 	    Connect a callback to the #activate signal.
 	*/
 	/** Signal emitted when a menu item is selected.

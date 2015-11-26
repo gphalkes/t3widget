@@ -217,8 +217,8 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 }
 
 list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
-sigc::connection bad_draw_recheck_t::initialized =
-	connect_terminal_settings_changed(sigc::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
+signals::connection bad_draw_recheck_t::initialized =
+	connect_terminal_settings_changed(signals::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
 
 void bad_draw_recheck_t::bad_draw_recheck_all(void) {
 	for (list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++)

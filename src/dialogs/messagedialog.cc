@@ -35,7 +35,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	impl->text_window = new text_window_t(NULL, false);
 	impl->text_window->set_size(1, width - 2);
 	impl->text_window->set_position(1, 1);
-	impl->text_window->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
+	impl->text_window->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
 	impl->text_window->connect_activate(activate_internal.make_slot());
 	impl->text_window->set_tabsize(0);
 	impl->text_window->set_enabled(false);
@@ -46,7 +46,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	while ((button_name = va_arg(ap, const char *)) != NULL) {
 		if (widgets.size() == 1) {
 			button = new button_t(button_name, true);
-			button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
+			button->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
 			button->connect_activate(activate_internal.make_slot());
 			button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 		} else {
@@ -54,9 +54,9 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 			button->set_anchor(widgets.back(), T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 			button->set_position(0, 2);
 
-			((button_t *) widgets.back())->connect_move_focus_right(sigc::mem_fun(this, &message_dialog_t::focus_next));
-			button->connect_move_focus_left(sigc::mem_fun(this, &message_dialog_t::focus_previous));
-			button->connect_activate(sigc::mem_fun(this, &message_dialog_t::hide));
+			((button_t *) widgets.back())->connect_move_focus_right(signals::mem_fun(this, &message_dialog_t::focus_next));
+			button->connect_move_focus_left(signals::mem_fun(this, &message_dialog_t::focus_previous));
+			button->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
 
 			total_width += 2;
 		}
@@ -122,9 +122,9 @@ bool message_dialog_t::process_key(key_t key) {
 	return dialog_t::process_key(key);
 }
 
-sigc::connection message_dialog_t::connect_activate(const sigc::slot<void> &_slot, size_t idx) {
+signals::connection message_dialog_t::connect_activate(const signals::slot<void> &_slot, size_t idx) {
 	if (idx > widgets.size() - 1)
-		return sigc::connection();
+		return signals::connection();
 	if (idx == 0)
 		return activate_internal.connect(_slot);
 	return ((button_t *) widgets[idx + 1])->connect_activate(_slot);

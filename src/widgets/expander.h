@@ -35,7 +35,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 			cleanup_t3_window_ptr symbol_window;
 			cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
 			int full_height;
-			sigc::connection move_up_connection, move_down_connection, move_right_connection, move_left_connection;
+			signals::connection move_up_connection, move_down_connection, move_right_connection, move_left_connection;
 			implementation_t(const char *text) : focus(FOCUS_NONE), last_focus(FOCUS_NONE), is_expanded(false), label(text),
 				child(NULL), full_height(2) {}
 		};

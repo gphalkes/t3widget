@@ -39,7 +39,7 @@ class T3_WIDGET_LOCAL wrap_info_t {
 		int size,
 			tabsize,
 			wrap_width;
-		sigc::connection rewrap_connection;
+		signals::connection rewrap_connection;
 
 		void delete_lines(int first, int last);
 		void insert_lines(int first, int last);

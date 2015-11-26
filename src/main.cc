@@ -42,8 +42,8 @@ namespace t3_widget {
 
 static int init_level;
 static int screen_lines, screen_columns;
-static sigc::signal<void, int, int> resize;
-static sigc::signal<void> update_notification;
+static signals::signal<void, int, int> resize;
+static signals::signal<void> update_notification;
 
 init_parameters_t *init_params;
 
@@ -111,29 +111,29 @@ init_parameters_t *init_parameters_t::create(void) {
 init_parameters_t::init_parameters_t(void) : program_name(NULL), term(NULL),
 	separate_keypad(false), disable_external_clipboard(false) {}
 
-sigc::connection connect_resize(const sigc::slot<void, int, int> &slot) {
+signals::connection connect_resize(const signals::slot<void, int, int> &slot) {
 	return resize.connect(slot);
 }
 
-sigc::connection connect_update_notification(const sigc::slot<void> &slot) {
+signals::connection connect_update_notification(const signals::slot<void> &slot) {
 	return update_notification.connect(slot);
 }
 
-static sigc::signal<void, bool> &on_init() {
-	static cleanup_ptr<sigc::signal<void, bool> >::t on_init_obj(new sigc::signal<void, bool>());
+static signals::signal<void, bool> &on_init() {
+	static cleanup_ptr<signals::signal<void, bool> >::t on_init_obj(new signals::signal<void, bool>());
 	return *on_init_obj;
 }
 
-sigc::connection connect_on_init(const sigc::slot<void, bool> &slot) {
+signals::connection connect_on_init(const signals::slot<void, bool> &slot) {
 	return on_init().connect(slot);
 }
 
-static sigc::signal<void> &terminal_settings_changed() {
-	static cleanup_ptr<sigc::signal<void> >::t terminal_settings_changed_obj(new sigc::signal<void>());
+static signals::signal<void> &terminal_settings_changed() {
+	static cleanup_ptr<signals::signal<void> >::t terminal_settings_changed_obj(new signals::signal<void>());
 	return *terminal_settings_changed_obj;
 }
 
-sigc::connection connect_terminal_settings_changed(const sigc::slot<void> &slot) {
+signals::connection connect_terminal_settings_changed(const signals::slot<void> &slot) {
 	return terminal_settings_changed().connect(slot);
 }
 

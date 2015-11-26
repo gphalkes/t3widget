@@ -44,7 +44,7 @@ linked_ptr<string>::t primary_data;
 static void init_external_clipboard(bool init);
 
 static extclipboard_interface_t *extclipboard_calls;
-static sigc::connection init_connected = connect_on_init(sigc::ptr_fun(init_external_clipboard));
+static signals::connection init_connected = connect_on_init(signals::ptr_fun(init_external_clipboard));
 
 /** Get the clipboard data.
 

@@ -19,7 +19,6 @@
 #endif
 
 #include <string>
-#include <sigc++/sigc++.h>
 #include <t3widget/key.h>
 
 #ifdef HAS_SELECT_H
@@ -33,6 +32,7 @@
 #include "widget_api.h"
 #include "main.h"
 #include "log.h"
+#include "signals.h"
 
 #ifdef HAS_STRDUP
 #define _t3_widget_strdup strdup

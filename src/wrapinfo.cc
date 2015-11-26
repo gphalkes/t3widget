@@ -106,7 +106,7 @@ void wrap_info_t::set_text_buffer(text_buffer_t *_text) {
 	if (_text == NULL)
 		return;
 
-	rewrap_connection = text->connect_rewrap_required(sigc::mem_fun(this, &wrap_info_t::rewrap));
+	rewrap_connection = text->connect_rewrap_required(signals::mem_fun(this, &wrap_info_t::rewrap));
 
 	if (wrap_data.size() > text->impl->lines.size())
 		delete_lines(text->impl->lines.size(), wrap_data.size());

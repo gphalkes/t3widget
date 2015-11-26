@@ -67,7 +67,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		virtual void hide(void);
 
 
-	/** @fn sigc::connection connect_closed(const sigc::slot<void> &_slot)
+	/** @fn signals::connection connect_closed(const signals::slot<void> &_slot)
 	    Connect a callback to the #closed signal.
 	*/
 	/** Signal emitted when the dialog is closed by calling #close. */

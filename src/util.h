@@ -16,11 +16,11 @@
 #include <cstdlib>
 #include <string>
 #include <unistd.h>
-#include <sigc++/sigc++.h>
 #include <t3window/window.h>
 
 #include <t3widget/widget_api.h>
 #include <t3widget/ptr.h>
+#include <t3widget/signals.h>
 
 namespace t3_widget {
 
@@ -61,9 +61,9 @@ struct T3_WIDGET_API text_coordinate_t {
 
 #define T3_WIDGET_SIGNAL(_name, ...) \
 protected: \
-	sigc::signal<__VA_ARGS__> _name; \
+	signals::signal<__VA_ARGS__> _name; \
 public: \
-	sigc::connection connect_##_name(const sigc::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
+	signals::connection connect_##_name(const signals::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
 
 #define _T3_WIDGET_ENUM(_name, ...) \
 class T3_WIDGET_API _name { \

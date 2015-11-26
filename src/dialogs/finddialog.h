@@ -39,7 +39,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
 				*transform_backslash_checkbox,
 				*reverse_direction_checkbox;
 			button_t *in_selection_button, *replace_all_button;
-			sigc::connection find_button_up_connection;
+			signals::connection find_button_up_connection;
 			int state; // State of all the checkboxes converted to FIND_* flags
 		};
 		pimpl_ptr<implementation_t>::t impl;

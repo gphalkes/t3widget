@@ -579,8 +579,8 @@ text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field) :
 	list_pane = new list_pane_t(false);
 	list_pane->set_size(DDL_HEIGHT - 1, t3_win_get_width(window) - 1);
 	list_pane->set_position(0, 1);
-	list_pane->connect_activate(sigc::mem_fun(this, &text_field_t::drop_down_list_t::item_activated));
-	list_pane->connect_selection_changed(sigc::mem_fun(this, &text_field_t::drop_down_list_t::selection_changed));
+	list_pane->connect_activate(signals::mem_fun(this, &text_field_t::drop_down_list_t::item_activated));
+	list_pane->connect_selection_changed(signals::mem_fun(this, &text_field_t::drop_down_list_t::selection_changed));
 	list_pane->set_single_click_activate(true);
 
 	push_back(list_pane);
@@ -687,7 +687,7 @@ void text_field_t::drop_down_list_t::update_view(void) {
 		if (field->impl->line->get_length() == 0)
 			completions->reset_filter();
 		else
-			completions->set_filter(sigc::bind(sigc::ptr_fun(string_compare_filter), field->impl->line->get_data()));
+			completions->set_filter(signals::bind(signals::ptr_fun(string_compare_filter), field->impl->line->get_data()));
 		update_list_pane();
 	}
 }

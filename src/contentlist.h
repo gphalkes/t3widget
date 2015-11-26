@@ -44,7 +44,7 @@ class T3_WIDGET_API list_base_t {
     will not always be the same.
 */
 class T3_WIDGET_API string_list_base_t : public virtual list_base_t {
-	/** @fn sigc::connection connect_content_changed(const sigc::slot<void> &_slot)
+	/** @fn signals::connection connect_content_changed(const signals::slot<void> &_slot)
 	    Connect to signal emitted when the content of the list changed.*/
 	/** Signal emitted when the content of the list changed. */
 	T3_WIDGET_SIGNAL(content_changed, void);
@@ -114,7 +114,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 class T3_WIDGET_API filtered_list_base_t : public virtual list_base_t {
 	public:
 		/** Set the filter callback. */
-		virtual void set_filter(const sigc::slot<bool, string_list_base_t *, size_t> &) = 0;
+		virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &) = 0;
 		/** Reset the filter. */
 		virtual void reset_filter(void) = 0;
 };
@@ -128,48 +128,50 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 		/** Base list of which this is a filtered view. */
 		list_t *base;
 		/** Filter function. */
-		sigc::slot<bool, list_t *, size_t> test;
+		optional<signals::slot<bool, list_t *, size_t> > test;
 		/** Connection to base list's content_changed signal. */
-		sigc::connection base_content_changed_connection;
+		signals::connection base_content_changed_connection;
 
 		/** Update the filtered list.
 			Called automatically when the base list changes, through the use of the
 		    @c content_changed signal.
 		*/
 		void update_list(void) {
-			if (test.empty())
+			if (!test.is_valid())
 				return;
 
 			items.clear();
 
 			for (size_t i = 0; i < base->size(); i++) {
-				if (test(base, i))
+				if (test()(base, i))
 					items.push_back(i);
 			}
 			items.reserve(items.size());
 			list_t::content_changed();
 		}
 
+		static bool null_filter(list_t *, size_t) { return false; }
+
 	public:
 		/** Make a new filtered_list_internal_t, wrapping an existing list. */
-		filtered_list_internal_t(list_t *list) : base(list) {
+		filtered_list_internal_t(list_t *list) : base(list), test(signals::ptr_fun(&filtered_list_internal_t::null_filter)) {
 			base_content_changed_connection =
-				base->connect_content_changed(sigc::mem_fun(this, &filtered_list_internal_t::update_list));
+				base->connect_content_changed(signals::mem_fun(this, &filtered_list_internal_t::update_list));
 		}
 		virtual ~filtered_list_internal_t(void) {
 			base_content_changed_connection.disconnect();
 		}
-		virtual void set_filter(const sigc::slot<bool, string_list_base_t *, size_t> &_test) {
+		virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) {
 			test = _test;
 			update_list();
 		}
 		virtual void reset_filter(void) {
 			items.clear();
-			test.disconnect();
+			test.unset();
 			list_t::content_changed();
 		}
-		virtual size_t size(void) const { return test.empty() ? base->size() : items.size(); }
-		virtual const std::string *operator[](size_t idx) const { return (*base)[test.empty() ? idx : items[idx]]; }
+		virtual size_t size(void) const { return test.is_valid() ? items.size() : base->size(); }
+		virtual const std::string *operator[](size_t idx) const { return (*base)[test.is_valid() ? items[idx] : idx]; }
 };
 
 /** Generic filtered list template.
@@ -181,11 +183,11 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 template <class list_t>
 class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
 	public:
-		//typedef sigc::slot<bool, list_t *, size_t> filter_type_t;
+		//typedef signals::slot<bool, list_t *, size_t> filter_type_t;
 
 		filtered_list_t(list_t *list) : filtered_list_internal_t<list_t>(list) {}
 		using filtered_list_internal_t<list_t>::set_filter;
-		virtual void set_filter(const sigc::slot<bool, string_list_base_t *, size_t> &_test) {
+		virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) {
 			this->test = _test;
 			this->update_list();
 		}
@@ -208,8 +210,8 @@ typedef filtered_list_t<string_list_base_t> filtered_string_list_t;
 class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 	public:
 		filtered_file_list_t(file_list_t *list) : filtered_list_t<file_list_t>(list) {}
-		virtual const std::string *get_fs_name(size_t idx) const { return base->get_fs_name(test.empty() ? idx : items[idx]); }
-		virtual bool is_dir(size_t idx) const { return base->is_dir(test.empty() ? idx : items[idx]); }
+		virtual const std::string *get_fs_name(size_t idx) const { return base->get_fs_name(test.is_valid() ? items[idx] : idx); }
+		virtual bool is_dir(size_t idx) const { return base->is_dir(test.is_valid() ? items[idx] : idx); }
 };
 
 /** Filter function comparing the initial part of an entry with @p str. */

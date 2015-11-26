@@ -84,7 +84,11 @@ CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -DHAS_STRDUP
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags libpcre`
+ifdef CPP11
+CXXFLAGS += -std=c++11
+else
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
+endif
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
@@ -96,7 +100,9 @@ LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3window/.libs -lt3window
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/transcript/.libs -ltranscript
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3key/.libs -lt3key
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
+ifndef CPP11
 LDLIBS.libt3widget.la += `pkg-config --libs sigc++-2.0`
+endif
 LDLIBS.libt3widget.la += -lunistring
 LDLIBS.libt3widget.la += -lgpm
 LDLIBS.libt3widget.la += -lm

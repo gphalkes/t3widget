@@ -46,7 +46,7 @@ namespace t3_widget {
 
 static void lang_codeset_init(bool init);
 
-static sigc::connection lang_codeset_init_connection = connect_on_init(sigc::ptr_fun(lang_codeset_init));
+static signals::connection lang_codeset_init_connection = connect_on_init(signals::ptr_fun(lang_codeset_init));
 static transcript_t *lang_codeset_handle;
 static bool lang_codeset_is_utf8;
 

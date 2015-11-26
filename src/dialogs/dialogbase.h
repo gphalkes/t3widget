@@ -34,7 +34,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
 		static dummy_widget_t *dummy; /**< Dummy widget to ensure that a dialog is never empty when shown. */
 
 		static void init(bool _init); /**< Function to initialize the dummy widget. */
-		static sigc::connection init_connected; /**< Dummy value to allow static connection of the @c on_init signal to #init. */
+		static signals::connection init_connected; /**< Dummy value to allow static connection of the @c on_init signal to #init. */
 
 		/** Default constructor, made private to avoid use. */
 		dialog_base_t(void);

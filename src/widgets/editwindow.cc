@@ -33,13 +33,13 @@ using namespace std;
 namespace t3_widget {
 
 goto_dialog_t *edit_window_t::goto_dialog;
-sigc::connection edit_window_t::goto_connection;
+signals::connection edit_window_t::goto_connection;
 find_dialog_t *edit_window_t::global_find_dialog;
-sigc::connection edit_window_t::global_find_dialog_connection;
+signals::connection edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
-sigc::connection edit_window_t::replace_buttons_connection;
-sigc::connection edit_window_t::init_connected = connect_on_init(sigc::ptr_fun(edit_window_t::init));
+signals::connection edit_window_t::replace_buttons_connection;
+signals::connection edit_window_t::init_connected = connect_on_init(signals::ptr_fun(edit_window_t::init));
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
@@ -83,8 +83,8 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 	set_widget_parent(impl->scrollbar);
 	impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 	impl->scrollbar->set_size(10, None);
-	impl->scrollbar->connect_clicked(sigc::mem_fun(this, &edit_window_t::scrollbar_clicked));
-	impl->scrollbar->connect_dragged(sigc::mem_fun(this, &edit_window_t::scrollbar_dragged));
+	impl->scrollbar->connect_clicked(signals::mem_fun(this, &edit_window_t::scrollbar_clicked));
+	impl->scrollbar->connect_dragged(signals::mem_fun(this, &edit_window_t::scrollbar_dragged));
 
 	set_text(_text == NULL ? new text_buffer_t() : _text, params);
 
@@ -92,7 +92,7 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 	impl->focus = false;
 
 	impl->autocomplete_panel = new autocomplete_panel_t(this);
-	impl->autocomplete_panel->connect_activate(sigc::mem_fun(this, &edit_window_t::autocomplete_activated));
+	impl->autocomplete_panel->connect_activate(signals::mem_fun(this, &edit_window_t::autocomplete_activated));
 }
 
 edit_window_t::~edit_window_t(void) {
@@ -609,7 +609,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
 				replace_buttons_connection.disconnect();
 				replace_buttons_connection = replace_buttons->connect_activate(
-					sigc::bind(sigc::mem_fun(this, &edit_window_t::find_activated), (finder_t *) NULL));
+					signals::bind(signals::mem_fun(this, &edit_window_t::find_activated), (finder_t *) NULL));
 				replace_buttons->center_over(center_window);
 				replace_buttons->show();
 			}
@@ -1154,7 +1154,7 @@ void edit_window_t::unindent_selection(void) {
 
 void edit_window_t::goto_line(void) {
 	goto_connection.disconnect();
-	goto_connection = goto_dialog->connect_activate(sigc::mem_fun1(this, &edit_window_t::goto_line));
+	goto_connection = goto_dialog->connect_activate(signals::mem_fun1(this, &edit_window_t::goto_line));
 	goto_dialog->center_over(center_window);
 	goto_dialog->reset();
 	goto_dialog->show();
@@ -1177,7 +1177,7 @@ void edit_window_t::find_replace(bool replace) {
 	if (impl->find_dialog == NULL) {
 		global_find_dialog_connection.disconnect();
 		global_find_dialog_connection = global_find_dialog->connect_activate(
-			sigc::mem_fun(this, &edit_window_t::find_activated));
+			signals::mem_fun(this, &edit_window_t::find_activated));
 		dialog = global_find_dialog;
 	} else {
 		dialog = impl->find_dialog;
@@ -1676,7 +1676,7 @@ size_t edit_window_t::autocomplete_panel_t::get_selected_idx(void) const {
 	return list_pane->get_current();
 }
 
-void edit_window_t::autocomplete_panel_t::connect_activate(const sigc::slot<void> &slot) {
+void edit_window_t::autocomplete_panel_t::connect_activate(const signals::slot<void> &slot) {
 	list_pane->connect_activate(slot);
 }
 

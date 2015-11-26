@@ -62,7 +62,7 @@ void expander_t::set_child(widget_t *_child) {
 	impl->full_height = t3_win_get_height(impl->child->get_base_window()) + 1;
 	focus_child = dynamic_cast<focus_widget_t *>(impl->child());
 	if (focus_child != NULL) {
-		impl->move_up_connection = focus_child->connect_move_focus_up(sigc::mem_fun(this, &expander_t::focus_up_from_child));
+		impl->move_up_connection = focus_child->connect_move_focus_up(signals::mem_fun(this, &expander_t::focus_up_from_child));
 		impl->move_down_connection = focus_child->connect_move_focus_down(move_focus_down.make_slot());
 		impl->move_right_connection = focus_child->connect_move_focus_right(move_focus_right.make_slot());
 		impl->move_left_connection = focus_child->connect_move_focus_left(move_focus_left.make_slot());
