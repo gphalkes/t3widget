@@ -1,7 +1,7 @@
 import os
 
 package = 'libt3widget'
-excludesrc = '/(Makefile|TODO.*|SciTE.*|run\.sh|test\.c)$'
+excludesrc = '/(Makefile|TODO.*|SciTE.*|run\.sh|test\.c|signals.h)$'
 auxsources= [ 'src/widget_api.h' ]
 extrabuilddirs = [ 'doc' ]
 auxfiles = [ 'doc/API' ]

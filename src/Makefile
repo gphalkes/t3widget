@@ -12,6 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #COMPILER := gcc
+include Makefile.signal.conf
 
 SOURCES.libt3widget.la := \
 	autocompleter.cc \
@@ -86,6 +87,7 @@ CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags libpcre`
 ifdef CPP11
 CXXFLAGS += -std=c++11
+CXXFLAGS += -DCXX11SWITCH=1
 else
 CXXFLAGS += `pkg-config --cflags sigc++-2.0`
 endif

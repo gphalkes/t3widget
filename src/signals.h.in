@@ -15,10 +15,13 @@
 #ifndef T3_WIDGET_SIGNAL_H
 #define T3_WIDGET_SIGNAL_H
 
-#include <t3widget/widget_api.h>
+// This define is set on build time. DO NOT change the value, as the setting must
+// be the same between the library build and the programs building against the library.
+#define _T3WIDGET_CXX11SIGNALS CXX11SWITCH
 
+#include <t3widget/widget_api.h>
+#if _T3WIDGET_CXX11SIGNALS == 1
 #if __cplusplus >= 201103L
-#warning BUILDING WITH EXPERIMENTAL C++11 SUPPORT
 #include <functional>
 #include <list>
 #include <memory>
@@ -162,6 +165,9 @@ class T3_WIDGET_API signal {
 
 }  // namesapce signals
 
+#else  // C++11
+#error This libt3widget build requires C++11 support to be enabled
+#endif
 #else
 #include <sigc++/sigc++.h>
 namespace signals = sigc;

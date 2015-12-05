@@ -15,6 +15,10 @@
 # C++-compiler flags
 CXXFLAGS=-O2
 
+# Flag to switch between libsigc++ and C++11 based signals. If set to 0,
+# libsigc++ will be used, if set to 1 the C++11 version will be used instead.
+CXX11=0
+
 # Configuration flags and libraries. Include flags here to compile and link
 # against the libpcre, libsigc++, libunistring, libt3key, libt3window and
 # libtranscript libraries.
@@ -99,6 +103,11 @@ src/libt3widget<LIBVERSION>-x11.la: src/x11.lo src/libt3widget.la
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \
 		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(X11_LIBS) $(GETTEXTLIBS) \
 		-rpath $(libdir)
+
+src/signals.h: src/signals.h.in Makefile
+	if [ "$(CXX11)" = 1 ] ; then sed 's/CXX11SWITCH/1/' $< > $@ ; else sed 's/CXX11SWITCH/0/' $< > $@ ; fi
+
+$(OBJECTS): src/signals.h
 
 # Macros to make DESTDIR support more readable
 _libdir=$(DESTDIR)$(libdir)

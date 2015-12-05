@@ -14,13 +14,14 @@
 EXTENSIONS="cxx libtoolcxx pkgconfig verbose_compile pkgconfig_dep gettext x11 lfs"
 LTSHARED=1
 DEFAULT_LINGUAS=nl
-SWITCHES="+x11 +gpm"
+SWITCHES="+x11 +gpm -sigc"
 USERHELP=print_help
 INSTALLDIRS="libdir docdir includedir"
 
 print_help() {
 	echo "  --without-x11           Do not include X11 integration"
 	echo "  --without-gpm           Do not include GPM support"
+	echo "  --with-sigc             Force use of sigc++ when C++11 support is available"
 }
 
 test_select() {
@@ -78,6 +79,10 @@ checkfunction_compile() {
 }
 
 config() {
+	has_support_cxx11
+	if [ "$with_sigc" = yes ] ; then
+		unset CXX11
+	fi
 	clean_cxx
 	cat > .configcxx.cc <<EOF
 #include <math.h>
@@ -99,8 +104,9 @@ EOF
 		error "!! Can not find basic math functions"
 	fi
 
-	clean_cxx
-	cat > .configcxx.cc <<EOF
+	if [ "$CXX11" -ne 1 ] ; then
+		clean_cxx
+		cat > .configcxx.cc <<EOF
 #include <sigc++/sigc++.h>
 sigc::connection conn;
 sigc::signal<void, int> sig;
@@ -112,8 +118,9 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx PKGCONFIG_REQUIRES || \
-		error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
+		pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx PKGCONFIG_REQUIRES || \
+			error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
+	fi
 
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -519,5 +526,5 @@ EOF
 		${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
 		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring \
 		${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}" \
-		"X11MODULE=${X11MODULE}" "X11_FLAGS=${X11_FLAGS}" "X11_LIBS=${X11_LIBS}"
+		"X11MODULE=${X11MODULE}" "X11_FLAGS=${X11_FLAGS}" "X11_LIBS=${X11_LIBS}" "CXX11=${CXX11}"
 }
