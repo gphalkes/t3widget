@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 }
 EOF
 		pkgconfig sigc++-2.0 LIBSIGCPP test_link_cxx PKGCONFIG_REQUIRES || \
-			error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget."
+			error "!! Can not find libsigc++-2.0. libsigc++-2.0 is required to compile libt3widget when C++11 support is unavailable."
 	fi
 
 	clean_cxx

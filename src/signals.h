@@ -1,0 +1,2 @@
+// DEVELOPMENT HEADER FILE ONLY! DO NOT INCLUDE IN RELEASE
+#include <t3widget/signals.h.in>
