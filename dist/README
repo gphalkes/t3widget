@@ -17,7 +17,8 @@ Prerequisites and installation
 
 libt3widget requires GNU libtool and a C++ compiler to be compiled.
 Furthermore, it requires libpcre, libtranscript, libunistring, libt3key,
-libt3window, libsigc++ (2.0 or newer) and a Pthread library.
+libt3window. Furthermore, either a C++11 compatible compiler or both libsigc++
+(2.0 or newer) and a Pthread library are required.
 
 libt3widget can optionally be built to include support for integration with the
 X11 clipboard and primary selection. If this is desired, either XCB or the Xlib

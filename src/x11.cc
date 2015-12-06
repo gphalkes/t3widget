@@ -12,11 +12,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdlib.h>
-#include <sys/time.h>
 #include <cstring>
 #include <string>
-#include <pthread.h>
-#include <errno.h>
 #include <list>
 
 #ifdef HAS_SELECT_H
@@ -26,9 +23,11 @@
 #include <unistd.h>
 #endif
 
-#include "log.h"
-#include "ptr.h"
-#include "extclipboard.h"
+#include <t3widget/thread.h>
+
+#include <t3widget/log.h>
+#include <t3widget/ptr.h>
+#include <t3widget/extclipboard.h>
 
 // FIXME: remove incr_sends on long periods of inactivity
 /* This file contains parallel implementation of the X11 integration by use of
@@ -367,9 +366,10 @@ static size_t max_data;
 
 static bool receive_incr;
 
-static pthread_t x11_event_thread;
-static pthread_mutex_t clipboard_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t clipboard_signal = PTHREAD_COND_INITIALIZER;
+static thread::thread x11_event_thread;
+static thread::mutex clipboard_mutex;
+static thread::unique_lock<thread::mutex> clipboard_mutex_lock(clipboard_mutex, thread::defer_lock_t());
+static thread::condition_variable clipboard_signal;
 
 static const char *atom_names[] = {
 	"CLIPBOARD",
@@ -443,7 +443,7 @@ static x11_time_t claim(x11_time_t since, x11_atom_t selection) {
 	x11_set_selection_owner(selection, window, since);
 	if (x11_get_selection_owner(selection) != window)
 		since = X11_CURRENT_TIME;
-	pthread_cond_signal(&clipboard_signal);
+	clipboard_signal.notify_one();
 	return since;
 }
 
@@ -541,7 +541,7 @@ static void handle_property_notify(x11_property_event_t *event) {
 				if ((result = retrieve_data()) <= 0) {
 					receive_incr = false;
 					conversion_succeeded = result == 0;
-					pthread_cond_signal(&clipboard_signal);
+					clipboard_signal.notify_one();
 				}
 				x11_delete_property(window, atoms[GDK_SELECTION]);
 			}
@@ -574,14 +574,12 @@ static void handle_property_notify(x11_property_event_t *event) {
 }
 
 /** Thread to process incoming events. */
-static void *process_events(void *arg) {
+static void process_events() {
 	x11_event_t *event = NULL; /* Shut up compiler by initializing. */
 	fd_set saved_read_fds;
 	int fd_max;
 
-	(void) arg;
-
-	pthread_mutex_lock(&clipboard_mutex);
+	clipboard_mutex.lock();
 	fd_max = x11_fill_fds(&saved_read_fds);
 
 	while (1) {
@@ -598,14 +596,14 @@ static void *process_events(void *arg) {
 			   this case we also release the mutex, such that the rest of the library
 			   may interact with the clipboard. */
 			read_fds = saved_read_fds;
-			pthread_mutex_unlock(&clipboard_mutex);
+			clipboard_mutex.unlock();
 			select(fd_max, &read_fds, NULL, NULL, NULL);
 			x11_acknowledge_wakeup(&read_fds);
- 			pthread_mutex_lock(&clipboard_mutex);
+ 			clipboard_mutex.lock();
 		}
 		if (x11_error || end_connection) {
-			pthread_mutex_unlock(&clipboard_mutex);
-			return NULL;
+			clipboard_mutex.unlock();
+			return;
 		}
 
 		switch (event->x11_response_type & ~0x80) {
@@ -618,7 +616,7 @@ static void *process_events(void *arg) {
 				/* Conversion failed. */
 				if (selection_notify->property == X11_ATOM_NONE) {
 					if (action == CONVERT_CLIPBOARD || action == CONVERT_PRIMARY)
-						pthread_cond_signal(&clipboard_signal);
+						clipboard_signal.notify_one();
 					break;
 				}
 
@@ -634,7 +632,7 @@ static void *process_events(void *arg) {
 						(selection_notify->target != atoms[UTF8_STRING] && selection_notify->target != atoms[INCR]))
 				{
 					x11_delete_property(window, selection_notify->property);
-					pthread_cond_signal(&clipboard_signal);
+					clipboard_signal.notify_one();
 					break;
 				}
 
@@ -644,9 +642,9 @@ static void *process_events(void *arg) {
 				} else if (selection_notify->target == atoms[UTF8_STRING]) {
 					if (retrieve_data() >= 0)
 						conversion_succeeded = true;
-					pthread_cond_signal(&clipboard_signal);
+					clipboard_signal.notify_one();
 				} else {
-					pthread_cond_signal(&clipboard_signal);
+					clipboard_signal.notify_one();
 				}
 				x11_delete_property(window, atoms[GDK_SELECTION]);
 				break;
@@ -663,7 +661,7 @@ static void *process_events(void *arg) {
 
 				if ((action == RELEASE_SELECTIONS && clipboard_owner_since == X11_CURRENT_TIME && primary_owner_since == X11_CURRENT_TIME) ||
 						action == CLAIM_CLIPBOARD || action == CLAIM_PRIMARY)
-					pthread_cond_signal(&clipboard_signal);
+					clipboard_signal.notify_one();
 				break;
 			}
 			case X11_SELECTION_REQUEST: {
@@ -707,17 +705,15 @@ static void *process_events(void *arg) {
 		}
 		x11_free_event(event);
 	}
-	return NULL;
 }
 
 
 /** Stop the X11 event processing. */
 static void stop_x11(void) {
-	void *result;
 	if (!x11_initialized)
 		return;
 
-	pthread_mutex_lock(&clipboard_mutex);
+	clipboard_mutex.lock();
 	end_connection = true;
 	/* If x11_error has been set, the event handling thread will stop, or will
 	   have stopped already. Also, if this is the case, the connection is broken,
@@ -726,9 +722,8 @@ static void stop_x11(void) {
 	if (!x11_error)
 		x11_close_display();
 
-	pthread_cancel(x11_event_thread);
-	pthread_mutex_unlock(&clipboard_mutex);
-	pthread_join(x11_event_thread, &result);
+	clipboard_mutex.unlock();
+	x11_event_thread.join();
 }
 
 #ifdef USE_XLIB
@@ -793,7 +788,7 @@ static bool init_x11(void) {
 		goto error_exit;
 
 	x11_initialized = true;
-	pthread_create(&x11_event_thread, NULL, process_events, NULL);
+	x11_event_thread = thread::thread(process_events);
 	lprintf("X11 interface initialized\n");
 	return true;
 
@@ -854,7 +849,7 @@ static bool init_x11(void) {
 
 	connection = local_connection.release();
 	x11_initialized = true;
-	pthread_create(&x11_event_thread, NULL, process_events, NULL);
+	x11_event_thread = thread::thread(process_events);
 	lprintf("X11 interface initialized\n");
 	return true;
 }
@@ -863,24 +858,8 @@ static bool init_x11(void) {
 
 #define x11_working() (x11_initialized && !x11_error)
 
-static struct timespec timeout_time(int usec) {
-	struct timeval timeval;
-	struct timespec result;
-
-	gettimeofday(&timeval, NULL);
-	timeval.tv_sec += usec / 1000000;
-	timeval.tv_usec += usec % 1000000;
-	if (timeval.tv_usec > 1000000) {
-		timeval.tv_sec++;
-		timeval.tv_usec -= 1000000;
-	}
-	result.tv_sec = timeval.tv_sec;
-	result.tv_nsec = (long) timeval.tv_usec * 1000;
-	return result;
-}
-
 static linked_ptr<string>::t get_selection(bool clipboard) {
-	struct timespec timeout = timeout_time(1000000);
+	thread::timeout_t timeout = thread::timeout_time(1000000);
 	linked_ptr<string>::t result;
 
 	/* NOTE: the clipboard is supposed to be locked when this routine is called. */
@@ -896,7 +875,7 @@ static linked_ptr<string>::t get_selection(bool clipboard) {
 		action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 		x11_change_property(window, X11_ATOM_WM_NAME, X11_ATOM_STRING, 8, X11_PROPERTY_APPEND, NULL, 0);
 		x11_flush();
-		if (pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout) != ETIMEDOUT &&
+		if (clipboard_signal.wait_until(clipboard_mutex_lock, timeout) != thread::cv_status::timeout &&
 				conversion_succeeded)
 			result = new string(retrieved_data);
 		action = ACTION_NONE;
@@ -907,7 +886,7 @@ static linked_ptr<string>::t get_selection(bool clipboard) {
 }
 
 static void claim_selection(bool clipboard, string *data) {
-	struct timespec timeout = timeout_time(1000000);
+	thread::timeout_t timeout = thread::timeout_time(1000000);
 
 	if (!x11_working()) {
 		if (clipboard)
@@ -917,22 +896,19 @@ static void claim_selection(bool clipboard, string *data) {
 		return;
 	}
 
-	pthread_mutex_lock(&clipboard_mutex);
+	thread::unique_lock<thread::mutex> l(clipboard_mutex);
 
 	if (clipboard) {
 		/* If we don't own the selection, reseting is a no-op. */
-		if (clipboard_owner_since == X11_CURRENT_TIME && data == NULL) {
-			pthread_mutex_unlock(&clipboard_mutex);
+		if (clipboard_owner_since == X11_CURRENT_TIME && data == NULL)
 			return;
-		}
+
 		action = CLAIM_CLIPBOARD;
 		clipboard_data = data;
 	} else {
 		/* If we don't own the selection, reseting is a no-op. */
-		if (primary_owner_since == X11_CURRENT_TIME && data == NULL) {
-			pthread_mutex_unlock(&clipboard_mutex);
+		if (primary_owner_since == X11_CURRENT_TIME && data == NULL)
 			return;
-		}
 		action = CLAIM_PRIMARY;
 		primary_data = data;
 	}
@@ -946,22 +922,19 @@ static void claim_selection(bool clipboard, string *data) {
 	/* FIXME: we really should figure out what causes this to happen, and if we can
 	   recover. But for now we just set the x11_error to true, to prevent the
 	   interface from becoming unresponsive. */
-	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
+	clipboard_signal.wait_until(l, timeout);
 	action = ACTION_NONE;
-	pthread_mutex_unlock(&clipboard_mutex);
 }
 
 static void release_selections(void) {
-	struct timespec timeout = timeout_time(1000000);
+	thread::timeout_t timeout = thread::timeout_time(1000000);
 
 	if (!x11_working())
 		return;
 
-	pthread_mutex_lock(&clipboard_mutex);
-	if (clipboard_owner_since == X11_CURRENT_TIME && primary_owner_since == X11_CURRENT_TIME) {
-		pthread_mutex_unlock(&clipboard_mutex);
+	thread::unique_lock<thread::mutex> l(clipboard_mutex);
+	if (clipboard_owner_since == X11_CURRENT_TIME && primary_owner_since == X11_CURRENT_TIME)
 		return;
-	}
 
 	action = RELEASE_SELECTIONS;
 	if (clipboard_owner_since != X11_CURRENT_TIME)
@@ -969,17 +942,16 @@ static void release_selections(void) {
 	if (primary_owner_since != X11_CURRENT_TIME)
 		x11_set_selection_owner(atoms[PRIMARY], X11_ATOM_NONE, X11_CURRENT_TIME);
 	x11_flush();
-	pthread_cond_timedwait(&clipboard_signal, &clipboard_mutex, &timeout);
+	clipboard_signal.wait_until(l, timeout);
 	action = ACTION_NONE;
-	pthread_mutex_unlock(&clipboard_mutex);
 }
 
 static void lock(void) {
-	pthread_mutex_lock(&clipboard_mutex);
+	clipboard_mutex_lock.lock();
 }
 
 static void unlock(void) {
-	pthread_mutex_unlock(&clipboard_mutex);
+	clipboard_mutex_lock.unlock();
 }
 
 extern "C" {

@@ -21,11 +21,12 @@
 /* Buffer for storing keys that ensures thread-safe operation by means of a
    mutex. It is implemented by means of a double ended queue.  */
 
-#include <pthread.h>
 #include <algorithm>
 #include <deque>
 
 #include <t3widget/key.h>
+#include <t3widget/thread.h>
+
 namespace t3_widget {
 
 /** Class implmementing a mutex-protected queue of items. */
@@ -35,20 +36,14 @@ class T3_WIDGET_LOCAL item_buffer_t {
 		/** The list of item symbols. */
 		std::deque<T> items;
 		/** The mutex used for the critical section. */
-		pthread_mutex_t lock;
+		thread::mutex lock;
 		/** The condition variable used to signal addition to the #keys list. */
-		pthread_cond_t cond;
+		thread::condition_variable cond;
 
 	public:
-		/** Create a new key_buffer_t. */
-		item_buffer_t(void) {
-			pthread_mutex_init(&lock, NULL);
-			pthread_cond_init(&cond, NULL);
-		}
-
 		/** Append an item to the list. */
 		void push_back(T item) {
-			pthread_mutex_lock(&lock);
+			thread::unique_lock<thread::mutex> l(lock);
 			/* Catch all exceptions, to enusre that unlocking of the mutex is
 			   performed. The only real exception that can occur here is bad_alloc,
 			   and there is not much we can do about that anyway. */
@@ -56,26 +51,18 @@ class T3_WIDGET_LOCAL item_buffer_t {
 				items.push_back(item);
 			} catch (...) {
 			}
-			pthread_cond_signal(&cond);
-			pthread_mutex_unlock(&lock);
+			cond.notify_one();
 		}
 
 		/** Retrieve and remove the item at the front of the queue. */
 		T pop_front(void) {
 			T result;
-			pthread_mutex_lock(&lock);
+			thread::unique_lock<thread::mutex> l(lock);
 			while (items.empty())
-				pthread_cond_wait(&cond, &lock);
+				cond.wait(l);
 			result = items.front();
 			items.pop_front();
-			pthread_mutex_unlock(&lock);
 			return result;
-		}
-
-		/** Destroy the key_buffer_t. */
-		~item_buffer_t(void) {
-			pthread_mutex_destroy(&lock);
-			pthread_cond_destroy(&cond);
 		}
 };
 
@@ -84,13 +71,11 @@ class T3_WIDGET_LOCAL key_buffer_t : public item_buffer_t<key_t> {
 	public:
 		/** Append an item to the list, but only if it is not already in the queue. */
 		void push_back_unique(key_t key) {
-			pthread_mutex_lock(&lock);
+			thread::unique_lock<thread::mutex> l(lock);
 
 			// Return without adding if the key is already queued
-			if (find(items.begin(), items.end(), key) != items.end()) {
-				pthread_mutex_unlock(&lock);
+			if (find(items.begin(), items.end(), key) != items.end())
 				return;
-			}
 
 			/* Catch all exceptions, to enusre that unlocking of the mutex is
 			   performed. The only real exception that can occur here is bad_alloc,
@@ -99,8 +84,7 @@ class T3_WIDGET_LOCAL key_buffer_t : public item_buffer_t<key_t> {
 				items.push_back(key);
 			} catch (...) {
 			}
-			pthread_cond_signal(&cond);
-			pthread_mutex_unlock(&lock);
+			cond.notify_one();
 		}
 };
 

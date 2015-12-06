@@ -1,4 +1,11 @@
-Version 0.4.8:
+Version 0.5.0:
+	New features:
+	- When compiling with a C++11 compatible compiler, libsigc++ and pthread
+	  support is no longer required. This does require that all packages built
+	  against libt3widget are also built in C++11 mode. As recent versions
+	  libsigc++ also require this, depending on libsigc++ does not prevent this
+	  issue.
+
 	Bug fixes:
 	- Fix setting of visible part of the text in the text_field_t when changing
 	  the contents using set_text.

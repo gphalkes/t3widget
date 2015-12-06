@@ -18,18 +18,15 @@
 #include <transcript/transcript.h>
 #include <cerrno>
 
-#ifdef HAS_SCHED_FUNCS
-#include <sched.h>
-#endif
-
 #include <t3key/key.h>
 
-#include "util.h"
-#include "main.h"
-#include "key.h"
-#include "keybuffer.h"
-#include "internal.h"
-#include "log.h"
+#include <t3widget/thread.h>
+#include <t3widget/util.h>
+#include <t3widget/main.h>
+#include <t3widget/key.h>
+#include <t3widget/keybuffer.h>
+#include <t3widget/internal.h>
+#include <t3widget/log.h>
 
 using namespace std;
 namespace t3_widget {
@@ -122,7 +119,7 @@ static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
 
 static key_buffer_t key_buffer;
-static pthread_t read_key_thread;
+static thread::thread read_key_thread;
 
 char char_buffer[32];
 int char_buffer_fill;
@@ -130,7 +127,7 @@ static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
 static transcript_t *conversion_handle;
 
-static pthread_mutex_t key_timeout_lock = PTHREAD_MUTEX_INITIALIZER;
+static thread::mutex key_timeout_lock;
 static int key_timeout = -1;
 static bool drop_single_esc = true;
 
@@ -239,13 +236,11 @@ bool read_keychar(int timeout) {
 	return true;
 }
 
-static void *read_keys(void *arg) {
+static void read_keys() {
 	int retval;
 	key_t c;
 	fd_set readset;
 	int max_fd;
-
-	(void) arg;
 
 	while (1) {
 		FD_ZERO(&readset);
@@ -268,7 +263,7 @@ static void *read_keys(void *arg) {
 					/* Exit thread */
 					close(signal_pipe[0]);
 					signal_pipe[0] = -1;
-					return NULL;
+					return;
 				case WINCH_SIGNAL:
 					key_buffer.push_back_unique(EKEY_RESIZE);
 					break;
@@ -288,9 +283,9 @@ static void *read_keys(void *arg) {
 			if (c == EKEY_ESC) {
 				key_t modifiers = t3_term_get_modifiers_hack();
 
-				pthread_mutex_lock(&key_timeout_lock);
+				key_timeout_lock.lock();
 				c = decode_sequence(true);
-				pthread_mutex_unlock(&key_timeout_lock);
+				key_timeout_lock.unlock();
 				if (c < 0)
 					continue;
 				else if (drop_single_esc && c == (EKEY_ESC | EKEY_META))
@@ -492,9 +487,6 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	const t3_key_node_t *key_node;
 	int i, j, error, idx;
 	transcript_error_t transcript_error;
-#ifdef HAS_SCHED_FUNCS
-	struct sched_param sched_param;
-#endif
 	const char *shiftfn = NULL;
 
 	/* Start with things most likely to fail */
@@ -642,23 +634,14 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	}
 	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
-	if ((error = pthread_create(&read_key_thread, NULL, read_keys, NULL)) != 0)
-		RETURN_ERROR(complex_error_t::SRC_ERRNO, error);
+	read_key_thread = thread::thread(read_keys);
 
-#ifdef HAS_SCHED_FUNCS
-	/* Set the priority for the key reading thread to max, such that we can be sure
-	   that when a key is available it will be able to get it. */
-	sched_param.sched_priority = sched_get_priority_max(SCHED_FIFO);
-	if (sched_param.sched_priority == -1)
-		sched_param.sched_priority = 0;
-	pthread_setschedparam(read_key_thread, SCHED_FIFO, &sched_param);
-#endif
 #ifdef DEBUG
-	/* Using pthread_yield here results in somewhat more deterministic results. Without it,
+	/* Using this_thread::yield here results in somewhat more deterministic results. Without it,
 	   there are sometimes issues wrt the update based on the terminal character set
 	   detection. However, it does not really matter which order is used, except for
-	   when we are executing our testsuite. Thus for DEBUG compiles, we add pthread_yield. */
-	pthread_yield();
+	   when we are executing our testsuite. Thus for DEBUG compiles, we add this_thread::yield. */
+	thread::this_thread::yield();
 #endif
 	return result;
 
@@ -704,18 +687,17 @@ void cleanup_keys(void) {
 }
 
 static void stop_keys(void) {
-	void *retval;
 	char quit_signal = QUIT_SIGNAL;
 	nosig_write(signal_pipe[1], &quit_signal, 1);
 	close(signal_pipe[1]);
 	signal_pipe[1] = -1;
-	pthread_join(read_key_thread, &retval);
+	read_key_thread.join();
 	stop_mouse_reporting();
 	t3_term_putp(leave);
 }
 
 void set_key_timeout(int msec) {
-	pthread_mutex_lock(&key_timeout_lock);
+	thread::unique_lock<thread::mutex> lock(key_timeout_lock);
 	if (msec == 0) {
 		key_timeout = -1;
 		drop_single_esc = true;
@@ -726,15 +708,11 @@ void set_key_timeout(int msec) {
 		key_timeout = msec;
 		drop_single_esc = false;
 	}
-	pthread_mutex_unlock(&key_timeout_lock);
 }
 
 int get_key_timeout(void) {
-	int result;
-	pthread_mutex_lock(&key_timeout_lock);
-	result = key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
-	pthread_mutex_unlock(&key_timeout_lock);
-	return result;
+	thread::unique_lock<thread::mutex> lock(key_timeout_lock);
+	return key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
 }
 
 void signal_update(void) {

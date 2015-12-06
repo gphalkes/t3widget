@@ -29,6 +29,7 @@
 // This requires C++11 support, but then so does libsigc++ version 2.5.1 and
 // greater.
 
+namespace t3_widget {
 namespace signals {
 namespace internal {
 template <typename C>
@@ -164,13 +165,16 @@ class T3_WIDGET_API signal {
 };
 
 }  // namesapce signals
-
+}  // namesapce t3_widget
 #else  // C++11
 #error This libt3widget build requires C++11 support to be enabled
 #endif
 #else
 #include <sigc++/sigc++.h>
+namespace t3_widget {
 namespace signals = sigc;
+}  // namespace t3_widget
 #endif
+
 
 #endif

@@ -80,8 +80,8 @@ checkfunction_compile() {
 
 config() {
 	has_support_cxx11
-	if [ "$with_sigc" = yes ] ; then
-		unset CXX11
+	if [ "$with_sigc" != yes ] ; then
+		CXX11SIGNALS="${CXX11}"
 	fi
 	clean_cxx
 	cat > .configcxx.cc <<EOF
@@ -104,7 +104,7 @@ EOF
 		error "!! Can not find basic math functions"
 	fi
 
-	if [ "$CXX11" -ne 1 ] ; then
+	if [ "$CXX11SIGNALS" -ne 1 ] ; then
 		clean_cxx
 		cat > .configcxx.cc <<EOF
 #include <sigc++/sigc++.h>
@@ -219,9 +219,10 @@ EOF
 		test_select "select in <unistd.h>" "sys/time.h" "sys/types.h" "unistd.h" || error "!! Can not find required select function."
 	fi
 
-	clean_cxx
 	unset PTHREADFLAGS PTHREADLIBS
-	cat > .configcxx.cc <<EOF
+	if [ "${CXX11}" != 1 ] ; then
+		clean_cxx
+		cat > .configcxx.cc <<EOF
 #include <stdlib.h>
 #include <pthread.h>
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -249,12 +250,12 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	test_compile_cxx "pthreads" || {
-		if checkfunction_compile "pthread.h" "" "<pthread.h>" ; then
-			check_message_result "Testing required functions seperatly for debugging purposes"
-
-			clean_cxx
-			cat > .configcxx.cc <<EOF
+		test_compile_cxx "pthreads" || {
+			if checkfunction_compile "pthread.h" "" "<pthread.h>" ; then
+				check_message_result "Testing required functions seperatly for debugging purposes"
+	
+				clean_cxx
+				cat > .configcxx.cc <<EOF
 #include <stdlib.h>
 #include <pthread.h>
 pthread_t thread;
@@ -265,39 +266,39 @@ int main(int argc, char *argv[]) {
 	pthread_create(&thread, NULL, thread_func, NULL);
 }
 EOF
-			test_compile_cxx "pthread_create"
-			checkfunction_compile "pthread static mutex initializer" "pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;" "<pthread.h>"
-			checkfunction_compile "pthread_mutex_init" 'pthread_mutex_t mutex; pthread_mutex_init(&mutex, NULL);' "<stdlib.h>" "<pthread.h>"
-			checkfunction_compile "pthread_mutex_destroy" 'pthread_mutex_t mutex; pthread_mutex_destroy(&mutex);' "<pthread.h>"
-			checkfunction_compile "pthread_mutex_lock" 'pthread_mutex_t mutex; pthread_mutex_lock(&mutex);' "<pthread.h>"
-			checkfunction_compile "pthread_mutex_unlock" 'pthread_mutex_t mutex; pthread_mutex_unlock(&mutex);' "<pthread.h>"
-			checkfunction_compile "pthread_cond_init" 'pthread_cond_t cond; pthread_cond_init(&cond, NULL);' "<stdlib.h>" "<pthread.h>"
-			checkfunction_compile "pthread_cond_destroy" 'pthread_cond_t cond; pthread_cond_destroy(&cond);' "<pthread.h>"
-			checkfunction_compile "pthread_cond_signal" 'pthread_cond_t cond; pthread_cond_signal(&cond);' "<pthread.h>"
-			checkfunction_compile "pthread_cond_wait" 'pthread_mutex_t mutex; pthread_cond_t cond; pthread_cond_wait(&cond, &mutex);' "<pthread.h>"
-			checkfunction_compile "pthread_join" 'pthread_t thread; void *result; pthread_join(thread, &result);' "<pthread.h>"
-			checkfunction_compile "pthread_cancel" 'pthread_t thread; pthread_cancel(thread);' "<pthread.h>"
+				test_compile_cxx "pthread_create"
+				checkfunction_compile "pthread static mutex initializer" "pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;" "<pthread.h>"
+				checkfunction_compile "pthread_mutex_init" 'pthread_mutex_t mutex; pthread_mutex_init(&mutex, NULL);' "<stdlib.h>" "<pthread.h>"
+				checkfunction_compile "pthread_mutex_destroy" 'pthread_mutex_t mutex; pthread_mutex_destroy(&mutex);' "<pthread.h>"
+				checkfunction_compile "pthread_mutex_lock" 'pthread_mutex_t mutex; pthread_mutex_lock(&mutex);' "<pthread.h>"
+				checkfunction_compile "pthread_mutex_unlock" 'pthread_mutex_t mutex; pthread_mutex_unlock(&mutex);' "<pthread.h>"
+				checkfunction_compile "pthread_cond_init" 'pthread_cond_t cond; pthread_cond_init(&cond, NULL);' "<stdlib.h>" "<pthread.h>"
+				checkfunction_compile "pthread_cond_destroy" 'pthread_cond_t cond; pthread_cond_destroy(&cond);' "<pthread.h>"
+				checkfunction_compile "pthread_cond_signal" 'pthread_cond_t cond; pthread_cond_signal(&cond);' "<pthread.h>"
+				checkfunction_compile "pthread_cond_wait" 'pthread_mutex_t mutex; pthread_cond_t cond; pthread_cond_wait(&cond, &mutex);' "<pthread.h>"
+				checkfunction_compile "pthread_join" 'pthread_t thread; void *result; pthread_join(thread, &result);' "<pthread.h>"
+				checkfunction_compile "pthread_cancel" 'pthread_t thread; pthread_cancel(thread);' "<pthread.h>"
+			fi
+			error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
+		}
+		test_compile_cxx "-pthread flag" && PTHREADFLAGS=-pthread
+		# Libtool sometimes adds -nostdlib, which then requires that -lpthread is specified
+		# separately. Therefore, we first test for -pthread -lpthread, then for
+		# -pthread, then -lpthread and if all else fails without anything
+		if [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS} -lpthread" "TESTLIBS=${PTHREADFLAGS} -lpthread" ; then
+			PTHREADLIBS="${PTHREADFLAGS} -lpthread"
+		elif [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS}" "TESTLIBS=${PTHREADFLAGS}" ; then
+			PTHREADLIBS="${PTHREADFLAGS}"
+		elif test_link_cxx "pthreads in -lpthread" TESTLIBS=-lpthread ; then
+			PTHREADLIBS=-lpthread
+		elif test_link_cxx "pthreads in standard library" "TESTLIBS=" ; then
+			:
+		else
+			error "!! Can not find required linker flags for pthreads. Pthreads are required to compile libt3widget. See config.log for compile details."
 		fi
-		error "!! Pthreads are required to compile libt3widget. See config.log for compile details."
-	}
-	test_compile_cxx "-pthread flag" && PTHREADFLAGS=-pthread
-	# Libtool sometimes adds -nostdlib, which then requires that -lpthread is specified
-	# separately. Therefore, we first test for -pthread -lpthread, then for
-	# -pthread, then -lpthread and if all else fails without anything
-	if [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS} -lpthread" "TESTLIBS=${PTHREADFLAGS} -lpthread" ; then
-		PTHREADLIBS="${PTHREADFLAGS} -lpthread"
-	elif [ -n "${PTHREADFLAGS}" ] && test_link_cxx "pthreads in ${PTHREADFLAGS}" "TESTLIBS=${PTHREADFLAGS}" ; then
-		PTHREADLIBS="${PTHREADFLAGS}"
-	elif test_link_cxx "pthreads in -lpthread" TESTLIBS=-lpthread ; then
-		PTHREADLIBS=-lpthread
-	elif test_link_cxx "pthreads in standard library" "TESTLIBS=" ; then
-		:
-	else
-		error "!! Can not find required linker flags for pthreads. Pthreads are required to compile libt3widget. See config.log for compile details."
-	fi
 
-	clean_cxx
-	cat > .configcxx.cc <<EOF
+		clean_cxx
+		cat > .configcxx.cc <<EOF
 #include <sched.h>
 #include <pthread.h>
 
@@ -309,8 +310,8 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	test_link_cxx "scheduling priority functions" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_SCHED_FUNCS"
-
+		test_link_cxx "scheduling priority functions" && CONFIGFLAGS="${CONFIGFLAGS} -DHAS_SCHED_FUNCS"
+	fi
 	cat > .configcxx.cc <<EOF
 #include <math.h>
 int main(int argc, char *argv[]) {
@@ -508,10 +509,8 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 EOF
-	if test_link_cxx "shrink_to_fit in string" ; then
+	if test_link_cxx "shrink_to_fit in string" CXXFLAGS="${CXXFLAGS}"; then
 		CONFIGFLAGS="${CONFIGFLAGS} -DHAS_STRING_SHRINK_TO_FIT"
-	elif test_link_cxx "shrink_to_fit in string with -std=c++11" TESTFLAGS="-std=c++11" ; then
-		CONFIGFLAGS="${CONFIGFLAGS} -std=c++11 -DHAS_STRING_SHRINK_TO_FIT"
 	fi
 
 	PKGCONFIG_DESC="Dialog toolkit library"
@@ -526,5 +525,6 @@ EOF
 		${LIBT3KEY_FLAGS} ${LIBT3WINDOW_FLAGS} ${LIBPCRE_FLAGS} ${PTHREADFLAGS}" \
 		"CONFIGLIBS=${CONFIGLIBS} ${LIBSIGCPP_LIBS} ${LIBTRANSCRIPT_LIBS} -lunistring \
 		${LIBT3KEY_LIBS} ${LIBT3WINDOW_LIBS} ${LIBPCRE_LIBS} ${PTHREADLIBS}" \
-		"X11MODULE=${X11MODULE}" "X11_FLAGS=${X11_FLAGS}" "X11_LIBS=${X11_LIBS}" "CXX11=${CXX11}"
+		"X11MODULE=${X11MODULE}" "X11_FLAGS=${X11_FLAGS}" "X11_LIBS=${X11_LIBS}" \
+		"CXX11SIGNALS=${CXX11SIGNALS}"
 }
