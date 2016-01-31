@@ -11,6 +11,8 @@ Version 0.5.0:
 	  the contents using set_text.
 	- Fix re-activating an already active popup. Re-activating the currently
 	  active popup would cause the popup to be hidden.
+	- Fix a segmentation fault when dragging the selection beyond the top of
+	  the text area.
 
 Version 0.4.7:
 	Bug fixes:
