@@ -1457,6 +1457,10 @@ text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
 	} else {
 		coord.line = impl->top_left.line;
 		y += impl->top_left.pos;
+		while (y < 0 && coord.line > 0) {
+			coord.line--;
+			y += impl->wrap_info->get_line_count(coord.line);
+		}
 		while (coord.line < impl->wrap_info->get_size() - 1 && y >= impl->wrap_info->get_line_count(coord.line)) {
 			y -= impl->wrap_info->get_line_count(coord.line);
 			coord.line++;
@@ -1465,8 +1469,11 @@ text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
 			y = impl->wrap_info->get_line_count(coord.line) - 1;
 			x = INT_MAX;
 		}
-
-		coord.pos = impl->wrap_info->calculate_line_pos(coord.line, x, y);
+		if (y < 0) {
+			coord.pos = 0;
+		} else {
+			coord.pos = impl->wrap_info->calculate_line_pos(coord.line, x, y);
+		}
 	}
 	return coord;
 }
