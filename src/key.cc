@@ -35,7 +35,8 @@ namespace t3_widget {
 
 enum {
 	WINCH_SIGNAL,
-	QUIT_SIGNAL
+	QUIT_SIGNAL,
+	EXIT_MAIN_LOOP_SIGNAL,
 };
 
 typedef struct {
@@ -267,6 +268,12 @@ static void read_keys() {
 				case WINCH_SIGNAL:
 					key_buffer.push_back_unique(EKEY_RESIZE);
 					break;
+				case EXIT_MAIN_LOOP_SIGNAL: {
+					unsigned char value;
+					nosig_read(signal_pipe[0], (char *)&value, 1);
+					key_buffer.push_back_unique(EKEY_EXIT_MAIN_LOOP + value);
+					break;
+				}
 				default:
 					// This should be impossible, so just ignore
 					continue;
@@ -717,6 +724,13 @@ int get_key_timeout(void) {
 
 void signal_update(void) {
 	key_buffer.push_back_unique(EKEY_EXTERNAL_UPDATE);
+}
+
+void async_safe_exit_main_loop(int exit_code) {
+	char exit_signal[2] = { EXIT_MAIN_LOOP_SIGNAL, static_cast<char>(exit_code & 0xff) };
+	int saved_errno = errno;
+	nosig_write(signal_pipe[1], exit_signal, 2);
+	errno = saved_errno;
 }
 
 }; // namespace

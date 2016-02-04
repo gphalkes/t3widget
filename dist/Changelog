@@ -5,6 +5,8 @@ Version 0.5.0:
 	  against libt3widget are also built in C++11 mode. As recent versions
 	  libsigc++ also require this, depending on libsigc++ does not prevent this
 	  issue.
+	- A new function for terminating the main loop from outside of the main
+	  loop is provided. It may even be safely called from signal handlers.
 
 	Bug fixes:
 	- Fix setting of visible part of the text in the text_field_t when changing

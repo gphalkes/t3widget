@@ -341,6 +341,8 @@ void iterate(void) {
 				terminal_settings_changed()();
 				break;
 			default:
+				if (key >= EKEY_EXIT_MAIN_LOOP && key <= EKEY_EXIT_MAIN_LOOP + 255)
+					exit_main_loop(key - EKEY_EXIT_MAIN_LOOP);
 				//FIXME: pass unhandled keys to callback?
 				dialog_t::active_dialogs.back()->process_key(key);
 				break;

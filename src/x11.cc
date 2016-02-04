@@ -58,6 +58,7 @@ namespace t3_widget {
 static bool x11_initialized;
 static bool x11_error;
 static bool end_connection;
+static int wakeup_pipe[2];
 
 
 #ifdef USE_XLIB
@@ -87,7 +88,6 @@ typedef XSelectionRequestEvent x11_selection_request_event_t;
 #define x11_response_type type
 
 static Display *display;
-static int wakeup_pipe[2];
 
 static void x11_flush(void) {
 	XFlush(display);
@@ -154,15 +154,10 @@ static void x11_free_event(x11_event_t *event) {
 }
 
 static int x11_fill_fds(fd_set *fds) {
-	int fd_max;
 	FD_ZERO(fds);
 	FD_SET(ConnectionNumber(display), fds);
 	FD_SET(wakeup_pipe[0], fds);
-	if (wakeup_pipe[0] < ConnectionNumber(display))
-		fd_max = ConnectionNumber(display);
-	else
-		fd_max = wakeup_pipe[0];
-	return fd_max + 1;
+	return std::max(wakeup_pipe[0], ConnectionNumber(display)) + 1;
 }
 
 /** Handle error reports, i.e. BadAtom and such, from the server. */
@@ -191,13 +186,6 @@ static int io_error_handler(Display *_display) {
 	return 0;
 }
 
-static void x11_acknowledge_wakeup(fd_set *fds) {
-	/* Clear data from wake-up pipe */
-	if (FD_ISSET(wakeup_pipe[0], fds)) {
-		char buffer[8];
-		read(wakeup_pipe[0], buffer, sizeof(buffer));
-	}
-}
 #else
 typedef xcb_atom_t x11_atom_t;
 typedef xcb_timestamp_t x11_time_t;
@@ -321,14 +309,19 @@ static int x11_fill_fds(fd_set *fds) {
 	int fd = xcb_get_file_descriptor(connection);
 	FD_ZERO(fds);
 	FD_SET(fd, fds);
-	return fd + 1;
-}
-
-static void x11_acknowledge_wakeup(fd_set *fds) {
-	(void) fds;
+	FD_SET(wakeup_pipe[0], fds);
+	return std::max(wakeup_pipe[0], fd) + 1;
 }
 
 #endif
+
+static void x11_acknowledge_wakeup(fd_set *fds) {
+	/* Clear data from wake-up pipe */
+	if (FD_ISSET(wakeup_pipe[0], fds)) {
+		char buffer[8];
+		read(wakeup_pipe[0], buffer, sizeof(buffer));
+	}
+}
 
 enum clipboard_action_t {
 	ACTION_NONE,
@@ -723,6 +716,7 @@ static void stop_x11(void) {
 		x11_close_display();
 
 	clipboard_mutex.unlock();
+	write(wakeup_pipe[1], &wakeup_pipe, 1);
 	x11_event_thread.join();
 }
 
@@ -850,6 +844,12 @@ static bool init_x11(void) {
 	connection = local_connection.release();
 	x11_initialized = true;
 	x11_event_thread = thread::thread(process_events);
+
+	if (pipe(wakeup_pipe) < 0) {
+		x11_close_display();
+		return false;
+	}
+
 	lprintf("X11 interface initialized\n");
 	return true;
 }

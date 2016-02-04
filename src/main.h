@@ -157,6 +157,14 @@ T3_WIDGET_API void exit_main_loop(int exit_code)
 __attribute__((noreturn))
 #endif
 ;
+
+/** Exit the main loop from any thread or signal handler.
+    Calling this function will (eventually) cause an exit from the main loop.
+    "Eventually" meaning that a key press event is inserted in the key buffer,
+    which will cause an exit from the program.
+*/
+T3_WIDGET_API void async_safe_exit_main_loop(int exit_code);
+
 /** Free memory used by libt3widget.
     After this function is called, no further calls to libt3widget should be
     made. Normally, there is no reason to call this function at all, because the
