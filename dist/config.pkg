@@ -104,7 +104,7 @@ EOF
 		error "!! Can not find basic math functions"
 	fi
 
-	if [ "$CXX11SIGNALS" -ne 1 ] ; then
+	if [ "X$CXX11SIGNALS" != X1 ] ; then
 		clean_cxx
 		cat > .configcxx.cc <<EOF
 #include <sigc++/sigc++.h>
@@ -253,7 +253,7 @@ EOF
 		test_compile_cxx "pthreads" || {
 			if checkfunction_compile "pthread.h" "" "<pthread.h>" ; then
 				check_message_result "Testing required functions seperatly for debugging purposes"
-	
+
 				clean_cxx
 				cat > .configcxx.cc <<EOF
 #include <stdlib.h>
