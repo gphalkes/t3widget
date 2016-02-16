@@ -562,7 +562,7 @@ class x11_driver_t {
 			if (!x11->init_x11()) {
 				return false;
 			}
-			x11_event_thread = thread::thread(process_events);
+			x11_event_thread = thread::thread(process_events_wrapper);
 			return true;
 		}
 
@@ -683,6 +683,7 @@ class x11_driver_t {
 			action = ACTION_NONE;
 		}
 
+		static x11_driver_t *implementation;
 	private:
 		/** Retrieve data set by another X client on our window.
 			@return The number of bytes received, or -1 on failure.
@@ -846,6 +847,10 @@ class x11_driver_t {
 				}
 				x11->x11_select_prop_change(event->window, false);
 			}
+		}
+
+		static void process_events_wrapper() {
+			implementation->process_events();
 		}
 
 		/** Thread to process incoming events. */
@@ -1021,15 +1026,57 @@ class x11_driver_t {
 
 		string retrieved_data;
 };
+x11_driver_t *x11_driver_t::implementation;
 
 // FIXME: make these functions do the right thing again.
-static bool init_x11() { return false; }
-static void release_selections() {}
-static linked_ptr<string>::t get_selection(bool clipboard) { (void) clipboard; return NULL; }
-static void claim_selection(bool clipboard, string *data) { (void) clipboard; (void) data; }
-static void lock() {}
-static void unlock() {}
-static void stop_x11() {}
+static bool init_x11() {
+	if (!x11_driver_t::implementation)
+		x11_driver_t::implementation = new x11_driver_t;
+	if (!x11_driver_t::implementation->init_x11()) {
+		delete x11_driver_t::implementation;
+		x11_driver_t::implementation = NULL;
+		return false;
+	}
+	return true;
+}
+
+static void release_selections() {
+	if (!x11_driver_t::implementation)
+		return;
+	x11_driver_t::implementation->release_selections();
+}
+
+static linked_ptr<string>::t get_selection(bool clipboard) {
+	if (!x11_driver_t::implementation)
+		return NULL;
+	return x11_driver_t::implementation->get_selection(clipboard);
+}
+
+static void claim_selection(bool clipboard, string *data) {
+	if (!x11_driver_t::implementation)
+		return;
+	x11_driver_t::implementation->claim_selection(clipboard, data);
+}
+
+static void lock() {
+	if (!x11_driver_t::implementation)
+		return;
+	x11_driver_t::implementation->lock();
+}
+
+static void unlock() {
+	if (!x11_driver_t::implementation)
+		return;
+	x11_driver_t::implementation->unlock();
+}
+
+static void stop_x11() {
+	if (!x11_driver_t::implementation)
+		return;
+	x11_driver_t::implementation->stop_x11();
+	delete x11_driver_t::implementation;
+	x11_driver_t::implementation = NULL;
+}
 
 extern "C" {
 T3_WIDGET_API extclipboard_interface_t _t3_widget_extclipboard_calls = {

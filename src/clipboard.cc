@@ -52,8 +52,11 @@ static signals::connection init_connected = connect_on_init(signals::ptr_fun(ini
     See lock_clipboard for details.
 */
 linked_ptr<string>::t get_clipboard(void) {
-	if (extclipboard_calls != NULL)
-		return extclipboard_calls->get_selection(true);
+	if (extclipboard_calls != NULL) {
+		linked_ptr<string>::t result = extclipboard_calls->get_selection(true);
+		if (result != NULL)
+			return result;
+	}
 	return clipboard_data;
 }
 
@@ -63,8 +66,11 @@ linked_ptr<string>::t get_clipboard(void) {
     See lock_clipboard for details.
 */
 linked_ptr<string>::t get_primary(void) {
-	if (extclipboard_calls != NULL)
-		return extclipboard_calls->get_selection(false);
+	if (extclipboard_calls != NULL) {
+		linked_ptr<string>::t result = extclipboard_calls->get_selection(false);
+		if (result != NULL)
+			return result;
+	}
 	return primary_data;
 }
 
