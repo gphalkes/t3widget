@@ -1028,13 +1028,14 @@ class x11_driver_t {
 };
 x11_driver_t *x11_driver_t::implementation;
 
-// FIXME: make these functions do the right thing again.
 static bool init_x11() {
+	lprintf("Starting X11 initialization\n");
 	if (!x11_driver_t::implementation)
 		x11_driver_t::implementation = new x11_driver_t;
 	if (!x11_driver_t::implementation->init_x11()) {
 		delete x11_driver_t::implementation;
 		x11_driver_t::implementation = NULL;
+		lprintf("X11 initialization failed!\n");
 		return false;
 	}
 	return true;

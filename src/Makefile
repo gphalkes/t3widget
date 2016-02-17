@@ -94,7 +94,7 @@ endif
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
-CXXFLAGS += -DX11_MOD_NAME=\"$(PWD)/.libs/x11.mod\"
+CXXFLAGS += -DX11_MOD_NAME=\"$(CURDIR)/.libs/x11.mod\"
 CXXFLAGS += -DHAS_GPM
 #~ CXXFLAGS += -DHAS_VECTOR_SHRINK_TO_FIT
 

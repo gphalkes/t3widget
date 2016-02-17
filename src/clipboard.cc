@@ -113,7 +113,7 @@ static void init_external_clipboard(bool init) {
 			return;
 
 		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
-			lprintf("Could not open external clipboard module (X11)\n");
+			lprintf("Could not open external clipboard module (X11): %s\n", X11_MOD_NAME);
 			return;
 		}
 
