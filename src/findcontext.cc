@@ -173,7 +173,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 
 		if (reverse) {
 			matcher->reset();
-			while((size_t) curr_char > 0) {
+			while(curr_char > 0) {
 				next_char = adjust_position(haystack, curr_char, -1);
 
 				if (next_char < result->start.pos)
@@ -243,7 +243,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 	}
 }
 
-static inline int is_start_char(int c) { return (c & 0x80) == 0 || (c & 0xc0) == 0x80; }
+static inline int is_start_char(int c) { return (c & 0xc0) != 0x80; }
 
 int finder_t::adjust_position(const string *str, int pos, int adjust) {
 	if (adjust > 0) {

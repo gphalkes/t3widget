@@ -1,3 +1,9 @@
+Version 0.5.2:
+	Bug fixes:
+	- Searching for string in text with non-ASCII characters failed around the
+	  non-ASCII characters. Searching for non-ASCII characters did not yield
+	  any results. This problem only affected non-regular expression searches.
+
 Version 0.5.1:
 	Bug fixes:
 	- Fix crash on exit when using GCC for compilation and the X11 module. This
