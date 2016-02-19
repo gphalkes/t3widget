@@ -1,3 +1,8 @@
+Version 0.5.1:
+	Bug fixes:
+	- Fix crash on exit when using GCC for compilation and the X11 module. This
+	  crash was caused by destructor/atexit ordering.
+
 Version 0.5.0:
 	New features:
 	- When compiling with a C++11 compatible compiler, libsigc++ and pthread
