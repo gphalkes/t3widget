@@ -281,8 +281,10 @@ complex_error_t init(const init_parameters_t *params) {
 
 	atexit(restore);
 	if ((term_init_result = t3_term_init(-1, init_params->term)) != T3_ERR_SUCCESS) {
+		int saved_errno = errno;
 		restore();
 		result.set_error(complex_error_t::SRC_T3_WINDOW, term_init_result);
+		errno = saved_errno;
 		return result;
 	}
 	init_level++;
@@ -294,7 +296,9 @@ complex_error_t init(const init_parameters_t *params) {
 
 	result = init_keys(init_params->term, init_params->separate_keypad);
 	if (!result.get_success()) {
+		int saved_errno = errno;
 		restore();
+		errno = saved_errno;
 		return result;
 	}
 	init_level++;
