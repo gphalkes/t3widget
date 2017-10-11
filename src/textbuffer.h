@@ -145,6 +145,16 @@ class T3_WIDGET_API text_buffer_t {
 		void goto_next_word_boundary(void);
 		void goto_previous_word_boundary(void);
 
+		/** Sets the position in the text file.
+
+		    Values smaller than 1 are ignored, while values that are out of range are reduced
+		    to the maximum line and position respectively.
+
+		    Note that this does not update the @c edit_window_t viewport, so that has to
+		    be triggered separately.
+		*/
+		void goto_pos(int line, int pos);
+
 		//FIXME: make these members private again
 		text_coordinate_t cursor;
 

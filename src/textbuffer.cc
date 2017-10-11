@@ -1069,4 +1069,17 @@ void text_buffer_t::end_undo_block(void) {
 	get_undo(UNDO_BLOCK_END);
 }
 
+void text_buffer_t::goto_pos(int line, int pos) {
+	if (line < 1 && pos < 1)
+		return;
+
+	if (line >= 1)
+		cursor.line = (line > size() ? size() : line) - 1;
+	if (pos >= 1)
+		cursor.pos = pos - 1;
+
+	if (cursor.pos > get_line_max(cursor.line))
+		cursor.pos = get_line_max(cursor.line);
+}
+
 }; // namespace
