@@ -40,6 +40,7 @@ class T3_WIDGET_API optional {
 		T operator()(void) const  { if (!initialized) throw(0); return (T) value; }
 		optional & operator=(const optional &other) { initialized = other.initialized; value = other.value; return *this; }
 		optional & operator=(const T other) { initialized = true; value = other; return *this; }
+		T value_or_default(T dflt) { return initialized ? value : dflt; }
 };
 
 typedef optional<int> optint;
