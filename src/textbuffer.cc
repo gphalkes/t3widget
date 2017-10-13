@@ -1075,11 +1075,10 @@ void text_buffer_t::goto_pos(int line, int pos) {
 
 	if (line >= 1)
 		cursor.line = (line > size() ? size() : line) - 1;
-	if (pos >= 1)
-		cursor.pos = pos - 1;
-
-	if (cursor.pos > get_line_max(cursor.line))
-		cursor.pos = get_line_max(cursor.line);
+	if (pos >= 1) {
+		int screen_pos = impl->lines[cursor.line]->calculate_screen_width(0, pos - 1, 1);
+		cursor.pos = calculate_line_pos(cursor.line, screen_pos, 1);
+	}
 }
 
 }; // namespace

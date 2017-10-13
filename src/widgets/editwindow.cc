@@ -1166,8 +1166,7 @@ void edit_window_t::goto_line(int line) {
 
 	reset_selection();
 	text->cursor.line = (line > text->size() ? text->size() : line) - 1;
-	if (text->cursor.pos > text->get_line_max(text->cursor.line))
-		text->cursor.pos = text->get_line_max(text->cursor.line);
+	text->cursor.pos = text->calculate_line_pos(text->cursor.line, impl->screen_pos, impl->tabsize);
 	ensure_cursor_on_screen();
 	impl->last_set_pos = impl->screen_pos;
 }
