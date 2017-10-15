@@ -1,3 +1,10 @@
+Version 0.5.3:
+	Bug fixes:
+	- Fix the returned error on initialization failures. The error was obscured
+	  sometimes, leading to the error string "OK" for failed initialization.
+	- Fix cursor positioning after goto-line in the edit window, by using the
+	  screen position rather than the byte position.
+
 Version 0.5.2:
 	Bug fixes:
 	- Searching for string in text with non-ASCII characters failed around the
