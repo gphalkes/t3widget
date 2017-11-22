@@ -1,3 +1,7 @@
+Version 0.5.4:
+	- Removes pre-generated Doxygen documentation.
+	- Minor updates to Makefile.in for compatibility with Debian packaging.
+
 Version 0.5.3:
 	Bug fixes:
 	- Fix the returned error on initialization failures. The error was obscured

@@ -75,7 +75,7 @@ OBJECTS=<OBJECTS>
 
 all: src/libt3widget.la $(X11MODULE)
 
-.PHONY: all clean dist-clean install uninstall
+.PHONY: all clean dist-clean distclean install uninstall
 .SUFFIXES: .cc .o .lo .la .mo .po
 .IGNORE: uninstall
 
@@ -83,7 +83,9 @@ clean:
 	rm -rf src/*.lo src/.libs src/libt3widget.la $(X11MODULE)
 
 dist-clean: clean
-	rm -rf Makefile config.log libt3widget.pc
+	rm -rf Makefile config.log libt3widget.pc .Makefile* .config*
+
+distclean: dist-clean
 
 .cc.lo:
 	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) \
@@ -126,8 +128,6 @@ install: all
 	$(INSTALL) -m0644 src/dialogs/*.h $(_includedir)/t3/widget/t3widget/dialogs
 	$(INSTALL) -d $(_includedir)/t3/widget/t3widget/widgets
 	$(INSTALL) -m0644 src/widgets/*.h $(_includedir)/t3/widget/t3widget/widgets
-	$(INSTALL) -d $(_docdir)/API/search
-	( cd doc ; find API -type f ) | while read X ; do $(INSTALL) -m0644 doc/$${X} $(_docdir)/$${X} ; done
 	$(INSTALL) -m0644 COPYING README Changelog $(_docdir)
 	$(INSTALL) -d $(_pkgconfigdir)
 	$(INSTALL) -m0644 libt3widget.pc $(_pkgconfigdir)
