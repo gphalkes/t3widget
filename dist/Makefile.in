@@ -90,7 +90,7 @@ distclean: dist-clean
 .cc.lo:
 	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) \
 		$(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL \
-		-DX11_MOD_NAME=\"$(libdir)/libt3widget<LIBVERSION>-x11.mod\" -c -o $@ $<
+		-DX11_MOD_NAME=\"$(libdir)/libt3widget/libt3widget<LIBVERSION>-x11.mod\" -c -o $@ $<
 
 src/x11.lo: src/x11.cc
 	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) \
@@ -128,17 +128,22 @@ install: all
 	$(INSTALL) -m0644 src/dialogs/*.h $(_includedir)/t3/widget/t3widget/dialogs
 	$(INSTALL) -d $(_includedir)/t3/widget/t3widget/widgets
 	$(INSTALL) -m0644 src/widgets/*.h $(_includedir)/t3/widget/t3widget/widgets
+	$(INSTALL) -d $(_docdir)
 	$(INSTALL) -m0644 COPYING README Changelog $(_docdir)
 	$(INSTALL) -d $(_pkgconfigdir)
 	$(INSTALL) -m0644 libt3widget.pc $(_pkgconfigdir)
 	if [ -n "$(X11MODULE)" ] ; then \
-		$(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget<LIBVERSION>-x11.la $(_libdir) ; \
-		chmod 0644 $(_libdir)/libt3widget<LIBVERSION>-x11.la ; \
+		$(INSTALL) -d $(_libdir)/libt3widget ; \
+		$(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget<LIBVERSION>-x11.la $(_libdir)/libt3widget ; \
+		chmod 0644 $(_libdir)/libt3widget/libt3widget<LIBVERSION>-x11.la ; \
 	fi
-
 
 uninstall:
 	$(LIBTOOL) --mode=uninstall rm $(_libdir)/libt3widget.la
+	if [ -n "$(X11MODULE)" ] ; then \
+		$(LIBTOOL) --mode=uninstall rm $(_libdir)/libt3widget/libt3widget<LIBVERSION>-x11.la ; \
+		rmdir $(_libdir)/libt3widget || true ; \
+	fi
 	rm -rf $(_includedir)/t3/widget
 	rm -rf $(_docdir)
 	rm -f $(_pkgconfigdir)/libt3widget.pc

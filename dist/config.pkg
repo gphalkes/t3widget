@@ -220,7 +220,17 @@ EOF
 	fi
 
 	unset PTHREADFLAGS PTHREADLIBS
-	if [ "${CXX11}" != 1 ] ; then
+	if [ "${CXX11}" = 1 ] ; then
+		clean_cxx
+		cat > .configcxx.cc <<EOF
+int main(int argc, char *argv[]) {
+	(void) argc;
+	(void) argv;
+	return 0;
+}
+EOF
+		test_link_cxx "pthread library -lpthread" TESTLIBS=-lpthread && CONFIGLIBS="$CONFIGLIBS -lpthread"
+	else
 		clean_cxx
 		cat > .configcxx.cc <<EOF
 #include <stdlib.h>
@@ -466,11 +476,11 @@ EOF
 			check_message_result "!! Could not find dlfcn functions or libltdl. libt3widget will not provide X11 clipboard integration."
 		elif pkgconfig xcb X11 test_link_cxx ; then
 			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
-			CONFIGLIBS="$DL_LIBS"
+			CONFIGLIBS="$CONFIGLIBS $DL_LIBS"
 			X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 		elif basic_x11 ; then
 			CONFIGFLAGS="$CONFIGFLAGS -DWITH_X11 $DL_FLAGS"
-			CONFIGLIBS="$DL_LIBS"
+			CONFIGLIBS="$CONFIGLIBS $DL_LIBS"
 			X11_FLAGS="${X11_FLAGS} -DUSE_XLIB"
 			X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 		else
@@ -495,7 +505,7 @@ int main(int argc, char *argv[]) {
 EOF
 		if test_link_cxx "GPM" TESTLIBS="-lgpm" ; then
 			CONFIGFLAGS="$CONFIGFLAGS -DHAS_GPM"
-			CONFIGLIBS="-lgpm"
+			CONFIGLIBS="$CONFIGLIBS -lgpm"
 		else
 			check_message_result "!! Could not locate GPM. libt3widget will not provide GPM support."
 		fi
