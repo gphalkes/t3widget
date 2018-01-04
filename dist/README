@@ -6,10 +6,18 @@ dialogs and widgets like buttons, text fields, check boxes etc., to facilitate
 easy construction of dialog based programs for Un*x terminals.
 
 libt3widget is part of the Tilde Terminal Toolkit (T3)
-[http://os.ghalkes.nl/t3/]
+[https://os.ghalkes.nl/t3/]
 
 libt3widget is licensed under the GNU General Public License version 3. See the
 file COPYING for details.
+
+
+Documentation
+=============
+
+The full documentation for libt3widget can be generated using doxygen. The
+documentation for the current version can be found at
+https://os.ghalkes.nl/doc/libt3widget.
 
 
 Prerequisites and installation
@@ -61,7 +69,7 @@ Reporting bugs
 ==============
 
 If you think you have found a bug, please check that you are using the latest
-version of libt3widget [http://os.ghalkes.nl/t3/libt3widget.html]. When
+version of libt3widget [https://os.ghalkes.nl/t3/libt3widget.html]. When
 reporting bugs, please include a minimal example that demonstrates the problem.
 
 

@@ -90,7 +90,6 @@ class T3_WIDGET_API text_line_t {
 		void update_meta_buffer(int start_pos = 0);
 		char get_char_meta(int pos) const;
 
-		void insert_bytes(int pos, const char *bytes, int space);
 		void reserve(int size);
 		int byte_width_from_first(int pos) const;
 

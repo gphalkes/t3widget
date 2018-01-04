@@ -36,6 +36,29 @@ const char *text_line_t::wrap_symbol = "\xE2\x86\xB5";
 
 text_line_factory_t default_text_line_factory;
 
+// Returns whether a codepoint is one of the conjoining Jamo L codepoints.
+static bool is_conjoining_jamo_l(uint32_t c) {
+	return c >= 0x1100 && c <= 0x1112;
+}
+
+// Returns whether a codepoint is one of the conjoining Jamo V codepoints.
+static bool is_conjoining_jamo_v(uint32_t c) {
+	return c >= 0x1161 && c <= 0x1175;
+}
+
+// Returns whether a codepoint is one of the conjoining Jamo T codepoints.
+static bool is_conjoining_jamo_t(uint32_t c) {
+	return c >= 0x11A7 && c <= 0x11C2;
+}
+
+// Returns whether a codepoint is one of the conjoining Jamo LV codepoints.
+static bool is_conjoining_jamo_lv(uint32_t c) {
+	if (c >= 0xAC00 && c <= 0xD788) {
+		return (c - 0xAC00) % 28 == 0;
+	}
+	return false;
+}
+
 text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
 		factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
@@ -121,8 +144,9 @@ text_line_t *text_line_t::break_line(int pos) {
 	if ((size_t) pos == buffer.size())
 		return factory->new_text_line_t();
 
-	/* Only allow line breaks at non-combining marks. */
-	ASSERT(width_at(pos));
+	/* Only allow line breaks at non-combining marks. This doesn't use width_at, because
+	   conjoining Jamo will make it return 0, but we need to allow them to be split. */
+	ASSERT(t3_utf8_wcwidth(t3_utf8_get(buffer.data() + pos, NULL)));
 
 	/* copy the right part of the string into the new buffer */
 	newline = factory->new_text_line_t(buffer.size() - pos);
@@ -312,7 +336,8 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 		total++;
 
 	for (i = info->start; (size_t) i < buffer.size() && i < info->max && total < info->leftcol; i += byte_width_from_first(i)) {
-		selection_attr = get_draw_attrs(i, info);
+		if (width_at(i) != 0)
+			selection_attr = get_draw_attrs(i, info);
 
 		if (buffer[i] == '\t' && !(flags & text_line_t::TAB_AS_CONTROL)) {
 			tabspaces = info->tabsize - (total % info->tabsize);
@@ -367,11 +392,13 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 
 	_is_print = is_print(i);
 	print_from = i;
+	new_selection_attr = selection_attr;
 	for (; (size_t) i < buffer.size() && i < info->max && total + accumulated < size; i += byte_width_from_first(i)) {
+		if (width_at(i) != 0)
+			new_selection_attr = get_draw_attrs(i, info);
+
 		/* If selection changed between this char and the previous, print what
 		   we had so far. */
-		new_selection_attr = get_draw_attrs(i, info);
-
 		if (new_selection_attr != selection_attr) {
 			paint_part(win, buffer.data() + print_from, _is_print, _is_print ? i - print_from : accumulated, selection_attr);
 			total += accumulated;
@@ -610,11 +637,6 @@ int text_line_t::get_previous_word_boundary(int start) const {
 	return savePos;
 }
 
-void text_line_t::insert_bytes(int pos, const char *bytes, int space) {
-	buffer.insert(pos, bytes, space);
-}
-
-
 /* Insert character 'c' into 'line' at position 'pos' */
 bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	char conversion_buffer[5];
@@ -635,7 +657,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	if (pos == 0)
 		starts_with_combining = key_width(c) == 0;
 
-	insert_bytes(pos, conversion_buffer, conversion_length);
+	buffer.insert(pos, conversion_buffer, conversion_length);
 	return true;
 }
 
@@ -734,11 +756,17 @@ int text_line_t::adjust_position(int pos, int adjust) const {
 	if (adjust > 0) {
 		for (; adjust > 0 && (size_t) pos < buffer.size(); adjust -= (width_at(pos) ? 1 : 0))
 			pos += byte_width_from_first(pos);
-	} else {
+	} else if (adjust < 0) {
 		for (; adjust < 0 && pos > 0; adjust += (width_at(pos) ? 1 : 0)) {
-			pos--;
-			while (pos > 0 && (buffer[pos] & 0xc0) == 0x80)
+			do {
 				pos--;
+			} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
+		}
+	} else {
+		while (pos > 0 && width_at(pos) == 0) {
+			do {
+				pos--;
+			} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
 		}
 	}
 	return pos;
@@ -769,7 +797,32 @@ int text_line_t::key_width(key_t key) {
 	return width;
 }
 int text_line_t::width_at(int pos) const {
-	return key_width(t3_utf8_get(buffer.data() + pos, NULL));
+	uint32_t c = t3_utf8_get(buffer.data() + pos, NULL);
+	if (is_conjoining_jamo_t(c) && pos > 0) {
+		do {
+			pos--;
+		} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
+		c = t3_utf8_get(buffer.data() + pos, NULL);
+		if (is_conjoining_jamo_lv(c))
+			return 0;
+
+		if (is_conjoining_jamo_v(c) && pos > 0) {
+			do {
+				pos--;
+			} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
+			c = t3_utf8_get(buffer.data() + pos, NULL);
+			if (is_conjoining_jamo_l(c))
+				return 0;
+		}
+		return 1;
+	} else if (is_conjoining_jamo_v(c) && pos > 0) {
+		do {
+			pos--;
+		} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
+		c = t3_utf8_get(buffer.data() + pos, NULL);
+		return is_conjoining_jamo_l(c) ? 0 : 1;
+	}
+	return key_width(c);
 }
 bool text_line_t::is_print(int pos) const {
 	return buffer[pos] == '\t' || !uc_is_general_category_withtable(t3_utf8_get(buffer.data() + pos, NULL), T3_UTF8_CONTROL_MASK);

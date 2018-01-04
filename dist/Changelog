@@ -1,3 +1,7 @@
+Version 0.5.5:
+	Bug fixes:
+	- Improves handling of conjoining Jamo (Hangul).
+
 Version 0.5.4:
 	- Removes pre-generated Doxygen documentation.
 	- Minor updates to Makefile.in for compatibility with Debian packaging.

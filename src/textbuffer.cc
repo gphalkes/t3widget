@@ -81,7 +81,7 @@ bool text_buffer_t::insert_char(key_t c) {
 bool text_buffer_t::overwrite_char(key_t c) {
 	if (!impl->lines[cursor.line]->overwrite_char(cursor.pos, c, get_undo(UNDO_OVERWRITE)))
 		return false;
-
+	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 
 	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 1);
@@ -93,6 +93,7 @@ bool text_buffer_t::overwrite_char(key_t c) {
 bool text_buffer_t::delete_char(void) {
 	if (!impl->lines[cursor.line]->delete_char(cursor.pos, get_undo(UNDO_DELETE)))
 		return false;
+	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 	return true;
 }
@@ -104,6 +105,7 @@ bool text_buffer_t::backspace_char(void) {
 	if (!impl->lines[cursor.line]->backspace_char(cursor.pos, get_undo(UNDO_BACKSPACE)))
 		return false;
 	cursor.pos = newpos;
+	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 
 	rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 
@@ -128,11 +130,14 @@ bool text_buffer_t::merge_internal(int line) {
 bool text_buffer_t::merge(bool backspace) {
 	if (backspace) {
 		get_undo(UNDO_BACKSPACE_NEWLINE, text_coordinate_t(cursor.line - 1, impl->lines[cursor.line - 1]->get_length()));
-		return merge_internal(cursor.line - 1);
+		merge_internal(cursor.line - 1);
+		cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 	} else {
 		get_undo(UNDO_DELETE_NEWLINE, text_coordinate_t(cursor.line, impl->lines[cursor.line]->get_length()));
-		return merge_internal(cursor.line);
+		merge_internal(cursor.line);
+		cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 	}
+	return true;
 }
 
 bool text_buffer_t::append_text(const char *text) {
@@ -294,6 +299,7 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 		if (undo != NULL)
 			undo->get_text()->append(*selected_text->get_data());
 		delete selected_text;
+		cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 		rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
 		return;
 	}
@@ -370,6 +376,7 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 	}
 	end.line++;
 	impl->lines.erase(impl->lines.begin() + start.line, impl->lines.begin() + end.line);
+	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 
 	rewrap_required(rewrap_type_t::DELETE_LINES, start.line, end.line);
 	rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
@@ -413,6 +420,7 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
 	}
 
 	cursor.line = insert_at.line;
+	cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 	delete block;
 	return true;
 }
