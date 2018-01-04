@@ -159,7 +159,7 @@ text_line_t *text_line_t::break_line(int pos) {
 text_line_t *text_line_t::cut_line(int start, int end) {
 	text_line_t *retval;
 
-	ASSERT((size_t) end == buffer.size() || width_at(end) > 0);
+	ASSERT((size_t) end == buffer.size() || t3_utf8_wcwidth(t3_utf8_get(buffer.data() + end, NULL)) > 0);
 	//FIXME: special case: if the selection cover a whole text_line_t (note: not wrapped) we shouldn't copy
 
 	retval = clone(start, end);
