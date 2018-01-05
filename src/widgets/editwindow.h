@@ -147,7 +147,6 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void scrollbar_clicked(scrollbar_t::step_t step);
 		void scrollbar_dragged(int start);
 		void autocomplete_activated(void);
-		void delete_line();
 		void mark_selection();
 		/** Pastes either the selection, or the clipboard. */
 		void paste(bool clipboard);
@@ -293,6 +292,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_autocompleter(autocompleter_t *_autocompleter);
 		/** Perform autocompletion, or pop-up autocompletion choice menu. */
 		void autocomplete(void);
+
+		/** Delete the current line, or lines if the current selection spans multiple lines. */
+		void delete_line();
 
 		/** Returns the @c Action value for the given name, or @c ACTION_NONE if none was found. */
 		static Action map_action_name(const char *name);
