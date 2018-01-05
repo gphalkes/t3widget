@@ -1,4 +1,7 @@
-Version 0.5.5:
+Version 0.6.0:
+	New features:
+	- Allow replacing of menu items.
+
 	Bug fixes:
 	- Improves handling of conjoining Jamo (Hangul).
 

@@ -137,24 +137,38 @@ menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
 
 menu_item_base_t *menu_panel_t::add_separator(void) {
 	menu_separator_t *sep = new menu_separator_t(this);
-	sep->set_position(widgets.size() + 1, None);
 	push_back(sep);
+	sep->set_position(widgets.size(), None);
 	return sep;
 }
 
 void menu_panel_t::remove_item(menu_item_base_t *item) {
+	replace_item(item, NULL);
+}
+
+menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, const char *_label, const char *hotkey, int id) {
+	menu_item_t *new_item = new menu_item_t(this, _label, hotkey, id);
+	return replace_item(old_item, new_item);
+}
+
+menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, menu_item_t *new_item) {
 	widgets_t::iterator iter;
 	menu_item_t *label_item;
 	int i;
 
 	for (iter = widgets.begin(); iter != widgets.end(); iter++) {
-		if ((*iter) == item) {
-			unset_widget_parent(item);
-			widgets.erase(iter);
+		if ((*iter) == old_item) {
+			unset_widget_parent(old_item);
+			if (new_item == NULL) {
+				widgets.erase(iter);
+			} else {
+				*iter = new_item;
+			}
 			goto resize_panel;
 		}
 	}
-	return;
+	delete new_item;
+	return NULL;
 
 resize_panel:
 	impl->width = 5;
@@ -171,6 +185,7 @@ resize_panel:
 			impl->width = impl->hotkey_width + impl->label_width + 2;
 	}
 	set_size(widgets.size() + 2, impl->width);
+	return new_item;
 }
 
 void menu_panel_t::signal(int id) {
