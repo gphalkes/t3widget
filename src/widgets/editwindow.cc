@@ -40,9 +40,16 @@ finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
 signals::connection edit_window_t::replace_buttons_connection;
 signals::connection edit_window_t::init_connected = connect_on_init(signals::ptr_fun(edit_window_t::init));
+std::map<key_t, edit_window_t::Action> edit_window_t::key_bindings;
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
+
+static const char *action_names[] = {
+#define _T3_ACTION(action, name) name,
+#include <t3widget/widgets/editwindow.actions.h>
+#undef _T3_ACTION
+};
 
 void edit_window_t::init(bool _init) {
 	if (_init) {
@@ -51,6 +58,28 @@ void edit_window_t::init(bool _init) {
 		goto_dialog = new goto_dialog_t();
 		global_find_dialog = new find_dialog_t();
 		replace_buttons = new replace_buttons_dialog_t();
+		key_bindings[EKEY_CTRL | 'c'] = ACTION_COPY;
+		key_bindings[EKEY_CTRL | EKEY_INS] = ACTION_COPY;
+		key_bindings[EKEY_CTRL | 'x'] = ACTION_CUT;
+		key_bindings[EKEY_DEL | EKEY_SHIFT] = ACTION_CUT;
+		key_bindings[EKEY_CTRL | 'v'] = ACTION_PASTE;
+		/* This key combination is typically caught by the terminal, and bound to paste-selection.
+		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
+		key_bindings[EKEY_INS | EKEY_SHIFT] = ACTION_PASTE_SELECTION;
+		key_bindings[EKEY_CTRL | 'y'] = ACTION_REDO;
+		key_bindings[EKEY_CTRL | 'z'] = ACTION_UNDO;
+		key_bindings[EKEY_CTRL | 'a'] = ACTION_SELECT_ALL;
+		key_bindings[EKEY_CTRL | 'g'] = ACTION_GOTO_LINE;
+		key_bindings[0] = ACTION_AUTOCOMPLETE;
+		key_bindings[EKEY_CTRL | 'k'] = ACTION_DELETE_LINE;
+		key_bindings[EKEY_CTRL | 't'] = ACTION_MARK_SELECTION;
+		key_bindings[EKEY_CTRL | 'f'] = ACTION_FIND;
+		key_bindings[EKEY_CTRL | 'r'] = ACTION_REPLACE;
+		key_bindings[EKEY_F3] = ACTION_FIND_NEXT;
+		key_bindings[EKEY_META | '3'] = ACTION_FIND_NEXT;
+		key_bindings[EKEY_F3 | EKEY_SHIFT] = ACTION_FIND_PREVIOUS;
+		key_bindings[EKEY_F9] = ACTION_INSERT_SPECIAL;
+		key_bindings[EKEY_META | '9'] = ACTION_INSERT_SPECIAL;
 	} else {
 		delete goto_dialog; goto_dialog = NULL;
 		delete global_find_dialog; global_find_dialog = NULL;
@@ -868,75 +897,9 @@ bool edit_window_t::process_key(key_t key) {
 				activate_autocomplete(false);
 			break;
 
-		case EKEY_CTRL | 'c':
-		case EKEY_INS | EKEY_CTRL:
-			cut_copy(false);
-			break;
-		case EKEY_CTRL | 'x':
-		case EKEY_DEL | EKEY_SHIFT:
-			cut_copy(true);
-			break;
-		case EKEY_CTRL | 'v':
-		case EKEY_INS | EKEY_SHIFT:
-			paste();
-			break;
-
-		case EKEY_CTRL | 'y':
-			redo();
-			break;
-		case EKEY_CTRL | 'z':
-			undo();
-			break;
-
-		case EKEY_CTRL | 'a':
-			select_all();
-			break;
-
-		case EKEY_CTRL | 'g':
-			goto_line();
-			break;
-
-		case 0: /* CTRL-space and others */
-			activate_autocomplete(true);
-			break;
-
-		case EKEY_CTRL | 't':
-			switch (text->get_selection_mode()) {
-				case selection_mode_t::MARK:
-					reset_selection();
-					break;
-				case selection_mode_t::NONE:
-				case selection_mode_t::ALL:
-				case selection_mode_t::SHIFT:
-					text->set_selection_mode(selection_mode_t::MARK);
-					break;
-				default:
-					/* Should not happen, but just try to get back to a sane state. */
-					reset_selection();
-					break;
-			}
-			break;
 		case EKEY_ESC:
 			if (text->get_selection_mode() == selection_mode_t::MARK)
 				reset_selection();
-			break;
-
-		case EKEY_CTRL | 'f':
-		case EKEY_CTRL | 'r':
-			find_replace(key == (EKEY_CTRL | 'r'));
-			break;
-
-		case EKEY_F3:
-		case EKEY_META | '3':
-			find_next(false);
-			break;
-		case EKEY_F3 | EKEY_SHIFT:
-			find_next(true);
-			break;
-
-		case EKEY_F9:
-		case EKEY_META | '9':
-			insert_special();
 			break;
 
 		case EKEY_SHIFT | '\t':
@@ -972,6 +935,66 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 		default: {
 			int local_insmode;
+
+			Action action = ACTION_NONE;
+			std::map<key_t, Action>::iterator iter = key_bindings.find(key);
+			if (iter != key_bindings.end()) {
+				action = iter->second;
+			}
+			switch (action) {
+				case ACTION_COPY:
+					cut_copy(false);
+					return true;
+				case ACTION_CUT:
+					cut_copy(true);
+					return true;
+				case ACTION_PASTE:
+					paste(true);
+					return true;
+				case ACTION_PASTE_SELECTION:
+					paste(false);
+					return true;
+				case ACTION_REDO:
+					redo();
+					return true;
+				case ACTION_UNDO:
+					undo();
+					return true;
+				case ACTION_SELECT_ALL:
+					select_all();
+					return true;
+				case ACTION_GOTO_LINE:
+					goto_line();
+					return true;
+				case ACTION_AUTOCOMPLETE: /* CTRL-space and others */
+					activate_autocomplete(true);
+					return true;
+				case ACTION_DELETE_LINE:
+					delete_line();
+					return true;
+				case ACTION_MARK_SELECTION:
+					mark_selection();
+					return true;
+				case ACTION_FIND:
+					find_replace(false);
+					return true;
+				case ACTION_REPLACE:
+					find_replace(true);
+					return true;
+				case ACTION_FIND_NEXT:
+					find_next(false);
+					return true;
+				case ACTION_FIND_PREVIOUS:
+					find_next(true);
+					return true;
+				case ACTION_INSERT_SPECIAL:
+					insert_special();
+					return true;
+
+				default:
+					break;
+			}
+
 
 			if (key < 32)
 				return false;
@@ -1105,9 +1128,17 @@ void edit_window_t::cut_copy(bool cut) {
 	}
 }
 
-void edit_window_t::paste(void) {
+void edit_window_t::paste() {
+	paste(true);
+}
+
+void edit_window_t::paste_selection(void) {
+	paste(false);
+}
+
+void edit_window_t::paste(bool clipboard) {
 	WITH_CLIPBOARD_LOCK(
-		linked_ptr<string>::t copy_buffer = get_clipboard();
+		linked_ptr<string>::t copy_buffer = clipboard ? get_clipboard() : get_primary();
 		if (copy_buffer != NULL) {
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				update_repaint_lines(text->cursor.line, INT_MAX);
@@ -1550,6 +1581,77 @@ void edit_window_t::update_repaint_lines(int start, int end) {
 	if (end > impl->repaint_max)
 		impl->repaint_max = end;
 	redraw = true;
+}
+
+void edit_window_t::delete_line() {
+	text_coordinate_t start;
+	text_coordinate_t end;
+	if (text->selection_empty()) {
+		start = text->cursor;
+		end = text->cursor;
+	} else {
+		if (text->get_selection_start() < text->get_selection_end()) {
+			start = text->get_selection_start();
+			end = text->get_selection_end();
+		} else {
+			start = text->get_selection_end();
+			end = text->get_selection_start();
+		}
+	}
+	reset_selection();
+	int saved_pos = text->calculate_screen_pos(NULL, 0);
+	start.pos = 0;
+	if (end.line + 1 >= text->size()) {
+		end.pos = text->get_line_max(end.line);
+	} else {
+		end.line = end.line + 1;
+		end.pos = 0;
+	}
+	text->delete_block(start, end);
+	text->cursor.pos = text->calculate_line_pos(text->cursor.line, saved_pos, impl->tabsize);
+	ensure_cursor_on_screen();
+}
+
+void edit_window_t::mark_selection() {
+	switch (text->get_selection_mode()) {
+		case selection_mode_t::MARK:
+			reset_selection();
+			break;
+		case selection_mode_t::NONE:
+		case selection_mode_t::ALL:
+		case selection_mode_t::SHIFT:
+			text->set_selection_mode(selection_mode_t::MARK);
+			break;
+		default:
+			/* Should not happen, but just try to get back to a sane state. */
+			reset_selection();
+			break;
+	}
+}
+
+edit_window_t::Action edit_window_t::map_action_name(const char *name) {
+	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
+		if (strcmp(name, action_names[i]) == 0) {
+			return static_cast<Action>(i);
+		}
+	}
+	return ACTION_NONE;
+}
+
+void edit_window_t::bind_key(key_t key, Action action) {
+	if (action == ACTION_NONE) {
+		key_bindings.erase(key);
+	} else {
+		key_bindings[key] = action;
+	}
+}
+
+std::vector<std::string> edit_window_t::get_action_names() {
+	std::vector<std::string> result;
+	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
+		result.push_back(action_names[i]);
+	}
+	return result;
 }
 
 //====================== view_parameters_t ========================

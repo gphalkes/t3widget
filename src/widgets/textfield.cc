@@ -35,6 +35,31 @@ namespace t3_widget {
 	  user added characters.
 - undo
 */
+signals::connection text_field_t::init_connected = connect_on_init(signals::ptr_fun(text_field_t::init));
+std::map<key_t, text_field_t::Action> text_field_t::key_bindings;
+
+static const char *action_names[] = {
+#define _T3_ACTION(action, name) name,
+#include <t3widget/widgets/textfield.actions.h>
+#undef _T3_ACTION
+};
+
+void text_field_t::init(bool _init) {
+	if (_init) {
+		key_bindings[EKEY_CTRL | 'x'] = ACTION_CUT;
+		key_bindings[EKEY_SHIFT | EKEY_DEL] = ACTION_CUT;
+		key_bindings[EKEY_CTRL | 'c'] = ACTION_COPY;
+		key_bindings[EKEY_CTRL | EKEY_INS] = ACTION_COPY;
+		key_bindings[EKEY_CTRL | 'v'] = ACTION_PASTE;
+		/* This key combination is typically caught by the terminal, and bound to paste-selection.
+		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
+		key_bindings[EKEY_SHIFT | EKEY_INS] = ACTION_PASTE_SELECTION;
+		key_bindings[EKEY_CTRL | 't'] = ACTION_MARK_SELECTION;
+		key_bindings[EKEY_F9] = ACTION_INSERT_SPECIAL;
+		key_bindings[EKEY_META | '9'] = ACTION_INSERT_SPECIAL;
+		key_bindings[EKEY_CTRL | 'a'] = ACTION_SELECT_ALL;
+	}
+}
 
 text_field_t::text_field_t(void) : widget_t(1, 4), impl(new implementation_t()) {
 	reset_selection();
@@ -181,80 +206,7 @@ bool text_field_t::process_key(key_t key) {
 			impl->pos = impl->line->get_length();
 			ensure_cursor_on_screen();
 			break;
-		case EKEY_CTRL | 'x':
-		case EKEY_SHIFT | EKEY_DEL:
-			if (impl->selection_mode != selection_mode_t::NONE)
-				delete_selection(true);
-			break;
-		case EKEY_CTRL | 'c':
-			if (impl->selection_mode != selection_mode_t::NONE) {
-				int start, end;
-				if (impl->selection_start_pos == impl->selection_end_pos) {
-					reset_selection();
-					break;
-				} else if (impl->selection_start_pos < impl->selection_end_pos) {
-					start = impl->selection_start_pos;
-					end = impl->selection_end_pos;
-				} else {
-					start = impl->selection_end_pos;
-					end = impl->selection_start_pos;
-				}
 
-				set_clipboard(new string(*impl->line->get_data(), start, end - start));
-			}
-			break;
-
-		case EKEY_CTRL | 'v':
-		case EKEY_SHIFT | EKEY_INS: WITH_CLIPBOARD_LOCK(
-			linked_ptr<string>::t copy_buffer = get_clipboard();
-			if (copy_buffer != NULL) {
-				text_line_t insert_line(copy_buffer);
-
-				// Don't allow pasting of values that do not match the filter
-				if (impl->filter_keys != NULL) {
-					const string *insert_data = insert_line.get_data();
-					size_t insert_data_length = insert_data->size();
-					size_t bytes_read;
-					do {
-						key_t c;
-						bytes_read = insert_data_length;
-						c = t3_utf8_get(insert_data->data() + insert_data->size() - insert_data_length, &bytes_read);
-						if ((find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size, c) ==
-								impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept)
-							return true;
-						insert_data_length -= bytes_read;
-					} while (insert_data_length > 0 && bytes_read > 0);
-				}
-
-				if (impl->selection_mode != selection_mode_t::NONE)
-					delete_selection(false);
-
-				impl->line->insert(&insert_line, impl->pos);
-				impl->pos += insert_line.get_length();
-				ensure_cursor_on_screen();
-				redraw = true;
-				impl->edited = true;
-			}
-			break;
-		)
-		case EKEY_CTRL | 't':
-			switch (impl->selection_mode) {
-				case selection_mode_t::MARK:
-					reset_selection();
-					break;
-				case selection_mode_t::NONE:
-					impl->selection_start_pos = impl->pos;
-					impl->selection_end_pos = impl->pos;
-				/* FALLTHROUGH */
-				case selection_mode_t::SHIFT:
-					impl->selection_mode = selection_mode_t::MARK;
-					break;
-				default:
-					/* Should not happen, but just try to get back to a sane state. */
-					reset_selection();
-					break;
-			}
-			break;
 
 		case EKEY_NL:
 			if (impl->drop_down_list != NULL && impl->drop_down_list->is_shown()) {
@@ -264,18 +216,108 @@ bool text_field_t::process_key(key_t key) {
 			activate();
 			break;
 
-		case EKEY_F9:
-		case EKEY_META | '9':
-			impl->dont_select_on_focus = true;
-			insert_char_dialog->center_over(center_window);
-			insert_char_dialog->reset();
-			insert_char_dialog->show();
-			break;
-
 		case EKEY_HOTKEY:
 			return true;
 
-		default:
+		default: {
+			Action action = ACTION_NONE;
+			std::map<key_t, Action>::iterator iter = key_bindings.find(key);
+			if (iter != key_bindings.end()) {
+				action = iter->second;
+			}
+			switch (action) {
+				case ACTION_CUT:
+					if (impl->selection_mode != selection_mode_t::NONE)
+						delete_selection(true);
+					return true;
+				case ACTION_COPY:
+					if (impl->selection_mode != selection_mode_t::NONE) {
+						int start, end;
+						if (impl->selection_start_pos == impl->selection_end_pos) {
+							reset_selection();
+							break;
+						} else if (impl->selection_start_pos < impl->selection_end_pos) {
+							start = impl->selection_start_pos;
+							end = impl->selection_end_pos;
+						} else {
+							start = impl->selection_end_pos;
+							end = impl->selection_start_pos;
+						}
+
+						set_clipboard(new string(*impl->line->get_data(), start, end - start));
+					}
+					return true;
+
+				case ACTION_PASTE:
+				case ACTION_PASTE_SELECTION: WITH_CLIPBOARD_LOCK(
+					linked_ptr<string>::t copy_buffer = action == ACTION_PASTE ? get_clipboard() : get_primary();
+					if (copy_buffer != NULL) {
+						text_line_t insert_line(copy_buffer);
+
+						// Don't allow pasting of values that do not match the filter
+						if (impl->filter_keys != NULL) {
+							const string *insert_data = insert_line.get_data();
+							size_t insert_data_length = insert_data->size();
+							size_t bytes_read;
+							do {
+								key_t c;
+								bytes_read = insert_data_length;
+								c = t3_utf8_get(insert_data->data() + insert_data->size() - insert_data_length, &bytes_read);
+								if ((find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size, c) ==
+										impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept)
+									return true;
+								insert_data_length -= bytes_read;
+							} while (insert_data_length > 0 && bytes_read > 0);
+						}
+
+						if (impl->selection_mode != selection_mode_t::NONE)
+							delete_selection(false);
+
+						impl->line->insert(&insert_line, impl->pos);
+						impl->pos += insert_line.get_length();
+						ensure_cursor_on_screen();
+						redraw = true;
+						impl->edited = true;
+					}
+					return true;
+				)
+				case ACTION_MARK_SELECTION:
+					switch (impl->selection_mode) {
+						case selection_mode_t::MARK:
+							reset_selection();
+							break;
+						case selection_mode_t::NONE:
+							impl->selection_start_pos = impl->pos;
+							impl->selection_end_pos = impl->pos;
+							/* FALLTHROUGH */
+						case selection_mode_t::SHIFT:
+							impl->selection_mode = selection_mode_t::MARK;
+							break;
+						default:
+							/* Should not happen, but just try to get back to a sane state. */
+							reset_selection();
+							break;
+					}
+					return true;
+				case ACTION_INSERT_SPECIAL:
+					impl->dont_select_on_focus = true;
+					insert_char_dialog->center_over(center_window);
+					insert_char_dialog->reset();
+					insert_char_dialog->show();
+					return true;
+				case ACTION_SELECT_ALL:
+					if (impl->selection_mode == selection_mode_t::NONE) {
+						impl->selection_mode = selection_mode_t::SHIFT;
+					}
+					impl->selection_start_pos = 0;
+					impl->selection_end_pos = impl->line->get_length();
+					impl->pos = impl->selection_end_pos;
+					redraw = true;
+					return true;
+
+				default:
+					break;
+			}
 			if (key < 31)
 				return false;
 
@@ -301,6 +343,7 @@ bool text_field_t::process_key(key_t key) {
 			ensure_cursor_on_screen();
 			redraw = true;
 			impl->edited = true;
+		}
 	}
 
 	return true;
@@ -562,6 +605,32 @@ void text_field_t::set_selection_end(bool update_primary) {
 
 bool text_field_t::has_focus(void) const {
 	return impl->focus;
+}
+
+
+text_field_t::Action text_field_t::map_action_name(const char *name) {
+	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
+		if (strcmp(name, action_names[i]) == 0) {
+			return static_cast<Action>(i);
+		}
+	}
+	return ACTION_NONE;
+}
+
+void text_field_t::bind_key(key_t key, Action action) {
+	if (action == ACTION_NONE) {
+		key_bindings.erase(key);
+	} else {
+		key_bindings[key] = action;
+	}
+}
+
+std::vector<std::string> text_field_t::get_action_names() {
+	std::vector<std::string> result;
+	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
+		result.push_back(action_names[i]);
+	}
+	return result;
 }
 
 /*======================

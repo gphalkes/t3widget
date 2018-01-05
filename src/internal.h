@@ -54,6 +54,8 @@ T3_WIDGET_LOCAL void stop_clipboard(void);
 #define ASSERT(_x)
 #endif
 
+#define ARRAY_SIZE(_x) ((int) (sizeof(_x) / sizeof(_x[0])))
+
 /** Mask for return values of #parse_escape, indicating that the escape value was a Unicode character. */
 #define ESCAPE_UNICODE (1<<29)
 /** Mask for return values of #parse_escape, indicating that the escape value was a replacement marker. */

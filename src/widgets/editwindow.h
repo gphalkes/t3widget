@@ -18,6 +18,10 @@ namespace t3_widget {
 	class edit_window_t;
 }; // namespace
 
+#include <string>
+#include <map>
+#include <vector>
+
 #include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/listpane.h>
@@ -36,6 +40,15 @@ class replace_buttons_dialog_t;
 
 /** Class implementing an edit widget. */
 class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
+	public:
+		/** Actions which can be bound to keys. */
+		enum Action {
+			ACTION_NONE = -1,
+#define _T3_ACTION(action, name) ACTION_##action,
+#include <t3widget/widgets/editwindow.actions.h>
+#undef _T3_ACTION
+		};
+
 	private:
 		class T3_WIDGET_LOCAL autocomplete_panel_t;
 
@@ -47,6 +60,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static replace_buttons_dialog_t *replace_buttons;
 		static signals::connection replace_buttons_connection;
 		static signals::connection init_connected;
+		static std::map<key_t, Action> key_bindings;
 
 		struct T3_WIDGET_LOCAL implementation_t {
 			cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
@@ -133,6 +147,10 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void scrollbar_clicked(scrollbar_t::step_t step);
 		void scrollbar_dragged(int start);
 		void autocomplete_activated(void);
+		void delete_line();
+		void mark_selection();
+		/** Pastes either the selection, or the clipboard. */
+		void paste(bool clipboard);
 
 	protected:
 		text_buffer_t *text; /**< Buffer holding the text currently displayed. */
@@ -162,6 +180,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    It is acceptable to pass @p start and @p end in reverse order.
 		*/
 		void update_repaint_lines(int start, int end);
+
 	public:
 		class T3_WIDGET_API view_parameters_t;
 
@@ -204,6 +223,10 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    The text to paste is taken from copy_buffer.
 		*/
 		void paste(void);
+		/** Apply the paste-selection action.
+		    The text to paste is taken from the selection.
+		*/
+		void paste_selection(void);
 		/** Select the whole text. */
 		void select_all(void);
 		/** Show the Insert Special Character dialog. */
@@ -270,6 +293,17 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_autocompleter(autocompleter_t *_autocompleter);
 		/** Perform autocompletion, or pop-up autocompletion choice menu. */
 		void autocomplete(void);
+
+		/** Returns the @c Action value for the given name, or @c ACTION_NONE if none was found. */
+		static Action map_action_name(const char *name);
+
+		/** Binds the key to the action.
+		    To remove a binding, bind the key to @c ACTION_NONE.
+		*/
+		static void bind_key(key_t key, Action action);
+
+		/** Returns a vector with the names of all the available actions. */
+		static std::vector<std::string> get_action_names();
 };
 
 class T3_WIDGET_API edit_window_t::view_parameters_t {

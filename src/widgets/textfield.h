@@ -15,6 +15,8 @@
 #define T3_WIDGET_TEXTFIELD_H
 
 #include <string>
+#include <map>
+#include <vector>
 
 #include <t3widget/widgets/widget.h>
 #include <t3widget/textline.h>
@@ -26,8 +28,21 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t
 {
+	public:
+		/** Actions which can be bound to keys. */
+		enum Action {
+			ACTION_NONE = -1,
+	#define _T3_ACTION(action, name) ACTION_##action,
+	#include <t3widget/widgets/textfield.actions.h>
+	#undef _T3_ACTION
+		};
+
 	private:
 		class T3_WIDGET_LOCAL drop_down_list_t;
+
+		static signals::connection init_connected;
+		static std::map<key_t, Action> key_bindings;
+
 		struct T3_WIDGET_LOCAL implementation_t {
 			int pos, /**< Cursor position in bytes. */
 				screen_pos, /**< Cursor position in screen cells. */
@@ -72,6 +87,9 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
+
+		/** Function to initialize the shared dialogs and data. */
+		static void init(bool _init);
 
 		/** Reset the selection. */
 		void reset_selection(void);
@@ -122,6 +140,17 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 		virtual void bad_draw_recheck(void);
 		virtual bool process_mouse_event(mouse_event_t event);
+
+		/** Returns the @c Action value for the given name, or @c ACTION_NONE if none was found. */
+		static Action map_action_name(const char *name);
+
+		/** Binds the key to the action.
+		    To remove a binding, bind the key to @c ACTION_NONE.
+		*/
+		static void bind_key(key_t key, Action action);
+
+		/** Returns a vector with the names of all the available actions. */
+		static std::vector<std::string> get_action_names();
 
 	T3_WIDGET_SIGNAL(activate, void);
 };

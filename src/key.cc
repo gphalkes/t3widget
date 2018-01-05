@@ -108,8 +108,6 @@ static const kp_mapping_t kp_mappings[] = {
 	{ EKEY_KP_MINUS, '-' }
 };
 
-#define ARRAY_SIZE(_x) ((int) (sizeof(_x) / sizeof(_x[0])))
-
 static mapping_t *map;
 static int map_count;
 static key_t map_single[128];

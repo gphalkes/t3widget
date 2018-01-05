@@ -14,6 +14,10 @@
 #ifndef T3_WIDGET_SPLIT_H
 #define T3_WIDGET_SPLIT_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include <t3widget/widgets/widget.h>
 
 namespace t3_widget {
@@ -27,6 +31,21 @@ namespace t3_widget {
     or text_window_t.
 */
 class T3_WIDGET_API split_t : public widget_t, public container_t {
+	public:
+		/** Actions which can be bound to keys. */
+		enum Action {
+			ACTION_NONE = -1,
+	#define _T3_ACTION(action, name) ACTION_##action,
+	#include <t3widget/widgets/split.actions.h>
+	#undef _T3_ACTION
+		};
+	private:
+		static signals::connection init_connected;
+		static std::map<key_t, Action> key_bindings;
+
+		/** Function to initialize the shared dialogs and data. */
+		static void init(bool _init);
+
 	protected:
 		widgets_t widgets; /**< The list of widgets contained by this split_t. */
 		widgets_t::iterator current; /**< The currently active widget. */
@@ -93,6 +112,17 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		void previous(void);
 		/** Get the currently active widget. */
 		widget_t *get_current(void);
+
+		/** Returns the @c Action value for the given name, or @c ACTION_NONE if none was found. */
+		static Action map_action_name(const char *name);
+
+		/** Binds the key to the action.
+		    To remove a binding, bind the key to @c ACTION_NONE.
+		*/
+		static void bind_key(key_t key, Action action);
+
+		/** Returns a vector with the names of all the available actions. */
+		static std::vector<std::string> get_action_names();
 };
 
 }; // namespace

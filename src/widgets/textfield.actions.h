@@ -1,0 +1,7 @@
+_T3_ACTION(COPY, "Copy")
+_T3_ACTION(CUT, "Cut")
+_T3_ACTION(PASTE, "Paste")
+_T3_ACTION(PASTE_SELECTION, "PasteSelection")
+_T3_ACTION(SELECT_ALL, "SelectAll")
+_T3_ACTION(INSERT_SPECIAL, "InsertSpecial")
+_T3_ACTION(MARK_SELECTION, "MarkSelection")

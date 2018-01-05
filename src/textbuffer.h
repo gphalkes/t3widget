@@ -61,8 +61,6 @@ class T3_WIDGET_API text_buffer_t {
 
 		void set_undo_mark(void);
 
-		void locate_pos(void);
-		void locate_pos(text_coordinate_t *coord) const;
 		void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
 		bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
 		int apply_undo_redo(undo_type_t type, undo_t *current);

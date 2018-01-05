@@ -1,6 +1,9 @@
 Version 0.6.0:
 	New features:
 	- Allow replacing of menu items.
+	- Make key bindings configurable.
+	- Add select-all behavior to text fields.
+	- Add delete-line capability to edit window.
 
 	Bug fixes:
 	- Improves handling of conjoining Jamo (Hangul).
