@@ -19,8 +19,8 @@
 
 namespace t3_widget {
 
-static const char *disable_mouse = "\033[?1005l\033[?1002l\033[?1000l";
-static const char *enable_mouse = "\033[?1000h\033[?1002h\033[?1005h";
+static const char *disable_mouse = "\033[?1006l\033[?1015l\033[?1005l\033[?1002l\033[?1000l";
+static const char *enable_mouse = "\033[?1000h\033[?1002h\033[?1005h\033[?1015h\033[?1006h";
 
 static mouse_event_buffer_t mouse_event_buffer;
 static int mouse_button_state;
@@ -56,100 +56,13 @@ bool use_xterm_mouse_reporting(void) {
 	} \
 } while (0)
 
-/** Decode an XTerm mouse event.
-
-    This routine would have been simple, had it not been for the fact that the
-    original XTerm mouse protocol is a little broken, and it is hard to detect
-    whether the fix is present. First of all, the original protocol can not
-    handle coordinates above 223. This is due to the fact that a coordinate is
-    encoded as coordinate + 32 (and coordinates start at 1).
-
-    Once screens got big enough to make terminals more than 223 columns wide,
-    a fix was implemented, which uses UTF-8 encoding (but only using at most
-    2 bytes, instead of simply using the full range). However, to accomodate
-    clients which simply assumed all input was UTF-8 encoded, several versions
-    later the buttons were encoded as UTF-8 as well. Thus we now have three
-    different versions of the XTerm mouse reporting protocol.
-
-    This wouldn't be so bad, if it wasn't for all those terminal emulators out
-    there claiming to be XTerm. They make detection of the specific version of
-    the protocol practically impossible, because they may report any version
-    number in response to a "Send Device Attributes" request. Thus, this
-    routine tries to do automatic switching, based on the received mouse
-    reports.
-
-    Autodetection logic:
-    - start by assuming full UTF-8 encoded mode
-    - if the buttons have the top bit set, but are not properly UTF-8 encoded,
-      assume that only the coordinates have been UTF-8 encoded
-    - if a coordinate is not properly UTF-8 encoded, assume single byte coding
-    - if during the examination of the coordinate we find that not enough bytes
-      are available to decode, assume single byte coding. (This situation can
-      not be caused by incorrecly assuming that the buttons are UTF-8 encoded,
-      because then the first coordinate byte would be invalid.)
-*/
-bool decode_xterm_mouse(void) {
+static bool convert_x10_mouse_event(int x, int y, int buttons) {
 	mouse_event_t event;
-	int buttons, idx, i;
-
-	while (char_buffer_fill < 3) {
-		if (!read_keychar(1))
-			return false;
-	}
-
-	if (xterm_mouse_reporting > XTERM_MOUSE_SINGLE_BYTE) {
-		idx = 1;
-		if ((char_buffer[0] & 0x80) && xterm_mouse_reporting == XTERM_MOUSE_ALL_UTF) {
-			if ((char_buffer[0] & 0xc0) != 0xc0 || (char_buffer[1] & 0xc0) != 0x80)
-				xterm_mouse_reporting = XTERM_MOUSE_COORD_UTF;
-			else
-				idx = 2;
-		}
-		for (i = 0; i < 2; i++) {
-			ensure_buffer_fill();
-			if ((char_buffer[idx] & 0x80) && xterm_mouse_reporting >= XTERM_MOUSE_COORD_UTF) {
-				idx++;
-				ensure_buffer_fill();
-				if ((char_buffer[idx - 1] & 0xc0) != 0xc0 || (char_buffer[idx] & 0xc0) != 0x80) {
-					xterm_mouse_reporting = XTERM_MOUSE_SINGLE_BYTE;
-					goto convert_mouse_event;
-				}
-			}
-			idx++;
-		}
-	}
-
-#define DECODE_UTF() (char_buffer[idx] & 0x80 ? (idx += 2, ((((unsigned char) char_buffer[idx - 2] & ~0xc0) << 6) | \
-	((unsigned char) char_buffer[idx - 1] & ~0xc0))) : char_buffer[idx++])
-
-convert_mouse_event:
-	idx = 0;
-	switch (xterm_mouse_reporting) {
-		case XTERM_MOUSE_SINGLE_BYTE:
-			buttons = (unsigned char) char_buffer[0];
-			event.x = (unsigned char) char_buffer[1];
-			event.y = (unsigned char) char_buffer[2];
-			idx = 3;
-			break;
-		case XTERM_MOUSE_COORD_UTF:
-			buttons = (unsigned char) char_buffer[0];
-			idx = 1;
-			goto convert_coordinates;
-		case XTERM_MOUSE_ALL_UTF:
-			buttons = DECODE_UTF();
-		convert_coordinates:
-			event.x = DECODE_UTF();
-			event.y = DECODE_UTF();
-			break;
-		default:
-			return false;
-	}
-	char_buffer_fill -= idx;
-	memmove(char_buffer, char_buffer + idx, char_buffer_fill);
-
-	event.x = event.x <= 32 ? event.x = -1 : event.x - 33;
-	event.y = event.y <= 32 ? event.y = -1 : event.y - 33;
+	event.x = x <= 32 ? -1 : x - 33;
+	event.y = y <= 32 ? -1 : y - 33;
 	event.previous_button_state = mouse_button_state;
+	if (buttons < 32)
+		return false;
 	buttons -= 32;
 
 	if (buttons & 64) {
@@ -201,6 +114,213 @@ convert_mouse_event:
 	event.modifier_state = (buttons >> 2) & 7;
 	mouse_event_buffer.push_back(event);
 	return true;
+}
+
+static void convert_sgr_mouse_event(int x, int y, int buttons, char closing_char) {
+	mouse_event_t event;
+	event.x = x - 1;
+	event.y = y - 1;
+	event.previous_button_state = mouse_button_state;
+	if (buttons & 64) {
+		event.type = EMOUSE_BUTTON_PRESS;
+		switch (buttons & 3) {
+			case 0:
+				event.button_state = mouse_button_state | EMOUSE_SCROLL_UP;
+				break;
+			case 1:
+				event.button_state = mouse_button_state | EMOUSE_SCROLL_DOWN;
+				break;
+			default:
+				event.button_state = mouse_button_state;
+				break;
+		}
+	} else if (buttons & 32) {
+		event.type = EMOUSE_MOTION;
+		/* Trying to decode the button state here is pretty much useless, because
+		   it can only encode a single button. The saved mouse_button_state is
+		   more accurate. */
+		event.button_state = mouse_button_state;
+	} else if (closing_char == 'M') {
+		event.type = EMOUSE_BUTTON_PRESS;
+		switch (buttons & 3) {
+			case 0:
+				event.button_state = mouse_button_state |= EMOUSE_BUTTON_LEFT;
+				break;
+			case 1:
+				event.button_state = mouse_button_state |= EMOUSE_BUTTON_MIDDLE;
+				break;
+			case 2:
+				event.button_state = mouse_button_state |= EMOUSE_BUTTON_RIGHT;
+				break;
+			default:
+				break;
+		}
+	} else if (closing_char == 'm') {
+		event.type = EMOUSE_BUTTON_RELEASE;
+		switch (buttons & 3) {
+			case 0:
+				event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_LEFT;
+				break;
+			case 1:
+				event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_MIDDLE;
+				break;
+			case 2:
+				event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_RIGHT;
+				break;
+			default:
+				break;
+		}
+	}
+	event.window = NULL;
+	event.modifier_state = (buttons >> 2) & 7;
+	mouse_event_buffer.push_back(event);
+}
+
+/** Decode an XTerm mouse event.
+
+    This routine would have been simple, had it not been for the fact that the
+    original XTerm mouse protocol is a little broken, and it is hard to detect
+    whether the fix is present. First of all, the original protocol can not
+    handle coordinates above 223. This is due to the fact that a coordinate is
+    encoded as coordinate + 32 (and coordinates start at 1).
+
+    Once screens got big enough to make terminals more than 223 columns wide,
+    a fix was implemented, which uses UTF-8 encoding (but only using at most
+    2 bytes, instead of simply using the full range). However, to accomodate
+    clients which simply assumed all input was UTF-8 encoded, several versions
+    later the buttons were encoded as UTF-8 as well. Thus we now have three
+    different versions of the XTerm mouse reporting protocol.
+
+    This wouldn't be so bad, if it wasn't for all those terminal emulators out
+    there claiming to be XTerm. They make detection of the specific version of
+    the protocol practically impossible, because they may report any version
+    number in response to a "Send Device Attributes" request. Thus, this
+    routine tries to do automatic switching, based on the received mouse
+    reports.
+
+    Autodetection logic:
+    - start by assuming full UTF-8 encoded mode
+    - if the buttons have the top bit set, but are not properly UTF-8 encoded,
+      assume that only the coordinates have been UTF-8 encoded
+    - if a coordinate is not properly UTF-8 encoded, assume single byte coding
+    - if during the examination of the coordinate we find that not enough bytes
+      are available to decode, assume single byte coding. (This situation can
+      not be caused by incorrecly assuming that the buttons are UTF-8 encoded,
+      because then the first coordinate byte would be invalid.)
+*/
+bool decode_xterm_mouse(void) {
+	int x, y, buttons, idx, i;
+
+	while (char_buffer_fill < 3) {
+		if (!read_keychar(1))
+			return false;
+	}
+
+	if (xterm_mouse_reporting > XTERM_MOUSE_SINGLE_BYTE) {
+		idx = 1;
+		if ((char_buffer[0] & 0x80) && xterm_mouse_reporting == XTERM_MOUSE_ALL_UTF) {
+			if ((char_buffer[0] & 0xc0) != 0xc0 || (char_buffer[1] & 0xc0) != 0x80)
+				xterm_mouse_reporting = XTERM_MOUSE_COORD_UTF;
+			else
+				idx = 2;
+		}
+		for (i = 0; i < 2; i++) {
+			ensure_buffer_fill();
+			if ((char_buffer[idx] & 0x80) && xterm_mouse_reporting >= XTERM_MOUSE_COORD_UTF) {
+				idx++;
+				ensure_buffer_fill();
+				if ((char_buffer[idx - 1] & 0xc0) != 0xc0 || (char_buffer[idx] & 0xc0) != 0x80) {
+					xterm_mouse_reporting = XTERM_MOUSE_SINGLE_BYTE;
+					goto convert_mouse_event;
+				}
+			}
+			idx++;
+		}
+	}
+
+#define DECODE_UTF() (char_buffer[idx] & 0x80 ? (idx += 2, ((((unsigned char) char_buffer[idx - 2] & ~0xc0) << 6) | \
+	((unsigned char) char_buffer[idx - 1] & ~0xc0))) : char_buffer[idx++])
+
+convert_mouse_event:
+	idx = 0;
+	switch (xterm_mouse_reporting) {
+		case XTERM_MOUSE_SINGLE_BYTE:
+			buttons = (unsigned char) char_buffer[0];
+			x = (unsigned char) char_buffer[1];
+			y = (unsigned char) char_buffer[2];
+			idx = 3;
+			break;
+		case XTERM_MOUSE_COORD_UTF:
+			buttons = (unsigned char) char_buffer[0];
+			idx = 1;
+			goto convert_coordinates;
+		case XTERM_MOUSE_ALL_UTF:
+			buttons = DECODE_UTF();
+		convert_coordinates:
+			x = DECODE_UTF();
+			y = DECODE_UTF();
+			break;
+		default:
+			return false;
+	}
+	char_buffer_fill -= idx;
+	memmove(char_buffer, char_buffer + idx, char_buffer_fill);
+
+	return convert_x10_mouse_event(x, y, buttons);
+}
+
+/** Decode an XTerm mouse event using the SGR or URXVT protocols.
+
+    These are merged together, because the decoding of the values is the same
+    for both protocols. I.e. they need to decode three integers. Note that this
+    code assumes that the last character of the sequence is either 'M' or 'm'.
+ */
+bool decode_xterm_mouse_sgr_urxvt(const key_t *data, size_t len) {
+	bool sgr_mode = false;
+	size_t idx = 2;
+	if (data[2] == '<') {
+		sgr_mode = true;
+		++idx;
+	}
+
+	int buttons = 0;
+	int x = 0;
+	int y = 0;
+	int *current_value = &buttons;
+	bool value_parsed = false;
+	for (; idx < len; ++idx) {
+		if (data[idx] >= '0' && data[idx] <= '9') {
+			*current_value = 10 * *current_value + (data[idx] - '0');
+			value_parsed = true;
+		} else if (data[idx] == ';') {
+			if (current_value == &buttons && value_parsed) {
+				current_value = &x;
+				value_parsed = false;
+			} else if (current_value == &x && value_parsed) {
+				current_value = &y;
+				value_parsed = false;
+			} else {
+				return false;
+			}
+		} else if (data[idx] == 'm' || data[idx] == 'M') {
+			if (current_value != &y || !value_parsed) {
+				return false;
+			}
+
+			if (sgr_mode) {
+				convert_sgr_mouse_event(x, y, buttons, data[idx]);
+				return true;
+			} else if (data[idx] == 'm') {
+				return false;
+			} else {
+				return convert_x10_mouse_event(x + 32, y + 32, buttons);
+			}
+		} else {
+			return false;
+		}
+	}
+	// Note that we should not get here to begin with, but we do want to handle it sanely.
+	return false;
 }
 
 #ifdef HAS_GPM

@@ -365,7 +365,8 @@ static key_t decode_sequence(bool outer) {
 					sizeof(mapping_t), compare_sequence_with_mapping)) != NULL)
 				return matched->key;
 
-			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised. */
+			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised.
+			   An exception is made for mouse events, which also start with CSI. */
 			if (sequence.data[1] == '[' && !is_prefix) {
 				if (sequence.idx == 3 && c == 'M' && use_xterm_mouse_reporting()) {
 					if (!outer) {
@@ -378,6 +379,17 @@ static key_t decode_sequence(bool outer) {
 						return -1;
 					}
 					return decode_xterm_mouse() ? EKEY_MOUSE_EVENT : -1;
+				} else if (sequence.idx > 3 && (c == 'M' || c == 'm') && use_xterm_mouse_reporting()) {
+					if (!outer) {
+						/* If this is not the outer decode_sequence call, push everything
+						   back onto the character list, and do nothing. A next call to
+						   decode_sequence will take care of the mouse handling. */
+						for (size_t i = sequence.idx; i > 0; --i) {
+							unget_keychar(sequence.data[i - 1]);
+						}
+						return -1;
+					}
+					return decode_xterm_mouse_sgr_urxvt(sequence.data, sequence.idx) ? EKEY_MOUSE_EVENT : -1;
 				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
 					return -1;
 				} else if (c < 0x20 || c > 0x7f) {
