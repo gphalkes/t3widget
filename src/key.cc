@@ -390,9 +390,17 @@ static key_t decode_sequence(bool outer) {
 						return -1;
 					}
 					return decode_xterm_mouse_sgr_urxvt(sequence.data, sequence.idx) ? EKEY_MOUSE_EVENT : -1;
-				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
+				} else if (c == '~') {
+					if (sequence.idx != 6 || sequence.data[2] != '2' || sequence.data[3] != '0')
+						return -1;
+					if (sequence.data[4] == '0')
+						return EKEY_PASTE_START;
+					if (sequence.data[4] == '1')
+						return EKEY_PASTE_END;
 					return -1;
-				} else if (c < 0x20 || c > 0x7f) {
+				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7e) {
+					return -1;
+				} else if (c < 0x20 || c > 0x7e) {
 					/* Drop unknown leading sequence if some non-CSI byte is found. */
 					unget_key(c);
 					return -1;
@@ -555,6 +563,9 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != NULL)
 		shiftfn = key_node->string;
 
+	// Enable bracketed paste.
+	t3_term_putp("\033[?2004h");
+
 	init_mouse_reporting(t3_key_get_named_node(keymap, "_xterm_mouse") != NULL);
 
 	/* Load all the known keys from the terminfo database.
@@ -676,11 +687,15 @@ return_error:
 
 void deinit_keys(void) {
 	deinit_mouse_reporting();
+	// Disable bracketed paste.
+	t3_term_putp("\033[?2004l");
 	t3_term_putp(leave);
 }
 
 void reinit_keys(void) {
 	t3_term_putp(enter);
+	// Enable bracketed paste.
+	t3_term_putp("\033[?2004h");
 	reinit_mouse_reporting();
 }
 

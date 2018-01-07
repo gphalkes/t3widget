@@ -843,7 +843,7 @@ bool edit_window_t::process_key(key_t key) {
 				delete_selection();
 
 			update_repaint_lines(text->cursor.line, INT_MAX);
-			if (impl->auto_indent) {
+			if (impl->auto_indent && !impl->pasting_text) {
 				current_line = text->get_line_data(text->cursor.line)->get_data();
 				for (i = 0, indent = 0, tabs = 0; i < text->cursor.pos; i++) {
 					if ((*current_line)[i] == '\t') {
@@ -932,6 +932,14 @@ bool edit_window_t::process_key(key_t key) {
 				ensure_cursor_on_screen();
 				impl->last_set_pos = impl->screen_pos;
 			}
+			break;
+		case EKEY_PASTE_START:
+			impl->pasting_text = true;
+			text->start_undo_block();
+			break;
+		case EKEY_PASTE_END:
+			impl->pasting_text = false;
+			text->end_undo_block();
 			break;
 		default: {
 			int local_insmode;

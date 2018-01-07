@@ -116,9 +116,14 @@ enum {
 	EKEY_UPDATE_TERMINAL,
 	/** Key symbol indicating that there is a new #mouse_event_t available in the mouse events queue. */
 	EKEY_MOUSE_EVENT,
-	/** Key symbol indicating that the async_safe_exit_main_loop function was called. */
+	/** Key symbol indicating that the async_safe_exit_main_loop function was called.
+	    The exit code is encoded in the @c key_t value, which means that all values up
+	    to EXIT_MAIN_LOOP + 256 cause the program to exit. */
 	EKEY_EXIT_MAIN_LOOP,
-	// Next value should be EKEY_EXIT_MAIN_LOOP + 256
+	/** Following text was pasted. Text runs until @c EKEY_PASTE_END. */
+	EKEY_PASTE_START = EKEY_EXIT_MAIN_LOOP + 256,
+	/** Pasted text stops. */
+	EKEY_PASTE_END,
 
 	/** Symbolic name for the escape key. */
 	EKEY_ESC = 27,

@@ -85,6 +85,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 			int ins_mode, /**< Current insert/overwrite mode. */
 				last_set_pos; /**< Last horiziontal position set by user action. */
 			bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
+			/** Boolean indicating whether the current text is part of a paste operation.
+			    Set automatically as a response to bracketed paste. Disables auto-indent. */
+			bool pasting_text;
 			bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation specially. */
 			bool show_tabs; /**< Boolean indicating whether to explicitly show tabs. */
 
@@ -94,10 +97,11 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 			int repaint_min, /**< First line to repaint. */
 			    repaint_max; /**< Last line to repaint. */
 
-			implementation_t(void) : tab_spaces(false), find_dialog(NULL), finder(NULL),
-				wrap_type(wrap_type_t::NONE), wrap_info(NULL), ins_mode(0), last_set_pos(0),
-				auto_indent(true), indent_aware_home(true), show_tabs(false), autocompleter(NULL),
-				autocomplete_panel(NULL), repaint_min(0), repaint_max(INT_MAX)
+			implementation_t(void) : screen_pos(0), tabsize(8), focus(false), tab_spaces(false),
+				find_dialog(NULL), finder(NULL), wrap_type(wrap_type_t::NONE), wrap_info(NULL),
+				ins_mode(0), last_set_pos(0), auto_indent(true), pasting_text(false),
+				indent_aware_home(true), show_tabs(false), autocompleter(NULL), autocomplete_panel(NULL),
+				repaint_min(0), repaint_max(INT_MAX)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
