@@ -43,6 +43,7 @@ T3_WIDGET_LOCAL char *_t3_widget_strdup(const char *str);
 namespace t3_widget {
 
 T3_WIDGET_LOCAL extern init_parameters_t *init_params;
+T3_WIDGET_LOCAL extern bool disable_primary_selection;
 
 T3_WIDGET_LOCAL void stop_clipboard(void);
 

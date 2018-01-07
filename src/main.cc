@@ -45,6 +45,7 @@ static signals::signal<void, int, int> resize;
 static signals::signal<void> update_notification;
 
 init_parameters_t *init_params;
+bool disable_primary_selection;
 
 #ifdef __linux__
 static int linux_meta_mode = -1;
@@ -156,6 +157,10 @@ void get_screen_size(int *height, int *width) {
 		*height = screen_lines;
 	if (width != NULL)
 		*width = screen_columns;
+}
+
+void set_primary_selection_mode(bool on) {
+	disable_primary_selection = !on;
 }
 
 enum terminal_code_t {

@@ -88,7 +88,8 @@ void set_primary(string *str) {
 	}
 
 	if (extclipboard_calls != NULL) {
-		extclipboard_calls->claim_selection(false, str);
+		if (!disable_primary_selection)
+			extclipboard_calls->claim_selection(false, str);
 		return;
 	}
 	primary_data = str;

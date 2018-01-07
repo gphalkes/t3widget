@@ -77,7 +77,7 @@ class T3_WIDGET_API init_parameters_t {
 		/** Boolean indicating whether to explicitly disable the external clipboard.
 
 		    The external clipboard is (at the time of this writing) the X11 clipboard.
-		    In some cases it may be desirable to disable the X11 interface, eventhough
+		    In some cases it may be desirable to disable the X11 interface, even though
 		    we may be able to connect to it. For example, if it is connected over a
 		    slow link. */
 		bool disable_external_clipboard;
@@ -205,6 +205,17 @@ T3_WIDGET_API long get_libt3window_version(void);
 
 /** Get the dimensions of the screen as used by libt3widget. */
 T3_WIDGET_API void get_screen_size(int *height, int *width);
+
+/** Set the handling of the primary selection to on or off.
+
+    When using a clipboard mananger which also tracks the primary selection,
+    updating the selection will result in the clipboard mananger requesting
+    the data and claiming the primary selection on every key press. This is
+    fine when running on the same machine, but not when running remotely. In
+    those cases it is desirable to turn off the primary selection.
+
+    This option does _not_ disable pasting the primary selection. */
+T3_WIDGET_API void set_primary_selection_mode(bool on);
 }; // namespace
 
 #endif
