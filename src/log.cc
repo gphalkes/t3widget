@@ -16,7 +16,6 @@
 #include <cstring>
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 #ifdef _T3_WIDGET_DEBUG

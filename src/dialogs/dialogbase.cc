@@ -18,7 +18,6 @@
 #include "dialogs/mainwindow.h"
 #include "internal.h"
 
-using namespace std;
 namespace t3_widget {
 
 dialog_base_list_t dialog_base_t::dialog_base_list;
@@ -38,10 +37,10 @@ void dialog_base_t::init(bool _init) {
 
 dialog_base_t::dialog_base_t(int height, int width, bool has_shadow) : redraw(true) {
 	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	if (has_shadow) {
 		if ((shadow_window = t3_win_new(NULL, height, width, 1, 1, 1)) == NULL)
-			throw bad_alloc();
+			throw std::bad_alloc();
 		t3_win_set_anchor(shadow_window, window, 0);
 	}
 	dialog_base_list.push_back(this);

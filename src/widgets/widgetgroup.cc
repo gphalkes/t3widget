@@ -14,7 +14,6 @@
 #include "widgets/widgetgroup.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 widget_group_t::widget_group_t(void) : impl(new implementation_t()) {

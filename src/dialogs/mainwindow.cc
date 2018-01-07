@@ -14,7 +14,6 @@
 #include "main.h"
 #include "mainwindow.h"
 
-using namespace std;
 namespace t3_widget {
 
 main_window_base_t::main_window_base_t(void) : dialog_t() {
@@ -29,7 +28,7 @@ main_window_base_t::main_window_base_t(void) : dialog_t() {
 	}
 
 	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MAX)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	t3_win_show(window);
 	connect_resize(signals::mem_fun(this, &main_window_base_t::set_size_real));
 }

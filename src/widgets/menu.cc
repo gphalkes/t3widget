@@ -21,7 +21,6 @@
 #include "key.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_t(_hidden)) {
@@ -32,7 +31,7 @@ menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_
 }
 
 menu_bar_t::~menu_bar_t(void) {
-	for (vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
+	for (std::vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
 		delete *iter;
 }
 
@@ -244,7 +243,7 @@ void menu_bar_t::draw(void) {
 	redraw = false;
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addchrep(window, ' ', attributes.menubar, t3_win_get_width(window));
-	for (vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
+	for (std::vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
 		draw_menu_name(*iter, false);
 }
 

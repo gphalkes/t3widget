@@ -17,7 +17,6 @@
 #include "dialogs/mainwindow.h"
 #include "internal.h"
 
-using namespace std;
 namespace t3_widget {
 
 dialogs_t dialog_t::active_dialogs;

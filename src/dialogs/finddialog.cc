@@ -17,8 +17,6 @@
 #include "main.h"
 #include "internal.h"
 
-using namespace std;
-
 namespace t3_widget {
 
 #define FIND_DIALOG_WIDTH 50
@@ -190,7 +188,7 @@ bool find_dialog_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void find_dialog_t::set_text(const string *str) {
+void find_dialog_t::set_text(const std::string *str) {
 	impl->find_line->set_text(str);
 }
 
@@ -217,7 +215,7 @@ void find_dialog_t::find_activated(find_action_t action) {
 		hide();
 		activate(action, &context);
 	} catch (const char *message) {
-		string full_message("Error in search expression: ");
+		std::string full_message("Error in search expression: ");
 		full_message.append(message);
 		message_dialog->set_message(&full_message);
 		message_dialog->center_over(this);

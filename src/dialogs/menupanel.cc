@@ -18,7 +18,6 @@
 #include "widgets/menuitem.h"
 #include "util.h"
 
-using namespace std;
 namespace t3_widget {
 
 menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar) : dialog_t(3, 5, NULL), impl(new implementation_t(name)) {
@@ -127,8 +126,8 @@ menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
 	push_back(item);
 	item->set_position(widgets.size(), None);
 
-	impl->hotkey_width = max(impl->hotkey_width, item->get_hotkey_width());
-	impl->label_width = max(impl->label_width, item->get_label_width());
+	impl->hotkey_width = std::max(impl->hotkey_width, item->get_hotkey_width());
+	impl->label_width = std::max(impl->label_width, item->get_label_width());
 	if (impl->hotkey_width + impl->label_width > impl->width - 2)
 		impl->width = impl->hotkey_width + impl->label_width + 2;
 	set_size(widgets.size() + 2, impl->width);
@@ -178,8 +177,8 @@ resize_panel:
 		(*iter)->set_position(i, None);
 		label_item = dynamic_cast<menu_item_t *>(*iter);
 		if (label_item != NULL) {
-			impl->hotkey_width = max(impl->hotkey_width, label_item->get_hotkey_width());
-			impl->label_width = max(impl->label_width, label_item->get_label_width());
+			impl->hotkey_width = std::max(impl->hotkey_width, label_item->get_hotkey_width());
+			impl->label_width = std::max(impl->label_width, label_item->get_label_width());
 		}
 		if (impl->hotkey_width + impl->label_width > impl->width - 2)
 			impl->width = impl->hotkey_width + impl->label_width + 2;

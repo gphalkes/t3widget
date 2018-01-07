@@ -18,8 +18,6 @@
 #include "main.h"
 #include "log.h"
 
-using namespace std;
-
 namespace t3_widget {
 
 window_component_t::window_component_t(void) : window(NULL) {}
@@ -216,12 +214,12 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	return handled;
 }
 
-list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
+std::list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
 signals::connection bad_draw_recheck_t::initialized =
 	connect_terminal_settings_changed(signals::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
 
 void bad_draw_recheck_t::bad_draw_recheck_all(void) {
-	for (list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++)
+	for (std::list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++)
 		(*iter)->bad_draw_recheck();
 }
 
@@ -230,7 +228,7 @@ bad_draw_recheck_t::bad_draw_recheck_t(void) {
 }
 
 bad_draw_recheck_t::~bad_draw_recheck_t(void) {
-	for (list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++) {
+	for (std::list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++) {
 		if (*iter == this) {
 			to_signal.erase(iter);
 			return;

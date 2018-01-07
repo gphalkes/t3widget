@@ -28,7 +28,6 @@
 #include <t3widget/internal.h>
 #include <t3widget/log.h>
 
-using namespace std;
 namespace t3_widget {
 
 #define MAX_SEQUENCE 100
@@ -476,7 +475,7 @@ static int compare_mapping(const void *a, const void *b) {
 	_a = (const mapping_t *) a;
 	_b = (const mapping_t *) b;
 
-	if ((result = memcmp(_a->string, _b->string, min(_a->string_length, _b->string_length))) != 0)
+	if ((result = memcmp(_a->string, _b->string, std::min(_a->string_length, _b->string_length))) != 0)
 		return result;
 	if (_a->string_length < _b->string_length)
 		return -1;

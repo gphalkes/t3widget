@@ -16,7 +16,6 @@
 
 #include "stringmatcher.h"
 
-using namespace std;
 namespace t3_widget {
 
 /* Adaptation of the Knuth-Morris-Pratt string searching algorithm, to work
@@ -25,10 +24,10 @@ namespace t3_widget {
    case-insensitive matching in UTF-8 to match the fully case-folded
    version. */
 
-string_matcher_t::string_matcher_t(const string &_needle) {
+string_matcher_t::string_matcher_t(const std::string &_needle) {
 	needle_size = _needle.size();
 	if ((needle = (char *) malloc(needle_size)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	memcpy(needle, _needle.data(), needle_size);
 	init();
 }

@@ -26,7 +26,6 @@
 #include "colorscheme.h"
 #include "internal.h"
 
-using namespace std;
 namespace t3_widget {
 
 static uint32_t casefold_single(uint32_t c) {
@@ -45,7 +44,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 
 	text_length = strlen(spec);
 	if ((text = _t3_widget_strdup(spec)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 
 	if ((underline_ptr = strchr(text, '_')) != NULL) {
 		size_t src_size;

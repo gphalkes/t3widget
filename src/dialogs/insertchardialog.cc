@@ -21,7 +21,6 @@
 #include "internal.h"
 
 //FIXME: auto-complete list from previous entries
-using namespace std;
 namespace t3_widget {
 
 #define INSERT_CHAR_DIALOG_WIDTH 30
@@ -74,20 +73,20 @@ void insert_char_dialog_t::reset(void) {
 	description_line->set_text("");
 }
 
-key_t insert_char_dialog_t::interpret_key(const string *descr) {
+key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
 	char codepoint[16];
 	key_t result;
 	int next;
 
 	if (sscanf(descr->c_str(), " %*[uU]+%6[0-9a-fA-F]%n", codepoint, &next) >= 1) {
-		if (descr->find_first_not_of(" \t", next) != string::npos)
+		if (descr->find_first_not_of(" \t", next) != std::string::npos)
 			return -1;
 		result = (key_t) strtol(codepoint, NULL, 16);
 		if (result > 0x10FFFF)
 			return -1;
 		return result;
 	} else if (sscanf(descr->c_str(), " \\%15[^ ]%n", codepoint, &next) >= 1) {
-		if (descr->find_first_not_of(" \t", next) != string::npos)
+		if (descr->find_first_not_of(" \t", next) != std::string::npos)
 			return -1;
 
 		size_t readposition = 0;
@@ -110,7 +109,7 @@ void insert_char_dialog_t::ok_activate(void) {
 		lprintf("Inserting key: %d\n", key);
 		insert_protected_key(key);
 	} else {
-		string message = _("Invalid character description: '");
+		std::string message = _("Invalid character description: '");
 		message += description_line->get_text()->c_str();
 		message += '\'';
 		message_dialog->set_message(&message);

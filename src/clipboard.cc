@@ -34,12 +34,10 @@ typedef void *lt_dlhandle;
 #include "internal.h"
 #include "log.h"
 
-using namespace std;
-
 namespace t3_widget {
 
-linked_ptr<string>::t clipboard_data;
-linked_ptr<string>::t primary_data;
+linked_ptr<std::string>::t clipboard_data;
+linked_ptr<std::string>::t primary_data;
 
 static void init_external_clipboard(bool init);
 
@@ -51,7 +49,7 @@ static signals::connection init_connected = connect_on_init(signals::ptr_fun(ini
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<string>::t get_clipboard(void) {
+linked_ptr<std::string>::t get_clipboard(void) {
 	if (extclipboard_calls != NULL)
 		return extclipboard_calls->get_selection(true);
 	return clipboard_data;
@@ -62,13 +60,13 @@ linked_ptr<string>::t get_clipboard(void) {
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<string>::t get_primary(void) {
+linked_ptr<std::string>::t get_primary(void) {
 	if (extclipboard_calls != NULL)
 		return extclipboard_calls->get_selection(false);
 	return primary_data;
 }
 
-void set_clipboard(string *str) {
+void set_clipboard(std::string *str) {
 	if (str != NULL && str->size() == 0) {
 		delete str;
 		str = NULL;
@@ -81,7 +79,7 @@ void set_clipboard(string *str) {
 	clipboard_data = str;
 }
 
-void set_primary(string *str) {
+void set_primary(std::string *str) {
 	if (str != NULL && str->size() == 0) {
 		delete str;
 		str = NULL;

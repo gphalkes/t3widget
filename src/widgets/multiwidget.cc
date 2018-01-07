@@ -13,7 +13,6 @@
 */
 #include "widgets/multiwidget.h"
 #include "log.h"
-using namespace std;
 namespace t3_widget {
 
 multi_widget_t::multi_widget_t(void) : fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
@@ -21,7 +20,7 @@ multi_widget_t::multi_widget_t(void) : fixed_sum(0), proportion_sum(0), send_key
 }
 
 multi_widget_t::~multi_widget_t(void) {
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		delete iter->widget;
 }
 
@@ -42,12 +41,12 @@ bool multi_widget_t::set_size(optint height, optint width) {
 
 
 void multi_widget_t::update_contents(void) {
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		iter->widget->update_contents();
 }
 
 void multi_widget_t::set_focus(focus_t focus) {
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (iter->takes_focus)
 			iter->widget->set_focus(focus);
 	}
@@ -56,14 +55,14 @@ void multi_widget_t::set_focus(focus_t focus) {
 bool multi_widget_t::accepts_focus(void) {
 	if (!enabled)
 		return false;
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		if (iter->takes_focus)
 			return true;
 	return false;
 }
 
 void multi_widget_t::force_redraw(void) {
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		iter->widget->force_redraw();
 }
 
@@ -114,7 +113,7 @@ void multi_widget_t::resize_widgets(void) {
 		double scale = (double) (width - fixed_sum) / proportion_sum;
 		int size = 0;
 
-		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
 				continue;
 			iter->calculated_width = (int) (scale * iter->width);
@@ -124,7 +123,7 @@ void multi_widget_t::resize_widgets(void) {
 		}
 		//FIXME: this will do for now, but should be slightly smarter
 		if (size > width - fixed_sum) {
-			for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size > width - fixed_sum; iter++) {
+			for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size > width - fixed_sum; iter++) {
 				if (iter->width < 0)
 					continue;
 				if (iter->calculated_width > 1) {
@@ -133,14 +132,14 @@ void multi_widget_t::resize_widgets(void) {
 				}
 			}
 		} else while (size < width - fixed_sum) {
-			for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size < width - fixed_sum; iter++) {
+			for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end() && size < width - fixed_sum; iter++) {
 				if (iter->width < 0)
 					continue;
 				iter->calculated_width++;
 				size++;
 			}
 		}
-		for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+		for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 			if (iter->width < 0)
 				continue;
 			iter->widget->set_size(1, iter->calculated_width > 0 ? iter->calculated_width : 1);
@@ -150,7 +149,7 @@ void multi_widget_t::resize_widgets(void) {
 
 void multi_widget_t::set_enabled(bool enable) {
 	enabled = enable;
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		iter->widget->set_enabled(enable);
 }
 
@@ -160,7 +159,7 @@ void multi_widget_t::set_child_focus(window_component_t *target) {
 }
 
 bool multi_widget_t::is_child(window_component_t *widget) {
-	for (list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
 		if (iter->widget == widget) {
 			return true;
 		} else {

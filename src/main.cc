@@ -32,7 +32,6 @@
 #include "internal.h"
 #include "clipboard.h"
 
-using namespace std;
 
 namespace t3_widget {
 #define MESSAGE_DIALOG_WIDTH 50
@@ -72,7 +71,7 @@ complex_error_t::source_t complex_error_t::get_source(void) { return source; }
 int complex_error_t::get_error(void) { return error; }
 
 const char *complex_error_t::get_string(void) {
-	static string error_str;
+	static std::string error_str;
 
 	switch (source) {
 		case SRC_ERRNO:
@@ -318,7 +317,7 @@ complex_error_t init(const init_parameters_t *params) {
 		if (insert_char_dialog == NULL)
 			insert_char_dialog = new insert_char_dialog_t();
 		on_init()(true);
-	} catch (bad_alloc &ba) {
+	} catch (std::bad_alloc &ba) {
 		restore();
 		result.set_error(complex_error_t::SRC_ERRNO, ENOMEM);
 	}

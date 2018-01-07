@@ -15,7 +15,6 @@
 #include "widgets/filepane.h"
 #include "main.h"
 
-using namespace std;
 namespace t3_widget {
 
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
@@ -216,7 +215,7 @@ void file_pane_t::update_contents(void) {
 		return;
 
 	height = t3_win_get_height(window) - 1;
-	for (i = impl->top_idx, max_idx = min(impl->top_idx + impl->columns_visible * height, impl->file_list->size()); i < max_idx; i++)
+	for (i = impl->top_idx, max_idx = std::min(impl->top_idx + impl->columns_visible * height, impl->file_list->size()); i < max_idx; i++)
 		draw_line(i, impl->focus && i == impl->current);
 
 	impl->scrollbar.set_parameters(impl->scrollbar_range, impl->top_idx, impl->columns_visible * height);
@@ -283,7 +282,7 @@ void file_pane_t::set_file_list(file_list_t *_file_list) {
 	redraw = true;
 }
 
-void file_pane_t::set_file(const string *name) {
+void file_pane_t::set_file(const std::string *name) {
 	for (impl->current = 0; impl->current < impl->file_list->size(); impl->current++) {
 		if (name->compare(*(*impl->file_list)[impl->current]) == 0)
 			break;
@@ -298,7 +297,7 @@ void file_pane_t::update_column_width(int column, int start) {
 	int height = t3_win_get_height(window) - 1;
 	impl->column_widths[column] = 0;
 	for (int i = 0; i < height && start + i < (int) impl->file_list->size(); i++)
-		impl->column_widths[column] = max(impl->column_widths[column], t3_term_strwidth((*impl->file_list)[i + start]->c_str()));
+		impl->column_widths[column] = std::max(impl->column_widths[column], t3_term_strwidth((*impl->file_list)[i + start]->c_str()));
 }
 
 void file_pane_t::update_column_widths(void) {

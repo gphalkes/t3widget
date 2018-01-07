@@ -7,7 +7,6 @@
 
 #include "widget.h"
 
-using namespace std;
 using namespace t3_widget;
 
 static bool option_test_mode;

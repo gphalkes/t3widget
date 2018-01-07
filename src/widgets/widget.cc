@@ -16,7 +16,6 @@
 #include "main.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 /* The default_parent must exist before any widgets are created. Thus using the
@@ -39,7 +38,7 @@ widget_t::widget_t(void) : redraw(true), enabled(true), shown(true) {}
 
 void widget_t::init_window(int height, int width, bool register_as_mouse_target) {
 	if ((window = t3_win_new(default_parent, height, width, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	t3_win_show(window);
 	if (register_as_mouse_target)
 		register_mouse_target(window);
@@ -47,7 +46,7 @@ void widget_t::init_window(int height, int width, bool register_as_mouse_target)
 
 void widget_t::init_unbacked_window(int height, int width, bool register_as_mouse_target) {
 	if ((window = t3_win_new_unbacked(default_parent, height, width, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	t3_win_show(window);
 	if (register_as_mouse_target)
 		register_mouse_target(window);

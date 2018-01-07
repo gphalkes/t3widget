@@ -15,7 +15,6 @@
 #include "widgets/listpane.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator)) {

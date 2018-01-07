@@ -22,7 +22,6 @@
 #include "internal.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 /* This function exists as a wrapper around pcre_free, because pcre_free is not
@@ -34,7 +33,7 @@ void finder_t::call_pcre_free(pcre *p) {
 
 finder_t::finder_t(void) : flags(0), folded_size(0) {}
 
-finder_t::finder_t(const string *needle, int _flags, const string *_replacement) :
+finder_t::finder_t(const std::string *needle, int _flags, const std::string *_replacement) :
 		flags(_flags), folded_size(0)
 {
 	const char *error_message;
@@ -42,7 +41,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 		int error_offset;
 		int pcre_flags = PCRE_UTF8;
 
-		string pattern = flags & find_flags_t::ANCHOR_WORD_LEFT ? "(?:\\b" : "(?:";
+		std::string pattern = flags & find_flags_t::ANCHOR_WORD_LEFT ? "(?:\\b" : "(?:";
 		pattern += *needle;
 		pattern += flags & find_flags_t::ANCHOR_WORD_RIGHT ? "\\b)" : ")";
 
@@ -54,7 +53,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 			throw error_message;
 	} else {
 		/* Create a copy of needle, for transformation purposes. */
-		string search_for(*needle);
+		std::string search_for(*needle);
 
 		if (flags & find_flags_t::TRANSFROM_BACKSLASH) {
 			if (!parse_escapes(search_for, &error_message))
@@ -78,7 +77,7 @@ finder_t::finder_t(const string *needle, int _flags, const string *_replacement)
 	}
 
 	if (_replacement != NULL) {
-		replacement = new string(*_replacement);
+		replacement = new std::string(*_replacement);
 		if ((flags & find_flags_t::TRANSFROM_BACKSLASH) || (flags & find_flags_t::REGEX)) {
 			if (!parse_escapes(*replacement, &error_message, (flags & find_flags_t::REGEX) != 0))
 				throw error_message;
@@ -105,13 +104,13 @@ finder_t &finder_t::operator=(finder_t& other) {
 	return *this;
 }
 
-void finder_t::set_context(const string *needle, int _flags, const string *_replacement) {
+void finder_t::set_context(const std::string *needle, int _flags, const std::string *_replacement) {
 	/* If this initialization fails, it will throw a message pointer. */
 	finder_t new_context(needle, _flags, _replacement);
 	*this = new_context;
 }
 
-bool finder_t::match(const string *haystack, find_result_t *result, bool reverse) {
+bool finder_t::match(const std::string *haystack, find_result_t *result, bool reverse) {
 	int match_result;
 	int start, end;
 
@@ -160,7 +159,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 		result->end.pos = ovector[1];
 		return true;
 	} else {
-		string substr;
+		std::string substr;
 		int curr_char, next_char;
 		size_t c_size;
 		const char *c;
@@ -245,7 +244,7 @@ bool finder_t::match(const string *haystack, find_result_t *result, bool reverse
 
 static inline int is_start_char(int c) { return (c & 0xc0) != 0x80; }
 
-int finder_t::adjust_position(const string *str, int pos, int adjust) {
+int finder_t::adjust_position(const std::string *str, int pos, int adjust) {
 	if (adjust > 0) {
 		for (; adjust > 0 && (size_t) pos < str->size(); adjust -= is_start_char((*str)[pos]))
 			pos++;
@@ -259,7 +258,7 @@ int finder_t::adjust_position(const string *str, int pos, int adjust) {
 	return pos;
 }
 
-bool finder_t::check_boundaries(const string *str, int match_start, int match_end) {
+bool finder_t::check_boundaries(const std::string *str, int match_start, int match_end) {
 	if ((flags & find_flags_t::ANCHOR_WORD_LEFT) &&
 			!(match_start == 0 || get_class(str, match_start) !=
 			get_class(str, adjust_position(str, match_start, -1))))
@@ -284,14 +283,14 @@ int finder_t::get_flags(void) {
 			retval->erase(pos, 3); \
 		break;
 
-string *finder_t::get_replacement(const string *haystack) {
-	string *retval = new string(*replacement);
+std::string *finder_t::get_replacement(const std::string *haystack) {
+	std::string *retval = new std::string(*replacement);
 	if (flags & find_flags_t::REGEX) {
 		/* Replace the following strings with the matched items:
 		   EDA481 - EDA489. */
 		size_t pos = 0;
 
-		while ((pos = retval->find("\xed\xa4", pos)) != string::npos) {
+		while ((pos = retval->find("\xed\xa4", pos)) != std::string::npos) {
 			if (pos + 3 > retval->size()) {
 				retval->erase(pos, 2);
 				break;

@@ -23,11 +23,10 @@
 #include "contentlist.h"
 #include "main.h"
 
-using namespace std;
 namespace t3_widget {
 
 string_list_t::~string_list_t(void) {
-	for (vector<string *>::iterator iter = strings.begin(); iter != strings.end(); iter++)
+	for (std::vector<std::string *>::iterator iter = strings.begin(); iter != strings.end(); iter++)
 		delete *iter;
 }
 
@@ -35,11 +34,11 @@ size_t string_list_t::size(void) const {
 	return strings.size();
 }
 
-const string *string_list_t::operator[](size_t idx) const {
+const std::string *string_list_t::operator[](size_t idx) const {
 	return strings[idx];
 }
 
-void string_list_t::push_back(string *str) {
+void string_list_t::push_back(std::string *str) {
 	strings.push_back(str);
 }
 
@@ -92,11 +91,11 @@ size_t file_name_list_t::size(void) const {
 	return files.size();
 }
 
-const string *file_name_list_t::operator[](size_t idx) const {
+const std::string *file_name_list_t::operator[](size_t idx) const {
 	return &(files[idx].*(files[idx].display_name));
 }
 
-const string *file_name_list_t::get_fs_name(size_t idx) const {
+const std::string *file_name_list_t::get_fs_name(size_t idx) const {
 	return &files[idx].name;
 }
 
@@ -104,7 +103,7 @@ bool file_name_list_t::is_dir(size_t idx) const {
 	return files[idx].is_dir;
 }
 
-int file_name_list_t::load_directory(string *dir_name) {
+int file_name_list_t::load_directory(std::string *dir_name) {
 	struct dirent *entry;
 	DIR *dir;
 
@@ -120,7 +119,7 @@ int file_name_list_t::load_directory(string *dir_name) {
 	// Make sure errno is clear on EOF
 	errno = 0;
 	while ((entry = readdir(dir)) != NULL) {
-		string utf8_name;
+		std::string utf8_name;
 
 		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 			continue;
@@ -158,14 +157,14 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t& other) {
 	return *this;
 }
 
-bool string_compare_filter(string_list_base_t *list, size_t idx, const string *str) {
+bool string_compare_filter(string_list_base_t *list, size_t idx, const std::string *str) {
 	return (*list)[idx]->compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 
 bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, bool show_hidden) {
 	file_list_t *file_list = dynamic_cast<file_list_t *>(list);
-	const string *item_name = (*list)[idx];
-	string fs_name;
+	const std::string *item_name = (*list)[idx];
+	std::string fs_name;
 
 	if (item_name->compare("..") == 0)
 		return true;

@@ -14,7 +14,6 @@
 #include "colorscheme.h"
 #include "widgets/bullet.h"
 
-using namespace std;
 namespace t3_widget {
 
 bullet_t::bullet_t(const signals::slot<bool> &_source) : widget_t(1, 1, false), source(_source), has_focus(false) {}

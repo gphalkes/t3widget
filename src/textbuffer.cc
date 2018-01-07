@@ -26,7 +26,6 @@
 #include "wrapinfo.h"
 #include "clipboard.h"
 
-using namespace std;
 namespace t3_widget {
 /*FIXME-REFACTOR: adjust_position in line is often called with same argument as
   where the return value is stored. Check whether this is always the case. If
@@ -151,11 +150,11 @@ bool text_buffer_t::append_text(const char *text, size_t _size) {
 	return result;
 }
 
-bool text_buffer_t::append_text(const string *text) {
+bool text_buffer_t::append_text(const std::string *text) {
 	return append_text(text->data(), text->size());
 }
 
-bool text_buffer_t::break_line_internal(const string *indent) {
+bool text_buffer_t::break_line_internal(const std::string *indent) {
 	text_line_t *insert;
 
 	insert = impl->lines[cursor.line]->break_line(cursor.pos);
@@ -174,7 +173,7 @@ bool text_buffer_t::break_line_internal(const string *indent) {
 	return true;
 }
 
-bool text_buffer_t::break_line(const string *indent) {
+bool text_buffer_t::break_line(const std::string *indent) {
 	if (indent == NULL) {
 		get_undo(UNDO_ADD_NEWLINE);
 	} else {
@@ -425,7 +424,7 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
 	return true;
 }
 
-bool text_buffer_t::insert_block(const string *block) {
+bool text_buffer_t::insert_block(const std::string *block) {
 	text_coordinate_t cursor_at_start = cursor;
 	text_line_t *converted_block = impl->line_factory->new_text_line_t(block);
 	std::string sanitized_block(*converted_block->get_data());
@@ -441,7 +440,7 @@ bool text_buffer_t::insert_block(const string *block) {
 	return true;
 }
 
-bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end, const string *block) {
+bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end, const std::string *block) {
 	undo_double_text_triple_coord_t *undo;
 	text_line_t *converted_block;
 	std::string sanitized_block;
@@ -472,9 +471,9 @@ bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end
 	return true;
 }
 
-string *text_buffer_t::convert_block(text_coordinate_t start, text_coordinate_t end) {
+std::string *text_buffer_t::convert_block(text_coordinate_t start, text_coordinate_t end) {
 	text_coordinate_t current_start, current_end;
-	string *retval;
+	std::string *retval;
 	int i;
 
 	current_start = start;
@@ -493,10 +492,10 @@ string *text_buffer_t::convert_block(text_coordinate_t start, text_coordinate_t 
 	}
 
 	if (current_start.line == current_end.line)
-		return new string(*impl->lines[current_start.line]->get_data(), current_start.pos, current_end.pos - current_start.pos);
+		return new std::string(*impl->lines[current_start.line]->get_data(), current_start.pos, current_end.pos - current_start.pos);
 
 	//FIXME: new and append may fail!
-	retval = new string(*impl->lines[current_start.line]->get_data(), current_start.pos);
+	retval = new std::string(*impl->lines[current_start.line]->get_data(), current_start.pos);
 	retval->append(1, '\n');
 
 	for (i = current_start.line + 1; i < current_end.line; i++) {
@@ -832,7 +831,7 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
 }
 
 void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
-	string *replacement_str;
+	std::string *replacement_str;
 
 	if (result->start == result->end)
 		return;
@@ -877,7 +876,7 @@ bool text_buffer_t::indent_selection(int tabsize, bool tab_spaces) {
 bool text_buffer_t::indent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize, bool tab_spaces) {
 	int end_line;
 	text_coordinate_t insert_at;
-	string str, *undo_text;
+	std::string str, *undo_text;
 	undo_t *undo;
 	text_line_t *indent;
 
@@ -923,7 +922,7 @@ bool text_buffer_t::indent_block(text_coordinate_t &start, text_coordinate_t &en
 bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 	int first_line, last_line;
 	size_t pos = 0, next_pos = 0;
-	string *undo_text;
+	std::string *undo_text;
 
 	if (undo->get_start().line < undo->get_end().line) {
 		first_line = undo->get_start().line;
@@ -937,7 +936,7 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
 	for (; first_line <= last_line; first_line++) {
 		next_pos = undo_text->find('X', pos);
 
-		if (next_pos == string::npos)
+		if (next_pos == std::string::npos)
 			next_pos = undo_text->size();
 
 		if (type == UNDO_INDENT) {
@@ -969,7 +968,7 @@ bool text_buffer_t::unindent_selection(int tabsize) {
 bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize) {
 	int end_line;
 	text_coordinate_t delete_start, delete_end;
-	string undo_text;
+	std::string undo_text;
 	bool text_changed = false;
 
 	if (end.line < start.line) {
@@ -986,7 +985,7 @@ bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &
 
 	delete_start.pos = 0;
 	for (; delete_start.line <= end_line; delete_start.line++) {
-		const string *data = impl->lines[delete_start.line]->get_data();
+		const std::string *data = impl->lines[delete_start.line]->get_data();
 		for (delete_end.pos = 0; delete_end.pos < tabsize; delete_end.pos++) {
 			if ((*data)[delete_end.pos] == '\t') {
 				delete_end.pos++;
@@ -1036,7 +1035,7 @@ bool text_buffer_t::unindent_line(int tabsize) {
 	if (impl->selection_mode != selection_mode_t::NONE)
 		set_selection_mode(selection_mode_t::NONE);
 
-	const string *data = impl->lines[delete_start.line]->get_data();
+	const std::string *data = impl->lines[delete_start.line]->get_data();
 	for (; delete_end.pos < tabsize; delete_end.pos++) {
 		if ((*data)[delete_end.pos] == '\t') {
 			delete_end.pos++;

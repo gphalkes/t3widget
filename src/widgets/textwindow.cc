@@ -19,7 +19,6 @@
 #include "internal.h"
 #include "wrapinfo.h"
 
-using namespace std;
 namespace t3_widget {
 
 text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget_t(11, 11), impl(new implementation_t()) {
@@ -205,7 +204,7 @@ void text_window_t::update_contents(void) {
 	count += impl->top.pos;
 
 	if (impl->scrollbar != NULL) {
-		impl->scrollbar->set_parameters(max(impl->wrap_info->get_text_size(), count + t3_win_get_height(window)),
+		impl->scrollbar->set_parameters(std::max(impl->wrap_info->get_text_size(), count + t3_win_get_height(window)),
 			count, t3_win_get_height(window));
 		impl->scrollbar->update_contents();
 	}

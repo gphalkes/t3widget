@@ -25,7 +25,6 @@
 #include "stringmatcher.h"
 #include "internal.h"
 
-using namespace std;
 namespace t3_widget {
 
 char text_line_t::spaces[_T3_MAX_TAB];
@@ -100,7 +99,7 @@ text_line_t::text_line_t(const char *_buffer, int length, text_line_factory_t *_
 	fill_line(_buffer, length);
 }
 
-text_line_t::text_line_t(const string *str, text_line_factory_t *_factory) : starts_with_combining(false),
+text_line_t::text_line_t(const std::string *str, text_line_factory_t *_factory) : starts_with_combining(false),
 		factory(_factory == NULL ? &default_text_line_factory : _factory)
 {
 	fill_line(str->data(), str->size());
@@ -116,7 +115,7 @@ void text_line_t::set_text(const char *_buffer, size_t length) {
 	fill_line(_buffer, length);
 }
 
-void text_line_t::set_text(const string *str) {
+void text_line_t::set_text(const std::string *str) {
 	buffer.clear();
 	fill_line(str->data(), str->size());
 }
@@ -262,7 +261,7 @@ int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) co
 			return i;
 	}
 
-	return min(max, get_length());
+	return std::min(max, get_length());
 }
 
 
@@ -647,7 +646,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 	reserve(buffer.size() + conversion_length + 1);
 
 	if (undo != NULL) {
-		string *undo_text = undo->get_text();
+		std::string *undo_text = undo->get_text();
 		undo_text->reserve(undo_text->size() + conversion_length);
 
 		ASSERT(undo->get_type() == UNDO_ADD);
@@ -664,7 +663,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 /* Overwrite a character with 'c' in 'line' at position 'pos' */
 bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	int oldspace;
-	string *undo_text, *replacement_text;
+	std::string *undo_text, *replacement_text;
 	char conversion_buffer[5];
 	int conversion_length;
 
@@ -720,7 +719,7 @@ bool text_line_t::delete_char(int pos, undo_t *undo) {
 	oldspace = adjust_position(pos, 1) - pos;
 
 	if (undo != NULL) {
-		string *undo_text = undo->get_text();
+		std::string *undo_text = undo->get_text();
 		undo_text->reserve(oldspace);
 
 		ASSERT(undo->get_type() == UNDO_DELETE || undo->get_type() == UNDO_BACKSPACE);
@@ -837,7 +836,7 @@ bool text_line_t::is_bad_draw(int pos) const {
 	return !t3_term_can_draw(buffer.data() + pos, adjust_position(pos, 1) - pos);
 }
 
-const string *text_line_t::get_data(void) const {
+const std::string *text_line_t::get_data(void) const {
 	return &buffer;
 }
 

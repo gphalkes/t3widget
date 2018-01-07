@@ -15,13 +15,12 @@
 #include "colorscheme.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 expander_t::expander_t(const char *text) : impl(new implementation_t(text)) {
 	init_unbacked_window(1, impl->label.get_width() + 2);
 	if ((impl->symbol_window = t3_win_new(window, 1, 2 + impl->label.get_width(), 0, 0, 0)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	t3_win_show(impl->symbol_window);
 	register_mouse_target(impl->symbol_window);
 }

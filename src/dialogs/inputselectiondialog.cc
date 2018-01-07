@@ -17,7 +17,6 @@
 #include "widgets/button.h"
 #include "internal.h"
 
-using namespace std;
 namespace t3_widget {
 
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text) :

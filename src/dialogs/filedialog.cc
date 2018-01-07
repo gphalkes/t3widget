@@ -22,7 +22,6 @@
 #include "util.h"
 #include "internal.h"
 
-using namespace std;
 namespace t3_widget {
 
 static key_t nul = 0;
@@ -148,7 +147,7 @@ bool file_dialog_t::set_size(optint height, optint width) {
 
 int file_dialog_t::set_file(const char *file) {
 	size_t idx;
-	string file_string;
+	std::string file_string;
 	int result;
 
 	impl->current_dir = get_directory(file);
@@ -162,7 +161,7 @@ int file_dialog_t::set_file(const char *file) {
 	result = impl->names.load_directory(&impl->current_dir);
 
 	idx = file_string.rfind('/');
-	if (idx != string::npos)
+	if (idx != std::string::npos)
 		file_string.erase(0, idx + 1);
 
 	impl->file_line->set_autocomplete(&impl->names);
@@ -177,12 +176,12 @@ void file_dialog_t::reset(void) {
 }
 
 void file_dialog_t::ok_callback(void) {
-	string pass_result;
+	std::string pass_result;
 	convert_lang_codeset(impl->file_line->get_text(), &pass_result, false);
 	ok_callback(&pass_result);
 }
 
-void file_dialog_t::ok_callback(const string *file) {
+void file_dialog_t::ok_callback(const std::string *file) {
 	if (file->size() == 0)
 		return;
 
@@ -190,7 +189,7 @@ void file_dialog_t::ok_callback(const string *file) {
 		change_dir(file);
 		impl->file_line->set_text("");
 	} else {
-		string full_name;
+		std::string full_name;
 		if ((*file)[0] != '/') {
 			full_name += impl->current_dir;
 			full_name += "/";
@@ -201,15 +200,15 @@ void file_dialog_t::ok_callback(const string *file) {
 	}
 }
 
-void file_dialog_t::change_dir(const string *dir) {
+void file_dialog_t::change_dir(const std::string *dir) {
 	file_name_list_t new_names;
-	string new_dir, file_string;
+	std::string new_dir, file_string;
 	int error;
 
 	if (dir->compare("..") == 0) {
 		size_t idx = impl->current_dir.rfind('/');
 
-		if (idx == string::npos || idx == impl->current_dir.size() - 1)
+		if (idx == std::string::npos || idx == impl->current_dir.size() - 1)
 			return;
 
 		file_string = impl->current_dir.substr(idx + 1);
@@ -229,7 +228,7 @@ void file_dialog_t::change_dir(const string *dir) {
 
 	/* Check whether we can load the dir. If not, show message and don't change state. */
 	if ((error = new_names.load_directory(&new_dir)) != 0) {
-		string message = _("Couldn't change to directory '");
+		std::string message = _("Couldn't change to directory '");
 		message += dir->c_str();
 		message += "': ";
 		message += strerror(errno);
@@ -268,7 +267,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	impl->filter_label->set_anchor(get_anchor_widget(), T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->filter_label->set_position(0, 2);
 	impl->filter_offset = impl->filter_label->get_width() + 1;
-	impl->filter_width = min(max(10, width - 60), 25);
+	impl->filter_width = std::min(std::max(10, width - 60), 25);
 	impl->filter_line = new filter_text_field_t();
 	set_widget_parent(impl->filter_line);
 	impl->filter_line->set_anchor(impl->filter_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -287,14 +286,14 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	insert_extras(impl->filter_line);
 }
 
-const string *open_file_dialog_t::get_filter(void) {
+const std::string *open_file_dialog_t::get_filter(void) {
 	return impl->filter_line->get_text();
 }
 
 bool open_file_dialog_t::set_size(optint height, optint width) {
 	bool result = file_dialog_t::set_size(height, width);
 	if (width.is_valid())
-		result &= impl->filter_line->set_size(None, min(max(10, width - 60), 25));
+		result &= impl->filter_line->set_size(None, std::min(std::max(10, width - 60), 25));
 	return result;
 }
 
@@ -305,7 +304,7 @@ void open_file_dialog_t::reset(void) {
 }
 
 //=========================== save_as_dialog_t ============================
-string save_as_dialog_t::empty_filter("*");
+std::string save_as_dialog_t::empty_filter("*");
 
 save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height, width, "Save File As"), impl(new implementation_t()) {
 	impl->create_button = new button_t("Create Folder");

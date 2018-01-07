@@ -17,7 +17,6 @@
 #include "undo.h"
 #include "textline.h"
 
-using namespace std;
 namespace t3_widget {
 
 undo_list_t::~undo_list_t(void) {
@@ -190,18 +189,18 @@ undo_type_t undo_t::get_type(void) const { return type; }
 undo_type_t undo_t::get_redo_type(void) const { return redo_map[type]; }
 
 text_coordinate_t undo_t::get_start(void) { return start; }
-string *undo_t::get_text(void) { return NULL; }
-string *undo_t::get_replacement(void) { return NULL; }
+std::string *undo_t::get_text(void) { return NULL; }
+std::string *undo_t::get_replacement(void) { return NULL; }
 text_coordinate_t undo_t::get_end(void) const { return text_coordinate_t(-1, -1); }
 text_coordinate_t undo_t::get_new_end(void) const { return text_coordinate_t(-1, -1); }
 
 void undo_single_text_t::add_newline(void) { text.append(1, '\n'); }
-string *undo_single_text_t::get_text(void) { return &text; }
+std::string *undo_single_text_t::get_text(void) { return &text; }
 void undo_single_text_t::minimize(void) { text.reserve(0); }
 
 text_coordinate_t undo_single_text_double_coord_t::get_end(void) const { return end; }
 
-string *undo_double_text_t::get_replacement(void) { return &replacement; }
+std::string *undo_double_text_t::get_replacement(void) { return &replacement; }
 void undo_double_text_t::minimize(void) {
 	undo_single_text_double_coord_t::minimize();
 	replacement.reserve(0);

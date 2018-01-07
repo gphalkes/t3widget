@@ -20,7 +20,6 @@
 
 #define MESSAGEDIALOG_MAX_LINES 10
 
-using namespace std;
 namespace t3_widget {
 
 message_dialog_t::implementation_t::implementation_t(void) : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
@@ -112,7 +111,7 @@ void message_dialog_t::set_message(const char *message) {
 	set_message(message, strlen(message));
 }
 
-void message_dialog_t::set_message(const string *message) {
+void message_dialog_t::set_message(const std::string *message) {
 	set_message(message->data(), message->size());
 }
 

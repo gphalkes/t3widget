@@ -14,7 +14,6 @@
 #include "widgets/expandergroup.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 expander_group_t::expander_group_t(void) : expanded_widget(NULL), height(0) {}

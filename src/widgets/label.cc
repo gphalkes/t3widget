@@ -17,7 +17,6 @@
 #include "colorscheme.h"
 #include "log.h"
 
-using namespace std;
 namespace t3_widget {
 
 //FIXME: maybe we should allow scrolling with the left and right keys
