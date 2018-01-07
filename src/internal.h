@@ -18,6 +18,7 @@
 #error This header file is for internal use _only_!!
 #endif
 
+#include <algorithm>
 #include <string>
 #include <t3widget/key.h>
 
@@ -33,6 +34,7 @@
 #include "main.h"
 #include "log.h"
 #include "signals.h"
+#include "util.h"
 
 #ifdef HAS_STRDUP
 #define _t3_widget_strdup strdup
@@ -129,6 +131,44 @@ enum {
 
 /** Get the character class associated with the character at a specific position in a string. */
 T3_WIDGET_LOCAL int get_class(const std::string *str, int pos);
+
+//=================== Utility functions for implementing key bindings ====================
+#define KEY_BINDING_FUNC_DEFS(C) \
+	optional<C::Action> C::map_action_name(const std::string &name) {  \
+		return map_name<C::Action>(action_names, name); \
+	} \
+	void C::bind_key(key_t key, optional<Action> action) { \
+		t3_widget::bind_key(key, action, &key_bindings); \
+	} \
+	const std::vector<std::string> &C::get_action_names() { \
+		return action_names; \
+	}
+
+template <typename T>
+optional<T> find_action(const std::map<key_t, T> &map, key_t key) {
+	typename std::map<key_t, T>::const_iterator iter = map.find(key);
+	if (iter != map.end()) {
+		return iter->second;
+	}
+	return nullopt;
+}
+
+template <typename T>
+void bind_key(key_t key, optional<T> action, std::map<key_t, T> *key_bindings) {
+	if (action.is_valid()) {
+		(*key_bindings)[key] = action;
+	} else {
+		key_bindings->erase(key);
+	}
+}
+
+template <typename T>
+optional<T> map_name(const std::vector<std::string> &names, const std::string &name) {
+	std::vector<std::string>::const_iterator iter = std::find(names.begin(), names.end(), name);
+	if (iter == names.end())
+		return nullopt;
+	return static_cast<T>(iter - names.begin());
+}
 
 }; // namespace
 #endif

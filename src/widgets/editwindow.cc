@@ -29,7 +29,6 @@
 
 /* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
 
-using namespace std;
 namespace t3_widget {
 
 goto_dialog_t *edit_window_t::goto_dialog;
@@ -45,11 +44,7 @@ std::map<key_t, edit_window_t::Action> edit_window_t::key_bindings;
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
 
-static const char *action_names[] = {
-#define _T3_ACTION(action, name) name,
-#include <t3widget/widgets/editwindow.actions.h>
-#undef _T3_ACTION
-};
+static std::vector<std::string> action_names;
 
 void edit_window_t::init(bool _init) {
 	if (_init) {
@@ -80,6 +75,10 @@ void edit_window_t::init(bool _init) {
 		key_bindings[EKEY_F3 | EKEY_SHIFT] = ACTION_FIND_PREVIOUS;
 		key_bindings[EKEY_F9] = ACTION_INSERT_SPECIAL;
 		key_bindings[EKEY_META | '9'] = ACTION_INSERT_SPECIAL;
+
+#define _T3_ACTION(action, name) action_names.push_back(name);
+#include <t3widget/widgets/editwindow.actions.h>
+#undef _T3_ACTION
 	} else {
 		delete goto_dialog; goto_dialog = NULL;
 		delete global_find_dialog; global_find_dialog = NULL;
@@ -93,17 +92,17 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 	   if the bottom line is clicked. */
 	init_unbacked_window(11, 11, true);
 	if ((impl->edit_window = t3_win_new(window, 10, 10, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 	t3_win_show(impl->edit_window);
 
 	if ((impl->indicator_window = t3_win_new(window, 1, 10, 0, 0, 0)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 
 	t3_win_set_anchor(impl->indicator_window, window, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
 	t3_win_show(impl->indicator_window);
 
 	if ((info_window = t3_win_new(window, 1, 1, 0, 0, 1)) == NULL)
-		throw bad_alloc();
+		throw std::bad_alloc();
 
 	t3_win_set_anchor(info_window, window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	t3_win_show(info_window);
@@ -835,9 +834,9 @@ bool edit_window_t::process_key(key_t key) {
 			break;
 
 		case EKEY_NL: {
-			const string *current_line;
+			const std::string *current_line;
 			int i, indent, tabs;
-			string space;
+			std::string space;
 
 			if (text->get_selection_mode() != selection_mode_t::NONE)
 				delete_selection();
@@ -920,7 +919,7 @@ bool edit_window_t::process_key(key_t key) {
 			{
 				indent_selection();
 			} else {
-				string space;
+				std::string space;
 				if (text->get_selection_mode() != selection_mode_t::NONE)
 					delete_selection();
 
@@ -944,65 +943,62 @@ bool edit_window_t::process_key(key_t key) {
 		default: {
 			int local_insmode;
 
-			Action action = ACTION_NONE;
-			std::map<key_t, Action>::iterator iter = key_bindings.find(key);
-			if (iter != key_bindings.end()) {
-				action = iter->second;
-			}
-			switch (action) {
-				case ACTION_COPY:
-					cut_copy(false);
-					return true;
-				case ACTION_CUT:
-					cut_copy(true);
-					return true;
-				case ACTION_PASTE:
-					paste(true);
-					return true;
-				case ACTION_PASTE_SELECTION:
-					paste(false);
-					return true;
-				case ACTION_REDO:
-					redo();
-					return true;
-				case ACTION_UNDO:
-					undo();
-					return true;
-				case ACTION_SELECT_ALL:
-					select_all();
-					return true;
-				case ACTION_GOTO_LINE:
-					goto_line();
-					return true;
-				case ACTION_AUTOCOMPLETE: /* CTRL-space and others */
-					activate_autocomplete(true);
-					return true;
-				case ACTION_DELETE_LINE:
-					delete_line();
-					return true;
-				case ACTION_MARK_SELECTION:
-					mark_selection();
-					return true;
-				case ACTION_FIND:
-					find_replace(false);
-					return true;
-				case ACTION_REPLACE:
-					find_replace(true);
-					return true;
-				case ACTION_FIND_NEXT:
-					find_next(false);
-					return true;
-				case ACTION_FIND_PREVIOUS:
-					find_next(true);
-					return true;
-				case ACTION_INSERT_SPECIAL:
-					insert_special();
-					return true;
+			optional<Action> action = find_action(key_bindings, key);
+			if (action.is_valid()) {
+				switch (action) {
+					case ACTION_COPY:
+						cut_copy(false);
+						return true;
+					case ACTION_CUT:
+						cut_copy(true);
+						return true;
+					case ACTION_PASTE:
+						paste(true);
+						return true;
+					case ACTION_PASTE_SELECTION:
+						paste(false);
+						return true;
+					case ACTION_REDO:
+						redo();
+						return true;
+					case ACTION_UNDO:
+						undo();
+						return true;
+					case ACTION_SELECT_ALL:
+						select_all();
+						return true;
+					case ACTION_GOTO_LINE:
+						goto_line();
+						return true;
+					case ACTION_AUTOCOMPLETE: /* CTRL-space and others */
+						activate_autocomplete(true);
+						return true;
+					case ACTION_DELETE_LINE:
+						delete_line();
+						return true;
+					case ACTION_MARK_SELECTION:
+						mark_selection();
+						return true;
+					case ACTION_FIND:
+						find_replace(false);
+						return true;
+					case ACTION_REPLACE:
+						find_replace(true);
+						return true;
+					case ACTION_FIND_NEXT:
+						find_next(false);
+						return true;
+					case ACTION_FIND_PREVIOUS:
+						find_next(true);
+						return true;
+					case ACTION_INSERT_SPECIAL:
+						insert_special();
+						return true;
 
-				default:
-					break;
+					default:
+						break;
+				}
 			}
-
 
 			if (key < 32)
 				return false;
@@ -1065,7 +1061,7 @@ void edit_window_t::update_contents(void) {
 	t3_win_addchrep(impl->indicator_window, ' ', 0, t3_win_get_width(impl->indicator_window));
 
 	if (impl->wrap_type == wrap_type_t::NONE) {
-		impl->scrollbar->set_parameters(max(text->size(), impl->top_left.line + t3_win_get_height(impl->edit_window)),
+		impl->scrollbar->set_parameters(std::max(text->size(), impl->top_left.line + t3_win_get_height(impl->edit_window)),
 			impl->top_left.line, t3_win_get_height(impl->edit_window));
 	} else {
 		int i, count = 0;
@@ -1073,7 +1069,7 @@ void edit_window_t::update_contents(void) {
 			count += impl->wrap_info->get_line_count(i);
 		count += impl->top_left.pos;
 
-		impl->scrollbar->set_parameters(max(impl->wrap_info->get_text_size(), count + t3_win_get_height(impl->edit_window)),
+		impl->scrollbar->set_parameters(std::max(impl->wrap_info->get_text_size(), count + t3_win_get_height(impl->edit_window)),
 			count, t3_win_get_height(impl->edit_window));
 	}
 	impl->scrollbar->update_contents();
@@ -1146,7 +1142,7 @@ void edit_window_t::paste_selection(void) {
 
 void edit_window_t::paste(bool clipboard) {
 	WITH_CLIPBOARD_LOCK(
-		linked_ptr<string>::t copy_buffer = clipboard ? get_clipboard() : get_primary();
+		linked_ptr<std::string>::t copy_buffer = clipboard ? get_clipboard() : get_primary();
 		if (copy_buffer != NULL) {
 			if (text->get_selection_mode() == selection_mode_t::NONE) {
 				update_repaint_lines(text->cursor.line, INT_MAX);
@@ -1322,7 +1318,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 			reset_selection();
 			text->cursor = xy_to_text_coordinate(event.x, event.y);
 			WITH_CLIPBOARD_LOCK(
-				linked_ptr<string>::t primary = get_primary();
+				linked_ptr<std::string>::t primary = get_primary();
 				if (primary != NULL)
 					text->insert_block(primary);
 			)
@@ -1637,30 +1633,7 @@ void edit_window_t::mark_selection() {
 	}
 }
 
-edit_window_t::Action edit_window_t::map_action_name(const char *name) {
-	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
-		if (strcmp(name, action_names[i]) == 0) {
-			return static_cast<Action>(i);
-		}
-	}
-	return ACTION_NONE;
-}
-
-void edit_window_t::bind_key(key_t key, Action action) {
-	if (action == ACTION_NONE) {
-		key_bindings.erase(key);
-	} else {
-		key_bindings[key] = action;
-	}
-}
-
-std::vector<std::string> edit_window_t::get_action_names() {
-	std::vector<std::string> result;
-	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
-		result.push_back(action_names[i]);
-	}
-	return result;
-}
+KEY_BINDING_FUNC_DEFS(edit_window_t)
 
 //====================== view_parameters_t ========================
 

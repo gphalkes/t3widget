@@ -34,7 +34,6 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 	public:
 		/** Actions which can be bound to keys. */
 		enum Action {
-			ACTION_NONE = -1,
 	#define _T3_ACTION(action, name) ACTION_##action,
 	#include <t3widget/widgets/split.actions.h>
 	#undef _T3_ACTION
@@ -113,16 +112,13 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		/** Get the currently active widget. */
 		widget_t *get_current(void);
 
-		/** Returns the @c Action value for the given name, or @c ACTION_NONE if none was found. */
-		static Action map_action_name(const char *name);
-
+		/** Returns the @c Action value for the given name, or @c nullopt if it could not be found. */
+		static optional<Action> map_action_name(const std::string &name);
 		/** Binds the key to the action.
-		    To remove a binding, bind the key to @c ACTION_NONE.
-		*/
-		static void bind_key(key_t key, Action action);
-
+		    Pass @c nullopt to unbind the key. */
+		static void bind_key(key_t key, optional<Action> action);
 		/** Returns a vector with the names of all the available actions. */
-		static std::vector<std::string> get_action_names();
+		static const std::vector<std::string> &get_action_names();
 };
 
 }; // namespace

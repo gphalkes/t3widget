@@ -24,6 +24,9 @@
 
 namespace t3_widget {
 
+struct nullopt_t {};
+T3_WIDGET_API extern const nullopt_t nullopt;
+
 /** Class defining values with a separate validity check. */
 template <class T>
 class T3_WIDGET_API optional {
@@ -33,6 +36,7 @@ class T3_WIDGET_API optional {
 
 	public:
 		optional(void) : initialized(false) {}
+		optional(nullopt_t) : initialized(false) {}
 		optional(T _value) : value(_value), initialized(true) {}
 		bool is_valid(void) const { return initialized; }
 		void unset(void) { initialized = false; }

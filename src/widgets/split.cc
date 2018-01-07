@@ -16,24 +16,22 @@
 #include "widgets/split.h"
 #include "internal.h"
 
-using namespace std;
 
 namespace t3_widget {
 
 signals::connection split_t::init_connected = connect_on_init(signals::ptr_fun(split_t::init));
 std::map<key_t, split_t::Action> split_t::key_bindings;
 
-static const char *action_names[] = {
-#define _T3_ACTION(action, name) name,
-#include <t3widget/widgets/split.actions.h>
-#undef _T3_ACTION
-};
+static std::vector<std::string> action_names;
 
 void split_t::init(bool _init) {
 	if (_init) {
 		key_bindings[EKEY_F8] = ACTION_NEXT_SPLIT;
 		key_bindings[EKEY_META | '8'] = ACTION_NEXT_SPLIT;
 		key_bindings[EKEY_F8 | EKEY_SHIFT] = ACTION_PREVIOUS_SPLIT;
+#define _T3_ACTION(action, name) action_names.push_back(name);
+#include <t3widget/widgets/split.actions.h>
+#undef _T3_ACTION
 	}
 }
 
@@ -55,20 +53,20 @@ bool split_t::process_key(key_t key) {
 	if (widgets.empty())
 		return false;
 
-	std::map<key_t, Action>::iterator iter = key_bindings.find(key);
-	if (iter == key_bindings.end()) {
+	optional<Action> action = find_action(key_bindings, key);
+	if (action.is_valid()) {
+		switch (action) {
+			case ACTION_NEXT_SPLIT:
+				next();
+				break;
+			case ACTION_PREVIOUS_SPLIT:
+				previous();
+				break;
+			default:
+				break;
+		}
+	} else {
 		return (*current)->process_key(key);
-	}
-
-	switch (iter->second) {
-		case ACTION_NEXT_SPLIT:
-			next();
-			break;
-		case ACTION_PREVIOUS_SPLIT:
-			previous();
-			break;
-		default:
-			break;
 	}
 	return true;
 }
@@ -91,7 +89,7 @@ bool split_t::set_size(optint height, optint width) {
 
 		for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
 			result &= (*iter)->set_size(step + (idx < left_over), width);
-			(*iter)->set_position(idx * step + min(idx, left_over), 0);
+			(*iter)->set_position(idx * step + std::min(idx, left_over), 0);
 		}
 	} else {
 		int idx;
@@ -101,7 +99,7 @@ bool split_t::set_size(optint height, optint width) {
 
 		for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
 			result &= (*iter)->set_size(height, step + (idx < left_over));
-			(*iter)->set_position(0, idx * step + min(idx, left_over));
+			(*iter)->set_position(0, idx * step + std::min(idx, left_over));
 		}
 	}
 	return result;
@@ -322,29 +320,6 @@ void split_t::set_to_end(void) {
 		current_window->set_to_end();
 }
 
-split_t::Action split_t::map_action_name(const char *name) {
-	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
-		if (strcmp(name, action_names[i]) == 0) {
-			return static_cast<Action>(i);
-		}
-	}
-	return ACTION_NONE;
-}
-
-void split_t::bind_key(key_t key, Action action) {
-	if (action == ACTION_NONE) {
-		key_bindings.erase(key);
-	} else {
-		key_bindings[key] = action;
-	}
-}
-
-std::vector<std::string> split_t::get_action_names() {
-	std::vector<std::string> result;
-	for (size_t i = 0; i < ARRAY_SIZE(action_names); ++i) {
-		result.push_back(action_names[i]);
-	}
-	return result;
-}
+KEY_BINDING_FUNC_DEFS(split_t)
 
 }; // namespace

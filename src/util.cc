@@ -27,8 +27,6 @@
 #include "internal.h"
 #include "main.h"
 
-using namespace std;
-
 #ifndef HAS_STRDUP
 /** strdup implementation if none is provided by the environment. */
 char *_t3_widget_strdup(const char *str) {
@@ -50,6 +48,7 @@ static signals::connection lang_codeset_init_connection = connect_on_init(signal
 static transcript_t *lang_codeset_handle;
 static bool lang_codeset_is_utf8;
 
+const nullopt_t nullopt;
 const optint None;
 
 ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
@@ -97,7 +96,7 @@ static int to_lower(int c) {
 	return 'a' + (c - 'A');
 }
 
-int parse_escape(const string &str, const char **error_message, size_t &read_position, bool replacements) {
+int parse_escape(const std::string &str, const char **error_message, size_t &read_position, bool replacements) {
 	size_t i;
 
 	switch(str[read_position++]) {
@@ -220,7 +219,7 @@ int parse_escape(const string &str, const char **error_message, size_t &read_pos
 	The use of this function processes escape characters. The converted
 	characters are written in the original str.
 */
-bool parse_escapes(string &str, const char **error_message, bool replacements) {
+bool parse_escapes(std::string &str, const char **error_message, bool replacements) {
 	size_t read_position = 0, write_position = 0;
 	char buffer[5];
 
@@ -282,7 +281,7 @@ bool parse_escapes(string &str, const char **error_message, bool replacements) {
 	return true;
 }
 
-string get_working_directory(void) {
+std::string get_working_directory(void) {
 	size_t buffer_max = 511;
 	char *buffer = NULL, *result;
 
@@ -307,13 +306,13 @@ string get_working_directory(void) {
 		}
 	} while (result == NULL);
 
-	string retval(buffer);
+	std::string retval(buffer);
 	free(buffer);
 	return retval;
 }
 
-string get_directory(const char *directory) {
-	string dirstring;
+std::string get_directory(const char *directory) {
+	std::string dirstring;
 
 	if (directory == NULL) {
 		dirstring = get_working_directory();
@@ -322,7 +321,7 @@ string get_directory(const char *directory) {
 		dirstring = directory;
 		if (stat(directory, &dir_info) < 0 || !S_ISDIR(dir_info.st_mode)) {
 			size_t idx = dirstring.rfind('/');
-			if (idx == string::npos) {
+			if (idx == std::string::npos) {
 				dirstring = get_working_directory();
 			} else {
 				dirstring.erase(idx);
@@ -334,9 +333,9 @@ string get_directory(const char *directory) {
 	return dirstring;
 }
 
-void sanitize_dir(string *directory) {
+void sanitize_dir(std::string *directory) {
 	size_t idx = 0;
-	while ((idx = directory->find("//", idx)) != string::npos) {
+	while ((idx = directory->find("//", idx)) != std::string::npos) {
 		directory->erase(idx, 1);
 	}
 	while (directory->size() > 1 && (*directory)[directory->size() - 1] == '/') {
@@ -344,9 +343,9 @@ void sanitize_dir(string *directory) {
 	}
 }
 
-bool is_dir(const string *current_dir, const char *name) {
+bool is_dir(const std::string *current_dir, const char *name) {
 	struct stat file_info;
-	string file;
+	std::string file;
 
 	if (name[0] != '/') {
 		file += *current_dir;
@@ -409,7 +408,7 @@ void convert_lang_codeset(const std::string *str, std::string *result, bool from
 	convert_lang_codeset(str->c_str(), str->size(), result, from);
 }
 
-int get_class(const string *str, int pos) {
+int get_class(const std::string *str, int pos) {
 	size_t data_len = str->size() - pos;
 	uint32_t c = t3_utf8_get(str->data() + pos, &data_len);
 
