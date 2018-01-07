@@ -46,8 +46,6 @@
 #endif
 
 
-using namespace std;
-
 namespace t3_widget {
 
 #define DATA_BLOCK_SIZE 4000
@@ -318,30 +316,10 @@ class x11_impl_t : public x11_base_t {
 		}
 
 		/** Handle error reports, i.e. BadAtom and such, from the server. */
-		int error_handler(Display *_display, XErrorEvent *error) {
-		#ifdef _T3_WIDGET_DEBUG
-			char error_text[1024];
-			XGetErrorText(_display, error->error_code, error_text, sizeof(error_text));
-
-			lprintf("X11 error handler: %s\n", error_text);
-		#else
-			(void) _display;
-			(void) error;
-		#endif
-			if (!x11_initialized)
-				x11_error = true;
-			return 0;
-		}
+		static int error_handler(Display *_display, XErrorEvent *error);
 
 		/** Handle IO errors. */
-		int io_error_handler(Display *_display) {
-			(void) _display;
-			lprintf("X11 IO error\n");
-			/* Note that this is the only place this variable is ever written, so there
-			   is no problem in not using a lock here. */
-			x11_error = true;
-			return 0;
-		}
+		static int io_error_handler(Display *_display);
 
 	private:
 		Display *display;
@@ -590,9 +568,9 @@ class x11_driver_t {
 
 		#define x11_working() (x11.is_initialized() && !x11.has_error())
 
-		linked_ptr<string>::t get_selection(bool clipboard) {
+		linked_ptr<std::string>::t get_selection(bool clipboard) {
 			thread::timeout_t timeout = thread::timeout_time(1000000);
-			linked_ptr<string>::t result;
+			linked_ptr<std::string>::t result;
 
 			/* NOTE: the clipboard is supposed to be locked when this routine is called. */
 
@@ -609,7 +587,7 @@ class x11_driver_t {
 				x11.x11_flush();
 				if (clipboard_signal.wait_until(clipboard_mutex_lock, timeout) != thread::cv_status::timeout &&
 						conversion_succeeded)
-					result = new string(retrieved_data);
+					result = new std::string(retrieved_data);
 				action = ACTION_NONE;
 			} else {
 				result = clipboard ? clipboard_data : primary_data;
@@ -617,7 +595,7 @@ class x11_driver_t {
 			return result;
 		}
 
-		void claim_selection(bool clipboard, string *data) {
+		void claim_selection(bool clipboard, std::string *data) {
 			thread::timeout_t timeout = thread::timeout_time(1000000);
 
 			if (!x11_working()) {
@@ -729,7 +707,7 @@ class x11_driver_t {
 			@param since The timestamp at which we aquired the requested selection.
 			@return A boolean indicating succes.
 		*/
-		bool send_selection(x11_window_t requestor, x11_atom_t target, x11_atom_t property, linked_ptr<string>::t data, x11_time_t since) {
+		bool send_selection(x11_window_t requestor, x11_atom_t target, x11_atom_t property, linked_ptr<std::string>::t data, x11_time_t since) {
 			if (target == x11.get_atom(TARGETS)) {
 				x11.x11_change_property(requestor, property, x11.get_atom(ATOM), 32, X11_PROPERTY_REPLACE, x11.get_targets_list(), 4);
 				return true;
@@ -941,7 +919,7 @@ class x11_driver_t {
 					}
 					case X11_SELECTION_REQUEST: {
 						x11_selection_event_t reply;
-						linked_ptr<string>::t data;
+						linked_ptr<std::string>::t data;
 						x11_time_t since;
 						x11_selection_request_event_t *request_event = (x11_selection_request_event_t *) event;
 
@@ -999,14 +977,14 @@ class x11_driver_t {
 
 		struct incr_send_data_t {
 			x11_window_t window;
-			linked_ptr<string>::t data;
+			linked_ptr<std::string>::t data;
 			x11_atom_t property;
 			size_t offset;
 
-			incr_send_data_t(x11_window_t _window, linked_ptr<string>::t &_data, x11_atom_t _property) : window(_window),
+			incr_send_data_t(x11_window_t _window, linked_ptr<std::string>::t &_data, x11_atom_t _property) : window(_window),
 				data(_data), property(_property), offset(0) {}
 		};
-		typedef list<incr_send_data_t> incr_send_list_t;
+		typedef std::list<incr_send_data_t> incr_send_list_t;
 		incr_send_list_t incr_sends;
 		bool receive_incr;
 
@@ -1019,9 +997,40 @@ class x11_driver_t {
 		thread::unique_lock<thread::mutex> clipboard_mutex_lock;
 		thread::condition_variable clipboard_signal;
 
-		string retrieved_data;
+		std::string retrieved_data;
+
+#ifdef USE_XLIB
+		friend class x11_impl_t;
+#endif
 };
 x11_driver_t *x11_driver_t::implementation;
+
+#ifdef USE_XLIB
+int x11_impl_t::error_handler(Display *_display, XErrorEvent *error) {
+#ifdef _T3_WIDGET_DEBUG
+	char error_text[1024];
+	XGetErrorText(_display, error->error_code, error_text, sizeof(error_text));
+
+	lprintf("X11 error handler: %s\n", error_text);
+#else
+	(void) _display;
+	(void) error;
+#endif
+	if (!x11_driver_t::implementation->x11.x11_initialized)
+		x11_driver_t::implementation->x11.x11_error = true;
+	return 0;
+}
+
+/** Handle IO errors. */
+int x11_impl_t::io_error_handler(Display *_display) {
+	(void) _display;
+	lprintf("X11 IO error\n");
+	/* Note that this is the only place this variable is ever written, so there
+	   is no problem in not using a lock here. */
+	x11_driver_t::implementation->x11.x11_error = true;
+	return 0;
+}
+#endif
 
 static bool init_x11() {
 	lprintf("Starting X11 initialization\n");
@@ -1042,13 +1051,13 @@ static void release_selections() {
 	x11_driver_t::implementation->release_selections();
 }
 
-static linked_ptr<string>::t get_selection(bool clipboard) {
+static linked_ptr<std::string>::t get_selection(bool clipboard) {
 	if (!x11_driver_t::implementation)
 		return clipboard ? clipboard_data : primary_data;
 	return x11_driver_t::implementation->get_selection(clipboard);
 }
 
-static void claim_selection(bool clipboard, string *data) {
+static void claim_selection(bool clipboard, std::string *data) {
 	if (!x11_driver_t::implementation)
 		return;
 	x11_driver_t::implementation->claim_selection(clipboard, data);
