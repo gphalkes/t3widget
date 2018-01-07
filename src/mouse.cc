@@ -287,23 +287,19 @@ bool decode_xterm_mouse_sgr_urxvt(const key_t *data, size_t len) {
 	int x = 0;
 	int y = 0;
 	int *current_value = &buttons;
-	bool value_parsed = false;
 	for (; idx < len; ++idx) {
 		if (data[idx] >= '0' && data[idx] <= '9') {
 			*current_value = 10 * *current_value + (data[idx] - '0');
-			value_parsed = true;
 		} else if (data[idx] == ';') {
-			if (current_value == &buttons && value_parsed) {
+			if (current_value == &buttons) {
 				current_value = &x;
-				value_parsed = false;
-			} else if (current_value == &x && value_parsed) {
+			} else if (current_value == &x) {
 				current_value = &y;
-				value_parsed = false;
 			} else {
 				return false;
 			}
 		} else if (data[idx] == 'm' || data[idx] == 'M') {
-			if (current_value != &y || !value_parsed) {
+			if (current_value != &y) {
 				return false;
 			}
 
