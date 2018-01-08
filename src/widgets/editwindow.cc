@@ -933,12 +933,16 @@ bool edit_window_t::process_key(key_t key) {
 			}
 			break;
 		case EKEY_PASTE_START:
-			impl->pasting_text = true;
-			text->start_undo_block();
+			if (!impl->pasting_text) {
+				impl->pasting_text = true;
+				text->start_undo_block();
+			}
 			break;
 		case EKEY_PASTE_END:
-			impl->pasting_text = false;
-			text->end_undo_block();
+			if (impl->pasting_text) {
+				impl->pasting_text = false;
+				text->end_undo_block();
+			}
 			break;
 		default: {
 			int local_insmode;
