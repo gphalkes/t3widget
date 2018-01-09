@@ -119,7 +119,7 @@ static int signal_pipe[2] = { -1, -1 };
 static key_buffer_t key_buffer;
 static thread::thread read_key_thread;
 
-char char_buffer[32];
+char char_buffer[128];
 int char_buffer_fill;
 static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
@@ -132,9 +132,10 @@ static bool drop_single_esc = true;
 /* Used in decode_sequence and comparison routine to communicate whether the current
    sequence is a prefix of any known sequence. */
 static bool is_prefix;
-
+static bool in_bracketed_paste;
 
 static key_t decode_sequence(bool outer);
+static key_t bracketed_paste_decode();
 static void stop_keys(void);
 
 static void convert_next_key(void) {
@@ -204,6 +205,10 @@ static int get_next_keychar(void) {
 }
 
 static void unget_keychar(int c) {
+	// Prevent buffer overflow. This simply drops the oldest character off the buffer.
+	if (char_buffer_fill >= ARRAY_SIZE(char_buffer)) {
+		char_buffer_fill = ARRAY_SIZE(char_buffer) - 1;
+	}
 	memmove(char_buffer + 1, char_buffer, sizeof(char_buffer[0]) * char_buffer_fill);
 	char_buffer[0] = c;
 	char_buffer_fill++;
@@ -288,7 +293,11 @@ static void read_keys() {
 				key_t modifiers = t3_term_get_modifiers_hack();
 
 				key_timeout_lock.lock();
-				c = decode_sequence(true);
+				if (in_bracketed_paste) {
+					c = bracketed_paste_decode();
+				} else {
+					c = decode_sequence(true);
+				}
 				key_timeout_lock.unlock();
 				if (c < 0)
 					continue;
@@ -299,11 +308,12 @@ static void read_keys() {
 
 				if (c == '\t' || (c >= EKEY_FIRST_SPECIAL && c < 0x111000 && c != EKEY_NL))
 					c |= modifiers * EKEY_CTRL;
-			} else if (c > 0 && c < 128 && map_single[c] != 0) {
+			} else if (!in_bracketed_paste && c > 0 && c < 128 && map_single[c] != 0) {
 				c = map_single[c];
 			}
-			if (c >= 0)
-				key_buffer.push_back(c);
+			if (c >= 0) {
+				key_buffer.push_back(in_bracketed_paste ? EKEY_PROTECT | c : c);
+			}
 		}
 	}
 }
@@ -336,6 +346,12 @@ static int compare_sequence_with_mapping(const void *key, const void *mapping) {
 	if (i < _key->idx)
 		return 1;
 	return 0;
+}
+
+static void unget_key_sequence(const key_sequence_t &sequence) {
+	for (size_t i = sequence.idx; i > 0; --i) {
+		unget_keychar(sequence.data[i - 1]);
+	}
 }
 
 static key_t decode_sequence(bool outer) {
@@ -372,9 +388,7 @@ static key_t decode_sequence(bool outer) {
 						/* If this is not the outer decode_sequence call, push everything
 						   back onto the character list, and do nothing. A next call to
 						   decode_sequence will take care of the mouse handling. */
-						unget_keychar('M');
-						unget_keychar('[');
-						unget_keychar(EKEY_ESC);
+						unget_key_sequence(sequence);
 						return -1;
 					}
 					return decode_xterm_mouse() ? EKEY_MOUSE_EVENT : -1;
@@ -383,19 +397,24 @@ static key_t decode_sequence(bool outer) {
 						/* If this is not the outer decode_sequence call, push everything
 						   back onto the character list, and do nothing. A next call to
 						   decode_sequence will take care of the mouse handling. */
-						for (size_t i = sequence.idx; i > 0; --i) {
-							unget_keychar(sequence.data[i - 1]);
-						}
+						unget_key_sequence(sequence);
 						return -1;
 					}
 					return decode_xterm_mouse_sgr_urxvt(sequence.data, sequence.idx) ? EKEY_MOUSE_EVENT : -1;
 				} else if (c == '~') {
 					if (sequence.idx != 6 || sequence.data[2] != '2' || sequence.data[3] != '0')
 						return -1;
-					if (sequence.data[4] == '0')
+					if (!outer) {
+						/* If this is not the outer decode_sequence call, push everything
+						   back onto the character list, and do nothing. A next call to
+						   decode_sequence will take care of the mouse handling. */
+						unget_key_sequence(sequence);
+						return -1;
+					}
+					if (sequence.data[4] == '0') {
+						in_bracketed_paste = true;
 						return EKEY_PASTE_START;
-					if (sequence.data[4] == '1')
-						return EKEY_PASTE_END;
+					}
 					return -1;
 				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7e) {
 					return -1;
@@ -438,6 +457,31 @@ unknown_sequence:
 	/* Something unwanted has happened here: the character sequence we encoutered was not
 	   in our key map. Because it will give some undesired result to just return
 	   <alt><first character> we ignore the whole sequence */
+	return -1;
+}
+
+static key_t bracketed_paste_decode() {
+	char data[6];
+	int idx = 1;
+
+	data[0] = EKEY_ESC;
+
+	while (idx < 6) {
+		data[idx++] = get_next_keychar();
+		if (strncmp(data, "\033[201~", idx) != 0) {
+			for (int i = idx; i > 0; --i) {
+				unget_keychar(data[i - 1]);
+			}
+			return -1;
+		}
+		if (idx == 6) {
+			in_bracketed_paste = false;
+			return EKEY_PASTE_END;
+		}
+	}
+	for (int i = idx; i > 0; --i) {
+		unget_keychar(data[i - 1]);
+	}
 	return -1;
 }
 
@@ -689,6 +733,7 @@ void deinit_keys(void) {
 	// Disable bracketed paste.
 	t3_term_putp("\033[?2004l");
 	t3_term_putp(leave);
+	in_bracketed_paste = false;
 }
 
 void reinit_keys(void) {

@@ -99,7 +99,7 @@ T3_WIDGET_LOCAL bool read_keychar(int timeout);
 
 /* char_buffer for key and mouse handling. Has to be shared between key.cc and
    mouse.cc because of XTerm in-band mouse reporting. */
-extern char char_buffer[32];
+extern char char_buffer[128];
 extern int char_buffer_fill;
 
 /** Initialize the mouse handling code. */
