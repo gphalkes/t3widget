@@ -25,6 +25,9 @@ typedef void *lt_dlhandle;
 #endif
 #endif
 
+#include <cstdlib>
+#include <fstream>
+
 #include "clipboard.h"
 #include "ptr.h"
 #include "extclipboard.h"
@@ -71,6 +74,19 @@ void set_clipboard(std::string *str) {
 		delete str;
 		str = NULL;
 	}
+
+    
+    if(const char* option_fileclip = std::getenv("TILDE_FILECLIP")) {
+        std::ofstream clipfile;
+        try {
+            clipfile.open(option_fileclip);
+            clipfile << *str;
+            clipfile.close();
+        }
+        catch (const std::ofstream::failure& e) {
+			lprintf("Could not open write clipboard content to %s.\n", option_fileclip);
+        }
+    }
 
 	if (extclipboard_calls != NULL) {
 		extclipboard_calls->claim_selection(true, str);
