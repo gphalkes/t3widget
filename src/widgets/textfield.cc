@@ -35,27 +35,27 @@ namespace t3_widget {
 - undo
 */
 signals::connection text_field_t::init_connected = connect_on_init(signals::ptr_fun(text_field_t::init));
-std::map<key_t, text_field_t::Action> text_field_t::key_bindings;
+key_bindings_t<text_field_t::Action> text_field_t::key_bindings;
 
 static std::vector<std::string> action_names;
 
 void text_field_t::init(bool _init) {
 	if (_init) {
-		key_bindings[EKEY_CTRL | 'x'] = ACTION_CUT;
-		key_bindings[EKEY_SHIFT | EKEY_DEL] = ACTION_CUT;
-		key_bindings[EKEY_CTRL | 'c'] = ACTION_COPY;
-		key_bindings[EKEY_CTRL | EKEY_INS] = ACTION_COPY;
-		key_bindings[EKEY_CTRL | 'v'] = ACTION_PASTE;
-		/* This key combination is typically caught by the terminal, and bound to paste-selection.
-		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
-		key_bindings[EKEY_SHIFT | EKEY_INS] = ACTION_PASTE_SELECTION;
-		key_bindings[EKEY_CTRL | 't'] = ACTION_MARK_SELECTION;
-		key_bindings[EKEY_F9] = ACTION_INSERT_SPECIAL;
-		key_bindings[EKEY_META | '9'] = ACTION_INSERT_SPECIAL;
-		key_bindings[EKEY_CTRL | 'a'] = ACTION_SELECT_ALL;
-#define _T3_ACTION(action, name) action_names.push_back(name);
+#define _T3_ACTION(action, name) key_bindings.add_action(ACTION_##action, name);
 #include <t3widget/widgets/textfield.actions.h>
 #undef _T3_ACTION
+		key_bindings.bind_key(EKEY_CTRL | 'x', ACTION_CUT);
+		key_bindings.bind_key(EKEY_SHIFT | EKEY_DEL, ACTION_CUT);
+		key_bindings.bind_key(EKEY_CTRL | 'c', ACTION_COPY);
+		key_bindings.bind_key(EKEY_CTRL | EKEY_INS, ACTION_COPY);
+		key_bindings.bind_key(EKEY_CTRL | 'v', ACTION_PASTE);
+		/* This key combination is typically caught by the terminal, and bound to paste-selection.
+		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
+		key_bindings.bind_key(EKEY_SHIFT | EKEY_INS, ACTION_PASTE_SELECTION);
+		key_bindings.bind_key(EKEY_CTRL | 't', ACTION_MARK_SELECTION);
+		key_bindings.bind_key(EKEY_F9, ACTION_INSERT_SPECIAL);
+		key_bindings.bind_key(EKEY_META | '9', ACTION_INSERT_SPECIAL);
+		key_bindings.bind_key(EKEY_CTRL | 'a', ACTION_SELECT_ALL);
 
 	}
 }
@@ -219,7 +219,7 @@ bool text_field_t::process_key(key_t key) {
 			return true;
 
 		default: {
-			optional<Action> action = find_action(key_bindings, key);
+			optional<Action> action = key_bindings.find_action(key);
 			if (action.is_valid()) {
 				switch (action) {
 					case ACTION_CUT:
@@ -604,7 +604,8 @@ bool text_field_t::has_focus(void) const {
 	return impl->focus;
 }
 
-KEY_BINDING_FUNC_DEFS(text_field_t)
+key_bindings_t<text_field_t::Action> *text_field_t::get_key_binding() { return &key_bindings; }
+
 
 /*======================
   == drop_down_list_t ==

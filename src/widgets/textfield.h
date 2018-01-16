@@ -20,6 +20,7 @@
 
 #include <t3widget/widgets/widget.h>
 #include <t3widget/textline.h>
+#include <t3widget/key_binding.h>
 #include <t3widget/contentlist.h>
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/listpane.h>
@@ -40,7 +41,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		class T3_WIDGET_LOCAL drop_down_list_t;
 
 		static signals::connection init_connected;
-		static std::map<key_t, Action> key_bindings;
+		static key_bindings_t<Action> key_bindings;
 
 		struct T3_WIDGET_LOCAL implementation_t {
 			int pos, /**< Cursor position in bytes. */
@@ -140,13 +141,8 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual void bad_draw_recheck(void);
 		virtual bool process_mouse_event(mouse_event_t event);
 
-		/** Returns the @c Action value for the given name, or @c nullopt if it could not be found. */
-		static optional<Action> map_action_name(const std::string &name);
-		/** Binds the key to the action.
-		    Pass @c nullopt to unbind the key. */
-		static void bind_key(key_t key, optional<Action> action);
-		/** Returns a vector with the names of all the available actions. */
-		static const std::vector<std::string> &get_action_names();
+		/** Returns the object holding the key bindings for this type. */
+		static key_bindings_t<Action> *get_key_binding();
 
 	T3_WIDGET_SIGNAL(activate, void);
 };

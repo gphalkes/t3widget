@@ -27,6 +27,7 @@ namespace t3_widget {
 #include <t3widget/widgets/listpane.h>
 #include <t3widget/textbuffer.h>
 #include <t3widget/key.h>
+#include <t3widget/key_binding.h>
 #include <t3widget/interfaces.h>
 #include <t3widget/autocompleter.h>
 
@@ -59,7 +60,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static replace_buttons_dialog_t *replace_buttons;
 		static signals::connection replace_buttons_connection;
 		static signals::connection init_connected;
-		static std::map<key_t, Action> key_bindings;
+		static key_bindings_t<Action> key_bindings;
 
 		struct T3_WIDGET_LOCAL implementation_t {
 			cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
@@ -299,13 +300,8 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Delete the current line, or lines if the current selection spans multiple lines. */
 		void delete_line();
 
-		/** Returns the @c Action value for the given name, or @c nullopt if it could not be found. */
-		static optional<Action> map_action_name(const std::string &name);
-		/** Binds the key to the action.
-		    Pass @c nullopt to unbind the key. */
-		static void bind_key(key_t key, optional<Action> action);
-		/** Returns a vector with the names of all the available actions. */
-		static const std::vector<std::string> &get_action_names();
+		/** Returns the object holding the key bindings for this type. */
+		static key_bindings_t<Action> *get_key_binding();
 };
 
 class T3_WIDGET_API edit_window_t::view_parameters_t {

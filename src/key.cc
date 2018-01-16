@@ -416,9 +416,9 @@ static key_t decode_sequence(bool outer) {
 						return EKEY_PASTE_START;
 					}
 					return -1;
-				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7e) {
+				} else if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
 					return -1;
-				} else if (c < 0x20 || c > 0x7e) {
+				} else if (c < 0x20 || c > 0x7f) {
 					/* Drop unknown leading sequence if some non-CSI byte is found. */
 					unget_key(c);
 					return -1;

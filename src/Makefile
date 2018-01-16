@@ -22,6 +22,7 @@ SOURCES.libt3widget.la := \
 	findcontext.cc \
 	interfaces.cc \
 	key.cc \
+	key_binding.cc \
 	log.cc \
 	main.cc \
 	mouse.cc \

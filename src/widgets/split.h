@@ -19,6 +19,7 @@
 #include <vector>
 
 #include <t3widget/widgets/widget.h>
+#include <t3widget/key_binding.h>
 
 namespace t3_widget {
 
@@ -40,7 +41,7 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		};
 	private:
 		static signals::connection init_connected;
-		static std::map<key_t, Action> key_bindings;
+		static key_bindings_t<Action> key_bindings;
 
 		/** Function to initialize the shared dialogs and data. */
 		static void init(bool _init);
@@ -112,13 +113,8 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		/** Get the currently active widget. */
 		widget_t *get_current(void);
 
-		/** Returns the @c Action value for the given name, or @c nullopt if it could not be found. */
-		static optional<Action> map_action_name(const std::string &name);
-		/** Binds the key to the action.
-		    Pass @c nullopt to unbind the key. */
-		static void bind_key(key_t key, optional<Action> action);
-		/** Returns a vector with the names of all the available actions. */
-		static const std::vector<std::string> &get_action_names();
+		/** Returns the object holding the key bindings for this type. */
+		static key_bindings_t<Action> *get_key_binding();
 };
 
 }; // namespace

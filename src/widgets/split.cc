@@ -20,22 +20,22 @@
 namespace t3_widget {
 
 signals::connection split_t::init_connected = connect_on_init(signals::ptr_fun(split_t::init));
-std::map<key_t, split_t::Action> split_t::key_bindings;
+key_bindings_t<split_t::Action> split_t::key_bindings;
 
 static std::vector<std::string> action_names;
 
 void split_t::init(bool _init) {
 	if (_init) {
-		key_bindings[EKEY_F8] = ACTION_NEXT_SPLIT;
-		key_bindings[EKEY_META | '8'] = ACTION_NEXT_SPLIT;
-		key_bindings[EKEY_F8 | EKEY_SHIFT] = ACTION_PREVIOUS_SPLIT;
-#define _T3_ACTION(action, name) action_names.push_back(name);
+#define _T3_ACTION(action, name) key_bindings.add_action(ACTION_##action, name);
 #include <t3widget/widgets/split.actions.h>
 #undef _T3_ACTION
+		key_bindings.bind_key(EKEY_F8, ACTION_NEXT_SPLIT);
+		key_bindings.bind_key(EKEY_META | '8', ACTION_NEXT_SPLIT);
+		key_bindings.bind_key(EKEY_F8 | EKEY_SHIFT, ACTION_PREVIOUS_SPLIT);
 	}
 }
 
-split_t::split_t(widget_t *widget) : horizontal(true) {
+split_t::split_t(widget_t *widget) : horizontal(true), focus(false) {
 	init_unbacked_window(3, 3);
 	set_widget_parent(widget);
 	widget->set_anchor(this, 0);
@@ -53,7 +53,7 @@ bool split_t::process_key(key_t key) {
 	if (widgets.empty())
 		return false;
 
-	optional<Action> action = find_action(key_bindings, key);
+	optional<Action> action = key_bindings.find_action(key);
 	if (action.is_valid()) {
 		switch (action) {
 			case ACTION_NEXT_SPLIT:
@@ -320,6 +320,6 @@ void split_t::set_to_end(void) {
 		current_window->set_to_end();
 }
 
-KEY_BINDING_FUNC_DEFS(split_t)
+key_bindings_t<split_t::Action> *split_t::get_key_binding() { return &key_bindings; }
 
 }; // namespace

@@ -39,7 +39,7 @@ finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
 signals::connection edit_window_t::replace_buttons_connection;
 signals::connection edit_window_t::init_connected = connect_on_init(signals::ptr_fun(edit_window_t::init));
-std::map<key_t, edit_window_t::Action> edit_window_t::key_bindings;
+key_bindings_t<edit_window_t::Action> edit_window_t::key_bindings;
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
@@ -53,32 +53,32 @@ void edit_window_t::init(bool _init) {
 		goto_dialog = new goto_dialog_t();
 		global_find_dialog = new find_dialog_t();
 		replace_buttons = new replace_buttons_dialog_t();
-		key_bindings[EKEY_CTRL | 'c'] = ACTION_COPY;
-		key_bindings[EKEY_CTRL | EKEY_INS] = ACTION_COPY;
-		key_bindings[EKEY_CTRL | 'x'] = ACTION_CUT;
-		key_bindings[EKEY_DEL | EKEY_SHIFT] = ACTION_CUT;
-		key_bindings[EKEY_CTRL | 'v'] = ACTION_PASTE;
-		/* This key combination is typically caught by the terminal, and bound to paste-selection.
-		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
-		key_bindings[EKEY_INS | EKEY_SHIFT] = ACTION_PASTE_SELECTION;
-		key_bindings[EKEY_CTRL | 'y'] = ACTION_REDO;
-		key_bindings[EKEY_CTRL | 'z'] = ACTION_UNDO;
-		key_bindings[EKEY_CTRL | 'a'] = ACTION_SELECT_ALL;
-		key_bindings[EKEY_CTRL | 'g'] = ACTION_GOTO_LINE;
-		key_bindings[0] = ACTION_AUTOCOMPLETE;
-		key_bindings[EKEY_CTRL | 'k'] = ACTION_DELETE_LINE;
-		key_bindings[EKEY_CTRL | 't'] = ACTION_MARK_SELECTION;
-		key_bindings[EKEY_CTRL | 'f'] = ACTION_FIND;
-		key_bindings[EKEY_CTRL | 'r'] = ACTION_REPLACE;
-		key_bindings[EKEY_F3] = ACTION_FIND_NEXT;
-		key_bindings[EKEY_META | '3'] = ACTION_FIND_NEXT;
-		key_bindings[EKEY_F3 | EKEY_SHIFT] = ACTION_FIND_PREVIOUS;
-		key_bindings[EKEY_F9] = ACTION_INSERT_SPECIAL;
-		key_bindings[EKEY_META | '9'] = ACTION_INSERT_SPECIAL;
-
-#define _T3_ACTION(action, name) action_names.push_back(name);
+#define _T3_ACTION(action, name) key_bindings.add_action(ACTION_##action, name);
 #include <t3widget/widgets/editwindow.actions.h>
 #undef _T3_ACTION
+
+		key_bindings.bind_key(EKEY_CTRL | 'c', ACTION_COPY);
+		key_bindings.bind_key(EKEY_CTRL | EKEY_INS, ACTION_COPY);
+		key_bindings.bind_key(EKEY_CTRL | 'x', ACTION_CUT);
+		key_bindings.bind_key(EKEY_DEL | EKEY_SHIFT, ACTION_CUT);
+		key_bindings.bind_key(EKEY_CTRL | 'v', ACTION_PASTE);
+		/* This key combination is typically caught by the terminal, and bound to paste-selection.
+		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
+		key_bindings.bind_key(EKEY_INS | EKEY_SHIFT, ACTION_PASTE_SELECTION);
+		key_bindings.bind_key(EKEY_CTRL | 'y', ACTION_REDO);
+		key_bindings.bind_key(EKEY_CTRL | 'z', ACTION_UNDO);
+		key_bindings.bind_key(EKEY_CTRL | 'a', ACTION_SELECT_ALL);
+		key_bindings.bind_key(EKEY_CTRL | 'g', ACTION_GOTO_LINE);
+		key_bindings.bind_key(0, ACTION_AUTOCOMPLETE);
+		key_bindings.bind_key(EKEY_CTRL | 'k', ACTION_DELETE_LINE);
+		key_bindings.bind_key(EKEY_CTRL | 't', ACTION_MARK_SELECTION);
+		key_bindings.bind_key(EKEY_CTRL | 'f', ACTION_FIND);
+		key_bindings.bind_key(EKEY_CTRL | 'r', ACTION_REPLACE);
+		key_bindings.bind_key(EKEY_F3, ACTION_FIND_NEXT);
+		key_bindings.bind_key(EKEY_META | '3', ACTION_FIND_NEXT);
+		key_bindings.bind_key(EKEY_F3 | EKEY_SHIFT, ACTION_FIND_PREVIOUS);
+		key_bindings.bind_key(EKEY_F9, ACTION_INSERT_SPECIAL);
+		key_bindings.bind_key(EKEY_META | '9', ACTION_INSERT_SPECIAL);
 	} else {
 		delete goto_dialog; goto_dialog = NULL;
 		delete global_find_dialog; global_find_dialog = NULL;
@@ -947,7 +947,7 @@ bool edit_window_t::process_key(key_t key) {
 		default: {
 			int local_insmode;
 
-			optional<Action> action = find_action(key_bindings, key);
+			optional<Action> action = key_bindings.find_action(key);
 			if (action.is_valid()) {
 				switch (action) {
 					case ACTION_COPY:
@@ -1637,7 +1637,7 @@ void edit_window_t::mark_selection() {
 	}
 }
 
-KEY_BINDING_FUNC_DEFS(edit_window_t)
+key_bindings_t<edit_window_t::Action> *edit_window_t::get_key_binding() { return &key_bindings; }
 
 //====================== view_parameters_t ========================
 
