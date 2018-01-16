@@ -24,7 +24,9 @@
 
 namespace t3_widget {
 
-struct nullopt_t {};
+struct nullopt_t {
+	constexpr nullopt_t() {}
+};
 T3_WIDGET_API extern const nullopt_t nullopt;
 
 /** Class defining values with a separate validity check. */
