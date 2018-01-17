@@ -32,15 +32,14 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 	public:
 		/** Actions which can be bound to keys. */
 		enum Action {
-	#define _T3_ACTION(action, name) ACTION_##action,
-	#include <t3widget/widgets/textfield.actions.h>
-	#undef _T3_ACTION
+#define _T3_ACTION(action, ...) ACTION_##action,
+#include <t3widget/widgets/textfield.actions.h>
+#undef _T3_ACTION
 		};
 
 	private:
 		class T3_WIDGET_LOCAL drop_down_list_t;
 
-		static signals::connection init_connected;
 		static key_bindings_t<Action> key_bindings;
 
 		struct T3_WIDGET_LOCAL implementation_t {

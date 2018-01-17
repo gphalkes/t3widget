@@ -35,16 +35,12 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 	public:
 		/** Actions which can be bound to keys. */
 		enum Action {
-	#define _T3_ACTION(action, name) ACTION_##action,
-	#include <t3widget/widgets/split.actions.h>
-	#undef _T3_ACTION
+#define _T3_ACTION(action, ...) ACTION_##action,
+#include <t3widget/widgets/split.actions.h>
+#undef _T3_ACTION
 		};
 	private:
-		static signals::connection init_connected;
 		static key_bindings_t<Action> key_bindings;
-
-		/** Function to initialize the shared dialogs and data. */
-		static void init(bool _init);
 
 	protected:
 		widgets_t widgets; /**< The list of widgets contained by this split_t. */

@@ -38,8 +38,13 @@ signals::connection edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
 signals::connection edit_window_t::replace_buttons_connection;
+
 signals::connection edit_window_t::init_connected = connect_on_init(signals::ptr_fun(edit_window_t::init));
-key_bindings_t<edit_window_t::Action> edit_window_t::key_bindings;
+#define _T3_ACTION(action, name, ...) {ACTION_##action, name, {__VA_ARGS__}},
+key_bindings_t<edit_window_t::Action> edit_window_t::key_bindings{
+#include "widgets/editwindow.actions.h"
+};
+#undef _T3_ACTION
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
@@ -53,32 +58,6 @@ void edit_window_t::init(bool _init) {
 		goto_dialog = new goto_dialog_t();
 		global_find_dialog = new find_dialog_t();
 		replace_buttons = new replace_buttons_dialog_t();
-#define _T3_ACTION(action, name) key_bindings.add_action(ACTION_##action, name);
-#include <t3widget/widgets/editwindow.actions.h>
-#undef _T3_ACTION
-
-		key_bindings.bind_key(EKEY_CTRL | 'c', ACTION_COPY);
-		key_bindings.bind_key(EKEY_CTRL | EKEY_INS, ACTION_COPY);
-		key_bindings.bind_key(EKEY_CTRL | 'x', ACTION_CUT);
-		key_bindings.bind_key(EKEY_DEL | EKEY_SHIFT, ACTION_CUT);
-		key_bindings.bind_key(EKEY_CTRL | 'v', ACTION_PASTE);
-		/* This key combination is typically caught by the terminal, and bound to paste-selection.
-		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
-		key_bindings.bind_key(EKEY_INS | EKEY_SHIFT, ACTION_PASTE_SELECTION);
-		key_bindings.bind_key(EKEY_CTRL | 'y', ACTION_REDO);
-		key_bindings.bind_key(EKEY_CTRL | 'z', ACTION_UNDO);
-		key_bindings.bind_key(EKEY_CTRL | 'a', ACTION_SELECT_ALL);
-		key_bindings.bind_key(EKEY_CTRL | 'g', ACTION_GOTO_LINE);
-		key_bindings.bind_key(0, ACTION_AUTOCOMPLETE);
-		key_bindings.bind_key(EKEY_CTRL | 'k', ACTION_DELETE_LINE);
-		key_bindings.bind_key(EKEY_CTRL | 't', ACTION_MARK_SELECTION);
-		key_bindings.bind_key(EKEY_CTRL | 'f', ACTION_FIND);
-		key_bindings.bind_key(EKEY_CTRL | 'r', ACTION_REPLACE);
-		key_bindings.bind_key(EKEY_F3, ACTION_FIND_NEXT);
-		key_bindings.bind_key(EKEY_META | '3', ACTION_FIND_NEXT);
-		key_bindings.bind_key(EKEY_F3 | EKEY_SHIFT, ACTION_FIND_PREVIOUS);
-		key_bindings.bind_key(EKEY_F9, ACTION_INSERT_SPECIAL);
-		key_bindings.bind_key(EKEY_META | '9', ACTION_INSERT_SPECIAL);
 	} else {
 		delete goto_dialog; goto_dialog = NULL;
 		delete global_find_dialog; global_find_dialog = NULL;

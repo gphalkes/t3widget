@@ -25,6 +25,7 @@
 namespace t3_widget {
 
 struct nullopt_t {
+	// Constructor to allow pre Defect 253 compilers to compile the code as well.
 	constexpr nullopt_t() {}
 };
 T3_WIDGET_API extern const nullopt_t nullopt;

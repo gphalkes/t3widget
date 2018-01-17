@@ -34,31 +34,13 @@ namespace t3_widget {
 	  user added characters.
 - undo
 */
-signals::connection text_field_t::init_connected = connect_on_init(signals::ptr_fun(text_field_t::init));
-key_bindings_t<text_field_t::Action> text_field_t::key_bindings;
+#define _T3_ACTION(action, name, ...) {ACTION_##action, name, {__VA_ARGS__}},
+key_bindings_t<text_field_t::Action> text_field_t::key_bindings{
+#include "widgets/textfield.actions.h"
+};
+#undef _T3_ACTION
 
 static std::vector<std::string> action_names;
-
-void text_field_t::init(bool _init) {
-	if (_init) {
-#define _T3_ACTION(action, name) key_bindings.add_action(ACTION_##action, name);
-#include <t3widget/widgets/textfield.actions.h>
-#undef _T3_ACTION
-		key_bindings.bind_key(EKEY_CTRL | 'x', ACTION_CUT);
-		key_bindings.bind_key(EKEY_SHIFT | EKEY_DEL, ACTION_CUT);
-		key_bindings.bind_key(EKEY_CTRL | 'c', ACTION_COPY);
-		key_bindings.bind_key(EKEY_CTRL | EKEY_INS, ACTION_COPY);
-		key_bindings.bind_key(EKEY_CTRL | 'v', ACTION_PASTE);
-		/* This key combination is typically caught by the terminal, and bound to paste-selection.
-		   Hence, we bind this to paste-selection as well, to provide the least surprise. */
-		key_bindings.bind_key(EKEY_SHIFT | EKEY_INS, ACTION_PASTE_SELECTION);
-		key_bindings.bind_key(EKEY_CTRL | 't', ACTION_MARK_SELECTION);
-		key_bindings.bind_key(EKEY_F9, ACTION_INSERT_SPECIAL);
-		key_bindings.bind_key(EKEY_META | '9', ACTION_INSERT_SPECIAL);
-		key_bindings.bind_key(EKEY_CTRL | 'a', ACTION_SELECT_ALL);
-
-	}
-}
 
 text_field_t::text_field_t(void) : widget_t(1, 4), impl(new implementation_t()) {
 	reset_selection();

@@ -19,21 +19,13 @@
 
 namespace t3_widget {
 
-signals::connection split_t::init_connected = connect_on_init(signals::ptr_fun(split_t::init));
-key_bindings_t<split_t::Action> split_t::key_bindings;
+#define _T3_ACTION(action, name, ...) {ACTION_##action, name, {__VA_ARGS__}},
+key_bindings_t<split_t::Action> split_t::key_bindings{
+#include "widgets/split.actions.h"
+};
+#undef _T3_ACTION
 
 static std::vector<std::string> action_names;
-
-void split_t::init(bool _init) {
-	if (_init) {
-#define _T3_ACTION(action, name) key_bindings.add_action(ACTION_##action, name);
-#include <t3widget/widgets/split.actions.h>
-#undef _T3_ACTION
-		key_bindings.bind_key(EKEY_F8, ACTION_NEXT_SPLIT);
-		key_bindings.bind_key(EKEY_META | '8', ACTION_NEXT_SPLIT);
-		key_bindings.bind_key(EKEY_F8 | EKEY_SHIFT, ACTION_PREVIOUS_SPLIT);
-	}
-}
 
 split_t::split_t(widget_t *widget) : horizontal(true), focus(false) {
 	init_unbacked_window(3, 3);

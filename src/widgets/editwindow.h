@@ -44,7 +44,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 	public:
 		/** Actions which can be bound to keys. */
 		enum Action {
-#define _T3_ACTION(action, name) ACTION_##action,
+#define _T3_ACTION(action, ...) ACTION_##action,
 #include <t3widget/widgets/editwindow.actions.h>
 #undef _T3_ACTION
 		};

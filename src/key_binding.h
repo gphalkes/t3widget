@@ -33,7 +33,6 @@ class key_bindings_base_t {
 template <typename T>
 class key_bindings_t : public key_bindings_base_t {
 	public:
-#if __cplusplus >= 201103L
 		struct param_t {
 			T action;
 			std::string name;
@@ -45,17 +44,12 @@ class key_bindings_t : public key_bindings_base_t {
 				name_mapping[action.name] = action.action;
 				for (key_t key : action.bound_keys) {
 					if (key >= 0) {
-						key_bindings[key] = action;
+						key_bindings[key] = action.action;
 					}
 				}
 			}
 		}
-#endif
 		key_bindings_t() {}
-
-		void add_action(optional<T> action, const std::string &name) {
-			name_mapping[name] = action;
-		}
 
 		optional<T> find_action(key_t key) const {
 			typename std::map<key_t, T>::const_iterator iter = key_bindings.find(key);
