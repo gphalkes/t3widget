@@ -1,7 +1,7 @@
 import os
 
 package = 'libt3widget'
-excludesrc = '/(Makefile|TODO.*|SciTE.*|run\.sh|test\.c|signals.h)$'
+excludesrc = '/(Makefile|TODO.*|SciTE.*|run\.sh|test\.c)$'
 auxsources= [ 'src/widget_api.h' ]
 extrabuilddirs = [ 'doc' ]
 auxfiles = [ 'doc/doxygen.conf', 'doc/DoxygenLayout.xml', 'doc/main_doc.h' ]
