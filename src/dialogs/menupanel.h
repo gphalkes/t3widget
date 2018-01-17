@@ -36,14 +36,14 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 		pimpl_ptr<implementation_t>::t impl;
 
 		void signal(int id);
-		void close(void);
+		void close(void) override;
 		void set_menu_bar(menu_bar_t *_menu_bar);
 		void draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const;
 		int get_label_width(void) const;
 		bool is_hotkey(key_t key) const;
 
 	protected:
-		virtual bool is_child(window_component_t *widget);
+		bool is_child(window_component_t *widget) override;
 
 		/* Menu panels get their events from the menu_t, because that grabs the
 		   mouse as soon as it is activated. */
@@ -51,9 +51,9 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 
 	public:
 		menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);
-		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
+		bool process_key(key_t key) override;
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
 		menu_item_base_t *add_item(const char *label, const char *hotkey, int id);
 		menu_item_base_t *add_item(menu_item_t *item);
 		menu_item_base_t *add_separator(void);

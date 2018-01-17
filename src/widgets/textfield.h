@@ -65,12 +65,16 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 			implementation_t(void) : pos(0),
 				screen_pos(0),
 				leftcol(0),
+				selection_start_pos(-1),
+				selection_end_pos(-1),
 				focus(false),
 				in_drop_down_list(false),
 				dont_select_on_focus(false),
 				edited(false),
 				line(new text_line_t()),
 				filter_keys(NULL),
+				filter_keys_size(0),
+				filter_keys_accept(true),
 				label(NULL),
 				drop_down_list(NULL)
 			{}
@@ -97,12 +101,12 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 	public:
 		text_field_t(void);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
-		virtual void show(void);
-		virtual void hide(void);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t _focus) override;
+		void show(void) override;
+		void hide(void) override;
 		/** Set the text of the text_field_t. */
 		void set_text(const std::string *text);
 		/** Set the text of the text_field_t. */
@@ -125,10 +129,10 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		    function will report the result of smart_label_t::is_hotkey.
 		*/
 		void set_label(smart_label_t *_label);
-		virtual bool is_hotkey(key_t key);
+		bool is_hotkey(key_t key) override;
 
-		virtual void bad_draw_recheck(void);
-		virtual bool process_mouse_event(mouse_event_t event);
+		void bad_draw_recheck(void) override;
+		bool process_mouse_event(mouse_event_t event) override;
 
 	T3_WIDGET_SIGNAL(activate, void);
 
@@ -150,14 +154,14 @@ class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
 		void selection_changed(void);
 	public:
 		drop_down_list_t(text_field_t *_field);
-		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus) ;
-		virtual void show(void);
-		virtual void hide(void);
-		virtual bool process_mouse_event(mouse_event_t key);
+		bool process_key(key_t key) override;
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		void show(void) override;
+		void hide(void) override;
+		bool process_mouse_event(mouse_event_t key) override;
 
 		/** Request that the drop-down is filtered based on the contents of the text_field_t it is asscociated with. */
 		void update_view(void);

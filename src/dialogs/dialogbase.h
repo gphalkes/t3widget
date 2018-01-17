@@ -56,21 +56,21 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
 		    displayed, or receive input. */
 		void push_back(widget_t *widget);
 
-		virtual bool is_child(window_component_t *widget);
-		virtual void set_child_focus(window_component_t *target);
+		bool is_child(window_component_t *widget) override;
+		void set_child_focus(window_component_t *target) override;
 
 	public:
 		/** Destroy this dialog.
 		    Any widgets on the dialog are deleted as well.
 		*/
 		virtual ~dialog_base_t();
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual void show(void);
-		virtual void hide(void);
-		virtual void force_redraw(void);
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		void show(void) override;
+		void hide(void) override;
+		void force_redraw(void) override;
 		/** Set the position and anchoring for this dialog such that it is centered over a window_component_t. */
 		virtual void center_over(window_component_t *center);
 

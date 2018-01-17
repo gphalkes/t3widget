@@ -33,15 +33,15 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
 	public:
 		multi_widget_t(void);
 		virtual ~multi_widget_t(void);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual bool accepts_focus(void);
-		virtual void force_redraw(void);
-		virtual void set_enabled(bool enable);
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		bool accepts_focus(void) override;
+		void force_redraw(void) override;
+		void set_enabled(bool enable) override;
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *component) override;
 
 		/* Width is negative for fixed width widgets, positive for proportion */
 		void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);

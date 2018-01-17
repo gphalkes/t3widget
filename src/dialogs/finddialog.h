@@ -55,7 +55,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
 
 	public:
 		find_dialog_t(int _state = find_flags_t::ICASE | find_flags_t::WRAP);
-		virtual bool set_size(optint height, optint width);
+		bool set_size(optint height, optint width) override;
 		virtual void set_text(const std::string *str);
 		virtual void set_replace(bool _replace);
 		virtual void set_state(int _state);

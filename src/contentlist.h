@@ -57,8 +57,8 @@ class T3_WIDGET_API string_list_t : public string_list_base_t {
 
 	public:
 		virtual ~string_list_t(void);
-		virtual size_t size(void) const;
-		virtual const std::string *operator[](size_t idx) const;
+		size_t size(void) const override;
+		const std::string *operator[](size_t idx) const override;
 		virtual void push_back(std::string *str);
 };
 
@@ -100,10 +100,10 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 		std::vector<file_name_entry_t> files;
 
 	public:
-		virtual size_t size(void) const;
-		virtual const std::string *operator[](size_t idx) const;
-		virtual const std::string *get_fs_name(size_t idx) const;
-		virtual bool is_dir(size_t idx) const;
+		size_t size(void) const override;
+		const std::string *operator[](size_t idx) const override;
+		const std::string *get_fs_name(size_t idx) const override;
+		bool is_dir(size_t idx) const override;
 		/** Load the contents of @p dir_name into this list. */
 		int load_directory(std::string *dir_name);
 		/** Compare this list with @p other. */
@@ -161,17 +161,17 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 		virtual ~filtered_list_internal_t(void) {
 			base_content_changed_connection.disconnect();
 		}
-		virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) {
+		void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) override {
 			test = _test;
 			update_list();
 		}
-		virtual void reset_filter(void) {
+		void reset_filter(void) override {
 			items.clear();
 			test.unset();
 			list_t::content_changed();
 		}
-		virtual size_t size(void) const { return test.is_valid() ? items.size() : base->size(); }
-		virtual const std::string *operator[](size_t idx) const { return (*base)[test.is_valid() ? items[idx] : idx]; }
+		size_t size(void) const override { return test.is_valid() ? items.size() : base->size(); }
+		const std::string *operator[](size_t idx) const override { return (*base)[test.is_valid() ? items[idx] : idx]; }
 };
 
 /** Generic filtered list template.
@@ -187,7 +187,7 @@ class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
 
 		filtered_list_t(list_t *list) : filtered_list_internal_t<list_t>(list) {}
 		using filtered_list_internal_t<list_t>::set_filter;
-		virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) {
+		void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) override {
 			this->test = _test;
 			this->update_list();
 		}
@@ -210,8 +210,8 @@ typedef filtered_list_t<string_list_base_t> filtered_string_list_t;
 class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 	public:
 		filtered_file_list_t(file_list_t *list) : filtered_list_t<file_list_t>(list) {}
-		virtual const std::string *get_fs_name(size_t idx) const { return base->get_fs_name(test.is_valid() ? items[idx] : idx); }
-		virtual bool is_dir(size_t idx) const { return base->is_dir(test.is_valid() ? items[idx] : idx); }
+		const std::string *get_fs_name(size_t idx) const override { return base->get_fs_name(test.is_valid() ? items[idx] : idx); }
+		bool is_dir(size_t idx) const override { return base->is_dir(test.is_valid() ? items[idx] : idx); }
 };
 
 /** Filter function comparing the initial part of an entry with @p str. */

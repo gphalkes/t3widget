@@ -46,7 +46,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 
 	public:
 		attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
-		virtual void show(void);
+		void show(void) override;
 
 		void set_attribute(t3_attr_t attr);
 		/** Set the base attributes for the attribute picker.
@@ -67,10 +67,10 @@ class T3_WIDGET_API attribute_test_line_t : public widget_t {
 		t3_attr_t attr;
 	public:
 		attribute_test_line_t(void);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual bool accepts_focus(void);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		bool accepts_focus(void) override;
 
 		void set_attribute(t3_attr_t _attr);
 };

@@ -32,11 +32,11 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
 		virtual void paint_color_name(int color);
 
 	public:
-		virtual bool process_key(key_t key);
-		virtual void update_contents(void);
-		virtual bool set_size(optint height, optint width);
-		virtual bool process_mouse_event(mouse_event_t event);
-		virtual void set_focus(focus_t focus);
+		bool process_key(key_t key) override;
+		void update_contents(void) override;
+		bool set_size(optint height, optint width) override;
+		bool process_mouse_event(mouse_event_t event) override;
+		void set_focus(focus_t focus) override;
 
 		/** Change the rendering of the default colors.
 		    @param attr The colors to use for the default colors.
@@ -57,19 +57,19 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
 
 class T3_WIDGET_API color_picker_t : public color_picker_base_t {
 	protected:
-		virtual int xy_to_color(int x, int y);
-		virtual void color_to_xy(int color, int &x, int &y);
-		virtual t3_attr_t get_paint_attr(int color);
-		virtual void paint_color_name(int color);
+		int xy_to_color(int x, int y) override;
+		void color_to_xy(int color, int &x, int &y) override;
+		t3_attr_t get_paint_attr(int color) override;
+		void paint_color_name(int color) override;
 	public:
 		color_picker_t(bool _fg);
 };
 
 class T3_WIDGET_API color_pair_picker_t : public color_picker_base_t {
 	protected:
-		virtual int xy_to_color(int x, int y);
-		virtual void color_to_xy(int color, int &x, int &y);
-		virtual t3_attr_t get_paint_attr(int color);
+		int xy_to_color(int x, int y) override;
+		void color_to_xy(int color, int &x, int &y) override;
+		t3_attr_t get_paint_attr(int color) override;
 	public:
 		color_pair_picker_t(void);
 };

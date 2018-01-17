@@ -26,7 +26,7 @@ class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
 		key_t interpret_key(const std::string *descr);
 	public:
 		insert_char_dialog_t(void);
-		virtual bool set_size(optint height, optint width);
+		bool set_size(optint height, optint width) override;
 		void reset(void);
 
 		void ok_activate(void);

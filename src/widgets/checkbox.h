@@ -31,19 +31,19 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
 		    @param _state The initial state of the checkbox_t.
 		*/
 		checkbox_t(bool _state = false);
-		virtual bool process_key(key_t key);
+		bool process_key(key_t key) override;
 		/** Set the size of this checkbox_t (ignored).
 		    A checkbox_t has a fixed size, so both @p height and @p width are ignored. */
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual bool is_hotkey(key_t key);
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		bool is_hotkey(key_t key) override;
+		bool process_mouse_event(mouse_event_t event) override;
 		/** Set the enabled status of this widget.
 		    When the checkbox_t is not enabled, it does not accept focus and the
 		    contents will be shown as a dash (-).
 		*/
-		virtual void set_enabled(bool enable);
+		void set_enabled(bool enable) override;
 		/** Retrieve the current state of the checkbox_t. */
 		bool get_state(void);
 		/** Set the current state of the checkbox_t. */

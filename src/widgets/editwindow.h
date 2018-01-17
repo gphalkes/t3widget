@@ -184,16 +184,16 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		*/
 		edit_window_t(text_buffer_t *_text = NULL, const view_parameters_t *params = NULL);
 		~edit_window_t(void);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual void force_redraw(void);
-		virtual void bad_draw_recheck(void);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		void force_redraw(void) override;
+		void bad_draw_recheck(void) override;
 
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *widget);
-		virtual bool process_mouse_event(mouse_event_t event);
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *widget) override;
+		bool process_mouse_event(mouse_event_t event) override;
 
 		/** Set the text to display.
 		    The previously displayed text will be replaced, without deleting. Use
@@ -327,9 +327,9 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
 		list_pane_t *list_pane;
 	public:
 		autocomplete_panel_t(edit_window_t *parent);
-		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
+		bool process_key(key_t key) override;
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
 
 		void set_completions(string_list_base_t *completions);
 		size_t get_selected_idx(void) const;

@@ -37,9 +37,9 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 
 	public:
 		input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
-		virtual bool set_size(optint height, optint width);
-		virtual bool process_key(key_t key);
-		virtual void show(void);
+		bool set_size(optint height, optint width) override;
+		bool process_key(key_t key) override;
+		void show(void) override;
 
 		void cancel(void);
 		void ok_activated(void);

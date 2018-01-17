@@ -33,7 +33,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		virtual bool process_key(key_t key);
+		bool process_key(key_t key) override;
 
 	T3_WIDGET_SIGNAL(activate_internal, void);
 

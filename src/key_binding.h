@@ -67,7 +67,7 @@ class key_bindings_t : public key_bindings_base_t {
 			}
 		}
 
-		bool bind_key(key_t key, const std::string &name) {
+		bool bind_key(key_t key, const std::string &name) override {
 			if (name.empty()) {
 				key_bindings.erase(key);
 				return true;
@@ -86,9 +86,9 @@ class key_bindings_t : public key_bindings_base_t {
 			return iter->second;
 		}
 
-		size_t names_size() const { return name_mapping.size(); }
+		size_t names_size() const override { return name_mapping.size(); }
 
-		const std::string &names(size_t idx) const {
+		const std::string &names(size_t idx) const override {
 			return std::next(name_mapping.begin(), idx)->first;
 		}
 

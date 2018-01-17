@@ -74,15 +74,15 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		*/
 		virtual ~menu_bar_t(void);
 
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual void show(void);
-		virtual void hide(void);
-		virtual bool is_hotkey(key_t key);
-		virtual bool accepts_focus(void);
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		void show(void) override;
+		void hide(void) override;
+		bool is_hotkey(key_t key) override;
+		bool accepts_focus(void) override;
+		bool process_mouse_event(mouse_event_t event) override;
 		/** Add a menu to the menu bar.
 		    Note that this will be called automatically if the menu_bar_t is passed to the
 		    menu_panel_t constructor. */

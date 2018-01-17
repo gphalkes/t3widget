@@ -112,9 +112,9 @@ class T3_WIDGET_API undo_single_text_t : public undo_t {
 
 	public:
 		undo_single_text_t(undo_type_t _type, text_coordinate_t _start) : undo_t(_type, _start) {};
-	    virtual void add_newline(void);
-		virtual std::string *get_text(void);
-		virtual void minimize(void);
+	    void add_newline(void) override;
+		std::string *get_text(void) override;
+		void minimize(void) override;
 };
 
 class T3_WIDGET_API undo_single_text_double_coord_t : public undo_single_text_t {
@@ -124,7 +124,7 @@ class T3_WIDGET_API undo_single_text_double_coord_t : public undo_single_text_t 
 	public:
 		undo_single_text_double_coord_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
 			undo_single_text_t(_type, _start), end(_end) {}
-		virtual text_coordinate_t get_end(void) const;
+		text_coordinate_t get_end(void) const override;
 };
 
 class T3_WIDGET_API undo_double_text_t : public undo_single_text_double_coord_t {
@@ -135,8 +135,8 @@ class T3_WIDGET_API undo_double_text_t : public undo_single_text_double_coord_t 
 		undo_double_text_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
 			undo_single_text_double_coord_t(_type, _start, _end) {}
 
-		virtual std::string *get_replacement(void);
-		virtual void minimize(void);
+		std::string *get_replacement(void) override;
+		void minimize(void) override;
 };
 
 class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t {
@@ -148,7 +148,7 @@ class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t 
 			undo_double_text_t(_type, _start, _end) {}
 
 		void set_new_end(text_coordinate_t _new_end);
-		virtual text_coordinate_t get_new_end(void) const;
+		text_coordinate_t get_new_end(void) const override;
 };
 
 }; // namespace

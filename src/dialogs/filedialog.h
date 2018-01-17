@@ -55,7 +55,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 		virtual const std::string *get_filter(void) = 0;
 
 	public:
-		virtual bool set_size(optint height, optint width);
+		bool set_size(optint height, optint width) override;
 		void change_dir(const std::string *dir);
 		virtual int set_file(const char *file);
 		void refresh_view(void);
@@ -69,7 +69,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 	private:
 		class T3_WIDGET_API filter_text_field_t : public text_field_t {
 			public:
-				virtual void set_focus(focus_t _focus);
+				void set_focus(focus_t _focus) override;
 			T3_WIDGET_SIGNAL(lose_focus, void);
 		};
 
@@ -81,12 +81,12 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		virtual const std::string *get_filter(void);
+		const std::string *get_filter(void) override;
 
 	public:
 		open_file_dialog_t(int height, int width);
-		virtual bool set_size(optint height, optint width);
-		virtual void reset(void);
+		bool set_size(optint height, optint width) override;
+		void reset(void) override;
 };
 
 
@@ -100,7 +100,8 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
 		pimpl_ptr<implementation_t>::t impl;
 
 	protected:
-		virtual const std::string *get_filter(void) { return &empty_filter; }
+		const std::string *get_filter(void) override { return &empty_filter; }
+
 	public:
 		save_as_dialog_t(int height, int width);
 		void create_folder(void);

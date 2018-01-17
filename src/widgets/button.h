@@ -43,16 +43,16 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 		    The @p _text is used to initialize a smart_label_text_t, therefore the
 		    character following the underscore will be highlighted. */
 		button_t(const char *_text, bool _is_default = false);
-		virtual bool process_key(key_t key);
+		bool process_key(key_t key) override;
 		/** Set the size of this button_t.
 		    The @p height parameter is ignored. If width is negative, the natural size
 		    of the button_t based on the text width is used. */
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual bool is_hotkey(key_t key);
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		bool is_hotkey(key_t key) override;
 
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool process_mouse_event(mouse_event_t event) override;
 		/** Retrieve this button_t's width. */
 		int get_width(void);
 

@@ -26,7 +26,7 @@ class T3_WIDGET_API goto_dialog_t : public dialog_t {
 		void ok_activate(void);
 	public:
 		goto_dialog_t(void);
-		virtual bool set_size(optint height, optint width);
+		bool set_size(optint height, optint width) override;
 		void reset(void);
 
 

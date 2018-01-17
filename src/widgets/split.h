@@ -70,13 +70,13 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		    Deletes all contained widgets as well.
 		*/
 		virtual ~split_t(void);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual void force_redraw(void);
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		void force_redraw(void) override;
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *component) override;
 
 		/** Divide the available screen space over one more widget.
 		    @param widget The widget to add.

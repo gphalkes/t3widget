@@ -26,11 +26,11 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 				bool has_focus;
 			public:
 				indicator_widget_t(void);
-				virtual bool process_key(key_t key);
-				virtual void update_contents(void);
-				virtual void set_focus(focus_t focus);
-				virtual bool set_size(optint height, optint width);
-				virtual bool accepts_focus(void);
+				bool process_key(key_t key) override;
+				void update_contents(void) override;
+				void set_focus(focus_t focus) override;
+				bool set_size(optint height, optint width) override;
+				bool accepts_focus(void) override;
 		};
 
 		struct T3_WIDGET_LOCAL implementation_t {
@@ -57,21 +57,21 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 		void scrollbar_dragged(int start);
 
 	protected:
-		virtual bool set_widget_parent(window_component_t *widget);
+		bool set_widget_parent(window_component_t *widget) override;
 
 	public:
 		list_pane_t(bool _indicator);
 		virtual ~list_pane_t(void);
-		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual void set_anchor(window_component_t *anchor, int relation);
-		virtual void force_redraw(void);
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *widget);
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool process_key(key_t key) override;
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		void set_anchor(window_component_t *anchor, int relation) override;
+		void force_redraw(void) override;
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *widget) override;
+		bool process_mouse_event(mouse_event_t event) override;
 		void reset(void);
 		void update_positions(void);
 

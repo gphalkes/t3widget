@@ -56,17 +56,17 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 		void set_child(widget_t *_child);
 		void set_expanded(bool expand);
 
-		virtual bool process_key(key_t key);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
-		virtual bool set_size(optint height, optint width);
-		virtual bool is_hotkey(key_t key);
-		virtual void set_enabled(bool enable);
-		virtual void force_redraw(void);
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
-		virtual widget_t *is_child_hotkey(key_t key);
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool process_key(key_t key) override;
+		void update_contents(void) override;
+		void set_focus(focus_t _focus) override;
+		bool set_size(optint height, optint width) override;
+		bool is_hotkey(key_t key) override;
+		void set_enabled(bool enable) override;
+		void force_redraw(void) override;
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *component) override;
+		widget_t *is_child_hotkey(key_t key) override;
+		bool process_mouse_event(mouse_event_t event) override;
 
 	T3_WIDGET_SIGNAL(expanded, void, bool);
 };

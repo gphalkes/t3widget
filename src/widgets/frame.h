@@ -46,16 +46,16 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
 		frame_t(frame_dimension_t _dimension = AROUND_ALL);
 		/** Set the child widget. */
 		void set_child(widget_t *_child);
-		virtual bool process_key(key_t key);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual bool set_size(optint height, optint width);
- 		virtual bool accepts_focus(void);
-		virtual bool is_hotkey(key_t key);
-		virtual void set_enabled(bool enable);
-		virtual void force_redraw(void);
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
+		bool process_key(key_t key) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		bool set_size(optint height, optint width) override;
+ 		bool accepts_focus(void) override;
+		bool is_hotkey(key_t key) override;
+		void set_enabled(bool enable) override;
+		void force_redraw(void) override;
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *component) override;
 
 	private:
 		frame_dimension_t dimension; /**< Requested overlaps. */

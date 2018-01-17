@@ -36,13 +36,13 @@ class T3_WIDGET_API main_window_base_t : public dialog_t {
 	protected:
 		/** Construct a new main_window_base_t. */
 		main_window_base_t(void);
-		virtual void close(void);
+		void close(void) override;
 
 	public:
-		virtual void update_contents(void);
-		virtual bool set_size(optint height, optint width);
-		virtual void set_position(optint top, optint left);
-		virtual void show(void);
+		void update_contents(void) override;
+		bool set_size(optint height, optint width) override;
+		void set_position(optint top, optint left) override;
+		void show(void) override;
 };
 
 }; // namespace

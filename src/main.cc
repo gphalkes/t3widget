@@ -232,14 +232,17 @@ void restore(void) {
 			stop_clipboard();
 			cleanup_keys();
 			transcript_finalize();
+			/* FALLTHROUGH */
 		case 2:
 			terminal_specific_restore();
+			/* FALLTHROUGH */
 		case 1:
 			if (init_level < 3) {
 				/* Eat up all keys/terminal replies, before restoring the terminal. */
 				while (t3_term_get_keychar(100) >= 0) {}
 			}
 			t3_term_restore();
+			/* FALLTHROUGH */
 		case 0:
 			if (init_params != NULL) {
 				free(const_cast<char *>(init_params->term));

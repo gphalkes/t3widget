@@ -57,14 +57,14 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		    event originating from this dialog. */
 		virtual void close(void);
 
-		virtual bool is_child(window_component_t *widget);
-		virtual void set_child_focus(window_component_t *target);
+		bool is_child(window_component_t *widget) override;
+		void set_child_focus(window_component_t *target) override;
 
 	public:
-		virtual bool process_key(key_t key);
-		virtual void update_contents(void);
-		virtual void show(void);
-		virtual void hide(void);
+		bool process_key(key_t key) override;
+		void update_contents(void) override;
+		void show(void) override;
+		void hide(void) override;
 
 
 	/** @fn signals::connection connect_closed(const signals::slot<void> &_slot)

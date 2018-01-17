@@ -75,15 +75,15 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		    changes.
 		*/
 		void set_text_field(text_field_t *_field);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t _focus) override;
 
-		virtual void set_child_focus(window_component_t *target);
-		virtual bool is_child(window_component_t *component);
+		void set_child_focus(window_component_t *target) override;
+		bool is_child(window_component_t *component) override;
 
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool process_mouse_event(mouse_event_t event) override;
 
 		/** Set the list to its initial position, i.e. the selected item is the first item. */
 		void reset(void);
@@ -104,12 +104,12 @@ class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
 		text_line_t text;
 	public:
 		search_panel_t(file_pane_t *_parent);
-		virtual bool process_key(key_t key);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void show(void);
-		virtual bool process_mouse_event(mouse_event_t event);
+		bool process_key(key_t key) override;
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void show(void) override;
+		bool process_mouse_event(mouse_event_t event) override;
 };
 
 

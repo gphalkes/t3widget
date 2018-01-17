@@ -51,15 +51,15 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 		virtual bool is_hotkey(key_t key);
 		/** Query whether this widget accepts focus. */
 		virtual bool accepts_focus(void);
-		virtual void set_position(optint top, optint left);
-		virtual void show(void);
-		virtual void hide(void);
+		void set_position(optint top, optint left) override;
+		void show(void) override;
+		void hide(void) override;
 		/** Set this widget's anchor.
 		    Use @p anchor to position this window. See libt3window's
 		    t3_win_set_anchor for details on the @p relation parameter.
 		*/
 		virtual void set_anchor(window_component_t *anchor, int relation);
-		virtual void force_redraw(void);
+		void force_redraw(void) override;
 		/** Set the enabled status of this widget.
 		    When a widget is not enabled, it will not accept focus.
 		*/
@@ -68,8 +68,8 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 		virtual bool is_enabled(void);
 		/** Query the visibility status of this widget. */
 		virtual bool is_shown(void);
-		virtual void set_focus(focus_t focus);
-		virtual bool process_mouse_event(mouse_event_t event);
+		void set_focus(focus_t focus) override;
+		bool process_mouse_event(mouse_event_t event) override;
 };
 
 /** Base class for widgets that take focus. */

@@ -25,15 +25,15 @@ namespace t3_widget {
 */
 class T3_WIDGET_API dummy_widget_t : public widget_t {
 	public:
-		virtual bool process_key(key_t key);
+		bool process_key(key_t key) override;
 		virtual bool resize(optint height, optint width, optint top, optint left);
-		virtual void update_contents(void);
-		virtual void show(void);
-		virtual void hide(void);
-		virtual void set_position(optint top, optint left);
-		virtual bool set_size(optint height, optint width);
+		void update_contents(void) override;
+		void show(void) override;
+		void hide(void) override;
+		void set_position(optint top, optint left) override;
+		bool set_size(optint height, optint width) override;
 
-		virtual t3_window_t *get_base_window(void);
+		t3_window_t *get_base_window(void) override;
 };
 
 }; // namespace

@@ -54,11 +54,11 @@ class T3_WIDGET_API label_t : public widget_t {
 		/** Create a new label_t. */
 		label_t(const char *_text);
 
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t _focus);
-		virtual bool accepts_focus(void);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t _focus) override;
+		bool accepts_focus(void) override;
 
 		/** Set the alignment. */
 		void set_align(align_t _align);

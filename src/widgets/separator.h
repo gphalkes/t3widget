@@ -24,11 +24,11 @@ class T3_WIDGET_API separator_t : public widget_t {
 
 	public:
 		separator_t(bool _horizontal = true);
-		virtual bool process_key(key_t key);
-		virtual bool set_size(optint height, optint width);
-		virtual void update_contents(void);
-		virtual void set_focus(focus_t focus);
-		virtual bool accepts_focus(void);
+		bool process_key(key_t key) override;
+		bool set_size(optint height, optint width) override;
+		void update_contents(void) override;
+		void set_focus(focus_t focus) override;
+		bool accepts_focus(void) override;
 };
 
 }; // namespace
