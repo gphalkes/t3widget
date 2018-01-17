@@ -32,16 +32,6 @@ namespace t3_widget {
     or text_window_t.
 */
 class T3_WIDGET_API split_t : public widget_t, public container_t {
-	public:
-		/** Actions which can be bound to keys. */
-		enum Action {
-#define _T3_ACTION(action, ...) ACTION_##action,
-#include <t3widget/widgets/split.actions.h>
-#undef _T3_ACTION
-		};
-	private:
-		static key_bindings_t<Action> key_bindings;
-
 	protected:
 		widgets_t widgets; /**< The list of widgets contained by this split_t. */
 		widgets_t::iterator current; /**< The currently active widget. */
@@ -109,8 +99,9 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		/** Get the currently active widget. */
 		widget_t *get_current(void);
 
-		/** Returns the object holding the key bindings for this type. */
-		static key_bindings_t<Action> *get_key_binding();
+#define _T3_ACTION_FILE <t3widget/widgets/split.actions.h>
+#include <t3widget/key_binding_decl.h>
+#undef _T3_ACTION_FILE
 };
 
 }; // namespace

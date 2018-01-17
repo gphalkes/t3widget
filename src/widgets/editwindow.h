@@ -41,14 +41,6 @@ class replace_buttons_dialog_t;
 
 /** Class implementing an edit widget. */
 class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, public container_t, public bad_draw_recheck_t {
-	public:
-		/** Actions which can be bound to keys. */
-		enum Action {
-#define _T3_ACTION(action, ...) ACTION_##action,
-#include <t3widget/widgets/editwindow.actions.h>
-#undef _T3_ACTION
-		};
-
 	private:
 		class T3_WIDGET_LOCAL autocomplete_panel_t;
 
@@ -60,7 +52,6 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static replace_buttons_dialog_t *replace_buttons;
 		static signals::connection replace_buttons_connection;
 		static signals::connection init_connected;
-		static key_bindings_t<Action> key_bindings;
 
 		struct T3_WIDGET_LOCAL implementation_t {
 			cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
@@ -300,8 +291,9 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Delete the current line, or lines if the current selection spans multiple lines. */
 		void delete_line();
 
-		/** Returns the object holding the key bindings for this type. */
-		static key_bindings_t<Action> *get_key_binding();
+#define _T3_ACTION_FILE <t3widget/widgets/editwindow.actions.h>
+#include <t3widget/key_binding_decl.h>
+#undef _T3_ACTION_FILE
 };
 
 class T3_WIDGET_API edit_window_t::view_parameters_t {

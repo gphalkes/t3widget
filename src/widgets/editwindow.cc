@@ -40,11 +40,10 @@ replace_buttons_dialog_t *edit_window_t::replace_buttons;
 signals::connection edit_window_t::replace_buttons_connection;
 
 signals::connection edit_window_t::init_connected = connect_on_init(signals::ptr_fun(edit_window_t::init));
-#define _T3_ACTION(action, name, ...) {ACTION_##action, name, {__VA_ARGS__}},
-key_bindings_t<edit_window_t::Action> edit_window_t::key_bindings{
-#include "widgets/editwindow.actions.h"
-};
-#undef _T3_ACTION
+
+#define _T3_ACTION_FILE "widgets/editwindow.actions.h"
+#define _T3_ACTION_TYPE edit_window_t
+#include "key_binding_def.h"
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = { &text_buffer_t::insert_char, &text_buffer_t::overwrite_char};
@@ -1615,8 +1614,6 @@ void edit_window_t::mark_selection() {
 			break;
 	}
 }
-
-key_bindings_t<edit_window_t::Action> *edit_window_t::get_key_binding() { return &key_bindings; }
 
 //====================== view_parameters_t ========================
 

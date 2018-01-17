@@ -34,11 +34,9 @@ namespace t3_widget {
 	  user added characters.
 - undo
 */
-#define _T3_ACTION(action, name, ...) {ACTION_##action, name, {__VA_ARGS__}},
-key_bindings_t<text_field_t::Action> text_field_t::key_bindings{
-#include "widgets/textfield.actions.h"
-};
-#undef _T3_ACTION
+#define _T3_ACTION_FILE "widgets/textfield.actions.h"
+#define _T3_ACTION_TYPE text_field_t
+#include "key_binding_def.h"
 
 static std::vector<std::string> action_names;
 
@@ -585,9 +583,6 @@ void text_field_t::set_selection_end(bool update_primary) {
 bool text_field_t::has_focus(void) const {
 	return impl->focus;
 }
-
-key_bindings_t<text_field_t::Action> *text_field_t::get_key_binding() { return &key_bindings; }
-
 
 /*======================
   == drop_down_list_t ==

@@ -29,18 +29,8 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, public focus_widget_t, public bad_draw_recheck_t
 {
-	public:
-		/** Actions which can be bound to keys. */
-		enum Action {
-#define _T3_ACTION(action, ...) ACTION_##action,
-#include <t3widget/widgets/textfield.actions.h>
-#undef _T3_ACTION
-		};
-
 	private:
 		class T3_WIDGET_LOCAL drop_down_list_t;
-
-		static key_bindings_t<Action> key_bindings;
 
 		struct T3_WIDGET_LOCAL implementation_t {
 			int pos, /**< Cursor position in bytes. */
@@ -140,10 +130,11 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		virtual void bad_draw_recheck(void);
 		virtual bool process_mouse_event(mouse_event_t event);
 
-		/** Returns the object holding the key bindings for this type. */
-		static key_bindings_t<Action> *get_key_binding();
-
 	T3_WIDGET_SIGNAL(activate, void);
+
+#define _T3_ACTION_FILE <t3widget/widgets/textfield.actions.h>
+#include <t3widget/key_binding_decl.h>
+#undef _T3_ACTION_FILE
 };
 
 /** Drop-down list implementation for text_field_t. */

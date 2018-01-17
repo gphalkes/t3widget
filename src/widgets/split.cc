@@ -19,11 +19,9 @@
 
 namespace t3_widget {
 
-#define _T3_ACTION(action, name, ...) {ACTION_##action, name, {__VA_ARGS__}},
-key_bindings_t<split_t::Action> split_t::key_bindings{
-#include "widgets/split.actions.h"
-};
-#undef _T3_ACTION
+#define _T3_ACTION_FILE "widgets/split.actions.h"
+#define _T3_ACTION_TYPE split_t
+#include "key_binding_def.h"
 
 static std::vector<std::string> action_names;
 
@@ -311,7 +309,5 @@ void split_t::set_to_end(void) {
 	if ((current_window = dynamic_cast<split_t *>(*current)) != NULL)
 		current_window->set_to_end();
 }
-
-key_bindings_t<split_t::Action> *split_t::get_key_binding() { return &key_bindings; }
 
 }; // namespace
