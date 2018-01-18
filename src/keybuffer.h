@@ -23,9 +23,10 @@
 
 #include <algorithm>
 #include <deque>
+#include <mutex>
+#include <condition_variable>
 
 #include <t3widget/key.h>
-#include <t3widget/thread.h>
 
 namespace t3_widget {
 
@@ -36,14 +37,14 @@ class T3_WIDGET_LOCAL item_buffer_t {
 		/** The list of item symbols. */
 		std::deque<T> items;
 		/** The mutex used for the critical section. */
-		thread::mutex lock;
+		std::mutex lock;
 		/** The condition variable used to signal addition to the #keys list. */
-		thread::condition_variable cond;
+		std::condition_variable cond;
 
 	public:
 		/** Append an item to the list. */
 		void push_back(T item) {
-			thread::unique_lock<thread::mutex> l(lock);
+			std::unique_lock<std::mutex> l(lock);
 			/* Catch all exceptions, to enusre that unlocking of the mutex is
 			   performed. The only real exception that can occur here is bad_alloc,
 			   and there is not much we can do about that anyway. */
@@ -57,7 +58,7 @@ class T3_WIDGET_LOCAL item_buffer_t {
 		/** Retrieve and remove the item at the front of the queue. */
 		T pop_front(void) {
 			T result;
-			thread::unique_lock<thread::mutex> l(lock);
+			std::unique_lock<std::mutex> l(lock);
 			while (items.empty())
 				cond.wait(l);
 			result = items.front();
@@ -71,7 +72,7 @@ class T3_WIDGET_LOCAL key_buffer_t : public item_buffer_t<key_t> {
 	public:
 		/** Append an item to the list, but only if it is not already in the queue. */
 		void push_back_unique(key_t key) {
-			thread::unique_lock<thread::mutex> l(lock);
+			std::unique_lock<std::mutex> l(lock);
 
 			// Return without adding if the key is already queued
 			if (find(items.begin(), items.end(), key) != items.end())

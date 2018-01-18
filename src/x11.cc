@@ -15,6 +15,10 @@
 #include <cstring>
 #include <string>
 #include <list>
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 #ifdef HAS_SELECT_H
 #include <sys/select.h>
@@ -22,8 +26,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include <t3widget/thread.h>
 
 #include <t3widget/log.h>
 #include <t3widget/ptr.h>
@@ -47,6 +49,11 @@
 
 
 namespace t3_widget {
+
+using timeout_t = std::chrono::time_point<std::chrono::system_clock>;
+static timeout_t timeout_time(int microseconds) {
+	return std::chrono::system_clock::now() + std::chrono::microseconds(microseconds);
+}
 
 #define DATA_BLOCK_SIZE 4000
 
@@ -529,13 +536,13 @@ class x11_driver_t {
 		x11_driver_t() : action(ACTION_NONE), conversion_succeeded(false), end_connection(false), receive_incr(false),
 				/* Use X11_CURRENT_TIME as "Invalid" value, as it will never be returned by anything. */
 				clipboard_owner_since(X11_CURRENT_TIME), primary_owner_since(X11_CURRENT_TIME), conversion_started_at(0),
-				clipboard_mutex_lock(clipboard_mutex, thread::defer_lock_t()) {}
+				clipboard_mutex_lock(clipboard_mutex, std::defer_lock_t()) {}
 
 		bool init_x11(void) {
 			if (!x11.init_x11()) {
 				return false;
 			}
-			x11_event_thread = thread::thread(process_events_wrapper);
+			x11_event_thread = std::thread(process_events_wrapper);
 			return true;
 		}
 
@@ -569,7 +576,7 @@ class x11_driver_t {
 		#define x11_working() (x11.is_initialized() && !x11.has_error())
 
 		linked_ptr<std::string>::t get_selection(bool clipboard) {
-			thread::timeout_t timeout = thread::timeout_time(1000000);
+			timeout_t timeout = timeout_time(1000000);
 			linked_ptr<std::string>::t result;
 
 			/* NOTE: the clipboard is supposed to be locked when this routine is called. */
@@ -585,7 +592,7 @@ class x11_driver_t {
 				action = clipboard ? CONVERT_CLIPBOARD : CONVERT_PRIMARY;
 				x11.x11_change_property(x11.get_window(), X11_ATOM_WM_NAME, X11_ATOM_STRING, 8, X11_PROPERTY_APPEND, NULL, 0);
 				x11.x11_flush();
-				if (clipboard_signal.wait_until(clipboard_mutex_lock, timeout) != thread::cv_status::timeout &&
+				if (clipboard_signal.wait_until(clipboard_mutex_lock, timeout) != std::cv_status::timeout &&
 						conversion_succeeded)
 					result = new std::string(retrieved_data);
 				action = ACTION_NONE;
@@ -596,7 +603,7 @@ class x11_driver_t {
 		}
 
 		void claim_selection(bool clipboard, std::string *data) {
-			thread::timeout_t timeout = thread::timeout_time(1000000);
+			timeout_t timeout = timeout_time(1000000);
 
 			if (!x11_working()) {
 				if (clipboard)
@@ -606,7 +613,7 @@ class x11_driver_t {
 				return;
 			}
 
-			thread::unique_lock<thread::mutex> l(clipboard_mutex);
+			std::unique_lock<std::mutex> l(clipboard_mutex);
 
 			if (clipboard) {
 				/* If we don't own the selection, reseting is a no-op. */
@@ -637,12 +644,12 @@ class x11_driver_t {
 		}
 
 		void release_selections(void) {
-			thread::timeout_t timeout = thread::timeout_time(1000000);
+			timeout_t timeout = timeout_time(1000000);
 
 			if (!x11_working())
 				return;
 
-			thread::unique_lock<thread::mutex> l(clipboard_mutex);
+			std::unique_lock<std::mutex> l(clipboard_mutex);
 			if (clipboard_owner_since == X11_CURRENT_TIME && primary_owner_since == X11_CURRENT_TIME)
 				return;
 
@@ -992,10 +999,10 @@ class x11_driver_t {
 		x11_time_t clipboard_owner_since, primary_owner_since;
 		x11_time_t conversion_started_at;
 
-		thread::thread x11_event_thread;
-		thread::mutex clipboard_mutex;
-		thread::unique_lock<thread::mutex> clipboard_mutex_lock;
-		thread::condition_variable clipboard_signal;
+		std::thread x11_event_thread;
+		std::mutex clipboard_mutex;
+		std::unique_lock<std::mutex> clipboard_mutex_lock;
+		std::condition_variable clipboard_signal;
 
 		std::string retrieved_data;
 

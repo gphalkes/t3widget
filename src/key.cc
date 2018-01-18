@@ -17,10 +17,10 @@
 #include <stdint.h>
 #include <transcript/transcript.h>
 #include <cerrno>
+#include <thread>
 
 #include <t3key/key.h>
 
-#include <t3widget/thread.h>
 #include <t3widget/util.h>
 #include <t3widget/main.h>
 #include <t3widget/key.h>
@@ -117,7 +117,7 @@ static const t3_key_node_t *keymap;
 static int signal_pipe[2] = { -1, -1 };
 
 static key_buffer_t key_buffer;
-static thread::thread read_key_thread;
+static std::thread read_key_thread;
 
 char char_buffer[128];
 int char_buffer_fill;
@@ -125,7 +125,7 @@ static uint32_t unicode_buffer[16];
 static int unicode_buffer_fill;
 static transcript_t *conversion_handle;
 
-static thread::mutex key_timeout_lock;
+static std::mutex key_timeout_lock;
 static int key_timeout = -1;
 static bool drop_single_esc = true;
 
@@ -705,14 +705,14 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	}
 	qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
-	read_key_thread = thread::thread(read_keys);
+	read_key_thread = std::thread(read_keys);
 
 #ifdef DEBUG
 	/* Using this_thread::yield here results in somewhat more deterministic results. Without it,
 	   there are sometimes issues wrt the update based on the terminal character set
 	   detection. However, it does not really matter which order is used, except for
 	   when we are executing our testsuite. Thus for DEBUG compiles, we add this_thread::yield. */
-	thread::this_thread::yield();
+	std::this_thread::yield();
 #endif
 	return result;
 
@@ -773,7 +773,7 @@ static void stop_keys(void) {
 }
 
 void set_key_timeout(int msec) {
-	thread::unique_lock<thread::mutex> lock(key_timeout_lock);
+	std::unique_lock<std::mutex> lock(key_timeout_lock);
 	if (msec == 0) {
 		key_timeout = -1;
 		drop_single_esc = true;
@@ -787,7 +787,7 @@ void set_key_timeout(int msec) {
 }
 
 int get_key_timeout(void) {
-	thread::unique_lock<thread::mutex> lock(key_timeout_lock);
+	std::unique_lock<std::mutex> lock(key_timeout_lock);
 	return key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
 }
 

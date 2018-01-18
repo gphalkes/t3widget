@@ -85,7 +85,6 @@ CXXFLAGS += -DHAS_STRDUP
 CXXFLAGS += -pthread
 CXXFLAGS += `pkg-config --cflags libpcre`
 CXXFLAGS += -std=c++11
-CXXFLAGS += -DCXX11SWITCH=1
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -DWITH_X11
