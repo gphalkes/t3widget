@@ -38,8 +38,8 @@ list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator
 }
 
 list_pane_t::~list_pane_t() {
-	for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++)
-		delete *iter;
+	for (widget_t *widget : impl->widgets)
+		delete widget;
 }
 
 bool list_pane_t::set_widget_parent(window_component_t *widget) {
@@ -145,9 +145,8 @@ bool list_pane_t::set_size(optint height, optint width) {
 
 	widget_width = impl->indicator ? (int) width - 3 : (int) width - 1;
 
-	for (widgets_t::iterator iter = impl->widgets.begin();
-			iter != impl->widgets.end(); iter++)
-		result &= (*iter)->set_size(None, widget_width);
+	for (widget_t *widget : impl->widgets)
+		result &= widget->set_size(None, widget_width);
 
 	result &= impl->scrollbar.set_size(height, None);
 
@@ -165,8 +164,8 @@ void list_pane_t::update_contents() {
 	t3_win_move(impl->widgets_window, -impl->top_idx, 0);
 	impl->scrollbar.set_parameters(impl->widgets.size(), impl->top_idx, t3_win_get_height(window));
 	impl->scrollbar.update_contents();
-	for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++)
-		(*iter)->update_contents();
+	for (widget_t *widget : impl->widgets)
+		widget->update_contents();
 }
 
 void list_pane_t::set_focus(focus_t focus) {
@@ -219,8 +218,8 @@ void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
 }
 
 void list_pane_t::force_redraw() {
-	for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++)
-		(*iter)->force_redraw();
+	for (widget_t *widget : impl->widgets)
+		widget->force_redraw();
 	if (impl->indicator)
 		impl->indicator_widget->force_redraw();
 }
@@ -262,11 +261,11 @@ bool list_pane_t::is_child(window_component_t *widget) {
 	if (widget == &impl->scrollbar || widget == impl->indicator_widget)
 		return true;
 
-	for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++) {
-		if (*iter == widget) {
+	for (widget_t *iter : impl->widgets) {
+		if (iter == widget) {
 			return true;
 		} else {
-			container_t *container = dynamic_cast<container_t *>(*iter);
+			container_t *container = dynamic_cast<container_t *>(iter);
 			if (container != nullptr && container->is_child(widget))
 				return true;
 		}

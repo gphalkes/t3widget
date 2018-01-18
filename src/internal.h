@@ -170,5 +170,10 @@ optional<T> map_name(const std::vector<std::string> &names, const std::string &n
 	return static_cast<T>(iter - names.begin());
 }
 
+template <typename C>
+void remove_element(C &container, typename C::value_type value) {
+	container.erase(std::remove(container.begin(), container.end(), value), container.end());
+}
+
 }; // namespace
 #endif

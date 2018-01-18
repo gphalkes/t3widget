@@ -22,8 +22,8 @@ wrap_info_t::wrap_info_t(int width, int _tabsize) : text(nullptr), size(0), tabs
 
 wrap_info_t::~wrap_info_t() {
 	rewrap_connection.disconnect();
-	for (wrap_data_t::iterator iter = wrap_data.begin(); iter != wrap_data.end(); iter++)
-		delete *iter;
+	for (wrap_points_t *iter : wrap_data)
+		delete iter;
 }
 
 int wrap_info_t::get_size() const { return wrap_data.size(); }

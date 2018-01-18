@@ -39,12 +39,7 @@ void dialog_t::activate_dialog() {
 
 		active_dialogs.back()->set_focus(window_component_t::FOCUS_OUT);
 		if (active) {
-			for (dialogs_t::iterator iter = active_dialogs.begin(); iter != active_dialogs.end(); iter++) {
-				if (*iter == this) {
-					active_dialogs.erase(iter);
-					break;
-				}
-			}
+			remove_element(active_dialogs, this);
 		}
 	}
 
@@ -73,12 +68,7 @@ void dialog_t::deactivate_dialog() {
 		return;
 	}
 
-	for (dialogs_t::iterator iter = active_dialogs.begin(); iter != active_dialogs.end(); iter++) {
-		if (*iter == this) {
-			active_dialogs.erase(iter);
-			break;
-		}
-	}
+	remove_element(active_dialogs, this);
 }
 
 bool dialog_t::process_key(key_t key) {
@@ -190,9 +180,8 @@ void dialog_t::set_active_popup(popup_t *popup) {
 }
 
 void dialog_t::update_dialogs() {
-	for (dialogs_t::iterator iter = dialog_t::active_dialogs.begin();
-		iter != dialog_t::active_dialogs.end(); iter++)
-	(*iter)->update_contents();
+	for (dialog_t *active_dialog : dialog_t::active_dialogs)
+		active_dialog->update_contents();
 	if (active_popup)
 		active_popup->update_contents();
 }

@@ -35,8 +35,8 @@ split_t::split_t(widget_t *widget) : horizontal(true), focus(false) {
 }
 
 split_t::~split_t() {
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
-		delete (*iter);
+	for (widget_t *widget : widgets)
+		delete widget;
 }
 
 bool split_t::process_key(key_t key) {
@@ -96,8 +96,8 @@ bool split_t::set_size(optint height, optint width) {
 }
 
 void split_t::update_contents() {
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
-		(*iter)->update_contents();
+	for (widget_t *widget : widgets)
+		widget->update_contents();
 }
 
 void split_t::set_focus(focus_t _focus) {
@@ -106,8 +106,8 @@ void split_t::set_focus(focus_t _focus) {
 }
 
 void split_t::force_redraw() {
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
-		(*iter)->force_redraw();
+	for (widget_t *widget : widgets)
+		widget->force_redraw();
 }
 
 void split_t::set_child_focus(window_component_t *target) {
@@ -134,11 +134,11 @@ void split_t::set_child_focus(window_component_t *target) {
 }
 
 bool split_t::is_child(window_component_t *widget) {
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-		if (*iter == widget) {
+	for (widget_t *iter : widgets) {
+		if (iter == widget) {
 			return true;
 		} else {
-			container_t *container = dynamic_cast<container_t *>(*iter);
+			container_t *container = dynamic_cast<container_t *>(iter);
 			if (container != nullptr && container->is_child(widget))
 				return true;
 		}

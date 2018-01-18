@@ -26,8 +26,8 @@
 namespace t3_widget {
 
 string_list_t::~string_list_t() {
-	for (std::vector<std::string *>::iterator iter = strings.begin(); iter != strings.end(); iter++)
-		delete *iter;
+	for (std::string *string : strings)
+		delete string;
 }
 
 size_t string_list_t::size() const {

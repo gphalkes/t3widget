@@ -63,9 +63,9 @@ dialog_base_t::~dialog_base_t() {
 			break;
 		}
 	}
-	for (widgets_t::iterator widget_iter = widgets.begin(); widget_iter != widgets.end(); widget_iter++) {
-		if (*widget_iter != dummy)
-			delete *widget_iter;
+	for (widget_t *widget : widgets) {
+		if (widget != dummy)
+			delete widget;
 	}
 }
 
@@ -120,8 +120,8 @@ void dialog_base_t::update_contents() {
 		}
 	}
 
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
-		(*iter)->update_contents();
+	for (widget_t *widget : widgets)
+		widget->update_contents();
 }
 
 void dialog_base_t::set_focus(focus_t focus) {
@@ -205,11 +205,11 @@ void dialog_base_t::set_child_focus(window_component_t *target) {
 }
 
 bool dialog_base_t::is_child(window_component_t *widget) {
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-		if (*iter == widget) {
+	for (widget_t *iter : widgets) {
+		if (iter == widget) {
 			return true;
 		} else {
-			container_t *container = dynamic_cast<container_t *>(*iter);
+			container_t *container = dynamic_cast<container_t *>(iter);
 			if (container != nullptr && container->is_child(widget))
 				return true;
 		}
@@ -227,8 +227,8 @@ void dialog_base_t::push_back(widget_t *widget) {
 
 void dialog_base_t::force_redraw() {
 	redraw = true;
-	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
-		(*iter)->force_redraw();
+	for (widget_t *widget : widgets)
+		widget->force_redraw();
 }
 
 void dialog_base_t::center_over(window_component_t *center) {
@@ -237,8 +237,8 @@ void dialog_base_t::center_over(window_component_t *center) {
 }
 
 void dialog_base_t::force_redraw_all() {
-	for (dialog_base_list_t::iterator iter = dialog_base_list.begin(); iter != dialog_base_list.end(); iter++)
-		(*iter)->force_redraw();
+	for (dialog_base_t *dialog : dialog_base_list)
+		dialog->force_redraw();
 }
 
 }; // namespace

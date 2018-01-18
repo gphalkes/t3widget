@@ -14,6 +14,7 @@
 #include <sys/time.h>
 
 #include "interfaces.h"
+#include "internal.h"
 #include "widgets/widget.h"
 #include "main.h"
 #include "log.h"
@@ -74,10 +75,10 @@ void mouse_target_t::grab_mouse() {
 	if (grab_target != nullptr)
 		return;
 
-	for (mouse_target_map_t::iterator iter = targets.begin(); iter != targets.end(); iter++) {
-		if (iter->second == this) {
+	for (const mouse_target_map_t::value_type &target : targets) {
+		if (target.second == this) {
 			grab_target = this;
-			grab_window = iter->first;
+			grab_window = target.first;
 			return;
 		}
 	}
@@ -219,8 +220,8 @@ signals::connection bad_draw_recheck_t::initialized =
 	connect_terminal_settings_changed(signals::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
 
 void bad_draw_recheck_t::bad_draw_recheck_all() {
-	for (std::list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++)
-		(*iter)->bad_draw_recheck();
+	for (bad_draw_recheck_t *iter : to_signal)
+		iter->bad_draw_recheck();
 }
 
 bad_draw_recheck_t::bad_draw_recheck_t() {
@@ -228,12 +229,7 @@ bad_draw_recheck_t::bad_draw_recheck_t() {
 }
 
 bad_draw_recheck_t::~bad_draw_recheck_t() {
-	for (std::list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++) {
-		if (*iter == this) {
-			to_signal.erase(iter);
-			return;
-		}
-	}
+	remove_element(to_signal, this);
 }
 
 }; // namespace
