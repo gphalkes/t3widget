@@ -67,7 +67,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	size -= wrap_data[line]->size();
 	wrap_data[line]->erase(wrap_data[line]->begin() + i + 1, wrap_data[line]->end());
 
-	while (1) {
+	while (true) {
 		break_pos = text->impl->lines[line]->find_next_break_pos(wrap_data[line]->back(), wrap_width - 1, tabsize);
 		if (break_pos.pos > 0)
 			wrap_data[line]->push_back(break_pos.pos);
@@ -136,7 +136,7 @@ void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
 			delete_lines(a, b);
 			break;
 		default:
-			ASSERT(0);
+			ASSERT(false);
 	}
 }
 

@@ -626,7 +626,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 			text->replace(local_finder, &result);
 			update_repaint_lines(result.start.line < result.end.line ? result.start.line : result.end.line, INT_MAX);
 			/* FALLTHROUGH */
-			if (0) {
+			if (false) {
 		case find_action_t::SKIP:
 				/* This part is skipped when the action is replace */
 				result.start = text->get_selection_start();
@@ -863,7 +863,7 @@ bool edit_window_t::process_key(key_t key) {
 						update_repaint_lines(text->cursor.line, text->cursor.line);
 					}
 				} else {
-					ASSERT(0);
+					ASSERT(false);
 				}
 				ensure_cursor_on_screen();
 				impl->last_set_pos = impl->screen_pos;

@@ -543,7 +543,7 @@ undo_t *text_buffer_t::get_undo(undo_type_t type, text_coordinate_t coord) {
 			break;
 			break;
 		default:
-			ASSERT(0);
+			ASSERT(false);
 	}
 	impl->last_undo_position = coord;
 
@@ -695,7 +695,7 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
 			ASSERT(current != nullptr);
 			break;
 		default:
-			ASSERT(0);
+			ASSERT(false);
 			break;
 	}
 	impl->last_undo_type = UNDO_NONE;

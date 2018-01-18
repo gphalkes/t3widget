@@ -14,7 +14,7 @@
 #ifdef WITH_X11
 #ifdef HAS_DLFCN
 #include <dlfcn.h>
-typedef void *lt_dlhandle;
+using lt_dlhandle = void *;
 #define lt_dlinit() 0
 #define lt_dlexit()
 #define lt_dlopen(name) dlopen(name, RTLD_NOW | RTLD_LOCAL)

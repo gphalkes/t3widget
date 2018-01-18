@@ -38,26 +38,26 @@ enum {
 	EXIT_MAIN_LOOP_SIGNAL,
 };
 
-typedef struct {
+struct key_string_t {
 	const char *string;
 	key_t code;
-} key_string_t;
+};
 
-typedef struct {
+struct mapping_t {
 	const char *string;
 	size_t string_length;
 	key_t key;
-} mapping_t;
+};
 
-typedef struct {
+struct key_sequence_t {
 	key_t data[MAX_SEQUENCE];
 	size_t idx;
-} key_sequence_t;
+};
 
-typedef struct {
+struct kp_mapping_t {
 	key_t kp;
 	key_t mapped;
-} kp_mapping_t;
+};
 
 static const key_string_t key_strings[] = {
 	{ "insert", EKEY_INS },
@@ -145,7 +145,7 @@ static void convert_next_key() {
 	char_buffer_ptr = char_buffer;
 	unicode_buffer_ptr = unicode_buffer;
 
-	while (1) {
+	while (true) {
 		switch (transcript_to_unicode(conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
 				(char **) &unicode_buffer_ptr, ((const char *) unicode_buffer) + sizeof(unicode_buffer),
 				TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SINGLE_CONVERSION))
@@ -245,7 +245,7 @@ static void read_keys() {
 	fd_set readset;
 	int max_fd;
 
-	while (1) {
+	while (true) {
 		FD_ZERO(&readset);
 		FD_SET(0, &readset);
 		FD_SET(signal_pipe[0], &readset);
@@ -546,7 +546,7 @@ static bool is_function_key(const char *str) {
 	return false;
 }
 
-#define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x, __FILE__, __LINE__); goto return_error; } while (0)
+#define RETURN_ERROR(_s, _x) do { result.set_error(_s, _x, __FILE__, __LINE__); goto return_error; } while (false)
 /* Initialize the key map */
 complex_error_t init_keys(const char *term, bool separate_keypad) {
 	complex_error_t result;

@@ -92,7 +92,7 @@ int string_matcher_t::previous_char(const std::string *c) { return previous_char
 
 
 int string_matcher_t::next_char(const char *c, size_t c_size) {
-	while (1) {
+	while (true) {
 		if (i + c_size <= needle_size && memcmp(needle + i, c, c_size) == 0) {
 			index_table[i + c_size] = index_table[i] + 1;
 			i += c_size;
@@ -113,7 +113,7 @@ int string_matcher_t::next_char(const char *c, size_t c_size) {
 }
 
 int string_matcher_t::previous_char(const char *c, size_t c_size) {
-	while (1) {
+	while (true) {
 		if (i + c_size <= needle_size && memcmp(needle + needle_size - i - c_size, c, c_size) == 0) {
 			index_table[i + c_size] = index_table[i] + 1;
 			i += c_size;

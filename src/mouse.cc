@@ -54,7 +54,7 @@ bool use_xterm_mouse_reporting() {
 			goto convert_mouse_event; \
 		} \
 	} \
-} while (0)
+} while (false)
 
 static bool convert_x10_mouse_event(int x, int y, int buttons) {
 	mouse_event_t event;

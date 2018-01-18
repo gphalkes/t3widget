@@ -63,8 +63,8 @@ static timeout_t timeout_time(int microseconds) {
 typedef Atom x11_atom_t;
 typedef Window x11_window_t;
 #else
-typedef xcb_atom_t x11_atom_t;
-typedef xcb_window_t x11_window_t;
+using x11_atom_t = xcb_atom_t;
+using x11_window_t = xcb_window_t;
 #endif
 
 static const char *atom_names[] = {
@@ -97,11 +97,7 @@ enum {
 
 class x11_base_t {
 	public:
-		x11_base_t() : x11_initialized(false), x11_error(false), max_data(0), window(0) {
-			wakeup_pipe[0] = wakeup_pipe[1] = -1;
-		}
-
-		~x11_base_t() {}
+		~x11_base_t() = default;
 
 		bool init() {
 			if (pipe(wakeup_pipe) < 0)
@@ -138,11 +134,11 @@ class x11_base_t {
 		unsigned char *get_targets_list() { return reinterpret_cast<unsigned char *>(&atoms[TARGETS]); }
 
 	protected:
-		bool x11_initialized;
-		bool x11_error;
-		int wakeup_pipe[2];
-		size_t max_data;
-		x11_window_t window;
+		bool x11_initialized = false;
+		bool x11_error = false;
+		int wakeup_pipe[2]{-1, -1};
+		size_t max_data = 0;
+		x11_window_t window = 0;
 		x11_atom_t atoms[ATOM_COUNT];
 };
 
@@ -335,13 +331,13 @@ class x11_impl_t : public x11_base_t {
 
 
 #else
-typedef xcb_timestamp_t x11_time_t;
+using x11_time_t = xcb_timestamp_t;
 
-typedef xcb_generic_event_t x11_event_t;
-typedef xcb_property_notify_event_t x11_property_event_t;
-typedef xcb_selection_notify_event_t x11_selection_event_t;
-typedef xcb_selection_clear_event_t x11_selection_clear_event_t;
-typedef xcb_selection_request_event_t x11_selection_request_event_t;
+using x11_event_t = xcb_generic_event_t;
+using x11_property_event_t = xcb_property_notify_event_t;
+using x11_selection_event_t = xcb_selection_notify_event_t;
+using x11_selection_clear_event_t = xcb_selection_clear_event_t;
+using x11_selection_request_event_t = xcb_selection_request_event_t;
 
 #define X11_PROPERTY_REPLACE XCB_PROP_MODE_REPLACE
 #define X11_PROPERTY_APPEND XCB_PROP_MODE_APPEND
@@ -360,7 +356,6 @@ typedef xcb_selection_request_event_t x11_selection_request_event_t;
 
 class x11_impl_t : public x11_base_t {
 	public:
-		x11_impl_t() : connection(nullptr), property_reply(nullptr) {}
 		~x11_impl_t() {
 			if (property_reply != nullptr)
 				x11_free_property_data(nullptr);
@@ -522,21 +517,16 @@ class x11_impl_t : public x11_base_t {
 		}
 
 	private:
-		xcb_connection_t *connection;
-		xcb_get_property_reply_t *property_reply;
+		xcb_connection_t *connection = nullptr;
+		xcb_get_property_reply_t *property_reply = nullptr;
 };
 #endif
-
-
 
 //============================= END OF X11 IMPLEMENTATION SPECIFIC CODE ========================
 
 class x11_driver_t {
 	public:
-		x11_driver_t() : action(ACTION_NONE), conversion_succeeded(false), end_connection(false), receive_incr(false),
-				/* Use X11_CURRENT_TIME as "Invalid" value, as it will never be returned by anything. */
-				clipboard_owner_since(X11_CURRENT_TIME), primary_owner_since(X11_CURRENT_TIME), conversion_started_at(0),
-				clipboard_mutex_lock(clipboard_mutex, std::defer_lock_t()) {}
+		x11_driver_t() : clipboard_mutex_lock(clipboard_mutex, std::defer_lock_t()) {}
 
 		bool init_x11() {
 			if (!x11.init_x11()) {
@@ -842,7 +832,7 @@ class x11_driver_t {
 			clipboard_mutex.lock();
 			fd_max = x11.x11_fill_fds(&saved_read_fds);
 
-			while (1) {
+			while (true) {
 				/* The order of the checks here is important: we check the end_connection
 				   first, because that means the connection may be closed. We also check
 				   for errors on the connection here, because probing when the connection
@@ -977,10 +967,10 @@ class x11_driver_t {
 			CLAIM_PRIMARY,
 			RELEASE_SELECTIONS
 		};
-		clipboard_action_t action;
+		clipboard_action_t action = ACTION_NONE;
 
-		bool conversion_succeeded;
-		bool end_connection;
+		bool conversion_succeeded = false;
+		bool end_connection = false;
 
 		struct incr_send_data_t {
 			x11_window_t window;
@@ -991,13 +981,13 @@ class x11_driver_t {
 			incr_send_data_t(x11_window_t _window, linked_ptr<std::string>::t &_data, x11_atom_t _property) : window(_window),
 				data(_data), property(_property), offset(0) {}
 		};
-		typedef std::list<incr_send_data_t> incr_send_list_t;
+		using incr_send_list_t = std::list<incr_send_data_t>;
 		incr_send_list_t incr_sends;
-		bool receive_incr;
+		bool receive_incr = false;
 
 		/* Use X11_CURRENT_TIME as "Invalid" value, as it will never be returned by anything. */
-		x11_time_t clipboard_owner_since, primary_owner_since;
-		x11_time_t conversion_started_at;
+		x11_time_t clipboard_owner_since = X11_CURRENT_TIME, primary_owner_since = X11_CURRENT_TIME;
+		x11_time_t conversion_started_at = 0;
 
 		std::thread x11_event_thread;
 		std::mutex clipboard_mutex;
