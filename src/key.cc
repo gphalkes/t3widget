@@ -14,7 +14,7 @@
 #include <csignal>
 #include <cstring>
 #include <climits>
-#include <stdint.h>
+#include <cstdint>
 #include <transcript/transcript.h>
 #include <cerrno>
 #include <thread>

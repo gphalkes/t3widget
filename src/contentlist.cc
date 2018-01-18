@@ -17,7 +17,7 @@
 #include <fnmatch.h>
 #include <algorithm>
 #include <cstdarg>
-#include <stdint.h>
+#include <cstdint>
 
 #include "util.h"
 #include "contentlist.h"

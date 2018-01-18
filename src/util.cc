@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <string>
-#include <limits.h>
+#include <climits>
 #include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>

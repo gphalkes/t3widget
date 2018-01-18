@@ -16,7 +16,7 @@
 #include <cstring>
 #include <cerrno>
 #include <new>
-#include <signal.h>
+#include <csignal>
 #include <t3key/key.h>
 #include <transcript/transcript.h>
 #ifdef __linux__
