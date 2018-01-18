@@ -35,13 +35,13 @@ T3_WIDGET_API extern linked_ptr<std::string>::t primary_data;
 
 struct extclipboard_interface_t {
 	int version;
-	bool (*init)(void);
-	void (*release_selections)(void);
+	bool (*init)();
+	void (*release_selections)();
 	linked_ptr<std::string>::t (*get_selection)(bool clipboard);
 	void (*claim_selection)(bool clipboard, std::string *data);
-	void (*lock)(void);
-	void (*unlock)(void);
-	void (*stop)(void);
+	void (*lock)();
+	void (*unlock)();
+	void (*stop)();
 };
 
 }; // namespace

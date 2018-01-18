@@ -53,7 +53,7 @@ static int linux_meta_mode = -1;
 insert_char_dialog_t *insert_char_dialog;
 message_dialog_t *message_dialog;
 
-complex_error_t::complex_error_t(void) : success(true), source(SRC_NONE), error(0) {}
+complex_error_t::complex_error_t() : success(true), source(SRC_NONE), error(0) {}
 complex_error_t::complex_error_t(source_t _source, int _error, const char *_file_name, int _line_number) :
 		success(false), source(_source), error(_error), file_name(_file_name), line_number(_line_number)
 {}
@@ -66,16 +66,16 @@ void complex_error_t::set_error(source_t _source, int _error, const char *_file_
 	line_number = _line_number;
 }
 
-bool complex_error_t::get_success(void) { return success; }
-complex_error_t::source_t complex_error_t::get_source(void) { return source; }
-int complex_error_t::get_error(void) { return error; }
+bool complex_error_t::get_success() { return success; }
+complex_error_t::source_t complex_error_t::get_source() { return source; }
+int complex_error_t::get_error() { return error; }
 
-const char *complex_error_t::get_string(void) {
+const char *complex_error_t::get_string() {
 	static std::string error_str;
 
 	switch (source) {
 		case SRC_ERRNO:
-			if (file_name != NULL) {
+			if (file_name != nullptr) {
 				char number_buffer[128];
 				error_str = file_name;
 				sprintf(number_buffer, ":%d: ", line_number);
@@ -103,11 +103,11 @@ const char *complex_error_t::get_string(void) {
 	return error_str.c_str();
 }
 
-init_parameters_t *init_parameters_t::create(void) {
+init_parameters_t *init_parameters_t::create() {
 	return new init_parameters_t();
 }
 
-init_parameters_t::init_parameters_t(void) : program_name(NULL), term(NULL),
+init_parameters_t::init_parameters_t() : program_name(nullptr), term(nullptr),
 	separate_keypad(false), disable_external_clipboard(false) {}
 
 signals::connection connect_resize(const signals::slot<void, int, int> &slot) {
@@ -136,7 +136,7 @@ signals::connection connect_terminal_settings_changed(const signals::slot<void> 
 	return terminal_settings_changed().connect(slot);
 }
 
-static void do_resize(void) {
+static void do_resize() {
 	int new_screen_lines, new_screen_columns;
 
 	t3_term_resize();
@@ -152,9 +152,9 @@ static void do_resize(void) {
 }
 
 void get_screen_size(int *height, int *width) {
-	if (height != NULL)
+	if (height != nullptr)
 		*height = screen_lines;
-	if (width != NULL)
+	if (width != nullptr)
 		*width = screen_columns;
 }
 
@@ -177,12 +177,12 @@ static terminal_mapping_t terminal_mapping[] = {
 	{"xterm", TERM_XTERM},
 	{"xterm-256color", TERM_XTERM},
 	{"xterm-88color", TERM_XTERM},
-	{NULL, TERM_NONE}
+	{nullptr, TERM_NONE}
 };
 
 static terminal_code_t terminal;
 
-static void terminal_specific_restore(void) {
+static void terminal_specific_restore() {
 	switch (terminal) {
 		case TERM_XTERM:
 			/* Note: this may not actually reset to previous value, because of broken xterm */
@@ -199,13 +199,13 @@ static void terminal_specific_restore(void) {
 	}
 }
 
-static void terminal_specific_setup(void) {
+static void terminal_specific_setup() {
 	int i;
 
-	if (init_params->term == NULL)
+	if (init_params->term == nullptr)
 		return;
 
-	for (i = 0; terminal_mapping[i].name != NULL && strcmp(terminal_mapping[i].name, init_params->term) != 0; i++) {}
+	for (i = 0; terminal_mapping[i].name != nullptr && strcmp(terminal_mapping[i].name, init_params->term) != 0; i++) {}
 	terminal = terminal_mapping[i].code;
 
 	switch (terminal) {
@@ -225,7 +225,7 @@ static void terminal_specific_setup(void) {
 	}
 }
 
-void restore(void) {
+void restore() {
 	switch (init_level) {
 		default:
 		case 3:
@@ -244,13 +244,13 @@ void restore(void) {
 			t3_term_restore();
 			/* FALLTHROUGH */
 		case 0:
-			if (init_params != NULL) {
+			if (init_params != nullptr) {
 				free(const_cast<char *>(init_params->term));
-				init_params->term = NULL;
+				init_params->term = nullptr;
 				free(const_cast<char *>(init_params->program_name));
-				init_params->program_name = NULL;
+				init_params->program_name = nullptr;
 				delete init_params;
-				init_params = NULL;
+				init_params = nullptr;
 			}
 			break;
 	}
@@ -267,21 +267,21 @@ complex_error_t init(const init_parameters_t *params) {
 	init_log();
 	text_line_t::init();
 
-	if (init_params == NULL)
+	if (init_params == nullptr)
 		init_params = init_parameters_t::create();
 
-	if (params == NULL || params->term == NULL) {
+	if (params == nullptr || params->term == nullptr) {
 		const char *term_env = getenv("TERM");
-		/* If term_env == NULL, t3_term_init will abort anyway, so we ignore
+		/* If term_env == nullptr, t3_term_init will abort anyway, so we ignore
 		   that case. */
-		if (term_env != NULL)
+		if (term_env != nullptr)
 			init_params->term = _t3_widget_strdup(term_env);
 	} else {
 		init_params->term = _t3_widget_strdup(params->term);
 	}
 
-	if (params != NULL) {
-		init_params->program_name = _t3_widget_strdup(params->program_name == NULL ? "This program" : params->program_name);
+	if (params != nullptr) {
+		init_params->program_name = _t3_widget_strdup(params->program_name == nullptr ? "This program" : params->program_name);
 		init_params->separate_keypad = params->separate_keypad;
 		init_params->disable_external_clipboard = params->disable_external_clipboard;
 	}
@@ -315,9 +315,9 @@ complex_error_t init(const init_parameters_t *params) {
 	try {
 		/* Construct these here, such that the locale is set correctly and
 		   gettext therefore returns the correctly localized strings. */
-		if (message_dialog == NULL)
-			message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Close"), NULL);
-		if (insert_char_dialog == NULL)
+		if (message_dialog == nullptr)
+			message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Close"), nullptr);
+		if (insert_char_dialog == nullptr)
 			insert_char_dialog = new insert_char_dialog_t();
 		on_init()(true);
 	} catch (std::bad_alloc &ba) {
@@ -328,7 +328,7 @@ complex_error_t init(const init_parameters_t *params) {
 	return result;
 }
 
-void iterate(void) {
+void iterate() {
 	key_t key;
 
 	dialog_t::update_dialogs();
@@ -366,7 +366,7 @@ struct main_loop_exit_t {
 	main_loop_exit_t(int _retval) : retval(_retval) {}
 };
 
-int main_loop(void) {
+int main_loop() {
 	try {
 		while (true) {
 			iterate();
@@ -380,15 +380,15 @@ void exit_main_loop(int retval) {
 	throw main_loop_exit_t(retval);
 }
 
-void cleanup(void) {
+void cleanup() {
 	on_init()(false);
-	delete message_dialog; message_dialog = NULL;
-	delete insert_char_dialog; insert_char_dialog = NULL;
+	delete message_dialog; message_dialog = nullptr;
+	delete insert_char_dialog; insert_char_dialog = nullptr;
 	restore();
 	t3_term_deinit();
 }
 
-void suspend(void) {
+void suspend() {
 	//FIXME: check return values!
 	release_selections();
 	deinit_keys();
@@ -397,27 +397,27 @@ void suspend(void) {
 	printf("%s has been stopped. You can return to %s by entering 'fg'.\n",
 		init_params->program_name, init_params->program_name);
 	kill(getpid(), SIGSTOP);
-	t3_term_init(-1, NULL);
+	t3_term_init(-1, nullptr);
 	terminal_specific_setup();
 	reinit_keys();
 	do_resize();
 	t3_term_hide_cursor();
 }
 
-void redraw(void) {
+void redraw() {
 	do_resize();
 	t3_term_redraw();
 }
 
-long get_version(void) {
+long get_version() {
 	return T3_WIDGET_VERSION;
 }
 
-long get_libt3key_version(void) {
+long get_libt3key_version() {
 	return t3_key_get_version();
 }
 
-long get_libt3window_version(void) {
+long get_libt3window_version() {
 	return t3_window_get_version();
 }
 

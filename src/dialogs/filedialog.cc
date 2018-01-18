@@ -96,7 +96,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title) : dialog
 	push_back(impl->cancel_button);
 }
 
-widget_t *file_dialog_t::get_anchor_widget(void) {
+widget_t *file_dialog_t::get_anchor_widget() {
 	return impl->show_hidden_label;
 }
 
@@ -129,7 +129,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 	dynamic_cast<focus_widget_t *>(*(widgets.end() - 4))->connect_move_focus_down(
 		signals::bind(signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->ok_button));
 
-	if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != NULL) {
+	if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != nullptr) {
 		focus_widget->connect_move_focus_up(signals::bind(signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->file_pane_frame));
 		focus_widget->connect_move_focus_left(signals::mem_fun(this, &file_dialog_t::focus_previous));
 		focus_widget->connect_move_focus_down(signals::mem_fun(this, &file_dialog_t::focus_next));
@@ -153,7 +153,7 @@ int file_dialog_t::set_file(const char *file) {
 	impl->current_dir = get_directory(file);
 	sanitize_dir(&impl->current_dir);
 
-	if (file == NULL)
+	if (file == nullptr)
 		file_string.clear();
 	else
 		file_string = file;
@@ -170,12 +170,12 @@ int file_dialog_t::set_file(const char *file) {
 	return result;
 }
 
-void file_dialog_t::reset(void) {
+void file_dialog_t::reset() {
 	impl->file_line->set_text("");
 	impl->file_pane->reset();
 }
 
-void file_dialog_t::ok_callback(void) {
+void file_dialog_t::ok_callback() {
 	std::string pass_result;
 	convert_lang_codeset(impl->file_line->get_text(), &pass_result, false);
 	ok_callback(&pass_result);
@@ -244,7 +244,7 @@ void file_dialog_t::change_dir(const std::string *dir) {
 	impl->file_pane->reset();
 }
 
-void file_dialog_t::refresh_view(void) {
+void file_dialog_t::refresh_view() {
 	convert_lang_codeset(get_filter(), &impl->lang_codeset_filter, false);
 	if (impl->lang_codeset_filter.size() == 0)
 		impl->lang_codeset_filter = "*";
@@ -263,13 +263,13 @@ void open_file_dialog_t::filter_text_field_t::set_focus(focus_t _focus) {
 
 open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(height, width, "Open File"), impl(new implementation_t()) {
 	impl->filter_label = new smart_label_t("_Filter", true);
-	set_widget_parent(impl->filter_label);
+	container_t::set_widget_parent(impl->filter_label);
 	impl->filter_label->set_anchor(get_anchor_widget(), T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->filter_label->set_position(0, 2);
 	impl->filter_offset = impl->filter_label->get_width() + 1;
 	impl->filter_width = std::min(std::max(10, width - 60), 25);
 	impl->filter_line = new filter_text_field_t();
-	set_widget_parent(impl->filter_line);
+	container_t::set_widget_parent(impl->filter_line);
 	impl->filter_line->set_anchor(impl->filter_label, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->filter_line->set_position(0, 1);
 	impl->filter_line->set_size(None, impl->filter_width);
@@ -286,7 +286,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width) : file_dialog_t(he
 	insert_extras(impl->filter_line);
 }
 
-const std::string *open_file_dialog_t::get_filter(void) {
+const std::string *open_file_dialog_t::get_filter() {
 	return impl->filter_line->get_text();
 }
 
@@ -297,7 +297,7 @@ bool open_file_dialog_t::set_size(optint height, optint width) {
 	return result;
 }
 
-void open_file_dialog_t::reset(void) {
+void open_file_dialog_t::reset() {
 	file_dialog_t::reset();
 	impl->filter_line->set_text("*");
 	refresh_view();
@@ -308,14 +308,14 @@ std::string save_as_dialog_t::empty_filter("*");
 
 save_as_dialog_t::save_as_dialog_t(int height, int width) : file_dialog_t(height, width, "Save File As"), impl(new implementation_t()) {
 	impl->create_button = new button_t("Create Folder");
-	set_widget_parent(impl->create_button);
+	container_t::set_widget_parent(impl->create_button);
 	impl->create_button->set_anchor(get_anchor_widget(), T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 	impl->create_button->set_position(0, 2);
 	impl->create_button->connect_activate(signals::mem_fun(this, &save_as_dialog_t::create_folder));
 	insert_extras(impl->create_button);
 }
 
-void save_as_dialog_t::create_folder(void) {
+void save_as_dialog_t::create_folder() {
 	message_dialog->center_over(this);
 	message_dialog->set_message("This function has not been implemented yet. Sorry.");
 	message_dialog->show();

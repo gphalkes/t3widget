@@ -35,7 +35,7 @@ static uint32_t casefold_single(uint32_t c) {
 	/* Case folding never results in more than two codepoints for case folding a
 	   single codepoint. Thus, we can use a static buffer, as long as it's big
 	   enough. Just in case, we use a buffer of size 8. */
-	return u32_casefold(&c, 1, NULL, NULL, result, &result_size) == NULL || result_size > 1 ?  0 : result[0];
+	return u32_casefold(&c, 1, nullptr, nullptr, result, &result_size) == nullptr || result_size > 1 ?  0 : result[0];
 }
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_colon(_add_colon), underlined(false), hotkey(0) {
@@ -43,10 +43,10 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 	char *underline_ptr;
 
 	text_length = strlen(spec);
-	if ((text = _t3_widget_strdup(spec)) == NULL)
+	if ((text = _t3_widget_strdup(spec)) == nullptr)
 		throw std::bad_alloc();
 
-	if ((underline_ptr = strchr(text, '_')) != NULL) {
+	if ((underline_ptr = strchr(text, '_')) != nullptr) {
 		size_t src_size;
 
 		underlined = true;
@@ -62,7 +62,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon) : add_
 	}
 }
 
-smart_label_text_t::~smart_label_text_t(void) {}
+smart_label_text_t::~smart_label_text_t() {}
 
 void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
 	if (!underlined) {
@@ -77,7 +77,7 @@ void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
 		t3_win_addch(window, ':', attr);
 }
 
-int smart_label_text_t::get_width(void) {
+int smart_label_text_t::get_width() {
 	return t3_term_strwidth(text) + (add_colon ? 1 : 0);
 }
 
@@ -102,7 +102,7 @@ bool smart_label_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void smart_label_t::update_contents(void) {
+void smart_label_t::update_contents() {
 	if (!redraw)
 		return;
 	redraw = false;
@@ -116,6 +116,6 @@ bool smart_label_t::is_hotkey(key_t key) {
 	return smart_label_text_t::is_hotkey(key);
 }
 
-bool smart_label_t::accepts_focus(void) { return false; }
+bool smart_label_t::accepts_focus() { return false; }
 
 }; // namespace

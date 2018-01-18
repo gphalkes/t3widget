@@ -29,7 +29,7 @@ namespace t3_widget {
 
 #ifdef _T3_WIDGET_DEBUG
 
-T3_WIDGET_LOCAL void init_log(void);
+T3_WIDGET_LOCAL void init_log();
 /* Note: these must be declared with T3_WIDGET_API such that they can be accessed
    from the clipboard modules. */
 T3_WIDGET_API void lprintf(const char *fmt, ...)

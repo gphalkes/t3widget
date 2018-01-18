@@ -26,13 +26,13 @@ class T3_WIDGET_LOCAL string_matcher_t {
 		size_t needle_size;
 		cleanup_ptr<int[]>::t partial_match_table, reverse_partial_match_table, index_table;
 		int i;
-		void init(void);
+		void init();
 
 	public:
 		string_matcher_t(const std::string &_needle);
 		string_matcher_t(char *_needle, size_t _needle_size);
-		virtual ~string_matcher_t(void);
-		void reset(void);
+		virtual ~string_matcher_t();
+		void reset();
 		int next_char(const std::string *c);
 		int previous_char(const std::string *c);
 		int next_char(const char *c, size_t c_size);

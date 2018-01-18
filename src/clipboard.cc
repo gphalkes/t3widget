@@ -49,8 +49,8 @@ static signals::connection init_connected = connect_on_init(signals::ptr_fun(ini
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<std::string>::t get_clipboard(void) {
-	if (extclipboard_calls != NULL)
+linked_ptr<std::string>::t get_clipboard() {
+	if (extclipboard_calls != nullptr)
 		return extclipboard_calls->get_selection(true);
 	return clipboard_data;
 }
@@ -60,19 +60,19 @@ linked_ptr<std::string>::t get_clipboard(void) {
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<std::string>::t get_primary(void) {
-	if (extclipboard_calls != NULL)
+linked_ptr<std::string>::t get_primary() {
+	if (extclipboard_calls != nullptr)
 		return extclipboard_calls->get_selection(false);
 	return primary_data;
 }
 
 void set_clipboard(std::string *str) {
-	if (str != NULL && str->size() == 0) {
+	if (str != nullptr && str->size() == 0) {
 		delete str;
-		str = NULL;
+		str = nullptr;
 	}
 
-	if (extclipboard_calls != NULL) {
+	if (extclipboard_calls != nullptr) {
 		extclipboard_calls->claim_selection(true, str);
 		return;
 	}
@@ -80,12 +80,12 @@ void set_clipboard(std::string *str) {
 }
 
 void set_primary(std::string *str) {
-	if (str != NULL && str->size() == 0) {
+	if (str != nullptr && str->size() == 0) {
 		delete str;
-		str = NULL;
+		str = nullptr;
 	}
 
-	if (extclipboard_calls != NULL) {
+	if (extclipboard_calls != nullptr) {
 		if (!disable_primary_selection)
 			extclipboard_calls->claim_selection(false, str);
 		return;
@@ -105,34 +105,34 @@ static void init_external_clipboard(bool init) {
 		if (lt_dlinit() != 0)
 			return;
 
-		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == NULL) {
+		if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == nullptr) {
 			lprintf("Could not open external clipboard module (X11): %s\n", X11_MOD_NAME);
 			return;
 		}
 
-		if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == NULL) {
+		if ((extclipboard_calls = (extclipboard_interface_t *) lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls")) == nullptr) {
 			lprintf("External clipboard module does not export interface symbol\n");
 			lt_dlclose(extclipboard_mod);
-			extclipboard_mod = NULL;
+			extclipboard_mod = nullptr;
 			return;
 		}
 		if (extclipboard_calls->version != EXTCLIPBOARD_VERSION) {
 			lprintf("External clipboard module has incompatible version\n");
 			lt_dlclose(extclipboard_mod);
-			extclipboard_mod = NULL;
+			extclipboard_mod = nullptr;
 			return;
 		}
 		if (!extclipboard_calls->init()) {
 			lprintf("Failed to initialize external clipboard module\n");
 			lt_dlclose(extclipboard_mod);
-			extclipboard_calls = NULL;
+			extclipboard_calls = nullptr;
 		}
 #endif
 	} else {
 #ifdef WITH_X11
-		if (extclipboard_calls != NULL) {
+		if (extclipboard_calls != nullptr) {
 			extclipboard_calls->stop();
-			extclipboard_calls = NULL;
+			extclipboard_calls = nullptr;
 			lt_dlclose(extclipboard_mod);
 		}
 		lt_dlexit();
@@ -140,23 +140,23 @@ static void init_external_clipboard(bool init) {
 	}
 }
 
-void release_selections(void) {
-	if (extclipboard_calls != NULL)
+void release_selections() {
+	if (extclipboard_calls != nullptr)
 		extclipboard_calls->release_selections();
 }
 
-void lock_clipboard(void) {
-	if (extclipboard_calls != NULL)
+void lock_clipboard() {
+	if (extclipboard_calls != nullptr)
 		extclipboard_calls->lock();
 }
 
-void unlock_clipboard(void) {
-	if (extclipboard_calls != NULL)
+void unlock_clipboard() {
+	if (extclipboard_calls != nullptr)
 		extclipboard_calls->unlock();
 }
 
-void stop_clipboard(void) {
-	if (extclipboard_calls != NULL)
+void stop_clipboard() {
+	if (extclipboard_calls != nullptr)
 		extclipboard_calls->stop();
 }
 

@@ -36,10 +36,10 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 		pimpl_ptr<implementation_t>::t impl;
 
 		void signal(int id);
-		void close(void) override;
+		void close() override;
 		void set_menu_bar(menu_bar_t *_menu_bar);
 		void draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const;
-		int get_label_width(void) const;
+		int get_label_width() const;
 		bool is_hotkey(key_t key) const;
 
 	protected:
@@ -56,7 +56,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
 		bool set_size(optint height, optint width) override;
 		menu_item_base_t *add_item(const char *label, const char *hotkey, int id);
 		menu_item_base_t *add_item(menu_item_t *item);
-		menu_item_base_t *add_separator(void);
+		menu_item_base_t *add_separator();
 		void remove_item(menu_item_base_t *item);
 		menu_item_base_t *replace_item(menu_item_base_t *old_item, const char *label, const char *hotkey, int id);
 		menu_item_base_t *replace_item(menu_item_base_t *old_item, menu_item_t *new_item);

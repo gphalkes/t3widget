@@ -54,7 +54,7 @@ struct attributes_t {
 /** @internal The default attributes for the different display elements. */
 T3_WIDGET_LOCAL extern attributes_t attributes;
 /** @internal Initialize the default attributes. */
-T3_WIDGET_LOCAL void init_attributes(void);
+T3_WIDGET_LOCAL void init_attributes();
 
 }; // namespace
 

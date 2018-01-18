@@ -26,7 +26,7 @@ namespace t3_widget {
 
 string_matcher_t::string_matcher_t(const std::string &_needle) {
 	needle_size = _needle.size();
-	if ((needle = (char *) malloc(needle_size)) == NULL)
+	if ((needle = (char *) malloc(needle_size)) == nullptr)
 		throw std::bad_alloc();
 	memcpy(needle, _needle.data(), needle_size);
 	init();
@@ -36,7 +36,7 @@ string_matcher_t::string_matcher_t(char *_needle, size_t _needle_size) : needle(
 	init();
 }
 
-void string_matcher_t::init(void) {
+void string_matcher_t::init() {
 	size_t pos, cnd;
 
 	partial_match_table = new int[needle_size + 1];
@@ -80,9 +80,9 @@ void string_matcher_t::init(void) {
 	reset();
 }
 
-string_matcher_t::~string_matcher_t(void) {}
+string_matcher_t::~string_matcher_t() {}
 
-void string_matcher_t::reset(void) {
+void string_matcher_t::reset() {
 	i = 0;
 	index_table[0] = 0;
 }

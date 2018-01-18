@@ -23,7 +23,7 @@ namespace t3_widget {
 
 static key_t accepted_keys[] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
 
-goto_dialog_t::goto_dialog_t(void) :
+goto_dialog_t::goto_dialog_t() :
 	dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, "Goto Line")
 {
 	smart_label_t *number_label;
@@ -69,11 +69,11 @@ bool goto_dialog_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void goto_dialog_t::reset(void) {
+void goto_dialog_t::reset() {
 	number_line->set_text("");
 }
 
-void goto_dialog_t::ok_activate(void) {
+void goto_dialog_t::ok_activate() {
 	hide();
 	activate(atoi(number_line->get_text()->c_str()));
 }

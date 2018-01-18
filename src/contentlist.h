@@ -26,9 +26,9 @@ namespace t3_widget {
 /** Abstract base class for string and file lists and filtered lists. */
 class T3_WIDGET_API list_base_t {
 	public:
-		virtual ~list_base_t(void) {}
+		virtual ~list_base_t() {}
 		/** Retrieve the size of the list. */
-		virtual size_t size(void) const = 0;
+		virtual size_t size() const = 0;
 		/** Retrieve element @p idx. */
 		virtual const std::string *operator[](size_t idx) const = 0;
 };
@@ -56,8 +56,8 @@ class T3_WIDGET_API string_list_t : public string_list_base_t {
 		std::vector<std::string *> strings;
 
 	public:
-		virtual ~string_list_t(void);
-		size_t size(void) const override;
+		virtual ~string_list_t();
+		size_t size() const override;
 		const std::string *operator[](size_t idx) const override;
 		virtual void push_back(std::string *str);
 };
@@ -86,7 +86,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 					file_name_entry_t::*display_name; /**< Pointer to member to the name to use for dispay purposes. */
 				bool is_dir; /**< Boolean indicating whether this name represents a directory. */
 				/** Make a new file_name_entry_t. Implemented specifically to allow use in std::vector<file_name_entry_t>. */
-				file_name_entry_t(void);
+				file_name_entry_t();
 				/** Make a new file_name_entry_t. */
 				file_name_entry_t(const char *_name, const std::string &_utf8_name, bool _is_dir);
 				/** Construct a copy of an existing file_name_entry_t. */
@@ -100,7 +100,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 		std::vector<file_name_entry_t> files;
 
 	public:
-		size_t size(void) const override;
+		size_t size() const override;
 		const std::string *operator[](size_t idx) const override;
 		const std::string *get_fs_name(size_t idx) const override;
 		bool is_dir(size_t idx) const override;
@@ -116,7 +116,7 @@ class T3_WIDGET_API filtered_list_base_t : public virtual list_base_t {
 		/** Set the filter callback. */
 		virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &) = 0;
 		/** Reset the filter. */
-		virtual void reset_filter(void) = 0;
+		virtual void reset_filter() = 0;
 };
 
 /** Partial implementation of the filtered list. */
@@ -136,7 +136,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 			Called automatically when the base list changes, through the use of the
 		    @c content_changed signal.
 		*/
-		void update_list(void) {
+		void update_list() {
 			if (!test.is_valid())
 				return;
 
@@ -158,19 +158,19 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 			base_content_changed_connection =
 				base->connect_content_changed(signals::mem_fun(this, &filtered_list_internal_t::update_list));
 		}
-		virtual ~filtered_list_internal_t(void) {
+		virtual ~filtered_list_internal_t() {
 			base_content_changed_connection.disconnect();
 		}
 		void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) override {
 			test = _test;
 			update_list();
 		}
-		void reset_filter(void) override {
+		void reset_filter() override {
 			items.clear();
 			test.unset();
 			list_t::content_changed();
 		}
-		size_t size(void) const override { return test.is_valid() ? items.size() : base->size(); }
+		size_t size() const override { return test.is_valid() ? items.size() : base->size(); }
 		const std::string *operator[](size_t idx) const override { return (*base)[test.is_valid() ? items[idx] : idx]; }
 };
 

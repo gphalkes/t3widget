@@ -28,19 +28,19 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar) : widget
 	   one higher, such that the wrap character falls off the edge. */
 	if (with_scrollbar) {
 		impl->scrollbar = new scrollbar_t(true);
-		set_widget_parent(impl->scrollbar);
+		container_t::set_widget_parent(impl->scrollbar);
 		impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
 		impl->scrollbar->set_size(11, None);
 		impl->scrollbar->connect_clicked(signals::mem_fun(this, &text_window_t::scrollbar_clicked));
 		impl->scrollbar->connect_dragged(signals::mem_fun(this, &text_window_t::scrollbar_dragged));
 	}
 
-	if (_text == NULL)
+	if (_text == nullptr)
 		impl->text = new text_buffer_t();
 	else
 		impl->text = _text;
 
-	impl->wrap_info = new wrap_info_t(impl->scrollbar != NULL ? 11 : 12);
+	impl->wrap_info = new wrap_info_t(impl->scrollbar != nullptr ? 11 : 12);
 	impl->wrap_info->set_text_buffer(impl->text);
 }
 
@@ -67,7 +67,7 @@ bool text_window_t::set_size(optint height, optint width) {
 		redraw = true;
 
 	result &= t3_win_resize(window, height, width);
-	if (impl->scrollbar != NULL) {
+	if (impl->scrollbar != nullptr) {
 		result &= impl->scrollbar->set_size(height, None);
 		impl->wrap_info->set_wrap_width(width);
 	} else {
@@ -78,7 +78,7 @@ bool text_window_t::set_size(optint height, optint width) {
 }
 
 void text_window_t::set_scrollbar(bool with_scrollbar) {
-	if (with_scrollbar == (impl->scrollbar != NULL))
+	if (with_scrollbar == (impl->scrollbar != nullptr))
 		return;
 	if (with_scrollbar) {
 		impl->scrollbar = new scrollbar_t(true);
@@ -87,7 +87,7 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
 		impl->scrollbar->set_size(t3_win_get_height(window), None);
 		impl->wrap_info->set_wrap_width(t3_win_get_width(window));
 	} else {
-		impl->scrollbar = NULL;
+		impl->scrollbar = nullptr;
 		impl->wrap_info->set_wrap_width(t3_win_get_width(window) + 1);
 	}
 	redraw = true;
@@ -156,7 +156,7 @@ bool text_window_t::process_key(key_t key) {
 	return true;
 }
 
-void text_window_t::update_contents(void) {
+void text_window_t::update_contents() {
 	text_coordinate_t current_start, current_end;
 	text_line_t::paint_info_t info;
 	int i, count = 0;
@@ -168,7 +168,7 @@ void text_window_t::update_contents(void) {
 	t3_win_set_default_attrs(window, attributes.dialog);
 
 	info.size = t3_win_get_width(window);
-	if (impl->scrollbar == NULL)
+	if (impl->scrollbar == nullptr)
 		info.size++;
 	info.normal_attr = 0;
 	info.selected_attr = 0; /* There is no selected impl->text anyway. */
@@ -203,7 +203,7 @@ void text_window_t::update_contents(void) {
 		count += impl->wrap_info->get_line_count(i);
 	count += impl->top.pos;
 
-	if (impl->scrollbar != NULL) {
+	if (impl->scrollbar != nullptr) {
 		impl->scrollbar->set_parameters(std::max(impl->wrap_info->get_text_size(), count + t3_win_get_height(window)),
 			count, t3_win_get_height(window));
 		impl->scrollbar->update_contents();
@@ -225,7 +225,7 @@ bool text_window_t::is_child(window_component_t *component) {
 	return component == impl->scrollbar;
 }
 
-text_buffer_t *text_window_t::get_text(void) {
+text_buffer_t *text_window_t::get_text() {
 	return impl->text;
 }
 
@@ -233,7 +233,7 @@ void text_window_t::set_tabsize(int size) {
 	impl->wrap_info->set_tabsize(size);
 }
 
-int text_window_t::get_text_height(void) {
+int text_window_t::get_text_height() {
 	return impl->wrap_info->get_text_size();
 }
 

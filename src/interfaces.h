@@ -39,16 +39,16 @@ class T3_WIDGET_API window_component_t {
 		};
 
 		/** Base constructor. */
-		window_component_t(void);
+		window_component_t();
 		/** Base destructor. */
 		/* Virtual destructor is required for proper functioning of the delete
 		   operator in multiple-inheritance situations. */
-		virtual ~window_component_t(void);
+		virtual ~window_component_t();
 		/** Retrieve the t3_window_t for this window_component_t.
 		    The returned pointer should be used only for setting anchor
 		    positions of other window_component_t's and similar operations.
 		*/
-		virtual t3_window_t *get_base_window(void);
+		virtual t3_window_t *get_base_window();
 		/** Handle a key press by the user.
 		    @return A boolean indicating whether this window_component_t handled the
 		        key press.
@@ -65,7 +65,7 @@ class T3_WIDGET_API window_component_t {
 		*/
 		virtual bool set_size(optint height, optint width) = 0;
 		/** Update the contents of the window. */
-		virtual void update_contents(void) = 0;
+		virtual void update_contents() = 0;
 		/** Set whether this window_component_t has the input focus.
 		    Note that this merely notifies the window_component_t that it should change it's
 		    appearance to indicate the user that this window_component_t has the input focus.
@@ -74,11 +74,11 @@ class T3_WIDGET_API window_component_t {
 		*/
 		virtual void set_focus(focus_t focus) = 0;
 		/** Display the window_component_t. */
-		virtual void show(void) = 0;
+		virtual void show() = 0;
 		/** Hide the window_component_t. */
-		virtual void hide(void) = 0;
+		virtual void hide() = 0;
 		/** Request that this window_component_t be completely redrawn. */
-		virtual void force_redraw(void) = 0;
+		virtual void force_redraw() = 0;
 };
 
 class widget_t;
@@ -114,7 +114,7 @@ class T3_WIDGET_API center_component_t : protected virtual window_component_t {
 		/** Create a new center_component_t.
 		    The #center_window member will be set to @c this.
 		*/
-		center_component_t(void);
+		center_component_t();
 		/** Set the window_component_t to center over. */
 		virtual void set_center_window(window_component_t *_center_window);
 };
@@ -140,7 +140,7 @@ class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 		        mouse event.
 		*/
 		virtual bool process_mouse_event(mouse_event_t event) = 0;
-		~mouse_target_t(void);
+		~mouse_target_t();
 
 		/** Grab all future mouse events.
 
@@ -148,9 +148,9 @@ class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 		    and not to the ::mouse_target_t that should normally receive them. The
 		    grab should released using #release_mouse_grab.
 		*/
-		void grab_mouse(void);
+		void grab_mouse();
 		/** Release a previous mouse grab. */
-		void release_mouse_grab(void);
+		void release_mouse_grab();
 
 		static bool handle_mouse_event(mouse_event_t event);
 };
@@ -171,18 +171,18 @@ class T3_WIDGET_API bad_draw_recheck_t {
 		/** signals::connection used to initialize the connection to the @c terminal_settings_changed signal. */
 		static signals::connection initialized;
 		/** Callback function called on the @c terminal_settings_changed signal. */
-		static void bad_draw_recheck_all(void);
+		static void bad_draw_recheck_all();
 
 	public:
 		/** Base constructor.
 		    Automatically adds this object to the list of objects to signal.
 		*/
-		bad_draw_recheck_t(void);
+		bad_draw_recheck_t();
 		/** Base destructor. */
-		virtual ~bad_draw_recheck_t(void);
+		virtual ~bad_draw_recheck_t();
 
 		/** Function called on reception of the @c terminal_settings_changed signal. */
-		virtual void bad_draw_recheck(void) = 0;
+		virtual void bad_draw_recheck() = 0;
 };
 
 }; // namespace

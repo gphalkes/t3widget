@@ -31,7 +31,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 			text_coordinate_t top;
 			bool focus;
 
-			implementation_t(void) : top(0, 0), focus(false) {}
+			implementation_t() : top(0, 0), focus(false) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
@@ -44,7 +44,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 		text_window_t(text_buffer_t *_text = NULL, bool with_scrollbar = true);
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t _focus) override;
 		void set_child_focus(window_component_t *target) override;
 		bool is_child(window_component_t *component) override;
@@ -52,9 +52,9 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 
 		void set_scrollbar(bool with_scrollbar);
 		void set_text(text_buffer_t *_text);
-		text_buffer_t *get_text(void);
+		text_buffer_t *get_text();
 		void set_tabsize(int size);
-		int get_text_height(void);
+		int get_text_height();
 
 	T3_WIDGET_SIGNAL(activate, void);
 };

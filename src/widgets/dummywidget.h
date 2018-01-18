@@ -27,13 +27,13 @@ class T3_WIDGET_API dummy_widget_t : public widget_t {
 	public:
 		bool process_key(key_t key) override;
 		virtual bool resize(optint height, optint width, optint top, optint left);
-		void update_contents(void) override;
-		void show(void) override;
-		void hide(void) override;
+		void update_contents() override;
+		void show() override;
+		void hide() override;
 		void set_position(optint top, optint left) override;
 		bool set_size(optint height, optint width) override;
 
-		t3_window_t *get_base_window(void) override;
+		t3_window_t *get_base_window() override;
 };
 
 }; // namespace

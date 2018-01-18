@@ -31,7 +31,7 @@ void finder_t::call_pcre_free(pcre *p) {
 	pcre_free(p);
 }
 
-finder_t::finder_t(void) : flags(0), folded_size(0) {}
+finder_t::finder_t() : flags(0), folded_size(0) {}
 
 finder_t::finder_t(const std::string *needle, int _flags, const std::string *_replacement) :
 		flags(_flags), folded_size(0)
@@ -48,7 +48,7 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
 		if (flags & find_flags_t::ICASE)
 			pcre_flags |= PCRE_CASELESS;
 
-		if ((regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, NULL)) == NULL)
+		if ((regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, nullptr)) == nullptr)
 			//FIXME: error offset should be added for clarity
 			throw error_message;
 	} else {
@@ -65,7 +65,7 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
 			cleanup_free_ptr<char>::t folded_needle;
 
 			folded_needle = (char *) u8_casefold((const uint8_t *) search_for.data(), search_for.size(),
-				NULL, NULL, NULL, &folded_needle_size);
+				nullptr, nullptr, nullptr, &folded_needle_size);
 			/* When passing a const char * to string_matcher_t, it takes responsibility for
 			   de-allocation. */
 			matcher = new string_matcher_t(folded_needle, folded_needle_size);
@@ -76,7 +76,7 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
 		}
 	}
 
-	if (_replacement != NULL) {
+	if (_replacement != nullptr) {
 		replacement = new std::string(*_replacement);
 		if ((flags & find_flags_t::TRANSFROM_BACKSLASH) || (flags & find_flags_t::REGEX)) {
 			if (!parse_escapes(*replacement, &error_message, (flags & find_flags_t::REGEX) != 0))
@@ -87,7 +87,7 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
 	flags |= find_flags_t::VALID;
 }
 
-finder_t::~finder_t(void) {}
+finder_t::~finder_t() {}
 
 finder_t &finder_t::operator=(finder_t& other) {
 	if (&other == this)
@@ -138,7 +138,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
 
 		if (reverse) {
 			do {
-				match_result = pcre_exec(regex, NULL, haystack->data(), end, start, pcre_flags,
+				match_result = pcre_exec(regex, nullptr, haystack->data(), end, start, pcre_flags,
 					local_ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
 				if (match_result >= 0) {
 					found = true;
@@ -148,7 +148,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
 				}
 			} while (match_result >= 0);
 		} else {
-			match_result = pcre_exec(regex, NULL, haystack->data(), end, start, pcre_flags,
+			match_result = pcre_exec(regex, nullptr, haystack->data(), end, start, pcre_flags,
 				ovector, sizeof(ovector) / sizeof(ovector[0]));
 			captures = match_result;
 			found = match_result >= 0;
@@ -182,7 +182,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
 				substr = haystack->substr(next_char, curr_char - next_char);
 				if (flags & find_flags_t::ICASE) {
 					c_size = folded_size;
-					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), NULL, NULL, (uint8_t *) (char *) folded, &c_size);
+					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), nullptr, nullptr, (uint8_t *) (char *) folded, &c_size);
 					if (c != folded) {
 						// Previous value of folded will be automatically deleted.
 						folded = const_cast<char *>(c);
@@ -216,7 +216,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
 				substr = haystack->substr(curr_char, next_char - curr_char);
 				if (flags & find_flags_t::ICASE) {
 					c_size = folded_size;
-					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), NULL, NULL, (uint8_t *) (char *) folded, &c_size);
+					c = (char *) u8_casefold((const uint8_t *) substr.data(), substr.size(), nullptr, nullptr, (uint8_t *) (char *) folded, &c_size);
 					if (c != folded) {
 						// Previous value of folded will be automatically deleted.
 						folded = const_cast<char *>(c);
@@ -271,7 +271,7 @@ bool finder_t::check_boundaries(const std::string *str, int match_start, int mat
 	return true;
 }
 
-int finder_t::get_flags(void) {
+int finder_t::get_flags() {
 	return flags;
 }
 

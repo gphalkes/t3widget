@@ -26,9 +26,9 @@ class T3_WIDGET_API separator_t : public widget_t {
 		separator_t(bool _horizontal = true);
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		bool accepts_focus(void) override;
+		bool accepts_focus() override;
 };
 
 }; // namespace

@@ -25,12 +25,12 @@
 
 namespace t3_widget {
 
-string_list_t::~string_list_t(void) {
+string_list_t::~string_list_t() {
 	for (std::vector<std::string *>::iterator iter = strings.begin(); iter != strings.end(); iter++)
 		delete *iter;
 }
 
-size_t string_list_t::size(void) const {
+size_t string_list_t::size() const {
 	return strings.size();
 }
 
@@ -43,7 +43,7 @@ void string_list_t::push_back(std::string *str) {
 }
 
 
-file_name_list_t::file_name_entry_t::file_name_entry_t(void) : is_dir(false) {
+file_name_list_t::file_name_entry_t::file_name_entry_t() : is_dir(false) {
 	display_name = &file_name_entry_t::name;
 }
 
@@ -87,7 +87,7 @@ bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_
 	return strcoll(first.name.c_str(), second.name.c_str()) < 0;
 }
 
-size_t file_name_list_t::size(void) const {
+size_t file_name_list_t::size() const {
 	return files.size();
 }
 
@@ -111,14 +111,14 @@ int file_name_list_t::load_directory(std::string *dir_name) {
 	if (dir_name->compare("/") != 0)
 		files.push_back(file_name_entry_t("..", "..", true));
 
-	if ((dir = opendir(dir_name->c_str())) == NULL) {
+	if ((dir = opendir(dir_name->c_str())) == nullptr) {
 		content_changed();
 		return errno;
 	}
 
 	// Make sure errno is clear on EOF
 	errno = 0;
-	while ((entry = readdir(dir)) != NULL) {
+	while ((entry = readdir(dir)) != nullptr) {
 		std::string utf8_name;
 
 		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
@@ -178,7 +178,7 @@ bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, b
 	   file names to the locale codeset, and use fnmatch on those. Note that the
 	   filter string passed to this function is already in the locale codeset. */
 	convert_lang_codeset(item_name, &fs_name, false);
-	if ((file_list == NULL || !file_list->is_dir(idx)) && fnmatch(str->c_str(), fs_name.c_str(), 0) != 0)
+	if ((file_list == nullptr || !file_list->is_dir(idx)) && fnmatch(str->c_str(), fs_name.c_str(), 0) != 0)
 		return false;
 	return true;
 }

@@ -37,7 +37,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
 		static signals::connection init_connected; /**< Dummy value to allow static connection of the @c on_init signal to #init. */
 
 		/** Default constructor, made private to avoid use. */
-		dialog_base_t(void);
+		dialog_base_t();
 
 	protected:
 		widgets_t widgets; /**< List of widgets on this dialog. This list should only be filled using #push_back. */
@@ -48,9 +48,9 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
 		/** Create a new dialog with @p height and @p width, and with title @p _title. */
 		dialog_base_t(int height, int width, bool has_shadow);
 		/** Focus the previous widget, wrapping around if necessary. */
-		void focus_next(void);
+		void focus_next();
 		/** Focus the next widget, wrapping around if necessary. */
-		void focus_previous(void);
+		void focus_previous();
 		/** Add a widget to this dialog.
 		    If a widget is not added through #push_back, it will not be
 		    displayed, or receive input. */
@@ -66,16 +66,16 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
 		virtual ~dialog_base_t();
 		void set_position(optint top, optint left) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void show(void) override;
-		void hide(void) override;
-		void force_redraw(void) override;
+		void show() override;
+		void hide() override;
+		void force_redraw() override;
 		/** Set the position and anchoring for this dialog such that it is centered over a window_component_t. */
 		virtual void center_over(window_component_t *center);
 
 		/** Call #force_redraw on all dialogs. */
-		static void force_redraw_all(void);
+		static void force_redraw_all();
 
 };
 

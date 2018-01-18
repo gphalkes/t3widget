@@ -48,24 +48,24 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 	public:
 		menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void show(void) override;
-		void hide(void) override;
+		void show() override;
+		void hide() override;
 		bool is_hotkey(key_t key) override;
-		int get_label_width(void);
-		int get_hotkey_width(void);
+		int get_label_width();
+		int get_hotkey_width();
 };
 
 class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
 	public:
 		menu_separator_t(menu_panel_t *_parent);
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void show(void) override;
-		void hide(void) override;
-		bool accepts_focus(void) override;
+		void show() override;
+		void hide() override;
+		bool accepts_focus() override;
 };
 
 }; // namespace

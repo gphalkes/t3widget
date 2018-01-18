@@ -56,7 +56,7 @@ bool menu_item_t::process_key(key_t key) {
 	return true;
 }
 
-void menu_item_t::update_contents(void) {
+void menu_item_t::update_contents() {
 
 	if (!redraw)
 		return;
@@ -68,7 +68,7 @@ void menu_item_t::update_contents(void) {
 	t3_win_set_default_attrs(window, has_focus ? attributes.dialog_selected: attributes.dialog);
 	label->draw(window, 0, has_focus);
 
-	if (hotkey != NULL) {
+	if (hotkey != nullptr) {
 		t3_win_set_paint(window, 0, t3_win_get_width(window) - t3_term_strwidth(hotkey) - 1);
 		t3_win_addstr(window, hotkey, 0);
 	}
@@ -81,8 +81,8 @@ void menu_item_t::set_focus(focus_t focus) {
 	has_focus = focus;
 }
 
-void menu_item_t::show(void) {}
-void menu_item_t::hide(void) {}
+void menu_item_t::show() {}
+void menu_item_t::hide() {}
 
 bool menu_item_t::is_hotkey(key_t key) {
 	return label->is_hotkey(key);
@@ -96,12 +96,12 @@ void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
 	return;
 }
 
-int menu_item_t::get_label_width(void) {
+int menu_item_t::get_label_width() {
 	return label->get_width() + 2;
 }
 
-int menu_item_t::get_hotkey_width(void) {
-	return hotkey == NULL ? 0 : (t3_term_strwidth(hotkey) + 2);
+int menu_item_t::get_hotkey_width() {
+	return hotkey == nullptr ? 0 : (t3_term_strwidth(hotkey) + 2);
 }
 
 menu_separator_t::menu_separator_t(menu_panel_t *_parent) : menu_item_base_t(_parent) {}
@@ -111,7 +111,7 @@ bool menu_separator_t::process_key(key_t key) {
 	return false;
 }
 
-void menu_separator_t::update_contents(void) {
+void menu_separator_t::update_contents() {
 	if (!redraw)
 		return;
 	redraw = false;
@@ -123,10 +123,10 @@ void menu_separator_t::set_focus(focus_t focus) {
 	(void) focus;
 }
 
-void menu_separator_t::show(void) {}
-void menu_separator_t::hide(void) {}
+void menu_separator_t::show() {}
+void menu_separator_t::hide() {}
 
-bool menu_separator_t::accepts_focus(void) {
+bool menu_separator_t::accepts_focus() {
 	return false;
 }
 

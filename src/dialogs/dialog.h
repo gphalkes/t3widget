@@ -26,7 +26,7 @@ class complex_error_t;
 /** Base class for dialogs. */
 class T3_WIDGET_API dialog_t : public dialog_base_t {
 	private:
-		friend void iterate(void);
+		friend void iterate();
 		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
 		// main_window_base_t should be allowed to call dialog_t(), but no others should
 		friend class main_window_base_t;
@@ -37,15 +37,15 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		static int dialog_depth; /**< Depth of the top most dialog in the window stack. */
 
 		static void set_active_popup(popup_t *popup);
-		static void update_dialogs(void);
+		static void update_dialogs();
 
-		void activate_dialog(void); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
-		void deactivate_dialog(void); /**< Remove this dialog from the dialog stack. Called from #hide. */
+		void activate_dialog(); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
+		void deactivate_dialog(); /**< Remove this dialog from the dialog stack. Called from #hide. */
 
 		bool active; /**< Boolean indicating whether this dialog is currently being shown on screen. */
 
 		/** Default constructor, made private to avoid use. */
-		dialog_t(void);
+		dialog_t();
 
 	protected:
 		const char *title; /**< The title of this dialog. */
@@ -55,16 +55,16 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 		/** Close the dialog.
 		    This function should be called when the dialog is closed by some
 		    event originating from this dialog. */
-		virtual void close(void);
+		virtual void close();
 
 		bool is_child(window_component_t *widget) override;
 		void set_child_focus(window_component_t *target) override;
 
 	public:
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
-		void show(void) override;
-		void hide(void) override;
+		void update_contents() override;
+		void show() override;
+		void hide() override;
 
 
 	/** @fn signals::connection connect_closed(const signals::slot<void> &_slot)

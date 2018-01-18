@@ -56,9 +56,9 @@ class T3_WIDGET_API label_t : public widget_t {
 
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t _focus) override;
-		bool accepts_focus(void) override;
+		bool accepts_focus() override;
 
 		/** Set the alignment. */
 		void set_align(align_t _align);
@@ -69,7 +69,7 @@ class T3_WIDGET_API label_t : public widget_t {
 		void set_accepts_focus(bool _can_focus);
 
 		/** Retrieve the natural width of the text. */
-		int get_text_width(void) const;
+		int get_text_width() const;
 };
 
 }; // namespace

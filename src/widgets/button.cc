@@ -63,7 +63,7 @@ bool button_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void button_t::update_contents(void) {
+void button_t::update_contents() {
 	t3_attr_t attr;
 	int width;
 
@@ -101,7 +101,7 @@ bool button_t::process_mouse_event(mouse_event_t event) {
 	return true;
 }
 
-int button_t::get_width(void) {
+int button_t::get_width() {
 	return t3_win_get_width(window);
 }
 

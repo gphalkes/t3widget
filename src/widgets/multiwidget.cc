@@ -15,17 +15,17 @@
 #include "log.h"
 namespace t3_widget {
 
-multi_widget_t::multi_widget_t(void) : fixed_sum(0), proportion_sum(0), send_key_widget(NULL) {
+multi_widget_t::multi_widget_t() : fixed_sum(0), proportion_sum(0), send_key_widget(nullptr) {
 	init_unbacked_window(1, 1, true);
 }
 
-multi_widget_t::~multi_widget_t(void) {
+multi_widget_t::~multi_widget_t() {
 	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		delete iter->widget;
 }
 
 bool multi_widget_t::process_key(key_t key) {
-	if (send_key_widget != NULL)
+	if (send_key_widget != nullptr)
 		return send_key_widget->process_key(key);
 	return false;
 }
@@ -40,7 +40,7 @@ bool multi_widget_t::set_size(optint height, optint width) {
 }
 
 
-void multi_widget_t::update_contents(void) {
+void multi_widget_t::update_contents() {
 	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		iter->widget->update_contents();
 }
@@ -52,7 +52,7 @@ void multi_widget_t::set_focus(focus_t focus) {
 	}
 }
 
-bool multi_widget_t::accepts_focus(void) {
+bool multi_widget_t::accepts_focus() {
 	if (!enabled)
 		return false;
 	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
@@ -61,7 +61,7 @@ bool multi_widget_t::accepts_focus(void) {
 	return false;
 }
 
-void multi_widget_t::force_redraw(void) {
+void multi_widget_t::force_redraw() {
 	for (std::list<item_t>::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		iter->widget->force_redraw();
 }
@@ -84,10 +84,10 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 	item.width = _width;
 	item.takes_focus = takes_focus;
 
-	if (send_keys && send_key_widget == NULL) {
+	if (send_keys && send_key_widget == nullptr) {
 		focus_widget_t *focus_widget;
 		send_key_widget = widget;
-		if ((focus_widget = dynamic_cast<focus_widget_t *>(widget)) != NULL) {
+		if ((focus_widget = dynamic_cast<focus_widget_t *>(widget)) != nullptr) {
 			/* We don't have to save the connections, because the widget will not outlive
 			   this widget. The destructor for multi_widget_t destroys all the widgets
 			   it contains, and there is no way to remove a widget from a multi_widget_t.
@@ -107,7 +107,7 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 	resize_widgets();
 }
 
-void multi_widget_t::resize_widgets(void) {
+void multi_widget_t::resize_widgets() {
 	if (proportion_sum > 0) {
 		int width = t3_win_get_width(window);
 		double scale = (double) (width - fixed_sum) / proportion_sum;
@@ -164,7 +164,7 @@ bool multi_widget_t::is_child(window_component_t *widget) {
 			return true;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(iter->widget);
-			if (container != NULL && container->is_child(widget))
+			if (container != nullptr && container->is_child(widget))
 				return true;
 		}
 	}

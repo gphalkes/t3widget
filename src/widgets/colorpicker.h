@@ -33,7 +33,7 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
 
 	public:
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		bool set_size(optint height, optint width) override;
 		bool process_mouse_event(mouse_event_t event) override;
 		void set_focus(focus_t focus) override;
@@ -48,7 +48,7 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
 		    colors with this function.
 		*/
 		void set_undefined_colors(t3_attr_t attr);
-		t3_attr_t get_color(void);
+		t3_attr_t get_color();
 		void set_color(t3_attr_t attr);
 
 	T3_WIDGET_SIGNAL(activated, void);
@@ -71,7 +71,7 @@ class T3_WIDGET_API color_pair_picker_t : public color_picker_base_t {
 		void color_to_xy(int color, int &x, int &y) override;
 		t3_attr_t get_paint_attr(int color) override;
 	public:
-		color_pair_picker_t(void);
+		color_pair_picker_t();
 };
 
 }; // namespace

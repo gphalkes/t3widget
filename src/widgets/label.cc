@@ -46,7 +46,7 @@ bool label_t::set_size(optint height, optint width) {
 	return result;
 }
 
-void label_t::update_contents(void) {
+void label_t::update_contents() {
 	int width;
 
 	if (!redraw)
@@ -112,11 +112,11 @@ void label_t::set_text(const char *_text) {
 	redraw = true;
 }
 
-int label_t::get_text_width(void) const {
+int label_t::get_text_width() const {
 	return text_width;
 }
 
 void label_t::set_accepts_focus(bool _can_focus) { can_focus = _can_focus; }
-bool label_t::accepts_focus(void) { return can_focus && widget_t::accepts_focus(); }
+bool label_t::accepts_focus() { return can_focus && widget_t::accepts_focus(); }
 
 }; // namespace

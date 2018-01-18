@@ -47,7 +47,7 @@ namespace t3_widget {
 T3_WIDGET_LOCAL extern init_parameters_t *init_params;
 T3_WIDGET_LOCAL extern bool disable_primary_selection;
 
-T3_WIDGET_LOCAL void stop_clipboard(void);
+T3_WIDGET_LOCAL void stop_clipboard();
 
 #ifdef _T3_WIDGET_DEBUG
 #define ASSERT(_x) do { if (!(_x)) { \
@@ -87,11 +87,11 @@ class complex_error_t;
 /** Initialize the key handling code. */
 T3_WIDGET_LOCAL complex_error_t init_keys(const char *term, bool separate_keypad);
 /** Clean-up any data allocated for the key handling code. */
-T3_WIDGET_LOCAL void cleanup_keys(void);
+T3_WIDGET_LOCAL void cleanup_keys();
 /** Switch to the default keypad mode to allow other applications to function. */
-T3_WIDGET_LOCAL void deinit_keys(void);
+T3_WIDGET_LOCAL void deinit_keys();
 /** Switch back to best keypad mode after using #deinit_keys. */
-T3_WIDGET_LOCAL void reinit_keys(void);
+T3_WIDGET_LOCAL void reinit_keys();
 /** Insert a key to the queue, marked to ensure it is not interpreted by any widget except text widgets. */
 T3_WIDGET_LOCAL void insert_protected_key(t3_widget::key_t key);
 /** Read chars into buffer for processing. */
@@ -105,17 +105,17 @@ extern int char_buffer_fill;
 /** Initialize the mouse handling code. */
 T3_WIDGET_LOCAL void init_mouse_reporting(bool xterm_mouse);
 /** Switch off mouse reporting to allow other applications to function. */
-T3_WIDGET_LOCAL void deinit_mouse_reporting(void);
+T3_WIDGET_LOCAL void deinit_mouse_reporting();
 /** Switch back to mouse reporting after using #deinit_mouse_reporting. */
-T3_WIDGET_LOCAL void reinit_mouse_reporting(void);
+T3_WIDGET_LOCAL void reinit_mouse_reporting();
 /** Stop mouse reporting all together before program termination. */
-T3_WIDGET_LOCAL void stop_mouse_reporting(void);
+T3_WIDGET_LOCAL void stop_mouse_reporting();
 /** Decode an xterm mouse event. */
-T3_WIDGET_LOCAL bool decode_xterm_mouse(void);
+T3_WIDGET_LOCAL bool decode_xterm_mouse();
 /** Decode an xterm mouse event using the SGR or URXVT protocols. */
 T3_WIDGET_LOCAL bool decode_xterm_mouse_sgr_urxvt(const key_t *data, size_t len);
 /** Report whether XTerm mouse reporting is active. */
-T3_WIDGET_LOCAL bool use_xterm_mouse_reporting(void);
+T3_WIDGET_LOCAL bool use_xterm_mouse_reporting();
 /** Set bit(s) for mouse event fd. */
 T3_WIDGET_LOCAL void fd_set_mouse_fd(fd_set *readset, int *max_fd);
 /** Check the mouse event fd for events, if appropriate bits in @p readset indicate available data. */

@@ -38,13 +38,13 @@ class T3_WIDGET_API optional {
 		bool initialized; /**< Boolean indicating whether #value has been initialized. */
 
 	public:
-		optional(void) : initialized(false) {}
+		optional() : initialized(false) {}
 		optional(nullopt_t) : initialized(false) {}
 		optional(T _value) : value(_value), initialized(true) {}
-		bool is_valid(void) const { return initialized; }
-		void unset(void) { initialized = false; }
+		bool is_valid() const { return initialized; }
+		void unset() { initialized = false; }
 		operator T (void) const { if (!initialized) throw(0); return (T) value; }
-		T operator()(void) const  { if (!initialized) throw(0); return (T) value; }
+		T operator()() const  { if (!initialized) throw(0); return (T) value; }
 		optional & operator=(const optional &other) { initialized = other.initialized; value = other.value; return *this; }
 		optional & operator=(const T other) { initialized = true; value = other; return *this; }
 		T value_or_default(T dflt) { return initialized ? value : dflt; }
@@ -55,7 +55,7 @@ typedef optional<int> optint;
 T3_WIDGET_API extern const optint None;
 
 struct T3_WIDGET_API text_coordinate_t {
-	text_coordinate_t(void) {}
+	text_coordinate_t() {}
 	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
 	bool operator==(const text_coordinate_t &other) const { return line == other.line && pos == other.pos; }
 	bool operator!=(const text_coordinate_t &other) const { return line != other.line || pos != other.pos; }
@@ -79,7 +79,7 @@ class T3_WIDGET_API _name { \
 		enum _values { \
 			__VA_ARGS__ \
 		}; \
-		_name(void) {} \
+		_name() {} \
 		_name(_values _value_arg) : _value(_value_arg) {} \
 		_values operator =(_values _value_arg) { _value = _value_arg; return _value; } \
 		operator int (void) const { return (int) _value; } \
@@ -169,7 +169,7 @@ typedef cleanup_func_ptr<t3_window_t, t3_win_del>::t cleanup_t3_window_ptr;
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
-T3_WIDGET_API std::string get_working_directory(void);
+T3_WIDGET_API std::string get_working_directory();
 T3_WIDGET_API std::string get_directory(const char *directory);
 T3_WIDGET_API void sanitize_dir(std::string *directory);
 T3_WIDGET_API bool is_dir(const std::string *current_dir, const char *name);

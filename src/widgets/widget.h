@@ -39,7 +39,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 		    This constructor should only rarely be necessary. Widgets using this
 		    constructor should call either #init_window, or #init_unbacked_window.
 		*/
-		widget_t(void);
+		widget_t();
 
 		/** Initialize the #window with a @c t3_window_t with @p height and @p width. */
 		void init_window(int height, int width, bool register_as_mouse_target = true);
@@ -50,24 +50,24 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 		/** Query whether key is a hotkey for this widget. */
 		virtual bool is_hotkey(key_t key);
 		/** Query whether this widget accepts focus. */
-		virtual bool accepts_focus(void);
+		virtual bool accepts_focus();
 		void set_position(optint top, optint left) override;
-		void show(void) override;
-		void hide(void) override;
+		void show() override;
+		void hide() override;
 		/** Set this widget's anchor.
 		    Use @p anchor to position this window. See libt3window's
 		    t3_win_set_anchor for details on the @p relation parameter.
 		*/
 		virtual void set_anchor(window_component_t *anchor, int relation);
-		void force_redraw(void) override;
+		void force_redraw() override;
 		/** Set the enabled status of this widget.
 		    When a widget is not enabled, it will not accept focus.
 		*/
 		virtual void set_enabled(bool enable);
 		/** Query the enabled status of this widget. */
-		virtual bool is_enabled(void);
+		virtual bool is_enabled();
 		/** Query the visibility status of this widget. */
-		virtual bool is_shown(void);
+		virtual bool is_shown();
 		void set_focus(focus_t focus) override;
 		bool process_mouse_event(mouse_event_t event) override;
 };

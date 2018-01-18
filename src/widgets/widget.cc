@@ -21,23 +21,23 @@ namespace t3_widget {
 /* The default_parent must exist before any widgets are created. Thus using the
    #on_init method won't work. Instead we use a cleanup_t3_window.
 */
-cleanup_t3_window_ptr widget_t::default_parent(t3_win_new_unbacked(NULL, 1, 1, 0, 0, 0));
+cleanup_t3_window_ptr widget_t::default_parent(t3_win_new_unbacked(nullptr, 1, 1, 0, 0, 0));
 
 bool widget_t::is_hotkey(key_t key) {
 	(void) key;
 	return false;
 }
 
-bool widget_t::accepts_focus(void) { return enabled && shown; }
+bool widget_t::accepts_focus() { return enabled && shown; }
 
 widget_t::widget_t(int height, int width, bool register_as_mouse_target) : redraw(true), enabled(true), shown(true) {
 	init_window(height, width, register_as_mouse_target);
 }
 
-widget_t::widget_t(void) : redraw(true), enabled(true), shown(true) {}
+widget_t::widget_t() : redraw(true), enabled(true), shown(true) {}
 
 void widget_t::init_window(int height, int width, bool register_as_mouse_target) {
-	if ((window = t3_win_new(default_parent, height, width, 0, 0, 0)) == NULL)
+	if ((window = t3_win_new(default_parent, height, width, 0, 0, 0)) == nullptr)
 		throw std::bad_alloc();
 	t3_win_show(window);
 	if (register_as_mouse_target)
@@ -45,7 +45,7 @@ void widget_t::init_window(int height, int width, bool register_as_mouse_target)
 }
 
 void widget_t::init_unbacked_window(int height, int width, bool register_as_mouse_target) {
-	if ((window = t3_win_new_unbacked(default_parent, height, width, 0, 0, 0)) == NULL)
+	if ((window = t3_win_new_unbacked(default_parent, height, width, 0, 0, 0)) == nullptr)
 		throw std::bad_alloc();
 	t3_win_show(window);
 	if (register_as_mouse_target)
@@ -65,17 +65,17 @@ void widget_t::set_position(optint top, optint left) {
 	t3_win_move(window, top, left);
 }
 
-void widget_t::show(void) {
+void widget_t::show() {
 	t3_win_show(window);
 	shown = true;
 }
 
-void widget_t::hide(void) {
+void widget_t::hide() {
 	t3_win_hide(window);
 	shown = false;
 }
 
-void widget_t::force_redraw(void) {
+void widget_t::force_redraw() {
 	redraw = true;
 }
 
@@ -83,11 +83,11 @@ void widget_t::set_enabled(bool enable) {
 	enabled = enable;
 }
 
-bool widget_t::is_enabled(void) {
+bool widget_t::is_enabled() {
 	return enabled;
 }
 
-bool widget_t::is_shown(void) {
+bool widget_t::is_shown() {
 	return shown;
 }
 

@@ -18,15 +18,15 @@
 
 namespace t3_widget {
 
-wrap_info_t::wrap_info_t(int width, int _tabsize) : text(NULL), size(0), tabsize(_tabsize), wrap_width(width) {}
+wrap_info_t::wrap_info_t(int width, int _tabsize) : text(nullptr), size(0), tabsize(_tabsize), wrap_width(width) {}
 
-wrap_info_t::~wrap_info_t(void) {
+wrap_info_t::~wrap_info_t() {
 	rewrap_connection.disconnect();
 	for (wrap_data_t::iterator iter = wrap_data.begin(); iter != wrap_data.end(); iter++)
 		delete *iter;
 }
 
-int wrap_info_t::get_size(void) const { return wrap_data.size(); }
+int wrap_info_t::get_size() const { return wrap_data.size(); }
 int wrap_info_t::get_text_size() const { return size; }
 
 void wrap_info_t::delete_lines(int first, int last) {
@@ -77,7 +77,7 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
 	size += wrap_data[line]->size();
 }
 
-void wrap_info_t::rewrap_all(void) {
+void wrap_info_t::rewrap_all() {
 	for (size_t i = 0; i < wrap_data.size(); i++)
 		rewrap_line(i, 0, false);
 }
@@ -87,7 +87,7 @@ void wrap_info_t::set_wrap_width(int width) {
 	if (width == wrap_width)
 		return;
 	wrap_width = width;
-	if (text != NULL)
+	if (text != nullptr)
 		rewrap_all();
 }
 
@@ -95,7 +95,7 @@ void wrap_info_t::set_tabsize(int _tabsize) {
 	if (_tabsize == tabsize)
 		return;
 	tabsize = _tabsize;
-	if (text != NULL)
+	if (text != nullptr)
 		rewrap_all();
 }
 
@@ -103,7 +103,7 @@ void wrap_info_t::set_text_buffer(text_buffer_t *_text) {
 	rewrap_connection.disconnect();
 
 	text = _text;
-	if (_text == NULL)
+	if (_text == nullptr)
 		return;
 
 	rewrap_connection = text->connect_rewrap_required(signals::mem_fun(this, &wrap_info_t::rewrap));
@@ -182,7 +182,7 @@ int wrap_info_t::get_line_count(int line) const {
 	return (int) wrap_data[line]->size();
 }
 
-text_coordinate_t wrap_info_t::get_end(void) const {
+text_coordinate_t wrap_info_t::get_end() const {
 	text_coordinate_t result((int) wrap_data.size() - 1, (int) wrap_data[wrap_data.size() - 1]->size() - 1);
 	return result;
 }
@@ -193,7 +193,7 @@ int wrap_info_t::find_line(text_coordinate_t coord) const {
 	return i - 1;
 }
 
-int wrap_info_t::calculate_screen_pos(void) const {
+int wrap_info_t::calculate_screen_pos() const {
 	return calculate_screen_pos(&text->cursor);
 }
 

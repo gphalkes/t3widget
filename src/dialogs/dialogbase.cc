@@ -27,24 +27,24 @@ signals::connection dialog_base_t::init_connected = connect_on_init(signals::ptr
 
 void dialog_base_t::init(bool _init) {
 	if (_init){
-		if (dummy == NULL)
+		if (dummy == nullptr)
 			dummy = new dummy_widget_t();
 	} else {
-		if (dummy != NULL)
+		if (dummy != nullptr)
 			delete dummy;
 	}
 }
 
 dialog_base_t::dialog_base_t(int height, int width, bool has_shadow) : redraw(true) {
-	if ((window = t3_win_new(NULL, height, width, 0, 0, 0)) == NULL)
+	if ((window = t3_win_new(nullptr, height, width, 0, 0, 0)) == nullptr)
 		throw std::bad_alloc();
 	if (has_shadow) {
-		if ((shadow_window = t3_win_new(NULL, height, width, 1, 1, 1)) == NULL)
+		if ((shadow_window = t3_win_new(nullptr, height, width, 1, 1, 1)) == nullptr)
 			throw std::bad_alloc();
 		t3_win_set_anchor(shadow_window, window, 0);
 	}
 	dialog_base_list.push_back(this);
-	t3_win_set_restrict(window, NULL);
+	t3_win_set_restrict(window, nullptr);
 	current_widget = widgets.begin();
 }
 
@@ -52,7 +52,7 @@ dialog_base_t::dialog_base_t(int height, int width, bool has_shadow) : redraw(tr
 
     This constructor should only be called by ::main_window_base_t (through ::dialog_t).
 */
-dialog_base_t::dialog_base_t(void) : redraw(false) {
+dialog_base_t::dialog_base_t() : redraw(false) {
 	dialog_base_list.push_back(this);
 }
 
@@ -89,13 +89,13 @@ bool dialog_base_t::set_size(optint height, optint width) {
 		width = t3_win_get_width(window);
 
 	result &= (t3_win_resize(window, height, width) == 0);
-	if (shadow_window != NULL)
+	if (shadow_window != nullptr)
 		result &= (t3_win_resize(shadow_window, height, width) == 0);
 	return result;
 }
 
 
-void dialog_base_t::update_contents(void) {
+void dialog_base_t::update_contents() {
 	if (redraw) {
 		int i, x;
 
@@ -108,7 +108,7 @@ void dialog_base_t::update_contents(void) {
 
 		t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
 
-		if (shadow_window != NULL) {
+		if (shadow_window != nullptr) {
 			t3_win_set_default_attrs(shadow_window, attributes.shadow);
 			x = t3_win_get_width(shadow_window) - 1;
 			for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
@@ -129,7 +129,7 @@ void dialog_base_t::set_focus(focus_t focus) {
 		(*current_widget)->set_focus(focus);
 }
 
-void dialog_base_t::show(void) {
+void dialog_base_t::show() {
 	for (current_widget = widgets.begin();
 		current_widget != widgets.end() && !(*current_widget)->accepts_focus();
 		current_widget++)
@@ -141,19 +141,19 @@ void dialog_base_t::show(void) {
 	}
 
 	t3_win_show(window);
-	if (shadow_window != NULL)
+	if (shadow_window != nullptr)
 		t3_win_show(shadow_window);
 }
 
-void dialog_base_t::hide(void) {
+void dialog_base_t::hide() {
 	t3_win_hide(window);
-	if (shadow_window != NULL)
+	if (shadow_window != nullptr)
 		t3_win_hide(shadow_window);
 	if (widgets.front() == dummy)
 		widgets.pop_front();
 }
 
-void dialog_base_t::focus_next(void) {
+void dialog_base_t::focus_next() {
 	(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 	do {
 		current_widget++;
@@ -164,7 +164,7 @@ void dialog_base_t::focus_next(void) {
 	(*current_widget)->set_focus(window_component_t::FOCUS_IN_FWD);
 }
 
-void dialog_base_t::focus_previous(void) {
+void dialog_base_t::focus_previous() {
 	(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 
 	do {
@@ -179,7 +179,7 @@ void dialog_base_t::focus_previous(void) {
 
 void dialog_base_t::set_child_focus(window_component_t *target) {
 	widget_t *target_widget = dynamic_cast<widget_t *>(target);
-	if (target_widget == NULL || !target_widget->accepts_focus())
+	if (target_widget == nullptr || !target_widget->accepts_focus())
 		return;
 
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
@@ -192,7 +192,7 @@ void dialog_base_t::set_child_focus(window_component_t *target) {
 			return;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
-			if (container != NULL && container->is_child(target)) {
+			if (container != nullptr && container->is_child(target)) {
 				if (*current_widget != *iter) {
 					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 					current_widget = iter;
@@ -210,7 +210,7 @@ bool dialog_base_t::is_child(window_component_t *widget) {
 			return true;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
-			if (container != NULL && container->is_child(widget))
+			if (container != nullptr && container->is_child(widget))
 				return true;
 		}
 	}
@@ -225,7 +225,7 @@ void dialog_base_t::push_back(widget_t *widget) {
 	widgets.push_back(widget);
 }
 
-void dialog_base_t::force_redraw(void) {
+void dialog_base_t::force_redraw() {
 	redraw = true;
 	for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++)
 		(*iter)->force_redraw();
@@ -236,7 +236,7 @@ void dialog_base_t::center_over(window_component_t *center) {
 	t3_win_move(window, 0, 0);
 }
 
-void dialog_base_t::force_redraw_all(void) {
+void dialog_base_t::force_redraw_all() {
 	for (dialog_base_list_t::iterator iter = dialog_base_list.begin(); iter != dialog_base_list.end(); iter++)
 		(*iter)->force_redraw();
 }

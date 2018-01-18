@@ -25,7 +25,7 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 	button_t *ok_button, *cancel_button;
 	smart_label_t *enable_simulate_label, *disable_timeout_label, *close_remark_label;
 
-	impl->text = _text == NULL ? get_default_text() : _text;
+	impl->text = _text == nullptr ? get_default_text() : _text;
 
 	impl->text_window = new text_window_t(impl->text);
 	impl->text_frame = new frame_t(frame_t::COVER_RIGHT);
@@ -122,15 +122,14 @@ bool input_selection_dialog_t::process_key(key_t key) {
 			return dialog_t::process_key(key & ~EKEY_META);
 		default:
 			if ((key & ~EKEY_META) < EKEY_FIRST_SPECIAL && (key & ~EKEY_META) > 0x20) {
-				char buffer[100];
-				size_t buffer_contents_length = 0;
-				buffer[0] = 0;
+				char buffer[16];
+				size_t buffer_contents_length = t3_utf8_put(key & ~EKEY_META, buffer);
+				std::string result;
+
 				if (key & EKEY_META)
-					strcat(buffer, _("Meta-"));
-				buffer_contents_length = strlen(buffer);
-				buffer_contents_length += t3_utf8_put(key & ~EKEY_META, buffer + buffer_contents_length);
-				buffer[buffer_contents_length] = 0;
-				impl->key_label->set_text(buffer);
+					result = _("Meta-");
+				result.append(buffer, buffer_contents_length);
+				impl->key_label->set_text(result.c_str());
 				return true;
 			}
 			if (!dialog_t::process_key(key))
@@ -139,7 +138,7 @@ bool input_selection_dialog_t::process_key(key_t key) {
 	}
 }
 
-void input_selection_dialog_t::show(void) {
+void input_selection_dialog_t::show() {
 	impl->old_timeout = get_key_timeout();
 	set_key_timeout(-1000);
 	if (impl->old_timeout <= 0) {
@@ -153,7 +152,7 @@ void input_selection_dialog_t::show(void) {
 	dialog_t::show();
 }
 
-text_buffer_t *input_selection_dialog_t::get_default_text(void) {
+text_buffer_t *input_selection_dialog_t::get_default_text() {
 	text_buffer_t *default_text = new text_buffer_t();
 	const char *intl_text = _("%s provides an intuitive interface for people accustomed "
 		"to GUI applications. For example, it allows you to use Meta+<letter> combinations to open "
@@ -196,18 +195,18 @@ text_buffer_t *input_selection_dialog_t::get_default_text(void) {
 	return default_text;
 }
 
-void input_selection_dialog_t::cancel(void) {
+void input_selection_dialog_t::cancel() {
 	set_key_timeout(impl->old_timeout);
 	close();
 }
 
-void input_selection_dialog_t::ok_activated(void) {
+void input_selection_dialog_t::ok_activated() {
 	hide();
 	set_key_timeout(impl->enable_simulate_box->get_state() ? (impl->disable_timeout_box->get_state() ? 0 : -1000) : 100);
 	activate();
 }
 
-void input_selection_dialog_t::check_state(void) {
+void input_selection_dialog_t::check_state() {
 	impl->disable_timeout_box->set_enabled(impl->enable_simulate_box->get_state());
 }
 

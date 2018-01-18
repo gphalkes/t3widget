@@ -26,7 +26,7 @@ namespace t3_widget {
 #define INSERT_CHAR_DIALOG_WIDTH 30
 #define INSERT_CHAR_DIALOG_HEIGHT 4
 
-insert_char_dialog_t::insert_char_dialog_t(void) :
+insert_char_dialog_t::insert_char_dialog_t() :
 	dialog_t(INSERT_CHAR_DIALOG_HEIGHT, INSERT_CHAR_DIALOG_WIDTH, "Insert Character")
 {
 	smart_label_t *description_label;
@@ -69,7 +69,7 @@ bool insert_char_dialog_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void insert_char_dialog_t::reset(void) {
+void insert_char_dialog_t::reset() {
 	description_line->set_text("");
 }
 
@@ -81,7 +81,7 @@ key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
 	if (sscanf(descr->c_str(), " %*[uU]+%6[0-9a-fA-F]%n", codepoint, &next) >= 1) {
 		if (descr->find_first_not_of(" \t", next) != std::string::npos)
 			return -1;
-		result = (key_t) strtol(codepoint, NULL, 16);
+		result = (key_t) strtol(codepoint, nullptr, 16);
 		if (result > 0x10FFFF)
 			return -1;
 		return result;
@@ -102,7 +102,7 @@ key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
 	return -1;
 }
 
-void insert_char_dialog_t::ok_activate(void) {
+void insert_char_dialog_t::ok_activate() {
 	key_t key = interpret_key(description_line->get_text());
 	if (key >= 0) {
 		hide();

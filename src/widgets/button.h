@@ -48,13 +48,13 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 		    The @p height parameter is ignored. If width is negative, the natural size
 		    of the button_t based on the text width is used. */
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
 		bool is_hotkey(key_t key) override;
 
 		bool process_mouse_event(mouse_event_t event) override;
 		/** Retrieve this button_t's width. */
-		int get_width(void);
+		int get_width();
 
 	/** @fn signals::connection connect_activate(const signals::slot<void> &_slot)
 	    Connect a callback to the #activate signal.

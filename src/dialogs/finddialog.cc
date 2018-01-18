@@ -179,7 +179,7 @@ find_dialog_t::find_dialog_t(int _state) : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIA
 	push_back(find_button);
 	push_back(cancel_button);
 
-	set_state(_state);
+	find_dialog_t::set_state(_state);
 }
 
 bool find_dialog_t::set_size(optint height, optint width) {
@@ -192,7 +192,7 @@ void find_dialog_t::set_text(const std::string *str) {
 	impl->find_line->set_text(str);
 }
 
-#define TOGGLED_CALLBACK(name, flag_name) void find_dialog_t::name##_toggled(void) { impl->state ^= find_flags_t::flag_name; }
+#define TOGGLED_CALLBACK(name, flag_name) void find_dialog_t::name##_toggled() { impl->state ^= find_flags_t::flag_name; }
 TOGGLED_CALLBACK(backward, BACKWARD)
 TOGGLED_CALLBACK(icase, ICASE)
 TOGGLED_CALLBACK(wrap, WRAP)
@@ -200,18 +200,18 @@ TOGGLED_CALLBACK(transform_backslash, TRANSFROM_BACKSLASH)
 TOGGLED_CALLBACK(whole_word, WHOLE_WORD)
 #undef TOGGLED_CALLBACK
 
-void find_dialog_t::regex_toggled(void) {
+void find_dialog_t::regex_toggled() {
 	impl->state ^= find_flags_t::REGEX;
 	impl->transform_backslash_checkbox->set_enabled(!(impl->state & find_flags_t::REGEX));
 }
 
-void find_dialog_t::find_activated(void) {
+void find_dialog_t::find_activated() {
 	find_activated(find_action_t::FIND);
 }
 
 void find_dialog_t::find_activated(find_action_t action) {
 	try {
-		finder_t context(impl->find_line->get_text(), impl->state, impl->replace_line->is_shown() ? impl->replace_line->get_text() : NULL);
+		finder_t context(impl->find_line->get_text(), impl->state, impl->replace_line->is_shown() ? impl->replace_line->get_text() : nullptr);
 		hide();
 		activate(action, &context);
 	} catch (const char *message) {
@@ -260,7 +260,7 @@ void find_dialog_t::set_state(int _state) {
 
 //============= replace_buttons_dialog_t ===============
 
-replace_buttons_dialog_t::replace_buttons_dialog_t(void) : dialog_t(3, 60, "Replace"), impl(new implementation_t()) {
+replace_buttons_dialog_t::replace_buttons_dialog_t() : dialog_t(3, 60, "Replace"), impl(new implementation_t()) {
 	button_t *cancel_button, *replace_all_button;
 	int dialog_width;
 

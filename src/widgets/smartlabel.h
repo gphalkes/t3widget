@@ -29,9 +29,9 @@ class T3_WIDGET_API smart_label_text_t {
 
 	public:
 		smart_label_text_t(const char *spec, bool _addColon = false);
-		virtual ~smart_label_text_t(void);
+		virtual ~smart_label_text_t();
 		void draw(t3_window_t *win, int attr, bool selected = false);
-		int get_width(void);
+		int get_width();
 		bool is_hotkey(key_t key);
 };
 
@@ -40,11 +40,11 @@ class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
 		smart_label_t(const char *spec, bool _addColon = false);
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
 
 		bool is_hotkey(key_t key) override;
-		bool accepts_focus(void) override;
+		bool accepts_focus() override;
 };
 
 }; // namespace

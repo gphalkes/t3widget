@@ -39,7 +39,7 @@ class T3_WIDGET_API bullet_t : public widget_t {
 		bullet_t(const signals::slot<bool> &_source);
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
 };
 

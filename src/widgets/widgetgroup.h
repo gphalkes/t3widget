@@ -29,22 +29,22 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
 			widgets_t children;
 			int current_child;
 			bool has_focus;
-			implementation_t(void) : current_child(-1), has_focus(false) {}
+			implementation_t() : current_child(-1), has_focus(false) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		bool focus_next_int(void);
-		bool focus_previous_int(void);
+		bool focus_next_int();
+		bool focus_previous_int();
 	public:
-		widget_group_t(void);
-		~widget_group_t(void);
+		widget_group_t();
+		~widget_group_t();
 
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t _focus) override;
 		bool set_size(optint height, optint width) override;
-		bool accepts_focus(void) override;
-		void force_redraw(void) override;
+		bool accepts_focus() override;
+		void force_redraw() override;
 		void set_child_focus(window_component_t *target) override;
 		bool is_child(window_component_t *component) override;
 		bool is_hotkey(key_t key) override;
@@ -52,8 +52,8 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
 		/** Add a child widget. */
 		virtual void add_child(widget_t *child);
 
-		void focus_next(void);
-		void focus_previous(void);
+		void focus_next();
+		void focus_previous();
 };
 
 }; // namespace

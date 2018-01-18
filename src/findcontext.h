@@ -70,14 +70,14 @@ class T3_WIDGET_API finder_t {
 
 	public:
 		/** Create a new empty finder_t. */
-		finder_t(void);
+		finder_t();
 		/** Create a new finder_t for a specific search.
 		    May throw a @c const @c char pointer holding an error message. Caller
 		    of this constructor remains owner of passed objects.
 		*/
 		finder_t(const std::string *needle, int flags, const std::string *replacement = NULL);
 		/** Destroy a finder_t instance. */
-		virtual ~finder_t(void);
+		virtual ~finder_t();
 		/** Assign the value of another finder_t to this finder_t.
 		    Assignment using this operator is destructive to @p other. I.e. this
 		    finder_t instance will take ownership of all objects allocated by
@@ -93,7 +93,7 @@ class T3_WIDGET_API finder_t {
 		/** Try to find the previously set @c needle in a string. */
 		bool match(const std::string *haystack, find_result_t *result, bool reverse);
 		/** Retrieve the flags set when setting the search context. */
-		int get_flags(void);
+		int get_flags();
 		/** Retrieve the replacement string.
 		    Returns a newly allocated string, for which the caller will have
 		    ownership.

@@ -34,20 +34,20 @@ bool popup_t::process_key(key_t key) {
 	return false;
 }
 
-void popup_t::update_contents(void) {
+void popup_t::update_contents() {
 	if (!draw)
 		redraw = false;
 	dialog_base_t::update_contents();
 }
 
-void popup_t::hide(void) {
+void popup_t::hide() {
 	shown = false;
 	dialog_base_t::hide();
-	dialog_t::set_active_popup(NULL);
+	dialog_t::set_active_popup(nullptr);
 	release_mouse_grab();
 }
 
-void popup_t::show(void) {
+void popup_t::show() {
 	shown = true;
 	dialog_base_t::show();
 	dialog_t::set_active_popup(this);
@@ -62,7 +62,7 @@ bool popup_t::process_mouse_event(mouse_event_t event) {
 	return true;
 }
 
-bool popup_t::is_shown(void) {
+bool popup_t::is_shown() {
 	return shown;
 }
 

@@ -39,13 +39,13 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 		input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
 		bool set_size(optint height, optint width) override;
 		bool process_key(key_t key) override;
-		void show(void) override;
+		void show() override;
 
-		void cancel(void);
-		void ok_activated(void);
-		void check_state(void);
+		void cancel();
+		void ok_activated();
+		void check_state();
 
-		static text_buffer_t *get_default_text(void);
+		static text_buffer_t *get_default_text();
 
 	T3_WIDGET_SIGNAL(activate, void);
 };

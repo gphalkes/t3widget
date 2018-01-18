@@ -98,7 +98,7 @@ class T3_WIDGET_API text_line_t {
 		text_line_t(const char *_buffer, text_line_factory_t *_factory = NULL);
 		text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = NULL);
 		text_line_t(const std::string *str, text_line_factory_t *_factory = NULL);
-		virtual ~text_line_t(void);
+		virtual ~text_line_t();
 
 		void set_text(const char *_buffer);
 		void set_text(const char *_buffer, size_t length);
@@ -111,7 +111,7 @@ class T3_WIDGET_API text_line_t {
 		text_line_t *break_on_nl(int *start_from);
 		void insert(text_line_t *other, int pos);
 
-		void minimize(void);
+		void minimize();
 
 		int calculate_screen_width(int start, int pos, int tabsize) const;
 		int calculate_line_pos(int start, int max, int pos, int tabsize) const;
@@ -130,19 +130,19 @@ class T3_WIDGET_API text_line_t {
 
 		int adjust_position(int pos, int adjust) const;
 
-		int get_length(void) const;
+		int get_length() const;
 		int width_at(int pos) const;
 		bool is_print(int pos) const;
 		bool is_space(int pos) const;
 		bool is_alnum(int pos) const;
 		bool is_bad_draw(int pos) const;
 
-		const std::string *get_data(void) const;
+		const std::string *get_data() const;
 
 		int get_next_word_boundary(int start) const;
 		int get_previous_word_boundary(int start) const;
 
-		static void init(void);
+		static void init();
 
 	protected:
 		virtual t3_attr_t get_base_attr(int i, const paint_info_t *info);
@@ -150,8 +150,8 @@ class T3_WIDGET_API text_line_t {
 
 class T3_WIDGET_API text_line_factory_t {
 	public:
-		text_line_factory_t(void);
-		virtual ~text_line_factory_t(void);
+		text_line_factory_t();
+		virtual ~text_line_factory_t();
 		virtual text_line_t *new_text_line_t(int buffersize = BUFFERSIZE);
 		virtual text_line_t *new_text_line_t(const char *_buffer);
 		virtual text_line_t *new_text_line_t(const char *_buffer, int length);

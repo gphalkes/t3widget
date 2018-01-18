@@ -20,16 +20,16 @@ namespace t3_widget {
 //FIXME: we could use some optimization for update_column_widths. Current use is simple but calls to often.
 /* FIXME: we should not distribute left-over space among shown columns, but show partial column instead
 	this is more intuitive for the user. */
-file_pane_t::file_pane_t(void) : widget_t(3, 3), impl(new implementation_t())
+file_pane_t::file_pane_t() : widget_t(3, 3), impl(new implementation_t())
 {
-	set_widget_parent(&impl->scrollbar);
+	container_t::set_widget_parent(&impl->scrollbar);
 	impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
 	impl->scrollbar.connect_clicked(signals::mem_fun(this, &file_pane_t::scrollbar_clicked));
 	impl->scrollbar.connect_dragged(signals::mem_fun(this, &file_pane_t::scrollbar_dragged));
 	impl->search_panel = new search_panel_t(this);
 }
 
-file_pane_t::~file_pane_t(void) {
+file_pane_t::~file_pane_t() {
 	impl->content_changed_connection.disconnect();
 }
 
@@ -37,11 +37,11 @@ void file_pane_t::set_text_field(text_field_t *_field) {
 	impl->field = _field;
 }
 
-void file_pane_t::ensure_cursor_on_screen(void) {
+void file_pane_t::ensure_cursor_on_screen() {
 	size_t old_top_idx = impl->top_idx;
 	int height;
 
-	if (impl->file_list == NULL)
+	if (impl->file_list == nullptr)
 		return;
 
 	height = t3_win_get_height(window) - 1;
@@ -60,7 +60,7 @@ void file_pane_t::ensure_cursor_on_screen(void) {
 
 bool file_pane_t::process_key(key_t key) {
 	int height;
-	if (impl->file_list == NULL)
+	if (impl->file_list == nullptr)
 		return false;
 
 	switch (key) {
@@ -138,7 +138,7 @@ bool file_pane_t::process_key(key_t key) {
 			return false;
 	}
 	if (impl->file_list->size() != 0) {
-		if (impl->field != NULL)
+		if (impl->field != nullptr)
 			impl->field->set_text((*impl->file_list)[impl->current]->c_str());
 		ensure_cursor_on_screen();
 	}
@@ -155,7 +155,7 @@ bool file_pane_t::set_size(optint height, optint width) {
 	result &= impl->scrollbar.set_size(None, width);
 
 	height = height - 1;
-	if (impl->file_list != NULL && impl->file_list->size() != 0) {
+	if (impl->file_list != nullptr && impl->file_list->size() != 0) {
 		update_column_widths();
 		impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
 		ensure_cursor_on_screen();
@@ -196,7 +196,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 	line.paint_line(window, &info);
 }
 
-void file_pane_t::update_contents(void) {
+void file_pane_t::update_contents() {
 	size_t max_idx, i;
 	int height;
 
@@ -211,7 +211,7 @@ void file_pane_t::update_contents(void) {
 	t3_win_set_paint(window, 0, 0);
 	t3_win_clrtobot(window);
 
-	if (impl->file_list == NULL)
+	if (impl->file_list == nullptr)
 		return;
 
 	height = t3_win_get_height(window) - 1;
@@ -224,7 +224,7 @@ void file_pane_t::update_contents(void) {
 
 void file_pane_t::set_focus(focus_t _focus) {
 	impl->focus = _focus;
-	if (impl->file_list != NULL)
+	if (impl->file_list != nullptr)
 		draw_line(impl->current, impl->focus);
 }
 
@@ -257,7 +257,7 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
 			activate(impl->file_list->get_fs_name(impl->current));
 		} else if (event.button_state & EMOUSE_BUTTON_LEFT) {
 			impl->current = idx;
-			if (impl->field != NULL)
+			if (impl->field != nullptr)
 				impl->field->set_text((*impl->file_list)[impl->current]->c_str());
 			redraw = true;
 			return true;
@@ -266,13 +266,13 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
 	return true;
 }
 
-void file_pane_t::reset(void) {
+void file_pane_t::reset() {
 	impl->top_idx = 0;
 	impl->current = 0;
 }
 
 void file_pane_t::set_file_list(file_list_t *_file_list) {
-	if (impl->file_list != NULL)
+	if (impl->file_list != nullptr)
 		impl->content_changed_connection.disconnect();
 
 	impl->file_list = _file_list;
@@ -300,12 +300,12 @@ void file_pane_t::update_column_width(int column, int start) {
 		impl->column_widths[column] = std::max(impl->column_widths[column], t3_term_strwidth((*impl->file_list)[i + start]->c_str()));
 }
 
-void file_pane_t::update_column_widths(void) {
+void file_pane_t::update_column_widths() {
 	int i, sum_width;
 	int height = t3_win_get_height(window) - 1;
 	int width = t3_win_get_width(window);
 
-	if (impl->file_list == NULL)
+	if (impl->file_list == nullptr)
 		return;
 
 	for (i = 0, sum_width = 0; i < _T3_WDIGET_FP_MAX_COLUMNS && sum_width < width &&
@@ -330,7 +330,7 @@ void file_pane_t::update_column_widths(void) {
 
 	for (i = 0; i < impl->columns_visible; i++)
 		impl->column_widths[i] += (width - sum_width) / impl->columns_visible;
-	sum_width += impl->columns_visible * ((width - sum_width) / impl->columns_visible);
+	// sum_width += impl->columns_visible * ((width - sum_width) / impl->columns_visible);
 	for (i = 0; i < impl->columns_visible; i++)
 		impl->column_widths[i]++;
 	impl->column_positions[0] = 0;
@@ -338,7 +338,7 @@ void file_pane_t::update_column_widths(void) {
 		impl->column_positions[i] = impl->column_positions[i - 1] + impl->column_widths[i - 1] + 1;
 }
 
-void file_pane_t::content_changed(void) {
+void file_pane_t::content_changed() {
 	int height = t3_win_get_height(window) - 1;
 
 	impl->top_idx = 0;
@@ -349,7 +349,7 @@ void file_pane_t::content_changed(void) {
 
 void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 	int height = t3_win_get_height(window) - 1;
-	if (impl->file_list == NULL)
+	if (impl->file_list == nullptr)
 		return;
 
 	/* FIXME: for now, clicking the empty area of the scrollbar will simply
@@ -393,7 +393,7 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 		impl->current = impl->top_idx + impl->columns_visible * height - 1;
 	redraw = true;
 
-	if (impl->file_list->size() != 0 && impl->field != NULL)
+	if (impl->file_list->size() != 0 && impl->field != nullptr)
 		impl->field->set_text((*impl->file_list)[impl->current]->c_str());
 }
 
@@ -441,7 +441,7 @@ file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent) : popup_t(3, S
 bool file_pane_t::search_panel_t::process_key(key_t key) {
 	switch (key) {
 		case EKEY_BS:
-			text.backspace_char(text.get_length(), NULL);
+			text.backspace_char(text.get_length(), nullptr);
 			redraw = true;
 			return true;
 		case EKEY_ESC:
@@ -457,7 +457,7 @@ bool file_pane_t::search_panel_t::process_key(key_t key) {
 
 			if (key >= EKEY_FIRST_SPECIAL)
 				break;
-			text.append_char(key, NULL);
+			text.append_char(key, nullptr);
 			parent->search(text.get_data());
 			redraw = true;
 			return true;
@@ -477,7 +477,7 @@ bool file_pane_t::search_panel_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void file_pane_t::search_panel_t::update_contents(void) {
+void file_pane_t::search_panel_t::update_contents() {
 	if (!redraw)
 		return;
 
@@ -502,7 +502,7 @@ void file_pane_t::search_panel_t::update_contents(void) {
 	text.paint_line(window, &paint_info);
 }
 
-void file_pane_t::search_panel_t::show(void) {
+void file_pane_t::search_panel_t::show() {
 	popup_t::show();
 	text.set_text("");
 }

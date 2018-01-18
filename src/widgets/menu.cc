@@ -30,7 +30,7 @@ menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_
 		t3_win_hide(window);
 }
 
-menu_bar_t::~menu_bar_t(void) {
+menu_bar_t::~menu_bar_t() {
 	for (std::vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++)
 		delete *iter;
 }
@@ -55,7 +55,7 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
 	int idx = 0;
 	for (std::vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end(); iter++, idx++) {
 		if (*iter == menu) {
-			menu->set_menu_bar(NULL);
+			menu->set_menu_bar(nullptr);
 
 			if (impl->current_menu == idx) {
 				if (impl->has_focus) {
@@ -81,7 +81,7 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
 	}
 }
 
-void menu_bar_t::close(void) {
+void menu_bar_t::close() {
 	impl->has_focus = false;
 	if (impl->hidden)
 		t3_win_hide(window);
@@ -90,12 +90,12 @@ void menu_bar_t::close(void) {
 	release_mouse_grab();
 }
 
-void menu_bar_t::next_menu(void) {
+void menu_bar_t::next_menu() {
 	impl->current_menu++;
 	impl->current_menu %= impl->menus.size();
 }
 
-void menu_bar_t::previous_menu(void) {
+void menu_bar_t::previous_menu() {
 	impl->current_menu += impl->menus.size() - 1;
 	impl->current_menu %= impl->menus.size();
 }
@@ -121,7 +121,7 @@ bool menu_bar_t::set_size(optint height, optint width) {
 	return t3_win_resize(window, 1, width) == 0;
 }
 
-void menu_bar_t::update_contents(void) {
+void menu_bar_t::update_contents() {
 	if (redraw) {
 		draw();
 		if (impl->has_focus)
@@ -148,7 +148,7 @@ void menu_bar_t::set_focus(focus_t focus) {
 	(void) focus;
 }
 
-void menu_bar_t::show(void) {
+void menu_bar_t::show() {
 	if (!impl->has_focus) {
 		impl->has_focus = true;
 		redraw = true;
@@ -179,7 +179,7 @@ bool menu_bar_t::is_hotkey(key_t key) {
 	return false;
 }
 
-bool menu_bar_t::accepts_focus(void) { return false; }
+bool menu_bar_t::accepts_focus() { return false; }
 
 bool menu_bar_t::process_mouse_event(mouse_event_t event) {
 	bool outside_area, on_bar;
@@ -239,7 +239,7 @@ int menu_bar_t::coord_to_menu_idx(int x) {
 	return -1;
 }
 
-void menu_bar_t::draw(void) {
+void menu_bar_t::draw() {
 	redraw = false;
 	t3_win_set_paint(window, 0, 0);
 	t3_win_addchrep(window, ' ', attributes.menubar, t3_win_get_width(window));

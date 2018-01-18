@@ -45,15 +45,15 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		    and needs to report whether the end of the list was reached. In the
 		    latter case, the return value shall be @c false.
 		*/
-		bool next_recurse(void);
+		bool next_recurse();
 		/** Make the previous widget the current widget (internal).
 		    See #next_recurse for details.
 		*/
-		bool previous_recurse(void);
+		bool previous_recurse();
 		/** Make the first widget the active widget. */
-		void set_to_begin(void);
+		void set_to_begin();
 		/** Make the last widget the active widget. */
-		void set_to_end(void);
+		void set_to_end();
 		/** Remove the currently activated widget from the split_t (internal).
 		    This function takes into account that split_t widgets may be nested,
 		    and if it finds the the widget to remove is in fact a split_t it will
@@ -69,12 +69,12 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		/** Destroy a split_t.
 		    Deletes all contained widgets as well.
 		*/
-		virtual ~split_t(void);
+		virtual ~split_t();
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void force_redraw(void) override;
+		void force_redraw() override;
 		void set_child_focus(window_component_t *target) override;
 		bool is_child(window_component_t *component) override;
 
@@ -91,13 +91,13 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 		/** Remove the current widget from the split_t (or a nested split_t).
 		    @return The widget that was removed.
 		*/
-		widget_t *unsplit(void);
+		widget_t *unsplit();
 		/** Make the next widget the active widget. */
-		void next(void);
+		void next();
 		/** Make the previous widget the active widget. */
-		void previous(void);
+		void previous();
 		/** Get the currently active widget. */
-		widget_t *get_current(void);
+		widget_t *get_current();
 
 #define _T3_ACTION_FILE <t3widget/widgets/split.actions.h>
 #include <t3widget/key_binding_decl.h>

@@ -35,7 +35,7 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
 		/** Set the size of this checkbox_t (ignored).
 		    A checkbox_t has a fixed size, so both @p height and @p width are ignored. */
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
 		bool is_hotkey(key_t key) override;
 		bool process_mouse_event(mouse_event_t event) override;
@@ -45,7 +45,7 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
 		*/
 		void set_enabled(bool enable) override;
 		/** Retrieve the current state of the checkbox_t. */
-		bool get_state(void);
+		bool get_state();
 		/** Set the current state of the checkbox_t. */
 		void set_state(bool _state);
 		/** Associate this checkbox_t with a smart_label_t. */

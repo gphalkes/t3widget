@@ -23,11 +23,11 @@ class T3_WIDGET_API goto_dialog_t : public dialog_t {
 	private:
 		text_field_t *number_line;
 
-		void ok_activate(void);
+		void ok_activate();
 	public:
-		goto_dialog_t(void);
+		goto_dialog_t();
 		bool set_size(optint height, optint width) override;
-		void reset(void);
+		void reset();
 
 
 	T3_WIDGET_SIGNAL(activate, void, int);

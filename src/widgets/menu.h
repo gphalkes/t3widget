@@ -49,14 +49,14 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		/** Draw the name of a single menu in the menu bar. */
 		void draw_menu_name(menu_panel_t *menu, bool selected);
 		/** Draw all the names of the menus in the menu bar (unselected). */
-		void draw(void);
+		void draw();
 
 		/** Close the currently open menu. */
-		void close(void);
+		void close();
 		/** Switch to the next menu. */
-		void next_menu(void);
+		void next_menu();
 		/** Switch to the previous menu. */
-		void previous_menu(void);
+		void previous_menu();
 
 		/** Translate an x coordinate into the index of a menu. */
 		int coord_to_menu_idx(int x);
@@ -72,16 +72,16 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 		/** Destroy the menu_bar_t.
 		    Note that this does destroys the menus contained by this menu_bar_t.
 		*/
-		virtual ~menu_bar_t(void);
+		virtual ~menu_bar_t();
 
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void show(void) override;
-		void hide(void) override;
+		void show() override;
+		void hide() override;
 		bool is_hotkey(key_t key) override;
-		bool accepts_focus(void) override;
+		bool accepts_focus() override;
 		bool process_mouse_event(mouse_event_t event) override;
 		/** Add a menu to the menu bar.
 		    Note that this will be called automatically if the menu_bar_t is passed to the

@@ -16,11 +16,11 @@
 
 namespace t3_widget {
 
-widget_group_t::widget_group_t(void) : impl(new implementation_t()) {
+widget_group_t::widget_group_t() : impl(new implementation_t()) {
 	init_unbacked_window(1, 1);
 }
 
-bool widget_group_t::focus_next_int(void) {
+bool widget_group_t::focus_next_int() {
 	int next;
 
 	if (!impl->has_focus)
@@ -37,7 +37,7 @@ bool widget_group_t::focus_next_int(void) {
 	return false;
 }
 
-bool widget_group_t::focus_previous_int(void) {
+bool widget_group_t::focus_previous_int() {
 	int next;
 
 	if (!impl->has_focus)
@@ -54,12 +54,12 @@ bool widget_group_t::focus_previous_int(void) {
 	return false;
 }
 
-void widget_group_t::focus_next(void) {
+void widget_group_t::focus_next() {
 	if (!focus_next_int())
 		move_focus_down();
 }
 
-void widget_group_t::focus_previous(void) {
+void widget_group_t::focus_previous() {
 	if (!focus_previous_int())
 		move_focus_up();
 }
@@ -72,7 +72,7 @@ void widget_group_t::add_child(widget_t *child) {
 		impl->current_child = 0;
 }
 
-widget_group_t::~widget_group_t(void) {
+widget_group_t::~widget_group_t() {
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++)
 		delete *iter;
 }
@@ -94,7 +94,7 @@ bool widget_group_t::process_key(key_t key) {
 	return false;
 }
 
-void widget_group_t::update_contents(void) {
+void widget_group_t::update_contents() {
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++)
 		(*iter)->update_contents();
 }
@@ -137,7 +137,7 @@ bool widget_group_t::set_size(optint height, optint width) {
 	return true;
 }
 
-bool widget_group_t::accepts_focus(void) {
+bool widget_group_t::accepts_focus() {
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {
 		if ((*iter)->accepts_focus())
 			return true;
@@ -145,7 +145,7 @@ bool widget_group_t::accepts_focus(void) {
 	return false;
 }
 
-void widget_group_t::force_redraw(void) {
+void widget_group_t::force_redraw() {
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++)
 		(*iter)->force_redraw();
 }
@@ -154,17 +154,17 @@ void widget_group_t::set_child_focus(window_component_t *target) {
 	bool had_focus = impl->has_focus;
 	impl->has_focus = true;
 	for (int i = 0; i < (int) impl->children.size(); i++) {
-		container_t *container = NULL;
+		container_t *container = nullptr;
 
-		if (impl->children[i] == target || ((container = dynamic_cast<container_t *>(impl->children[i])) != NULL &&
+		if (impl->children[i] == target || ((container = dynamic_cast<container_t *>(impl->children[i])) != nullptr &&
 				container->is_child(target)))
 		{
 			if (had_focus && i != impl->current_child)
 				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
 			impl->current_child = i;
 
-			if (impl->children[impl->current_child] == target)
-				impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_SET);
+			if (impl->children[i] == target)
+				impl->children[i]->set_focus(window_component_t::FOCUS_SET);
 			else
 				container->set_child_focus(target);
 			return;
@@ -175,7 +175,7 @@ void widget_group_t::set_child_focus(window_component_t *target) {
 bool widget_group_t::is_child(window_component_t *component) {
 	for (widgets_t::iterator iter = impl->children.begin(); iter != impl->children.end(); iter++) {
 		container_t *container;
-		if (*iter == component || ((container = dynamic_cast<container_t *>(*iter)) != NULL && container->is_child(component)))
+		if (*iter == component || ((container = dynamic_cast<container_t *>(*iter)) != nullptr && container->is_child(component)))
 			return true;
 	}
 	return false;
@@ -191,7 +191,7 @@ bool widget_group_t::is_hotkey(key_t key) {
 			return true;
 
 		widget_container = dynamic_cast<widget_container_t *>(*iter);
-		if (widget_container != NULL && widget_container->is_child_hotkey(key) != NULL)
+		if (widget_container != nullptr && widget_container->is_child_hotkey(key) != nullptr)
 			return true;
 	}
 	return false;

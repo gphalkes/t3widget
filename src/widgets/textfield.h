@@ -62,7 +62,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 
 			cleanup_ptr<drop_down_list_t>::t drop_down_list;
 
-			implementation_t(void) : pos(0),
+			implementation_t() : pos(0),
 				screen_pos(0),
 				leftcol(0),
 				selection_start_pos(-1),
@@ -85,28 +85,28 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		static void init(bool _init);
 
 		/** Reset the selection. */
-		void reset_selection(void);
+		void reset_selection();
 		/** Change the current selection mode, based on @p key. */
 		void set_selection(key_t key);
 		/** Delete the current selection. */
 		void delete_selection(bool save_to_copy_buffer);
 		/** Make sure the text in the text_field_t is aligned such that the cursor is visible. */
-		void ensure_cursor_on_screen(void);
+		void ensure_cursor_on_screen();
 
 		/** Set the end of the selection to the current position, updating the primary selection if so requested. */
 		void set_selection_end(bool update_primary = true);
 
 	protected:
-		bool has_focus(void) const;
+		bool has_focus() const;
 
 	public:
-		text_field_t(void);
+		text_field_t();
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t _focus) override;
-		void show(void) override;
-		void hide(void) override;
+		void show() override;
+		void hide() override;
 		/** Set the text of the text_field_t. */
 		void set_text(const std::string *text);
 		/** Set the text of the text_field_t. */
@@ -122,7 +122,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		*/
 		void set_key_filter(key_t *keys, size_t nr_of_keys, bool accept);
 		/** Retrieve the text shown by the text_field_t. */
-		const std::string *get_text(void) const;
+		const std::string *get_text() const;
 		/** Associate a label with this text_field_t.
 		    The reason to associate a smart_label_t with a text_field_t is that it
 		    allows the use of a hotkey to jump to the text_field_t. The #is_hotkey
@@ -131,7 +131,7 @@ class T3_WIDGET_API text_field_t : public widget_t, public center_component_t, p
 		void set_label(smart_label_t *_label);
 		bool is_hotkey(key_t key) override;
 
-		void bad_draw_recheck(void) override;
+		void bad_draw_recheck() override;
 		bool process_mouse_event(mouse_event_t event) override;
 
 	T3_WIDGET_SIGNAL(activate, void);
@@ -149,26 +149,26 @@ class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
 		cleanup_ptr<filtered_list_base_t>::t completions; /**< List of possible selections. */
 		list_pane_t *list_pane;
 
-		void update_list_pane(void);
-		void item_activated(void);
-		void selection_changed(void);
+		void update_list_pane();
+		void item_activated();
+		void selection_changed();
 	public:
 		drop_down_list_t(text_field_t *_field);
 		bool process_key(key_t key) override;
 		void set_position(optint top, optint left) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void show(void) override;
-		void hide(void) override;
+		void show() override;
+		void hide() override;
 		bool process_mouse_event(mouse_event_t key) override;
 
 		/** Request that the drop-down is filtered based on the contents of the text_field_t it is asscociated with. */
-		void update_view(void);
+		void update_view();
 		/** Set the list of autocompletion options. */
 		void set_autocomplete(string_list_base_t *completions);
 		/** Return whether the autocompletion list is empty. */
-		bool empty(void);
+		bool empty();
 };
 
 }; // namespace

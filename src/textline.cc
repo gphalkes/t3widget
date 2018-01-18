@@ -59,12 +59,12 @@ static bool is_conjoining_jamo_lv(uint32_t c) {
 }
 
 text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory) : starts_with_combining(false),
-		factory(_factory == NULL ? &default_text_line_factory : _factory)
+		factory(_factory == nullptr ? &default_text_line_factory : _factory)
 {
 	reserve(buffersize);
 }
 
-text_line_t::~text_line_t(void) {}
+text_line_t::~text_line_t() {}
 
 void text_line_t::fill_line(const char *_buffer, int length) {
 	size_t char_bytes, round_trip_bytes;
@@ -88,19 +88,19 @@ void text_line_t::fill_line(const char *_buffer, int length) {
 }
 
 text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory) : starts_with_combining(false),
-		factory(_factory == NULL ? &default_text_line_factory : _factory)
+		factory(_factory == nullptr ? &default_text_line_factory : _factory)
 {
 	fill_line(_buffer, strlen(_buffer));
 }
 
 text_line_t::text_line_t(const char *_buffer, int length, text_line_factory_t *_factory) :
-		starts_with_combining(false), factory(_factory == NULL ? &default_text_line_factory : _factory)
+		starts_with_combining(false), factory(_factory == nullptr ? &default_text_line_factory : _factory)
 {
 	fill_line(_buffer, length);
 }
 
 text_line_t::text_line_t(const std::string *str, text_line_factory_t *_factory) : starts_with_combining(false),
-		factory(_factory == NULL ? &default_text_line_factory : _factory)
+		factory(_factory == nullptr ? &default_text_line_factory : _factory)
 {
 	fill_line(str->data(), str->size());
 }
@@ -145,7 +145,7 @@ text_line_t *text_line_t::break_line(int pos) {
 
 	/* Only allow line breaks at non-combining marks. This doesn't use width_at, because
 	   conjoining Jamo will make it return 0, but we need to allow them to be split. */
-	ASSERT(t3_utf8_wcwidth(t3_utf8_get(buffer.data() + pos, NULL)));
+	ASSERT(t3_utf8_wcwidth(t3_utf8_get(buffer.data() + pos, nullptr)));
 
 	/* copy the right part of the string into the new buffer */
 	newline = factory->new_text_line_t(buffer.size() - pos);
@@ -158,7 +158,7 @@ text_line_t *text_line_t::break_line(int pos) {
 text_line_t *text_line_t::cut_line(int start, int end) {
 	text_line_t *retval;
 
-	ASSERT((size_t) end == buffer.size() || t3_utf8_wcwidth(t3_utf8_get(buffer.data() + end, NULL)) > 0);
+	ASSERT((size_t) end == buffer.size() || t3_utf8_wcwidth(t3_utf8_get(buffer.data() + end, nullptr)) > 0);
 	//FIXME: special case: if the selection cover a whole text_line_t (note: not wrapped) we shouldn't copy
 
 	retval = clone(start, end);
@@ -214,7 +214,7 @@ void text_line_t::insert(text_line_t *other, int pos) {
 		starts_with_combining = other->starts_with_combining;
 }
 
-void text_line_t::minimize(void) {
+void text_line_t::minimize() {
 #ifdef HAS_STRING_SHRINK_TO_FIT
 	buffer.shrink_to_fit();
 #else
@@ -309,20 +309,10 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 		new_is_print;
 	t3_attr_t selection_attr = 0, new_selection_attr;
 	int flags = info->flags,
-		size = info->size,
-		selection_start = info->selection_start,
-		selection_end = info->selection_end;
+		size = info->size;
 
 	if (info->tabsize == 0)
 		flags |= text_line_t::TAB_AS_CONTROL;
-
-	/* For reverse selections (end before info->start) we swap the info->start and end for rendering */
-	if (selection_start > selection_end) {
-		int tmp;
-		tmp = selection_start;
-		selection_start = selection_end;
-		selection_end = tmp;
-	}
 
 	size += info->leftcol;
 	if (flags & text_line_t::BREAK)
@@ -479,7 +469,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
 	/* Add a selected space when the selection crosses the end of this line
 	   and this line is not merely a part of a broken line */
 	if (total < size && !(flags & text_line_t::BREAK)) {
-		if (i <= selection_end || i == info->cursor) {
+		if (i <= info->selection_end || i == info->cursor) {
 			t3_win_addch(win, ' ', get_draw_attrs(i, info));
 			total++;
 		}
@@ -645,7 +635,7 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
 
 	reserve(buffer.size() + conversion_length + 1);
 
-	if (undo != NULL) {
+	if (undo != nullptr) {
 		std::string *undo_text = undo->get_text();
 		undo_text->reserve(undo_text->size() + conversion_length);
 
@@ -675,13 +665,13 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 		if (pos == 0)
 			return false;
 
-		if (undo != NULL) {
+		if (undo != nullptr) {
 			ASSERT(undo->get_type() == UNDO_OVERWRITE);
 			replacement_text = undo->get_replacement();
 			replacement_text->reserve(replacement_text->size() + conversion_length);
 			replacement_text->append(conversion_buffer, conversion_length);
 		}
-		return insert_char(pos, c, NULL);
+		return insert_char(pos, c, nullptr);
 	}
 
 	if (starts_with_combining && pos == 0)
@@ -691,7 +681,7 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 	if (oldspace < conversion_length)
 		reserve(buffer.size() + conversion_length - oldspace);
 
-	if (undo != NULL) {
+	if (undo != nullptr) {
 		ASSERT(undo->get_type() == UNDO_OVERWRITE);
 		undo_text = undo->get_text();
 		undo_text->reserve(undo_text->size() + oldspace);
@@ -718,7 +708,7 @@ bool text_line_t::delete_char(int pos, undo_t *undo) {
 
 	oldspace = adjust_position(pos, 1) - pos;
 
-	if (undo != NULL) {
+	if (undo != nullptr) {
 		std::string *undo_text = undo->get_text();
 		undo_text->reserve(oldspace);
 
@@ -771,7 +761,7 @@ int text_line_t::adjust_position(int pos, int adjust) const {
 	return pos;
 }
 
-int text_line_t::get_length(void) const {
+int text_line_t::get_length() const {
 	return buffer.size();
 }
 
@@ -796,12 +786,12 @@ int text_line_t::key_width(key_t key) {
 	return width;
 }
 int text_line_t::width_at(int pos) const {
-	uint32_t c = t3_utf8_get(buffer.data() + pos, NULL);
+	uint32_t c = t3_utf8_get(buffer.data() + pos, nullptr);
 	if (is_conjoining_jamo_t(c) && pos > 0) {
 		do {
 			pos--;
 		} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
-		c = t3_utf8_get(buffer.data() + pos, NULL);
+		c = t3_utf8_get(buffer.data() + pos, nullptr);
 		if (is_conjoining_jamo_lv(c))
 			return 0;
 
@@ -809,7 +799,7 @@ int text_line_t::width_at(int pos) const {
 			do {
 				pos--;
 			} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
-			c = t3_utf8_get(buffer.data() + pos, NULL);
+			c = t3_utf8_get(buffer.data() + pos, nullptr);
 			if (is_conjoining_jamo_l(c))
 				return 0;
 		}
@@ -818,13 +808,13 @@ int text_line_t::width_at(int pos) const {
 		do {
 			pos--;
 		} while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
-		c = t3_utf8_get(buffer.data() + pos, NULL);
+		c = t3_utf8_get(buffer.data() + pos, nullptr);
 		return is_conjoining_jamo_l(c) ? 0 : 1;
 	}
 	return key_width(c);
 }
 bool text_line_t::is_print(int pos) const {
-	return buffer[pos] == '\t' || !uc_is_general_category_withtable(t3_utf8_get(buffer.data() + pos, NULL), T3_UTF8_CONTROL_MASK);
+	return buffer[pos] == '\t' || !uc_is_general_category_withtable(t3_utf8_get(buffer.data() + pos, nullptr), T3_UTF8_CONTROL_MASK);
 }
 bool text_line_t::is_alnum(int pos) const {
 	return get_class(&buffer, pos) == CLASS_ALNUM;
@@ -836,11 +826,11 @@ bool text_line_t::is_bad_draw(int pos) const {
 	return !t3_term_can_draw(buffer.data() + pos, adjust_position(pos, 1) - pos);
 }
 
-const std::string *text_line_t::get_data(void) const {
+const std::string *text_line_t::get_data() const {
 	return &buffer;
 }
 
-void text_line_t::init(void) {
+void text_line_t::init() {
 	memset(spaces, ' ', sizeof(spaces));
 	memset(dashes, '-', sizeof(dashes));
 	memset(dots, '.', sizeof(dots));
@@ -859,8 +849,8 @@ bool text_line_t::check_boundaries(int match_start, int match_end) const {
 
 //============================= text_line_factory_t ========================
 
-text_line_factory_t::text_line_factory_t(void) {}
-text_line_factory_t::~text_line_factory_t(void) {}
+text_line_factory_t::text_line_factory_t() {}
+text_line_factory_t::~text_line_factory_t() {}
 text_line_t *text_line_factory_t::new_text_line_t(int buffersize) { return new text_line_t(buffersize, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer) { return new text_line_t(_buffer, this); }
 text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer, int length) { return new text_line_t(_buffer, length, this); }

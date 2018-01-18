@@ -33,7 +33,7 @@ bool separator_t::set_size(optint height, optint width) {
 
 bool separator_t::process_key(key_t key) { (void) key; return false; }
 
-void separator_t::update_contents(void) {
+void separator_t::update_contents() {
 	t3_win_set_default_attrs(window, attributes.dialog);
 	if (horizontal) {
 		t3_win_set_paint(window, 0, 0);
@@ -48,6 +48,6 @@ void separator_t::update_contents(void) {
 }
 
 void separator_t::set_focus(focus_t focus) { (void) focus; }
-bool separator_t::accepts_focus(void) { return false; }
+bool separator_t::accepts_focus() { return false; }
 
 }; // namespace

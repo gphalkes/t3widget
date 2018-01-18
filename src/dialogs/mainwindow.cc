@@ -16,7 +16,7 @@
 
 namespace t3_widget {
 
-main_window_base_t::main_window_base_t(void) : dialog_t() {
+main_window_base_t::main_window_base_t() : dialog_t() {
 	int height, width;
 	t3_term_get_size(&height, &width);
 
@@ -27,7 +27,7 @@ main_window_base_t::main_window_base_t(void) : dialog_t() {
 		width = 80;
 	}
 
-	if ((window = t3_win_new_unbacked(NULL, height, width, 0, 0, INT_MAX)) == NULL)
+	if ((window = t3_win_new_unbacked(nullptr, height, width, 0, 0, INT_MAX)) == nullptr)
 		throw std::bad_alloc();
 	t3_win_show(window);
 	connect_resize(signals::mem_fun(this, &main_window_base_t::set_size_real));
@@ -44,12 +44,12 @@ void main_window_base_t::set_position(optint top, optint left) {
 	(void) left;
 }
 
-void main_window_base_t::update_contents(void) {
+void main_window_base_t::update_contents() {
 	redraw = false;
 	dialog_t::update_contents();
 }
 
-void main_window_base_t::show(void) {
+void main_window_base_t::show() {
 	dialog_base_t::show();
 
 	dialog_t::active_dialogs.push_front(this);
@@ -57,7 +57,7 @@ void main_window_base_t::show(void) {
 		set_focus(window_component_t::FOCUS_SET);
 }
 
-void main_window_base_t::close(void) {}
+void main_window_base_t::close() {}
 
 void main_window_base_t::set_size_real(int height, int width) {
 	t3_win_resize(window, height, width);

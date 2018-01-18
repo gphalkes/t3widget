@@ -22,7 +22,7 @@
 
 namespace t3_widget {
 
-message_dialog_t::implementation_t::implementation_t(void) : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
+message_dialog_t::implementation_t::implementation_t() : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
 
 message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_t(5, width, _title), impl(new implementation_t())
 {
@@ -31,7 +31,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	const char *button_name;
 	int total_width = 0;
 
-	impl->text_window = new text_window_t(NULL, false);
+	impl->text_window = new text_window_t(nullptr, false);
 	impl->text_window->set_size(1, width - 2);
 	impl->text_window->set_position(1, 1);
 	impl->text_window->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
@@ -42,7 +42,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	push_back(impl->text_window);
 
 	va_start(ap, _title);
-	while ((button_name = va_arg(ap, const char *)) != NULL) {
+	while ((button_name = va_arg(ap, const char *)) != nullptr) {
 		if (widgets.size() == 1) {
 			button = new button_t(button_name, true);
 			button->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
@@ -67,7 +67,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...) : dialog_
 	widgets[1]->set_position(-1, -total_width / 2 );
 }
 
-message_dialog_t::~message_dialog_t(void) {
+message_dialog_t::~message_dialog_t() {
 	delete impl->text_window->get_text();
 }
 

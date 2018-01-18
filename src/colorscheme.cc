@@ -21,7 +21,7 @@ namespace t3_widget {
 
 attributes_t attributes;
 
-void init_attributes(void) {
+void init_attributes() {
 	memset(&attributes, 0, sizeof(attributes));
 	set_color_mode(true);
 }
@@ -62,7 +62,7 @@ bool set_color_mode(bool on) {
 	attributes.meta_text = get_default_attribute(attribute_t::META_TEXT, on);
 	attributes.background = get_default_attribute(attribute_t::BACKGROUND, on);
 
-	t3_win_set_default_attrs(NULL, attributes.background);
+	t3_win_set_default_attrs(nullptr, attributes.background);
 	dialog_t::force_redraw_all();
 	return result;
 }
@@ -113,7 +113,7 @@ void set_attribute(attribute_t attribute, t3_attr_t value) {
 			break;
 		case attribute_t::BACKGROUND:
 			attributes.background = value;
-			t3_win_set_default_attrs(NULL, value);
+			t3_win_set_default_attrs(nullptr, value);
 			break;
 		case attribute_t::SHADOW:
 			attributes.shadow = value;

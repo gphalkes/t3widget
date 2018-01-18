@@ -56,7 +56,7 @@ class T3_WIDGET_LOCAL item_buffer_t {
 		}
 
 		/** Retrieve and remove the item at the front of the queue. */
-		T pop_front(void) {
+		T pop_front() {
 			T result;
 			std::unique_lock<std::mutex> l(lock);
 			while (items.empty())

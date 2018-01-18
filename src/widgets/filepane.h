@@ -45,22 +45,22 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 			signals::connection content_changed_connection; /**< Connection to #file_list's content_changed signal. */
 			cleanup_ptr<search_panel_t>::t search_panel;
 
-			implementation_t(void) : scrollbar(false), top_idx(0), current(0), file_list(NULL),
+			implementation_t() : scrollbar(false), top_idx(0), current(0), file_list(NULL),
 				focus(false), field(NULL), columns_visible(0), scrollbar_range(1)
 			{}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
 		/** Ensure that the updated value of #current does not put the highlighted entry outside the visible range. */
-		void ensure_cursor_on_screen(void);
+		void ensure_cursor_on_screen();
 		/** Draw a single item. */
 		void draw_line(int idx, bool selected);
 		/** Update the width of a single column, based on the items to draw in it. */
 		void update_column_width(int column, int start);
 		/** Update the widths of all columns. */
-		void update_column_widths(void);
+		void update_column_widths();
 		/** Handle a change of contents of #file_list. */
-		void content_changed(void);
+		void content_changed();
 
 		void scrollbar_clicked(scrollbar_t::step_t step);
 		void scrollbar_dragged(int start);
@@ -68,8 +68,8 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		void search(const std::string *text);
 
 	public:
-		file_pane_t(void);
-		virtual ~file_pane_t(void);
+		file_pane_t();
+		virtual ~file_pane_t();
 		/** Associate a text_field_t with this file_pane_t.
 		    The text_field_t will be updated when the selection in this file_pane_t
 		    changes.
@@ -77,7 +77,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		void set_text_field(text_field_t *_field);
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t _focus) override;
 
 		void set_child_focus(window_component_t *target) override;
@@ -86,7 +86,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 		bool process_mouse_event(mouse_event_t event) override;
 
 		/** Set the list to its initial position, i.e. the selected item is the first item. */
-		void reset(void);
+		void reset();
 		/** Set the file_list_t that this file_pane_t displays. */
 		void set_file_list(file_list_t *_file_list);
 		/** Set the current selected item to the named item. */
@@ -107,8 +107,8 @@ class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
 		bool process_key(key_t key) override;
 		void set_position(optint top, optint left) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
-		void show(void) override;
+		void update_contents() override;
+		void show() override;
 		bool process_mouse_event(mouse_event_t event) override;
 };
 

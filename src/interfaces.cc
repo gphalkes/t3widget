@@ -20,9 +20,9 @@
 
 namespace t3_widget {
 
-window_component_t::window_component_t(void) : window(NULL) {}
-window_component_t::~window_component_t(void) {}
-t3_window_t *window_component_t::get_base_window(void) { return window; }
+window_component_t::window_component_t() : window(nullptr) {}
+window_component_t::~window_component_t() {}
+t3_window_t *window_component_t::get_base_window() { return window; }
 
 bool container_t::set_widget_parent(window_component_t *widget) {
 	return t3_win_set_parent(widget->get_base_window(), window);
@@ -32,7 +32,7 @@ void container_t::unset_widget_parent(window_component_t *widget) {
 	t3_win_set_parent(widget->get_base_window(), widget_t::default_parent);
 }
 
-center_component_t::center_component_t(void) : center_window(this) {}
+center_component_t::center_component_t() : center_window(this) {}
 void center_component_t::set_center_window(window_component_t *_center_window) { center_window = _center_window; }
 
 mouse_target_t::mouse_target_map_t mouse_target_t::targets;
@@ -40,13 +40,13 @@ mouse_target_t *mouse_target_t::grab_target;
 t3_window_t *mouse_target_t::grab_window;
 
 mouse_target_t::mouse_target_t(bool use_window) {
-	if (use_window && window != NULL)
+	if (use_window && window != nullptr)
 		register_mouse_target(window);
 }
 
 void mouse_target_t::register_mouse_target(t3_window_t *target) {
-	if (target == NULL)
-		lprintf("Registering mouse target for NULL window in %s\n", typeid(*this).name());
+	if (target == nullptr)
+		lprintf("Registering mouse target for nullptr window in %s\n", typeid(*this).name());
 	else
 		targets[target] = this;
 }
@@ -55,7 +55,7 @@ void mouse_target_t::unregister_mouse_target(t3_window_t *target) {
 	targets.erase(target);
 }
 
-mouse_target_t::~mouse_target_t(void) {
+mouse_target_t::~mouse_target_t() {
 	/* Can't use iter anymore after erasing, so we have to start our search all over
 	   once we have found ourselves. */
 start_over:
@@ -67,11 +67,11 @@ start_over:
 	}
 
 	if (grab_target == this)
-		grab_target = NULL;
+		grab_target = nullptr;
 }
 
-void mouse_target_t::grab_mouse(void) {
-	if (grab_target != NULL)
+void mouse_target_t::grab_mouse() {
+	if (grab_target != nullptr)
 		return;
 
 	for (mouse_target_map_t::iterator iter = targets.begin(); iter != targets.end(); iter++) {
@@ -83,9 +83,9 @@ void mouse_target_t::grab_mouse(void) {
 	}
 }
 
-void mouse_target_t::release_mouse_grab(void) {
+void mouse_target_t::release_mouse_grab() {
 	if (grab_target == this)
-		grab_target = NULL;
+		grab_target = nullptr;
 }
 
 static long timediff(struct timeval a, struct timeval b) {
@@ -97,7 +97,7 @@ static long timediff(struct timeval a, struct timeval b) {
 #define DOUBLECLICK_TIMEOUT 200000
 
 bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
-	static t3_window_t *button_down_win = NULL;
+	static t3_window_t *button_down_win = nullptr;
 	static int button_down_x, button_down_y;
 	/* Information for handling double clicks. */
 	static struct {
@@ -106,7 +106,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		struct timeval time;
 		short buttons;
 		bool was_double;
-	} last_click = { NULL, 0, 0, { 0, 0 }, 0, false };
+	} last_click = { nullptr, 0, 0, { 0, 0 }, 0, false };
 
 	bool handled = false;
 	t3_window_t *win;
@@ -120,14 +120,14 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 		button_down_x = event.x;
 		button_down_y = event.y;
 		if (button_down_win != last_click.win)
-			last_click.win = NULL;
+			last_click.win = nullptr;
 	} else if (event.type == EMOUSE_BUTTON_RELEASE) {
 		if (button_down_win == win && button_down_x == event.x && button_down_y == event.y) {
 			struct timeval now;
 			/* Set CLICKED event for released buttons */
 			event.button_state |= (event.previous_button_state & EMOUSE_CLICK_BUTTONS) << EMOUSE_ALL_BUTTONS_COUNT;
 
-			gettimeofday(&now, NULL);
+			gettimeofday(&now, nullptr);
 			//FIXME: make DOUBLECLICK_TIMEOUT configurable
 			if (last_click.win == button_down_win && timediff(now, last_click.time) < DOUBLECLICK_TIMEOUT &&
 					(last_click.buttons & event.button_state) != 0 && last_click.x == event.x && last_click.y == event.y)
@@ -136,7 +136,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				event.button_state |= (event.button_state & last_click.buttons) <<
 					(EMOUSE_CLICK_BUTTONS_COUNT * (last_click.was_double ? 2 : 1));
 				if (last_click.was_double) {
-					last_click.win = NULL;
+					last_click.win = nullptr;
 				} else {
 					last_click.was_double = !last_click.was_double;
 					last_click.time = now;
@@ -150,12 +150,12 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				last_click.was_double = false;
 			}
 		} else {
-			last_click.win = NULL;
+			last_click.win = nullptr;
 		}
 
 		win = button_down_win;
-		button_down_win = NULL;
-	} else if (button_down_win != NULL) {
+		button_down_win = nullptr;
+	} else if (button_down_win != nullptr) {
 		win = button_down_win;
 	}
 
@@ -167,19 +167,19 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 	active_dialog = dialog_t::active_dialogs.back();
 
 	//FIXME: should notify dialog of outside-dialog clicks
-	while (win != NULL) {
+	while (win != nullptr) {
 		iter = targets.find(win);
 		if (iter != targets.end()) {
 			mouse_event_t local_event = event;
 
-			if (grab_target == NULL) {
-				if (iter->second != NULL && !active_dialog->is_child(iter->second))
+			if (grab_target == nullptr) {
+				if (iter->second != nullptr && !active_dialog->is_child(iter->second))
 					return handled;
 			} else {
 				container_t *grab_container = dynamic_cast<container_t *>(grab_target);
-				if (((grab_container != NULL) && (iter->second == NULL || (!grab_container->is_child(iter->second) &&
+				if (((grab_container != nullptr) && (iter->second == nullptr || (!grab_container->is_child(iter->second) &&
 						(window_component_t *) grab_container != iter->second))) ||
-						(grab_container == NULL && grab_target != iter->second))
+						(grab_container == nullptr && grab_target != iter->second))
 				{
 					mouse_event_t grab_event = local_event;
 					grab_event.type |= EMOUSE_OUTSIDE_GRAB;
@@ -196,7 +196,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 				/* If the active dialog has not changed by processing the event,
 				   and the event is a button press, we should focus the widget that
 				   received the event. */
-				if (!handled && iter->second != NULL && active_dialog == dialog_t::active_dialogs.back() &&
+				if (!handled && iter->second != nullptr && active_dialog == dialog_t::active_dialogs.back() &&
 						event.type == EMOUSE_BUTTON_PRESS && event.previous_button_state == 0 &&
 						(event.button_state & EMOUSE_ALL_BUTTONS) != 0)
 					active_dialog->set_child_focus(iter->second);
@@ -218,16 +218,16 @@ std::list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
 signals::connection bad_draw_recheck_t::initialized =
 	connect_terminal_settings_changed(signals::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
 
-void bad_draw_recheck_t::bad_draw_recheck_all(void) {
+void bad_draw_recheck_t::bad_draw_recheck_all() {
 	for (std::list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++)
 		(*iter)->bad_draw_recheck();
 }
 
-bad_draw_recheck_t::bad_draw_recheck_t(void) {
+bad_draw_recheck_t::bad_draw_recheck_t() {
 	to_signal.push_back(this);
 }
 
-bad_draw_recheck_t::~bad_draw_recheck_t(void) {
+bad_draw_recheck_t::~bad_draw_recheck_t() {
 	for (std::list<bad_draw_recheck_t *>::iterator iter = to_signal.begin(); iter != to_signal.end(); iter++) {
 		if (*iter == this) {
 			to_signal.erase(iter);

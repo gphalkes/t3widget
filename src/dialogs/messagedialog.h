@@ -29,7 +29,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 			text_window_t *text_window;
 			int height, max_text_height;
 
-			implementation_t(void);
+			implementation_t();
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
@@ -39,7 +39,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 
 	public:
 		message_dialog_t(int width, const char *_title, ...);
-		virtual ~message_dialog_t(void);
+		virtual ~message_dialog_t();
 		void set_message(const char *message, size_t length);
 		void set_message(const char *message);
 		void set_message(const std::string *message);

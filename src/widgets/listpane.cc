@@ -33,11 +33,11 @@ list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator
 
 	if (impl->indicator) {
 		impl->indicator_widget = new indicator_widget_t();
-		set_widget_parent(impl->indicator_widget);
+		container_t::set_widget_parent(impl->indicator_widget);
 	}
 }
 
-list_pane_t::~list_pane_t(void) {
+list_pane_t::~list_pane_t() {
 	for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++)
 		delete *iter;
 }
@@ -46,7 +46,7 @@ bool list_pane_t::set_widget_parent(window_component_t *widget) {
 	return t3_win_set_parent(widget->get_base_window(), impl->widgets_window);
 }
 
-void list_pane_t::ensure_cursor_on_screen(void) {
+void list_pane_t::ensure_cursor_on_screen() {
 	int height = t3_win_get_height(window);
 	if (impl->current >= impl->top_idx + height)
 		impl->top_idx = impl->current - height + 1;
@@ -156,7 +156,7 @@ bool list_pane_t::set_size(optint height, optint width) {
 }
 
 
-void list_pane_t::update_contents(void) {
+void list_pane_t::update_contents() {
 	if (impl->indicator) {
 		impl->indicator_widget->update_contents();
 		impl->indicator_widget->set_position(impl->current, 0);
@@ -200,12 +200,12 @@ bool list_pane_t::process_mouse_event(mouse_event_t event) {
 	return true;
 }
 
-void list_pane_t::reset(void) {
+void list_pane_t::reset() {
 	impl->top_idx = 0;
 	impl->current = 0;
 }
 
-void list_pane_t::update_positions(void) {
+void list_pane_t::update_positions() {
 	widgets_t::iterator iter;
 	size_t idx;
 
@@ -218,7 +218,7 @@ void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
 	t3_win_set_anchor(window, anchor->get_base_window(), relation);
 }
 
-void list_pane_t::force_redraw(void) {
+void list_pane_t::force_redraw() {
 	for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++)
 		(*iter)->force_redraw();
 	if (impl->indicator)
@@ -240,7 +240,7 @@ void list_pane_t::set_child_focus(window_component_t *target) {
 			break;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
-			if (container != NULL && container->is_child(target))
+			if (container != nullptr && container->is_child(target))
 				break;
 		}
 	}
@@ -267,7 +267,7 @@ bool list_pane_t::is_child(window_component_t *widget) {
 			return true;
 		} else {
 			container_t *container = dynamic_cast<container_t *>(*iter);
-			if (container != NULL && container->is_child(widget))
+			if (container != nullptr && container->is_child(widget))
 				return true;
 		}
 	}
@@ -291,7 +291,7 @@ void list_pane_t::push_front(widget_t *widget) {
 	update_positions();
 }
 
-void list_pane_t::pop_back(void) {
+void list_pane_t::pop_back() {
 	if (impl->current + 1 == impl->widgets.size()) {
 		impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
 		if (impl->current > 0) {
@@ -305,7 +305,7 @@ void list_pane_t::pop_back(void) {
 	t3_win_resize(impl->widgets_window, impl->widgets.size(), t3_win_get_width(impl->widgets_window));
 }
 
-void list_pane_t::pop_front(void) {
+void list_pane_t::pop_front() {
 	if (impl->current == 0) {
 		impl->widgets[0]->set_focus(window_component_t::FOCUS_OUT);
 		if (impl->widgets.size() > 1 && impl->has_focus)
@@ -318,7 +318,7 @@ void list_pane_t::pop_front(void) {
 	update_positions();
 }
 
-widget_t *list_pane_t::back(void) {
+widget_t *list_pane_t::back() {
 	return (widget_t *) impl->widgets.back();
 }
 
@@ -326,11 +326,11 @@ widget_t *list_pane_t::operator[](int idx) {
 	return (widget_t *) impl->widgets[idx];
 }
 
-size_t list_pane_t::size(void) {
+size_t list_pane_t::size() {
 	return impl->widgets.size();
 }
 
-bool list_pane_t::empty(void) {
+bool list_pane_t::empty() {
 	return impl->widgets.empty();
 }
 
@@ -345,15 +345,15 @@ list_pane_t::iterator list_pane_t::erase(list_pane_t::iterator position) {
 	return position;
 }
 
-list_pane_t::iterator list_pane_t::begin(void) {
+list_pane_t::iterator list_pane_t::begin() {
 	return 0;
 }
 
-list_pane_t::iterator list_pane_t::end(void) {
+list_pane_t::iterator list_pane_t::end() {
 	return impl->widgets.size();
 }
 
-size_t list_pane_t::get_current(void) const {
+size_t list_pane_t::get_current() const {
 	return impl->current;
 }
 
@@ -393,13 +393,13 @@ void list_pane_t::set_single_click_activate(bool sca) {
 
 //=========== Indicator widget ================
 
-list_pane_t::indicator_widget_t::indicator_widget_t(void) : widget_t(1, 3), has_focus(false) {
+list_pane_t::indicator_widget_t::indicator_widget_t() : widget_t(1, 3), has_focus(false) {
 	t3_win_set_depth(window, INT_MAX);
 }
 
 bool list_pane_t::indicator_widget_t::process_key(key_t key) { (void) key; return false; }
 
-void list_pane_t::indicator_widget_t::update_contents(void) {
+void list_pane_t::indicator_widget_t::update_contents() {
 	if (!redraw)
 		return;
 	redraw = false;
@@ -424,6 +424,6 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
 	return t3_win_resize(window, 1, width);
 }
 
-bool list_pane_t::indicator_widget_t::accepts_focus(void) { return false; }
+bool list_pane_t::indicator_widget_t::accepts_focus() { return false; }
 
 }; // namespace

@@ -30,9 +30,9 @@ dialog_t::dialog_t(int height, int width, const char *_title) : dialog_base_t(he
 
     This constructor should only be called by ::main_window_base_t.
 */
-dialog_t::dialog_t(void) : active(false), title(NULL) {}
+dialog_t::dialog_t() : active(false), title(nullptr) {}
 
-void dialog_t::activate_dialog(void) {
+void dialog_t::activate_dialog() {
 	if (!active_dialogs.empty()) {
 		if (this == active_dialogs.back())
 			return;
@@ -52,17 +52,17 @@ void dialog_t::activate_dialog(void) {
 	set_focus(window_component_t::FOCUS_SET);
 	dialog_depth -= 2;
 	t3_win_set_depth(window, dialog_depth);
-	if (shadow_window != NULL)
+	if (shadow_window != nullptr)
 		t3_win_set_depth(shadow_window, dialog_depth + 1);
 	active_dialogs.push_back(this);
-	if (active_popup != NULL)
+	if (active_popup != nullptr)
 		active_popup->hide();
 }
 
-void dialog_t::deactivate_dialog(void) {
+void dialog_t::deactivate_dialog() {
 	this->active = false;
 
-	if (active_popup != NULL)
+	if (active_popup != nullptr)
 		active_popup->hide();
 
 	if (this == active_dialogs.back()) {
@@ -82,7 +82,7 @@ void dialog_t::deactivate_dialog(void) {
 }
 
 bool dialog_t::process_key(key_t key) {
-	if (active_popup != NULL) {
+	if (active_popup != nullptr) {
 		if (active_popup->process_key(key))
 			return true;
 	}
@@ -105,8 +105,8 @@ bool dialog_t::process_key(key_t key) {
 				}
 				if ((*iter)->process_key(EKEY_HOTKEY))
 					return true;
-			} else if ((widget_container = dynamic_cast<widget_container_t *>(*iter)) != NULL &&
-					(hotkey_target = widget_container->is_child_hotkey(key)) != NULL)
+			} else if ((widget_container = dynamic_cast<widget_container_t *>(*iter)) != nullptr &&
+					(hotkey_target = widget_container->is_child_hotkey(key)) != nullptr)
 			{
 				if (hotkey_target->accepts_focus()) {
 					(*current_widget)->set_focus(window_component_t::FOCUS_OUT);
@@ -138,12 +138,12 @@ bool dialog_t::process_key(key_t key) {
 	return true;
 }
 
-void dialog_t::update_contents(void) {
+void dialog_t::update_contents() {
 	bool redraw_title = redraw;
 
 	dialog_base_t::update_contents();
 
-	if (redraw_title && title != NULL) {
+	if (redraw_title && title != nullptr) {
 		t3_win_set_paint(window, 0, 3);
 		t3_win_addstr(window, " ", 0);
 		t3_win_addstr(window, title, 0);
@@ -151,29 +151,29 @@ void dialog_t::update_contents(void) {
 	}
 }
 
-void dialog_t::show(void) {
+void dialog_t::show() {
 	dialog_base_t::show();
 	activate_dialog();
 }
 
-void dialog_t::hide(void) {
+void dialog_t::hide() {
 	deactivate_dialog();
 	dialog_base_t::hide();
 }
 
-void dialog_t::close(void) {
+void dialog_t::close() {
 	hide();
 	closed();
 }
 
 bool dialog_t::is_child(window_component_t *widget) {
-	if (active_popup != NULL && active_popup->is_child(widget))
+	if (active_popup != nullptr && active_popup->is_child(widget))
 		return true;
 	return dialog_base_t::is_child(widget);
 }
 
 void dialog_t::set_child_focus(window_component_t *target) {
-	if (active_popup != NULL && active_popup->is_child(target)) {
+	if (active_popup != nullptr && active_popup->is_child(target)) {
 		active_popup->set_child_focus(target);
 		return;
 	}
@@ -185,11 +185,11 @@ void dialog_t::set_active_popup(popup_t *popup) {
 		return;
 	popup_t *prev_active = active_popup;
 	active_popup = popup;
-	if (prev_active != NULL)
+	if (prev_active != nullptr)
 		prev_active->dialog_base_t::hide();
 }
 
-void dialog_t::update_dialogs(void) {
+void dialog_t::update_dialogs() {
 	for (dialogs_t::iterator iter = dialog_t::active_dialogs.begin();
 		iter != dialog_t::active_dialogs.end(); iter++)
 	(*iter)->update_contents();

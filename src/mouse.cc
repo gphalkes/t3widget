@@ -39,11 +39,11 @@ static enum { // Mouse reporting states:
 static bool use_gpm;
 #endif
 
-mouse_event_t read_mouse_event(void) {
+mouse_event_t read_mouse_event() {
 	return mouse_event_buffer.pop_front();
 }
 
-bool use_xterm_mouse_reporting(void) {
+bool use_xterm_mouse_reporting() {
 	return xterm_mouse_reporting != XTERM_MOUSE_NONE;
 }
 
@@ -110,7 +110,7 @@ static bool convert_x10_mouse_event(int x, int y, int buttons) {
 	if (event.type == EMOUSE_BUTTON_RELEASE && event.previous_button_state == 0)
 		return false;
 
-	event.window = NULL;
+	event.window = nullptr;
 	event.modifier_state = (buttons >> 2) & 7;
 	mouse_event_buffer.push_back(event);
 	return true;
@@ -171,7 +171,7 @@ static void convert_sgr_mouse_event(int x, int y, int buttons, char closing_char
 				break;
 		}
 	}
-	event.window = NULL;
+	event.window = nullptr;
 	event.modifier_state = (buttons >> 2) & 7;
 	mouse_event_buffer.push_back(event);
 }
@@ -208,7 +208,7 @@ static void convert_sgr_mouse_event(int x, int y, int buttons, char closing_char
       not be caused by incorrecly assuming that the buttons are UTF-8 encoded,
       because then the first coordinate byte would be invalid.)
 */
-bool decode_xterm_mouse(void) {
+bool decode_xterm_mouse() {
 	int x, y, buttons, idx, i;
 
 	while (char_buffer_fill < 3) {
@@ -355,7 +355,7 @@ static bool process_gpm_event() {
 		mouse_event.type = EMOUSE_MOTION;
 	}
 
-	mouse_event.window = NULL;
+	mouse_event.window = nullptr;
 	mouse_event.modifier_state = 0;
 	if (gpm_event.modifiers & (1 << KG_SHIFT))
 		mouse_event.modifier_state |= EMOUSE_SHIFT;
@@ -392,17 +392,17 @@ void init_mouse_reporting(bool xterm_mouse) {
 #endif
 }
 
-void deinit_mouse_reporting(void) {
+void deinit_mouse_reporting() {
 	if (xterm_mouse_reporting)
 		t3_term_putp(disable_mouse);
 }
 
-void reinit_mouse_reporting(void) {
+void reinit_mouse_reporting() {
 	if (xterm_mouse_reporting)
 		t3_term_putp(enable_mouse);
 }
 
-void stop_mouse_reporting(void) {
+void stop_mouse_reporting() {
 	if (xterm_mouse_reporting)
 		t3_term_putp(disable_mouse);
 #if defined(HAS_GPM)

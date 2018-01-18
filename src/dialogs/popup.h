@@ -30,12 +30,12 @@ class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
 
 	public:
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
-		void show(void) override;
-		void hide(void) override;
+		void update_contents() override;
+		void show() override;
+		void hide() override;
 		bool process_mouse_event(mouse_event_t event) override;
 
-		bool is_shown(void);
+		bool is_shown();
 };
 
 } // namespace

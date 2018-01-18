@@ -33,8 +33,8 @@ char *_t3_widget_strdup(const char *str) {
 	char *result;
 	size_t len = strlen(str) + 1;
 
-	if ((result = (char *) malloc(len)) == NULL)
-		return NULL;
+	if ((result = (char *) malloc(len)) == nullptr)
+		return nullptr;
 	memcpy(result, str, len);
 	return result;
 }
@@ -89,7 +89,7 @@ ssize_t nosig_read(int fd, char *buffer, size_t bytes) {
 }
 
 static bool is_hex_digit(int c) {
-	return strchr("abcdefABCDEF0123456789", c) != NULL;
+	return strchr("abcdefABCDEF0123456789", c) != nullptr;
 }
 
 static int to_lower(int c) {
@@ -281,18 +281,18 @@ bool parse_escapes(std::string &str, const char **error_message, bool replacemen
 	return true;
 }
 
-std::string get_working_directory(void) {
+std::string get_working_directory() {
 	size_t buffer_max = 511;
-	char *buffer = NULL, *result;
+	char *buffer = nullptr, *result;
 
 	do {
 		result = (char *) realloc(buffer, buffer_max);
-		if (result == NULL) {
+		if (result == nullptr) {
 			free(buffer);
 			throw ENOMEM;
 		}
 		buffer = result;
-		if ((result = getcwd(buffer, buffer_max)) == NULL) {
+		if ((result = getcwd(buffer, buffer_max)) == nullptr) {
 			if (errno != ERANGE) {
 				int error_save = errno;
 				free(buffer);
@@ -304,7 +304,7 @@ std::string get_working_directory(void) {
 				throw ENOMEM;
 			}
 		}
-	} while (result == NULL);
+	} while (result == nullptr);
 
 	std::string retval(buffer);
 	free(buffer);
@@ -314,7 +314,7 @@ std::string get_working_directory(void) {
 std::string get_directory(const char *directory) {
 	std::string dirstring;
 
-	if (directory == NULL) {
+	if (directory == nullptr) {
 		dirstring = get_working_directory();
 	} else {
 		struct stat dir_info;
@@ -364,14 +364,14 @@ void lang_codeset_init(bool init) {
 		transcript_error_t error;
 		const char *codeset = transcript_get_codeset();
 
-		if (lang_codeset_handle == NULL) {
+		if (lang_codeset_handle == nullptr) {
 			lang_codeset_handle = transcript_open_converter(codeset,
 				TRANSCRIPT_UTF8, TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SUBST_UNASSIGNED | TRANSCRIPT_SUBST_ILLEGAL, &error);
 			if (transcript_equal("UTF-8", codeset))
 				lang_codeset_is_utf8 = true;
 		}
 	} else {
-		if (lang_codeset_handle != NULL)
+		if (lang_codeset_handle != nullptr)
 			transcript_close_converter(lang_codeset_handle);
 	}
 }

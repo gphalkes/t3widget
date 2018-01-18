@@ -34,19 +34,19 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 			cleanup_ptr<expander_group_t>::t expander_group;
 			expander_t *fg_expander, *bg_expander;
 			t3_attr_t base_attributes;
-			implementation_t(void) : fg_picker(NULL), bg_picker(NULL), expander_group(NULL), base_attributes(0) {}
+			implementation_t() : fg_picker(NULL), bg_picker(NULL), expander_group(NULL), base_attributes(0) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		void attribute_changed(void);
-		void ok_activate(void);
-		void default_activate(void);
+		void attribute_changed();
+		void ok_activate();
+		void default_activate();
 		void group_expanded(bool state);
-		t3_attr_t get_attribute(void);
+		t3_attr_t get_attribute();
 
 	public:
 		attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
-		void show(void) override;
+		void show() override;
 
 		void set_attribute(t3_attr_t attr);
 		/** Set the base attributes for the attribute picker.
@@ -66,11 +66,11 @@ class T3_WIDGET_API attribute_test_line_t : public widget_t {
 	private:
 		t3_attr_t attr;
 	public:
-		attribute_test_line_t(void);
+		attribute_test_line_t();
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
-		bool accepts_focus(void) override;
+		void update_contents() override;
+		bool accepts_focus() override;
 
 		void set_attribute(t3_attr_t _attr);
 };

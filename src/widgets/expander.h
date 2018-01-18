@@ -41,7 +41,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		void focus_up_from_child(void);
+		void focus_up_from_child();
 
 	public:
 		/** Create a new expander_t.
@@ -57,12 +57,12 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 		void set_expanded(bool expand);
 
 		bool process_key(key_t key) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t _focus) override;
 		bool set_size(optint height, optint width) override;
 		bool is_hotkey(key_t key) override;
 		void set_enabled(bool enable) override;
-		void force_redraw(void) override;
+		void force_redraw() override;
 		void set_child_focus(window_component_t *target) override;
 		bool is_child(window_component_t *component) override;
 		widget_t *is_child_hotkey(key_t key) override;

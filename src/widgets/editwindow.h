@@ -88,7 +88,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 			int repaint_min, /**< First line to repaint. */
 			    repaint_max; /**< Last line to repaint. */
 
-			implementation_t(void) : screen_pos(0), tabsize(8), focus(false), tab_spaces(false),
+			implementation_t() : screen_pos(0), tabsize(8), focus(false), tab_spaces(false),
 				find_dialog(NULL), finder(NULL), wrap_type(wrap_type_t::NONE), wrap_info(NULL),
 				ins_mode(0), last_set_pos(0), auto_indent(true), pasting_text(false),
 				indent_aware_home(true), show_tabs(false), autocompleter(NULL), autocomplete_panel(NULL),
@@ -105,33 +105,33 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		static bool (text_buffer_t::*proces_char[])(key_t);
 
 		/** Redraw the contents of the edit_window_t. */
-		void repaint_screen(void);
+		void repaint_screen();
 		/** Handle cursor right key. */
-		void inc_x(void);
+		void inc_x();
 		/** Handle control-cursor right key. */
-		void next_word(void);
+		void next_word();
 		/** Handle cursor left key. */
-		void dec_x(void);
+		void dec_x();
 		/** Handle control-cursor left key. */
-		void previous_word(void);
+		void previous_word();
 		/** Handle cursor down key. */
-		void inc_y(void);
+		void inc_y();
 		/** Handle cursor up key. */
-		void dec_y(void);
+		void dec_y();
 		/** Handle page-down key. */
-		void pgdn(void);
+		void pgdn();
 		/** Handle page-up key. */
-		void pgup(void);
+		void pgup();
 		/** Handle home key. */
-		void home_key(void);
+		void home_key();
 		/** Handle end key. */
-		void end_key(void);
+		void end_key();
 		/** Reset the selection. */
-		void reset_selection(void);
+		void reset_selection();
 		/** Set the selection mode based on the current key pressed by the user. */
 		bool set_selection_mode(key_t key);
 		/** Delete the selection. */
-		void delete_selection(void);
+		void delete_selection();
 
 		/** The find or replace action has been activated in the find or replace buttons dialog. */
 		void find_activated(find_action_t action, finder_t *finder);
@@ -141,7 +141,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void scroll(int lines);
 		void scrollbar_clicked(scrollbar_t::step_t step);
 		void scrollbar_dragged(int start);
-		void autocomplete_activated(void);
+		void autocomplete_activated();
 		void mark_selection();
 		/** Pastes either the selection, or the clipboard. */
 		void paste(bool clipboard);
@@ -155,7 +155,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    This function is called whenever the #info_window changes size and
 		    therefore needs to be redrawn.
 		*/
-		virtual void draw_info_window(void);
+		virtual void draw_info_window();
 
 		/** Activate the autocomplete panel.
 		    @param autocomplete_single Should the autocomplete be automatic if
@@ -168,7 +168,7 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Convert coordinates relative to the edit window to a text_coordinate_t. */
 		text_coordinate_t xy_to_text_coordinate(int x, int y);
 		/** Ensure that the cursor is visible. */
-		void ensure_cursor_on_screen(void);
+		void ensure_cursor_on_screen();
 		/** Change the lines to start and end repainting.
 
 		    It is acceptable to pass @p start and @p end in reverse order.
@@ -183,13 +183,13 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		    @param params The view parameters to set.
 		*/
 		edit_window_t(text_buffer_t *_text = NULL, const view_parameters_t *params = NULL);
-		~edit_window_t(void);
+		~edit_window_t();
 		bool process_key(key_t key) override;
 		bool set_size(optint height, optint width) override;
-		void update_contents(void) override;
+		void update_contents() override;
 		void set_focus(focus_t focus) override;
-		void force_redraw(void) override;
-		void bad_draw_recheck(void) override;
+		void force_redraw() override;
+		void bad_draw_recheck() override;
 
 		void set_child_focus(window_component_t *target) override;
 		bool is_child(window_component_t *widget) override;
@@ -203,11 +203,11 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		*/
 		void set_text(text_buffer_t *_text, const view_parameters_t *params = NULL);
 		/** Get the text currently displayed. */
-		text_buffer_t *get_text(void) const;
+		text_buffer_t *get_text() const;
 		/** Apply the undo action. */
-		void undo(void);
+		void undo();
 		/** Apply the redo action. */
-		void redo(void);
+		void redo();
 		/** Apply the cut or copy action.
 		    @param cut A boolean indicating whether a cut (@c true) should be performed, or a copy (@c false).
 		    The selected text is stored in copy_buffer.
@@ -216,24 +216,24 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		/** Apply the paste action.
 		    The text to paste is taken from copy_buffer.
 		*/
-		void paste(void);
+		void paste();
 		/** Apply the paste-selection action.
 		    The text to paste is taken from the selection.
 		*/
-		void paste_selection(void);
+		void paste_selection();
 		/** Select the whole text. */
-		void select_all(void);
+		void select_all();
 		/** Show the Insert Special Character dialog. */
-		void insert_special(void);
+		void insert_special();
 		/** Indent the current selection. */
-		void indent_selection(void);
+		void indent_selection();
 		/** Unindent the current selection. */
-		void unindent_selection(void);
+		void unindent_selection();
 		/** Move the cursor to the specified line. */
 		void goto_line(int line);
 
 		/** Show the Goto Line dialog. */
-		void goto_line(void);
+		void goto_line();
 		/** Show the find or replace dialog. */
 		void find_replace(bool replace);
 		/** Apply the find-next action.
@@ -266,27 +266,27 @@ class T3_WIDGET_API edit_window_t : public widget_t, public center_component_t, 
 		void set_show_tabs(bool _show_tabs);
 
 		/** Get the size of a tab. */
-		int get_tabsize(void);
+		int get_tabsize();
 		/** Get the wrap type. */
-		wrap_type_t get_wrap(void);
+		wrap_type_t get_wrap();
 		/** Get tab indents with spaces. */
-		bool get_tab_spaces(void);
+		bool get_tab_spaces();
 		/** Get automatic indent. */
-		bool get_auto_indent(void);
+		bool get_auto_indent();
 		/** Get indent aware home. */
-		bool get_indent_aware_home(void);
+		bool get_indent_aware_home();
 		/** Get show tabs. */
-		bool get_show_tabs(void);
+		bool get_show_tabs();
 
 		/** Save the current view parameters, to allow them to be restored later. */
-		view_parameters_t *save_view_parameters(void);
+		view_parameters_t *save_view_parameters();
 		/** Save the current view parameters, to allow them to be restored later. */
 		void save_view_parameters(view_parameters_t *params);
 
 		/** Set the autocompleter to use. */
 		void set_autocompleter(autocompleter_t *_autocompleter);
 		/** Perform autocompletion, or pop-up autocompletion choice menu. */
-		void autocomplete(void);
+		void autocomplete();
 
 		/** Delete the current line, or lines if the current selection spans multiple lines. */
 		void delete_line();
@@ -313,7 +313,7 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
 		void apply_parameters(edit_window_t *view) const;
 
 	public:
-		view_parameters_t(void);
+		view_parameters_t();
 		void set_tabsize(int _tabsize);
 		void set_wrap(wrap_type_t _wrap_type);
 		void set_tab_spaces(bool _tab_spaces);
@@ -332,7 +332,7 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
 		bool set_size(optint height, optint width) override;
 
 		void set_completions(string_list_base_t *completions);
-		size_t get_selected_idx(void) const;
+		size_t get_selected_idx() const;
 		void connect_activate(const signals::slot<void> &slot);
 };
 

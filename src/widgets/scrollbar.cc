@@ -56,7 +56,7 @@ bool scrollbar_t::set_size(optint height, optint width) {
 	return result;
 }
 
-void scrollbar_t::update_contents(void) {
+void scrollbar_t::update_contents() {
 	int i;
 	double blocks_per_line;
 
@@ -76,7 +76,7 @@ void scrollbar_t::update_contents(void) {
 	/* Recalulate the number of blocks per line, because the slider may actually
 	   be larger than it should be. */
 	if (impl->range <= impl->used)
-		blocks_per_line = strtod("Inf", NULL);
+		blocks_per_line = strtod("Inf", nullptr);
 	else
 		blocks_per_line = (double) (impl->length - 2 - impl->slider_size) / (impl->range - impl->used + 1);
 
@@ -113,7 +113,7 @@ void scrollbar_t::update_contents(void) {
 }
 
 
-bool scrollbar_t::accepts_focus(void) { return false; }
+bool scrollbar_t::accepts_focus() { return false; }
 void scrollbar_t::set_focus(focus_t focus) { (void) focus; }
 
 bool scrollbar_t::process_mouse_event(mouse_event_t event) {

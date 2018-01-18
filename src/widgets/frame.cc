@@ -17,7 +17,7 @@
 namespace t3_widget {
 
 frame_t::frame_t(frame_dimension_t _dimension) : widget_t(3, 3, false),
-		dimension(_dimension), child(NULL) {}
+		dimension(_dimension), child(nullptr) {}
 
 void frame_t::set_child(widget_t *_child) {
 	int child_top = 1, child_left = 1;
@@ -34,9 +34,9 @@ void frame_t::set_child(widget_t *_child) {
 	set_size(None, None);
 }
 
-bool frame_t::process_key(key_t key) { return child != NULL ? child->process_key(key) : false; }
-void frame_t::update_contents(void) {
-	if (child != NULL)
+bool frame_t::process_key(key_t key) { return child != nullptr ? child->process_key(key) : false; }
+void frame_t::update_contents() {
+	if (child != nullptr)
 		child->update_contents();
 	if (!redraw)
 		return;
@@ -49,7 +49,7 @@ void frame_t::update_contents(void) {
 
 }
 
-void frame_t::set_focus(focus_t focus) { if (child != NULL) child->set_focus(focus); }
+void frame_t::set_focus(focus_t focus) { if (child != nullptr) child->set_focus(focus); }
 
 bool frame_t::set_size(optint height, optint width) {
 	int child_height, child_width;
@@ -63,7 +63,7 @@ bool frame_t::set_size(optint height, optint width) {
 	result = t3_win_resize(window, height, width);
 	redraw = true;
 
-	if (child != NULL) {
+	if (child != nullptr) {
 		child_height = t3_win_get_height(window);
 		if (!(dimension & COVER_TOP))
 			child_height--;
@@ -80,17 +80,17 @@ bool frame_t::set_size(optint height, optint width) {
 	return result;
 }
 
-bool frame_t::accepts_focus(void) { return child != NULL ? child->accepts_focus() : false; }
-bool frame_t::is_hotkey(key_t key) { return child != NULL ? child->is_hotkey(key) : false; }
-void frame_t::set_enabled(bool enable) { if (child != NULL) child->set_enabled(enable); }
-void frame_t::force_redraw(void) { if (child != NULL) child->force_redraw(); }
+bool frame_t::accepts_focus() { return child != nullptr ? child->accepts_focus() : false; }
+bool frame_t::is_hotkey(key_t key) { return child != nullptr ? child->is_hotkey(key) : false; }
+void frame_t::set_enabled(bool enable) { if (child != nullptr) child->set_enabled(enable); }
+void frame_t::force_redraw() { if (child != nullptr) child->force_redraw(); }
 
 void frame_t::set_child_focus(window_component_t *target) {
 	container_t *container;
 	if (target == child)
 		child->set_focus(window_component_t::FOCUS_SET);
 	container = dynamic_cast<container_t *>((widget_t *) child);
-	if (container != NULL)
+	if (container != nullptr)
 		container->set_child_focus(target);
 }
 
@@ -100,7 +100,7 @@ bool frame_t::is_child(window_component_t *component) {
 	if (component == child)
 		return true;
 	container = dynamic_cast<container_t *>((widget_t *) child);
-	return container != NULL && container->is_child(component);
+	return container != nullptr && container->is_child(component);
 }
 
 }; // namespace

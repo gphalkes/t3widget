@@ -41,26 +41,26 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 			bool option_widget_set;
 			signals::connection cancel_button_up_connection, ok_button_up_connection;
 
-			implementation_t(void) : view(&names), option_widget_set(false) {}
+			implementation_t() : view(&names), option_widget_set(false) {}
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
 	protected:
 		file_dialog_t(int height, int width, const char *_title);
 
-		widget_t *get_anchor_widget(void);
+		widget_t *get_anchor_widget();
 		void insert_extras(widget_t *widget);
-		void ok_callback(void);
+		void ok_callback();
 		void ok_callback(const std::string *file);
-		virtual const std::string *get_filter(void) = 0;
+		virtual const std::string *get_filter() = 0;
 
 	public:
 		bool set_size(optint height, optint width) override;
 		void change_dir(const std::string *dir);
 		virtual int set_file(const char *file);
-		void refresh_view(void);
+		void refresh_view();
 		void set_options_widget(widget_t *options);
-		virtual void reset(void);
+		virtual void reset();
 
 	T3_WIDGET_SIGNAL(file_selected, void, const std::string *);
 };
@@ -81,12 +81,12 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		const std::string *get_filter(void) override;
+		const std::string *get_filter() override;
 
 	public:
 		open_file_dialog_t(int height, int width);
 		bool set_size(optint height, optint width) override;
-		void reset(void) override;
+		void reset() override;
 };
 
 
@@ -100,11 +100,11 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
 		pimpl_ptr<implementation_t>::t impl;
 
 	protected:
-		const std::string *get_filter(void) override { return &empty_filter; }
+		const std::string *get_filter() override { return &empty_filter; }
 
 	public:
 		save_as_dialog_t(int height, int width);
-		void create_folder(void);
+		void create_folder();
 };
 
 }; // namespace

@@ -5,6 +5,7 @@
 .deps
 .objects
 .libs
+.clang-tidy
 /doc/API
 /tmp/
 /testsuite/work

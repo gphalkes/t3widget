@@ -59,7 +59,7 @@ class T3_WIDGET_API text_buffer_t {
 		undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
 		undo_t *get_undo(undo_type_t type, text_coordinate_t start, text_coordinate_t end);
 
-		void set_undo_mark(void);
+		void set_undo_mark();
 
 		void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
 		bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
@@ -70,21 +70,21 @@ class T3_WIDGET_API text_buffer_t {
 		bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
 		text_line_t *get_line_data_nonconst(int idx);
-		text_line_factory_t *get_line_factory(void);
+		text_line_factory_t *get_line_factory();
 
 		virtual void prepare_paint_line(int line);
 
 	public:
 		text_buffer_t(text_line_factory_t *_line_factory = NULL);
-		virtual ~text_buffer_t(void);
+		virtual ~text_buffer_t();
 
-		int size(void) const;
+		int size() const;
 		const text_line_t *get_line_data(int idx) const;
 
 		bool insert_char(key_t c);
 		bool overwrite_char(key_t c);
-		bool delete_char(void);
-		bool backspace_char(void);
+		bool delete_char();
+		bool backspace_char();
 		bool merge(bool backspace);
 		bool break_line(const std::string *indent = NULL);
 		bool insert_block(const std::string *block);
@@ -95,21 +95,21 @@ class T3_WIDGET_API text_buffer_t {
 
 		int get_line_max(int line) const;
 		void adjust_position(int adjust);
-		int width_at_cursor(void) const;
+		int width_at_cursor() const;
 
 		void paint_line(t3_window_t *win, int line, const text_line_t::paint_info_t *info);
-		void goto_next_word(void);
-		void goto_previous_word(void);
+		void goto_next_word();
+		void goto_previous_word();
 
 		int calculate_screen_pos(const text_coordinate_t *where, int tabsize) const;
 		int calculate_line_pos(int line, int pos, int tabsize) const;
 
-		text_coordinate_t get_selection_start(void) const;
-		text_coordinate_t get_selection_end(void) const;
+		text_coordinate_t get_selection_start() const;
+		text_coordinate_t get_selection_end() const;
 		void set_selection_end(bool update_primary = true);
 		void set_selection_mode(selection_mode_t mode);
-		selection_mode_t get_selection_mode(void) const;
-		bool selection_empty(void) const;
+		selection_mode_t get_selection_mode() const;
+		bool selection_empty() const;
 		void delete_block(text_coordinate_t start, text_coordinate_t end);
 		bool replace_block(text_coordinate_t start, text_coordinate_t end, const std::string *block);
 		bool indent_selection(int tabsize, bool tab_spaces);
@@ -133,15 +133,15 @@ class T3_WIDGET_API text_buffer_t {
 		bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end, find_result_t *result) const;
 		void replace(finder_t *finder, find_result_t *result);
 
-		bool is_modified(void) const;
+		bool is_modified() const;
 		std::string *convert_block(text_coordinate_t start, text_coordinate_t end);
-		int apply_undo(void);
-		int apply_redo(void);
-		void start_undo_block(void);
-		void end_undo_block(void);
+		int apply_undo();
+		int apply_redo();
+		void start_undo_block();
+		void end_undo_block();
 
-		void goto_next_word_boundary(void);
-		void goto_previous_word_boundary(void);
+		void goto_next_word_boundary();
+		void goto_previous_word_boundary();
 
 		/** Sets the position in the text file.
 

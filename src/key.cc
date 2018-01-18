@@ -136,9 +136,9 @@ static bool in_bracketed_paste;
 
 static key_t decode_sequence(bool outer);
 static key_t bracketed_paste_decode();
-static void stop_keys(void);
+static void stop_keys();
 
-static void convert_next_key(void) {
+static void convert_next_key() {
 	const char *char_buffer_ptr;
 	uint32_t *unicode_buffer_ptr;
 
@@ -175,7 +175,7 @@ static void convert_next_key(void) {
 	}
 }
 
-static key_t get_next_converted_key(void) {
+static key_t get_next_converted_key() {
 	if (unicode_buffer_fill == 0)
 		convert_next_key();
 
@@ -194,7 +194,7 @@ static void unget_key(key_t c) {
 	unicode_buffer_fill++;
 }
 
-static int get_next_keychar(void) {
+static int get_next_keychar() {
 	if (char_buffer_fill > 0) {
 		int c = char_buffer[0];
 		char_buffer_fill--;
@@ -222,7 +222,7 @@ bool read_keychar(int timeout) {
 		transcript_error_t transcript_error;
 		/* Open new conversion handle, but make sure we actually succeed in opening it,
 		   before we close the old one. */
-		if ((new_conversion_handle = transcript_open_converter(t3_term_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) != NULL) {
+		if ((new_conversion_handle = transcript_open_converter(t3_term_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) != nullptr) {
 			transcript_close_converter(conversion_handle);
 			conversion_handle = new_conversion_handle;
 		} else {
@@ -252,7 +252,7 @@ static void read_keys() {
 		max_fd = signal_pipe[0];
 		fd_set_mouse_fd(&readset, &max_fd);
 
-		retval = select(max_fd + 1, &readset, NULL, NULL, NULL);
+		retval = select(max_fd + 1, &readset, nullptr, nullptr, nullptr);
 
 		if (retval < 0)
 			continue;
@@ -318,7 +318,7 @@ static void read_keys() {
 	}
 }
 
-key_t read_key(void) {
+key_t read_key() {
 	return key_buffer.pop_front();
 }
 
@@ -377,7 +377,7 @@ static key_t decode_sequence(bool outer) {
 
 			is_prefix = false;
 			if ((matched = (mapping_t *) bsearch(&sequence, map, map_count,
-					sizeof(mapping_t), compare_sequence_with_mapping)) != NULL)
+					sizeof(mapping_t), compare_sequence_with_mapping)) != nullptr)
 				return matched->key;
 
 			/* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised.
@@ -555,13 +555,13 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	const t3_key_node_t *key_node;
 	int i, j, error, idx;
 	transcript_error_t transcript_error;
-	const char *shiftfn = NULL;
+	const char *shiftfn = nullptr;
 
 	/* Start with things most likely to fail */
-	if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == NULL)
+	if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0, &transcript_error)) == nullptr)
 		RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
 
-	if ((keymap = t3_key_load_map(term, NULL, &error)) == NULL)
+	if ((keymap = t3_key_load_map(term, nullptr, &error)) == nullptr)
 		RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
 
 	if (pipe(signal_pipe) < 0)
@@ -572,12 +572,12 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	sigaddset(&sa.sa_mask, SIGWINCH);
 	sa.sa_flags = 0;
 
-	if (sigaction(SIGWINCH, &sa, NULL) < 0)
+	if (sigaction(SIGWINCH, &sa, nullptr) < 0)
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
 
 	sigemptyset(&sigs);
 	sigaddset(&sigs, SIGWINCH);
-	if (sigprocmask(SIG_UNBLOCK, &sigs, NULL) < 0)
+	if (sigprocmask(SIG_UNBLOCK, &sigs, nullptr) < 0)
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
 
 	for (i = 1; i <= 26; i++)
@@ -597,19 +597,19 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	map_single[10] = EKEY_NL;
 	map_single[13] = EKEY_NL;
 
-	if ((key_node = t3_key_get_named_node(keymap, "_enter")) != NULL) {
+	if ((key_node = t3_key_get_named_node(keymap, "_enter")) != nullptr) {
 		t3_term_putp(key_node->string);
 		enter = key_node->string;
 	}
-	if ((key_node = t3_key_get_named_node(keymap, "_leave")) != NULL)
+	if ((key_node = t3_key_get_named_node(keymap, "_leave")) != nullptr)
 		leave = key_node->string;
-	if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != NULL)
+	if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != nullptr)
 		shiftfn = key_node->string;
 
 	// Enable bracketed paste.
 	t3_term_putp("\033[?2004h");
 
-	init_mouse_reporting(t3_key_get_named_node(keymap, "_xterm_mouse") != NULL);
+	init_mouse_reporting(t3_key_get_named_node(keymap, "_xterm_mouse") != nullptr);
 
 	/* Load all the known keys from the terminfo database.
 	   - find out how many sequences there are
@@ -617,17 +617,17 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 	   - fill the map
 	   - sort the map for quick searching
 	*/
-	for (key_node = keymap; key_node != NULL; key_node = key_node->next) {
+	for (key_node = keymap; key_node != nullptr; key_node = key_node->next) {
 		if (key_node->key[0] == '_')
 			continue;
 		if (key_node->string[0] == 27)
 			map_count++;
 	}
 
-	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == NULL)
+	if ((map = (mapping_t *) malloc(sizeof(mapping_t) * map_count)) == nullptr)
 		RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
 
-	for (key_node = keymap, idx = 0; key_node != NULL; key_node = key_node->next) {
+	for (key_node = keymap, idx = 0; key_node != nullptr; key_node = key_node->next) {
 		if (key_node->key[0] == '_')
 			continue;
 
@@ -687,7 +687,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 							break;
 					}
 				}
-				if (shiftfn != NULL && key >= EKEY_F1 + shiftfn[2] - 1 && key < EKEY_F1 + shiftfn[2] + shiftfn[1] - shiftfn[0]) {
+				if (shiftfn != nullptr && key >= EKEY_F1 + shiftfn[2] - 1 && key < EKEY_F1 + shiftfn[2] + shiftfn[1] - shiftfn[0]) {
 					key -= shiftfn[2] - 1;
 					key |= EKEY_SHIFT;
 				}
@@ -728,7 +728,7 @@ return_error:
 }
 #undef RETURN_ERROR
 
-void deinit_keys(void) {
+void deinit_keys() {
 	deinit_mouse_reporting();
 	// Disable bracketed paste.
 	t3_term_putp("\033[?2004l");
@@ -736,33 +736,33 @@ void deinit_keys(void) {
 	in_bracketed_paste = false;
 }
 
-void reinit_keys(void) {
+void reinit_keys() {
 	t3_term_putp(enter);
 	// Enable bracketed paste.
 	t3_term_putp("\033[?2004h");
 	reinit_mouse_reporting();
 }
 
-void cleanup_keys(void) {
+void cleanup_keys() {
 	stop_keys();
-	if (conversion_handle != NULL) {
+	if (conversion_handle != nullptr) {
 		transcript_close_converter(conversion_handle);
-		conversion_handle = NULL;
+		conversion_handle = nullptr;
 	}
-	if (keymap != NULL) {
+	if (keymap != nullptr) {
 		t3_key_free_map(keymap);
-		keymap = NULL;
+		keymap = nullptr;
 	}
-	if (map != NULL) {
+	if (map != nullptr) {
 		free(map);
-		map = NULL;
+		map = nullptr;
 	}
 	memset(map_single, 0, sizeof(map_single));
-	leave = NULL;
-	enter = NULL;
+	leave = nullptr;
+	enter = nullptr;
 }
 
-static void stop_keys(void) {
+static void stop_keys() {
 	char quit_signal = QUIT_SIGNAL;
 	nosig_write(signal_pipe[1], &quit_signal, 1);
 	close(signal_pipe[1]);
@@ -786,12 +786,12 @@ void set_key_timeout(int msec) {
 	}
 }
 
-int get_key_timeout(void) {
+int get_key_timeout() {
 	std::unique_lock<std::mutex> lock(key_timeout_lock);
 	return key_timeout < 0 ? 0 : (drop_single_esc ? -key_timeout : key_timeout);
 }
 
-void signal_update(void) {
+void signal_update() {
 	key_buffer.push_back_unique(EKEY_EXTERNAL_UPDATE);
 }
 

@@ -26,7 +26,7 @@ bool bullet_t::set_size(optint height, optint width) {
 
 bool bullet_t::process_key(key_t key) { (void) key; return false; }
 
-void bullet_t::update_contents(void) {
+void bullet_t::update_contents() {
 	t3_win_set_default_attrs(window, attributes.dialog);
 	t3_win_set_paint(window, 0, 0);
 	if (source())

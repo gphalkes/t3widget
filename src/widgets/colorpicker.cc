@@ -104,7 +104,7 @@ void color_picker_base_t::set_undefined_colors(t3_attr_t attr) {
 	undefined_colors = attr & (T3_ATTR_FG_MASK | T3_ATTR_BG_MASK);
 }
 
-t3_attr_t color_picker_base_t::get_color(void) {
+t3_attr_t color_picker_base_t::get_color() {
 	return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color) : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0)) :
 		(current_color >= 0 ? T3_ATTR_BG(current_color) : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
 }
@@ -124,7 +124,7 @@ void color_picker_base_t::set_color(t3_attr_t attr) {
 		current_color = color - 1;
 }
 
-void color_picker_base_t::update_contents(void) {
+void color_picker_base_t::update_contents() {
 	int i, old_y, x, y;
 
 	if (!redraw)
@@ -188,7 +188,7 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
 	max_color = terminal_capabilities.colors - 1;
 	if (max_color > 255)
 		max_color = 255;
-	color_to_xy(max_color, x, y);
+	color_picker_t::color_to_xy(max_color, x, y);
 
 	init_window(y + 2, COLORS_PER_LINE + 2);
 }
@@ -247,7 +247,7 @@ void color_picker_t::color_to_xy(int color, int &x, int &y) {
 }
 
 //================================================================
-color_pair_picker_t::color_pair_picker_t(void) : color_picker_base_t(true) {
+color_pair_picker_t::color_pair_picker_t() : color_picker_base_t(true) {
 	int x, y;
 	t3_term_caps_t terminal_capabilities;
 	t3_term_get_caps(&terminal_capabilities);
@@ -256,7 +256,7 @@ color_pair_picker_t::color_pair_picker_t(void) : color_picker_base_t(true) {
 	max_color = terminal_capabilities.pairs - 1;
 	if (max_color > 255)
 		max_color = 255;
-	color_to_xy(max_color, x, y);
+	color_pair_picker_t::color_to_xy(max_color, x, y);
 
 	init_window(y + 1, COLORS_PER_LINE + 2);
 }

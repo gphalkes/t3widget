@@ -21,12 +21,12 @@ namespace t3_widget {
 #ifdef _T3_WIDGET_DEBUG
 static FILE *log_file;
 
-static void close_log(void) {
+static void close_log() {
 	fclose(log_file);
 }
 
-void init_log(void) {
-	if (log_file == NULL) {
+void init_log() {
+	if (log_file == nullptr) {
 		log_file = fopen("libt3widgetlog.txt", "a");
 		if (log_file)
 			atexit(close_log);

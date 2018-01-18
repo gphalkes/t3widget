@@ -19,9 +19,9 @@
 
 namespace t3_widget {
 
-undo_list_t::~undo_list_t(void) {
+undo_list_t::~undo_list_t() {
 	current = head;
-	while (current != NULL) {
+	while (current != nullptr) {
 		head = head->next;
 		delete current;
 		current = head;
@@ -29,7 +29,7 @@ undo_list_t::~undo_list_t(void) {
 }
 
 void undo_list_t::add(undo_t *undo) {
-	if (head == NULL) {
+	if (head == nullptr) {
 		mark = head = tail = undo;
 		return;
 	}
@@ -37,31 +37,31 @@ void undo_list_t::add(undo_t *undo) {
 	if (mark_beyond_current)
 		mark_is_valid = false;
 
-	if (current != NULL) {
+	if (current != nullptr) {
 		if (mark_is_valid && current == mark)
 			mark = undo;
 
 		/* Free current and everything after. However, if current points to the start of the
 		   list, ie all edits have been undone, then we are left with an empty list but with head
 		   and tail pointing to something that doesn't exist anymore. Thus we set head to
-		   NULL in this case so we can still see that this happened after we free everything. */
+		   nullptr in this case so we can still see that this happened after we free everything. */
 
 		if (current == head)
-			head = NULL;
+			head = nullptr;
 		else
 			tail = current->previous;
 
-		while (current != NULL) {
+		while (current != nullptr) {
 			undo_t *to_free = current;
 			current = current->next;
 			delete to_free;
 		}
 
-		if (head == NULL) {
+		if (head == nullptr) {
 			head = tail = undo;
 			return;
 		}
-	} else if (mark == NULL && mark_is_valid) {
+	} else if (mark == nullptr && mark_is_valid) {
 		mark = undo;
 	}
 
@@ -71,24 +71,24 @@ void undo_list_t::add(undo_t *undo) {
 
 }
 
-undo_t *undo_list_t::back(void) {
+undo_t *undo_list_t::back() {
 	if (current == head)
-		return NULL;
+		return nullptr;
 
 	if (mark_is_valid && current == mark)
 		mark_beyond_current = true;
 
-	if (current == NULL)
+	if (current == nullptr)
 		return current = tail;
 
 	return current = current->previous;
 }
 
-undo_t *undo_list_t::forward(void) {
+undo_t *undo_list_t::forward() {
 	undo_t *retval = current;
 
-	if (current == NULL)
-		return NULL;
+	if (current == nullptr)
+		return nullptr;
 
 	current = current->next;
 
@@ -98,13 +98,13 @@ undo_t *undo_list_t::forward(void) {
 	return retval;
 }
 
-void undo_list_t::set_mark(void) {
+void undo_list_t::set_mark() {
 	mark_is_valid = true;
 	mark_beyond_current = false;
 	mark = current;
 }
 
-bool undo_list_t::is_at_mark(void) const {
+bool undo_list_t::is_at_mark() const {
 	return mark_is_valid && mark == current;
 }
 
@@ -133,28 +133,28 @@ static const char *undo_type_to_string[] = {
 	"UNDO_BLOCK_END_REDO"
 };
 
-void undo_list_t::dump(void) {
+void undo_list_t::dump() {
 	undo_t *ptr;
 
 	ptr = head;
 
-	while (ptr != NULL) {
+	while (ptr != nullptr) {
 		text_coordinate_t start = ptr->get_start();
 
 		lprintf("undo_t:%s%c(%d,%d) %s: '", ptr == current ? "->" : "  ", mark_is_valid && ptr == mark ? '@' : ' ',
 			start.line, start.pos, undo_type_to_string[ptr->get_type_t()]);
-		if (ptr->get_text() != NULL)
+		if (ptr->get_text() != nullptr)
 			ldumpstr(ptr->get_text()->getData()->data(), ptr->get_text()->getLength());
 		lprintf("'\n");
 
-		if (ptr->get_replacement() != NULL) {
+		if (ptr->get_replacement() != nullptr) {
 			lprintf("        Replaced by: '");
 			ldumpstr(ptr->get_replacement()->getData()->data(), ptr->get_replacement()->getLength());
 			lprintf("'\n");
 		}
 		ptr = ptr->next;
 	}
-	if (current == NULL)
+	if (current == nullptr)
 		lprintf("undo_t:-> END\n");
 }
 #endif
@@ -182,31 +182,31 @@ undo_type_t undo_t::redo_map[] = {
 	UNDO_BLOCK_END_REDO
 };
 
-undo_t::~undo_t(void) {}
+undo_t::~undo_t() {}
 
 
-undo_type_t undo_t::get_type(void) const { return type; }
-undo_type_t undo_t::get_redo_type(void) const { return redo_map[type]; }
+undo_type_t undo_t::get_type() const { return type; }
+undo_type_t undo_t::get_redo_type() const { return redo_map[type]; }
 
-text_coordinate_t undo_t::get_start(void) { return start; }
-std::string *undo_t::get_text(void) { return NULL; }
-std::string *undo_t::get_replacement(void) { return NULL; }
-text_coordinate_t undo_t::get_end(void) const { return text_coordinate_t(-1, -1); }
-text_coordinate_t undo_t::get_new_end(void) const { return text_coordinate_t(-1, -1); }
+text_coordinate_t undo_t::get_start() { return start; }
+std::string *undo_t::get_text() { return nullptr; }
+std::string *undo_t::get_replacement() { return nullptr; }
+text_coordinate_t undo_t::get_end() const { return text_coordinate_t(-1, -1); }
+text_coordinate_t undo_t::get_new_end() const { return text_coordinate_t(-1, -1); }
 
-void undo_single_text_t::add_newline(void) { text.append(1, '\n'); }
-std::string *undo_single_text_t::get_text(void) { return &text; }
-void undo_single_text_t::minimize(void) { text.reserve(0); }
+void undo_single_text_t::add_newline() { text.append(1, '\n'); }
+std::string *undo_single_text_t::get_text() { return &text; }
+void undo_single_text_t::minimize() { text.reserve(0); }
 
-text_coordinate_t undo_single_text_double_coord_t::get_end(void) const { return end; }
+text_coordinate_t undo_single_text_double_coord_t::get_end() const { return end; }
 
-std::string *undo_double_text_t::get_replacement(void) { return &replacement; }
-void undo_double_text_t::minimize(void) {
+std::string *undo_double_text_t::get_replacement() { return &replacement; }
+void undo_double_text_t::minimize() {
 	undo_single_text_double_coord_t::minimize();
 	replacement.reserve(0);
 }
 
 void undo_double_text_triple_coord_t::set_new_end(text_coordinate_t _new_end) { new_end = _new_end; }
-text_coordinate_t undo_double_text_triple_coord_t::get_new_end(void) const { return new_end; }
+text_coordinate_t undo_double_text_triple_coord_t::get_new_end() const { return new_end; }
 
 }; // namespace

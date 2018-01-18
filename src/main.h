@@ -54,13 +54,13 @@ class T3_WIDGET_API complex_error_t {
 		int line_number;
 
 	public:
-		complex_error_t(void);
+		complex_error_t();
 		complex_error_t(source_t _source, int _error, const char *_file_name = NULL, int _line_number = 0);
 		void set_error(source_t _source, int _error, const char *_file_name = NULL, int _line_number = 0);
-		bool get_success(void);
-		source_t get_source(void);
-		int get_error(void);
-		const char *get_string(void);
+		bool get_success();
+		source_t get_source();
+		int get_error();
+		const char *get_string();
 };
 
 /** Structure holding the parameters for initialization for libt3widget.
@@ -83,9 +83,9 @@ class T3_WIDGET_API init_parameters_t {
 		bool disable_external_clipboard;
 
 		/** Construct a new init_parameters_t object. */
-		static init_parameters_t *create(void);
+		static init_parameters_t *create();
 	private:
-		init_parameters_t(void);
+		init_parameters_t();
 };
 
 //FIXME: shouldn't these be internal?
@@ -122,30 +122,30 @@ T3_WIDGET_API complex_error_t init(const init_parameters_t *params);
     This function is called automatically on program termination by use of
     @c atexit(3).
 */
-T3_WIDGET_API void restore(void);
+T3_WIDGET_API void restore();
 /** Perform a single iteration of the main loop.
     This function updates the contents of the terminal, waits for a key press
 	and sends it to the currently focussed dialog. Called repeatedly from
     #main_loop.
 */
-T3_WIDGET_API void iterate(void);
+T3_WIDGET_API void iterate();
 /** Run the main event loop of the libt3widget library.
     This function will return only by calling #exit_main_loop, yielding the
     value passed to that function.
 */
-T3_WIDGET_API int main_loop(void);
+T3_WIDGET_API int main_loop();
 /** Suspend execution of this program by sending a @c SIGSTOP signal.
     Before sending the @c SIGSTOP signal, the terminal is reset to its original
     state. This allows the parent process (usually the shell) to continue
     running, while the current program is temporarily suspended.
 */
-T3_WIDGET_API void suspend(void);
+T3_WIDGET_API void suspend();
 /** Force a complete redraw of the terminal contents.
     The terminal contents may get corrupted due to the output from other
     processes. The only remedy is to clear the terminal and redraw it, which is
     exactly what this function does.
 */
-T3_WIDGET_API void redraw(void);
+T3_WIDGET_API void redraw();
 
 /** Exit the main loop.
     Calling this function will cause an exit from the main loop. This is
@@ -173,7 +173,7 @@ T3_WIDGET_API void async_safe_exit_main_loop(int exit_code);
     all memory allocated in libt3widget, thus allowing you to debug your own
     memory allocations more easily.
 */
-T3_WIDGET_API void cleanup(void);
+T3_WIDGET_API void cleanup();
 
 /** Control the color mode.
     libt3widget by default starts in black and white mode, as most terminals
@@ -195,13 +195,13 @@ T3_WIDGET_API t3_attr_t get_attribute(attribute_t attribute);
 */
 T3_WIDGET_API t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode);
 /** Get the version of the libt3widget library used at runtime. */
-T3_WIDGET_API long get_version(void);
+T3_WIDGET_API long get_version();
 
 /** Get the version of the libt3key library used by libt3widget at runtime. */
-T3_WIDGET_API long get_libt3key_version(void);
+T3_WIDGET_API long get_libt3key_version();
 
 /** Get the version of the libt3window library used by libt3widget at runtime. */
-T3_WIDGET_API long get_libt3window_version(void);
+T3_WIDGET_API long get_libt3window_version();
 
 /** Get the dimensions of the screen as used by libt3widget. */
 T3_WIDGET_API void get_screen_size(int *height, int *width);

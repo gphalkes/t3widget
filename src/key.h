@@ -140,7 +140,7 @@ enum {
 };
 
 /** Retrieve a key from the input queue. */
-T3_WIDGET_API key_t read_key(void);
+T3_WIDGET_API key_t read_key();
 /** Set the timeout for handling escape sequences.
 
     The value of the @p msec parameter can have the following values:
@@ -160,7 +160,7 @@ T3_WIDGET_API void set_key_timeout(int msec);
 
     See set_key_timeout for details about the return value.
 */
-T3_WIDGET_API int get_key_timeout(void);
+T3_WIDGET_API int get_key_timeout();
 
 /** Request the generation of the @c update_notification signal.
 
@@ -170,7 +170,7 @@ T3_WIDGET_API int get_key_timeout(void);
     cause an @c update_notification signal to be generated on the thread
     running the #main_loop function.
 */
-T3_WIDGET_API void signal_update(void);
+T3_WIDGET_API void signal_update();
 
 }; // namespace
 #endif

@@ -44,13 +44,13 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
 		};
 		pimpl_ptr<implementation_t>::t impl;
 
-		void backward_toggled(void);
-		void icase_toggled(void);
-		void regex_toggled(void);
-		void wrap_toggled(void);
-		void transform_backslash_toggled(void);
-		void whole_word_toggled(void);
-		void find_activated(void);
+		void backward_toggled();
+		void icase_toggled();
+		void regex_toggled();
+		void wrap_toggled();
+		void transform_backslash_toggled();
+		void whole_word_toggled();
+		void find_activated();
 		void find_activated(find_action_t);
 
 	public:
@@ -71,7 +71,7 @@ class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
 		pimpl_ptr<implementation_t>::t impl;
 
 	public:
-		replace_buttons_dialog_t(void);
+		replace_buttons_dialog_t();
 		virtual void reshow(find_action_t button);
 
 	T3_WIDGET_SIGNAL(activate, void, find_action_t);

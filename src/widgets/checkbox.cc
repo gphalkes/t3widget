@@ -16,7 +16,7 @@
 
 namespace t3_widget {
 
-checkbox_t::checkbox_t(bool _state) : widget_t(1, 3), state(_state), has_focus(false), label(NULL) {}
+checkbox_t::checkbox_t(bool _state) : widget_t(1, 3), state(_state), has_focus(false), label(nullptr) {}
 
 bool checkbox_t::process_key(key_t key) {
 	switch (key) {
@@ -54,7 +54,7 @@ bool checkbox_t::set_size(optint height, optint width) {
 	return true;
 }
 
-void checkbox_t::update_contents(void) {
+void checkbox_t::update_contents() {
 	if (!redraw)
 		return;
 	redraw = false;
@@ -72,7 +72,7 @@ void checkbox_t::set_focus(focus_t focus) {
 	has_focus = focus;
 }
 
-bool checkbox_t::get_state(void) {
+bool checkbox_t::get_state() {
 	return state;
 }
 
@@ -82,14 +82,14 @@ void checkbox_t::set_state(bool _state) {
 }
 
 void checkbox_t::set_label(smart_label_t *_label) {
-	if (label != NULL)
+	if (label != nullptr)
 		unregister_mouse_target(label->get_base_window());
 	label = _label;
 	register_mouse_target(label->get_base_window());
 }
 
 bool checkbox_t::is_hotkey(key_t key) {
-	return label == NULL ? false : label->is_hotkey(key);
+	return label == nullptr ? false : label->is_hotkey(key);
 }
 
 void checkbox_t::set_enabled(bool enable) {
