@@ -14,16 +14,15 @@
 
 // Explicitly doesn't have an include guard!
 public:
-	/** Actions which can be bound to keys. */
-	enum Action {
+/** Actions which can be bound to keys. */
+enum Action {
 #define _T3_ACTION(action, ...) ACTION_##action,
 #include _T3_ACTION_FILE
 #undef _T3_ACTION
-	};
+};
 
-	/** Returns the object holding the key bindings for this type. */
-	static key_bindings_t<Action> *get_key_binding();
+/** Returns the object holding the key bindings for this type. */
+static key_bindings_t<Action> *get_key_binding();
 
 private:
-	static key_bindings_t<Action> key_bindings;
-
+static key_bindings_t<Action> key_bindings;

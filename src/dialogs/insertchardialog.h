@@ -21,16 +21,17 @@
 namespace t3_widget {
 
 class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
-	private:
-		text_field_t *description_line;
-		key_t interpret_key(const std::string *descr);
-	public:
-		insert_char_dialog_t();
-		bool set_size(optint height, optint width) override;
-		void reset();
+ private:
+  text_field_t *description_line;
+  key_t interpret_key(const std::string *descr);
 
-		void ok_activate();
+ public:
+  insert_char_dialog_t();
+  bool set_size(optint height, optint width) override;
+  void reset();
+
+  void ok_activate();
 };
 
-}; // namespace
+};  // namespace
 #endif

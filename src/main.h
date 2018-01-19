@@ -14,10 +14,10 @@
 #ifndef T3_WIDGET_MAIN_H
 #define T3_WIDGET_MAIN_H
 
-#include <t3widget/util.h>
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/dialogs/insertchardialog.h>
 #include <t3widget/dialogs/messagedialog.h>
+#include <t3widget/util.h>
 
 namespace t3_widget {
 
@@ -27,8 +27,8 @@ namespace t3_widget {
     The second 8 bits represent the minor version.
     The third 8 bits represent the major version.
 
-	At runtime, the value of T3_WIDGET_VERSION can be retrieved by calling
-	#get_version.
+        At runtime, the value of T3_WIDGET_VERSION can be retrieved by calling
+        #get_version.
 
     @internal
     The value 0 is an invalid value which should be replaced by the script
@@ -38,57 +38,55 @@ namespace t3_widget {
 
 /** A class representing an error from one of the supporting libraries. */
 class T3_WIDGET_API complex_error_t {
-	public:
-		enum source_t{
-			SRC_NONE,
-			SRC_ERRNO,
-			SRC_TRANSCRIPT,
-			SRC_T3_KEY,
-			SRC_T3_WINDOW
-		};
-	private:
-		bool success;
-		source_t source;
-		int error;
-		const char *file_name;
-		int line_number;
+ public:
+  enum source_t { SRC_NONE, SRC_ERRNO, SRC_TRANSCRIPT, SRC_T3_KEY, SRC_T3_WINDOW };
 
-	public:
-		complex_error_t();
-		complex_error_t(source_t _source, int _error, const char *_file_name = NULL, int _line_number = 0);
-		void set_error(source_t _source, int _error, const char *_file_name = NULL, int _line_number = 0);
-		bool get_success();
-		source_t get_source();
-		int get_error();
-		const char *get_string();
+ private:
+  bool success;
+  source_t source;
+  int error;
+  const char *file_name;
+  int line_number;
+
+ public:
+  complex_error_t();
+  complex_error_t(source_t _source, int _error, const char *_file_name = NULL,
+                  int _line_number = 0);
+  void set_error(source_t _source, int _error, const char *_file_name = NULL, int _line_number = 0);
+  bool get_success();
+  source_t get_source();
+  int get_error();
+  const char *get_string();
 };
 
 /** Structure holding the parameters for initialization for libt3widget.
 */
 class T3_WIDGET_API init_parameters_t {
-	public:
-		const char *program_name; /**< Name of the program to print where appropriate. */
-		const char *term; /**< Override the terminal name derived from @c TERM. */
-		/** Boolean indicating whether keypad keys are returned as separate from the regular cursor control keys.
+ public:
+  const char *program_name; /**< Name of the program to print where appropriate. */
+  const char *term;         /**< Override the terminal name derived from @c TERM. */
+  /** Boolean indicating whether keypad keys are returned as separate from the regular cursor
+     control keys.
 
-			If @c false, there will be no distinction between the user pressing e.g.
-			left arrow and keypad left arrow. This is the recommended behavior. */
-		bool separate_keypad;
-		/** Boolean indicating whether to explicitly disable the external clipboard.
+          If @c false, there will be no distinction between the user pressing e.g.
+          left arrow and keypad left arrow. This is the recommended behavior. */
+  bool separate_keypad;
+  /** Boolean indicating whether to explicitly disable the external clipboard.
 
-		    The external clipboard is (at the time of this writing) the X11 clipboard.
-		    In some cases it may be desirable to disable the X11 interface, even though
-		    we may be able to connect to it. For example, if it is connected over a
-		    slow link. */
-		bool disable_external_clipboard;
+      The external clipboard is (at the time of this writing) the X11 clipboard.
+      In some cases it may be desirable to disable the X11 interface, even though
+      we may be able to connect to it. For example, if it is connected over a
+      slow link. */
+  bool disable_external_clipboard;
 
-		/** Construct a new init_parameters_t object. */
-		static init_parameters_t *create();
-	private:
-		init_parameters_t();
+  /** Construct a new init_parameters_t object. */
+  static init_parameters_t *create();
+
+ private:
+  init_parameters_t();
 };
 
-//FIXME: shouldn't these be internal?
+// FIXME: shouldn't these be internal?
 /** Global insert_char_dialog_t dialog. */
 T3_WIDGET_API extern insert_char_dialog_t *insert_char_dialog;
 /** Global message_dialog_t dialog. */
@@ -110,7 +108,8 @@ T3_WIDGET_API signals::connection connect_on_init(const signals::slot<void, bool
     The @c terminal_settings_changed signal is emitted when the libt3window
     library has completed the terminal capability detection.
 */
-T3_WIDGET_API signals::connection connect_terminal_settings_changed(const signals::slot<void> &slot);
+T3_WIDGET_API signals::connection connect_terminal_settings_changed(
+    const signals::slot<void> &slot);
 
 /** Initialize the libt3widget library.
 
@@ -125,7 +124,7 @@ T3_WIDGET_API complex_error_t init(const init_parameters_t *params);
 T3_WIDGET_API void restore();
 /** Perform a single iteration of the main loop.
     This function updates the contents of the terminal, waits for a key press
-	and sends it to the currently focussed dialog. Called repeatedly from
+        and sends it to the currently focussed dialog. Called repeatedly from
     #main_loop.
 */
 T3_WIDGET_API void iterate();
@@ -154,9 +153,9 @@ T3_WIDGET_API void redraw();
 */
 T3_WIDGET_API void exit_main_loop(int exit_code)
 #ifdef __GNUC__
-__attribute__((noreturn))
+    __attribute__((noreturn))
 #endif
-;
+    ;
 
 /** Exit the main loop from any thread or signal handler.
     Calling this function will (eventually) cause an exit from the main loop.
@@ -216,6 +215,6 @@ T3_WIDGET_API void get_screen_size(int *height, int *width);
 
     This option does _not_ disable pasting the primary selection. */
 T3_WIDGET_API void set_primary_selection_mode(bool on);
-}; // namespace
+};  // namespace
 
 #endif

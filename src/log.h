@@ -33,10 +33,10 @@ T3_WIDGET_LOCAL void init_log();
 /* Note: these must be declared with T3_WIDGET_API such that they can be accessed
    from the clipboard modules. */
 T3_WIDGET_API void lprintf(const char *fmt, ...)
-	#ifdef __GNUC__
-	__attribute__((format(printf, 1, 2)))
-	#endif
-	;
+#ifdef __GNUC__
+    __attribute__((format(printf, 1, 2)))
+#endif
+    ;
 T3_WIDGET_API void ldumpstr(const char *str, int length);
 T3_WIDGET_API void logkeyseq(const char *keys);
 #else
@@ -46,5 +46,5 @@ T3_WIDGET_API void logkeyseq(const char *keys);
 #define logkeyseq(keys)
 #endif
 
-}; // namespace
+};  // namespace
 #endif

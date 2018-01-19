@@ -26,22 +26,22 @@ namespace t3_widget {
     an edit window.
 */
 class T3_WIDGET_API bullet_t : public widget_t {
-	private:
-		/** Callback to determine required display state. */
-		signals::slot<bool> source;
-		/** Boolean indicating whether this widget should be drawn as focuessed. */
-		bool has_focus;
+ private:
+  /** Callback to determine required display state. */
+  signals::slot<bool> source;
+  /** Boolean indicating whether this widget should be drawn as focuessed. */
+  bool has_focus;
 
-	public:
-		/** Create a new bullet_t.
-		    @param _source Callback to determine required display state.
-		*/
-		bullet_t(const signals::slot<bool> &_source);
-		bool process_key(key_t key) override;
-		bool set_size(optint height, optint width) override;
-		void update_contents() override;
-		void set_focus(focus_t focus) override;
+ public:
+  /** Create a new bullet_t.
+      @param _source Callback to determine required display state.
+  */
+  bullet_t(const signals::slot<bool> &_source);
+  bool process_key(key_t key) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
 };
 
-}; // namespace
+};  // namespace
 #endif

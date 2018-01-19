@@ -23,78 +23,76 @@
 namespace t3_widget {
 
 class key_bindings_base_t {
-	public:
-		virtual ~key_bindings_base_t();
-		virtual size_t names_size() const = 0;
-		virtual const std::string &names(size_t idx) const = 0;
-		virtual bool bind_key(key_t key, const std::string &name) = 0;
+ public:
+  virtual ~key_bindings_base_t();
+  virtual size_t names_size() const = 0;
+  virtual const std::string &names(size_t idx) const = 0;
+  virtual bool bind_key(key_t key, const std::string &name) = 0;
 };
 
 template <typename T>
 class key_bindings_t : public key_bindings_base_t {
-	public:
-		struct param_t {
-			T action;
-			std::string name;
-			std::initializer_list<key_t> bound_keys;
-		};
+ public:
+  struct param_t {
+    T action;
+    std::string name;
+    std::initializer_list<key_t> bound_keys;
+  };
 
-		key_bindings_t(std::initializer_list<param_t> actions) {
-			for (const param_t &action : actions) {
-				name_mapping[action.name] = action.action;
-				for (key_t key : action.bound_keys) {
-					if (key >= 0) {
-						key_bindings[key] = action.action;
-					}
-				}
-			}
-		}
-		key_bindings_t() {}
+  key_bindings_t(std::initializer_list<param_t> actions) {
+    for (const param_t &action : actions) {
+      name_mapping[action.name] = action.action;
+      for (key_t key : action.bound_keys) {
+        if (key >= 0) {
+          key_bindings[key] = action.action;
+        }
+      }
+    }
+  }
+  key_bindings_t() {}
 
-		optional<T> find_action(key_t key) const {
-			typename std::map<key_t, T>::const_iterator iter = key_bindings.find(key);
-			if (iter == key_bindings.end()) {
-				return nullopt;
-			}
-			return iter->second;
-		}
+  optional<T> find_action(key_t key) const {
+    typename std::map<key_t, T>::const_iterator iter = key_bindings.find(key);
+    if (iter == key_bindings.end()) {
+      return nullopt;
+    }
+    return iter->second;
+  }
 
-		void bind_key(key_t key, optional<T> action) {
-			if (action.is_valid()) {
-				key_bindings[key] = action;
-			} else {
-				key_bindings.erase(key);
-			}
-		}
+  void bind_key(key_t key, optional<T> action) {
+    if (action.is_valid()) {
+      key_bindings[key] = action;
+    } else {
+      key_bindings.erase(key);
+    }
+  }
 
-		bool bind_key(key_t key, const std::string &name) override {
-			if (name.empty()) {
-				key_bindings.erase(key);
-				return true;
-			}
-			optional<T> action = map_name(name);
-			if (!action.is_valid())
-				return false;
-			key_bindings[key] = action;
-			return true;
-		}
+  bool bind_key(key_t key, const std::string &name) override {
+    if (name.empty()) {
+      key_bindings.erase(key);
+      return true;
+    }
+    optional<T> action = map_name(name);
+    if (!action.is_valid()) return false;
+    key_bindings[key] = action;
+    return true;
+  }
 
-		optional<T> map_name(const std::string &name) const {
-			typename std::map<std::string, T>::const_iterator iter = name_mapping.find(name);
-			if (iter == name_mapping.end())
-				return nullopt;
-			return iter->second;
-		}
+  optional<T> map_name(const std::string &name) const {
+    typename std::map<std::string, T>::const_iterator iter = name_mapping.find(name);
+    if (iter == name_mapping.end()) return nullopt;
+    return iter->second;
+  }
 
-		size_t names_size() const override { return name_mapping.size(); }
+  size_t names_size() const override { return name_mapping.size(); }
 
-		const std::string &names(size_t idx) const override {
-			return std::next(name_mapping.begin(), idx)->first;
-		}
+  const std::string &names(size_t idx) const override {
+    return std::next(name_mapping.begin(), idx)->first;
+  }
 
-	private:
-		std::map<std::string, T> name_mapping;
-		std::map<key_t, T> key_bindings;
+ private:
+  std::map<std::string, T> name_mapping;
+  std::map<key_t, T> key_bindings;
 };
 
 }  // namespace t3_widget

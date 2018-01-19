@@ -20,35 +20,35 @@
 
 #include <t3window/window.h>
 
-#include <t3widget/widget_api.h>
 #include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3_widget {
 
 /** @internal A struct containing all the attribute settings for the different display elements. */
 struct attributes_t {
-	/* Text related attributes. */
-	t3_attr_t non_print;
-	t3_attr_t text_selection_cursor;
-	t3_attr_t text_selection_cursor2;
-	t3_attr_t bad_draw;
-	t3_attr_t text_cursor;
-	t3_attr_t text;
-	t3_attr_t text_selected;
-	/* High-light attributes for hot keys. */
-	t3_attr_t hotkey_highlight;
+  /* Text related attributes. */
+  t3_attr_t non_print;
+  t3_attr_t text_selection_cursor;
+  t3_attr_t text_selection_cursor2;
+  t3_attr_t bad_draw;
+  t3_attr_t text_cursor;
+  t3_attr_t text;
+  t3_attr_t text_selected;
+  /* High-light attributes for hot keys. */
+  t3_attr_t hotkey_highlight;
 
-	t3_attr_t dialog;
-	t3_attr_t dialog_selected;
-	t3_attr_t button_selected;
-	t3_attr_t scrollbar;
-	t3_attr_t menubar;
-	t3_attr_t menubar_selected;
+  t3_attr_t dialog;
+  t3_attr_t dialog_selected;
+  t3_attr_t button_selected;
+  t3_attr_t scrollbar;
+  t3_attr_t menubar;
+  t3_attr_t menubar_selected;
 
-	t3_attr_t shadow;
-	t3_attr_t background;
+  t3_attr_t shadow;
+  t3_attr_t background;
 
-	t3_attr_t meta_text;
+  t3_attr_t meta_text;
 };
 
 /** @internal The default attributes for the different display elements. */
@@ -56,6 +56,6 @@ T3_WIDGET_LOCAL extern attributes_t attributes;
 /** @internal Initialize the default attributes. */
 T3_WIDGET_LOCAL void init_attributes();
 
-}; // namespace
+};  // namespace
 
 #endif

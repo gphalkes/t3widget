@@ -14,66 +14,68 @@
 #ifndef T3_WIDGET_ATTRIBUTEPICKERDIALOG_H
 #define T3_WIDGET_ATTRIBUTEPICKERDIALOG_H
 
-#include <t3widget/interfaces.h>
 #include <t3widget/dialogs/dialog.h>
+#include <t3widget/interfaces.h>
 #include <t3widget/widgets/checkbox.h>
+#include <t3widget/widgets/colorpicker.h>
 #include <t3widget/widgets/expander.h>
 #include <t3widget/widgets/expandergroup.h>
-#include <t3widget/widgets/colorpicker.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API attribute_test_line_t;
 
 class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
-	private:
-		struct T3_WIDGET_LOCAL implementation_t {
-			checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
-			attribute_test_line_t *test_line;
-			color_picker_base_t *fg_picker, *bg_picker;
-			cleanup_ptr<expander_group_t>::t expander_group;
-			expander_t *fg_expander, *bg_expander;
-			t3_attr_t base_attributes;
-			implementation_t() : fg_picker(NULL), bg_picker(NULL), expander_group(NULL), base_attributes(0) {}
-		};
-		pimpl_ptr<implementation_t>::t impl;
+ private:
+  struct T3_WIDGET_LOCAL implementation_t {
+    checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
+    attribute_test_line_t *test_line;
+    color_picker_base_t *fg_picker, *bg_picker;
+    cleanup_ptr<expander_group_t>::t expander_group;
+    expander_t *fg_expander, *bg_expander;
+    t3_attr_t base_attributes;
+    implementation_t()
+        : fg_picker(NULL), bg_picker(NULL), expander_group(NULL), base_attributes(0) {}
+  };
+  pimpl_ptr<implementation_t>::t impl;
 
-		void attribute_changed();
-		void ok_activate();
-		void default_activate();
-		void group_expanded(bool state);
-		t3_attr_t get_attribute();
+  void attribute_changed();
+  void ok_activate();
+  void default_activate();
+  void group_expanded(bool state);
+  t3_attr_t get_attribute();
 
-	public:
-		attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
-		void show() override;
+ public:
+  attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
+  void show() override;
 
-		void set_attribute(t3_attr_t attr);
-		/** Set the base attributes for the attribute picker.
-		    @param attr The base attributes to use
+  void set_attribute(t3_attr_t attr);
+  /** Set the base attributes for the attribute picker.
+      @param attr The base attributes to use
 
-		    When selecting attributes, sometimes the result will be combined with
-		    another set of attributes. To show the user what the effect of choosing
-		    the a set of attributes is, you can set the base attributes with this function.
-		*/
-		void set_base_attributes(t3_attr_t attr);
+      When selecting attributes, sometimes the result will be combined with
+      another set of attributes. To show the user what the effect of choosing
+      the a set of attributes is, you can set the base attributes with this function.
+  */
+  void set_base_attributes(t3_attr_t attr);
 
-	T3_WIDGET_SIGNAL(attribute_selected, void, t3_attr_t);
-	T3_WIDGET_SIGNAL(default_selected, void);
+  T3_WIDGET_SIGNAL(attribute_selected, void, t3_attr_t);
+  T3_WIDGET_SIGNAL(default_selected, void);
 };
 
 class T3_WIDGET_API attribute_test_line_t : public widget_t {
-	private:
-		t3_attr_t attr;
-	public:
-		attribute_test_line_t();
-		bool process_key(key_t key) override;
-		bool set_size(optint height, optint width) override;
-		void update_contents() override;
-		bool accepts_focus() override;
+ private:
+  t3_attr_t attr;
 
-		void set_attribute(t3_attr_t _attr);
+ public:
+  attribute_test_line_t();
+  bool process_key(key_t key) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  bool accepts_focus() override;
+
+  void set_attribute(t3_attr_t _attr);
 };
 
-}; // namespace
+};  // namespace
 #endif

@@ -31,125 +31,135 @@ namespace t3_widget {
 */
 
 enum undo_type_t {
-	UNDO_NONE,
-	UNDO_DELETE,
-	UNDO_DELETE_BLOCK,
-	UNDO_BACKSPACE,
-	UNDO_ADD,
-	UNDO_ADD_BLOCK,
-	UNDO_REPLACE_BLOCK,
-	UNDO_OVERWRITE,
-	UNDO_DELETE_NEWLINE,
-	UNDO_BACKSPACE_NEWLINE,
-	UNDO_ADD_NEWLINE,
-	UNDO_INDENT,
-	UNDO_UNINDENT,
-	UNDO_ADD_NEWLINE_INDENT,
-	/* Markers for blocks of undo operations. All operations between a UNDO_BLOCK_START and UNDO_BLOCK_END
-	   are to be applied as a single operation. */
-	UNDO_BLOCK_START,
-	UNDO_BLOCK_END,
+  UNDO_NONE,
+  UNDO_DELETE,
+  UNDO_DELETE_BLOCK,
+  UNDO_BACKSPACE,
+  UNDO_ADD,
+  UNDO_ADD_BLOCK,
+  UNDO_REPLACE_BLOCK,
+  UNDO_OVERWRITE,
+  UNDO_DELETE_NEWLINE,
+  UNDO_BACKSPACE_NEWLINE,
+  UNDO_ADD_NEWLINE,
+  UNDO_INDENT,
+  UNDO_UNINDENT,
+  UNDO_ADD_NEWLINE_INDENT,
+  /* Markers for blocks of undo operations. All operations between a UNDO_BLOCK_START and
+     UNDO_BLOCK_END
+     are to be applied as a single operation. */
+  UNDO_BLOCK_START,
+  UNDO_BLOCK_END,
 
-	// Types only for mapping redo to undo types
-	UNDO_ADD_REDO,
-	UNDO_BACKSPACE_REDO,
-	UNDO_REPLACE_BLOCK_REDO,
-	UNDO_OVERWRITE_REDO,
-	UNDO_ADD_NEWLINE_INDENT_REDO,
-	UNDO_BLOCK_START_REDO,
-	UNDO_BLOCK_END_REDO,
+  // Types only for mapping redo to undo types
+  UNDO_ADD_REDO,
+  UNDO_BACKSPACE_REDO,
+  UNDO_REPLACE_BLOCK_REDO,
+  UNDO_OVERWRITE_REDO,
+  UNDO_ADD_NEWLINE_INDENT_REDO,
+  UNDO_BLOCK_START_REDO,
+  UNDO_BLOCK_END_REDO,
 };
 
 // FIXME: reimplement using std::list
 
 class T3_WIDGET_API undo_list_t {
-	private:
-		undo_t *head, *tail, *current, *mark;
-		bool mark_is_valid;
-		bool mark_beyond_current;
+ private:
+  undo_t *head, *tail, *current, *mark;
+  bool mark_is_valid;
+  bool mark_beyond_current;
 
-	public:
-		undo_list_t() : head(NULL), tail(NULL), current(NULL), mark(NULL), mark_is_valid(true), mark_beyond_current(false) {}
-		~undo_list_t();
-		void add(undo_t *undo);
-		undo_t *back();
-		undo_t *forward();
-		void set_mark();
-		bool is_at_mark() const;
+ public:
+  undo_list_t()
+      : head(NULL),
+        tail(NULL),
+        current(NULL),
+        mark(NULL),
+        mark_is_valid(true),
+        mark_beyond_current(false) {}
+  ~undo_list_t();
+  void add(undo_t *undo);
+  undo_t *back();
+  undo_t *forward();
+  void set_mark();
+  bool is_at_mark() const;
 
-		#ifdef DEBUG
-		void dump();
-		#endif
+#ifdef DEBUG
+  void dump();
+#endif
 };
 
 class T3_WIDGET_API undo_t {
-	private:
-		static undo_type_t redo_map[];
+ private:
+  static undo_type_t redo_map[];
 
-		undo_type_t type;
-		text_coordinate_t start;
+  undo_type_t type;
+  text_coordinate_t start;
 
-		undo_t *previous, *next;
-		friend class undo_list_t;
-	public:
+  undo_t *previous, *next;
+  friend class undo_list_t;
 
-		undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start), previous(NULL), next(NULL) {}
-		virtual ~undo_t();
-		undo_type_t get_type() const;
-		undo_type_t get_redo_type() const;
-		virtual text_coordinate_t get_start();
-	    virtual void add_newline() {}
-		virtual std::string *get_text();
-		virtual std::string *get_replacement();
-		virtual text_coordinate_t get_end() const;
-		virtual void minimize() {}
-		virtual text_coordinate_t get_new_end() const;
+ public:
+  undo_t(undo_type_t _type, text_coordinate_t _start)
+      : type(_type), start(_start), previous(NULL), next(NULL) {}
+  virtual ~undo_t();
+  undo_type_t get_type() const;
+  undo_type_t get_redo_type() const;
+  virtual text_coordinate_t get_start();
+  virtual void add_newline() {}
+  virtual std::string *get_text();
+  virtual std::string *get_replacement();
+  virtual text_coordinate_t get_end() const;
+  virtual void minimize() {}
+  virtual text_coordinate_t get_new_end() const;
 };
 
 class T3_WIDGET_API undo_single_text_t : public undo_t {
-	private:
-		std::string text;
+ private:
+  std::string text;
 
-	public:
-		undo_single_text_t(undo_type_t _type, text_coordinate_t _start) : undo_t(_type, _start) {};
-	    void add_newline() override;
-		std::string *get_text() override;
-		void minimize() override;
+ public:
+  undo_single_text_t(undo_type_t _type, text_coordinate_t _start) : undo_t(_type, _start){};
+  void add_newline() override;
+  std::string *get_text() override;
+  void minimize() override;
 };
 
 class T3_WIDGET_API undo_single_text_double_coord_t : public undo_single_text_t {
-	private:
-		text_coordinate_t end;
+ private:
+  text_coordinate_t end;
 
-	public:
-		undo_single_text_double_coord_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
-			undo_single_text_t(_type, _start), end(_end) {}
-		text_coordinate_t get_end() const override;
+ public:
+  undo_single_text_double_coord_t(undo_type_t _type, text_coordinate_t _start,
+                                  text_coordinate_t _end)
+      : undo_single_text_t(_type, _start), end(_end) {}
+  text_coordinate_t get_end() const override;
 };
 
 class T3_WIDGET_API undo_double_text_t : public undo_single_text_double_coord_t {
-	private:
-		std::string replacement;
+ private:
+  std::string replacement;
 
-	public:
-		undo_double_text_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
-			undo_single_text_double_coord_t(_type, _start, _end) {}
+ public:
+  undo_double_text_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end)
+      : undo_single_text_double_coord_t(_type, _start, _end) {}
 
-		std::string *get_replacement() override;
-		void minimize() override;
+  std::string *get_replacement() override;
+  void minimize() override;
 };
 
 class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t {
-	private:
-		text_coordinate_t new_end;
+ private:
+  text_coordinate_t new_end;
 
-	public:
-		undo_double_text_triple_coord_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end) :
-			undo_double_text_t(_type, _start, _end) {}
+ public:
+  undo_double_text_triple_coord_t(undo_type_t _type, text_coordinate_t _start,
+                                  text_coordinate_t _end)
+      : undo_double_text_t(_type, _start, _end) {}
 
-		void set_new_end(text_coordinate_t _new_end);
-		text_coordinate_t get_new_end() const override;
+  void set_new_end(text_coordinate_t _new_end);
+  text_coordinate_t get_new_end() const override;
 };
 
-}; // namespace
+};  // namespace
 #endif

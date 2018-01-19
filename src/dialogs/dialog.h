@@ -25,54 +25,54 @@ class complex_error_t;
 
 /** Base class for dialogs. */
 class T3_WIDGET_API dialog_t : public dialog_base_t {
-	private:
-		friend void iterate();
-		friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
-		// main_window_base_t should be allowed to call dialog_t(), but no others should
-		friend class main_window_base_t;
-		friend class popup_t;
+ private:
+  friend void iterate();
+  friend bool mouse_target_t::handle_mouse_event(mouse_event_t event);
+  // main_window_base_t should be allowed to call dialog_t(), but no others should
+  friend class main_window_base_t;
+  friend class popup_t;
 
-		static dialogs_t active_dialogs; /**< Dialog stack. */
-		static popup_t *active_popup; /**< Currently active ::popup_t. */
-		static int dialog_depth; /**< Depth of the top most dialog in the window stack. */
+  static dialogs_t active_dialogs; /**< Dialog stack. */
+  static popup_t *active_popup;    /**< Currently active ::popup_t. */
+  static int dialog_depth;         /**< Depth of the top most dialog in the window stack. */
 
-		static void set_active_popup(popup_t *popup);
-		static void update_dialogs();
+  static void set_active_popup(popup_t *popup);
+  static void update_dialogs();
 
-		void activate_dialog(); /**< Move this dialog up to the top of the dialog and window stack. Called from #show. */
-		void deactivate_dialog(); /**< Remove this dialog from the dialog stack. Called from #hide. */
+  void activate_dialog(); /**< Move this dialog up to the top of the dialog and window stack. Called
+                             from #show. */
+  void deactivate_dialog(); /**< Remove this dialog from the dialog stack. Called from #hide. */
 
-		bool active; /**< Boolean indicating whether this dialog is currently being shown on screen. */
+  bool active; /**< Boolean indicating whether this dialog is currently being shown on screen. */
 
-		/** Default constructor, made private to avoid use. */
-		dialog_t();
+  /** Default constructor, made private to avoid use. */
+  dialog_t();
 
-	protected:
-		const char *title; /**< The title of this dialog. */
+ protected:
+  const char *title; /**< The title of this dialog. */
 
-		/** Create a new dialog with @p height and @p width, and with title @p _title. */
-		dialog_t(int height, int width, const char *_title);
-		/** Close the dialog.
-		    This function should be called when the dialog is closed by some
-		    event originating from this dialog. */
-		virtual void close();
+  /** Create a new dialog with @p height and @p width, and with title @p _title. */
+  dialog_t(int height, int width, const char *_title);
+  /** Close the dialog.
+      This function should be called when the dialog is closed by some
+      event originating from this dialog. */
+  virtual void close();
 
-		bool is_child(window_component_t *widget) override;
-		void set_child_focus(window_component_t *target) override;
+  bool is_child(window_component_t *widget) override;
+  void set_child_focus(window_component_t *target) override;
 
-	public:
-		bool process_key(key_t key) override;
-		void update_contents() override;
-		void show() override;
-		void hide() override;
+ public:
+  bool process_key(key_t key) override;
+  void update_contents() override;
+  void show() override;
+  void hide() override;
 
-
-	/** @fn signals::connection connect_closed(const signals::slot<void> &_slot)
-	    Connect a callback to the #closed signal.
-	*/
-	/** Signal emitted when the dialog is closed by calling #close. */
-	T3_WIDGET_SIGNAL(closed, void);
+  /** @fn signals::connection connect_closed(const signals::slot<void> &_slot)
+      Connect a callback to the #closed signal.
+  */
+  /** Signal emitted when the dialog is closed by calling #close. */
+  T3_WIDGET_SIGNAL(closed, void);
 };
 
-} // namespace
+}  // namespace
 #endif

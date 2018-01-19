@@ -14,9 +14,9 @@
 #ifndef T3_WIDGET_MENU_H
 #define T3_WIDGET_MENU_H
 
-#include <vector>
 #include <t3widget/interfaces.h>
 #include <t3widget/widgets/smartlabel.h>
+#include <vector>
 
 namespace t3_widget {
 
@@ -24,87 +24,93 @@ class menu_panel_t;
 
 /** Class implementing a menu bar. */
 class T3_WIDGET_API menu_bar_t : public widget_t {
-	friend class menu_panel_t;
+  friend class menu_panel_t;
 
-	private:
-		struct T3_WIDGET_LOCAL implementation_t {
-			int current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
-				old_menu; /**< Previously active window. */
-			int start_col; /**< Column where the next menu will start. */
-			bool hidden, /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
-				/** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input focus.
-					See the comments at #set_focus for details.
-				*/
-				has_focus;
+ private:
+  struct T3_WIDGET_LOCAL implementation_t {
+    int current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
+        old_menu;     /**< Previously active window. */
+    int start_col;    /**< Column where the next menu will start. */
+    bool hidden,      /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
+        /** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input
+           focus.
+                See the comments at #set_focus for details.
+        */
+        has_focus;
 
-			std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
-			int button_down_idx; /** Index of menu on which the left button was pressed down. */
+    std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
+    int button_down_idx; /** Index of menu on which the left button was pressed down. */
 
-			implementation_t(bool _hidden) : current_menu(0), old_menu(0),
-				start_col(0), hidden(_hidden), has_focus(false), button_down_idx(-1)
-			{}
-		};
-		pimpl_ptr<implementation_t>::t impl;
+    implementation_t(bool _hidden)
+        : current_menu(0),
+          old_menu(0),
+          start_col(0),
+          hidden(_hidden),
+          has_focus(false),
+          button_down_idx(-1) {}
+  };
+  pimpl_ptr<implementation_t>::t impl;
 
-		/** Draw the name of a single menu in the menu bar. */
-		void draw_menu_name(menu_panel_t *menu, bool selected);
-		/** Draw all the names of the menus in the menu bar (unselected). */
-		void draw();
+  /** Draw the name of a single menu in the menu bar. */
+  void draw_menu_name(menu_panel_t *menu, bool selected);
+  /** Draw all the names of the menus in the menu bar (unselected). */
+  void draw();
 
-		/** Close the currently open menu. */
-		void close();
-		/** Switch to the next menu. */
-		void next_menu();
-		/** Switch to the previous menu. */
-		void previous_menu();
+  /** Close the currently open menu. */
+  void close();
+  /** Switch to the next menu. */
+  void next_menu();
+  /** Switch to the previous menu. */
+  void previous_menu();
 
-		/** Translate an x coordinate into the index of a menu. */
-		int coord_to_menu_idx(int x);
-	public:
-		/** Create a new menu_bar_t.
-		    @param _hidden Boolean indicating whether this menu_bar_t has "hidden" display type.
+  /** Translate an x coordinate into the index of a menu. */
+  int coord_to_menu_idx(int x);
 
-		    A menu_bar_t can either be displayed continuously, or it can be hidden while none
-		    of its menus are active. The latter option should only be used when the user
-		    specifically asks for it, otherwise the user may not even be aware of the menu
-		    bar's existance. */
-		menu_bar_t(bool _hidden = false);
-		/** Destroy the menu_bar_t.
-		    Note that this does destroys the menus contained by this menu_bar_t.
-		*/
-		virtual ~menu_bar_t();
+ public:
+  /** Create a new menu_bar_t.
+      @param _hidden Boolean indicating whether this menu_bar_t has "hidden" display type.
 
-		bool process_key(key_t key) override;
-		bool set_size(optint height, optint width) override;
-		void update_contents() override;
-		void set_focus(focus_t focus) override;
-		void show() override;
-		void hide() override;
-		bool is_hotkey(key_t key) override;
-		bool accepts_focus() override;
-		bool process_mouse_event(mouse_event_t event) override;
-		/** Add a menu to the menu bar.
-		    Note that this will be called automatically if the menu_bar_t is passed to the
-		    menu_panel_t constructor. */
-		void add_menu(menu_panel_t *menu);
-		/** Remove a menu from the menu bar.
-		    This does @b not destroy the menu.
-		*/
-		void remove_menu(menu_panel_t *menu);
-		/** Set the "hidden" display property.
-		    See #memu_bar_t for details.
-		*/
-		void set_hidden(bool _hidden);
+      A menu_bar_t can either be displayed continuously, or it can be hidden while none
+      of its menus are active. The latter option should only be used when the user
+      specifically asks for it, otherwise the user may not even be aware of the menu
+      bar's existance. */
+  menu_bar_t(bool _hidden = false);
+  /** Destroy the menu_bar_t.
+      Note that this does destroys the menus contained by this menu_bar_t.
+  */
+  virtual ~menu_bar_t();
 
-	/** @fn signals::connection connect_activate(const signals::slot<void, int> &_slot)
-	    Connect a callback to the #activate signal.
-	*/
-	/** Signal emitted when a menu item is selected.
-	    The integer passed as the first argument is determined when creating the
-	    menu item through menu_panel_t::add_item.
-	*/
-	T3_WIDGET_SIGNAL(activate, void, int);
+  bool process_key(key_t key) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
+  void show() override;
+  void hide() override;
+  bool is_hotkey(key_t key) override;
+  bool accepts_focus() override;
+  bool process_mouse_event(mouse_event_t event) override;
+  /** Add a menu to the menu bar.
+      Note that this will be called automatically if the menu_bar_t is passed to the
+      menu_panel_t constructor. */
+  void add_menu(menu_panel_t *menu);
+  /** Remove a menu from the menu bar.
+      This does @b not destroy the menu.
+  */
+  void remove_menu(menu_panel_t *menu);
+  /** Set the "hidden" display property.
+      See #memu_bar_t for details.
+  */
+  void set_hidden(bool _hidden);
+
+  /** @fn signals::connection connect_activate(const signals::slot<void, int> &_slot)
+      Connect a callback to the #activate signal.
+  */
+  /** Signal emitted when a menu item is selected.
+      The integer passed as the first argument is determined when creating the
+      menu item through menu_panel_t::add_item.
+  */
+  T3_WIDGET_SIGNAL(activate, void, int);
 };
 
-}; // namespace
+};  // namespace
 #endif

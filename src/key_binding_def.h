@@ -19,4 +19,6 @@ key_bindings_t<_T3_ACTION_TYPE::Action> _T3_ACTION_TYPE::key_bindings{
 };
 #undef _T3_ACTION
 
-key_bindings_t<_T3_ACTION_TYPE::Action> *_T3_ACTION_TYPE::get_key_binding() { return &key_bindings; }
+key_bindings_t<_T3_ACTION_TYPE::Action> *_T3_ACTION_TYPE::get_key_binding() {
+  return &key_bindings;
+}

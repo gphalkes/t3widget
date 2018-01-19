@@ -14,8 +14,8 @@
 #ifndef T3_WIDGET_MAINWINDOW_H
 #define T3_WIDGET_MAINWINDOW_H
 
-#include <t3widget/interfaces.h>
 #include <t3widget/dialogs/dialog.h>
+#include <t3widget/interfaces.h>
 
 namespace t3_widget {
 
@@ -28,22 +28,23 @@ namespace t3_widget {
     to perform resizing of child widgets.
 */
 class T3_WIDGET_API main_window_base_t : public dialog_t {
-	private:
-		/** Resize the main_window_base_t.
-		    Called from the @c resize signal.
-		*/
-		void set_size_real(int height, int width);
-	protected:
-		/** Construct a new main_window_base_t. */
-		main_window_base_t();
-		void close() override;
+ private:
+  /** Resize the main_window_base_t.
+      Called from the @c resize signal.
+  */
+  void set_size_real(int height, int width);
 
-	public:
-		void update_contents() override;
-		bool set_size(optint height, optint width) override;
-		void set_position(optint top, optint left) override;
-		void show() override;
+ protected:
+  /** Construct a new main_window_base_t. */
+  main_window_base_t();
+  void close() override;
+
+ public:
+  void update_contents() override;
+  bool set_size(optint height, optint width) override;
+  void set_position(optint top, optint left) override;
+  void show() override;
 };
 
-}; // namespace
+};  // namespace
 #endif

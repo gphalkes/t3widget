@@ -15,39 +15,53 @@
 #define T3_WIDGET_UTIL_H
 #include <cstdlib>
 #include <string>
-#include <unistd.h>
 #include <t3window/window.h>
+#include <unistd.h>
 
-#include <t3widget/widget_api.h>
 #include <t3widget/ptr.h>
 #include <t3widget/signals.h>
+#include <t3widget/widget_api.h>
 
 namespace t3_widget {
 
 struct nullopt_t {
-	// Constructor to allow pre Defect 253 compilers to compile the code as well.
-	constexpr nullopt_t() {}
+  // Constructor to allow pre Defect 253 compilers to compile the code as well.
+  constexpr nullopt_t() {}
 };
 T3_WIDGET_API extern const nullopt_t nullopt;
 
 /** Class defining values with a separate validity check. */
 template <class T>
 class T3_WIDGET_API optional {
-	private:
-		T value; /**< Value, if #initialized is @c true. */
-		bool initialized; /**< Boolean indicating whether #value has been initialized. */
+ private:
+  T value;          /**< Value, if #initialized is @c true. */
+  bool initialized; /**< Boolean indicating whether #value has been initialized. */
 
-	public:
-		optional() : initialized(false) {}
-		optional(nullopt_t) : initialized(false) {}
-		optional(T _value) : value(_value), initialized(true) {}
-		bool is_valid() const { return initialized; }
-		void unset() { initialized = false; }
-		operator T (void) const { if (!initialized) throw(0); return (T) value; }
-		T operator()() const  { if (!initialized) throw(0); return (T) value; }
-		optional & operator=(const optional &other) { initialized = other.initialized; value = other.value; return *this; }
-		optional & operator=(const T other) { initialized = true; value = other; return *this; }
-		T value_or_default(T dflt) { return initialized ? value : dflt; }
+ public:
+  optional() : initialized(false) {}
+  optional(nullopt_t) : initialized(false) {}
+  optional(T _value) : value(_value), initialized(true) {}
+  bool is_valid() const { return initialized; }
+  void unset() { initialized = false; }
+  operator T(void) const {
+    if (!initialized) throw(0);
+    return (T)value;
+  }
+  T operator()() const {
+    if (!initialized) throw(0);
+    return (T)value;
+  }
+  optional &operator=(const optional &other) {
+    initialized = other.initialized;
+    value = other.value;
+    return *this;
+  }
+  optional &operator=(const T other) {
+    initialized = true;
+    value = other;
+    return *this;
+  }
+  T value_or_default(T dflt) { return initialized ? value : dflt; }
 };
 
 typedef optional<int> optint;
@@ -55,87 +69,70 @@ typedef optional<int> optint;
 T3_WIDGET_API extern const optint None;
 
 struct T3_WIDGET_API text_coordinate_t {
-	text_coordinate_t() {}
-	text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
-	bool operator==(const text_coordinate_t &other) const { return line == other.line && pos == other.pos; }
-	bool operator!=(const text_coordinate_t &other) const { return line != other.line || pos != other.pos; }
-	bool operator>(const text_coordinate_t &other) const { return line > other.line || (line == other.line && pos > other.pos); }
-	bool operator>=(const text_coordinate_t &other) const { return line > other.line || (line == other.line && pos >= other.pos); }
-	bool operator<(const text_coordinate_t &other) const { return line < other.line || (line == other.line && pos < other.pos); }
-	bool operator<=(const text_coordinate_t &other) const { return line < other.line || (line == other.line && pos <= other.pos); }
-	int line;
-	int pos;
+  text_coordinate_t() {}
+  text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
+  bool operator==(const text_coordinate_t &other) const {
+    return line == other.line && pos == other.pos;
+  }
+  bool operator!=(const text_coordinate_t &other) const {
+    return line != other.line || pos != other.pos;
+  }
+  bool operator>(const text_coordinate_t &other) const {
+    return line > other.line || (line == other.line && pos > other.pos);
+  }
+  bool operator>=(const text_coordinate_t &other) const {
+    return line > other.line || (line == other.line && pos >= other.pos);
+  }
+  bool operator<(const text_coordinate_t &other) const {
+    return line < other.line || (line == other.line && pos < other.pos);
+  }
+  bool operator<=(const text_coordinate_t &other) const {
+    return line < other.line || (line == other.line && pos <= other.pos);
+  }
+  int line;
+  int pos;
 };
 
-#define T3_WIDGET_SIGNAL(_name, ...) \
-protected: \
-	signals::signal<__VA_ARGS__> _name; \
-public: \
-	signals::connection connect_##_name(const signals::slot<__VA_ARGS__> &_slot) { return _name.connect(_slot); }
+#define T3_WIDGET_SIGNAL(_name, ...)                                             \
+ protected:                                                                      \
+  signals::signal<__VA_ARGS__> _name;                                            \
+                                                                                 \
+ public:                                                                         \
+  signals::connection connect_##_name(const signals::slot<__VA_ARGS__> &_slot) { \
+    return _name.connect(_slot);                                                 \
+  }
 
-#define _T3_WIDGET_ENUM(_name, ...) \
-class T3_WIDGET_API _name { \
-	public: \
-		enum _values { \
-			__VA_ARGS__ \
-		}; \
-		_name() {} \
-		_name(_values _value_arg) : _value(_value_arg) {} \
-		_values operator =(_values _value_arg) { _value = _value_arg; return _value; } \
-		operator int (void) const { return (int) _value; } \
-		bool operator == (_values _value_arg) const { return _value == _value_arg; } \
-	private: \
-		_values _value; \
-}
+#define _T3_WIDGET_ENUM(_name, ...)                                            \
+  class T3_WIDGET_API _name {                                                  \
+   public:                                                                     \
+    enum _values { __VA_ARGS__ };                                              \
+    _name() {}                                                                 \
+    _name(_values _value_arg) : _value(_value_arg) {}                          \
+    _values operator=(_values _value_arg) {                                    \
+      _value = _value_arg;                                                     \
+      return _value;                                                           \
+    }                                                                          \
+    operator int(void) const { return (int)_value; }                           \
+    bool operator==(_values _value_arg) const { return _value == _value_arg; } \
+                                                                               \
+   private:                                                                    \
+    _values _value;                                                            \
+  }
 
-_T3_WIDGET_ENUM(selection_mode_t,
-	NONE,
-	SHIFT,
-	MARK,
-	ALL
-);
+_T3_WIDGET_ENUM(selection_mode_t, NONE, SHIFT, MARK, ALL);
 
-_T3_WIDGET_ENUM(find_flags_t,
-	BACKWARD = (1<<0),
-	ICASE = (1<<1),
-	REGEX = (1<<2),
-	WRAP = (1<<3),
-	TRANSFROM_BACKSLASH = (1<<4),
-	WHOLE_WORD = (1<<5) | (1<<6),
-	ANCHOR_WORD_LEFT = (1<<5),
-	ANCHOR_WORD_RIGHT = (1<<6),
-	VALID = (1<<7),
-	REPLACEMENT_VALID = (1<<8),
-);
+_T3_WIDGET_ENUM(find_flags_t, BACKWARD = (1 << 0), ICASE = (1 << 1), REGEX = (1 << 2),
+                WRAP = (1 << 3), TRANSFROM_BACKSLASH = (1 << 4), WHOLE_WORD = (1 << 5) | (1 << 6),
+                ANCHOR_WORD_LEFT = (1 << 5), ANCHOR_WORD_RIGHT = (1 << 6), VALID = (1 << 7),
+                REPLACEMENT_VALID = (1 << 8), );
 
-_T3_WIDGET_ENUM(find_action_t,
-	FIND,
-	SKIP,
-	REPLACE,
-	REPLACE_ALL,
-	REPLACE_IN_SELECTION
-);
+_T3_WIDGET_ENUM(find_action_t, FIND, SKIP, REPLACE, REPLACE_ALL, REPLACE_IN_SELECTION);
 
 /** Constants for indicating which attribute to change/retrieve. */
-_T3_WIDGET_ENUM(attribute_t,
-	NON_PRINT,
-	TEXT_SELECTION_CURSOR,
-	TEXT_SELECTION_CURSOR2,
-	BAD_DRAW,
-	TEXT_CURSOR,
-	TEXT,
-	TEXT_SELECTED,
-	HOTKEY_HIGHLIGHT,
-	DIALOG,
-	DIALOG_SELECTED,
-	BUTTON_SELECTED,
-	SCROLLBAR,
-	MENUBAR,
-	MENUBAR_SELECTED,
-	BACKGROUND,
-	SHADOW,
-	META_TEXT
-);
+_T3_WIDGET_ENUM(attribute_t, NON_PRINT, TEXT_SELECTION_CURSOR, TEXT_SELECTION_CURSOR2, BAD_DRAW,
+                TEXT_CURSOR, TEXT, TEXT_SELECTED, HOTKEY_HIGHLIGHT, DIALOG, DIALOG_SELECTED,
+                BUTTON_SELECTED, SCROLLBAR, MENUBAR, MENUBAR_SELECTED, BACKGROUND, SHADOW,
+                META_TEXT);
 /** @var attribute_t::NON_PRINT
     Attribute specifier for non-printable characters. */
 /** @var attribute_t::SELECTION_CURSOR
@@ -144,27 +141,16 @@ _T3_WIDGET_ENUM(attribute_t,
     Attribute specifier for cursor when selecting text in reverse direction. */
 /** @var attribute_t::BAD_DRAW
     Attribute specifier for text which the terminal is not able to draw correctly. */
-//FIXME: list other attributes
+// FIXME: list other attributes
 
-_T3_WIDGET_ENUM(rewrap_type_t,
-	REWRAP_ALL,
-	REWRAP_LINE,
-	REWRAP_LINE_LOCAL,
-	INSERT_LINES,
-	DELETE_LINES
-);
+_T3_WIDGET_ENUM(rewrap_type_t, REWRAP_ALL, REWRAP_LINE, REWRAP_LINE_LOCAL, INSERT_LINES,
+                DELETE_LINES);
 
-_T3_WIDGET_ENUM(wrap_type_t,
-	NONE,
-	WORD,
-	CHARACTER
-);
+_T3_WIDGET_ENUM(wrap_type_t, NONE, WORD, CHARACTER);
 
 #undef _T3_WIDGET_ENUM
 
-
 typedef cleanup_func_ptr<t3_window_t, t3_win_del>::t cleanup_t3_window_ptr;
-
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
@@ -174,9 +160,10 @@ T3_WIDGET_API std::string get_directory(const char *directory);
 T3_WIDGET_API void sanitize_dir(std::string *directory);
 T3_WIDGET_API bool is_dir(const std::string *current_dir, const char *name);
 
-T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from);
+T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string *result,
+                                        bool from);
 T3_WIDGET_API void convert_lang_codeset(const char *str, std::string *result, bool from);
 T3_WIDGET_API void convert_lang_codeset(const std::string *str, std::string *result, bool from);
 
-}; // namespace
+};  // namespace
 #endif

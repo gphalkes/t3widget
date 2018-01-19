@@ -21,22 +21,23 @@ namespace t3_widget {
 
 /** A class to group a set of expander widgets such that at most one is expanded at a time. */
 class T3_WIDGET_API expander_group_t {
-	private:
-		expander_t *expanded_widget;
-		int height, expanded_height;
+ private:
+  expander_t *expanded_widget;
+  int height, expanded_height;
 
-		void widget_expanded(bool is_expanded, expander_t *source);
-	public:
-		expander_group_t();
-		virtual ~expander_group_t();
+  void widget_expanded(bool is_expanded, expander_t *source);
 
-		/** Add an expander to the group. */
-		void add_expander(expander_t *expander);
-		void collapse();
-		int get_group_height();
+ public:
+  expander_group_t();
+  virtual ~expander_group_t();
 
-	T3_WIDGET_SIGNAL(expanded, void, bool);
+  /** Add an expander to the group. */
+  void add_expander(expander_t *expander);
+  void collapse();
+  int get_group_height();
+
+  T3_WIDGET_SIGNAL(expanded, void, bool);
 };
 
-}; // namespace
+};  // namespace
 #endif

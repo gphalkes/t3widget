@@ -16,8 +16,8 @@
 
 #include <t3widget/main.h>
 
-#include <t3widget/dialogs/dialog.h>
 #include <t3widget/dialogs/attributepickerdialog.h>
+#include <t3widget/dialogs/dialog.h>
 #include <t3widget/dialogs/filedialog.h>
 #include <t3widget/dialogs/inputselectiondialog.h>
 #include <t3widget/dialogs/insertchardialog.h>
@@ -25,7 +25,6 @@
 #include <t3widget/dialogs/menupanel.h>
 #include <t3widget/dialogs/messagedialog.h>
 
-#include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/bullet.h>
 #include <t3widget/widgets/button.h>
 #include <t3widget/widgets/checkbox.h>
@@ -47,6 +46,7 @@
 #include <t3widget/widgets/split.h>
 #include <t3widget/widgets/textfield.h>
 #include <t3widget/widgets/textwindow.h>
+#include <t3widget/widgets/widget.h>
 #include <t3widget/widgets/widgetgroup.h>
 
 #include <t3widget/findcontext.h>

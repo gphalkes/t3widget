@@ -14,38 +14,38 @@
 #ifndef T3_WIDGET_SMARTLABEL_H
 #define T3_WIDGET_SMARTLABEL_H
 
-#include <t3widget/widgets/widget.h>
 #include <t3widget/key.h>
+#include <t3widget/widgets/widget.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API smart_label_text_t {
-	protected:
-		bool add_colon;
-		cleanup_free_ptr<char>::t text;
-		size_t underline_start, underline_length, text_length;
-		bool underlined;
-		key_t hotkey;
+ protected:
+  bool add_colon;
+  cleanup_free_ptr<char>::t text;
+  size_t underline_start, underline_length, text_length;
+  bool underlined;
+  key_t hotkey;
 
-	public:
-		smart_label_text_t(const char *spec, bool _addColon = false);
-		virtual ~smart_label_text_t();
-		void draw(t3_window_t *win, int attr, bool selected = false);
-		int get_width();
-		bool is_hotkey(key_t key);
+ public:
+  smart_label_text_t(const char *spec, bool _addColon = false);
+  virtual ~smart_label_text_t();
+  void draw(t3_window_t *win, int attr, bool selected = false);
+  int get_width();
+  bool is_hotkey(key_t key);
 };
 
 class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
-	public:
-		smart_label_t(const char *spec, bool _addColon = false);
-		bool process_key(key_t key) override;
-		bool set_size(optint height, optint width) override;
-		void update_contents() override;
-		void set_focus(focus_t focus) override;
+ public:
+  smart_label_t(const char *spec, bool _addColon = false);
+  bool process_key(key_t key) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
 
-		bool is_hotkey(key_t key) override;
-		bool accepts_focus() override;
+  bool is_hotkey(key_t key) override;
+  bool accepts_focus() override;
 };
 
-}; // namespace
+};  // namespace
 #endif

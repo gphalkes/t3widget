@@ -15,29 +15,29 @@
 #define T3_WIDGET_STRINGMATCHER_H
 
 #include <string>
-#include <t3widget/widget_api.h>
 #include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_LOCAL string_matcher_t {
-	private:
-		cleanup_free_ptr<char>::t needle;
-		size_t needle_size;
-		cleanup_ptr<int[]>::t partial_match_table, reverse_partial_match_table, index_table;
-		int i;
-		void init();
+ private:
+  cleanup_free_ptr<char>::t needle;
+  size_t needle_size;
+  cleanup_ptr<int[]>::t partial_match_table, reverse_partial_match_table, index_table;
+  int i;
+  void init();
 
-	public:
-		string_matcher_t(const std::string &_needle);
-		string_matcher_t(char *_needle, size_t _needle_size);
-		virtual ~string_matcher_t();
-		void reset();
-		int next_char(const std::string *c);
-		int previous_char(const std::string *c);
-		int next_char(const char *c, size_t c_size);
-		int previous_char(const char *c, size_t c_size);
+ public:
+  string_matcher_t(const std::string &_needle);
+  string_matcher_t(char *_needle, size_t _needle_size);
+  virtual ~string_matcher_t();
+  void reset();
+  int next_char(const std::string *c);
+  int previous_char(const std::string *c);
+  int next_char(const char *c, size_t c_size);
+  int previous_char(const char *c, size_t c_size);
 };
 
-}; // namespace
+};  // namespace
 #endif

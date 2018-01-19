@@ -23,44 +23,46 @@ class menu_item_base_t;
 class menu_item_t;
 
 class T3_WIDGET_API menu_panel_t : public dialog_t {
-	friend class menu_bar_t;
-	friend class menu_item_t;
-	private:
-		struct T3_WIDGET_LOCAL implementation_t {
-			int width, label_width, hotkey_width;
-			smart_label_text_t label;
-			menu_bar_t *menu_bar;
+  friend class menu_bar_t;
+  friend class menu_item_t;
 
-			implementation_t(const char *name) : label(name), menu_bar(NULL) {}
-		};
-		pimpl_ptr<implementation_t>::t impl;
+ private:
+  struct T3_WIDGET_LOCAL implementation_t {
+    int width, label_width, hotkey_width;
+    smart_label_text_t label;
+    menu_bar_t *menu_bar;
 
-		void signal(int id);
-		void close() override;
-		void set_menu_bar(menu_bar_t *_menu_bar);
-		void draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const;
-		int get_label_width() const;
-		bool is_hotkey(key_t key) const;
+    implementation_t(const char *name) : label(name), menu_bar(NULL) {}
+  };
+  pimpl_ptr<implementation_t>::t impl;
 
-	protected:
-		bool is_child(window_component_t *widget) override;
+  void signal(int id);
+  void close() override;
+  void set_menu_bar(menu_bar_t *_menu_bar);
+  void draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const;
+  int get_label_width() const;
+  bool is_hotkey(key_t key) const;
 
-		/* Menu panels get their events from the menu_t, because that grabs the
-		   mouse as soon as it is activated. */
-		void process_mouse_event_from_menu(mouse_event_t event);
+ protected:
+  bool is_child(window_component_t *widget) override;
 
-	public:
-		menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);
-		bool process_key(key_t key) override;
-		void set_position(optint top, optint left) override;
-		bool set_size(optint height, optint width) override;
-		menu_item_base_t *add_item(const char *label, const char *hotkey, int id);
-		menu_item_base_t *add_item(menu_item_t *item);
-		menu_item_base_t *add_separator();
-		void remove_item(menu_item_base_t *item);
-		menu_item_base_t *replace_item(menu_item_base_t *old_item, const char *label, const char *hotkey, int id);
-		menu_item_base_t *replace_item(menu_item_base_t *old_item, menu_item_t *new_item);
+  /* Menu panels get their events from the menu_t, because that grabs the
+     mouse as soon as it is activated. */
+  void process_mouse_event_from_menu(mouse_event_t event);
+
+ public:
+  menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);
+  bool process_key(key_t key) override;
+  void set_position(optint top, optint left) override;
+  bool set_size(optint height, optint width) override;
+  menu_item_base_t *add_item(const char *label, const char *hotkey, int id);
+  menu_item_base_t *add_item(menu_item_t *item);
+  menu_item_base_t *add_separator();
+  void remove_item(menu_item_base_t *item);
+  menu_item_base_t *replace_item(menu_item_base_t *old_item, const char *label, const char *hotkey,
+                                 int id);
+  menu_item_base_t *replace_item(menu_item_base_t *old_item, menu_item_t *new_item);
 };
 
-}; // namespace
+};  // namespace
 #endif

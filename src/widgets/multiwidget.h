@@ -19,34 +19,34 @@
 namespace t3_widget {
 
 class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, public container_t {
-	private:
-		struct T3_WIDGET_LOCAL item_t {
-			widget_t *widget;
-			int width;
-			int calculated_width;
-			bool takes_focus;
-		};
-		std::list<item_t> widgets;
-		int fixed_sum, proportion_sum;
-		widget_t *send_key_widget;
+ private:
+  struct T3_WIDGET_LOCAL item_t {
+    widget_t *widget;
+    int width;
+    int calculated_width;
+    bool takes_focus;
+  };
+  std::list<item_t> widgets;
+  int fixed_sum, proportion_sum;
+  widget_t *send_key_widget;
 
-	public:
-		multi_widget_t();
-		virtual ~multi_widget_t();
-		bool process_key(key_t key) override;
-		bool set_size(optint height, optint width) override;
-		void update_contents() override;
-		void set_focus(focus_t focus) override;
-		bool accepts_focus() override;
-		void force_redraw() override;
-		void set_enabled(bool enable) override;
-		void set_child_focus(window_component_t *target) override;
-		bool is_child(window_component_t *component) override;
+ public:
+  multi_widget_t();
+  virtual ~multi_widget_t();
+  bool process_key(key_t key) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
+  bool accepts_focus() override;
+  void force_redraw() override;
+  void set_enabled(bool enable) override;
+  void set_child_focus(window_component_t *target) override;
+  bool is_child(window_component_t *component) override;
 
-		/* Width is negative for fixed width widgets, positive for proportion */
-		void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);
-		void resize_widgets();
+  /* Width is negative for fixed width widgets, positive for proportion */
+  void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);
+  void resize_widgets();
 };
 
-}; // namespace
+};  // namespace
 #endif

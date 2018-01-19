@@ -24,30 +24,29 @@ namespace t3_widget {
 class text_line_t;
 
 class T3_WIDGET_API message_dialog_t : public dialog_t {
-	private:
-		struct T3_WIDGET_LOCAL implementation_t {
-			text_window_t *text_window;
-			int height, max_text_height;
+ private:
+  struct T3_WIDGET_LOCAL implementation_t {
+    text_window_t *text_window;
+    int height, max_text_height;
 
-			implementation_t();
-		};
-		pimpl_ptr<implementation_t>::t impl;
+    implementation_t();
+  };
+  pimpl_ptr<implementation_t>::t impl;
 
-		bool process_key(key_t key) override;
+  bool process_key(key_t key) override;
 
-	T3_WIDGET_SIGNAL(activate_internal, void);
+  T3_WIDGET_SIGNAL(activate_internal, void);
 
-	public:
-		message_dialog_t(int width, const char *_title, ...);
-		virtual ~message_dialog_t();
-		void set_message(const char *message, size_t length);
-		void set_message(const char *message);
-		void set_message(const std::string *message);
-		void set_max_text_height(int max);
+ public:
+  message_dialog_t(int width, const char *_title, ...);
+  virtual ~message_dialog_t();
+  void set_message(const char *message, size_t length);
+  void set_message(const char *message);
+  void set_message(const std::string *message);
+  void set_max_text_height(int max);
 
-		signals::connection connect_activate(const signals::slot<void> &_slot, size_t idx);
+  signals::connection connect_activate(const signals::slot<void> &_slot, size_t idx);
 };
 
-}; // namespace
+};  // namespace
 #endif
-

@@ -16,39 +16,39 @@
 
 #include <string>
 #include <t3widget/dialogs/dialog.h>
+#include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/frame.h>
 #include <t3widget/widgets/label.h>
-#include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/textwindow.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
-	private:
-		struct T3_WIDGET_LOCAL implementation_t {
-			cleanup_ptr<text_buffer_t>::t text;
-			frame_t *text_frame, *label_frame;
-			text_window_t *text_window;
-			label_t *key_label;
-			checkbox_t *enable_simulate_box, *disable_timeout_box;
-			int old_timeout;
-		};
-		pimpl_ptr<implementation_t>::t impl;
+ private:
+  struct T3_WIDGET_LOCAL implementation_t {
+    cleanup_ptr<text_buffer_t>::t text;
+    frame_t *text_frame, *label_frame;
+    text_window_t *text_window;
+    label_t *key_label;
+    checkbox_t *enable_simulate_box, *disable_timeout_box;
+    int old_timeout;
+  };
+  pimpl_ptr<implementation_t>::t impl;
 
-	public:
-		input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
-		bool set_size(optint height, optint width) override;
-		bool process_key(key_t key) override;
-		void show() override;
+ public:
+  input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
+  bool set_size(optint height, optint width) override;
+  bool process_key(key_t key) override;
+  void show() override;
 
-		void cancel();
-		void ok_activated();
-		void check_state();
+  void cancel();
+  void ok_activated();
+  void check_state();
 
-		static text_buffer_t *get_default_text();
+  static text_buffer_t *get_default_text();
 
-	T3_WIDGET_SIGNAL(activate, void);
+  T3_WIDGET_SIGNAL(activate, void);
 };
 
-}; // namespace
+};  // namespace
 #endif

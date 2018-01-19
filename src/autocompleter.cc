@@ -11,12 +11,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "util.h"
-#include "textbuffer.h"
 #include "autocompleter.h"
+#include "textbuffer.h"
+#include "util.h"
 
 namespace t3_widget {
 
 autocompleter_t::~autocompleter_t() {}
 
-}; // namespace
+};  // namespace

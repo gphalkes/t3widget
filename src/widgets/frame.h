@@ -24,43 +24,50 @@ namespace t3_widget {
     child widget is automatically resized to fit the frame.
 */
 class T3_WIDGET_API frame_t : public widget_t, public container_t {
-	public:
-		/** Constants defining bits determining which parts of the frame should be covered by the child widget. */
-		enum frame_dimension_t {
-			AROUND_ALL = 0, /**< Constant indicating the frame should go around the widget on all sides. */
-			COVER_BOTTOM = 1, /**< Bit indicating that the bottom line of the frame should be covered by the child widget. */
-			COVER_RIGHT = 2, /**< Bit indicating that the right line of the frame should be covered by the child widget. */
-			COVER_LEFT = 4, /**< Bit indicating that the left line of the frame should be covered by the child widget. */
-			COVER_TOP = 8 /**< Bit indicating that the top line of the frame should be covered by the child widget. */
-		};
+ public:
+  /** Constants defining bits determining which parts of the frame should be covered by the child
+   * widget. */
+  enum frame_dimension_t {
+    AROUND_ALL = 0, /**< Constant indicating the frame should go around the widget on all sides. */
+    COVER_BOTTOM =
+        1, /**< Bit indicating that the bottom line of the frame should be covered by the child
+              widget. */
+    COVER_RIGHT = 2, /**< Bit indicating that the right line of the frame should be covered by the
+                        child widget. */
+    COVER_LEFT = 4,  /**< Bit indicating that the left line of the frame should be covered by the
+                        child widget. */
+    COVER_TOP = 8 /**< Bit indicating that the top line of the frame should be covered by the child
+                     widget. */
+  };
 
-		/** Create a new frame_t.
-		    @param _dimension Bit map indicating which parts of the frame should be covered by the child widget.
+  /** Create a new frame_t.
+      @param _dimension Bit map indicating which parts of the frame should be covered by the child
+     widget.
 
-		    For some widgets, it may provide a more aesthetic appearance if part
-		    of the widget overlaps the frame. This is mostly the case for widgets
-		    that have a scrollbar on one side, like for example the list_pane_t.
-		    Making the scrollbar overlap the frame looks better and leaves more
-		    space while still clearly delinating the edges of the list.
-		*/
-		frame_t(frame_dimension_t _dimension = AROUND_ALL);
-		/** Set the child widget. */
-		void set_child(widget_t *_child);
-		bool process_key(key_t key) override;
-		void update_contents() override;
-		void set_focus(focus_t focus) override;
-		bool set_size(optint height, optint width) override;
- 		bool accepts_focus() override;
-		bool is_hotkey(key_t key) override;
-		void set_enabled(bool enable) override;
-		void force_redraw() override;
-		void set_child_focus(window_component_t *target) override;
-		bool is_child(window_component_t *component) override;
+      For some widgets, it may provide a more aesthetic appearance if part
+      of the widget overlaps the frame. This is mostly the case for widgets
+      that have a scrollbar on one side, like for example the list_pane_t.
+      Making the scrollbar overlap the frame looks better and leaves more
+      space while still clearly delinating the edges of the list.
+  */
+  frame_t(frame_dimension_t _dimension = AROUND_ALL);
+  /** Set the child widget. */
+  void set_child(widget_t *_child);
+  bool process_key(key_t key) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
+  bool set_size(optint height, optint width) override;
+  bool accepts_focus() override;
+  bool is_hotkey(key_t key) override;
+  void set_enabled(bool enable) override;
+  void force_redraw() override;
+  void set_child_focus(window_component_t *target) override;
+  bool is_child(window_component_t *component) override;
 
-	private:
-		frame_dimension_t dimension; /**< Requested overlaps. */
-		cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
+ private:
+  frame_dimension_t dimension;    /**< Requested overlaps. */
+  cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
 };
 
-}; // namespace
+};  // namespace
 #endif
