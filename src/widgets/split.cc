@@ -145,7 +145,7 @@ void split_t::split(widget_t *widget, bool _horizontal) {
     current_window->split(widget, _horizontal);
   } else if (widgets.size() == 1 || _horizontal == horizontal) {
     horizontal = _horizontal;
-    set_widget_parent(widget);
+    container_t::set_widget_parent(widget);
     widget->set_anchor(this, 0);
     widget->show();
     if (focus) (*current)->set_focus(window_component_t::FOCUS_OUT);
@@ -158,7 +158,7 @@ void split_t::split(widget_t *widget, bool _horizontal) {
        add split that split_t to splice in the requested widget. */
     (*current)->set_focus(window_component_t::FOCUS_OUT);
     current_window = new split_t(*current);
-    set_widget_parent(current_window);
+    container_t::set_widget_parent(current_window);
     current_window->set_focus(window_component_t::FOCUS_SET);
     current_window->split(widget, _horizontal);
     *current = current_window;

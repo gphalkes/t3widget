@@ -119,11 +119,16 @@ LDLIBS.x11.la += -module -avoid-version -L.libs -lt3widget -shrext .mod
 .clang-tidy-opts: Makefile
 	$(call _GENDIR,.clang-tidy,$<)
 	@echo "-xc++ -std=c++11 $(filter -D%, $(CXXFLAGS)) $(filter -I%, $(CXXFLAGS))" > .clang-tidy-opts
-	@echo "To run clang-tidy, use clang-tidy -checks=<checks> <file> -- \`cat .clang-tidy-opts\`"
+
+clang-tidy: .clang-tidy-opts $(patsubst %, clang-tidy/%, $(foreach STEM, $(CXXLTTARGETS), $(SOURCES.$(STEM)))) \
+	$(patsubst %.cc, clang-tidy/%.h, $(foreach STEM, $(CXXLTTARGETS), $(SOURCES.$(STEM))))
+
+clang-tidy/%:
+	@if [[ -f "$*" ]] ; then echo "[CLANG-TIDY] $*" ; clang-tidy $* -- `cat .clang-tidy-opts` ; fi
 
 x11.la: | libt3widget.la
 
 clean::
 	rm -f .clang-tidy-opts
 
-.PHONY:
+.PHONY: clang-tidy
