@@ -19,6 +19,9 @@
 #include <iterator>
 
 #include <t3widget/widget_api.h>
+#include <t3widget/signals.h>
+#include <t3widget/util.h>
+
 struct transcript_t;
 
 namespace t3_widget {
@@ -56,7 +59,7 @@ class T3_WIDGET_API string_list_t : public string_list_base_t {
 		std::vector<std::string *> strings;
 
 	public:
-		virtual ~string_list_t();
+		~string_list_t() override;
 		size_t size() const override;
 		const std::string *operator[](size_t idx) const override;
 		virtual void push_back(std::string *str);
@@ -158,7 +161,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 			base_content_changed_connection =
 				base->connect_content_changed(signals::mem_fun(this, &filtered_list_internal_t::update_list));
 		}
-		virtual ~filtered_list_internal_t() {
+		~filtered_list_internal_t() override {
 			base_content_changed_connection.disconnect();
 		}
 		void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) override {

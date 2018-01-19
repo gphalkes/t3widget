@@ -15,6 +15,7 @@
 #define T3_WIDGET_AUTOCOMPLETER_H
 
 #include <t3widget/contentlist.h>
+#include <t3widget/textbuffer.h>
 
 namespace t3_widget {
 

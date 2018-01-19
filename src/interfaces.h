@@ -140,7 +140,7 @@ class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 		        mouse event.
 		*/
 		virtual bool process_mouse_event(mouse_event_t event) = 0;
-		~mouse_target_t();
+		~mouse_target_t() override;
 
 		/** Grab all future mouse events.
 

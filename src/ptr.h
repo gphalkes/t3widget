@@ -18,6 +18,8 @@
 
 #include <cstdlib>
 
+#include <t3widget/widget_api.h>
+
 namespace t3_widget {
 
 template <typename T>

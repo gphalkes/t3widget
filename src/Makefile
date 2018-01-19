@@ -69,6 +69,7 @@ SOURCES.libt3widget.la := \
 SOURCES.x11.la := x11.cc
 
 CXXLTTARGETS := libt3widget.la x11.la
+EXTRATARGETS := .clang-tidy-opts
 #================================================#
 # NO RULES SHOULD BE DEFINED BEFORE THIS INCLUDE #
 #================================================#
@@ -115,7 +116,14 @@ LDLIBS.x11.la += `pkg-config --libs xcb`
 
 LDLIBS.x11.la += -module -avoid-version -L.libs -lt3widget -shrext .mod
 
+.clang-tidy-opts: Makefile
+	$(call _GENDIR,.clang-tidy,$<)
+	@echo "-xc++ -std=c++11 $(filter -D%, $(CXXFLAGS)) $(filter -I%, $(CXXFLAGS))" > .clang-tidy-opts
+	@echo "To run clang-tidy, use clang-tidy -checks=<checks> <file> -- \`cat .clang-tidy-opts\`"
 
 x11.la: | libt3widget.la
 
-.PHONY: links
+clean::
+	rm -f .clang-tidy-opts
+
+.PHONY:

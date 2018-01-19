@@ -27,6 +27,7 @@
 #include <condition_variable>
 
 #include <t3widget/key.h>
+#include <t3widget/mouse.h>
 
 namespace t3_widget {
 
