@@ -71,7 +71,7 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
   /** Destroy a split_t.
       Deletes all contained widgets as well.
   */
-  virtual ~split_t();
+  ~split_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

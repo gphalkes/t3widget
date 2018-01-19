@@ -32,7 +32,7 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
 
  public:
   multi_widget_t();
-  virtual ~multi_widget_t();
+  ~multi_widget_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

@@ -78,7 +78,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   /** Destroy the menu_bar_t.
       Note that this does destroys the menus contained by this menu_bar_t.
   */
-  virtual ~menu_bar_t();
+  ~menu_bar_t() override;
 
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;

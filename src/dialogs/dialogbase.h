@@ -67,7 +67,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   /** Destroy this dialog.
       Any widgets on the dialog are deleted as well.
   */
-  virtual ~dialog_base_t();
+  ~dialog_base_t() override;
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

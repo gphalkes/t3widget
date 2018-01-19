@@ -38,7 +38,7 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
 
  public:
   widget_group_t();
-  ~widget_group_t();
+  ~widget_group_t() override;
 
   bool process_key(key_t key) override;
   void update_contents() override;

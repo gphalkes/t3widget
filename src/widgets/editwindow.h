@@ -23,6 +23,7 @@ class edit_window_t;
 #include <vector>
 
 #include <t3widget/autocompleter.h>
+#include <t3widget/dialogs/popup.h>
 #include <t3widget/interfaces.h>
 #include <t3widget/key.h>
 #include <t3widget/key_binding.h>
@@ -203,7 +204,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
       @param params The view parameters to set.
   */
   edit_window_t(text_buffer_t *_text = NULL, const view_parameters_t *params = NULL);
-  ~edit_window_t();
+  ~edit_window_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

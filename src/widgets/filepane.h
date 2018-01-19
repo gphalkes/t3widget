@@ -79,7 +79,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 
  public:
   file_pane_t();
-  virtual ~file_pane_t();
+  ~file_pane_t() override;
   /** Associate a text_field_t with this file_pane_t.
       The text_field_t will be updated when the selection in this file_pane_t
       changes.
