@@ -116,6 +116,9 @@ LDLIBS.x11.la += `pkg-config --libs xcb`
 
 LDLIBS.x11.la += -module -avoid-version -L.libs -lt3widget -shrext .mod
 
+clang-format:
+	clang-format -i *.cc *.h */*.cc */*.h
+
 .clang-tidy-opts: Makefile
 	$(call _GENDIR,.clang-tidy,$<)
 	@echo "-xc++ -std=c++11 $(filter -D%, $(CXXFLAGS)) $(filter -I%, $(CXXFLAGS))" > .clang-tidy-opts
@@ -131,4 +134,4 @@ x11.la: | libt3widget.la
 clean::
 	rm -f .clang-tidy-opts
 
-.PHONY: clang-tidy
+.PHONY: clang-format clang-tidy

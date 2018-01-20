@@ -19,12 +19,12 @@
 #include <vector>
 
 #include <t3widget/contentlist.h>
+#include <t3widget/dialogs/popup.h>
 #include <t3widget/key_binding.h>
 #include <t3widget/textline.h>
 #include <t3widget/widgets/listpane.h>
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
-#include <t3widget/dialogs/popup.h>
 
 namespace t3_widget {
 

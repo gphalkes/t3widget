@@ -135,6 +135,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
       impl->fg_picker = new color_pair_picker_t();
       impl->fg_expander = new expander_t("Color _pair");
     }
+    impl->fg_picker->connect_activated(
+        signals::mem_fun(this, &attribute_picker_dialog_t::ok_activate));
     impl->fg_picker->connect_selection_changed(
         signals::mem_fun(this, &attribute_picker_dialog_t::attribute_changed));
     impl->fg_expander->set_child(impl->fg_picker);
@@ -149,6 +151,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
 
     if (capabilities.cap_flags & T3_TERM_CAP_BG) {
       impl->bg_picker = new color_picker_t(false);
+      impl->bg_picker->connect_activated(
+          signals::mem_fun(this, &attribute_picker_dialog_t::ok_activate));
       impl->bg_picker->connect_selection_changed(
           (signals::mem_fun(this, &attribute_picker_dialog_t::attribute_changed)));
       impl->bg_expander = new expander_t("B_ackground color");
@@ -175,9 +179,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
   cancel_button->connect_move_focus_left(
       signals::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
   /* Nasty trick: registering a callback three times will call the callback three times. We need to
-     do
-     FOCUS_PREVIOUS three times here to emulate moving up, because the ok_button and default_button
-     are in the way. */
+     do FOCUS_PREVIOUS three times here to emulate moving up, because the ok_button and
+     default_button are in the way. */
   cancel_button->connect_move_focus_up(
       signals::mem_fun(this, &attribute_picker_dialog_t::focus_previous));
   cancel_button->connect_move_focus_up(
