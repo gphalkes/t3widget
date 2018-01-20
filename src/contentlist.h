@@ -90,7 +90,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
             *display_name; /**< Pointer to member to the name to use for dispay purposes. */
     bool is_dir;           /**< Boolean indicating whether this name represents a directory. */
     /** Make a new file_name_entry_t. Implemented specifically to allow use in
-     * std::vector<file_name_entry_t>. */
+        std::vector<file_name_entry_t>. */
     file_name_entry_t();
     /** Make a new file_name_entry_t. */
     file_name_entry_t(const char *_name, const std::string &_utf8_name, bool _is_dir);

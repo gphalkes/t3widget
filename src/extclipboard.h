@@ -22,9 +22,10 @@
    communicate with the X11 module. It should _not_ contain any symbol that is
    dependent on the X11 headers. */
 
+#include <string>
+
 #include "ptr.h"
 #include "widget_api.h"
-#include <string>
 
 namespace t3_widget {
 
