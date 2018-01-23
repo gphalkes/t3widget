@@ -22,7 +22,7 @@
 
 namespace t3_widget {
 
-class key_bindings_base_t {
+class T3_WIDGET_API key_bindings_base_t {
  public:
   virtual ~key_bindings_base_t();
   virtual size_t names_size() const = 0;
@@ -31,7 +31,7 @@ class key_bindings_base_t {
 };
 
 template <typename T>
-class key_bindings_t : public key_bindings_base_t {
+class T3_WIDGET_API key_bindings_t : public key_bindings_base_t {
  public:
   struct param_t {
     T action;

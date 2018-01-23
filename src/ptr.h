@@ -52,7 +52,7 @@ class T3_WIDGET_API smartptr_base {
   T *get() { return p_; }
 
  protected:
-  smartptr_base() : p_(NULL) {}
+  smartptr_base() : p_(nullptr) {}
   T *p_;
 };
 
@@ -85,7 +85,7 @@ class T3_WIDGET_API smartptr_base {
 #define _T3_WIDGET_DEFINE_CLEANUP_PTR                      \
  public:                                                   \
   ~cleanup_ptr_base() {                                    \
-    if (smartptr_base<T>::p_ != NULL) {                    \
+    if (smartptr_base<T>::p_ != nullptr) {                 \
       D d;                                                 \
       d(smartptr_base<T>::p_);                             \
     }                                                      \
@@ -95,7 +95,7 @@ class T3_WIDGET_API smartptr_base {
   T **operator&(void) { return &smartptr_base<T>::p_; }    \
   T *operator=(T *p) {                                     \
     if (smartptr_base<T>::p_ == p) return p;               \
-    if (smartptr_base<T>::p_ != NULL) {                    \
+    if (smartptr_base<T>::p_ != nullptr) {                 \
       D d;                                                 \
       d(smartptr_base<T>::p_);                             \
     }                                                      \
@@ -103,7 +103,7 @@ class T3_WIDGET_API smartptr_base {
   }                                                        \
   T *release() {                                           \
     T *p = smartptr_base<T>::p_;                           \
-    smartptr_base<T>::p_ = NULL;                           \
+    smartptr_base<T>::p_ = nullptr;                        \
     return p;                                              \
   }                                                        \
                                                            \
@@ -151,7 +151,7 @@ _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, free_func<> >);
   linked_ptr_base() : next(this), prev(this) {}                    \
   linked_ptr_base(T *p) { set_p(p); }                              \
   linked_ptr_base(const linked_ptr_base &other) { link_p(other); } \
-  ~linked_ptr_base() { set_p(NULL); }                              \
+  ~linked_ptr_base() { set_p(nullptr); }                           \
   linked_ptr_base &operator=(const linked_ptr_base &other) {       \
     link_p(other);                                                 \
     return *this;                                                  \
@@ -164,7 +164,7 @@ _T3_WIDGET_TYPEDEF(cleanup_free_ptr, cleanup_ptr_base<T, free_func<> >);
  private:                                                          \
   void set_p(T *p) {                                               \
     if (smartptr_base<T>::p_ == p) return;                         \
-    if (smartptr_base<T>::p_ != NULL) {                            \
+    if (smartptr_base<T>::p_ != nullptr) {                         \
       if (next == this && prev == this) {                          \
         D d;                                                       \
         d(smartptr_base<T>::p_);                                   \
@@ -209,7 +209,7 @@ template <typename T>
 class T3_WIDGET_API pimpl_ptr_base : public smartptr_base<T> {
  public:
   ~pimpl_ptr_base() {
-    if (smartptr_base<T>::p_ != NULL) delete smartptr_base<T>::p_;
+    if (smartptr_base<T>::p_ != nullptr) delete smartptr_base<T>::p_;
   }
   pimpl_ptr_base(T *p) { smartptr_base<T>::p_ = p; }
 

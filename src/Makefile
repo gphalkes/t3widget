@@ -120,14 +120,13 @@ clang-format:
 	clang-format -i *.cc *.h */*.cc */*.h
 
 .clang-tidy-opts: Makefile
-	$(call _GENDIR,.clang-tidy,$<)
 	@echo "-xc++ -std=c++11 $(filter -D%, $(CXXFLAGS)) $(filter -I%, $(CXXFLAGS))" > .clang-tidy-opts
 
 clang-tidy: .clang-tidy-opts $(patsubst %, clang-tidy/%, $(foreach STEM, $(CXXLTTARGETS), $(SOURCES.$(STEM)))) \
 	$(patsubst %.cc, clang-tidy/%.h, $(foreach STEM, $(CXXLTTARGETS), $(SOURCES.$(STEM))))
 
 clang-tidy/%:
-	@if [[ -f "$*" ]] ; then echo "[CLANG-TIDY] $*" ; clang-tidy $* -- `cat .clang-tidy-opts` ; fi
+	@if [[ -f "$*" ]] ; then echo "[CLANG-TIDY] $*" ; clang-tidy $(CT_CHECKS) $* -- `cat .clang-tidy-opts` ; fi
 
 x11.la: | libt3widget.la
 
