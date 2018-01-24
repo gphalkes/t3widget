@@ -737,7 +737,9 @@ static void stop_keys() {
   nosig_write(signal_pipe[1], &quit_signal, 1);
   close(signal_pipe[1]);
   signal_pipe[1] = -1;
-  read_key_thread.join();
+  if (read_key_thread.joinable()) {
+	  read_key_thread.join();
+  }
   stop_mouse_reporting();
   t3_term_putp(leave);
 }
