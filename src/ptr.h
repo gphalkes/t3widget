@@ -201,8 +201,8 @@ class T3_WIDGET_API linked_ptr_base<T[], D> : public smartptr_base<T> {
 template <typename T, typename D = delete_functor<T> >
 _T3_WIDGET_TYPEDEF(linked_ptr, linked_ptr_base<T, D>);
 
-/* The following pointers are meant only for private implemenation purposes,
-   therfore no assignment is possible, and only the constructor with argument
+/* The following pointers are meant only for private implementation purposes,
+   therefore no assignment is possible, and only the constructor with argument
    is available. Other than that, they are normal auto-pointers.
 */
 template <typename T>

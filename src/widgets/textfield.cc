@@ -38,8 +38,6 @@ namespace t3_widget {
 #define _T3_ACTION_TYPE text_field_t
 #include "key_binding_def.h"
 
-static std::vector<std::string> action_names;
-
 text_field_t::text_field_t() : widget_t(1, 4), impl(new implementation_t()) { reset_selection(); }
 
 void text_field_t::reset_selection() {

@@ -97,9 +97,6 @@ LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3window/.libs -lt3window
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/transcript/.libs -ltranscript
 LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3key/.libs -lt3key
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
-ifndef CPP11
-LDLIBS.libt3widget.la += `pkg-config --libs sigc++-2.0`
-endif
 LDLIBS.libt3widget.la += -lunistring
 LDLIBS.libt3widget.la += -lgpm
 LDLIBS.libt3widget.la += -lm
@@ -113,8 +110,10 @@ LDLIBS.libt3widget.la += -ldl
 
 CXXFLAGS.x11 += `pkg-config --cflags xcb`
 LDLIBS.x11.la += `pkg-config --libs xcb`
-
-LDLIBS.x11.la += -module -avoid-version -L.libs -lt3widget -shrext .mod
+LDLIBS.x11.la += -L.libs -lt3widget
+ifeq ($(LTBUILD), libtool)
+LDLIBS.x11.la += -module -avoid-version -shrext .mod
+endif
 
 clang-format:
 	clang-format -i *.cc *.h */*.cc */*.h

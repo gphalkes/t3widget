@@ -50,8 +50,6 @@ const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = {&text_buffer_t::insert_char,
                                                               &text_buffer_t::overwrite_char};
 
-static std::vector<std::string> action_names;
-
 void edit_window_t::init(bool _init) {
   if (_init) {
     /* Construct these from t3_widget::init, such that the locale is set correctly and

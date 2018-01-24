@@ -22,8 +22,6 @@ namespace t3_widget {
 #define _T3_ACTION_TYPE split_t
 #include "key_binding_def.h"
 
-static std::vector<std::string> action_names;
-
 split_t::split_t(widget_t *widget) : horizontal(true), focus(false) {
   init_unbacked_window(3, 3);
   set_widget_parent(widget);
