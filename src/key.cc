@@ -525,6 +525,7 @@ static bool is_function_key(const char *str) {
     result.set_error(_s, _x, __FILE__, __LINE__); \
     goto return_error;                            \
   } while (false)
+
 /* Initialize the key map */
 complex_error_t init_keys(const char *term, bool separate_keypad) {
   complex_error_t result;
@@ -687,6 +688,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
   return result;
 
 return_error:
+  int saved_errno = errno;
   cleanup_keys();
   if (signal_pipe[0] != -1) {
     close(signal_pipe[0]);
@@ -694,6 +696,7 @@ return_error:
     signal_pipe[0] = -1;
     signal_pipe[1] = -1;
   }
+  errno = saved_errno;
   return result;
 }
 #undef RETURN_ERROR
