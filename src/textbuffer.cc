@@ -51,6 +51,7 @@ text_buffer_t::~text_buffer_t() {
 int text_buffer_t::size() const { return impl->lines.size(); }
 
 const text_line_t *text_buffer_t::get_line_data(int idx) const { return impl->lines[idx]; }
+text_line_t *text_buffer_t::get_mutable_line_data(int idx) { return impl->lines[idx]; }
 
 text_line_t *text_buffer_t::get_line_data_nonconst(int idx) { return impl->lines[idx]; }
 

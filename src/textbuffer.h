@@ -75,6 +75,7 @@ class T3_WIDGET_API text_buffer_t {
 
   text_line_t *get_line_data_nonconst(int idx);
   text_line_factory_t *get_line_factory();
+  text_line_t *get_mutable_line_data(int idx);
 
   virtual void prepare_paint_line(int line);
 

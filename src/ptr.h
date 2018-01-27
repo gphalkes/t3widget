@@ -50,6 +50,7 @@ class T3_WIDGET_API smartptr_base {
   T *operator()(void) const { return p_; }
   operator T *(void) { return p_; }
   T *get() { return p_; }
+  const T *get() const { return p_; }
 
  protected:
   smartptr_base() : p_(nullptr) {}

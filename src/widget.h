@@ -15,6 +15,9 @@
 #define T3_WIDGET_H
 
 #include <t3widget/main.h>
+#include <t3widget/key.h>
+#include <t3widget/util.h>
+#include <t3widget/signals.h>
 
 #include <t3widget/dialogs/attributepickerdialog.h>
 #include <t3widget/dialogs/dialog.h>
@@ -50,4 +53,5 @@
 #include <t3widget/widgets/widgetgroup.h>
 
 #include <t3widget/findcontext.h>
+
 #endif
