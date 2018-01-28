@@ -107,7 +107,6 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 
 class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
  private:
-  cleanup_t3_window_ptr shadow_window;
   file_pane_t *parent;
   bool redraw;
   text_line_t text;

@@ -15,6 +15,7 @@
 #define T3_WIDGET_TEXTFIELD_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -56,15 +57,15 @@ class T3_WIDGET_API text_field_t : public widget_t,
         */
         edited;
 
-    cleanup_ptr<text_line_t>::t line; /**< Variable containing the current text. */
-    const key_t *filter_keys;         /**< List of keys to accept or reject. */
-    size_t filter_keys_size;          /**< Size of #filter_keys. */
+    std::unique_ptr<text_line_t> line; /**< Variable containing the current text. */
+    const key_t *filter_keys;          /**< List of keys to accept or reject. */
+    size_t filter_keys_size;           /**< Size of #filter_keys. */
     bool filter_keys_accept; /**< Boolean indicating whether the keys in #filter_keys should be
                                 accepted or rejected. */
 
     smart_label_t *label; /**< Label associated with this text_field_t. */
 
-    cleanup_ptr<drop_down_list_t>::t drop_down_list;
+    std::unique_ptr<drop_down_list_t> drop_down_list;
 
     implementation_t()
         : pos(0),
@@ -77,11 +78,10 @@ class T3_WIDGET_API text_field_t : public widget_t,
           dont_select_on_focus(false),
           edited(false),
           line(new text_line_t()),
-          filter_keys(NULL),
+          filter_keys(nullptr),
           filter_keys_size(0),
           filter_keys_accept(true),
-          label(NULL),
-          drop_down_list(NULL) {}
+          label(nullptr) {}
   };
   pimpl_ptr<implementation_t>::t impl;
 

@@ -14,6 +14,9 @@
 #ifndef T3_WIDGET_LISTPANE_H
 #define T3_WIDGET_LISTPANE_H
 
+#include <memory>
+
+#include <t3widget/util.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
 
@@ -36,13 +39,13 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
   struct T3_WIDGET_LOCAL implementation_t {
     size_t top_idx, current;
-    cleanup_t3_window_ptr widgets_window;
+    unique_t3_window_ptr widgets_window;
     widgets_t widgets;
     bool has_focus;
     scrollbar_t scrollbar;
     bool indicator;
     bool single_click_activate;
-    cleanup_ptr<indicator_widget_t>::t indicator_widget;
+    std::unique_ptr<indicator_widget_t> indicator_widget;
 
     implementation_t(bool _indicator)
         : top_idx(0),

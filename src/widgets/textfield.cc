@@ -465,7 +465,7 @@ void text_field_t::set_key_filter(key_t *keys, size_t nr_of_keys, bool accept) {
 const std::string *text_field_t::get_text() const { return impl->line->get_data(); }
 
 void text_field_t::set_autocomplete(string_list_base_t *completions) {
-  if (impl->drop_down_list == nullptr) impl->drop_down_list = new drop_down_list_t(this);
+  if (impl->drop_down_list == nullptr) impl->drop_down_list.reset(new drop_down_list_t(this));
   impl->drop_down_list->set_autocomplete(completions);
 }
 

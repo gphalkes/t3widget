@@ -126,7 +126,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
   test_line_frame->set_child(impl->test_line);
 
   if (capabilities.cap_flags & (T3_TERM_CAP_FG | T3_TERM_CAP_CP)) {
-    impl->expander_group = new expander_group_t();
+    impl->expander_group.reset(new expander_group_t());
 
     if (capabilities.cap_flags & T3_TERM_CAP_FG) {
       impl->fg_picker = new color_picker_t(true);

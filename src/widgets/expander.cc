@@ -19,11 +19,12 @@ namespace t3_widget {
 
 expander_t::expander_t(const char *text) : impl(new implementation_t(text)) {
   init_unbacked_window(1, impl->label.get_width() + 2);
-  if ((impl->symbol_window = t3_win_new(window, 1, 2 + impl->label.get_width(), 0, 0, 0)) ==
-      nullptr)
+  impl->symbol_window.reset(t3_win_new(window, 1, 2 + impl->label.get_width(), 0, 0, 0));
+  if (impl->symbol_window == nullptr) {
     throw std::bad_alloc();
-  t3_win_show(impl->symbol_window);
-  register_mouse_target(impl->symbol_window);
+  }
+  t3_win_show(impl->symbol_window.get());
+  register_mouse_target(impl->symbol_window.get());
 }
 
 void expander_t::focus_up_from_child() {
@@ -37,7 +38,7 @@ void expander_t::set_child(widget_t *_child) {
   focus_widget_t *focus_child;
   /* FIXME: connect to move_focus_XXX events. (requires dynamic_cast'ing to focus_widget_t) */
   if (impl->child != nullptr) {
-    unset_widget_parent(impl->child);
+    unset_widget_parent(impl->child.get());
     impl->move_up_connection.disconnect();
     impl->move_down_connection.disconnect();
     impl->move_right_connection.disconnect();
@@ -51,15 +52,15 @@ void expander_t::set_child(widget_t *_child) {
       redraw = true;
       expanded(false);
     }
-    impl->child = _child;
+    impl->child.reset(_child);
     return;
   }
-  impl->child = _child;
-  set_widget_parent(impl->child);
+  impl->child.reset(_child);
+  set_widget_parent(impl->child.get());
   impl->child->set_anchor(this, 0);
   impl->child->set_position(1, 0);
   impl->full_height = t3_win_get_height(impl->child->get_base_window()) + 1;
-  focus_child = dynamic_cast<focus_widget_t *>(impl->child());
+  focus_child = dynamic_cast<focus_widget_t *>(impl->child.get());
   if (focus_child != nullptr) {
     impl->move_up_connection = focus_child->connect_move_focus_up(
         signals::mem_fun(this, &expander_t::focus_up_from_child));
@@ -144,13 +145,14 @@ void expander_t::update_contents() {
   if (impl->is_expanded && impl->child != nullptr) impl->child->update_contents();
   if (!redraw) return;
 
-  t3_win_set_paint(impl->symbol_window, 0, 0);
+  t3_win_set_paint(impl->symbol_window.get(), 0, 0);
   t3_win_set_default_attrs(
-      impl->symbol_window,
+      impl->symbol_window.get(),
       (impl->focus == FOCUS_SELF ? attributes.dialog_selected : attributes.dialog));
-  t3_win_addch(impl->symbol_window, impl->is_expanded ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS);
-  t3_win_addch(impl->symbol_window, ' ', 0);
-  impl->label.draw(impl->symbol_window, 0, impl->focus == FOCUS_SELF);
+  t3_win_addch(impl->symbol_window.get(), impl->is_expanded ? T3_ACS_DARROW : T3_ACS_RARROW,
+               T3_ATTR_ACS);
+  t3_win_addch(impl->symbol_window.get(), ' ', 0);
+  impl->label.draw(impl->symbol_window.get(), 0, impl->focus == FOCUS_SELF);
 }
 
 void expander_t::set_focus(focus_t _focus) {
@@ -199,11 +201,11 @@ void expander_t::force_redraw() {
 }
 
 void expander_t::set_child_focus(window_component_t *target) {
-  if (target == impl->child) {
+  if (target == impl->child.get()) {
     impl->focus = FOCUS_CHILD;
     impl->child->set_focus(window_component_t::FOCUS_SET);
   } else {
-    container_t *container = dynamic_cast<container_t *>((widget_t *)impl->child);
+    container_t *container = dynamic_cast<container_t *>(impl->child.get());
     if (container != nullptr) {
       impl->focus = FOCUS_CHILD;
       container->set_child_focus(target);
@@ -213,8 +215,8 @@ void expander_t::set_child_focus(window_component_t *target) {
 
 bool expander_t::is_child(window_component_t *component) {
   container_t *container;
-  if (component == impl->child) return true;
-  container = dynamic_cast<container_t *>(impl->child());
+  if (component == impl->child.get()) return true;
+  container = dynamic_cast<container_t *>(impl->child.get());
   return container != nullptr && container->is_child(component);
 }
 
@@ -225,8 +227,8 @@ widget_t *expander_t::is_child_hotkey(key_t key) {
       !impl->child->is_enabled())
     return nullptr;
 
-  if (impl->child->is_hotkey(key)) return impl->child;
-  widget_container = dynamic_cast<widget_container_t *>(impl->child());
+  if (impl->child->is_hotkey(key)) return impl->child.get();
+  widget_container = dynamic_cast<widget_container_t *>(impl->child.get());
   return widget_container == nullptr ? nullptr : widget_container->is_child_hotkey(key);
 }
 

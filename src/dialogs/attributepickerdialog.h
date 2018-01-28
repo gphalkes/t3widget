@@ -14,6 +14,8 @@
 #ifndef T3_WIDGET_ATTRIBUTEPICKERDIALOG_H
 #define T3_WIDGET_ATTRIBUTEPICKERDIALOG_H
 
+#include <memory>
+
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/interfaces.h>
 #include <t3widget/widgets/checkbox.h>
@@ -31,11 +33,10 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
     checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
     attribute_test_line_t *test_line;
     color_picker_base_t *fg_picker, *bg_picker;
-    cleanup_ptr<expander_group_t>::t expander_group;
+    std::unique_ptr<expander_group_t> expander_group;
     expander_t *fg_expander, *bg_expander;
     t3_attr_t base_attributes;
-    implementation_t()
-        : fg_picker(NULL), bg_picker(NULL), expander_group(NULL), base_attributes(0) {}
+    implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
   };
   pimpl_ptr<implementation_t>::t impl;
 

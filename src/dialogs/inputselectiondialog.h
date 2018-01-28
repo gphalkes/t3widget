@@ -14,7 +14,9 @@
 #ifndef T3_WIDGET_INPUTSELECTIONDIALOG_H
 #define T3_WIDGET_INPUTSELECTIONDIALOG_H
 
+#include <memory>
 #include <string>
+
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/frame.h>
@@ -26,7 +28,7 @@ namespace t3_widget {
 class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t {
-    cleanup_ptr<text_buffer_t>::t text;
+    std::unique_ptr<text_buffer_t> text;
     frame_t *text_frame, *label_frame;
     text_window_t *text_window;
     label_t *key_label;
@@ -36,7 +38,7 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
   pimpl_ptr<implementation_t>::t impl;
 
  public:
-  input_selection_dialog_t(int height, int width, text_buffer_t *_text = NULL);
+  input_selection_dialog_t(int height, int width, text_buffer_t *_text = nullptr);
   bool set_size(optint height, optint width) override;
   bool process_key(key_t key) override;
   void show() override;

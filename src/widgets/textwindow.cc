@@ -28,8 +28,8 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
      anyway, so we don't care. If the impl->scrollbar is disabled, we set the wrap width
      one higher, such that the wrap character falls off the edge. */
   if (with_scrollbar) {
-    impl->scrollbar = new scrollbar_t(true);
-    container_t::set_widget_parent(impl->scrollbar);
+    impl->scrollbar.reset(new scrollbar_t(true));
+    container_t::set_widget_parent(impl->scrollbar.get());
     impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     impl->scrollbar->set_size(11, None);
     impl->scrollbar->connect_clicked(signals::mem_fun(this, &text_window_t::scrollbar_clicked));
@@ -41,7 +41,7 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
   else
     impl->text = _text;
 
-  impl->wrap_info = new wrap_info_t(impl->scrollbar != nullptr ? 11 : 12);
+  impl->wrap_info.reset(new wrap_info_t(impl->scrollbar != nullptr ? 11 : 12));
   impl->wrap_info->set_text_buffer(impl->text);
 }
 
@@ -77,8 +77,8 @@ bool text_window_t::set_size(optint height, optint width) {
 void text_window_t::set_scrollbar(bool with_scrollbar) {
   if (with_scrollbar == (impl->scrollbar != nullptr)) return;
   if (with_scrollbar) {
-    impl->scrollbar = new scrollbar_t(true);
-    set_widget_parent(impl->scrollbar);
+    impl->scrollbar.reset(new scrollbar_t(true));
+    set_widget_parent(impl->scrollbar.get());
     impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     impl->scrollbar->set_size(t3_win_get_height(window), None);
     impl->wrap_info->set_wrap_width(t3_win_get_width(window));
@@ -210,7 +210,9 @@ void text_window_t::set_child_focus(window_component_t *target) {
   set_focus(window_component_t::FOCUS_SET);
 }
 
-bool text_window_t::is_child(window_component_t *component) { return component == impl->scrollbar; }
+bool text_window_t::is_child(window_component_t *component) {
+  return component == impl->scrollbar.get();
+}
 
 text_buffer_t *text_window_t::get_text() { return impl->text; }
 

@@ -14,6 +14,8 @@
 #ifndef T3_WIDGET_TEXTWINDOW_H
 #define T3_WIDGET_TEXTWINDOW_H
 
+#include <memory>
+
 #include <t3widget/interfaces.h>
 #include <t3widget/textbuffer.h>
 #include <t3widget/widgets/scrollbar.h>
@@ -25,9 +27,9 @@ namespace t3_widget {
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t {
-    cleanup_ptr<scrollbar_t>::t scrollbar;
+    std::unique_ptr<scrollbar_t> scrollbar;
     text_buffer_t *text;
-    cleanup_ptr<wrap_info_t>::t wrap_info;
+    std::unique_ptr<wrap_info_t> wrap_info;
     text_coordinate_t top;
     bool focus;
 

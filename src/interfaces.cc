@@ -30,7 +30,7 @@ bool container_t::set_widget_parent(window_component_t *widget) {
 }
 
 void container_t::unset_widget_parent(window_component_t *widget) {
-  t3_win_set_parent(widget->get_base_window(), widget_t::default_parent);
+  t3_win_set_parent(widget->get_base_window(), widget_t::default_parent.get());
 }
 
 center_component_t::center_component_t() : center_window(this) {}

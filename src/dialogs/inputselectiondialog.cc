@@ -24,9 +24,9 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
   button_t *ok_button, *cancel_button;
   smart_label_t *enable_simulate_label, *disable_timeout_label, *close_remark_label;
 
-  impl->text = _text == nullptr ? get_default_text() : _text;
+  impl->text.reset(_text == nullptr ? get_default_text() : _text);
 
-  impl->text_window = new text_window_t(impl->text);
+  impl->text_window = new text_window_t(impl->text.get());
   impl->text_frame = new frame_t(frame_t::COVER_RIGHT);
   impl->text_frame->set_child(impl->text_window);
   impl->text_frame->set_size(height - 9, width - 2);

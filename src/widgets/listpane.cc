@@ -19,11 +19,11 @@ namespace t3_widget {
 
 list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator)) {
   init_unbacked_window(1, 3, true);
-  impl->widgets_window = window.release();
+  impl->widgets_window.reset(window.release());
 
   init_unbacked_window(1, 4);
-  t3_win_set_parent(impl->widgets_window, window);
-  t3_win_set_anchor(impl->widgets_window, window,
+  t3_win_set_parent(impl->widgets_window.get(), window);
+  t3_win_set_anchor(impl->widgets_window.get(), window,
                     T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
 
   container_t::set_widget_parent(&impl->scrollbar);
@@ -33,8 +33,8 @@ list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator
   impl->scrollbar.connect_dragged(signals::mem_fun(this, &list_pane_t::scrollbar_dragged));
 
   if (impl->indicator) {
-    impl->indicator_widget = new indicator_widget_t();
-    container_t::set_widget_parent(impl->indicator_widget);
+    impl->indicator_widget.reset(new indicator_widget_t());
+    container_t::set_widget_parent(impl->indicator_widget.get());
   }
 }
 
@@ -43,7 +43,7 @@ list_pane_t::~list_pane_t() {
 }
 
 bool list_pane_t::set_widget_parent(window_component_t *widget) {
-  return t3_win_set_parent(widget->get_base_window(), impl->widgets_window);
+  return t3_win_set_parent(widget->get_base_window(), impl->widgets_window.get());
 }
 
 void list_pane_t::ensure_cursor_on_screen() {
@@ -132,7 +132,8 @@ bool list_pane_t::set_size(optint height, optint width) {
   if (!width.is_valid()) width = t3_win_get_width(window);
 
   result = t3_win_resize(window, height, width);
-  result &= t3_win_resize(impl->widgets_window, t3_win_get_height(impl->widgets_window), width - 1);
+  result &= t3_win_resize(impl->widgets_window.get(), t3_win_get_height(impl->widgets_window.get()),
+                          width - 1);
   if (impl->indicator) result &= impl->indicator_widget->set_size(None, width - 1);
 
   widget_width = impl->indicator ? (int)width - 3 : (int)width - 1;
@@ -151,7 +152,7 @@ void list_pane_t::update_contents() {
     impl->indicator_widget->set_position(impl->current, 0);
   }
 
-  t3_win_move(impl->widgets_window, -impl->top_idx, 0);
+  t3_win_move(impl->widgets_window.get(), -impl->top_idx, 0);
   impl->scrollbar.set_parameters(impl->widgets.size(), impl->top_idx, t3_win_get_height(window));
   impl->scrollbar.update_contents();
   for (widget_t *widget : impl->widgets) widget->update_contents();
@@ -165,10 +166,10 @@ void list_pane_t::set_focus(focus_t focus) {
 
 bool list_pane_t::process_mouse_event(mouse_event_t event) {
   if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
-      event.window != impl->widgets_window) {
+      event.window != impl->widgets_window.get()) {
     if (!impl->single_click_activate) activate();
   } else if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) &&
-             event.window != impl->widgets_window) {
+             event.window != impl->widgets_window.get()) {
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
     impl->current = event.y;
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
@@ -190,7 +191,8 @@ void list_pane_t::update_positions() {
   widgets_t::iterator iter;
   size_t idx;
 
-  t3_win_resize(impl->widgets_window, impl->widgets.size(), t3_win_get_width(impl->widgets_window));
+  t3_win_resize(impl->widgets_window.get(), impl->widgets.size(),
+                t3_win_get_width(impl->widgets_window.get()));
   for (iter = impl->widgets.begin(), idx = 0; iter != impl->widgets.end(); iter++, idx++)
     (*iter)->set_position(idx, impl->indicator ? 1 : 0);
 }
@@ -209,7 +211,7 @@ void list_pane_t::set_child_focus(window_component_t *target) {
   size_t idx;
   size_t old_current = impl->current;
 
-  if (target == &impl->scrollbar || target == impl->indicator_widget) {
+  if (target == &impl->scrollbar || target == impl->indicator_widget.get()) {
     set_focus(window_component_t::FOCUS_SET);
     return;
   }
@@ -237,7 +239,7 @@ void list_pane_t::set_child_focus(window_component_t *target) {
 }
 
 bool list_pane_t::is_child(window_component_t *widget) {
-  if (widget == &impl->scrollbar || widget == impl->indicator_widget) return true;
+  if (widget == &impl->scrollbar || widget == impl->indicator_widget.get()) return true;
 
   for (widget_t *iter : impl->widgets) {
     if (iter == widget) {
@@ -251,15 +253,16 @@ bool list_pane_t::is_child(window_component_t *widget) {
 }
 
 void list_pane_t::push_back(widget_t *widget) {
-  widget->set_size(1, t3_win_get_width(impl->widgets_window) - (impl->indicator ? 2 : 0));
+  widget->set_size(1, t3_win_get_width(impl->widgets_window.get()) - (impl->indicator ? 2 : 0));
   widget->set_position(impl->widgets.size(), impl->indicator ? 1 : 0);
   set_widget_parent(widget);
   impl->widgets.push_back(widget);
-  t3_win_resize(impl->widgets_window, impl->widgets.size(), t3_win_get_width(impl->widgets_window));
+  t3_win_resize(impl->widgets_window.get(), impl->widgets.size(),
+                t3_win_get_width(impl->widgets_window.get()));
 }
 
 void list_pane_t::push_front(widget_t *widget) {
-  widget->set_size(1, t3_win_get_width(impl->widgets_window) - (impl->indicator ? 2 : 0));
+  widget->set_size(1, t3_win_get_width(impl->widgets_window.get()) - (impl->indicator ? 2 : 0));
   set_widget_parent(widget);
   impl->widgets.push_front(widget);
   if (impl->current + 1 < impl->widgets.size()) impl->current++;
@@ -276,7 +279,8 @@ void list_pane_t::pop_back() {
   }
   unset_widget_parent(impl->widgets.back());
   impl->widgets.pop_back();
-  t3_win_resize(impl->widgets_window, impl->widgets.size(), t3_win_get_width(impl->widgets_window));
+  t3_win_resize(impl->widgets_window.get(), impl->widgets.size(),
+                t3_win_get_width(impl->widgets_window.get()));
 }
 
 void list_pane_t::pop_front() {
