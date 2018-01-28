@@ -53,8 +53,8 @@ class T3_WIDGET_API text_buffer_t {
           selection_end(-1, 0),
           selection_mode(selection_mode_t::NONE),
           last_undo_type(UNDO_NONE),
-          last_undo(NULL),
-          line_factory(_line_factory == NULL ? &default_text_line_factory : _line_factory) {}
+          last_undo(nullptr),
+          line_factory(_line_factory == nullptr ? &default_text_line_factory : _line_factory) {}
   };
   pimpl_ptr<implementation_t>::t impl;
 
@@ -69,7 +69,7 @@ class T3_WIDGET_API text_buffer_t {
   bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
   int apply_undo_redo(undo_type_t type, undo_t *current);
   bool merge_internal(int line);
-  bool break_line_internal(const std::string *indent = NULL);
+  bool break_line_internal(const std::string *indent = nullptr);
 
   bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
@@ -80,7 +80,7 @@ class T3_WIDGET_API text_buffer_t {
   virtual void prepare_paint_line(int line);
 
  public:
-  text_buffer_t(text_line_factory_t *_line_factory = NULL);
+  text_buffer_t(text_line_factory_t *_line_factory = nullptr);
   virtual ~text_buffer_t();
 
   int size() const;
@@ -91,7 +91,7 @@ class T3_WIDGET_API text_buffer_t {
   bool delete_char();
   bool backspace_char();
   bool merge(bool backspace);
-  bool break_line(const std::string *indent = NULL);
+  bool break_line(const std::string *indent = nullptr);
   bool insert_block(const std::string *block);
 
   bool append_text(const char *text);

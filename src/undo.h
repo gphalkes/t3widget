@@ -71,10 +71,10 @@ class T3_WIDGET_API undo_list_t {
 
  public:
   undo_list_t()
-      : head(NULL),
-        tail(NULL),
-        current(NULL),
-        mark(NULL),
+      : head(nullptr),
+        tail(nullptr),
+        current(nullptr),
+        mark(nullptr),
         mark_is_valid(true),
         mark_beyond_current(false) {}
   ~undo_list_t();
@@ -101,7 +101,7 @@ class T3_WIDGET_API undo_t {
 
  public:
   undo_t(undo_type_t _type, text_coordinate_t _start)
-      : type(_type), start(_start), previous(NULL), next(NULL) {}
+      : type(_type), start(_start), previous(nullptr), next(nullptr) {}
   virtual ~undo_t();
   undo_type_t get_type() const;
   undo_type_t get_redo_type() const;

@@ -43,7 +43,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   void scrollbar_dragged(int start);
 
  public:
-  text_window_t(text_buffer_t *_text = NULL, bool with_scrollbar = true);
+  text_window_t(text_buffer_t *_text = nullptr, bool with_scrollbar = true);
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

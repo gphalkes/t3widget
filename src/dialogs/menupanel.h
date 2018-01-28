@@ -32,7 +32,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
     smart_label_text_t label;
     menu_bar_t *menu_bar;
 
-    implementation_t(const char *name) : label(name), menu_bar(NULL) {}
+    implementation_t(const char *name) : label(name), menu_bar(nullptr) {}
   };
   pimpl_ptr<implementation_t>::t impl;
 
@@ -51,7 +51,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
   void process_mouse_event_from_menu(mouse_event_t event);
 
  public:
-  menu_panel_t(const char *name, menu_bar_t *_menu_bar = NULL);
+  menu_panel_t(const char *name, menu_bar_t *_menu_bar = nullptr);
   bool process_key(key_t key) override;
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;

@@ -95,10 +95,10 @@ class T3_WIDGET_API text_line_t {
   int byte_width_from_first(int pos) const;
 
  public:
-  text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = NULL);
-  text_line_t(const char *_buffer, text_line_factory_t *_factory = NULL);
-  text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = NULL);
-  text_line_t(const std::string *str, text_line_factory_t *_factory = NULL);
+  text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = nullptr);
+  text_line_t(const char *_buffer, text_line_factory_t *_factory = nullptr);
+  text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = nullptr);
+  text_line_t(const std::string *str, text_line_factory_t *_factory = nullptr);
   virtual ~text_line_t();
 
   void set_text(const char *_buffer);

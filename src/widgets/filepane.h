@@ -52,9 +52,9 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
         : scrollbar(false),
           top_idx(0),
           current(0),
-          file_list(NULL),
+          file_list(nullptr),
           focus(false),
-          field(NULL),
+          field(nullptr),
           columns_visible(0),
           scrollbar_range(1) {}
   };
