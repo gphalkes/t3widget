@@ -19,6 +19,7 @@ class edit_window_t;
 };  // namespace
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,6 +29,7 @@ class edit_window_t;
 #include <t3widget/key.h>
 #include <t3widget/key_binding.h>
 #include <t3widget/textbuffer.h>
+#include <t3widget/util.h>
 #include <t3widget/widgets/listpane.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
@@ -58,12 +60,12 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   static signals::connection init_connected;
 
   struct T3_WIDGET_LOCAL implementation_t {
-    cleanup_t3_window_ptr edit_window, /**< Window containing the text. */
+    unique_t3_window_ptr edit_window, /**< Window containing the text. */
         indicator_window; /**< Window holding the line, column, modified, etc. information line at
                              the bottom. */
-    cleanup_ptr<scrollbar_t>::t scrollbar; /**< Scrollbar on the right of the text. */
-    int screen_pos;                        /**< Cached position of cursor in screen coordinates. */
-    int tabsize;                           /**< Width of a tab, in cells. */
+    std::unique_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
+    int screen_pos;                         /**< Cached position of cursor in screen coordinates. */
+    int tabsize;                            /**< Width of a tab, in cells. */
     bool focus;      /**< Boolean indicating whether this edit_window_t has the input focus. */
     bool tab_spaces; /**< Boolean indicating whether to use spaces for tab. */
     /** Associated find dialog.
@@ -73,7 +75,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
     finder_t *finder;      /**< Object used for find actions in the text. */
     wrap_type_t wrap_type; /**< The wrap_type_t used for display. */
     wrap_info_t
-        *wrap_info; /**< Required information for wrapped display, or @c NULL if not in use. */
+        *wrap_info; /**< Required information for wrapped display, or @c nullptr if not in use. */
     /** The top-left coordinate in the text.
             This is either a proper text_coordinate_t when wrapping is disabled, or
             a line and sub-line (pos @c member) coordinate when wrapping is enabled.
@@ -89,8 +91,8 @@ class T3_WIDGET_API edit_window_t : public widget_t,
                                specially. */
     bool show_tabs;         /**< Boolean indicating whether to explicitly show tabs. */
 
-    cleanup_ptr<autocompleter_t>::t autocompleter; /**< Object used for autocompletion. */
-    cleanup_ptr<autocomplete_panel_t>::t
+    std::unique_ptr<autocompleter_t> autocompleter; /**< Object used for autocompletion. */
+    std::unique_ptr<autocomplete_panel_t>
         autocomplete_panel; /**< Panel for showing autocomplete options. */
 
     int repaint_min, /**< First line to repaint. */
@@ -101,18 +103,16 @@ class T3_WIDGET_API edit_window_t : public widget_t,
           tabsize(8),
           focus(false),
           tab_spaces(false),
-          find_dialog(NULL),
-          finder(NULL),
+          find_dialog(nullptr),
+          finder(nullptr),
           wrap_type(wrap_type_t::NONE),
-          wrap_info(NULL),
+          wrap_info(nullptr),
           ins_mode(0),
           last_set_pos(0),
           auto_indent(true),
           pasting_text(false),
           indent_aware_home(true),
           show_tabs(false),
-          autocompleter(NULL),
-          autocomplete_panel(NULL),
           repaint_min(0),
           repaint_max(INT_MAX) {}
   };
@@ -203,7 +203,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
       @param _text The text to display in the edit_window_t.
       @param params The view parameters to set.
   */
-  edit_window_t(text_buffer_t *_text = NULL, const view_parameters_t *params = NULL);
+  edit_window_t(text_buffer_t *_text = nullptr, const view_parameters_t *params = nullptr);
   ~edit_window_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
@@ -222,7 +222,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
       function to make sure you have a reference to the current buffer that
       you can use to delete the old text_buffer_t.
   */
-  void set_text(text_buffer_t *_text, const view_parameters_t *params = NULL);
+  void set_text(text_buffer_t *_text, const view_parameters_t *params = nullptr);
   /** Get the text currently displayed. */
   text_buffer_t *get_text() const;
   /** Apply the undo action. */

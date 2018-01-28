@@ -91,7 +91,7 @@ const char *complex_error_t::get_string() {
       break;
     case SRC_TRANSCRIPT:
       error_str = "libtranscript: ";
-      error_str.append(transcript_strerror((transcript_error_t) error));
+      error_str.append(transcript_strerror((transcript_error_t)error));
       break;
     case SRC_T3_KEY:
       error_str = "libt3key: ";
@@ -297,8 +297,8 @@ complex_error_t init(const init_parameters_t *params) {
 
   transcript_error_t transcript_error = transcript_init();
   if (transcript_error != TRANSCRIPT_SUCCESS) {
-	  result.set_error(complex_error_t::SRC_TRANSCRIPT, transcript_error);
-	  return result;
+    result.set_error(complex_error_t::SRC_TRANSCRIPT, transcript_error);
+    return result;
   }
 
   result = init_keys(init_params->term, init_params->separate_keypad);

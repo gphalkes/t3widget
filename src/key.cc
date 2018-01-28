@@ -741,7 +741,7 @@ static void stop_keys() {
   close(signal_pipe[1]);
   signal_pipe[1] = -1;
   if (read_key_thread.joinable()) {
-	  read_key_thread.join();
+    read_key_thread.join();
   }
   stop_mouse_reporting();
   t3_term_putp(leave);

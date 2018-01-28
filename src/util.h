@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_UTIL_H
 #define T3_WIDGET_UTIL_H
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <t3window/window.h>
 #include <unistd.h>
@@ -151,6 +152,11 @@ _T3_WIDGET_ENUM(wrap_type_t, NONE, WORD, CHARACTER);
 #undef _T3_WIDGET_ENUM
 
 using cleanup_t3_window_ptr = cleanup_func_ptr<t3_window_t, t3_win_del>::t;
+
+struct t3_window_deleter {
+  void operator()(t3_window_t *win) { t3_win_del(win); }
+};
+using unique_t3_window_ptr = std::unique_ptr<t3_window_t, t3_window_deleter>;
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
