@@ -27,8 +27,9 @@ main_window_base_t::main_window_base_t() : dialog_t() {
     width = 80;
   }
 
-  if ((window = t3_win_new_unbacked(nullptr, height, width, 0, 0, INT_MAX)) == nullptr)
+  if ((window = t3_win_new_unbacked(nullptr, height, width, 0, 0, INT_MAX)) == nullptr) {
     throw std::bad_alloc();
+  }
   t3_win_show(window);
   connect_resize(signals::mem_fun(this, &main_window_base_t::set_size_real));
 }
@@ -53,7 +54,9 @@ void main_window_base_t::show() {
   dialog_base_t::show();
 
   dialog_t::active_dialogs.push_front(this);
-  if (dialog_t::active_dialogs.back() == this) set_focus(window_component_t::FOCUS_SET);
+  if (dialog_t::active_dialogs.back() == this) {
+    set_focus(window_component_t::FOCUS_SET);
+  }
 }
 
 void main_window_base_t::close() {}

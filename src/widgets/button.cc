@@ -55,7 +55,9 @@ bool button_t::set_size(optint height, optint width) {
 
   if (width.is_valid()) {
     if (width <= 0) {
-      if (text_width + 4 == t3_win_get_width(window)) return true;
+      if (text_width + 4 == t3_win_get_width(window)) {
+        return true;
+      }
       width = text_width + 4;
     }
     return t3_win_resize(window, 1, width);
@@ -67,7 +69,9 @@ void button_t::update_contents() {
   t3_attr_t attr;
   int width;
 
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
 
   attr = has_focus ? attributes.button_selected : 0;
@@ -77,23 +81,30 @@ void button_t::update_contents() {
   t3_win_set_default_attrs(window, attributes.dialog);
   t3_win_set_paint(window, 0, 0);
   t3_win_addstr(window, is_default ? "[<" : "[ ", attr);
-  if (width > text_width + 4) t3_win_addchrep(window, ' ', attr, (width - 4 - text_width) / 2);
+  if (width > text_width + 4) {
+    t3_win_addchrep(window, ' ', attr, (width - 4 - text_width) / 2);
+  }
   text->draw(window, attr, has_focus);
-  if (width > text_width + 4)
+  if (width > text_width + 4) {
     t3_win_addchrep(window, ' ', attr, (width - 4 - text_width + 1) / 2);
-  else if (width > 0)
+  } else if (width > 0) {
     t3_win_set_paint(window, 0, width - 2);
+  }
   t3_win_addstr(window, is_default ? ">]" : " ]", attr);
 }
 
 void button_t::set_focus(focus_t focus) {
-  if (focus != has_focus) redraw = true;
+  if (focus != has_focus) {
+    redraw = true;
+  }
 
   has_focus = focus;
 }
 
 bool button_t::process_mouse_event(mouse_event_t event) {
-  if (event.button_state & EMOUSE_CLICKED_LEFT) activate();
+  if (event.button_state & EMOUSE_CLICKED_LEFT) {
+    activate();
+  }
   return true;
 }
 

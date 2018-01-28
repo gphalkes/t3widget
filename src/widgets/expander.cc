@@ -28,7 +28,9 @@ expander_t::expander_t(const char *text) : impl(new implementation_t(text)) {
 }
 
 void expander_t::focus_up_from_child() {
-  if (impl->focus != FOCUS_CHILD || impl->child == nullptr) return;
+  if (impl->focus != FOCUS_CHILD || impl->child == nullptr) {
+    return;
+  }
   impl->child->set_focus(window_component_t::FOCUS_OUT);
   impl->focus = FOCUS_SELF;
   redraw = true;
@@ -121,7 +123,9 @@ bool expander_t::process_key(key_t key) {
         }
         expanded(true);
       } else if (impl->is_expanded) {
-        if (impl->child != nullptr) impl->child->hide();
+        if (impl->child != nullptr) {
+          impl->child->hide();
+        }
         t3_win_resize(window, 1, t3_win_get_width(window));
         impl->is_expanded = false;
         redraw = true;
@@ -142,8 +146,12 @@ bool expander_t::process_key(key_t key) {
 }
 
 void expander_t::update_contents() {
-  if (impl->is_expanded && impl->child != nullptr) impl->child->update_contents();
-  if (!redraw) return;
+  if (impl->is_expanded && impl->child != nullptr) {
+    impl->child->update_contents();
+  }
+  if (!redraw) {
+    return;
+  }
 
   t3_win_set_paint(impl->symbol_window.get(), 0, 0);
   t3_win_set_default_attrs(
@@ -157,8 +165,9 @@ void expander_t::update_contents() {
 
 void expander_t::set_focus(focus_t _focus) {
   if (_focus == window_component_t::FOCUS_OUT) {
-    if (impl->focus == FOCUS_CHILD && impl->child != nullptr)
+    if (impl->focus == FOCUS_CHILD && impl->child != nullptr) {
       impl->child->set_focus(window_component_t::FOCUS_OUT);
+    }
     impl->last_focus = impl->focus;
     impl->focus = FOCUS_NONE;
   } else if (_focus == window_component_t::FOCUS_SET ||
@@ -179,13 +188,18 @@ bool expander_t::set_size(optint height, optint width) {
     impl->full_height = height;
   }
 
-  if (impl->child != nullptr) result &= impl->child->set_size(impl->full_height - 1, width);
+  if (impl->child != nullptr) {
+    result &= impl->child->set_size(impl->full_height - 1, width);
+  }
 
-  if (!width.is_valid()) width = t3_win_get_width(window);
-  if (impl->is_expanded)
+  if (!width.is_valid()) {
+    width = t3_win_get_width(window);
+  }
+  if (impl->is_expanded) {
     result &= t3_win_resize(window, impl->full_height, width);
-  else
+  } else {
     result &= t3_win_resize(window, 1, width);
+  }
   return result;
 }
 
@@ -193,11 +207,15 @@ bool expander_t::is_hotkey(key_t key) { return impl->label.is_hotkey(key); }
 
 void expander_t::set_enabled(bool enable) {
   enabled = enable;
-  if (impl->child != nullptr) impl->child->set_enabled(enable);
+  if (impl->child != nullptr) {
+    impl->child->set_enabled(enable);
+  }
 }
 
 void expander_t::force_redraw() {
-  if (impl->child != nullptr) impl->child->force_redraw();
+  if (impl->child != nullptr) {
+    impl->child->force_redraw();
+  }
 }
 
 void expander_t::set_child_focus(window_component_t *target) {
@@ -215,7 +233,9 @@ void expander_t::set_child_focus(window_component_t *target) {
 
 bool expander_t::is_child(window_component_t *component) {
   container_t *container;
-  if (component == impl->child.get()) return true;
+  if (component == impl->child.get()) {
+    return true;
+  }
   container = dynamic_cast<container_t *>(impl->child.get());
   return container != nullptr && container->is_child(component);
 }
@@ -224,10 +244,13 @@ widget_t *expander_t::is_child_hotkey(key_t key) {
   widget_container_t *widget_container;
 
   if (!impl->is_expanded || impl->child == nullptr || !impl->child->is_shown() ||
-      !impl->child->is_enabled())
+      !impl->child->is_enabled()) {
     return nullptr;
+  }
 
-  if (impl->child->is_hotkey(key)) return impl->child.get();
+  if (impl->child->is_hotkey(key)) {
+    return impl->child.get();
+  }
   widget_container = dynamic_cast<widget_container_t *>(impl->child.get());
   return widget_container == nullptr ? nullptr : widget_container->is_child_hotkey(key);
 }
@@ -247,7 +270,9 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
     } else if (impl->is_expanded) {
       /* No need to handle impl->focus, because we got a set_focus(SET) event
          before this call anyway. */
-      if (impl->child != nullptr) impl->child->hide();
+      if (impl->child != nullptr) {
+        impl->child->hide();
+      }
       t3_win_resize(window, 1, t3_win_get_width(window));
       impl->is_expanded = false;
       redraw = true;

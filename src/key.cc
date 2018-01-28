@@ -142,7 +142,9 @@ static void convert_next_key() {
       case TRANSCRIPT_NO_SPACE:
       case TRANSCRIPT_INCOMPLETE:
         char_buffer_fill -= char_buffer_ptr - char_buffer;
-        if (char_buffer_fill != 0) memmove(char_buffer, char_buffer_ptr, char_buffer_fill);
+        if (char_buffer_fill != 0) {
+          memmove(char_buffer, char_buffer_ptr, char_buffer_fill);
+        }
         unicode_buffer_fill = unicode_buffer_ptr - unicode_buffer;
         return;
 
@@ -164,7 +166,9 @@ static void convert_next_key() {
 }
 
 static key_t get_next_converted_key() {
-  if (unicode_buffer_fill == 0) convert_next_key();
+  if (unicode_buffer_fill == 0) {
+    convert_next_key();
+  }
 
   if (unicode_buffer_fill > 0) {
     key_t c = unicode_buffer[0];
@@ -221,7 +225,9 @@ bool read_keychar(int timeout) {
     key_buffer.push_back_unique(EKEY_UPDATE_TERMINAL);
   }
 
-  if (c < T3_WARN_MIN) return false;
+  if (c < T3_WARN_MIN) {
+    return false;
+  }
 
   char_buffer[char_buffer_fill++] = (char)c;
   return true;
@@ -242,7 +248,9 @@ static void read_keys() {
 
     retval = select(max_fd + 1, &readset, nullptr, nullptr, nullptr);
 
-    if (retval < 0) continue;
+    if (retval < 0) {
+      continue;
+    }
 
     if (FD_ISSET(signal_pipe[0], &readset)) {
       char command;
@@ -269,9 +277,13 @@ static void read_keys() {
       }
     }
 
-    if (check_mouse_fd(&readset)) key_buffer.push_back(EKEY_MOUSE_EVENT);
+    if (check_mouse_fd(&readset)) {
+      key_buffer.push_back(EKEY_MOUSE_EVENT);
+    }
 
-    if (FD_ISSET(0, &readset)) read_keychar(-1);
+    if (FD_ISSET(0, &readset)) {
+      read_keychar(-1);
+    }
 
     while ((c = get_next_converted_key()) >= 0) {
       if (c == EKEY_ESC) {
@@ -284,15 +296,17 @@ static void read_keys() {
           c = decode_sequence(true);
         }
         key_timeout_lock.unlock();
-        if (c < 0)
+        if (c < 0) {
           continue;
-        else if (drop_single_esc && c == (EKEY_ESC | EKEY_META))
+        } else if (drop_single_esc && c == (EKEY_ESC | EKEY_META)) {
           c = EKEY_ESC;
-        else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0)
+        } else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0) {
           c = (c & ~EKEY_KEY_MASK) | map_single[c & EKEY_KEY_MASK];
+        }
 
-        if (c == '\t' || (c >= EKEY_FIRST_SPECIAL && c < 0x111000 && c != EKEY_NL))
+        if (c == '\t' || (c >= EKEY_FIRST_SPECIAL && c < 0x111000 && c != EKEY_NL)) {
           c |= modifiers * EKEY_CTRL;
+        }
       } else if (!in_bracketed_paste && c > 0 && c < 128 && map_single[c] != 0) {
         c = map_single[c];
       }
@@ -315,7 +329,9 @@ static int compare_sequence_with_mapping(const void *key, const void *mapping) {
 
   for (i = 0; i < _key->idx && i < _mapping->string_length; i++) {
     if (_key->data[i] != _mapping->string[i]) {
-      if ((char)_key->data[i] < _mapping->string[i]) return -1;
+      if ((char)_key->data[i] < _mapping->string[i]) {
+        return -1;
+      }
       return 1;
     }
   }
@@ -325,7 +341,9 @@ static int compare_sequence_with_mapping(const void *key, const void *mapping) {
     return -1;
   }
 
-  if (i < _key->idx) return 1;
+  if (i < _key->idx) {
+    return 1;
+  }
   return 0;
 }
 
@@ -358,8 +376,9 @@ static key_t decode_sequence(bool outer) {
 
       is_prefix = false;
       if ((matched = (mapping_t *)bsearch(&sequence, map, map_count, sizeof(mapping_t),
-                                          compare_sequence_with_mapping)) != nullptr)
+                                          compare_sequence_with_mapping)) != nullptr) {
         return matched->key;
+      }
 
       /* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised.
          An exception is made for mouse events, which also start with CSI. */
@@ -383,7 +402,9 @@ static key_t decode_sequence(bool outer) {
           }
           return decode_xterm_mouse_sgr_urxvt(sequence.data, sequence.idx) ? EKEY_MOUSE_EVENT : -1;
         } else if (c == '~') {
-          if (sequence.idx != 6 || sequence.data[2] != '2' || sequence.data[3] != '0') return -1;
+          if (sequence.idx != 6 || sequence.data[2] != '2' || sequence.data[3] != '0') {
+            return -1;
+          }
           if (!outer) {
             /* If this is not the outer decode_sequence call, push everything
                back onto the character list, and do nothing. A next call to
@@ -406,10 +427,14 @@ static key_t decode_sequence(bool outer) {
         continue;
       }
 
-      if (!is_prefix) goto unknown_sequence;
+      if (!is_prefix) {
+        goto unknown_sequence;
+      }
     }
 
-    if (!read_keychar(outer ? key_timeout : 50)) break;
+    if (!read_keychar(outer ? key_timeout : 50)) {
+      break;
+    }
   }
 
 unknown_sequence:
@@ -423,10 +448,13 @@ unknown_sequence:
        this input. */
     while ((alted_key = get_next_converted_key()) < 0 && read_keychar(1)) {
     }
-    if (alted_key < 0) return -1;
+    if (alted_key < 0) {
+      return -1;
+    }
     /* We need to do single key mapping as well here. */
-    if ((alted_key & EKEY_KEY_MASK) < 128 && map_single[alted_key & EKEY_KEY_MASK] != 0)
+    if ((alted_key & EKEY_KEY_MASK) < 128 && map_single[alted_key & EKEY_KEY_MASK] != 0) {
       alted_key = map_single[alted_key & EKEY_KEY_MASK];
+    }
     return alted_key | EKEY_META;
   } else if (sequence.idx == 1) {
     return drop_single_esc ? -2 : EKEY_ESC;
@@ -471,7 +499,9 @@ static key_t bracketed_paste_decode() {
   } while (0)
 
 void insert_protected_key(key_t key) {
-  if (key >= 0) key_buffer.push_back(key | EKEY_PROTECT);
+  if (key >= 0) {
+    key_buffer.push_back(key | EKEY_PROTECT);
+  }
 }
 
 static void sigwinch_handler(int param) {
@@ -484,8 +514,11 @@ static void sigwinch_handler(int param) {
 
 static key_t map_kp(key_t kp) {
   size_t i;
-  for (i = 0; i < ARRAY_SIZE(kp_mappings); i++)
-    if (kp_mappings[i].kp == kp) return kp_mappings[i].mapped;
+  for (i = 0; i < ARRAY_SIZE(kp_mappings); i++) {
+    if (kp_mappings[i].kp == kp) {
+      return kp_mappings[i].mapped;
+    }
+  }
   return kp;
 }
 
@@ -497,25 +530,35 @@ static int compare_mapping(const void *a, const void *b) {
   _b = (const mapping_t *)b;
 
   if ((result = memcmp(_a->string, _b->string, std::min(_a->string_length, _b->string_length))) !=
-      0)
+      0) {
     return result;
-  if (_a->string_length < _b->string_length)
+  }
+  if (_a->string_length < _b->string_length) {
     return -1;
-  else if (_a->string_length > _b->string_length)
+  } else if (_a->string_length > _b->string_length) {
     return 1;
+  }
   return 0;
 }
 
 static bool is_function_key(const char *str) {
   /* First character must be f, second a digit ... */
-  if (str[0] != 'f' || !(str[1] >= '0' && str[1] <= '9')) return false;
+  if (str[0] != 'f' || !(str[1] >= '0' && str[1] <= '9')) {
+    return false;
+  }
 
   /* ... third either a digit, - or nothing ... */
-  if (str[2] == 0 || str[2] == '-') return true;
-  if (!(str[2] >= '0' && str[2] <= '9')) return false;
+  if (str[2] == 0 || str[2] == '-') {
+    return true;
+  }
+  if (!(str[2] >= '0' && str[2] <= '9')) {
+    return false;
+  }
 
   /* ... fourth either - or nothing. */
-  if (str[3] == 0 || str[3] == '-') return true;
+  if (str[3] == 0 || str[3] == '-') {
+    return true;
+  }
 
   return false;
 }
@@ -538,26 +581,36 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
 
   /* Start with things most likely to fail */
   if ((conversion_handle = transcript_open_converter(transcript_get_codeset(), TRANSCRIPT_UTF32, 0,
-                                                     &transcript_error)) == nullptr)
+                                                     &transcript_error)) == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
+  }
 
-  if ((keymap = t3_key_load_map(term, nullptr, &error)) == nullptr)
+  if ((keymap = t3_key_load_map(term, nullptr, &error)) == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
+  }
 
-  if (pipe(signal_pipe) < 0) RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
+  if (pipe(signal_pipe) < 0) {
+    RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
+  }
 
   sa.sa_handler = sigwinch_handler;
   sigemptyset(&sa.sa_mask);
   sigaddset(&sa.sa_mask, SIGWINCH);
   sa.sa_flags = 0;
 
-  if (sigaction(SIGWINCH, &sa, nullptr) < 0) RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
+  if (sigaction(SIGWINCH, &sa, nullptr) < 0) {
+    RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
+  }
 
   sigemptyset(&sigs);
   sigaddset(&sigs, SIGWINCH);
-  if (sigprocmask(SIG_UNBLOCK, &sigs, nullptr) < 0) RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
+  if (sigprocmask(SIG_UNBLOCK, &sigs, nullptr) < 0) {
+    RETURN_ERROR(complex_error_t::SRC_ERRNO, errno);
+  }
 
-  for (i = 1; i <= 26; i++) map_single[i] = EKEY_CTRL | ('a' + i - 1);
+  for (i = 1; i <= 26; i++) {
+    map_single[i] = EKEY_CTRL | ('a' + i - 1);
+  }
   /* "unmap" TAB */
   map_single[(int)'\t'] = 0;
   /* EKEY_ESC is defined as 27, so no need to map */
@@ -577,8 +630,12 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
     t3_term_putp(key_node->string);
     enter = key_node->string;
   }
-  if ((key_node = t3_key_get_named_node(keymap, "_leave")) != nullptr) leave = key_node->string;
-  if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != nullptr) shiftfn = key_node->string;
+  if ((key_node = t3_key_get_named_node(keymap, "_leave")) != nullptr) {
+    leave = key_node->string;
+  }
+  if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != nullptr) {
+    shiftfn = key_node->string;
+  }
 
   // Enable bracketed paste.
   t3_term_putp("\033[?2004h");
@@ -592,15 +649,22 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
      - sort the map for quick searching
   */
   for (key_node = keymap; key_node != nullptr; key_node = key_node->next) {
-    if (key_node->key[0] == '_') continue;
-    if (key_node->string[0] == 27) map_count++;
+    if (key_node->key[0] == '_') {
+      continue;
+    }
+    if (key_node->string[0] == 27) {
+      map_count++;
+    }
   }
 
-  if ((map = (mapping_t *)malloc(sizeof(mapping_t) * map_count)) == nullptr)
+  if ((map = (mapping_t *)malloc(sizeof(mapping_t) * map_count)) == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
+  }
 
   for (key_node = keymap, idx = 0; key_node != nullptr; key_node = key_node->next) {
-    if (key_node->key[0] == '_') continue;
+    if (key_node->key[0] == '_') {
+      continue;
+    }
 
     if (key_node->string[0] == 27) {
       map[idx].string = key_node->string;
@@ -614,8 +678,9 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
            j++) {
       }
 
-      if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '-' || key_node->key[j] == 0)))
+      if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '-' || key_node->key[j] == 0))) {
         continue;
+      }
 
       if (key_node->string[0] != 27) {
         map_single[(unsigned char)key_node->string[0]] = key_strings[i].code;
@@ -664,15 +729,20 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
           key -= shiftfn[2] - 1;
           key |= EKEY_SHIFT;
         }
-        if (key_node->string[0] == 27)
+        if (key_node->string[0] == 27) {
           map[idx].key = key;
-        else
+        } else {
           map_single[(unsigned char)key_node->string[0]] = key;
+        }
       } else {
-        if (key_node->string[0] == 27) map[idx].key = EKEY_IGNORE;
+        if (key_node->string[0] == 27) {
+          map[idx].key = EKEY_IGNORE;
+        }
       }
     }
-    if (key_node->string[0] == 27) idx++;
+    if (key_node->string[0] == 27) {
+      idx++;
+    }
   }
   qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 

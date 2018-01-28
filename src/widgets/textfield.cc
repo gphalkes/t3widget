@@ -82,7 +82,9 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
   }
 
   result = impl->line->cut_line(start, end);
-  if (save_to_copy_buffer) set_clipboard(new std::string(*result->get_data()));
+  if (save_to_copy_buffer) {
+    set_clipboard(new std::string(*result->get_data()));
+  }
 
   delete result;
 
@@ -154,7 +156,9 @@ bool text_field_t::process_key(key_t key) {
       if (impl->pos < impl->line->get_length()) {
         redraw = true;
         impl->pos = impl->line->get_next_word(impl->pos);
-        if (impl->pos < 0) impl->pos = impl->line->get_length();
+        if (impl->pos < 0) {
+          impl->pos = impl->line->get_length();
+        }
         ensure_cursor_on_screen();
       }
       break;
@@ -163,7 +167,9 @@ bool text_field_t::process_key(key_t key) {
       if (impl->pos > 0) {
         redraw = true;
         impl->pos = impl->line->get_previous_word(impl->pos);
-        if (impl->pos < 0) impl->pos = 0;
+        if (impl->pos < 0) {
+          impl->pos = 0;
+        }
         ensure_cursor_on_screen();
       }
       break;
@@ -196,7 +202,9 @@ bool text_field_t::process_key(key_t key) {
       if (action.is_valid()) {
         switch (action) {
           case ACTION_CUT:
-            if (impl->selection_mode != selection_mode_t::NONE) delete_selection(true);
+            if (impl->selection_mode != selection_mode_t::NONE) {
+              delete_selection(true);
+            }
             return true;
           case ACTION_COPY:
             if (impl->selection_mode != selection_mode_t::NONE) {
@@ -289,23 +297,31 @@ bool text_field_t::process_key(key_t key) {
             break;
         }
       }
-      if (key < 31) return false;
+      if (key < 31) {
+        return false;
+      }
 
       key &= ~EKEY_PROTECT;
 
-      if (key > 0x10ffff) return false;
+      if (key > 0x10ffff) {
+        return false;
+      }
 
       if (impl->filter_keys != nullptr &&
           (std::find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size, key) ==
-           impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept)
+           impl->filter_keys + impl->filter_keys_size) == impl->filter_keys_accept) {
         return false;
+      }
 
-      if (impl->selection_mode != selection_mode_t::NONE) delete_selection(false);
+      if (impl->selection_mode != selection_mode_t::NONE) {
+        delete_selection(false);
+      }
 
-      if (impl->pos == impl->line->get_length())
+      if (impl->pos == impl->line->get_length()) {
         impl->line->append_char(key, nullptr);
-      else
+      } else {
         impl->line->insert_char(impl->pos, key, nullptr);
+      }
       impl->pos = impl->line->adjust_position(impl->pos, 1);
       ensure_cursor_on_screen();
       redraw = true;
@@ -320,7 +336,9 @@ bool text_field_t::set_size(optint height, optint width) {
   (void)height;
   if (width.is_valid() && t3_win_get_width(window) != width) {
     t3_win_resize(window, 1, width);
-    if (impl->drop_down_list != nullptr) impl->drop_down_list->set_size(None, width);
+    if (impl->drop_down_list != nullptr) {
+      impl->drop_down_list->set_size(None, width);
+    }
   }
 
   ensure_cursor_on_screen();
@@ -340,19 +358,23 @@ void text_field_t::update_contents() {
     }
   }
 
-  if (impl->drop_down_list != nullptr && !impl->drop_down_list->empty())
+  if (impl->drop_down_list != nullptr && !impl->drop_down_list->empty()) {
     impl->drop_down_list->update_contents();
+  }
 
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
 
   impl->edited = false;
   redraw = false;
 
   if (impl->selection_mode != selection_mode_t::NONE) {
-    if (impl->selection_mode == selection_mode_t::SHIFT && impl->selection_start_pos == impl->pos)
+    if (impl->selection_mode == selection_mode_t::SHIFT && impl->selection_start_pos == impl->pos) {
       reset_selection();
-    else
+    } else {
       set_selection_end();
+    }
   }
 
   text_line_t::paint_info_t info;
@@ -402,7 +424,9 @@ void text_field_t::set_focus(focus_t _focus) {
       set_selection_end();
     }
     impl->dont_select_on_focus = false;
-    if (impl->drop_down_list != nullptr) impl->drop_down_list->update_view();
+    if (impl->drop_down_list != nullptr) {
+      impl->drop_down_list->update_view();
+    }
   } else {
     if (impl->drop_down_list != nullptr) {
       impl->drop_down_list->set_focus(window_component_t::FOCUS_OUT);
@@ -418,17 +442,20 @@ void text_field_t::show() {
 }
 
 void text_field_t::hide() {
-  if (impl->drop_down_list != nullptr) impl->drop_down_list->hide();
+  if (impl->drop_down_list != nullptr) {
+    impl->drop_down_list->hide();
+  }
   widget_t::hide();
 }
 
 void text_field_t::ensure_cursor_on_screen() {
   int width, char_width;
 
-  if (impl->pos == impl->line->get_length())
+  if (impl->pos == impl->line->get_length()) {
     char_width = 1;
-  else
+  } else {
     char_width = impl->line->width_at(impl->pos);
+  }
 
   impl->screen_pos = impl->line->calculate_screen_width(0, impl->pos, 0);
 
@@ -465,7 +492,9 @@ void text_field_t::set_key_filter(key_t *keys, size_t nr_of_keys, bool accept) {
 const std::string *text_field_t::get_text() const { return impl->line->get_data(); }
 
 void text_field_t::set_autocomplete(string_list_base_t *completions) {
-  if (impl->drop_down_list == nullptr) impl->drop_down_list.reset(new drop_down_list_t(this));
+  if (impl->drop_down_list == nullptr) {
+    impl->drop_down_list.reset(new drop_down_list_t(this));
+  }
   impl->drop_down_list->set_autocomplete(completions);
 }
 
@@ -501,7 +530,9 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       impl->selection_start_pos = impl->pos;
     }
     impl->pos = impl->line->calculate_line_pos(0, INT_MAX, event.x - 1 + impl->leftcol, 0);
-    if ((event.modifier_state & EMOUSE_SHIFT) != 0) set_selection_end();
+    if ((event.modifier_state & EMOUSE_SHIFT) != 0) {
+      set_selection_end();
+    }
     ensure_cursor_on_screen();
   } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
     reset_selection();
@@ -528,8 +559,9 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       impl->selection_start_pos = impl->pos;
     }
     impl->pos = newpos;
-    if (impl->selection_mode != selection_mode_t::NONE)
+    if (impl->selection_mode != selection_mode_t::NONE) {
       set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
+    }
     ensure_cursor_on_screen();
     redraw = true;
   }
@@ -661,8 +693,9 @@ void text_field_t::drop_down_list_t::update_contents() {
 }
 
 void text_field_t::drop_down_list_t::set_focus(focus_t focus) {
-  if (focus && field->impl->in_drop_down_list)
+  if (focus && field->impl->in_drop_down_list) {
     field->set_text((*completions)[list_pane->get_current()]);
+  }
   popup_t::set_focus(focus);
 }
 
@@ -681,21 +714,23 @@ void text_field_t::drop_down_list_t::show() {
 
 void text_field_t::drop_down_list_t::update_view() {
   if (completions != nullptr) {
-    if (field->impl->line->get_length() == 0)
+    if (field->impl->line->get_length() == 0) {
       completions->reset_filter();
-    else
+    } else {
       completions->set_filter(
           signals::bind(signals::ptr_fun(string_compare_filter), field->impl->line->get_data()));
+    }
     update_list_pane();
   }
 }
 
 void text_field_t::drop_down_list_t::set_autocomplete(string_list_base_t *_completions) {
   /* completions is a cleanup_ptr, thus it will be deleted if it is not nullptr. */
-  if (dynamic_cast<file_list_t *>(_completions) != nullptr)
+  if (dynamic_cast<file_list_t *>(_completions) != nullptr) {
     completions = new filtered_file_list_t((file_list_t *)_completions);
-  else
+  } else {
     completions = new filtered_string_list_t(_completions);
+  }
   update_list_pane();
 }
 

@@ -26,11 +26,15 @@ namespace t3_widget {
 menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_t(_hidden)) {
   // Menu bar should be above normal widgets
   t3_win_set_depth(window, -1);
-  if (impl->hidden) t3_win_hide(window);
+  if (impl->hidden) {
+    t3_win_hide(window);
+  }
 }
 
 menu_bar_t::~menu_bar_t() {
-  for (menu_panel_t *menu : impl->menus) delete menu;
+  for (menu_panel_t *menu : impl->menus) {
+    delete menu;
+  }
 }
 
 void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
@@ -82,7 +86,9 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
 
 void menu_bar_t::close() {
   impl->has_focus = false;
-  if (impl->hidden) t3_win_hide(window);
+  if (impl->hidden) {
+    t3_win_hide(window);
+  }
   draw_menu_name(impl->menus[impl->current_menu], false);
   impl->menus[impl->current_menu]->hide();
   release_mouse_grab();
@@ -99,7 +105,9 @@ void menu_bar_t::previous_menu() {
 }
 
 bool menu_bar_t::process_key(key_t key) {
-  if (impl->menus.size() == 0) return false;
+  if (impl->menus.size() == 0) {
+    return false;
+  }
 
   switch (key) {
     case EKEY_HOTKEY:
@@ -112,7 +120,9 @@ bool menu_bar_t::process_key(key_t key) {
 
 bool menu_bar_t::set_size(optint height, optint width) {
   (void)height;
-  if (!width.is_valid()) return true;
+  if (!width.is_valid()) {
+    return true;
+  }
   redraw = true;
   return t3_win_resize(window, 1, width) == 0;
 }
@@ -120,11 +130,15 @@ bool menu_bar_t::set_size(optint height, optint width) {
 void menu_bar_t::update_contents() {
   if (redraw) {
     draw();
-    if (impl->has_focus) draw_menu_name(impl->menus[impl->current_menu], true);
+    if (impl->has_focus) {
+      draw_menu_name(impl->menus[impl->current_menu], true);
+    }
     impl->old_menu = impl->current_menu;
   }
 
-  if (!impl->has_focus) return;
+  if (!impl->has_focus) {
+    return;
+  }
 
   if (impl->old_menu == impl->current_menu) {
     impl->menus[impl->current_menu]->update_contents();
@@ -224,8 +238,12 @@ int menu_bar_t::coord_to_menu_idx(int x) {
 
   for (iter = impl->menus.begin(), idx = 0; iter != impl->menus.end(); iter++, idx++) {
     menu_start = t3_win_get_x((*iter)->get_base_window()) + 2;
-    if (x < menu_start) return -1;
-    if (x < menu_start + (*iter)->get_label_width()) return idx;
+    if (x < menu_start) {
+      return -1;
+    }
+    if (x < menu_start + (*iter)->get_label_width()) {
+      return idx;
+    }
   }
   return -1;
 }
@@ -234,15 +252,18 @@ void menu_bar_t::draw() {
   redraw = false;
   t3_win_set_paint(window, 0, 0);
   t3_win_addchrep(window, ' ', attributes.menubar, t3_win_get_width(window));
-  for (menu_panel_t *menu : impl->menus) draw_menu_name(menu, false);
+  for (menu_panel_t *menu : impl->menus) {
+    draw_menu_name(menu, false);
+  }
 }
 
 void menu_bar_t::set_hidden(bool _hidden) {
   impl->hidden = _hidden;
-  if (impl->hidden)
+  if (impl->hidden) {
     t3_win_hide(window);
-  else
+  } else {
     t3_win_show(window);
+  }
 }
 
 };  // namespace

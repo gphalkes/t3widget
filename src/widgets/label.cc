@@ -24,7 +24,9 @@ namespace t3_widget {
 label_t::label_t(const char *_text)
     : text(_text), align(ALIGN_LEFT), focus(false), can_focus(true) {
   int width = text_width = t3_term_strwidth(text.c_str());
-  if (width == 0) width = 1;
+  if (width == 0) {
+    width = 1;
+  }
   init_window(1, width, false);
 }
 
@@ -47,7 +49,9 @@ bool label_t::set_size(optint height, optint width) {
 void label_t::update_contents() {
   int width;
 
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
 
   width = t3_win_get_width(window);

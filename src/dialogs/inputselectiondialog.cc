@@ -115,8 +115,12 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
 bool input_selection_dialog_t::set_size(optint height, optint width) {
   bool result;
 
-  if (!height.is_valid()) height = t3_win_get_height(window);
-  if (!width.is_valid()) width = t3_win_get_width(window);
+  if (!height.is_valid()) {
+    height = t3_win_get_height(window);
+  }
+  if (!width.is_valid()) {
+    width = t3_win_get_width(window);
+  }
 
   result = dialog_t::set_size(height, width);
   result &= impl->text_frame->set_size(height - 9, width - 2);
@@ -140,12 +144,16 @@ bool input_selection_dialog_t::process_key(key_t key) {
         size_t buffer_contents_length = t3_utf8_put(key & ~EKEY_META, buffer);
         std::string result;
 
-        if (key & EKEY_META) result = _("Meta-");
+        if (key & EKEY_META) {
+          result = _("Meta-");
+        }
         result.append(buffer, buffer_contents_length);
         impl->key_label->set_text(result.c_str());
         return true;
       }
-      if (!dialog_t::process_key(key)) impl->key_label->set_text("<other>");
+      if (!dialog_t::process_key(key)) {
+        impl->key_label->set_text("<other>");
+      }
       return true;
   }
 }

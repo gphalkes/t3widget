@@ -88,7 +88,9 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
                     T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   t3_win_show(impl->indicator_window.get());
 
-  if ((info_window = t3_win_new(window, 1, 1, 0, 0, 1)) == nullptr) throw std::bad_alloc();
+  if ((info_window = t3_win_new(window, 1, 1, 0, 0, 1)) == nullptr) {
+    throw std::bad_alloc();
+  }
 
   t3_win_set_anchor(info_window, window,
                     T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
@@ -114,7 +116,9 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
 edit_window_t::~edit_window_t() { delete impl->wrap_info; }
 
 void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *params) {
-  if (text == _text) return;
+  if (text == _text) {
+    return;
+  }
 
   text = _text;
   if (params != nullptr) {
@@ -138,8 +142,9 @@ bool edit_window_t::set_size(optint height, optint width) {
   bool result = true;
   // FIXME: these int's are optional!!! Take that into account below!
 
-  if (width != t3_win_get_width(window) || height > t3_win_get_height(window))
+  if (width != t3_win_get_width(window) || height > t3_win_get_height(window)) {
     update_repaint_lines(0, INT_MAX);
+  }
 
   result &= t3_win_resize(window, height, width);
   result &= t3_win_resize(impl->edit_window.get(), height - 1, width - 1);
@@ -159,10 +164,11 @@ bool edit_window_t::set_size(optint height, optint width) {
 void edit_window_t::ensure_cursor_on_screen() {
   int width;
 
-  if (text->cursor.pos == text->get_line_max(text->cursor.line))
+  if (text->cursor.pos == text->get_line_max(text->cursor.line)) {
     width = 1;
-  else
+  } else {
     width = text->width_at_cursor();
+  }
 
   if (impl->wrap_type == wrap_type_t::NONE) {
     impl->screen_pos = text->calculate_screen_pos(nullptr, impl->tabsize);
@@ -248,17 +254,19 @@ void edit_window_t::repaint_screen() {
          i < t3_win_get_height(impl->edit_window.get()) && (i + impl->top_left.line) < text->size();
          i++) {
       if (impl->top_left.line + i < impl->repaint_min ||
-          impl->top_left.line + i > impl->repaint_max)
+          impl->top_left.line + i > impl->repaint_max) {
         continue;
+      }
 
       info.selection_start = impl->top_left.line + i == current_start.line ? current_start.pos : -1;
       if (impl->top_left.line + i >= current_start.line) {
-        if (impl->top_left.line + i < current_end.line)
+        if (impl->top_left.line + i < current_end.line) {
           info.selection_end = INT_MAX;
-        else if (impl->top_left.line + i == current_end.line)
+        } else if (impl->top_left.line + i == current_end.line) {
           info.selection_end = current_end.pos;
-        else
+        } else {
           info.selection_end = -1;
+        }
       } else {
         info.selection_end = -1;
       }
@@ -276,15 +284,18 @@ void edit_window_t::repaint_screen() {
 
     for (i = 0; i < t3_win_get_height(impl->edit_window.get());
          i++, impl->wrap_info->add_lines(draw_line, 1)) {
-      if (draw_line.line < impl->repaint_min || draw_line.line > impl->repaint_max) continue;
+      if (draw_line.line < impl->repaint_min || draw_line.line > impl->repaint_max) {
+        continue;
+      }
       info.selection_start = draw_line.line == current_start.line ? current_start.pos : -1;
       if (draw_line.line >= current_start.line) {
-        if (draw_line.line < current_end.line)
+        if (draw_line.line < current_end.line) {
           info.selection_end = INT_MAX;
-        else if (draw_line.line == current_end.line)
+        } else if (draw_line.line == current_end.line) {
           info.selection_end = current_end.pos;
-        else
+        } else {
           info.selection_end = -1;
+        }
       } else {
         info.selection_end = -1;
       }
@@ -311,7 +322,9 @@ void edit_window_t::repaint_screen() {
 
 void edit_window_t::inc_x() {
   if (text->cursor.pos == text->get_line_max(text->cursor.line)) {
-    if (text->cursor.line >= text->size() - 1) return;
+    if (text->cursor.line >= text->size() - 1) {
+      return;
+    }
 
     text->cursor.line++;
     text->cursor.pos = 0;
@@ -330,7 +343,9 @@ void edit_window_t::next_word() {
 
 void edit_window_t::dec_x() {
   if (text->cursor.pos == 0) {
-    if (text->cursor.line == 0) return;
+    if (text->cursor.line == 0) {
+      return;
+    }
 
     text->cursor.line--;
     text->cursor.pos = text->get_line_max(text->cursor.line);
@@ -426,14 +441,16 @@ void edit_window_t::pgdn() {
     /* If the end of the text is already on the screen, don't change the top line. */
     if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) < text->size()) {
       impl->top_left.line += t3_win_get_height(impl->edit_window.get()) - 1;
-      if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) > text->size())
+      if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) > text->size()) {
         impl->top_left.line = text->size() - t3_win_get_height(impl->edit_window.get());
+      }
       update_repaint_lines(0, INT_MAX);
     }
 
-    if (need_adjust)
+    if (need_adjust) {
       text->cursor.pos =
           text->calculate_line_pos(text->cursor.line, impl->last_set_pos, impl->tabsize);
+    }
 
   } else {
     text_coordinate_t new_top_left = impl->top_left;
@@ -454,13 +471,16 @@ void edit_window_t::pgdn() {
       update_repaint_lines(0, INT_MAX);
     }
 
-    if (need_adjust)
+    if (need_adjust) {
       text->cursor.pos = impl->wrap_info->calculate_line_pos(text->cursor.line, impl->last_set_pos,
                                                              new_cursor.pos);
+    }
   }
   ensure_cursor_on_screen();
 
-  if (!need_adjust) impl->last_set_pos = impl->screen_pos;
+  if (!need_adjust) {
+    impl->last_set_pos = impl->screen_pos;
+  }
 }
 
 void edit_window_t::pgup() {
@@ -486,9 +506,10 @@ void edit_window_t::pgup() {
       update_repaint_lines(0, INT_MAX);
     }
 
-    if (need_adjust)
+    if (need_adjust) {
       text->cursor.pos =
           text->calculate_line_pos(text->cursor.line, impl->last_set_pos, impl->tabsize);
+    }
   } else {
     text_coordinate_t new_cursor(text->cursor.line, impl->wrap_info->find_line(text->cursor));
 
@@ -504,9 +525,10 @@ void edit_window_t::pgup() {
     impl->wrap_info->sub_lines(impl->top_left, t3_win_get_height(impl->edit_window.get()) - 1);
     update_repaint_lines(0, INT_MAX);
 
-    if (need_adjust)
+    if (need_adjust) {
       text->cursor.pos = impl->wrap_info->calculate_line_pos(text->cursor.line, impl->last_set_pos,
                                                              new_cursor.pos);
+    }
   }
   ensure_cursor_on_screen();
 }
@@ -553,7 +575,9 @@ void edit_window_t::end_key() {
       int before_pos = text->cursor.pos;
       text->cursor.pos = impl->wrap_info->calculate_line_pos(text->cursor.line, 0, sub_line + 1);
       text->adjust_position(-1);
-      if (before_pos == text->cursor.pos) text->cursor.pos = text->get_line_max(text->cursor.line);
+      if (before_pos == text->cursor.pos) {
+        text->cursor.pos = text->get_line_max(text->cursor.line);
+      }
     } else {
       text->cursor.pos = text->get_line_max(text->cursor.line);
     }
@@ -582,16 +606,18 @@ bool edit_window_t::set_selection_mode(key_t key) {
           !(key & EKEY_SHIFT)) {
         bool done = false;
         if (key == EKEY_LEFT) {
-          if (text->get_selection_start() < text->get_selection_end())
+          if (text->get_selection_start() < text->get_selection_end()) {
             text->cursor = text->get_selection_start();
-          else
+          } else {
             text->cursor = text->get_selection_end();
+          }
           done = true;
         } else if (key == EKEY_RIGHT) {
-          if (text->get_selection_start() < text->get_selection_end())
+          if (text->get_selection_start() < text->get_selection_end()) {
             text->cursor = text->get_selection_end();
-          else
+          } else {
             text->cursor = text->get_selection_start();
+          }
           done = true;
         }
         reset_selection();
@@ -625,13 +651,17 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
   find_result_t result;
 
   local_finder = impl->finder == nullptr ? &global_finder : impl->finder;
-  if (_finder != nullptr) *local_finder = *_finder;
+  if (_finder != nullptr) {
+    *local_finder = *_finder;
+  }
 
   switch (action) {
     case find_action_t::FIND:
       result.start = text->cursor;
 
-      if (!text->find(local_finder, &result)) goto not_found;
+      if (!text->find(local_finder, &result)) {
+        goto not_found;
+      }
 
       text->set_selection_from_find(&result);
       update_repaint_lines(result.start.line, result.end.line);
@@ -673,12 +703,16 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
       for (replacements = 0; text->find_limited(local_finder, start, eof, &result);
            replacements++) {
-        if (replacements == 0) text->start_undo_block();
+        if (replacements == 0) {
+          text->start_undo_block();
+        }
         text->replace(local_finder, &result);
         start = text->cursor;
       }
 
-      if (replacements == 0) goto not_found;
+      if (replacements == 0) {
+        goto not_found;
+      }
 
       text->end_undo_block();
       reset_selection();
@@ -687,7 +721,9 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
       break;
     }
     case find_action_t::REPLACE_IN_SELECTION: {
-      if (text->selection_empty()) return;
+      if (text->selection_empty()) {
+        return;
+      }
 
       text_coordinate_t start(text->get_selection_start());
       text_coordinate_t end(text->get_selection_end());
@@ -706,14 +742,18 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
       for (replacements = 0; text->find_limited(local_finder, start, end, &result);
            replacements++) {
-        if (replacements == 0) text->start_undo_block();
+        if (replacements == 0) {
+          text->start_undo_block();
+        }
         text->replace(local_finder, &result);
         start = text->cursor;
         end.pos -= end_line_length - text->get_line_max(end.line);
         end_line_length = text->get_line_max(end.line);
       }
 
-      if (replacements == 0) goto not_found;
+      if (replacements == 0) {
+        goto not_found;
+      }
 
       text->end_undo_block();
 
@@ -748,7 +788,9 @@ not_found:
 
 // FIXME: make every action into a separate function for readability
 bool edit_window_t::process_key(key_t key) {
-  if (set_selection_mode(key)) return true;
+  if (set_selection_mode(key)) {
+    return true;
+  }
 
   switch (key) {
     case EKEY_RIGHT | EKEY_SHIFT:
@@ -792,8 +834,9 @@ bool edit_window_t::process_key(key_t key) {
       impl->screen_pos = impl->last_set_pos = text->cursor.pos = 0;
       text->cursor.line = 0;
       if ((impl->wrap_type == wrap_type_t::NONE && impl->top_left.pos != 0) ||
-          impl->top_left.line != 0)
+          impl->top_left.line != 0) {
         ensure_cursor_on_screen();
+      }
       break;
     case EKEY_END | EKEY_SHIFT:
     case EKEY_END:
@@ -816,13 +859,17 @@ bool edit_window_t::process_key(key_t key) {
         if (text->cursor.pos != text->get_line_max(text->cursor.line)) {
           text->delete_char();
 
-          if (impl->wrap_type != wrap_type_t::NONE) ensure_cursor_on_screen();
+          if (impl->wrap_type != wrap_type_t::NONE) {
+            ensure_cursor_on_screen();
+          }
 
           update_repaint_lines(text->cursor.line, text->cursor.line);
         } else if (text->cursor.line + 1 < text->size()) {
           text->merge(false);
 
-          if (impl->wrap_type != wrap_type_t::NONE) ensure_cursor_on_screen();
+          if (impl->wrap_type != wrap_type_t::NONE) {
+            ensure_cursor_on_screen();
+          }
 
           update_repaint_lines(text->cursor.line, INT_MAX);
         }
@@ -836,7 +883,9 @@ bool edit_window_t::process_key(key_t key) {
       int i, indent, tabs;
       std::string space;
 
-      if (text->get_selection_mode() != selection_mode_t::NONE) delete_selection();
+      if (text->get_selection_mode() != selection_mode_t::NONE) {
+        delete_selection();
+      }
 
       update_repaint_lines(text->cursor.line, INT_MAX);
       if (impl->auto_indent && !impl->pasting_text) {
@@ -855,12 +904,15 @@ bool edit_window_t::process_key(key_t key) {
             break;
           }
         }
-        if (impl->tab_spaces)
+        if (impl->tab_spaces) {
           space.append(impl->tabsize * tabs, ' ');
-        else
+        } else {
           space.append(tabs, '\t');
+        }
 
-        if (indent != 0) space.append(indent, ' ');
+        if (indent != 0) {
+          space.append(indent, ' ');
+        }
 
         text->break_line(&space);
       } else {
@@ -888,11 +940,15 @@ bool edit_window_t::process_key(key_t key) {
       } else {
         delete_selection();
       }
-      if (impl->autocomplete_panel->is_shown()) activate_autocomplete(false);
+      if (impl->autocomplete_panel->is_shown()) {
+        activate_autocomplete(false);
+      }
       break;
 
     case EKEY_ESC:
-      if (text->get_selection_mode() == selection_mode_t::MARK) reset_selection();
+      if (text->get_selection_mode() == selection_mode_t::MARK) {
+        reset_selection();
+      }
       break;
 
     case EKEY_SHIFT | '\t':
@@ -912,12 +968,15 @@ bool edit_window_t::process_key(key_t key) {
         indent_selection();
       } else {
         std::string space;
-        if (text->get_selection_mode() != selection_mode_t::NONE) delete_selection();
+        if (text->get_selection_mode() != selection_mode_t::NONE) {
+          delete_selection();
+        }
 
-        if (impl->tab_spaces)
+        if (impl->tab_spaces) {
           space.append(impl->tabsize - (impl->screen_pos % impl->tabsize), ' ');
-        else
+        } else {
           space.append(1, '\t');
+        }
         text->insert_block(&space);
         ensure_cursor_on_screen();
         impl->last_set_pos = impl->screen_pos;
@@ -995,12 +1054,18 @@ bool edit_window_t::process_key(key_t key) {
         }
       }
 
-      if (key < 32) return false;
+      if (key < 32) {
+        return false;
+      }
 
       key &= ~EKEY_PROTECT;
-      if (key == 10) return false;
+      if (key == 10) {
+        return false;
+      }
 
-      if (key >= EKEY_FIRST_SPECIAL) return false;
+      if (key >= EKEY_FIRST_SPECIAL) {
+        return false;
+      }
 
       local_insmode = impl->ins_mode;
       if (text->get_selection_mode() != selection_mode_t::NONE) {
@@ -1012,7 +1077,9 @@ bool edit_window_t::process_key(key_t key) {
       ensure_cursor_on_screen();
       update_repaint_lines(text->cursor.line, text->cursor.line);
       impl->last_set_pos = impl->screen_pos;
-      if (impl->autocomplete_panel->is_shown()) activate_autocomplete(false);
+      if (impl->autocomplete_panel->is_shown()) {
+        activate_autocomplete(false);
+      }
       break;
     }
   }
@@ -1031,14 +1098,18 @@ void edit_window_t::update_contents() {
      - cursor-only movements mostly don't require entire redraws [well, that depends:
         for matching brace/parenthesis it may require more than a single line update]
   */
-  if (!impl->focus && !redraw) return;
+  if (!impl->focus && !redraw) {
+    return;
+  }
 
   selection_mode = text->get_selection_mode();
   if (selection_mode != selection_mode_t::NONE && selection_mode != selection_mode_t::ALL) {
     text->set_selection_end();
 
     if (selection_mode == selection_mode_t::SHIFT) {
-      if (text->selection_empty()) reset_selection();
+      if (text->selection_empty()) {
+        reset_selection();
+      }
     }
   }
 
@@ -1056,7 +1127,9 @@ void edit_window_t::update_contents() {
         impl->top_left.line, t3_win_get_height(impl->edit_window.get()));
   } else {
     int i, count = 0;
-    for (i = 0; i < impl->top_left.line; i++) count += impl->wrap_info->get_line_count(i);
+    for (i = 0; i < impl->top_left.line; i++) {
+      count += impl->wrap_info->get_line_count(i);
+    }
     count += impl->top_left.pos;
 
     impl->scrollbar->set_parameters(std::max(impl->wrap_info->get_text_size(),
@@ -1117,10 +1190,11 @@ void edit_window_t::cut_copy(bool cut) {
 
     set_clipboard(text->convert_block(text->get_selection_start(), text->get_selection_end()));
 
-    if (cut)
+    if (cut) {
       delete_selection();
-    else if (text->get_selection_mode() == selection_mode_t::MARK)
+    } else if (text->get_selection_mode() == selection_mode_t::MARK) {
       text->set_selection_mode(selection_mode_t::SHIFT);
+    }
   }
 }
 
@@ -1186,7 +1260,9 @@ void edit_window_t::goto_line() {
 }
 
 void edit_window_t::goto_line(int line) {
-  if (line < 1) return;
+  if (line < 1) {
+    return;
+  }
 
   reset_selection();
   text->cursor.line = (line > text->size() ? text->size() : line) - 1;
@@ -1209,8 +1285,9 @@ void edit_window_t::find_replace(bool replace) {
   dialog->set_replace(replace);
 
   if (!text->selection_empty() &&
-      text->get_selection_start().line == text->get_selection_end().line)
+      text->get_selection_start().line == text->get_selection_end().line) {
     dialog->set_text(text->convert_block(text->get_selection_start(), text->get_selection_end()));
+  }
   dialog->show();
 }
 
@@ -1220,10 +1297,11 @@ void edit_window_t::find_next(bool backward) {
     result.start = text->cursor;
 
   } else {
-    if (text->get_selection_start() < text->get_selection_end())
+    if (text->get_selection_start() < text->get_selection_end()) {
       result.start = text->get_selection_start();
-    else
+    } else {
       result.start = text->get_selection_end();
+    }
   }
 
   if (!text->find(impl->finder != nullptr ? impl->finder : &global_finder, &result, backward)) {
@@ -1253,9 +1331,13 @@ void edit_window_t::force_redraw() {
 }
 
 void edit_window_t::set_tabsize(int _tabsize) {
-  if (_tabsize == impl->tabsize) return;
+  if (_tabsize == impl->tabsize) {
+    return;
+  }
   impl->tabsize = _tabsize;
-  if (impl->wrap_info != nullptr) impl->wrap_info->set_tabsize(impl->tabsize);
+  if (impl->wrap_info != nullptr) {
+    impl->wrap_info->set_tabsize(impl->tabsize);
+  }
   force_redraw();
 }
 
@@ -1284,12 +1366,15 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
       impl->last_set_pos = impl->screen_pos;
     } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) &&
                event.previous_button_state == 0) {
-      if ((event.modifier_state & EMOUSE_SHIFT) == 0)
+      if ((event.modifier_state & EMOUSE_SHIFT) == 0) {
         reset_selection();
-      else if (text->get_selection_mode() == selection_mode_t::NONE)
+      } else if (text->get_selection_mode() == selection_mode_t::NONE) {
         text->set_selection_mode(selection_mode_t::SHIFT);
+      }
       text->cursor = xy_to_text_coordinate(event.x, event.y);
-      if ((event.modifier_state & EMOUSE_SHIFT) != 0) text->set_selection_end();
+      if ((event.modifier_state & EMOUSE_SHIFT) != 0) {
+        text->set_selection_end();
+      }
       ensure_cursor_on_screen();
       impl->last_set_pos = impl->screen_pos;
     } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
@@ -1310,11 +1395,13 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
          selection if none has been started yet, move the cursor and move the end
          of the selection to the new cursor location. */
       text_coordinate_t new_cursor = xy_to_text_coordinate(event.x, event.y);
-      if (text->get_selection_mode() == selection_mode_t::NONE && new_cursor != text->cursor)
+      if (text->get_selection_mode() == selection_mode_t::NONE && new_cursor != text->cursor) {
         text->set_selection_mode(selection_mode_t::SHIFT);
+      }
       text->cursor = new_cursor;
-      if (text->get_selection_mode() != selection_mode_t::NONE)
+      if (text->get_selection_mode() != selection_mode_t::NONE) {
         text->set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
+      }
       ensure_cursor_on_screen();
       impl->last_set_pos = impl->screen_pos;
     }
@@ -1323,7 +1410,9 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
 }
 
 void edit_window_t::set_wrap(wrap_type_t wrap) {
-  if (wrap == impl->wrap_type) return;
+  if (wrap == impl->wrap_type) {
+    return;
+  }
 
   if (wrap == wrap_type_t::NONE) {
     impl->top_left.pos = 0;
@@ -1333,9 +1422,10 @@ void edit_window_t::set_wrap(wrap_type_t wrap) {
     }
   } else {
     // FIXME: differentiate between wrap types
-    if (impl->wrap_info == nullptr)
+    if (impl->wrap_info == nullptr) {
       impl->wrap_info =
           new wrap_info_t(t3_win_get_width(impl->edit_window.get()) - 1, impl->tabsize);
+    }
     impl->wrap_info->set_text_buffer(text);
     impl->wrap_info->set_wrap_width(t3_win_get_width(impl->edit_window.get()) - 1);
     impl->top_left.pos = impl->wrap_info->find_line(impl->top_left);
@@ -1385,7 +1475,9 @@ void edit_window_t::set_autocompleter(autocompleter_t *_autocompleter) {
 void edit_window_t::autocomplete() { activate_autocomplete(true); }
 
 void edit_window_t::activate_autocomplete(bool autocomplete_single) {
-  if (impl->autocompleter == nullptr) return;
+  if (impl->autocompleter == nullptr) {
+    return;
+  }
 
   text_coordinate_t anchor(text->cursor);
   string_list_base_t *autocomplete_list =
@@ -1413,8 +1505,9 @@ void edit_window_t::activate_autocomplete(bool autocomplete_single) {
         line = sub_line - impl->top_left.pos;
       } else {
         line = impl->wrap_info->get_line_count(impl->top_left.line) - impl->top_left.pos + sub_line;
-        for (int i = impl->top_left.line + 1; i < text->cursor.line; i++)
+        for (int i = impl->top_left.line + 1; i < text->cursor.line; i++) {
           line += impl->wrap_info->get_line_count(i);
+        }
       }
       impl->autocomplete_panel->set_position(line + 1, position - 1);
     }
@@ -1474,21 +1567,26 @@ void edit_window_t::scroll(int lines) {
   // FIXME: maybe we should use this for pgup/pgdn and up/down as well?
   if (impl->wrap_type == wrap_type_t::NONE) {
     if (lines < 0) {
-      if (impl->top_left.line > -lines)
+      if (impl->top_left.line > -lines) {
         impl->top_left.line += lines;
-      else
+      } else {
         impl->top_left.line = 0;
+      }
     } else {
-      if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) <= text->size() - lines)
+      if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) <=
+          text->size() - lines) {
         impl->top_left.line += lines;
-      else if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) - 1 < text->size())
+      } else if (impl->top_left.line + t3_win_get_height(impl->edit_window.get()) - 1 <
+                 text->size()) {
         impl->top_left.line = text->size() - t3_win_get_height(impl->edit_window.get());
+      }
     }
   } else {
-    if (lines < 0)
+    if (lines < 0) {
       impl->wrap_info->sub_lines(impl->top_left, -lines);
-    else
+    } else {
       impl->wrap_info->add_lines(impl->top_left, lines);
+    }
   }
   update_repaint_lines(0, INT_MAX);
 }
@@ -1521,12 +1619,14 @@ void edit_window_t::scrollbar_dragged(int start) {
     int count = 0;
 
     if (start < 0 ||
-        start + t3_win_get_height(impl->edit_window.get()) > impl->wrap_info->get_text_size())
+        start + t3_win_get_height(impl->edit_window.get()) > impl->wrap_info->get_text_size()) {
       return;
+    }
 
     for (new_top_left.line = 0; new_top_left.line < text->size() && count < start;
-         new_top_left.line++)
+         new_top_left.line++) {
       count += impl->wrap_info->get_line_count(new_top_left.line);
+    }
 
     if (count > start) {
       new_top_left.line--;
@@ -1534,7 +1634,9 @@ void edit_window_t::scrollbar_dragged(int start) {
       new_top_left.pos = start - count;
     }
 
-    if (new_top_left == impl->top_left || new_top_left.line < 0) return;
+    if (new_top_left == impl->top_left || new_top_left.line < 0) {
+      return;
+    }
     impl->top_left = new_top_left;
     update_repaint_lines(0, INT_MAX);
   }
@@ -1547,8 +1649,12 @@ void edit_window_t::update_repaint_lines(int start, int end) {
     end = tmp;
   }
 
-  if (start < impl->repaint_min) impl->repaint_min = start;
-  if (end > impl->repaint_max) impl->repaint_max = end;
+  if (start < impl->repaint_min) {
+    impl->repaint_min = start;
+  }
+  if (end > impl->repaint_max) {
+    impl->repaint_max = end;
+  }
   redraw = true;
 }
 
@@ -1603,8 +1709,9 @@ void edit_window_t::mark_selection() {
 edit_window_t::view_parameters_t::view_parameters_t(edit_window_t *view) {
   top_left = view->impl->top_left;
   wrap_type = view->impl->wrap_type;
-  if (wrap_type != wrap_type_t::NONE)
+  if (wrap_type != wrap_type_t::NONE) {
     top_left.pos = view->impl->wrap_info->calculate_line_pos(top_left.line, 0, top_left.pos);
+  }
   tabsize = view->impl->tabsize;
   tab_spaces = view->impl->tab_spaces;
   ins_mode = view->impl->ins_mode;
@@ -1673,8 +1780,12 @@ edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent)
 }
 
 bool edit_window_t::autocomplete_panel_t::process_key(key_t key) {
-  if (popup_t::process_key(key)) return true;
-  if (key <= 0x20 || key >= EKEY_FIRST_SPECIAL) hide();
+  if (popup_t::process_key(key)) {
+    return true;
+  }
+  if (key <= 0x20 || key >= EKEY_FIRST_SPECIAL) {
+    hide();
+  }
   return false;
 }
 
@@ -1690,12 +1801,14 @@ void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left
   t3_win_move(window, top, left);
 
   absolute_pos = t3_win_get_abs_x(window);
-  if (absolute_pos + t3_win_get_width(window) > screen_width)
+  if (absolute_pos + t3_win_get_width(window) > screen_width) {
     left -= absolute_pos + t3_win_get_width(window) - screen_width;
+  }
 
   absolute_pos = t3_win_get_abs_y(window);
-  if (absolute_pos + t3_win_get_height(window) > screen_height)
+  if (absolute_pos + t3_win_get_height(window) > screen_height) {
     top = top - t3_win_get_height(window) - 2;
+  }
 
   t3_win_move(window, top, left);
   redraw = true;
@@ -1721,14 +1834,17 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
   for (size_t i = 0; i < completions->size(); i++) {
     label_t *label = new label_t((*completions)[i]->c_str());
     list_pane->push_back(label);
-    if (label->get_text_width() > new_width) new_width = label->get_text_width();
+    if (label->get_text_width() > new_width) {
+      new_width = label->get_text_width();
+    }
   }
 
   new_height = list_pane->size() + 2;
-  if (new_height > 7)
+  if (new_height > 7) {
     new_height = 7;
-  else if (new_height < 5)
+  } else if (new_height < 5) {
     new_height = 5;
+  }
 
   set_size(new_height, new_width + 3);
 }

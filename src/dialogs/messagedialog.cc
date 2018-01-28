@@ -115,14 +115,20 @@ void message_dialog_t::set_message(const std::string *message) {
 }
 
 bool message_dialog_t::process_key(key_t key) {
-  if (key > 0x20 && key < 0x10ffff) key |= EKEY_META;
+  if (key > 0x20 && key < 0x10ffff) {
+    key |= EKEY_META;
+  }
   return dialog_t::process_key(key);
 }
 
 signals::connection message_dialog_t::connect_activate(const signals::slot<void> &_slot,
                                                        size_t idx) {
-  if (idx > widgets.size() - 1) return signals::connection();
-  if (idx == 0) return activate_internal.connect(_slot);
+  if (idx > widgets.size() - 1) {
+    return signals::connection();
+  }
+  if (idx == 0) {
+    return activate_internal.connect(_slot);
+  }
   return ((button_t *)widgets[idx + 1])->connect_activate(_slot);
 }
 

@@ -111,7 +111,9 @@ void file_dialog_t::insert_extras(widget_t *widget) { widgets.insert(widgets.end
 void file_dialog_t::set_options_widget(widget_t *options) {
   focus_widget_t *focus_widget;
 
-  if (impl->option_widget_set) return;
+  if (impl->option_widget_set) {
+    return;
+  }
 
   set_widget_parent(options);
   /* Make the file pane one line less high. */
@@ -162,15 +164,18 @@ int file_dialog_t::set_file(const char *file) {
   impl->current_dir = get_directory(file);
   sanitize_dir(&impl->current_dir);
 
-  if (file == nullptr)
+  if (file == nullptr) {
     file_string.clear();
-  else
+  } else {
     file_string = file;
+  }
 
   result = impl->names.load_directory(&impl->current_dir);
 
   idx = file_string.rfind('/');
-  if (idx != std::string::npos) file_string.erase(0, idx + 1);
+  if (idx != std::string::npos) {
+    file_string.erase(0, idx + 1);
+  }
 
   impl->file_line->set_autocomplete(&impl->names);
   impl->file_line->set_text(&file_string);
@@ -190,7 +195,9 @@ void file_dialog_t::ok_callback() {
 }
 
 void file_dialog_t::ok_callback(const std::string *file) {
-  if (file->size() == 0) return;
+  if (file->size() == 0) {
+    return;
+  }
 
   if (is_dir(&impl->current_dir, file->c_str()) || file->compare("..") == 0) {
     change_dir(file);
@@ -215,16 +222,22 @@ void file_dialog_t::change_dir(const std::string *dir) {
   if (dir->compare("..") == 0) {
     size_t idx = impl->current_dir.rfind('/');
 
-    if (idx == std::string::npos || idx == impl->current_dir.size() - 1) return;
+    if (idx == std::string::npos || idx == impl->current_dir.size() - 1) {
+      return;
+    }
 
     file_string = impl->current_dir.substr(idx + 1);
-    if (idx == 0) idx++;
+    if (idx == 0) {
+      idx++;
+    }
     new_dir = impl->current_dir.substr(0, idx);
   } else if ((*dir)[0] == '/') {
     new_dir = *dir;
   } else {
     new_dir = impl->current_dir;
-    if (impl->current_dir.compare("/") != 0) new_dir += "/";
+    if (impl->current_dir.compare("/") != 0) {
+      new_dir += "/";
+    }
     new_dir += *dir;
   }
 
@@ -251,7 +264,9 @@ void file_dialog_t::change_dir(const std::string *dir) {
 
 void file_dialog_t::refresh_view() {
   convert_lang_codeset(get_filter(), &impl->lang_codeset_filter, false);
-  if (impl->lang_codeset_filter.size() == 0) impl->lang_codeset_filter = "*";
+  if (impl->lang_codeset_filter.size() == 0) {
+    impl->lang_codeset_filter = "*";
+  }
   impl->view.set_filter(signals::bind(signals::ptr_fun(glob_filter), &impl->lang_codeset_filter,
                                       impl->show_hidden_box->get_state()));
 
@@ -262,7 +277,9 @@ void file_dialog_t::refresh_view() {
 void open_file_dialog_t::filter_text_field_t::set_focus(focus_t _focus) {
   bool old_focus = has_focus();
   text_field_t::set_focus(_focus);
-  if (old_focus && !has_focus()) lose_focus();
+  if (old_focus && !has_focus()) {
+    lose_focus();
+  }
 }
 
 open_file_dialog_t::open_file_dialog_t(int height, int width)
@@ -299,8 +316,9 @@ const std::string *open_file_dialog_t::get_filter() { return impl->filter_line->
 
 bool open_file_dialog_t::set_size(optint height, optint width) {
   bool result = file_dialog_t::set_size(height, width);
-  if (width.is_valid())
+  if (width.is_valid()) {
     result &= impl->filter_line->set_size(None, std::min(std::max(10, width - 60), 25));
+  }
   return result;
 }
 

@@ -20,7 +20,9 @@ expander_group_t::expander_group_t() : expanded_widget(nullptr), height(0) {}
 expander_group_t::~expander_group_t() {}
 
 void expander_group_t::add_expander(expander_t *expander) {
-  if (expander == nullptr) return;
+  if (expander == nullptr) {
+    return;
+  }
   expander->connect_expanded(
       signals::bind(signals::mem_fun(this, &expander_group_t::widget_expanded), expander));
   expander->set_expanded(false);

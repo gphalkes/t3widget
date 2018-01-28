@@ -43,14 +43,17 @@ mouse_target_t *mouse_target_t::grab_target;
 t3_window_t *mouse_target_t::grab_window;
 
 mouse_target_t::mouse_target_t(bool use_window) {
-  if (use_window && window != nullptr) register_mouse_target(window);
+  if (use_window && window != nullptr) {
+    register_mouse_target(window);
+  }
 }
 
 void mouse_target_t::register_mouse_target(t3_window_t *target) {
-  if (target == nullptr)
+  if (target == nullptr) {
     lprintf("Registering mouse target for nullptr window in %s\n", typeid(*this).name());
-  else
+  } else {
     targets[target] = this;
+  }
 }
 
 void mouse_target_t::unregister_mouse_target(t3_window_t *target) { targets.erase(target); }
@@ -66,11 +69,15 @@ start_over:
     }
   }
 
-  if (grab_target == this) grab_target = nullptr;
+  if (grab_target == this) {
+    grab_target = nullptr;
+  }
 }
 
 void mouse_target_t::grab_mouse() {
-  if (grab_target != nullptr) return;
+  if (grab_target != nullptr) {
+    return;
+  }
 
   for (const mouse_target_map_t::value_type &target : targets) {
     if (target.second == this) {
@@ -82,12 +89,16 @@ void mouse_target_t::grab_mouse() {
 }
 
 void mouse_target_t::release_mouse_grab() {
-  if (grab_target == this) grab_target = nullptr;
+  if (grab_target == this) {
+    grab_target = nullptr;
+  }
 }
 
 static long timediff(struct timeval a, struct timeval b) {
   long result = a.tv_sec - b.tv_sec;
-  if (result > 10) return 10 * 1000000;
+  if (result > 10) {
+    return 10 * 1000000;
+  }
   return result * 1000000 + (a.tv_usec - b.tv_usec);
 }
 #define DOUBLECLICK_TIMEOUT 200000
@@ -116,7 +127,9 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
     button_down_win = win;
     button_down_x = event.x;
     button_down_y = event.y;
-    if (button_down_win != last_click.win) last_click.win = nullptr;
+    if (button_down_win != last_click.win) {
+      last_click.win = nullptr;
+    }
   } else if (event.type == EMOUSE_BUTTON_RELEASE) {
     if (button_down_win == win && button_down_x == event.x && button_down_y == event.y) {
       struct timeval now;
@@ -172,7 +185,9 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
       mouse_event_t local_event = event;
 
       if (grab_target == nullptr) {
-        if (iter->second != nullptr && !active_dialog->is_child(iter->second)) return handled;
+        if (iter->second != nullptr && !active_dialog->is_child(iter->second)) {
+          return handled;
+        }
       } else {
         container_t *grab_container = dynamic_cast<container_t *>(grab_target);
         if (((grab_container != nullptr) &&
@@ -183,7 +198,9 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
           grab_event.type |= EMOUSE_OUTSIDE_GRAB;
           grab_event.x -= t3_win_get_abs_x(grab_window);
           grab_event.y -= t3_win_get_abs_y(grab_window);
-          if (handled | grab_target->process_mouse_event(grab_event)) return true;
+          if (handled | grab_target->process_mouse_event(grab_event)) {
+            return true;
+          }
         }
       }
 
@@ -195,14 +212,17 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
            received the event. */
         if (!handled && iter->second != nullptr &&
             active_dialog == dialog_t::active_dialogs.back() && event.type == EMOUSE_BUTTON_PRESS &&
-            event.previous_button_state == 0 && (event.button_state & EMOUSE_ALL_BUTTONS) != 0)
+            event.previous_button_state == 0 && (event.button_state & EMOUSE_ALL_BUTTONS) != 0) {
           active_dialog->set_child_focus(iter->second);
+        }
         handled = true;
         /* Stop handling if the dialog is no longer active. This happens for
            for example when the active dialog is closed by the button, or worse,
            deleted. In the latter case, trying to go up the hierarchy will
            access free'd memory, which may cause a segfault. */
-        if (active_dialog != dialog_t::active_dialogs.back()) return handled;
+        if (active_dialog != dialog_t::active_dialogs.back()) {
+          return handled;
+        }
       }
     }
     win = t3_win_get_parent(win);
@@ -215,7 +235,9 @@ signals::connection bad_draw_recheck_t::initialized =
     connect_terminal_settings_changed(signals::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
 
 void bad_draw_recheck_t::bad_draw_recheck_all() {
-  for (bad_draw_recheck_t *iter : to_signal) iter->bad_draw_recheck();
+  for (bad_draw_recheck_t *iter : to_signal) {
+    iter->bad_draw_recheck();
+  }
 }
 
 bad_draw_recheck_t::bad_draw_recheck_t() { to_signal.push_back(this); }

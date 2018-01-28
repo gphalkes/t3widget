@@ -20,11 +20,15 @@ multi_widget_t::multi_widget_t() : fixed_sum(0), proportion_sum(0), send_key_wid
 }
 
 multi_widget_t::~multi_widget_t() {
-  for (const item_t &widget : widgets) delete widget.widget;
+  for (const item_t &widget : widgets) {
+    delete widget.widget;
+  }
 }
 
 bool multi_widget_t::process_key(key_t key) {
-  if (send_key_widget != nullptr) return send_key_widget->process_key(key);
+  if (send_key_widget != nullptr) {
+    return send_key_widget->process_key(key);
+  }
   return false;
 }
 
@@ -38,31 +42,44 @@ bool multi_widget_t::set_size(optint height, optint width) {
 }
 
 void multi_widget_t::update_contents() {
-  for (const item_t &widget : widgets) widget.widget->update_contents();
+  for (const item_t &widget : widgets) {
+    widget.widget->update_contents();
+  }
 }
 
 void multi_widget_t::set_focus(focus_t focus) {
   for (const item_t &widget : widgets) {
-    if (widget.takes_focus) widget.widget->set_focus(focus);
+    if (widget.takes_focus) {
+      widget.widget->set_focus(focus);
+    }
   }
 }
 
 bool multi_widget_t::accepts_focus() {
-  if (!enabled) return false;
-  for (const item_t &widget : widgets)
-    if (widget.takes_focus) return true;
+  if (!enabled) {
+    return false;
+  }
+  for (const item_t &widget : widgets) {
+    if (widget.takes_focus) {
+      return true;
+    }
+  }
   return false;
 }
 
 void multi_widget_t::force_redraw() {
-  for (const item_t &widget : widgets) widget.widget->force_redraw();
+  for (const item_t &widget : widgets) {
+    widget.widget->force_redraw();
+  }
 }
 
 /* Width is negative for fixed width widgets, positive for proportion */
 void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys) {
   item_t item;
 
-  if (takes_focus && !widget->accepts_focus()) takes_focus = false;
+  if (takes_focus && !widget->accepts_focus()) {
+    takes_focus = false;
+  }
 
   if (_width < 0) {
     widget->set_size(None, -_width);
@@ -91,9 +108,10 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
   }
 
   set_widget_parent(widget);
-  if (widgets.size() > 0)
+  if (widgets.size() > 0) {
     widget->set_anchor(widgets.back().widget,
                        T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+  }
   widget->set_position(0, 0);
   widgets.push_back(item);
   resize_widgets();
@@ -106,32 +124,43 @@ void multi_widget_t::resize_widgets() {
     int size = 0;
 
     for (item_t &widget : widgets) {
-      if (widget.width < 0) continue;
+      if (widget.width < 0) {
+        continue;
+      }
       widget.calculated_width = (int)(scale * widget.width);
-      if (widget.calculated_width == 0) widget.calculated_width = 1;
+      if (widget.calculated_width == 0) {
+        widget.calculated_width = 1;
+      }
       size += widget.calculated_width;
     }
     // FIXME: this will do for now, but should be slightly smarter
     if (size > width - fixed_sum) {
       for (std::list<item_t>::iterator iter = widgets.begin();
            iter != widgets.end() && size > width - fixed_sum; iter++) {
-        if (iter->width < 0) continue;
+        if (iter->width < 0) {
+          continue;
+        }
         if (iter->calculated_width > 1) {
           iter->calculated_width--;
           size--;
         }
       }
-    } else
+    } else {
       while (size < width - fixed_sum) {
         for (std::list<item_t>::iterator iter = widgets.begin();
              iter != widgets.end() && size < width - fixed_sum; iter++) {
-          if (iter->width < 0) continue;
+          if (iter->width < 0) {
+            continue;
+          }
           iter->calculated_width++;
           size++;
         }
       }
+    }
     for (const item_t &widget : widgets) {
-      if (widget.width < 0) continue;
+      if (widget.width < 0) {
+        continue;
+      }
       widget.widget->set_size(1, widget.calculated_width > 0 ? widget.calculated_width : 1);
     }
   }
@@ -139,7 +168,9 @@ void multi_widget_t::resize_widgets() {
 
 void multi_widget_t::set_enabled(bool enable) {
   enabled = enable;
-  for (const item_t &widget : widgets) widget.widget->set_enabled(enable);
+  for (const item_t &widget : widgets) {
+    widget.widget->set_enabled(enable);
+  }
 }
 
 void multi_widget_t::set_child_focus(window_component_t *target) {
@@ -153,7 +184,9 @@ bool multi_widget_t::is_child(window_component_t *widget) {
       return true;
     } else {
       container_t *container = dynamic_cast<container_t *>(iter.widget);
-      if (container != nullptr && container->is_child(widget)) return true;
+      if (container != nullptr && container->is_child(widget)) {
+        return true;
+      }
     }
   }
   return false;

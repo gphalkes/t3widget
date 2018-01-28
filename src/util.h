@@ -45,11 +45,15 @@ class T3_WIDGET_API optional {
   bool is_valid() const { return initialized; }
   void unset() { initialized = false; }
   operator T(void) const {
-    if (!initialized) throw(0);
+    if (!initialized) {
+      throw(0);
+    }
     return (T)value;
   }
   T operator()() const {
-    if (!initialized) throw(0);
+    if (!initialized) {
+      throw(0);
+    }
     return (T)value;
   }
   optional &operator=(const optional &other) {

@@ -51,7 +51,9 @@ static signals::connection init_connected =
     See lock_clipboard for details.
 */
 linked_ptr<std::string>::t get_clipboard() {
-  if (extclipboard_calls != nullptr) return extclipboard_calls->get_selection(true);
+  if (extclipboard_calls != nullptr) {
+    return extclipboard_calls->get_selection(true);
+  }
   return clipboard_data;
 }
 
@@ -61,7 +63,9 @@ linked_ptr<std::string>::t get_clipboard() {
     See lock_clipboard for details.
 */
 linked_ptr<std::string>::t get_primary() {
-  if (extclipboard_calls != nullptr) return extclipboard_calls->get_selection(false);
+  if (extclipboard_calls != nullptr) {
+    return extclipboard_calls->get_selection(false);
+  }
   return primary_data;
 }
 
@@ -85,7 +89,9 @@ void set_primary(std::string *str) {
   }
 
   if (extclipboard_calls != nullptr) {
-    if (!disable_primary_selection) extclipboard_calls->claim_selection(false, str);
+    if (!disable_primary_selection) {
+      extclipboard_calls->claim_selection(false, str);
+    }
     return;
   }
   primary_data = str;
@@ -95,11 +101,15 @@ static void init_external_clipboard(bool init) {
 #ifdef WITH_X11
   static lt_dlhandle extclipboard_mod;
 #endif
-  if (init_params->disable_external_clipboard) return;
+  if (init_params->disable_external_clipboard) {
+    return;
+  }
 
   if (init) {
 #ifdef WITH_X11
-    if (lt_dlinit() != 0) return;
+    if (lt_dlinit() != 0) {
+      return;
+    }
 
     if ((extclipboard_mod = lt_dlopen(X11_MOD_NAME)) == nullptr) {
       lprintf("Could not open external clipboard module (X11): %s\n", X11_MOD_NAME);
@@ -138,19 +148,27 @@ static void init_external_clipboard(bool init) {
 }
 
 void release_selections() {
-  if (extclipboard_calls != nullptr) extclipboard_calls->release_selections();
+  if (extclipboard_calls != nullptr) {
+    extclipboard_calls->release_selections();
+  }
 }
 
 void lock_clipboard() {
-  if (extclipboard_calls != nullptr) extclipboard_calls->lock();
+  if (extclipboard_calls != nullptr) {
+    extclipboard_calls->lock();
+  }
 }
 
 void unlock_clipboard() {
-  if (extclipboard_calls != nullptr) extclipboard_calls->unlock();
+  if (extclipboard_calls != nullptr) {
+    extclipboard_calls->unlock();
+  }
 }
 
 void stop_clipboard() {
-  if (extclipboard_calls != nullptr) extclipboard_calls->stop();
+  if (extclipboard_calls != nullptr) {
+    extclipboard_calls->stop();
+  }
 }
 
 };  // namespace

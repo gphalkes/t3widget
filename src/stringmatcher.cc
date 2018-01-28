@@ -26,7 +26,9 @@ namespace t3_widget {
 
 string_matcher_t::string_matcher_t(const std::string &_needle) {
   needle_size = _needle.size();
-  if ((needle = (char *)malloc(needle_size)) == nullptr) throw std::bad_alloc();
+  if ((needle = (char *)malloc(needle_size)) == nullptr) {
+    throw std::bad_alloc();
+  }
   memcpy(needle, _needle.data(), needle_size);
   init();
 }
@@ -97,7 +99,9 @@ int string_matcher_t::next_char(const char *c, size_t c_size) {
     if (i + c_size <= needle_size && memcmp(needle + i, c, c_size) == 0) {
       index_table[i + c_size] = index_table[i] + 1;
       i += c_size;
-      if ((size_t)i == needle_size) return index_table[0];
+      if ((size_t)i == needle_size) {
+        return index_table[0];
+      }
       return -1;
     } else {
       int new_i = partial_match_table[i];
@@ -117,7 +121,9 @@ int string_matcher_t::previous_char(const char *c, size_t c_size) {
     if (i + c_size <= needle_size && memcmp(needle + needle_size - i - c_size, c, c_size) == 0) {
       index_table[i + c_size] = index_table[i] + 1;
       i += c_size;
-      if ((size_t)i == needle_size) return index_table[0];
+      if ((size_t)i == needle_size) {
+        return index_table[0];
+      }
       return -1;
     } else {
       int new_i = reverse_partial_match_table[i];

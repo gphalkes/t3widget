@@ -27,8 +27,12 @@ void init_attributes() {
 }
 
 static t3_attr_t ensure_color(t3_attr_t value) {
-  if ((value & T3_ATTR_FG_MASK) == 0) value |= T3_ATTR_FG_DEFAULT;
-  if ((value & T3_ATTR_BG_MASK) == 0) value |= T3_ATTR_BG_DEFAULT;
+  if ((value & T3_ATTR_FG_MASK) == 0) {
+    value |= T3_ATTR_FG_DEFAULT;
+  }
+  if ((value & T3_ATTR_BG_MASK) == 0) {
+    value |= T3_ATTR_BG_DEFAULT;
+  }
   return value;
 }
 

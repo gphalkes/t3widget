@@ -118,7 +118,9 @@ void text_line_t::set_text(const std::string *str) {
 void text_line_t::merge(text_line_t *other) {
   int buffer_len = buffer.size();
 
-  if (buffer_len == 0 && other->starts_with_combining) starts_with_combining = true;
+  if (buffer_len == 0 && other->starts_with_combining) {
+    starts_with_combining = true;
+  }
 
   reserve(buffer.size() + other->buffer.size());
 
@@ -133,7 +135,9 @@ text_line_t *text_line_t::break_line(int pos) {
   text_line_t *newline;
 
   // FIXME: cut_line and break_line are very similar. Maybe we should combine them!
-  if ((size_t)pos == buffer.size()) return factory->new_text_line_t();
+  if ((size_t)pos == buffer.size()) {
+    return factory->new_text_line_t();
+  }
 
   /* Only allow line breaks at non-combining marks. This doesn't use width_at, because
      conjoining Jamo will make it return 0, but we need to allow them to be split. */
@@ -166,13 +170,17 @@ text_line_t *text_line_t::cut_line(int start, int end) {
 text_line_t *text_line_t::clone(int start, int end) {
   text_line_t *retval;
 
-  if (end == -1) end = buffer.size();
+  if (end == -1) {
+    end = buffer.size();
+  }
 
   ASSERT((size_t)end <= buffer.size());
   ASSERT(start >= 0);
   ASSERT(start <= end);
 
-  if (start == end) return factory->new_text_line_t(0);
+  if (start == end) {
+    return factory->new_text_line_t(0);
+  }
 
   retval = factory->new_text_line_t(end - start);
 
@@ -187,7 +195,9 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
   int i;
 
   for (i = *startFrom; (size_t)i < buffer.size(); i++) {
-    if (buffer[i] == '\n') break;
+    if (buffer[i] == '\n') {
+      break;
+    }
   }
 
   retval = clone(*startFrom, i);
@@ -201,7 +211,9 @@ void text_line_t::insert(text_line_t *other, int pos) {
 
   reserve(buffer.size() + other->buffer.size());
   buffer.insert(pos, other->buffer);
-  if (pos == 0) starts_with_combining = other->starts_with_combining;
+  if (pos == 0) {
+    starts_with_combining = other->starts_with_combining;
+  }
 }
 
 void text_line_t::minimize() {
@@ -217,13 +229,16 @@ void text_line_t::minimize() {
 int text_line_t::calculate_screen_width(int start, int pos, int tabsize) const {
   int i, total = 0;
 
-  if (starts_with_combining && start == 0 && pos > 0) total++;
+  if (starts_with_combining && start == 0 && pos > 0) {
+    total++;
+  }
 
   for (i = start; (size_t)i < buffer.size() && i < pos; i += byte_width_from_first(i)) {
-    if (buffer[i] == '\t')
+    if (buffer[i] == '\t') {
       total += tabsize > 0 ? tabsize - (total % tabsize) : 2;
-    else
+    } else {
       total += width_at(i);
+    }
   }
 
   return total;
@@ -234,17 +249,24 @@ int text_line_t::calculate_screen_width(int start, int pos, int tabsize) const {
 int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) const {
   int i, total = 0;
 
-  if (pos == 0) return start;
+  if (pos == 0) {
+    return start;
+  }
 
-  if (start == 0 && starts_with_combining) pos--;
+  if (start == 0 && starts_with_combining) {
+    pos--;
+  }
 
   for (i = start; (size_t)i < buffer.size() && i < max; i += byte_width_from_first(i)) {
-    if (buffer[i] == '\t')
+    if (buffer[i] == '\t') {
       total += tabsize - (total % tabsize);
-    else
+    } else {
       total += width_at(i);
+    }
 
-    if (total > pos) return i;
+    if (total > pos) {
+      return i;
+    }
   }
 
   return std::min(max, get_length());
@@ -252,14 +274,17 @@ int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) co
 
 void text_line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo,
                              t3_attr_t selection_attr) {
-  if (todo <= 0) return;
+  if (todo <= 0) {
+    return;
+  }
 
   if (is_print) {
     t3_win_addnstr(win, paint_buffer, todo, selection_attr);
   } else {
     selection_attr = t3_term_combine_attrs(attributes.non_print, selection_attr);
-    for (; (size_t)todo > sizeof(dots); todo -= sizeof(dots))
+    for (; (size_t)todo > sizeof(dots); todo -= sizeof(dots)) {
       t3_win_addnstr(win, dots, sizeof(dots), selection_attr);
+    }
     t3_win_addnstr(win, dots, todo, selection_attr);
   }
 }
@@ -272,15 +297,18 @@ t3_attr_t text_line_t::get_base_attr(int i, const text_line_t::paint_info_t *inf
 t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *info) {
   t3_attr_t retval = get_base_attr(i, info);
 
-  if (i >= info->selection_start && i < info->selection_end)
+  if (i >= info->selection_start && i < info->selection_end) {
     retval = i == info->cursor ? t3_term_combine_attrs(attributes.text_selection_cursor2, retval)
                                : info->selected_attr;
-  else if (i == info->cursor)
+  } else if (i == info->cursor) {
     retval = t3_term_combine_attrs(
         i == info->selection_end ? attributes.text_selection_cursor : attributes.text_cursor,
         retval);
+  }
 
-  if (is_bad_draw(i)) retval = t3_term_combine_attrs(attributes.bad_draw, retval);
+  if (is_bad_draw(i)) {
+    retval = t3_term_combine_attrs(attributes.bad_draw, retval);
+  }
 
   return retval;
 }
@@ -291,28 +319,41 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
   t3_attr_t selection_attr = 0, new_selection_attr;
   int flags = info->flags, size = info->size;
 
-  if (info->tabsize == 0) flags |= text_line_t::TAB_AS_CONTROL;
+  if (info->tabsize == 0) {
+    flags |= text_line_t::TAB_AS_CONTROL;
+  }
 
   size += info->leftcol;
-  if (flags & text_line_t::BREAK) size--;
+  if (flags & text_line_t::BREAK) {
+    size--;
+  }
 
-  if (size < 0) return;
+  if (size < 0) {
+    return;
+  }
 
-  if (starts_with_combining && info->leftcol > 0 && info->start == 0) total++;
+  if (starts_with_combining && info->leftcol > 0 && info->start == 0) {
+    total++;
+  }
 
   for (i = info->start; (size_t)i < buffer.size() && i < info->max && total < info->leftcol;
        i += byte_width_from_first(i)) {
-    if (width_at(i) != 0) selection_attr = get_draw_attrs(i, info);
+    if (width_at(i) != 0) {
+      selection_attr = get_draw_attrs(i, info);
+    }
 
     if (buffer[i] == '\t' && !(flags & text_line_t::TAB_AS_CONTROL)) {
       tabspaces = info->tabsize - (total % info->tabsize);
       total += tabspaces;
-      if (total >= size) total = size;
+      if (total >= size) {
+        total = size;
+      }
       if (total > info->leftcol) {
         if (flags & text_line_t::SHOW_TABS) {
           selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
-          if (total - info->leftcol > 1)
+          if (total - info->leftcol > 1) {
             t3_win_addnstr(win, dashes, total - info->leftcol - 1, selection_attr);
+          }
           t3_win_addch(win, '>', selection_attr);
         } else {
           t3_win_addnstr(win, spaces, total - info->leftcol, selection_attr);
@@ -321,14 +362,16 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     } else if ((unsigned char)buffer[i] < 32) {
       total += 2;
       // If total > info->leftcol than only the right side character is visible
-      if (total > info->leftcol)
+      if (total > info->leftcol) {
         t3_win_addch(win, control_map[(int)buffer[i]],
                      t3_term_combine_attrs(attributes.non_print, selection_attr));
+      }
     } else if (width_at(i) > 1) {
       total += width_at(i);
       if (total > info->leftcol) {
-        for (j = info->leftcol; j < total; j++)
+        for (j = info->leftcol; j < total; j++) {
           t3_win_addch(win, '<', t3_term_combine_attrs(attributes.non_print, selection_attr));
+        }
       }
     } else {
       total += width_at(i);
@@ -342,8 +385,9 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     print_from = i;
 
     /* Find the first non-zero-width char, and paint all zero-width chars now. */
-    while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0)
+    while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0) {
       i += byte_width_from_first(i);
+    }
 
     /* Note that non-printable characters will be discarded by libt3window. Thus
        we don't have to filter for them here. */
@@ -352,8 +396,9 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     total++;
   } else {
     /* Skip to first non-zero-width char */
-    while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0)
+    while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0) {
       i += byte_width_from_first(i);
+    }
   }
 
   _is_print = is_print(i);
@@ -361,7 +406,9 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
   new_selection_attr = selection_attr;
   for (; (size_t)i < buffer.size() && i < info->max && total + accumulated < size;
        i += byte_width_from_first(i)) {
-    if (width_at(i) != 0) new_selection_attr = get_draw_attrs(i, info);
+    if (width_at(i) != 0) {
+      new_selection_attr = get_draw_attrs(i, info);
+    }
 
     /* If selection changed between this char and the previous, print what
        we had so far. */
@@ -395,8 +442,12 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
       if (tabspaces > 0) {
         if (flags & text_line_t::SHOW_TABS) {
           selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
-          if (tabspaces > 1) t3_win_addch(win, i == info->cursor ? '-' : '<', selection_attr);
-          if (tabspaces > 2) t3_win_addnstr(win, dashes, tabspaces - 2, selection_attr);
+          if (tabspaces > 1) {
+            t3_win_addch(win, i == info->cursor ? '-' : '<', selection_attr);
+          }
+          if (tabspaces > 2) {
+            t3_win_addnstr(win, dashes, tabspaces - 2, selection_attr);
+          }
           t3_win_addch(win, '>', selection_attr);
         } else {
           t3_win_addnstr(win, spaces, tabspaces, selection_attr);
@@ -412,9 +463,10 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
       accumulated = 0;
       t3_win_addch(win, '^', t3_term_combine_attrs(attributes.non_print, selection_attr));
       total += 2;
-      if (total <= size)
+      if (total <= size) {
         t3_win_addch(win, control_map[(int)buffer[i]],
                      t3_term_combine_attrs(attributes.non_print, selection_attr));
+      }
       print_from = i + 1;
     } else if (_is_print != new_is_print) {
       /* Print part of the buffer as either printable or control characters, because
@@ -434,17 +486,21 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     }
     _is_print = new_is_print;
   }
-  while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0)
+  while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0) {
     i += byte_width_from_first(i);
+  }
 
   paint_part(win, buffer.data() + print_from, _is_print, _is_print ? i - print_from : accumulated,
              selection_attr);
   total += accumulated;
 
-  if ((flags & text_line_t::PARTIAL_CHAR) && i >= info->max) endchars = 1;
+  if ((flags & text_line_t::PARTIAL_CHAR) && i >= info->max) {
+    endchars = 1;
+  }
 
-  for (j = 0; j < endchars; j++)
+  for (j = 0; j < endchars; j++) {
     t3_win_addch(win, '>', t3_term_combine_attrs(attributes.non_print, selection_attr));
+  }
   total += endchars;
 
   /* Add a selected space when the selection crosses the end of this line
@@ -457,13 +513,16 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
   }
 
   if (flags & text_line_t::BREAK) {
-    for (; total < size; total++) t3_win_addch(win, ' ', info->normal_attr);
+    for (; total < size; total++) {
+      t3_win_addch(win, ' ', info->normal_attr);
+    }
     t3_win_addstr(win, wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info->normal_attr));
   } else if (flags & text_line_t::SPACECLEAR) {
-    for (; total + sizeof(spaces) < (size_t)size; total += sizeof(spaces))
+    for (; total + sizeof(spaces) < (size_t)size; total += sizeof(spaces)) {
       t3_win_addnstr(
           win, spaces, sizeof(spaces),
           (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
+    }
     t3_win_addnstr(
         win, spaces, size - total,
         (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
@@ -485,21 +544,28 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
   break_pos_t possible_break = {start, 0};
   bool graph_seen = false, last_was_graph = false;
 
-  if (starts_with_combining && start == 0) total++;
+  if (starts_with_combining && start == 0) {
+    total++;
+  }
 
   for (i = start; (size_t)i < buffer.size() && total < length; i = adjust_position(i, 1)) {
-    if (buffer[i] == '\t')
+    if (buffer[i] == '\t') {
       total += tabsize > 0 ? tabsize - (total % tabsize) : 2;
-    else
+    } else {
       total += width_at(i);
+    }
 
     if (total > length) {
-      if (possible_break.pos == start) possible_break.flags = text_line_t::PARTIAL_CHAR;
+      if (possible_break.pos == start) {
+        possible_break.flags = text_line_t::PARTIAL_CHAR;
+      }
       break;
     }
 
     cclass = get_class(&buffer, i);
-    if (buffer[i] < 32 && (buffer[i] != '\t' || tabsize == 0)) cclass = CLASS_GRAPH;
+    if (buffer[i] < 32 && (buffer[i] != '\t' || tabsize == 0)) {
+      cclass = CLASS_GRAPH;
+    }
 
     if (!graph_seen) {
       if (cclass == CLASS_ALNUM || cclass == CLASS_GRAPH) {
@@ -516,7 +582,9 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
   }
 
   if ((size_t)i < buffer.size()) {
-    if (possible_break.pos == start) possible_break.pos = i;
+    if (possible_break.pos == start) {
+      possible_break.pos = i;
+    }
     possible_break.flags |= text_line_t::BREAK;
     return possible_break;
   }
@@ -548,15 +616,21 @@ int text_line_t::get_next_word(int start) const {
 int text_line_t::get_previous_word(int start) const {
   int i, cclass = CLASS_WHITESPACE, savePos;
 
-  if (start == 0) return -1;
+  if (start == 0) {
+    return -1;
+  }
 
-  if (start < 0) start = buffer.size();
+  if (start < 0) {
+    start = buffer.size();
+  }
 
   for (i = adjust_position(start, -1);
        i > 0 && (cclass = get_class(&buffer, i)) == CLASS_WHITESPACE; i = adjust_position(i, -1)) {
   }
 
-  if (i == 0 && cclass == CLASS_WHITESPACE) return -1;
+  if (i == 0 && cclass == CLASS_WHITESPACE) {
+    return -1;
+  }
 
   savePos = i;
 
@@ -565,7 +639,9 @@ int text_line_t::get_previous_word(int start) const {
     savePos = i;
   }
 
-  if (i == 0 && get_class(&buffer, i) == cclass) savePos = i;
+  if (i == 0 && get_class(&buffer, i) == cclass) {
+    savePos = i;
+  }
 
   return cclass != CLASS_WHITESPACE ? savePos : -1;
 }
@@ -585,16 +661,21 @@ int text_line_t::get_next_word_boundary(int start) const {
 int text_line_t::get_previous_word_boundary(int start) const {
   int i, cclass, savePos;
 
-  if (start <= 0) return 0;
+  if (start <= 0) {
+    return 0;
+  }
 
   cclass = get_class(&buffer, start);
   savePos = start;
 
   for (i = adjust_position(start, -1); i > 0 && get_class(&buffer, i) == cclass;
-       i = adjust_position(i, -1))
+       i = adjust_position(i, -1)) {
     savePos = i;
+  }
 
-  if (i == 0 && get_class(&buffer, i) == cclass) return 0;
+  if (i == 0 && get_class(&buffer, i) == cclass) {
+    return 0;
+  }
 
   return savePos;
 }
@@ -616,7 +697,9 @@ bool text_line_t::insert_char(int pos, key_t c, undo_t *undo) {
     undo_text->append(conversion_buffer, conversion_length);
   }
 
-  if (pos == 0) starts_with_combining = key_width(c) == 0;
+  if (pos == 0) {
+    starts_with_combining = key_width(c) == 0;
+  }
 
   buffer.insert(pos, conversion_buffer, conversion_length);
   return true;
@@ -634,7 +717,9 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
   /* Zero-width characters don't overwrite, only insert. */
   if (key_width(c) == 0) {
     // FIXME: shouldn't this simply insert and set starts_with_combining to true?
-    if (pos == 0) return false;
+    if (pos == 0) {
+      return false;
+    }
 
     if (undo != nullptr) {
       ASSERT(undo->get_type() == UNDO_OVERWRITE);
@@ -645,10 +730,14 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
     return insert_char(pos, c, nullptr);
   }
 
-  if (starts_with_combining && pos == 0) starts_with_combining = false;
+  if (starts_with_combining && pos == 0) {
+    starts_with_combining = false;
+  }
 
   oldspace = adjust_position(pos, 1) - pos;
-  if (oldspace < conversion_length) reserve(buffer.size() + conversion_length - oldspace);
+  if (oldspace < conversion_length) {
+    reserve(buffer.size() + conversion_length - oldspace);
+  }
 
   if (undo != nullptr) {
     ASSERT(undo->get_type() == UNDO_OVERWRITE);
@@ -669,9 +758,13 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 bool text_line_t::delete_char(int pos, undo_t *undo) {
   int oldspace;
 
-  if (pos < 0 || (size_t)pos >= buffer.size()) return false;
+  if (pos < 0 || (size_t)pos >= buffer.size()) {
+    return false;
+  }
 
-  if (starts_with_combining && pos == 0) starts_with_combining = false;
+  if (starts_with_combining && pos == 0) {
+    starts_with_combining = false;
+  }
 
   oldspace = adjust_position(pos, 1) - pos;
 
@@ -693,7 +786,9 @@ bool text_line_t::append_char(key_t c, undo_t *undo) { return insert_char(buffer
 
 /* Delete char at 'pos - 1' */
 bool text_line_t::backspace_char(int pos, undo_t *undo) {
-  if (pos == 0) return false;
+  if (pos == 0) {
+    return false;
+  }
   return delete_char(adjust_position(pos, -1), undo);
 }
 
@@ -708,8 +803,9 @@ bool text_line_t::backspace_char(int pos, undo_t *undo) {
 */
 int text_line_t::adjust_position(int pos, int adjust) const {
   if (adjust > 0) {
-    for (; adjust > 0 && (size_t)pos < buffer.size(); adjust -= (width_at(pos) ? 1 : 0))
+    for (; adjust > 0 && (size_t)pos < buffer.size(); adjust -= (width_at(pos) ? 1 : 0)) {
       pos += byte_width_from_first(pos);
+    }
   } else if (adjust < 0) {
     for (; adjust < 0 && pos > 0; adjust += (width_at(pos) ? 1 : 0)) {
       do {
@@ -744,7 +840,9 @@ int text_line_t::byte_width_from_first(int pos) const {
 
 int text_line_t::key_width(key_t key) {
   int width = t3_utf8_wcwidth((uint32_t)key);
-  if (width < 0) width = key < 32 && key != '\t' ? 2 : 1;
+  if (width < 0) {
+    width = key < 32 && key != '\t' ? 2 : 1;
+  }
   return width;
 }
 int text_line_t::width_at(int pos) const {
@@ -754,14 +852,18 @@ int text_line_t::width_at(int pos) const {
       pos--;
     } while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
     c = t3_utf8_get(buffer.data() + pos, nullptr);
-    if (is_conjoining_jamo_lv(c)) return 0;
+    if (is_conjoining_jamo_lv(c)) {
+      return 0;
+    }
 
     if (is_conjoining_jamo_v(c) && pos > 0) {
       do {
         pos--;
       } while (pos > 0 && (buffer[pos] & 0xc0) == 0x80);
       c = t3_utf8_get(buffer.data() + pos, nullptr);
-      if (is_conjoining_jamo_l(c)) return 0;
+      if (is_conjoining_jamo_l(c)) {
+        return 0;
+      }
     }
     return 1;
   } else if (is_conjoining_jamo_v(c) && pos > 0) {
@@ -790,7 +892,9 @@ void text_line_t::init() {
   memset(spaces, ' ', sizeof(spaces));
   memset(dashes, '-', sizeof(dashes));
   memset(dots, '.', sizeof(dots));
-  if (!t3_term_can_draw(wrap_symbol, strlen(wrap_symbol))) wrap_symbol = "$";
+  if (!t3_term_can_draw(wrap_symbol, strlen(wrap_symbol))) {
+    wrap_symbol = "$";
+  }
 }
 
 void text_line_t::reserve(int size) { buffer.reserve(size); }

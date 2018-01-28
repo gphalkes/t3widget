@@ -20,11 +20,15 @@ namespace t3_widget {
 popup_t::popup_t(int height, int width, bool shadow, bool _draw)
     : dialog_base_t(height, width, shadow), draw(_draw), shown(false) {
   t3_win_set_depth(window, INT_MIN);
-  if (shadow) t3_win_set_depth(shadow_window, INT_MIN + 1);
+  if (shadow) {
+    t3_win_set_depth(shadow_window, INT_MIN + 1);
+  }
 }
 
 bool popup_t::process_key(key_t key) {
-  if ((*current_widget)->process_key(key)) return true;
+  if ((*current_widget)->process_key(key)) {
+    return true;
+  }
 
   if (key == EKEY_ESC) {
     hide();
@@ -34,7 +38,9 @@ bool popup_t::process_key(key_t key) {
 }
 
 void popup_t::update_contents() {
-  if (!draw) redraw = false;
+  if (!draw) {
+    redraw = false;
+  }
   dialog_base_t::update_contents();
 }
 
@@ -56,8 +62,9 @@ void popup_t::show() {
 
 bool popup_t::process_mouse_event(mouse_event_t event) {
   if ((event.type & EMOUSE_OUTSIDE_GRAB) &&
-      (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_RELEASE)
+      (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_RELEASE) {
     hide();
+  }
   return true;
 }
 

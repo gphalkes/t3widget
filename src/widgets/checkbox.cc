@@ -56,7 +56,9 @@ bool checkbox_t::set_size(optint height, optint width) {
 }
 
 void checkbox_t::update_contents() {
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
   t3_win_set_default_attrs(window, attributes.dialog);
   t3_win_set_paint(window, 0, 0);
@@ -66,7 +68,9 @@ void checkbox_t::update_contents() {
 }
 
 void checkbox_t::set_focus(focus_t focus) {
-  if (has_focus != focus) redraw = true;
+  if (has_focus != focus) {
+    redraw = true;
+  }
 
   has_focus = focus;
 }
@@ -79,7 +83,9 @@ void checkbox_t::set_state(bool _state) {
 }
 
 void checkbox_t::set_label(smart_label_t *_label) {
-  if (label != nullptr) unregister_mouse_target(label->get_base_window());
+  if (label != nullptr) {
+    unregister_mouse_target(label->get_base_window());
+  }
   label = _label;
   register_mouse_target(label->get_base_window());
 }

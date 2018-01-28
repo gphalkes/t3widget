@@ -73,14 +73,18 @@ class T3_WIDGET_API key_bindings_t : public key_bindings_base_t {
       return true;
     }
     optional<T> action = map_name(name);
-    if (!action.is_valid()) return false;
+    if (!action.is_valid()) {
+      return false;
+    }
     key_bindings[key] = action;
     return true;
   }
 
   optional<T> map_name(const std::string &name) const {
     typename std::map<std::string, T>::const_iterator iter = name_mapping.find(name);
-    if (iter == name_mapping.end()) return nullopt;
+    if (iter == name_mapping.end()) {
+      return nullopt;
+    }
     return iter->second;
   }
 

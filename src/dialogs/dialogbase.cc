@@ -28,17 +28,24 @@ signals::connection dialog_base_t::init_connected =
 
 void dialog_base_t::init(bool _init) {
   if (_init) {
-    if (dummy == nullptr) dummy = new dummy_widget_t();
+    if (dummy == nullptr) {
+      dummy = new dummy_widget_t();
+    }
   } else {
-    if (dummy != nullptr) delete dummy;
+    if (dummy != nullptr) {
+      delete dummy;
+    }
   }
 }
 
 dialog_base_t::dialog_base_t(int height, int width, bool has_shadow) : redraw(true) {
-  if ((window = t3_win_new(nullptr, height, width, 0, 0, 0)) == nullptr) throw std::bad_alloc();
+  if ((window = t3_win_new(nullptr, height, width, 0, 0, 0)) == nullptr) {
+    throw std::bad_alloc();
+  }
   if (has_shadow) {
-    if ((shadow_window = t3_win_new(nullptr, height, width, 1, 1, 1)) == nullptr)
+    if ((shadow_window = t3_win_new(nullptr, height, width, 1, 1, 1)) == nullptr) {
       throw std::bad_alloc();
+    }
     t3_win_set_anchor(shadow_window, window, 0);
   }
   dialog_base_list.push_back(this);
@@ -61,13 +68,19 @@ dialog_base_t::~dialog_base_t() {
     }
   }
   for (widget_t *widget : widgets) {
-    if (widget != dummy) delete widget;
+    if (widget != dummy) {
+      delete widget;
+    }
   }
 }
 
 void dialog_base_t::set_position(optint top, optint left) {
-  if (!top.is_valid()) top = t3_win_get_y(window);
-  if (!left.is_valid()) left = t3_win_get_x(window);
+  if (!top.is_valid()) {
+    top = t3_win_get_y(window);
+  }
+  if (!left.is_valid()) {
+    left = t3_win_get_x(window);
+  }
 
   t3_win_move(window, top, left);
 }
@@ -76,11 +89,17 @@ bool dialog_base_t::set_size(optint height, optint width) {
   bool result = true;
 
   redraw = true;
-  if (!height.is_valid()) height = t3_win_get_height(window);
-  if (!width.is_valid()) width = t3_win_get_width(window);
+  if (!height.is_valid()) {
+    height = t3_win_get_height(window);
+  }
+  if (!width.is_valid()) {
+    width = t3_win_get_width(window);
+  }
 
   result &= (t3_win_resize(window, height, width) == 0);
-  if (shadow_window != nullptr) result &= (t3_win_resize(shadow_window, height, width) == 0);
+  if (shadow_window != nullptr) {
+    result &= (t3_win_resize(shadow_window, height, width) == 0);
+  }
   return result;
 }
 
@@ -109,11 +128,15 @@ void dialog_base_t::update_contents() {
     }
   }
 
-  for (widget_t *widget : widgets) widget->update_contents();
+  for (widget_t *widget : widgets) {
+    widget->update_contents();
+  }
 }
 
 void dialog_base_t::set_focus(focus_t focus) {
-  if (current_widget != widgets.end()) (*current_widget)->set_focus(focus);
+  if (current_widget != widgets.end()) {
+    (*current_widget)->set_focus(focus);
+  }
 }
 
 void dialog_base_t::show() {
@@ -127,20 +150,28 @@ void dialog_base_t::show() {
   }
 
   t3_win_show(window);
-  if (shadow_window != nullptr) t3_win_show(shadow_window);
+  if (shadow_window != nullptr) {
+    t3_win_show(shadow_window);
+  }
 }
 
 void dialog_base_t::hide() {
   t3_win_hide(window);
-  if (shadow_window != nullptr) t3_win_hide(shadow_window);
-  if (widgets.front() == dummy) widgets.pop_front();
+  if (shadow_window != nullptr) {
+    t3_win_hide(shadow_window);
+  }
+  if (widgets.front() == dummy) {
+    widgets.pop_front();
+  }
 }
 
 void dialog_base_t::focus_next() {
   (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
   do {
     current_widget++;
-    if (current_widget == widgets.end()) current_widget = widgets.begin();
+    if (current_widget == widgets.end()) {
+      current_widget = widgets.begin();
+    }
   } while (!(*current_widget)->accepts_focus());
 
   (*current_widget)->set_focus(window_component_t::FOCUS_IN_FWD);
@@ -150,7 +181,9 @@ void dialog_base_t::focus_previous() {
   (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 
   do {
-    if (current_widget == widgets.begin()) current_widget = widgets.end();
+    if (current_widget == widgets.begin()) {
+      current_widget = widgets.end();
+    }
 
     current_widget--;
   } while (!(*current_widget)->accepts_focus());
@@ -160,7 +193,9 @@ void dialog_base_t::focus_previous() {
 
 void dialog_base_t::set_child_focus(window_component_t *target) {
   widget_t *target_widget = dynamic_cast<widget_t *>(target);
-  if (target_widget == nullptr || !target_widget->accepts_focus()) return;
+  if (target_widget == nullptr || !target_widget->accepts_focus()) {
+    return;
+  }
 
   for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
     if (*iter == target) {
@@ -190,21 +225,29 @@ bool dialog_base_t::is_child(window_component_t *widget) {
       return true;
     } else {
       container_t *container = dynamic_cast<container_t *>(iter);
-      if (container != nullptr && container->is_child(widget)) return true;
+      if (container != nullptr && container->is_child(widget)) {
+        return true;
+      }
     }
   }
   return false;
 }
 
 void dialog_base_t::push_back(widget_t *widget) {
-  if (!set_widget_parent(widget)) return;
-  if (widgets.size() > 0 && widgets.front() == dummy) widgets.pop_front();
+  if (!set_widget_parent(widget)) {
+    return;
+  }
+  if (widgets.size() > 0 && widgets.front() == dummy) {
+    widgets.pop_front();
+  }
   widgets.push_back(widget);
 }
 
 void dialog_base_t::force_redraw() {
   redraw = true;
-  for (widget_t *widget : widgets) widget->force_redraw();
+  for (widget_t *widget : widgets) {
+    widget->force_redraw();
+  }
 }
 
 void dialog_base_t::center_over(window_component_t *center) {
@@ -214,7 +257,9 @@ void dialog_base_t::center_over(window_component_t *center) {
 }
 
 void dialog_base_t::force_redraw_all() {
-  for (dialog_base_t *dialog : dialog_base_list) dialog->force_redraw();
+  for (dialog_base_t *dialog : dialog_base_list) {
+    dialog->force_redraw();
+  }
 }
 
 };  // namespace

@@ -18,13 +18,17 @@ namespace t3_widget {
 
 void menu_item_base_t::set_position(optint top, optint left) {
   (void)left;
-  if (!top.is_valid()) return;
+  if (!top.is_valid()) {
+    return;
+  }
   t3_win_move(window, top, 1);
 }
 
 bool menu_item_base_t::set_size(optint height, optint width) {
   (void)height;
-  if (!width.is_valid()) return true;
+  if (!width.is_valid()) {
+    return true;
+  }
   redraw = true;
   return t3_win_resize(window, 1, width);
 }
@@ -51,7 +55,9 @@ bool menu_item_t::process_key(key_t key) {
 }
 
 void menu_item_t::update_contents() {
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
 
   t3_win_set_paint(window, 0, 0);
@@ -68,7 +74,9 @@ void menu_item_t::update_contents() {
 
 void menu_item_t::set_focus(focus_t focus) {
   menu_item_base_t::set_focus(focus);
-  if (focus != has_focus) redraw = true;
+  if (focus != has_focus) {
+    redraw = true;
+  }
   has_focus = focus;
 }
 
@@ -99,7 +107,9 @@ bool menu_separator_t::process_key(key_t key) {
 }
 
 void menu_separator_t::update_contents() {
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
   t3_win_set_paint(window, 0, 0);
   t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, t3_win_get_width(window));

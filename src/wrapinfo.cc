@@ -23,7 +23,9 @@ wrap_info_t::wrap_info_t(int width, int _tabsize)
 
 wrap_info_t::~wrap_info_t() {
   rewrap_connection.disconnect();
-  for (wrap_points_t *iter : wrap_data) delete iter;
+  for (wrap_points_t *iter : wrap_data) {
+    delete iter;
+  }
 }
 
 int wrap_info_t::get_size() const { return wrap_data.size(); }
@@ -61,7 +63,9 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
   if (local) {
     break_pos = text->impl->lines[line]->find_next_break_pos((*wrap_data[line])[i], wrap_width - 1,
                                                              tabsize);
-    if (i < wrap_data[line]->size() - 1 && break_pos.pos == (*wrap_data[line])[i + 1]) return;
+    if (i < wrap_data[line]->size() - 1 && break_pos.pos == (*wrap_data[line])[i + 1]) {
+      return;
+    }
   }
 
   /* Keep it simple: subtract the full size here, and add the full size again
@@ -72,46 +76,63 @@ void wrap_info_t::rewrap_line(int line, int pos, bool local) {
   while (true) {
     break_pos = text->impl->lines[line]->find_next_break_pos(wrap_data[line]->back(),
                                                              wrap_width - 1, tabsize);
-    if (break_pos.pos > 0)
+    if (break_pos.pos > 0) {
       wrap_data[line]->push_back(break_pos.pos);
-    else
+    } else {
       break;
+    }
   }
   size += wrap_data[line]->size();
 }
 
 void wrap_info_t::rewrap_all() {
-  for (size_t i = 0; i < wrap_data.size(); i++) rewrap_line(i, 0, false);
+  for (size_t i = 0; i < wrap_data.size(); i++) {
+    rewrap_line(i, 0, false);
+  }
 }
 
 void wrap_info_t::set_wrap_width(int width) {
   lprintf("Setting wrap width: %d\n", width);
-  if (width == wrap_width) return;
+  if (width == wrap_width) {
+    return;
+  }
   wrap_width = width;
-  if (text != nullptr) rewrap_all();
+  if (text != nullptr) {
+    rewrap_all();
+  }
 }
 
 void wrap_info_t::set_tabsize(int _tabsize) {
-  if (_tabsize == tabsize) return;
+  if (_tabsize == tabsize) {
+    return;
+  }
   tabsize = _tabsize;
-  if (text != nullptr) rewrap_all();
+  if (text != nullptr) {
+    rewrap_all();
+  }
 }
 
 void wrap_info_t::set_text_buffer(text_buffer_t *_text) {
   rewrap_connection.disconnect();
 
   text = _text;
-  if (_text == nullptr) return;
+  if (_text == nullptr) {
+    return;
+  }
 
   rewrap_connection = text->connect_rewrap_required(signals::mem_fun(this, &wrap_info_t::rewrap));
 
-  if (wrap_data.size() > text->impl->lines.size())
+  if (wrap_data.size() > text->impl->lines.size()) {
     delete_lines(text->impl->lines.size(), wrap_data.size());
+  }
 
-  for (size_t i = 0; i < wrap_data.size(); i++) rewrap_line(i, 0, false);
+  for (size_t i = 0; i < wrap_data.size(); i++) {
+    rewrap_line(i, 0, false);
+  }
 
-  if (wrap_data.size() < text->impl->lines.size())
+  if (wrap_data.size() < text->impl->lines.size()) {
     insert_lines(wrap_data.size(), text->impl->lines.size());
+  }
 }
 
 void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
@@ -166,8 +187,12 @@ bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
     coord.line--;
     count -= wrap_data[coord.line]->size();
   }
-  if (count == 0) return false;
-  if (coord.line == 0) return true;
+  if (count == 0) {
+    return false;
+  }
+  if (coord.line == 0) {
+    return true;
+  }
   coord.line--;
   coord.pos = wrap_data[coord.line]->size() - count;
   return false;
@@ -214,10 +239,11 @@ void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line,
   } else {
     info->max = INT_MAX;
   }
-  if (tabsize <= 0)
+  if (tabsize <= 0) {
     info->flags |= text_line_t::TAB_AS_CONTROL;
-  else
+  } else {
     info->flags &= ~text_line_t::TAB_AS_CONTROL;
+  }
   info->tabsize = tabsize;
   text->paint_line(win, line.line, info);
 }

@@ -58,7 +58,9 @@ ssize_t nosig_write(int fd, const char *buffer, size_t bytes) {
   while (start < bytes) {
     ssize_t retval = write(fd, buffer + start, bytes - start);
     if (retval < 0) {
-      if (errno == EINTR) continue;
+      if (errno == EINTR) {
+        continue;
+      }
       return -1;
     }
     start += retval;
@@ -75,11 +77,15 @@ ssize_t nosig_read(int fd, char *buffer, size_t bytes) {
     if (retval == 0) {
       break;
     } else if (retval < 0) {
-      if (errno == EINTR) continue;
+      if (errno == EINTR) {
+        continue;
+      }
       return -1;
     } else {
       bytes_read += retval;
-      if (bytes_read >= bytes) break;
+      if (bytes_read >= bytes) {
+        break;
+      }
     }
   }
   return bytes_read;
@@ -123,10 +129,11 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
       for (i = 0; i < 2 && (read_position + i) < str.size() && is_hex_digit(str[read_position + i]);
            i++) {
         value <<= 4;
-        if (str[read_position + i] >= '0' && str[read_position + i] <= '9')
+        if (str[read_position + i] >= '0' && str[read_position + i] <= '9') {
           value += (int)(str[read_position + i] - '0');
-        else
+        } else {
           value += (int)(to_lower(str[read_position + i]) - 'a') + 10;
+        }
         if (value > UCHAR_MAX) {
           *error_message = "Invalid hexadecimal escape sequence";
           return false;
@@ -157,8 +164,9 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
           size_t max_idx = str[read_position - 1] < '4' ? 2 : 1;
           for (i = 0; i < max_idx && read_position + i < str.size() &&
                       str[read_position + i] >= '0' && str[read_position + i] <= '7';
-               i++)
+               i++) {
             value = value * 8 + (int)(str[read_position + i] - '0');
+          }
 
           read_position += i;
 
@@ -166,9 +174,9 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
       }
     case '8':
     case '9':
-      if (replacements)
+      if (replacements) {
         return (int)(str[read_position - 1] - '0') | ESCAPE_REPLACEMENT;
-      else {
+      } else {
         *error_message = "Invalid escape sequence";
         return -1;
       }
@@ -189,10 +197,11 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
           return -1;
         }
         value <<= 4;
-        if (str[read_position + i] >= '0' && str[read_position + i] <= '9')
+        if (str[read_position + i] >= '0' && str[read_position + i] <= '9') {
           value += (int)(str[read_position + i] - '0');
-        else
+        } else {
           value += (int)(tolower(str[read_position + i]) - 'a') + 10;
+        }
       }
 
       if (value > 0x10FFFFL) {
@@ -233,7 +242,9 @@ bool parse_escapes(std::string &str, const char **error_message, bool replacemen
       }
       value = parse_escape(str, error_message, read_position, replacements);
 
-      if (value < 0) return false;
+      if (value < 0) {
+        return false;
+      }
 
       if (value & ESCAPE_UNICODE) {
         /* The conversion won't overwrite subsequent characters because
@@ -266,7 +277,9 @@ bool parse_escapes(std::string &str, const char **error_message, bool replacemen
            the validity of the referenced code point), it should be replaced by
            the correct UTF-8 sequence.
         */
-        if (value < 0x80) str[write_position++] = (char)value;
+        if (value < 0x80) {
+          str[write_position++] = (char)value;
+        }
       }
     } else {
       str[write_position++] = str[read_position++];
@@ -321,7 +334,9 @@ std::string get_directory(const char *directory) {
         dirstring = get_working_directory();
       } else {
         dirstring.erase(idx);
-        if (stat(dirstring.c_str(), &dir_info) < 0) dirstring = get_working_directory();
+        if (stat(dirstring.c_str(), &dir_info) < 0) {
+          dirstring = get_working_directory();
+        }
       }
     }
   }
@@ -348,9 +363,10 @@ bool is_dir(const std::string *current_dir, const char *name) {
   }
   file += name;
 
-  if (stat(file.c_str(), &file_info) < 0)
+  if (stat(file.c_str(), &file_info) < 0) {
     // This would be weird, but still we have to do something
     return false;
+  }
   return !!S_ISDIR(file_info.st_mode);
 }
 
@@ -364,10 +380,14 @@ void lang_codeset_init(bool init) {
           codeset, TRANSCRIPT_UTF8,
           TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SUBST_UNASSIGNED | TRANSCRIPT_SUBST_ILLEGAL,
           &error);
-      if (transcript_equal("UTF-8", codeset)) lang_codeset_is_utf8 = true;
+      if (transcript_equal("UTF-8", codeset)) {
+        lang_codeset_is_utf8 = true;
+      }
     }
   } else {
-    if (lang_codeset_handle != nullptr) transcript_close_converter(lang_codeset_handle);
+    if (lang_codeset_handle != nullptr) {
+      transcript_close_converter(lang_codeset_handle);
+    }
   }
 }
 
@@ -392,7 +412,9 @@ void convert_lang_codeset(const char *str, size_t len, std::string *result, bool
         output_buffer + sizeof(output_buffer),
         str_ptr == str ? TRANSCRIPT_FILE_START | TRANSCRIPT_END_OF_TEXT : TRANSCRIPT_END_OF_TEXT);
     result->append(output_buffer, output_buffer_ptr - output_buffer);
-    if (conversion_result != TRANSCRIPT_NO_SPACE) return;
+    if (conversion_result != TRANSCRIPT_NO_SPACE) {
+      return;
+    }
   }
 }
 
@@ -408,11 +430,15 @@ int get_class(const std::string *str, int pos) {
   size_t data_len = str->size() - pos;
   uint32_t c = t3_utf8_get(str->data() + pos, &data_len);
 
-  if (uc_is_property_id_continue(c)) return CLASS_ALNUM;
-  if (!uc_is_general_category_withtable(c, T3_UTF8_CONTROL_MASK | UC_CATEGORY_MASK_Zs))
+  if (uc_is_property_id_continue(c)) {
+    return CLASS_ALNUM;
+  }
+  if (!uc_is_general_category_withtable(c, T3_UTF8_CONTROL_MASK | UC_CATEGORY_MASK_Zs)) {
     return CLASS_GRAPH;
-  if (c == '\t' || uc_is_general_category_withtable(c, UC_CATEGORY_MASK_Zs))
+  }
+  if (c == '\t' || uc_is_general_category_withtable(c, UC_CATEGORY_MASK_Zs)) {
     return CLASS_WHITESPACE;
+  }
   return CLASS_OTHER;
 }
 

@@ -26,7 +26,9 @@
 namespace t3_widget {
 
 string_list_t::~string_list_t() {
-  for (std::string *string : strings) delete string;
+  for (std::string *string : strings) {
+    delete string;
+  }
 }
 
 size_t string_list_t::size() const { return strings.size(); }
@@ -56,17 +58,29 @@ file_name_list_t::file_name_entry_t::file_name_entry_t(const file_name_entry_t &
 }
 
 bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_t second) {
-  if (first.is_dir && !second.is_dir) return true;
+  if (first.is_dir && !second.is_dir) {
+    return true;
+  }
 
-  if (!first.is_dir && second.is_dir) return false;
+  if (!first.is_dir && second.is_dir) {
+    return false;
+  }
 
-  if (first.is_dir && first.name.compare("..") == 0) return true;
+  if (first.is_dir && first.name.compare("..") == 0) {
+    return true;
+  }
 
-  if (second.is_dir && second.name.compare("..") == 0) return false;
+  if (second.is_dir && second.name.compare("..") == 0) {
+    return false;
+  }
 
-  if (first.name[0] == '.' && second.name[0] != '.') return true;
+  if (first.name[0] == '.' && second.name[0] != '.') {
+    return true;
+  }
 
-  if (first.name[0] != '.' && second.name[0] == '.') return false;
+  if (first.name[0] != '.' && second.name[0] == '.') {
+    return false;
+  }
 
   /* Use strcoll on the FS names. This will sort them as the user expects,
      provided the locale is set correctly. */
@@ -88,7 +102,9 @@ int file_name_list_t::load_directory(std::string *dir_name) {
   DIR *dir;
 
   files.clear();
-  if (dir_name->compare("/") != 0) files.push_back(file_name_entry_t("..", "..", true));
+  if (dir_name->compare("/") != 0) {
+    files.push_back(file_name_entry_t("..", "..", true));
+  }
 
   if ((dir = opendir(dir_name->c_str())) == nullptr) {
     content_changed();
@@ -100,10 +116,14 @@ int file_name_list_t::load_directory(std::string *dir_name) {
   while ((entry = readdir(dir)) != nullptr) {
     std::string utf8_name;
 
-    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue;
+    }
 
     convert_lang_codeset(entry->d_name, &utf8_name, true);
-    if (strcmp(entry->d_name, utf8_name.c_str()) == 0) utf8_name.clear();
+    if (strcmp(entry->d_name, utf8_name.c_str()) == 0) {
+      utf8_name.clear();
+    }
     files.push_back(
         file_name_entry_t(entry->d_name, utf8_name, t3_widget::is_dir(dir_name, entry->d_name)));
 
@@ -126,7 +146,9 @@ int file_name_list_t::load_directory(std::string *dir_name) {
 }
 
 file_name_list_t &file_name_list_t::operator=(const file_name_list_t &other) {
-  if (&other == this) return *this;
+  if (&other == this) {
+    return *this;
+  }
 
   files.resize(other.files.size());
   copy(other.files.begin(), other.files.end(), files.begin());
@@ -143,9 +165,13 @@ bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, b
   const std::string *item_name = (*list)[idx];
   std::string fs_name;
 
-  if (item_name->compare("..") == 0) return true;
+  if (item_name->compare("..") == 0) {
+    return true;
+  }
 
-  if (!show_hidden && (*item_name)[0] == '.') return false;
+  if (!show_hidden && (*item_name)[0] == '.') {
+    return false;
+  }
 
   /* fnmatch discards strings with characters that are invalid in the locale
      codeset. However, we do want to use fnmatch because it also involves
@@ -154,8 +180,9 @@ bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, b
      filter string passed to this function is already in the locale codeset. */
   convert_lang_codeset(item_name, &fs_name, false);
   if ((file_list == nullptr || !file_list->is_dir(idx)) &&
-      fnmatch(str->c_str(), fs_name.c_str(), 0) != 0)
+      fnmatch(str->c_str(), fs_name.c_str(), 0) != 0) {
     return false;
+  }
   return true;
 }
 

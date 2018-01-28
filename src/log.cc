@@ -26,7 +26,9 @@ static void close_log() { fclose(log_file); }
 void init_log() {
   if (log_file == nullptr) {
     log_file = fopen("libt3widgetlog.txt", "a");
-    if (log_file) atexit(close_log);
+    if (log_file) {
+      atexit(close_log);
+    }
   }
 }
 
@@ -43,12 +45,13 @@ void lprintf(const char *fmt, ...) {
 
 void ldumpstr(const char *str, int length) {
   for (; length > 0; length--, str++) {
-    if ((unsigned int)*str < 32)
+    if ((unsigned int)*str < 32) {
       fprintf(log_file, "\\x%02X", *str);
-    else if (*str == '\\')
+    } else if (*str == '\\') {
       fprintf(log_file, "\\\\");
-    else
+    } else {
       fputc(*str, log_file);
+    }
   }
   fflush(log_file);
 }
@@ -56,10 +59,14 @@ void ldumpstr(const char *str, int length) {
 void logkeyseq(const char *keys) {
   size_t i;
 
-  if (!log_file) return;
+  if (!log_file) {
+    return;
+  }
 
   fprintf(log_file, "Unknown key sequence:");
-  for (i = 0; i < strlen(keys); i++) fprintf(log_file, " %d", keys[i]);
+  for (i = 0; i < strlen(keys); i++) {
+    fprintf(log_file, " %d", keys[i]);
+  }
   fprintf(log_file, "\n");
   fflush(log_file);
 }

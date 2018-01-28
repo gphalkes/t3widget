@@ -39,7 +39,9 @@ list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator
 }
 
 list_pane_t::~list_pane_t() {
-  for (widget_t *widget : impl->widgets) delete widget;
+  for (widget_t *widget : impl->widgets) {
+    delete widget;
+  }
 }
 
 bool list_pane_t::set_widget_parent(window_component_t *widget) {
@@ -48,10 +50,11 @@ bool list_pane_t::set_widget_parent(window_component_t *widget) {
 
 void list_pane_t::ensure_cursor_on_screen() {
   int height = t3_win_get_height(window);
-  if (impl->current >= impl->top_idx + height)
+  if (impl->current >= impl->top_idx + height) {
     impl->top_idx = impl->current - height + 1;
-  else if (impl->current < impl->top_idx)
+  } else if (impl->current < impl->top_idx) {
     impl->top_idx = impl->current;
+  }
 }
 
 bool list_pane_t::process_key(key_t key) {
@@ -61,12 +64,16 @@ bool list_pane_t::process_key(key_t key) {
 
   switch (key) {
     case EKEY_DOWN:
-      if (impl->current + 1 >= impl->widgets.size()) return true;
+      if (impl->current + 1 >= impl->widgets.size()) {
+        return true;
+      }
       impl->current++;
       focus_type = window_component_t::FOCUS_IN_FWD;
       break;
     case EKEY_UP:
-      if (impl->current == 0) return true;
+      if (impl->current == 0) {
+        return true;
+      }
       impl->current--;
       focus_type = window_component_t::FOCUS_IN_BCK;
       break;
@@ -84,10 +91,11 @@ bool list_pane_t::process_key(key_t key) {
         impl->current = impl->widgets.size() - 1;
       } else {
         impl->current += height;
-        if (impl->top_idx + 2 * height < impl->widgets.size())
+        if (impl->top_idx + 2 * height < impl->widgets.size()) {
           impl->top_idx += height;
-        else
+        } else {
           impl->top_idx = impl->widgets.size() - height;
+        }
       }
       focus_type = window_component_t::FOCUS_SET;
       break;
@@ -102,10 +110,14 @@ bool list_pane_t::process_key(key_t key) {
       focus_type = window_component_t::FOCUS_SET;
       break;
     case EKEY_NL:
-      if (impl->widgets.size() > 0) activate();
+      if (impl->widgets.size() > 0) {
+        activate();
+      }
       return true;
     default:
-      if (impl->widgets.size() > 0) return impl->widgets[impl->current]->process_key(key);
+      if (impl->widgets.size() > 0) {
+        return impl->widgets[impl->current]->process_key(key);
+      }
       return false;
   }
   if (impl->current != old_current) {
@@ -119,8 +131,12 @@ bool list_pane_t::process_key(key_t key) {
 }
 
 void list_pane_t::set_position(optint top, optint left) {
-  if (!top.is_valid()) top = t3_win_get_y(window);
-  if (!left.is_valid()) left = t3_win_get_x(window);
+  if (!top.is_valid()) {
+    top = t3_win_get_y(window);
+  }
+  if (!left.is_valid()) {
+    left = t3_win_get_x(window);
+  }
   t3_win_move(window, top, left);
 }
 
@@ -128,17 +144,25 @@ bool list_pane_t::set_size(optint height, optint width) {
   int widget_width;
   bool result;
 
-  if (!height.is_valid()) height = t3_win_get_height(window);
-  if (!width.is_valid()) width = t3_win_get_width(window);
+  if (!height.is_valid()) {
+    height = t3_win_get_height(window);
+  }
+  if (!width.is_valid()) {
+    width = t3_win_get_width(window);
+  }
 
   result = t3_win_resize(window, height, width);
   result &= t3_win_resize(impl->widgets_window.get(), t3_win_get_height(impl->widgets_window.get()),
                           width - 1);
-  if (impl->indicator) result &= impl->indicator_widget->set_size(None, width - 1);
+  if (impl->indicator) {
+    result &= impl->indicator_widget->set_size(None, width - 1);
+  }
 
   widget_width = impl->indicator ? (int)width - 3 : (int)width - 1;
 
-  for (widget_t *widget : impl->widgets) result &= widget->set_size(None, widget_width);
+  for (widget_t *widget : impl->widgets) {
+    result &= widget->set_size(None, widget_width);
+  }
 
   result &= impl->scrollbar.set_size(height, None);
 
@@ -155,26 +179,36 @@ void list_pane_t::update_contents() {
   t3_win_move(impl->widgets_window.get(), -impl->top_idx, 0);
   impl->scrollbar.set_parameters(impl->widgets.size(), impl->top_idx, t3_win_get_height(window));
   impl->scrollbar.update_contents();
-  for (widget_t *widget : impl->widgets) widget->update_contents();
+  for (widget_t *widget : impl->widgets) {
+    widget->update_contents();
+  }
 }
 
 void list_pane_t::set_focus(focus_t focus) {
   impl->has_focus = focus;
-  if (impl->current < impl->widgets.size()) impl->widgets[impl->current]->set_focus(focus);
-  if (impl->indicator) impl->indicator_widget->set_focus(focus);
+  if (impl->current < impl->widgets.size()) {
+    impl->widgets[impl->current]->set_focus(focus);
+  }
+  if (impl->indicator) {
+    impl->indicator_widget->set_focus(focus);
+  }
 }
 
 bool list_pane_t::process_mouse_event(mouse_event_t event) {
   if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
       event.window != impl->widgets_window.get()) {
-    if (!impl->single_click_activate) activate();
+    if (!impl->single_click_activate) {
+      activate();
+    }
   } else if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) &&
              event.window != impl->widgets_window.get()) {
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
     impl->current = event.y;
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
     selection_changed();
-    if (impl->single_click_activate) activate();
+    if (impl->single_click_activate) {
+      activate();
+    }
   } else if (event.type == EMOUSE_BUTTON_PRESS &&
              (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
     scroll((event.button_state & EMOUSE_SCROLL_UP) ? -3 : 3);
@@ -193,8 +227,9 @@ void list_pane_t::update_positions() {
 
   t3_win_resize(impl->widgets_window.get(), impl->widgets.size(),
                 t3_win_get_width(impl->widgets_window.get()));
-  for (iter = impl->widgets.begin(), idx = 0; iter != impl->widgets.end(); iter++, idx++)
+  for (iter = impl->widgets.begin(), idx = 0; iter != impl->widgets.end(); iter++, idx++) {
     (*iter)->set_position(idx, impl->indicator ? 1 : 0);
+  }
 }
 
 void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
@@ -202,8 +237,12 @@ void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
 }
 
 void list_pane_t::force_redraw() {
-  for (widget_t *widget : impl->widgets) widget->force_redraw();
-  if (impl->indicator) impl->indicator_widget->force_redraw();
+  for (widget_t *widget : impl->widgets) {
+    widget->force_redraw();
+  }
+  if (impl->indicator) {
+    impl->indicator_widget->force_redraw();
+  }
 }
 
 void list_pane_t::set_child_focus(window_component_t *target) {
@@ -221,7 +260,9 @@ void list_pane_t::set_child_focus(window_component_t *target) {
       break;
     } else {
       container_t *container = dynamic_cast<container_t *>(*iter);
-      if (container != nullptr && container->is_child(target)) break;
+      if (container != nullptr && container->is_child(target)) {
+        break;
+      }
     }
   }
   if (idx < impl->widgets.size()) {
@@ -239,14 +280,18 @@ void list_pane_t::set_child_focus(window_component_t *target) {
 }
 
 bool list_pane_t::is_child(window_component_t *widget) {
-  if (widget == &impl->scrollbar || widget == impl->indicator_widget.get()) return true;
+  if (widget == &impl->scrollbar || widget == impl->indicator_widget.get()) {
+    return true;
+  }
 
   for (widget_t *iter : impl->widgets) {
     if (iter == widget) {
       return true;
     } else {
       container_t *container = dynamic_cast<container_t *>(iter);
-      if (container != nullptr && container->is_child(widget)) return true;
+      if (container != nullptr && container->is_child(widget)) {
+        return true;
+      }
     }
   }
   return false;
@@ -265,7 +310,9 @@ void list_pane_t::push_front(widget_t *widget) {
   widget->set_size(1, t3_win_get_width(impl->widgets_window.get()) - (impl->indicator ? 2 : 0));
   set_widget_parent(widget);
   impl->widgets.push_front(widget);
-  if (impl->current + 1 < impl->widgets.size()) impl->current++;
+  if (impl->current + 1 < impl->widgets.size()) {
+    impl->current++;
+  }
   update_positions();
 }
 
@@ -274,7 +321,9 @@ void list_pane_t::pop_back() {
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
     if (impl->current > 0) {
       impl->current--;
-      if (impl->has_focus) impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
+      if (impl->has_focus) {
+        impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
+      }
     }
   }
   unset_widget_parent(impl->widgets.back());
@@ -286,8 +335,9 @@ void list_pane_t::pop_back() {
 void list_pane_t::pop_front() {
   if (impl->current == 0) {
     impl->widgets[0]->set_focus(window_component_t::FOCUS_OUT);
-    if (impl->widgets.size() > 1 && impl->has_focus)
+    if (impl->widgets.size() > 1 && impl->has_focus) {
       impl->widgets[1]->set_focus(window_component_t::FOCUS_SET);
+    }
   } else {
     impl->current--;
   }
@@ -306,7 +356,9 @@ bool list_pane_t::empty() { return impl->widgets.empty(); }
 
 list_pane_t::iterator list_pane_t::erase(list_pane_t::iterator position) {
   if (impl->current == position && impl->current + 1 == impl->widgets.size()) {
-    if (impl->current != 0) impl->current--;
+    if (impl->current != 0) {
+      impl->current--;
+    }
   }
   unset_widget_parent(impl->widgets[position]);
   impl->widgets.erase(impl->widgets.begin() + position);
@@ -321,7 +373,9 @@ list_pane_t::iterator list_pane_t::end() { return impl->widgets.size(); }
 size_t list_pane_t::get_current() const { return impl->current; }
 
 void list_pane_t::set_current(size_t idx) {
-  if (idx >= impl->widgets.size()) return;
+  if (idx >= impl->widgets.size()) {
+    return;
+  }
 
   impl->current = idx;
   ensure_cursor_on_screen();
@@ -372,7 +426,9 @@ bool list_pane_t::indicator_widget_t::process_key(key_t key) {
 }
 
 void list_pane_t::indicator_widget_t::update_contents() {
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
   t3_win_set_default_attrs(window, attributes.dialog);
   t3_win_set_paint(window, 0, 0);
@@ -391,7 +447,9 @@ void list_pane_t::indicator_widget_t::set_focus(focus_t focus) {
 bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
   (void)_height;
 
-  if (!width.is_valid()) return true;
+  if (!width.is_valid()) {
+    return true;
+  }
   redraw = true;
   return t3_win_resize(window, 1, width);
 }

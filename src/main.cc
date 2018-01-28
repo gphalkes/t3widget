@@ -148,7 +148,9 @@ static void do_resize() {
 
   t3_term_resize();
   t3_term_get_size(&new_screen_lines, &new_screen_columns);
-  if (new_screen_lines == screen_lines && new_screen_columns == screen_columns) return;
+  if (new_screen_lines == screen_lines && new_screen_columns == screen_columns) {
+    return;
+  }
 
   // Ensure minimal coordinates to maintain sort of sane screen layout
   screen_lines = new_screen_lines < MIN_LINES ? MIN_LINES : new_screen_lines;
@@ -158,8 +160,12 @@ static void do_resize() {
 }
 
 void get_screen_size(int *height, int *width) {
-  if (height != nullptr) *height = screen_lines;
-  if (width != nullptr) *width = screen_columns;
+  if (height != nullptr) {
+    *height = screen_lines;
+  }
+  if (width != nullptr) {
+    *width = screen_columns;
+  }
 }
 
 void set_primary_selection_mode(bool on) { disable_primary_selection = !on; }
@@ -186,7 +192,9 @@ static void terminal_specific_restore() {
       break;
 #ifdef __linux__
     case TERM_LINUX:
-      if (linux_meta_mode > 0) ioctl(0, KDSKBMETA, linux_meta_mode);
+      if (linux_meta_mode > 0) {
+        ioctl(0, KDSKBMETA, linux_meta_mode);
+      }
       break;
 #endif
     default:
@@ -197,7 +205,9 @@ static void terminal_specific_restore() {
 static void terminal_specific_setup() {
   int i;
 
-  if (init_params->term == nullptr) return;
+  if (init_params->term == nullptr) {
+    return;
+  }
 
   for (i = 0; terminal_mapping[i].name != nullptr &&
               strcmp(terminal_mapping[i].name, init_params->term) != 0;
@@ -211,10 +221,11 @@ static void terminal_specific_setup() {
       break;
 #ifdef __linux__
     case TERM_LINUX:
-      if (ioctl(0, KDGKBMETA, &linux_meta_mode) < 0)
+      if (ioctl(0, KDGKBMETA, &linux_meta_mode) < 0) {
         linux_meta_mode = -1;
-      else
+      } else {
         ioctl(0, KDSKBMETA, K_ESCPREFIX);
+      }
       break;
 #endif
     default:
@@ -259,18 +270,24 @@ complex_error_t init(const init_parameters_t *params) {
   complex_error_t result;
   int term_init_result;
 
-  if (init_level > 0) return result;
+  if (init_level > 0) {
+    return result;
+  }
 
   init_log();
   text_line_t::init();
 
-  if (init_params == nullptr) init_params = init_parameters_t::create();
+  if (init_params == nullptr) {
+    init_params = init_parameters_t::create();
+  }
 
   if (params == nullptr || params->term == nullptr) {
     const char *term_env = getenv("TERM");
     /* If term_env == nullptr, t3_term_init will abort anyway, so we ignore
        that case. */
-    if (term_env != nullptr) init_params->term = _t3_widget_strdup(term_env);
+    if (term_env != nullptr) {
+      init_params->term = _t3_widget_strdup(term_env);
+    }
   } else {
     init_params->term = _t3_widget_strdup(params->term);
   }
@@ -315,10 +332,13 @@ complex_error_t init(const init_parameters_t *params) {
   try {
     /* Construct these here, such that the locale is set correctly and
        gettext therefore returns the correctly localized strings. */
-    if (message_dialog == nullptr)
+    if (message_dialog == nullptr) {
       message_dialog =
           new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Close"), nullptr);
-    if (insert_char_dialog == nullptr) insert_char_dialog = new insert_char_dialog_t();
+    }
+    if (insert_char_dialog == nullptr) {
+      insert_char_dialog = new insert_char_dialog_t();
+    }
     on_init()(true);
   } catch (std::bad_alloc &ba) {
     restore();
@@ -352,8 +372,9 @@ void iterate() {
         terminal_settings_changed()();
         break;
       default:
-        if (key >= EKEY_EXIT_MAIN_LOOP && key <= EKEY_EXIT_MAIN_LOOP + 255)
+        if (key >= EKEY_EXIT_MAIN_LOOP && key <= EKEY_EXIT_MAIN_LOOP + 255) {
           exit_main_loop(key - EKEY_EXIT_MAIN_LOOP);
+        }
         // FIXME: pass unhandled keys to callback?
         dialog_t::active_dialogs.back()->process_key(key);
         break;

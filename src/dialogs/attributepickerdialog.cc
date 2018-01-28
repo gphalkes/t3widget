@@ -238,11 +238,15 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
   push_back(blink_label);
   if (capabilities.cap_flags & (T3_TERM_CAP_FG | T3_TERM_CAP_CP)) {
     push_back(impl->fg_expander);
-    if (capabilities.cap_flags & T3_TERM_CAP_BG) push_back(impl->bg_expander);
+    if (capabilities.cap_flags & T3_TERM_CAP_BG) {
+      push_back(impl->bg_expander);
+    }
   }
   push_back(test_line_frame);
   push_back(ok_button);
-  if (with_default) push_back(default_button);
+  if (with_default) {
+    push_back(default_button);
+  }
   push_back(cancel_button);
 }
 
@@ -259,13 +263,27 @@ void attribute_picker_dialog_t::group_expanded(bool state) {
 
 t3_attr_t attribute_picker_dialog_t::get_attribute() {
   t3_attr_t result = 0;
-  if (impl->underline_box->get_state()) result |= T3_ATTR_UNDERLINE;
-  if (impl->bold_box->get_state()) result |= T3_ATTR_BOLD;
-  if (impl->dim_box->get_state()) result |= T3_ATTR_DIM;
-  if (impl->blink_box->get_state()) result |= T3_ATTR_BLINK;
-  if (impl->reverse_box->get_state()) result |= T3_ATTR_REVERSE;
-  if (impl->fg_picker != nullptr) result |= impl->fg_picker->get_color();
-  if (impl->bg_picker != nullptr) result |= impl->bg_picker->get_color();
+  if (impl->underline_box->get_state()) {
+    result |= T3_ATTR_UNDERLINE;
+  }
+  if (impl->bold_box->get_state()) {
+    result |= T3_ATTR_BOLD;
+  }
+  if (impl->dim_box->get_state()) {
+    result |= T3_ATTR_DIM;
+  }
+  if (impl->blink_box->get_state()) {
+    result |= T3_ATTR_BLINK;
+  }
+  if (impl->reverse_box->get_state()) {
+    result |= T3_ATTR_REVERSE;
+  }
+  if (impl->fg_picker != nullptr) {
+    result |= impl->fg_picker->get_color();
+  }
+  if (impl->bg_picker != nullptr) {
+    result |= impl->bg_picker->get_color();
+  }
   return result;
 }
 
@@ -275,20 +293,30 @@ void attribute_picker_dialog_t::set_attribute(t3_attr_t attr) {
   impl->dim_box->set_state(attr & T3_ATTR_DIM);
   impl->blink_box->set_state(attr & T3_ATTR_BLINK);
   impl->reverse_box->set_state(attr & T3_ATTR_REVERSE);
-  if (impl->fg_picker != nullptr) impl->fg_picker->set_color(attr);
-  if (impl->bg_picker != nullptr) impl->bg_picker->set_color(attr);
+  if (impl->fg_picker != nullptr) {
+    impl->fg_picker->set_color(attr);
+  }
+  if (impl->bg_picker != nullptr) {
+    impl->bg_picker->set_color(attr);
+  }
   attribute_changed();
 }
 
 void attribute_picker_dialog_t::set_base_attributes(t3_attr_t attr) {
   impl->base_attributes = attr;
-  if (impl->fg_picker != nullptr) impl->fg_picker->set_undefined_colors(attr);
-  if (impl->bg_picker != nullptr) impl->bg_picker->set_undefined_colors(attr);
+  if (impl->fg_picker != nullptr) {
+    impl->fg_picker->set_undefined_colors(attr);
+  }
+  if (impl->bg_picker != nullptr) {
+    impl->bg_picker->set_undefined_colors(attr);
+  }
   attribute_changed();
 }
 
 void attribute_picker_dialog_t::show() {
-  if (impl->expander_group != nullptr) impl->expander_group->collapse();
+  if (impl->expander_group != nullptr) {
+    impl->expander_group->collapse();
+  }
   dialog_t::show();
 }
 
@@ -307,7 +335,9 @@ bool attribute_test_line_t::set_size(optint height, optint width) {
 }
 
 void attribute_test_line_t::update_contents() {
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   t3_win_set_default_attrs(window, attr);
   t3_win_set_paint(window, 0, 0);
   t3_win_clrtoeol(window);

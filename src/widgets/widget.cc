@@ -38,17 +38,23 @@ widget_t::widget_t(int height, int width, bool register_as_mouse_target)
 widget_t::widget_t() : redraw(true), enabled(true), shown(true) {}
 
 void widget_t::init_window(int height, int width, bool register_as_mouse_target) {
-  if ((window = t3_win_new(default_parent.get(), height, width, 0, 0, 0)) == nullptr)
+  if ((window = t3_win_new(default_parent.get(), height, width, 0, 0, 0)) == nullptr) {
     throw std::bad_alloc();
+  }
   t3_win_show(window);
-  if (register_as_mouse_target) register_mouse_target(window);
+  if (register_as_mouse_target) {
+    register_mouse_target(window);
+  }
 }
 
 void widget_t::init_unbacked_window(int height, int width, bool register_as_mouse_target) {
-  if ((window = t3_win_new_unbacked(default_parent.get(), height, width, 0, 0, 0)) == nullptr)
+  if ((window = t3_win_new_unbacked(default_parent.get(), height, width, 0, 0, 0)) == nullptr) {
     throw std::bad_alloc();
+  }
   t3_win_show(window);
-  if (register_as_mouse_target) register_mouse_target(window);
+  if (register_as_mouse_target) {
+    register_mouse_target(window);
+  }
 }
 
 void widget_t::set_anchor(window_component_t *anchor, int relation) {
@@ -56,8 +62,12 @@ void widget_t::set_anchor(window_component_t *anchor, int relation) {
 }
 
 void widget_t::set_position(optint top, optint left) {
-  if (!top.is_valid()) top = t3_win_get_y(window);
-  if (!left.is_valid()) left = t3_win_get_x(window);
+  if (!top.is_valid()) {
+    top = t3_win_get_y(window);
+  }
+  if (!left.is_valid()) {
+    left = t3_win_get_x(window);
+  }
 
   t3_win_move(window, top, left);
 }

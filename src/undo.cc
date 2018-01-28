@@ -34,20 +34,25 @@ void undo_list_t::add(undo_t *undo) {
     return;
   }
 
-  if (mark_beyond_current) mark_is_valid = false;
+  if (mark_beyond_current) {
+    mark_is_valid = false;
+  }
 
   if (current != nullptr) {
-    if (mark_is_valid && current == mark) mark = undo;
+    if (mark_is_valid && current == mark) {
+      mark = undo;
+    }
 
     /* Free current and everything after. However, if current points to the start of the
        list, ie all edits have been undone, then we are left with an empty list but with head
        and tail pointing to something that doesn't exist anymore. Thus we set head to
        nullptr in this case so we can still see that this happened after we free everything. */
 
-    if (current == head)
+    if (current == head) {
       head = nullptr;
-    else
+    } else {
       tail = current->previous;
+    }
 
     while (current != nullptr) {
       undo_t *to_free = current;
@@ -69,11 +74,17 @@ void undo_list_t::add(undo_t *undo) {
 }
 
 undo_t *undo_list_t::back() {
-  if (current == head) return nullptr;
+  if (current == head) {
+    return nullptr;
+  }
 
-  if (mark_is_valid && current == mark) mark_beyond_current = true;
+  if (mark_is_valid && current == mark) {
+    mark_beyond_current = true;
+  }
 
-  if (current == nullptr) return current = tail;
+  if (current == nullptr) {
+    return current = tail;
+  }
 
   return current = current->previous;
 }
@@ -81,11 +92,15 @@ undo_t *undo_list_t::back() {
 undo_t *undo_list_t::forward() {
   undo_t *retval = current;
 
-  if (current == nullptr) return nullptr;
+  if (current == nullptr) {
+    return nullptr;
+  }
 
   current = current->next;
 
-  if (mark_is_valid && mark_beyond_current && current == mark) mark_beyond_current = false;
+  if (mark_is_valid && mark_beyond_current && current == mark) {
+    mark_beyond_current = false;
+  }
 
   return retval;
 }

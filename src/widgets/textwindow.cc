@@ -36,17 +36,20 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
     impl->scrollbar->connect_dragged(signals::mem_fun(this, &text_window_t::scrollbar_dragged));
   }
 
-  if (_text == nullptr)
+  if (_text == nullptr) {
     impl->text = new text_buffer_t();
-  else
+  } else {
     impl->text = _text;
+  }
 
   impl->wrap_info.reset(new wrap_info_t(impl->scrollbar != nullptr ? 11 : 12));
   impl->wrap_info->set_text_buffer(impl->text);
 }
 
 void text_window_t::set_text(text_buffer_t *_text) {
-  if (impl->text == _text) return;
+  if (impl->text == _text) {
+    return;
+  }
 
   impl->text = _text;
   impl->wrap_info->set_text_buffer(impl->text);
@@ -58,10 +61,16 @@ void text_window_t::set_text(text_buffer_t *_text) {
 bool text_window_t::set_size(optint height, optint width) {
   bool result = true;
 
-  if (!width.is_valid()) width = t3_win_get_width(window);
-  if (!height.is_valid()) height = t3_win_get_height(window);
+  if (!width.is_valid()) {
+    width = t3_win_get_width(window);
+  }
+  if (!height.is_valid()) {
+    height = t3_win_get_height(window);
+  }
 
-  if (width != t3_win_get_width(window) || height > t3_win_get_height(window)) redraw = true;
+  if (width != t3_win_get_width(window) || height > t3_win_get_height(window)) {
+    redraw = true;
+  }
 
   result &= t3_win_resize(window, height, width);
   if (impl->scrollbar != nullptr) {
@@ -75,7 +84,9 @@ bool text_window_t::set_size(optint height, optint width) {
 }
 
 void text_window_t::set_scrollbar(bool with_scrollbar) {
-  if (with_scrollbar == (impl->scrollbar != nullptr)) return;
+  if (with_scrollbar == (impl->scrollbar != nullptr)) {
+    return;
+  }
   if (with_scrollbar) {
     impl->scrollbar.reset(new scrollbar_t(true));
     set_widget_parent(impl->scrollbar.get());
@@ -105,7 +116,9 @@ void text_window_t::scroll_down(int lines) {
 }
 
 void text_window_t::scroll_up(int lines) {
-  if (impl->top.line == 0 && impl->top.pos == 0) return;
+  if (impl->top.line == 0 && impl->top.pos == 0) {
+    return;
+  }
 
   impl->wrap_info->sub_lines(impl->top, lines);
   redraw = true;
@@ -141,7 +154,9 @@ bool text_window_t::process_key(key_t key) {
     case EKEY_END: {
       text_coordinate_t new_top = impl->wrap_info->get_end();
       impl->wrap_info->sub_lines(new_top, t3_win_get_height(window));
-      if (new_top != impl->top) redraw = true;
+      if (new_top != impl->top) {
+        redraw = true;
+      }
       break;
     }
     default:
@@ -155,13 +170,17 @@ void text_window_t::update_contents() {
   text_line_t::paint_info_t info;
   int i, count = 0;
 
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
 
   redraw = false;
   t3_win_set_default_attrs(window, attributes.dialog);
 
   info.size = t3_win_get_width(window);
-  if (impl->scrollbar == nullptr) info.size++;
+  if (impl->scrollbar == nullptr) {
+    info.size++;
+  }
   info.normal_attr = 0;
   info.selected_attr = 0; /* There is no selected impl->text anyway. */
   info.selection_start = -1;
@@ -175,21 +194,26 @@ void text_window_t::update_contents() {
 
   for (i = 0; i < t3_win_get_height(window); i++, impl->wrap_info->add_lines(draw_line, 1)) {
     if (impl->focus) {
-      if (i == 0)
+      if (i == 0) {
         info.cursor = impl->wrap_info->calculate_line_pos(draw_line.line, 0, draw_line.pos);
-      else
+      } else {
         info.cursor = -1;
+      }
     }
     t3_win_set_paint(window, i, 0);
     t3_win_clrtoeol(window);
     impl->wrap_info->paint_line(window, draw_line, &info);
 
-    if (draw_line.line == end.line && draw_line.pos == end.pos) break;
+    if (draw_line.line == end.line && draw_line.pos == end.pos) {
+      break;
+    }
   }
 
   t3_win_clrtobot(window);
 
-  for (i = 0; i < impl->top.line; i++) count += impl->wrap_info->get_line_count(i);
+  for (i = 0; i < impl->top.line; i++) {
+    count += impl->wrap_info->get_line_count(i);
+  }
   count += impl->top.pos;
 
   if (impl->scrollbar != nullptr) {
@@ -201,7 +225,9 @@ void text_window_t::update_contents() {
 }
 
 void text_window_t::set_focus(focus_t _focus) {
-  if (impl->focus != _focus) redraw = true;
+  if (impl->focus != _focus) {
+    redraw = true;
+  }
   impl->focus = _focus;
 }
 
@@ -221,11 +247,14 @@ void text_window_t::set_tabsize(int size) { impl->wrap_info->set_tabsize(size); 
 int text_window_t::get_text_height() { return impl->wrap_info->get_text_size(); }
 
 bool text_window_t::process_mouse_event(mouse_event_t event) {
-  if (event.window != window || event.type != EMOUSE_BUTTON_PRESS) return true;
-  if (event.button_state & EMOUSE_SCROLL_UP)
+  if (event.window != window || event.type != EMOUSE_BUTTON_PRESS) {
+    return true;
+  }
+  if (event.button_state & EMOUSE_SCROLL_UP) {
     scroll_up(3);
-  else if (event.button_state & EMOUSE_SCROLL_DOWN)
+  } else if (event.button_state & EMOUSE_SCROLL_DOWN) {
     scroll_down(3);
+  }
   return true;
 }
 
@@ -244,21 +273,25 @@ void text_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
                                                  ? (t3_win_get_height(window) - 1)
                                                  : 0;
 
-  if (scroll < 0)
+  if (scroll < 0) {
     scroll_up(-scroll);
-  else
+  } else {
     scroll_down(scroll);
+  }
 }
 
 void text_window_t::scrollbar_dragged(int start) {
   text_coordinate_t new_top_left(0, 0);
   int count = 0;
 
-  if (start < 0 || start + t3_win_get_height(window) > impl->wrap_info->get_text_size()) return;
+  if (start < 0 || start + t3_win_get_height(window) > impl->wrap_info->get_text_size()) {
+    return;
+  }
 
   for (new_top_left.line = 0; new_top_left.line < impl->text->size() && count < start;
-       new_top_left.line++)
+       new_top_left.line++) {
     count += impl->wrap_info->get_line_count(new_top_left.line);
+  }
 
   if (count > start) {
     new_top_left.line--;
@@ -266,7 +299,9 @@ void text_window_t::scrollbar_dragged(int start) {
     new_top_left.pos = start - count;
   }
 
-  if (new_top_left == impl->top || new_top_left.line < 0) return;
+  if (new_top_left == impl->top || new_top_left.line < 0) {
+    return;
+  }
   impl->top = new_top_left;
   redraw = true;
 }

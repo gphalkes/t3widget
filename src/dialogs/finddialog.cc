@@ -265,7 +265,9 @@ void find_dialog_t::find_activated(find_action_t action) {
 }
 
 void find_dialog_t::set_replace(bool replace) {
-  if (replace == impl->replace_line->is_shown()) return;
+  if (replace == impl->replace_line->is_shown()) {
+    return;
+  }
 
   if (replace) {
     title = _("Replace");

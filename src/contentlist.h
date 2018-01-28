@@ -142,12 +142,16 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
       @c content_changed signal.
   */
   void update_list() {
-    if (!test.is_valid()) return;
+    if (!test.is_valid()) {
+      return;
+    }
 
     items.clear();
 
     for (size_t i = 0; i < base->size(); i++) {
-      if (test()(base, i)) items.push_back(i);
+      if (test()(base, i)) {
+        items.push_back(i);
+      }
     }
     items.reserve(items.size());
     list_t::content_changed();

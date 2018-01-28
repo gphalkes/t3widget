@@ -58,7 +58,9 @@ static bool convert_x10_mouse_event(int x, int y, int buttons) {
   event.x = x <= 32 ? -1 : x - 33;
   event.y = y <= 32 ? -1 : y - 33;
   event.previous_button_state = mouse_button_state;
-  if (buttons < 32) return false;
+  if (buttons < 32) {
+    return false;
+  }
   buttons -= 32;
 
   if (buttons & 64) {
@@ -103,7 +105,9 @@ static bool convert_x10_mouse_event(int x, int y, int buttons) {
      event. However, when multiple buttons are pressed simultaneously, this may
      result in button release events where no buttons where previously thought
      to be depressed. We filter those out here. */
-  if (event.type == EMOUSE_BUTTON_RELEASE && event.previous_button_state == 0) return false;
+  if (event.type == EMOUSE_BUTTON_RELEASE && event.previous_button_state == 0) {
+    return false;
+  }
 
   event.window = nullptr;
   event.modifier_state = (buttons >> 2) & 7;
@@ -207,16 +211,19 @@ bool decode_xterm_mouse() {
   int x, y, buttons, idx, i;
 
   while (char_buffer_fill < 3) {
-    if (!read_keychar(1)) return false;
+    if (!read_keychar(1)) {
+      return false;
+    }
   }
 
   if (xterm_mouse_reporting > XTERM_MOUSE_SINGLE_BYTE) {
     idx = 1;
     if ((char_buffer[0] & 0x80) && xterm_mouse_reporting == XTERM_MOUSE_ALL_UTF) {
-      if ((char_buffer[0] & 0xc0) != 0xc0 || (char_buffer[1] & 0xc0) != 0x80)
+      if ((char_buffer[0] & 0xc0) != 0xc0 || (char_buffer[1] & 0xc0) != 0x80) {
         xterm_mouse_reporting = XTERM_MOUSE_COORD_UTF;
-      else
+      } else {
         idx = 2;
+      }
     }
     for (i = 0; i < 2; i++) {
       ensure_buffer_fill();
@@ -321,7 +328,9 @@ static bool process_gpm_event() {
   mouse_event_t mouse_event;
 
   if (Gpm_GetEvent(&gpm_event) < 1) {
-    if (gpm_fd < 0) use_gpm = false;
+    if (gpm_fd < 0) {
+      use_gpm = false;
+    }
     return false;
   }
 
@@ -332,30 +341,41 @@ static bool process_gpm_event() {
 
   if (gpm_event.type & GPM_DOWN) {
     mouse_event.type = EMOUSE_BUTTON_PRESS;
-    if (gpm_event.buttons & GPM_B_LEFT)
+    if (gpm_event.buttons & GPM_B_LEFT) {
       mouse_event.button_state = mouse_button_state |= EMOUSE_BUTTON_LEFT;
-    if (gpm_event.buttons & GPM_B_RIGHT)
+    }
+    if (gpm_event.buttons & GPM_B_RIGHT) {
       mouse_event.button_state = mouse_button_state |= EMOUSE_BUTTON_RIGHT;
-    if (gpm_event.buttons & GPM_B_MIDDLE)
+    }
+    if (gpm_event.buttons & GPM_B_MIDDLE) {
       mouse_event.button_state = mouse_button_state |= EMOUSE_BUTTON_MIDDLE;
+    }
   } else if (gpm_event.type & GPM_UP) {
     mouse_event.type = EMOUSE_BUTTON_RELEASE;
-    if (gpm_event.buttons & GPM_B_LEFT)
+    if (gpm_event.buttons & GPM_B_LEFT) {
       mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_LEFT;
-    if (gpm_event.buttons & GPM_B_RIGHT)
+    }
+    if (gpm_event.buttons & GPM_B_RIGHT) {
       mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_RIGHT;
-    if (gpm_event.buttons & GPM_B_MIDDLE)
+    }
+    if (gpm_event.buttons & GPM_B_MIDDLE) {
       mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_MIDDLE;
+    }
   } else if (gpm_event.type & GPM_DRAG) {
     mouse_event.type = EMOUSE_MOTION;
   }
 
   mouse_event.window = nullptr;
   mouse_event.modifier_state = 0;
-  if (gpm_event.modifiers & (1 << KG_SHIFT)) mouse_event.modifier_state |= EMOUSE_SHIFT;
-  if (gpm_event.modifiers & ((1 << KG_ALT) | (1 << KG_ALTGR)))
+  if (gpm_event.modifiers & (1 << KG_SHIFT)) {
+    mouse_event.modifier_state |= EMOUSE_SHIFT;
+  }
+  if (gpm_event.modifiers & ((1 << KG_ALT) | (1 << KG_ALTGR))) {
     mouse_event.modifier_state |= EMOUSE_META;
-  if (gpm_event.modifiers & (1 << KG_CTRL)) mouse_event.modifier_state |= EMOUSE_CTRL;
+  }
+  if (gpm_event.modifiers & (1 << KG_CTRL)) {
+    mouse_event.modifier_state |= EMOUSE_CTRL;
+  }
   mouse_event_buffer.push_back(mouse_event);
   return true;
 }
@@ -386,17 +406,25 @@ void init_mouse_reporting(bool xterm_mouse) {
 }
 
 void deinit_mouse_reporting() {
-  if (xterm_mouse_reporting) t3_term_putp(disable_mouse);
+  if (xterm_mouse_reporting) {
+    t3_term_putp(disable_mouse);
+  }
 }
 
 void reinit_mouse_reporting() {
-  if (xterm_mouse_reporting) t3_term_putp(enable_mouse);
+  if (xterm_mouse_reporting) {
+    t3_term_putp(enable_mouse);
+  }
 }
 
 void stop_mouse_reporting() {
-  if (xterm_mouse_reporting) t3_term_putp(disable_mouse);
+  if (xterm_mouse_reporting) {
+    t3_term_putp(disable_mouse);
+  }
 #if defined(HAS_GPM)
-  if (use_gpm) Gpm_Close();
+  if (use_gpm) {
+    Gpm_Close();
+  }
 #endif
 }
 
@@ -404,7 +432,9 @@ void fd_set_mouse_fd(fd_set *readset, int *max_fd) {
 #if defined(HAS_GPM)
   if (use_gpm) {
     FD_SET(gpm_fd, readset);
-    if (gpm_fd > *max_fd) *max_fd = gpm_fd;
+    if (gpm_fd > *max_fd) {
+      *max_fd = gpm_fd;
+    }
   }
 #else
   (void)readset;
@@ -414,7 +444,9 @@ void fd_set_mouse_fd(fd_set *readset, int *max_fd) {
 bool check_mouse_fd(fd_set *readset) {
 #if defined(HAS_GPM)
   if (use_gpm) {
-    if (FD_ISSET(gpm_fd, readset)) return process_gpm_event();
+    if (FD_ISSET(gpm_fd, readset)) {
+      return process_gpm_event();
+    }
   }
 #else
   (void)readset;

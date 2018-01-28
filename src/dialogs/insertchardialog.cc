@@ -81,18 +81,28 @@ key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
   int next;
 
   if (sscanf(descr->c_str(), " %*[uU]+%6[0-9a-fA-F]%n", codepoint, &next) >= 1) {
-    if (descr->find_first_not_of(" \t", next) != std::string::npos) return -1;
+    if (descr->find_first_not_of(" \t", next) != std::string::npos) {
+      return -1;
+    }
     result = (key_t)strtol(codepoint, nullptr, 16);
-    if (result > 0x10FFFF) return -1;
+    if (result > 0x10FFFF) {
+      return -1;
+    }
     return result;
   } else if (sscanf(descr->c_str(), " \\%15[^ ]%n", codepoint, &next) >= 1) {
-    if (descr->find_first_not_of(" \t", next) != std::string::npos) return -1;
+    if (descr->find_first_not_of(" \t", next) != std::string::npos) {
+      return -1;
+    }
 
     size_t readposition = 0;
     const char *error_message;
     result = parse_escape(codepoint, &error_message, readposition);
-    if (result < 0 || readposition != strlen(codepoint)) return -1;
-    if (result & ESCAPE_UNICODE) return result & ~ESCAPE_UNICODE;
+    if (result < 0 || readposition != strlen(codepoint)) {
+      return -1;
+    }
+    if (result & ESCAPE_UNICODE) {
+      return result & ~ESCAPE_UNICODE;
+    }
     return result;
   }
   // FIXME: also accept Unicode names

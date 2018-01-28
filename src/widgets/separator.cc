@@ -21,9 +21,13 @@ separator_t::separator_t(bool _horizontal) : widget_t(1, 1, false), horizontal(_
 bool separator_t::set_size(optint height, optint width) {
   bool result = true;
   if (horizontal) {
-    if (width.is_valid()) result = t3_win_resize(window, 1, width);
+    if (width.is_valid()) {
+      result = t3_win_resize(window, 1, width);
+    }
   } else {
-    if (height.is_valid()) result = t3_win_resize(window, height, 1);
+    if (height.is_valid()) {
+      result = t3_win_resize(window, height, 1);
+    }
   }
 
   return result;

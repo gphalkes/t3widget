@@ -46,7 +46,9 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
   char *underline_ptr;
 
   text_length = strlen(spec);
-  if ((text = _t3_widget_strdup(spec)) == nullptr) throw std::bad_alloc();
+  if ((text = _t3_widget_strdup(spec)) == nullptr) {
+    throw std::bad_alloc();
+  }
 
   if ((underline_ptr = strchr(text, '_')) != nullptr) {
     size_t src_size;
@@ -76,13 +78,17 @@ void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
     t3_win_addnstr(window, text + underline_start + underline_length,
                    text_length - underline_start - underline_length, attr);
   }
-  if (add_colon) t3_win_addch(window, ':', attr);
+  if (add_colon) {
+    t3_win_addch(window, ':', attr);
+  }
 }
 
 int smart_label_text_t::get_width() { return t3_term_strwidth(text) + (add_colon ? 1 : 0); }
 
 bool smart_label_text_t::is_hotkey(key_t key) {
-  if (hotkey == 0) return false;
+  if (hotkey == 0) {
+    return false;
+  }
 
   return (key_t)casefold_single(key & 0x1fffffl) == hotkey;
 }
@@ -98,13 +104,17 @@ bool smart_label_t::process_key(key_t key) {
 
 bool smart_label_t::set_size(optint height, optint width) {
   (void)height;
-  if (!width.is_valid()) width = t3_win_get_width(window);
+  if (!width.is_valid()) {
+    width = t3_win_get_width(window);
+  }
   t3_win_resize(window, 1, width);
   return true;
 }
 
 void smart_label_t::update_contents() {
-  if (!redraw) return;
+  if (!redraw) {
+    return;
+  }
   redraw = false;
   t3_win_set_paint(window, 0, 0);
   draw(window, attributes.dialog);
