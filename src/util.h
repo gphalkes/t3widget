@@ -157,6 +157,10 @@ _T3_WIDGET_ENUM(wrap_type_t, NONE, WORD, CHARACTER);
 
 using cleanup_t3_window_ptr = cleanup_func_ptr<t3_window_t, t3_win_del>::t;
 
+struct free_deleter {
+  void operator()(void *val) { free(val); }
+};
+
 struct t3_window_deleter {
   void operator()(t3_window_t *win) { t3_win_del(win); }
 };

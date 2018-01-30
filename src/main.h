@@ -52,7 +52,8 @@ class T3_WIDGET_API complex_error_t {
   complex_error_t();
   complex_error_t(source_t _source, int _error, const char *_file_name = nullptr,
                   int _line_number = 0);
-  void set_error(source_t _source, int _error, const char *_file_name = nullptr, int _line_number = 0);
+  void set_error(source_t _source, int _error, const char *_file_name = nullptr,
+                 int _line_number = 0);
   bool get_success();
   source_t get_source();
   int get_error();

@@ -63,15 +63,14 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
 
     if (flags & find_flags_t::ICASE) {
       size_t folded_needle_size;
-      cleanup_free_ptr<char>::t folded_needle;
+      std::unique_ptr<char, free_deleter> folded_needle;
 
-      folded_needle = (char *)u8_casefold((const uint8_t *)search_for.data(), search_for.size(),
-                                          nullptr, nullptr, nullptr, &folded_needle_size);
+      folded_needle.reset(reinterpret_cast<char *>(
+          u8_casefold(reinterpret_cast<const uint8_t *>(search_for.data()), search_for.size(),
+                      nullptr, nullptr, nullptr, &folded_needle_size)));
       /* When passing a const char * to string_matcher_t, it takes responsibility for
          de-allocation. */
-      matcher = new string_matcher_t(folded_needle, folded_needle_size);
-      /* Avoid de-allocation of folded_needle if creating the string matcher succeeds. */
-      folded_needle.release();
+      matcher = new string_matcher_t(folded_needle.get(), folded_needle_size);
     } else {
       matcher = new string_matcher_t(search_for);
     }

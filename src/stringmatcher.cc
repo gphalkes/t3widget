@@ -24,34 +24,27 @@ namespace t3_widget {
    case-insensitive matching in UTF-8 to match the fully case-folded
    version. */
 
-string_matcher_t::string_matcher_t(const std::string &_needle) {
-  needle_size = _needle.size();
-  if ((needle = (char *)malloc(needle_size)) == nullptr) {
-    throw std::bad_alloc();
-  }
-  memcpy(needle, _needle.data(), needle_size);
-  init();
-}
+string_matcher_t::string_matcher_t(const std::string &_needle) : needle(_needle) { init(); }
 
 string_matcher_t::string_matcher_t(char *_needle, size_t _needle_size)
-    : needle(_needle), needle_size(_needle_size) {
+    : needle(_needle, _needle_size) {
   init();
 }
 
 void string_matcher_t::init() {
   size_t pos, cnd;
 
-  partial_match_table = new int[needle_size + 1];
+  partial_match_table.resize(needle.size() + 1);
   partial_match_table[0] = -1;
   partial_match_table[1] = 0;
-  reverse_partial_match_table = new int[needle_size + 1];
+  reverse_partial_match_table.resize(needle.size() + 1);
   reverse_partial_match_table[0] = -1;
   reverse_partial_match_table[1] = 0;
-  index_table = new int[needle_size + 1];
+  index_table.resize(needle.size() + 1);
 
   pos = 2;
   cnd = 0;
-  while (pos <= needle_size) {
+  while (pos <= needle.size()) {
     if (needle[pos - 1] == needle[cnd]) {
       partial_match_table[pos] = cnd + 1;
       pos++;
@@ -66,8 +59,8 @@ void string_matcher_t::init() {
 
   pos = 2;
   cnd = 0;
-  while (pos <= needle_size) {
-    if (needle[needle_size - 1 - (pos - 1)] == needle[needle_size - 1 - cnd]) {
+  while (pos <= needle.size()) {
+    if (needle[needle.size() - 1 - (pos - 1)] == needle[needle.size() - 1 - cnd]) {
       reverse_partial_match_table[pos] = cnd + 1;
       pos++;
       cnd++;
@@ -96,17 +89,17 @@ int string_matcher_t::previous_char(const std::string *c) {
 
 int string_matcher_t::next_char(const char *c, size_t c_size) {
   while (true) {
-    if (i + c_size <= needle_size && memcmp(needle + i, c, c_size) == 0) {
+    if (i + c_size <= needle.size() && memcmp(needle.c_str() + i, c, c_size) == 0) {
       index_table[i + c_size] = index_table[i] + 1;
       i += c_size;
-      if ((size_t)i == needle_size) {
+      if ((size_t)i == needle.size()) {
         return index_table[0];
       }
       return -1;
     } else {
       int new_i = partial_match_table[i];
       if (new_i >= 0) {
-        memmove(index_table, index_table + i - new_i, sizeof(int) * (new_i + 1));
+        memmove(index_table.data(), index_table.data() + i - new_i, sizeof(int) * (new_i + 1));
         i = new_i;
       } else {
         index_table[0]++;
@@ -118,17 +111,18 @@ int string_matcher_t::next_char(const char *c, size_t c_size) {
 
 int string_matcher_t::previous_char(const char *c, size_t c_size) {
   while (true) {
-    if (i + c_size <= needle_size && memcmp(needle + needle_size - i - c_size, c, c_size) == 0) {
+    if (i + c_size <= needle.size() &&
+        memcmp(needle.c_str() + needle.size() - i - c_size, c, c_size) == 0) {
       index_table[i + c_size] = index_table[i] + 1;
       i += c_size;
-      if ((size_t)i == needle_size) {
+      if ((size_t)i == needle.size()) {
         return index_table[0];
       }
       return -1;
     } else {
       int new_i = reverse_partial_match_table[i];
       if (new_i >= 0) {
-        memmove(index_table, index_table + i - new_i, sizeof(int) * (new_i + 1));
+        memmove(index_table.data(), index_table.data() + i - new_i, sizeof(int) * (new_i + 1));
         i = new_i;
       } else {
         index_table[0]++;
