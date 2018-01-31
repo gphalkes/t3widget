@@ -130,9 +130,9 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
            i++) {
         value <<= 4;
         if (str[read_position + i] >= '0' && str[read_position + i] <= '9') {
-          value += (int)(str[read_position + i] - '0');
+          value += (str[read_position + i] - '0');
         } else {
-          value += (int)(to_lower(str[read_position + i]) - 'a') + 10;
+          value += (to_lower(str[read_position + i]) - 'a') + 10;
         }
         if (value > UCHAR_MAX) {
           *error_message = "Invalid hexadecimal escape sequence";
@@ -156,16 +156,16 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
     case '6':
     case '7':
       if (replacements) {
-        return (int)(str[read_position - 1] - '0') | ESCAPE_REPLACEMENT;
+        return (str[read_position - 1] - '0') | ESCAPE_REPLACEMENT;
       } else {
         case '0':
           /* Octal escapes */
-          int value = (int)(str[read_position - 1] - '0');
+          int value = (str[read_position - 1] - '0');
           size_t max_idx = str[read_position - 1] < '4' ? 2 : 1;
           for (i = 0; i < max_idx && read_position + i < str.size() &&
                       str[read_position + i] >= '0' && str[read_position + i] <= '7';
                i++) {
-            value = value * 8 + (int)(str[read_position + i] - '0');
+            value = value * 8 + (str[read_position + i] - '0');
           }
 
           read_position += i;
@@ -175,7 +175,7 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
     case '8':
     case '9':
       if (replacements) {
-        return (int)(str[read_position - 1] - '0') | ESCAPE_REPLACEMENT;
+        return (str[read_position - 1] - '0') | ESCAPE_REPLACEMENT;
       } else {
         *error_message = "Invalid escape sequence";
         return -1;
@@ -198,9 +198,9 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
         }
         value <<= 4;
         if (str[read_position + i] >= '0' && str[read_position + i] <= '9') {
-          value += (int)(str[read_position + i] - '0');
+          value += (str[read_position + i] - '0');
         } else {
-          value += (int)(tolower(str[read_position + i]) - 'a') + 10;
+          value += (tolower(str[read_position + i]) - 'a') + 10;
         }
       }
 
@@ -278,7 +278,7 @@ bool parse_escapes(std::string &str, const char **error_message, bool replacemen
            the correct UTF-8 sequence.
         */
         if (value < 0x80) {
-          str[write_position++] = (char)value;
+          str[write_position++] = static_cast<char>(value);
         }
       }
     } else {
@@ -295,7 +295,7 @@ std::string get_working_directory() {
   char *buffer = nullptr, *result;
 
   do {
-    result = (char *)realloc(buffer, buffer_max);
+    result = reinterpret_cast<char *>(realloc(buffer, buffer_max));
     if (result == nullptr) {
       free(buffer);
       throw ENOMEM;
@@ -308,7 +308,7 @@ std::string get_working_directory() {
         throw error_save;
       }
 
-      if (((size_t)-1) / 2 < buffer_max) {
+      if ((static_cast<size_t>(-1)) / 2 < buffer_max) {
         free(buffer);
         throw ENOMEM;
       }

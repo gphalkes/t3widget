@@ -48,13 +48,13 @@ class T3_WIDGET_API optional {
     if (!initialized) {
       throw(0);
     }
-    return (T)value;
+    return value;
   }
   T operator()() const {
     if (!initialized) {
       throw(0);
     }
-    return (T)value;
+    return value;
   }
   optional &operator=(const optional &other) {
     initialized = other.initialized;

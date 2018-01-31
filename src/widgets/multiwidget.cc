@@ -120,14 +120,14 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 void multi_widget_t::resize_widgets() {
   if (proportion_sum > 0) {
     int width = t3_win_get_width(window);
-    double scale = (double)(width - fixed_sum) / proportion_sum;
+    double scale = static_cast<double>(width - fixed_sum) / proportion_sum;
     int size = 0;
 
     for (item_t &widget : widgets) {
       if (widget.width < 0) {
         continue;
       }
-      widget.calculated_width = (int)(scale * widget.width);
+      widget.calculated_width = static_cast<int>(scale * widget.width);
       if (widget.calculated_width == 0) {
         widget.calculated_width = 1;
       }

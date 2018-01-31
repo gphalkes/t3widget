@@ -84,7 +84,7 @@ key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
     if (descr->find_first_not_of(" \t", next) != std::string::npos) {
       return -1;
     }
-    result = (key_t)strtol(codepoint, nullptr, 16);
+    result = static_cast<key_t>(strtol(codepoint, nullptr, 16));
     if (result > 0x10FFFF) {
       return -1;
     }

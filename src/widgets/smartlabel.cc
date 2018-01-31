@@ -89,7 +89,7 @@ bool smart_label_text_t::is_hotkey(key_t key) {
     return false;
   }
 
-  return (key_t)casefold_single(key & 0x1fffffl) == hotkey;
+  return static_cast<key_t>(casefold_single(key & 0x1fffffl)) == hotkey;
 }
 
 //======= smart_label_t =======

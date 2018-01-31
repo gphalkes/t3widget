@@ -45,7 +45,7 @@ text_buffer_t::~text_buffer_t() {
   int i;
 
   /* Free all the text_line_t structs */
-  for (i = 0; (size_t)i < impl->lines.size(); i++) {
+  for (i = 0; static_cast<size_t>(i) < impl->lines.size(); i++) {
     delete impl->lines[i];
   }
 }
@@ -208,7 +208,7 @@ void text_buffer_t::goto_next_word() {
     cursor.pos = -1;
     /* Keep skipping to next line if no word can be found */
     while (cursor.pos < 0) {
-      if ((size_t)cursor.line + 1 >= impl->lines.size()) {
+      if (static_cast<size_t>(cursor.line) + 1 >= impl->lines.size()) {
         break;
       }
       line = impl->lines[++cursor.line];
@@ -384,7 +384,7 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
 
   rewrap_required(rewrap_type_t::DELETE_LINES, start.line, end.line);
   rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
-  if ((size_t)start.line < impl->lines.size()) {
+  if (static_cast<size_t>(start.line) < impl->lines.size()) {
     rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, 0);
   }
 }
@@ -842,7 +842,7 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
   result->start = start;
   result->end.pos = INT_MAX;
 
-  for (idx = start.line; idx < impl->lines.size() && idx < (size_t)end.line; idx++) {
+  for (idx = start.line; idx < impl->lines.size() && idx < static_cast<size_t>(end.line); idx++) {
     if (finder->match(impl->lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;

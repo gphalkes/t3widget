@@ -134,10 +134,11 @@ static void convert_next_key() {
   unicode_buffer_ptr = unicode_buffer;
 
   while (true) {
-    switch (transcript_to_unicode(conversion_handle, &char_buffer_ptr,
-                                  char_buffer + char_buffer_fill, (char **)&unicode_buffer_ptr,
-                                  ((const char *)unicode_buffer) + sizeof(unicode_buffer),
-                                  TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SINGLE_CONVERSION)) {
+    switch (transcript_to_unicode(
+        conversion_handle, &char_buffer_ptr, char_buffer + char_buffer_fill,
+        reinterpret_cast<char **>(&unicode_buffer_ptr),
+        (reinterpret_cast<const char *>(unicode_buffer)) + sizeof(unicode_buffer),
+        TRANSCRIPT_ALLOW_FALLBACK | TRANSCRIPT_SINGLE_CONVERSION)) {
       case TRANSCRIPT_SUCCESS:
       case TRANSCRIPT_NO_SPACE:
       case TRANSCRIPT_INCOMPLETE:
@@ -190,7 +191,7 @@ static int get_next_keychar() {
     int c = char_buffer[0];
     char_buffer_fill--;
     memmove(char_buffer, char_buffer + 1, char_buffer_fill);
-    return (unsigned char)c;
+    return static_cast<unsigned char>(c);
   }
   return -1;
 }
@@ -229,7 +230,7 @@ bool read_keychar(int timeout) {
     return false;
   }
 
-  char_buffer[char_buffer_fill++] = (char)c;
+  char_buffer[char_buffer_fill++] = static_cast<char>(c);
   return true;
 }
 
@@ -267,7 +268,7 @@ static void read_keys() {
           break;
         case EXIT_MAIN_LOOP_SIGNAL: {
           unsigned char value;
-          nosig_read(signal_pipe[0], (char *)&value, 1);
+          nosig_read(signal_pipe[0], reinterpret_cast<char *>(&value), 1);
           key_buffer.push_back_unique(EKEY_EXIT_MAIN_LOOP + value);
           break;
         }
@@ -324,12 +325,12 @@ static int compare_sequence_with_mapping(const void *key, const void *mapping) {
   const mapping_t *_mapping;
   size_t i;
 
-  _key = (const key_sequence_t *)key;
-  _mapping = (const mapping_t *)mapping;
+  _key = reinterpret_cast<const key_sequence_t *>(key);
+  _mapping = reinterpret_cast<const mapping_t *>(mapping);
 
   for (i = 0; i < _key->idx && i < _mapping->string_length; i++) {
     if (_key->data[i] != _mapping->string[i]) {
-      if ((char)_key->data[i] < _mapping->string[i]) {
+      if (static_cast<char>(_key->data[i]) < _mapping->string[i]) {
         return -1;
       }
       return 1;
@@ -375,8 +376,9 @@ static key_t decode_sequence(bool outer) {
       sequence.data[sequence.idx++] = c;
 
       is_prefix = false;
-      if ((matched = (mapping_t *)bsearch(&sequence, map, map_count, sizeof(mapping_t),
-                                          compare_sequence_with_mapping)) != nullptr) {
+      if ((matched = reinterpret_cast<mapping_t *>(bsearch(
+               &sequence, map, map_count, sizeof(mapping_t), compare_sequence_with_mapping))) !=
+          nullptr) {
         return matched->key;
       }
 
@@ -526,8 +528,8 @@ static int compare_mapping(const void *a, const void *b) {
   const mapping_t *_a, *_b;
   int result;
 
-  _a = (const mapping_t *)a;
-  _b = (const mapping_t *)b;
+  _a = reinterpret_cast<const mapping_t *>(a);
+  _b = reinterpret_cast<const mapping_t *>(b);
 
   if ((result = memcmp(_a->string, _b->string, std::min(_a->string_length, _b->string_length))) !=
       0) {
@@ -612,7 +614,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
     map_single[i] = EKEY_CTRL | ('a' + i - 1);
   }
   /* "unmap" TAB */
-  map_single[(int)'\t'] = 0;
+  map_single[static_cast<int>('\t')] = 0;
   /* EKEY_ESC is defined as 27, so no need to map */
   map_single[28] = EKEY_CTRL | '\\';
   map_single[29] = EKEY_CTRL | ']';
@@ -657,7 +659,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
     }
   }
 
-  if ((map = (mapping_t *)malloc(sizeof(mapping_t) * map_count)) == nullptr) {
+  if ((map = reinterpret_cast<mapping_t *>(malloc(sizeof(mapping_t) * map_count))) == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
   }
 
@@ -683,7 +685,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
       }
 
       if (key_node->string[0] != 27) {
-        map_single[(unsigned char)key_node->string[0]] = key_strings[i].code;
+        map_single[static_cast<unsigned char>(key_node->string[0])] = key_strings[i].code;
         break;
       }
 
@@ -732,7 +734,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
         if (key_node->string[0] == 27) {
           map[idx].key = key;
         } else {
-          map_single[(unsigned char)key_node->string[0]] = key;
+          map_single[static_cast<unsigned char>(key_node->string[0])] = key;
         }
       } else {
         if (key_node->string[0] == 27) {

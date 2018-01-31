@@ -134,7 +134,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
     start = result->start.pos;
     end = result->end.pos;
 
-    if ((size_t)end >= haystack->size()) {
+    if (static_cast<size_t>(end) >= haystack->size()) {
       end = haystack->size();
     } else {
       pcre_flags |= PCRE_NOTEOL;
@@ -170,13 +170,13 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
     const char *c;
 
     if (reverse) {
-      start = result->end.pos >= 0 && (size_t)result->end.pos > haystack->size()
+      start = result->end.pos >= 0 && static_cast<size_t>(result->end.pos) > haystack->size()
                   ? haystack->size()
-                  : (size_t)result->end.pos;
+                  : static_cast<size_t>(result->end.pos);
     } else {
-      start = result->start.pos >= 0 && (size_t)result->start.pos > haystack->size()
+      start = result->start.pos >= 0 && static_cast<size_t>(result->start.pos) > haystack->size()
                   ? haystack->size()
-                  : (size_t)result->start.pos;
+                  : static_cast<size_t>(result->start.pos);
     }
     curr_char = start;
 
@@ -193,11 +193,13 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
         substr = haystack->substr(next_char, curr_char - next_char);
         if (flags & find_flags_t::ICASE) {
           c_size = folded_size;
-          c = (char *)u8_casefold((const uint8_t *)substr.data(), substr.size(), nullptr, nullptr,
-                                  (uint8_t *)(char *)folded, &c_size);
+          char *c_data = reinterpret_cast<char *>(
+              u8_casefold(reinterpret_cast<const uint8_t *>(substr.data()), substr.size(), nullptr,
+                          nullptr, reinterpret_cast<uint8_t *>(folded.get()), &c_size));
+          c = c_data;
           if (c != folded) {
             // Previous value of folded will be automatically deleted.
-            folded = const_cast<char *>(c);
+            folded = c_data;
             folded_size = c_size;
           }
         } else {
@@ -218,7 +220,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
       return false;
     } else {
       matcher->reset();
-      while ((size_t)curr_char < haystack->size()) {
+      while (static_cast<size_t>(curr_char) < haystack->size()) {
         next_char = adjust_position(haystack, curr_char, 1);
 
         if (next_char > result->end.pos) {
@@ -229,11 +231,13 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
         substr = haystack->substr(curr_char, next_char - curr_char);
         if (flags & find_flags_t::ICASE) {
           c_size = folded_size;
-          c = (char *)u8_casefold((const uint8_t *)substr.data(), substr.size(), nullptr, nullptr,
-                                  (uint8_t *)(char *)folded, &c_size);
+          char *c_data = reinterpret_cast<char *>(
+              u8_casefold(reinterpret_cast<const uint8_t *>(substr.data()), substr.size(), nullptr,
+                          nullptr, reinterpret_cast<uint8_t *>(folded.get()), &c_size));
+          c = c_data;
           if (c != folded) {
             // Previous value of folded will be automatically deleted.
-            folded = const_cast<char *>(c);
+            folded = c_data;
             folded_size = c_size;
           }
         } else {
@@ -260,7 +264,8 @@ static inline int is_start_char(int c) { return (c & 0xc0) != 0x80; }
 
 int finder_t::adjust_position(const std::string *str, int pos, int adjust) {
   if (adjust > 0) {
-    for (; adjust > 0 && (size_t)pos < str->size(); adjust -= is_start_char((*str)[pos])) {
+    for (; adjust > 0 && static_cast<size_t>(pos) < str->size();
+         adjust -= is_start_char((*str)[pos])) {
       pos++;
     }
   } else {
@@ -282,7 +287,7 @@ bool finder_t::check_boundaries(const std::string *str, int match_start, int mat
   }
 
   if ((flags & find_flags_t::ANCHOR_WORD_RIGHT) &&
-      !(match_end == (int)str->size() ||
+      !(match_end == static_cast<int>(str->size()) ||
         get_class(str, match_end) != get_class(str, adjust_position(str, match_end, -1)))) {
     return false;
   }

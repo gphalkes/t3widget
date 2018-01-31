@@ -116,8 +116,8 @@ static void init_external_clipboard(bool init) {
       return;
     }
 
-    if ((extclipboard_calls = (extclipboard_interface_t *)lt_dlsym(
-             extclipboard_mod, "_t3_widget_extclipboard_calls")) == nullptr) {
+    if ((extclipboard_calls = reinterpret_cast<extclipboard_interface_t *>(
+             lt_dlsym(extclipboard_mod, "_t3_widget_extclipboard_calls"))) == nullptr) {
       lprintf("External clipboard module does not export interface symbol\n");
       lt_dlclose(extclipboard_mod);
       extclipboard_mod = nullptr;

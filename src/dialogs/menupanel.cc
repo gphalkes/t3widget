@@ -114,7 +114,7 @@ void menu_panel_t::process_mouse_event_from_menu(mouse_event_t event) {
   event.y = 0;
   event.x--;
   (*current_widget)->set_focus(FOCUS_SET);
-  ((menu_item_base_t *)(*current_widget))->process_mouse_event_from_menu(event);
+  static_cast<menu_item_base_t *>(*current_widget)->process_mouse_event_from_menu(event);
   return;
 }
 

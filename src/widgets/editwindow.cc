@@ -668,8 +668,9 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
       ensure_cursor_on_screen();
       if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
         replace_buttons_connection.disconnect();
-        replace_buttons_connection = replace_buttons->connect_activate(signals::bind(
-            signals::mem_fun(this, &edit_window_t::find_activated), (finder_t *)nullptr));
+        replace_buttons_connection = replace_buttons->connect_activate(
+            signals::bind(signals::mem_fun(this, &edit_window_t::find_activated),
+                          static_cast<finder_t *>(nullptr)));
         replace_buttons->center_over(center_window);
         replace_buttons->show();
       }
@@ -1797,8 +1798,8 @@ void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left
 
   get_screen_size(&screen_height, &screen_width);
 
-  top = _top.is_valid() ? (int)_top : t3_win_get_y(window);
-  left = _left.is_valid() ? (int)_left : t3_win_get_x(window);
+  top = _top.is_valid() ? _top() : t3_win_get_y(window);
+  left = _left.is_valid() ? _left() : t3_win_get_x(window);
 
   t3_win_move(window, top, left);
 

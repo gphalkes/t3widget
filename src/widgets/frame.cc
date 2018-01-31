@@ -111,7 +111,7 @@ void frame_t::set_child_focus(window_component_t *target) {
   if (target == child) {
     child->set_focus(window_component_t::FOCUS_SET);
   }
-  container = dynamic_cast<container_t *>((widget_t *)child);
+  container = dynamic_cast<container_t *>(child.get());
   if (container != nullptr) {
     container->set_child_focus(target);
   }
@@ -122,7 +122,7 @@ bool frame_t::is_child(window_component_t *component) {
   if (component == child) {
     return true;
   }
-  container = dynamic_cast<container_t *>((widget_t *)child);
+  container = dynamic_cast<container_t *>(child.get());
   return container != nullptr && container->is_child(component);
 }
 

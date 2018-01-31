@@ -101,7 +101,7 @@ bool list_pane_t::process_key(key_t key) {
       break;
     case EKEY_PGUP:
       height = t3_win_get_height(window);
-      if (impl->current < (size_t)height) {
+      if (impl->current < static_cast<size_t>(height)) {
         impl->current = 0;
       } else {
         impl->current -= height;
@@ -158,7 +158,7 @@ bool list_pane_t::set_size(optint height, optint width) {
     result &= impl->indicator_widget->set_size(None, width - 1);
   }
 
-  widget_width = impl->indicator ? (int)width - 3 : (int)width - 1;
+  widget_width = impl->indicator ? width() - 3 : width() - 1;
 
   for (widget_t *widget : impl->widgets) {
     result &= widget->set_size(None, widget_width);
@@ -346,9 +346,9 @@ void list_pane_t::pop_front() {
   update_positions();
 }
 
-widget_t *list_pane_t::back() { return (widget_t *)impl->widgets.back(); }
+widget_t *list_pane_t::back() { return impl->widgets.back(); }
 
-widget_t *list_pane_t::operator[](int idx) { return (widget_t *)impl->widgets[idx]; }
+widget_t *list_pane_t::operator[](int idx) { return impl->widgets[idx]; }
 
 size_t list_pane_t::size() { return impl->widgets.size(); }
 
@@ -382,7 +382,7 @@ void list_pane_t::set_current(size_t idx) {
 }
 
 void list_pane_t::scroll(int change) {
-  impl->top_idx = (change < 0 && impl->top_idx < (size_t)-change)
+  impl->top_idx = (change < 0 && impl->top_idx < static_cast<size_t>(-change))
                       ? 0
                       : (change > 0 &&
                          impl->top_idx + t3_win_get_height(window) + change >= impl->widgets.size())
@@ -406,7 +406,7 @@ void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 }
 
 void list_pane_t::scrollbar_dragged(int start) {
-  if (start >= 0 && (size_t)start <= impl->widgets.size()) {
+  if (start >= 0 && static_cast<size_t>(start) <= impl->widgets.size()) {
     impl->top_idx = start;
     redraw = true;
   }

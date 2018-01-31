@@ -48,7 +48,7 @@ void file_pane_t::ensure_cursor_on_screen() {
   while (impl->current >= impl->top_idx + impl->columns_visible * height) {
     impl->top_idx += height;
   }
-  while (impl->current < impl->top_idx && impl->top_idx > (size_t)height) {
+  while (impl->current < impl->top_idx && impl->top_idx > static_cast<size_t>(height)) {
     impl->top_idx -= height;
   }
   if (impl->top_idx > impl->current) {
@@ -95,7 +95,7 @@ bool file_pane_t::process_key(key_t key) {
       break;
     case EKEY_LEFT:
       height = t3_win_get_height(window) - 1;
-      if (impl->current < (size_t)height) {
+      if (impl->current < static_cast<size_t>(height)) {
         impl->current = 0;
       } else {
         impl->current -= height;
@@ -122,11 +122,11 @@ bool file_pane_t::process_key(key_t key) {
       break;
     case EKEY_PGUP:
       height = t3_win_get_height(window) - 1;
-      if (impl->current < (size_t)2 * height) {
+      if (impl->current < static_cast<size_t>(2) * height) {
         impl->current = 0;
       } else {
         impl->current -= 2 * height;
-        if (impl->top_idx < (size_t)2 * height) {
+        if (impl->top_idx < static_cast<size_t>(2) * height) {
           impl->top_idx = 0;
         } else {
           impl->top_idx -= 2 * height;
@@ -176,7 +176,8 @@ bool file_pane_t::set_size(optint height, optint width) {
 }
 
 void file_pane_t::draw_line(int idx, bool selected) {
-  if ((size_t)idx < impl->top_idx || (size_t)idx >= impl->file_list->size()) {
+  if (static_cast<size_t>(idx) < impl->top_idx ||
+      static_cast<size_t>(idx) >= impl->file_list->size()) {
     return;
   }
 
@@ -325,7 +326,7 @@ void file_pane_t::set_file(const std::string *name) {
 void file_pane_t::update_column_width(int column, int start) {
   int height = t3_win_get_height(window) - 1;
   impl->column_widths[column] = 0;
-  for (int i = 0; i < height && start + i < (int)impl->file_list->size(); i++) {
+  for (int i = 0; i < height && start + i < static_cast<int>(impl->file_list->size()); i++) {
     impl->column_widths[column] = std::max(
         impl->column_widths[column], t3_term_strwidth((*impl->file_list)[i + start]->c_str()));
   }
@@ -409,17 +410,17 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
     if (impl->top_idx == 0) {
       return;
     }
-    if (impl->top_idx < (size_t)height) {
+    if (impl->top_idx < static_cast<size_t>(height)) {
       impl->top_idx = 0;
     } else {
       impl->top_idx -= height;
     }
   } else if (step == scrollbar_t::BACK_PAGE) {
-    if (impl->current < (size_t)2 * height) {
+    if (impl->current < static_cast<size_t>(2) * height) {
       impl->current = 0;
     } else {
       impl->current -= 2 * height;
-      if (impl->top_idx < (size_t)2 * height) {
+      if (impl->top_idx < static_cast<size_t>(2) * height) {
         impl->top_idx = 0;
       } else {
         impl->top_idx -= 2 * height;

@@ -54,7 +54,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
                          T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
       button->set_position(0, 2);
 
-      ((button_t *)widgets.back())
+      static_cast<button_t *>(widgets.back())
           ->connect_move_focus_right(signals::mem_fun(this, &message_dialog_t::focus_next));
       button->connect_move_focus_left(signals::mem_fun(this, &message_dialog_t::focus_previous));
       button->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
@@ -129,7 +129,7 @@ signals::connection message_dialog_t::connect_activate(const signals::slot<void>
   if (idx == 0) {
     return activate_internal.connect(_slot);
   }
-  return ((button_t *)widgets[idx + 1])->connect_activate(_slot);
+  return static_cast<button_t *>(widgets[idx + 1])->connect_activate(_slot);
 }
 
 void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = max; }

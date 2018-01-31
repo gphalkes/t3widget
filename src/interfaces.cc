@@ -178,7 +178,6 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 
   active_dialog = dialog_t::active_dialogs.back();
 
-  // FIXME: should notify dialog of outside-dialog clicks
   while (win != nullptr) {
     iter = targets.find(win);
     if (iter != targets.end()) {
@@ -191,8 +190,8 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
       } else {
         container_t *grab_container = dynamic_cast<container_t *>(grab_target);
         if (((grab_container != nullptr) &&
-             (iter->second == nullptr || (!grab_container->is_child(iter->second) &&
-                                          (window_component_t *)grab_container != iter->second))) ||
+             (iter->second == nullptr ||
+              (!grab_container->is_child(iter->second) && grab_target != iter->second))) ||
             (grab_container == nullptr && grab_target != iter->second)) {
           mouse_event_t grab_event = local_event;
           grab_event.type |= EMOUSE_OUTSIDE_GRAB;

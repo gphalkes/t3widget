@@ -65,8 +65,8 @@ void scrollbar_t::update_contents() {
   }
   redraw = false;
 
-  blocks_per_line = (double)(impl->length - 2) / impl->range;
-  impl->slider_size = (int)(blocks_per_line * impl->used);
+  blocks_per_line = static_cast<double>(impl->length - 2) / impl->range;
+  impl->slider_size = static_cast<int>(blocks_per_line * impl->used);
   if (impl->slider_size == 0) {
     impl->slider_size = 1;
     /* Rounding errors may cause incorrect slider sizing. This is normally not a
@@ -81,10 +81,10 @@ void scrollbar_t::update_contents() {
     blocks_per_line = strtod("Inf", nullptr);
   } else {
     blocks_per_line =
-        (double)(impl->length - 2 - impl->slider_size) / (impl->range - impl->used + 1);
+        static_cast<double>(impl->length - 2 - impl->slider_size) / (impl->range - impl->used + 1);
   }
 
-  impl->before = (int)ceil(blocks_per_line * impl->start);
+  impl->before = static_cast<int>(ceil(blocks_per_line * impl->start));
   if (impl->before >= impl->length - 2) {
     impl->before = impl->length - 3;
   }
@@ -140,8 +140,8 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
     } else if (location >= impl->length - 2 - impl->slider_size) {
       dragged(impl->range - impl->used);
     } else {
-      double lines_per_block =
-          (double)(impl->range - impl->used + 1) / (impl->length - 2 - impl->slider_size);
+      double lines_per_block = static_cast<double>(impl->range - impl->used + 1) /
+                               (impl->length - 2 - impl->slider_size);
       dragged(floor(location * lines_per_block));
     }
   } else if (event.type == EMOUSE_BUTTON_PRESS && event.button_state & EMOUSE_BUTTON_LEFT) {

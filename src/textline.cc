@@ -135,7 +135,7 @@ text_line_t *text_line_t::break_line(int pos) {
   text_line_t *newline;
 
   // FIXME: cut_line and break_line are very similar. Maybe we should combine them!
-  if ((size_t)pos == buffer.size()) {
+  if (static_cast<size_t>(pos) == buffer.size()) {
     return factory->new_text_line_t();
   }
 
@@ -194,7 +194,7 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
   text_line_t *retval;
   int i;
 
-  for (i = *startFrom; (size_t)i < buffer.size(); i++) {
+  for (i = *startFrom; static_cast<size_t>(i) < buffer.size(); i++) {
     if (buffer[i] == '\n') {
       break;
     }
@@ -202,7 +202,7 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
 
   retval = clone(*startFrom, i);
 
-  *startFrom = (size_t)i == buffer.size() ? -1 : i + 1;
+  *startFrom = static_cast<size_t>(i) == buffer.size() ? -1 : i + 1;
   return retval;
 }
 
@@ -233,7 +233,8 @@ int text_line_t::calculate_screen_width(int start, int pos, int tabsize) const {
     total++;
   }
 
-  for (i = start; (size_t)i < buffer.size() && i < pos; i += byte_width_from_first(i)) {
+  for (i = start; static_cast<size_t>(i) < buffer.size() && i < pos;
+       i += byte_width_from_first(i)) {
     if (buffer[i] == '\t') {
       total += tabsize > 0 ? tabsize - (total % tabsize) : 2;
     } else {
@@ -257,7 +258,8 @@ int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) co
     pos--;
   }
 
-  for (i = start; (size_t)i < buffer.size() && i < max; i += byte_width_from_first(i)) {
+  for (i = start; static_cast<size_t>(i) < buffer.size() && i < max;
+       i += byte_width_from_first(i)) {
     if (buffer[i] == '\t') {
       total += tabsize - (total % tabsize);
     } else {
@@ -282,7 +284,7 @@ void text_line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is
     t3_win_addnstr(win, paint_buffer, todo, selection_attr);
   } else {
     selection_attr = t3_term_combine_attrs(attributes.non_print, selection_attr);
-    for (; (size_t)todo > sizeof(dots); todo -= sizeof(dots)) {
+    for (; static_cast<size_t>(todo) > sizeof(dots); todo -= sizeof(dots)) {
       t3_win_addnstr(win, dots, sizeof(dots), selection_attr);
     }
     t3_win_addnstr(win, dots, todo, selection_attr);
@@ -336,7 +338,8 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     total++;
   }
 
-  for (i = info->start; (size_t)i < buffer.size() && i < info->max && total < info->leftcol;
+  for (i = info->start;
+       static_cast<size_t>(i) < buffer.size() && i < info->max && total < info->leftcol;
        i += byte_width_from_first(i)) {
     if (width_at(i) != 0) {
       selection_attr = get_draw_attrs(i, info);
@@ -359,11 +362,11 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
           t3_win_addnstr(win, spaces, total - info->leftcol, selection_attr);
         }
       }
-    } else if ((unsigned char)buffer[i] < 32) {
+    } else if (static_cast<unsigned char>(buffer[i]) < 32) {
       total += 2;
       // If total > info->leftcol than only the right side character is visible
       if (total > info->leftcol) {
-        t3_win_addch(win, control_map[(int)buffer[i]],
+        t3_win_addch(win, control_map[static_cast<int>(buffer[i])],
                      t3_term_combine_attrs(attributes.non_print, selection_attr));
       }
     } else if (width_at(i) > 1) {
@@ -385,7 +388,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     print_from = i;
 
     /* Find the first non-zero-width char, and paint all zero-width chars now. */
-    while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0) {
+    while (static_cast<size_t>(i) < buffer.size() && i < info->max && width_at(i) == 0) {
       i += byte_width_from_first(i);
     }
 
@@ -396,7 +399,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     total++;
   } else {
     /* Skip to first non-zero-width char */
-    while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0) {
+    while (static_cast<size_t>(i) < buffer.size() && i < info->max && width_at(i) == 0) {
       i += byte_width_from_first(i);
     }
   }
@@ -404,7 +407,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
   _is_print = is_print(i);
   print_from = i;
   new_selection_attr = selection_attr;
-  for (; (size_t)i < buffer.size() && i < info->max && total + accumulated < size;
+  for (; static_cast<size_t>(i) < buffer.size() && i < info->max && total + accumulated < size;
        i += byte_width_from_first(i)) {
     if (width_at(i) != 0) {
       new_selection_attr = get_draw_attrs(i, info);
@@ -455,7 +458,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
       }
       total += tabspaces;
       print_from = i + 1;
-    } else if ((unsigned char)buffer[i] < 32) {
+    } else if (static_cast<unsigned char>(buffer[i]) < 32) {
       /* Print control characters as ^ followed by a letter indicating the control char. */
       paint_part(win, buffer.data() + print_from, _is_print,
                  _is_print ? i - print_from : accumulated, selection_attr);
@@ -464,7 +467,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
       t3_win_addch(win, '^', t3_term_combine_attrs(attributes.non_print, selection_attr));
       total += 2;
       if (total <= size) {
-        t3_win_addch(win, control_map[(int)buffer[i]],
+        t3_win_addch(win, control_map[static_cast<int>(buffer[i])],
                      t3_term_combine_attrs(attributes.non_print, selection_attr));
       }
       print_from = i + 1;
@@ -486,7 +489,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     }
     _is_print = new_is_print;
   }
-  while ((size_t)i < buffer.size() && i < info->max && width_at(i) == 0) {
+  while (static_cast<size_t>(i) < buffer.size() && i < info->max && width_at(i) == 0) {
     i += byte_width_from_first(i);
   }
 
@@ -518,7 +521,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
     }
     t3_win_addstr(win, wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info->normal_attr));
   } else if (flags & text_line_t::SPACECLEAR) {
-    for (; total + sizeof(spaces) < (size_t)size; total += sizeof(spaces)) {
+    for (; total + sizeof(spaces) < static_cast<size_t>(size); total += sizeof(spaces)) {
       t3_win_addnstr(
           win, spaces, sizeof(spaces),
           (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
@@ -548,7 +551,8 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
     total++;
   }
 
-  for (i = start; (size_t)i < buffer.size() && total < length; i = adjust_position(i, 1)) {
+  for (i = start; static_cast<size_t>(i) < buffer.size() && total < length;
+       i = adjust_position(i, 1)) {
     if (buffer[i] == '\t') {
       total += tabsize > 0 ? tabsize - (total % tabsize) : 2;
     } else {
@@ -581,7 +585,7 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
     }
   }
 
-  if ((size_t)i < buffer.size()) {
+  if (static_cast<size_t>(i) < buffer.size()) {
     if (possible_break.pos == start) {
       possible_break.pos = i;
     }
@@ -604,13 +608,13 @@ int text_line_t::get_next_word(int start) const {
     start = adjust_position(start, 1);
   }
 
-  for (i = start; (size_t)i < buffer.size() &&
+  for (i = start; static_cast<size_t>(i) < buffer.size() &&
                   ((newCclass = get_class(&buffer, i)) == cclass || newCclass == CLASS_WHITESPACE);
        i = adjust_position(i, 1)) {
     cclass = newCclass;
   }
 
-  return (size_t)i >= buffer.size() ? -1 : i;
+  return static_cast<size_t>(i) >= buffer.size() ? -1 : i;
 }
 
 int text_line_t::get_previous_word(int start) const {
@@ -651,11 +655,12 @@ int text_line_t::get_next_word_boundary(int start) const {
 
   cclass = get_class(&buffer, start);
 
-  for (i = adjust_position(start, 1); (size_t)i < buffer.size() && get_class(&buffer, i) == cclass;
+  for (i = adjust_position(start, 1);
+       static_cast<size_t>(i) < buffer.size() && get_class(&buffer, i) == cclass;
        i = adjust_position(i, 1)) {
   }
 
-  return (size_t)i;
+  return static_cast<size_t>(i);
 }
 
 int text_line_t::get_previous_word_boundary(int start) const {
@@ -758,7 +763,7 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 bool text_line_t::delete_char(int pos, undo_t *undo) {
   int oldspace;
 
-  if (pos < 0 || (size_t)pos >= buffer.size()) {
+  if (pos < 0 || static_cast<size_t>(pos) >= buffer.size()) {
     return false;
   }
 
@@ -803,7 +808,8 @@ bool text_line_t::backspace_char(int pos, undo_t *undo) {
 */
 int text_line_t::adjust_position(int pos, int adjust) const {
   if (adjust > 0) {
-    for (; adjust > 0 && (size_t)pos < buffer.size(); adjust -= (width_at(pos) ? 1 : 0)) {
+    for (; adjust > 0 && static_cast<size_t>(pos) < buffer.size();
+         adjust -= (width_at(pos) ? 1 : 0)) {
       pos += byte_width_from_first(pos);
     }
   } else if (adjust < 0) {
@@ -839,7 +845,7 @@ int text_line_t::byte_width_from_first(int pos) const {
 }
 
 int text_line_t::key_width(key_t key) {
-  int width = t3_utf8_wcwidth((uint32_t)key);
+  int width = t3_utf8_wcwidth(static_cast<uint32_t>(key));
   if (width < 0) {
     width = key < 32 && key != '\t' ? 2 : 1;
   }

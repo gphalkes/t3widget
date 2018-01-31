@@ -25,7 +25,7 @@ bool widget_group_t::focus_next_int() {
     return false;
   }
 
-  for (next = impl->current_child + 1; next < (int)impl->children.size(); next++) {
+  for (next = impl->current_child + 1; next < static_cast<int>(impl->children.size()); next++) {
     if (impl->children[next]->accepts_focus()) {
       impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
       impl->current_child = next;
@@ -119,7 +119,7 @@ void widget_group_t::set_focus(focus_t focus) {
       break;
     case window_component_t::FOCUS_SET:
     case window_component_t::FOCUS_IN_FWD:
-      for (impl->current_child = 0; impl->current_child < (int)impl->children.size() &&
+      for (impl->current_child = 0; impl->current_child < static_cast<int>(impl->children.size()) &&
                                     !impl->children[impl->current_child]->accepts_focus();
            impl->current_child++) {
       }
@@ -171,7 +171,7 @@ void widget_group_t::force_redraw() {
 void widget_group_t::set_child_focus(window_component_t *target) {
   bool had_focus = impl->has_focus;
   impl->has_focus = true;
-  for (int i = 0; i < (int)impl->children.size(); i++) {
+  for (int i = 0; i < static_cast<int>(impl->children.size()); i++) {
     container_t *container = nullptr;
 
     if (impl->children[i] == target ||

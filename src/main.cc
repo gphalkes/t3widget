@@ -92,7 +92,7 @@ const char *complex_error_t::get_string() {
       break;
     case SRC_TRANSCRIPT:
       error_str = "libtranscript: ";
-      error_str.append(transcript_strerror((transcript_error_t)error));
+      error_str.append(transcript_strerror(static_cast<transcript_error_t>(error)));
       break;
     case SRC_T3_KEY:
       error_str = "libt3key: ";

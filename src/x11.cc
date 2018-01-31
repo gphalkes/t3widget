@@ -448,7 +448,7 @@ class x11_impl_t : public x11_base_t {
     }
 
     *nitems_return = xcb_get_property_value_length(property_reply);
-    *prop_return = (unsigned char *)xcb_get_property_value(property_reply);
+    *prop_return = reinterpret_cast<unsigned char *>(xcb_get_property_value(property_reply));
     *actual_type_return = property_reply->type;
     *actual_format_return = property_reply->format;
     *bytes_after_return = property_reply->bytes_after;
@@ -476,7 +476,8 @@ class x11_impl_t : public x11_base_t {
   }
 
   void x11_send_event(x11_window_t win, bool propagate, long event_mask, x11_event_t *event_send) {
-    xcb_send_event(connection, propagate, win, event_mask, (const char *)event_send);
+    xcb_send_event(connection, propagate, win, event_mask,
+                   reinterpret_cast<const char *>(event_send));
   }
 
   void x11_close_display() {
@@ -681,7 +682,7 @@ class x11_driver_t {
         retrieved_data.clear();
         return -1;
       } else {
-        retrieved_data.append((char *)prop, nitems);
+        retrieved_data.append(reinterpret_cast<char *>(prop), nitems);
         offset += nitems;
         x11.x11_free_property_data(prop);
       }
@@ -716,7 +717,7 @@ class x11_driver_t {
       return true;
     } else if (target == x11.get_atom(TIMESTAMP)) {
       x11.x11_change_property(requestor, property, x11.get_atom(TIMESTAMP), 32,
-                              X11_PROPERTY_REPLACE, (unsigned char *)&since, 1);
+                              X11_PROPERTY_REPLACE, reinterpret_cast<unsigned char *>(&since), 1);
       return true;
     } else if (target == x11.get_atom(UTF8_STRING)) {
       if (data == nullptr) {
@@ -725,15 +726,15 @@ class x11_driver_t {
       /* If the data is too large to send in a single go (which is an arbitrary number,
          unless limited by the maximum request size), we use the INCR protocol. */
       if (data->size() < x11.get_max_data()) {
-        x11.x11_change_property(requestor, property, x11.get_atom(UTF8_STRING), 8,
-                                X11_PROPERTY_REPLACE, (const unsigned char *)data->data(),
-                                data->size());
+        x11.x11_change_property(
+            requestor, property, x11.get_atom(UTF8_STRING), 8, X11_PROPERTY_REPLACE,
+            reinterpret_cast<const unsigned char *>(data->data()), data->size());
       } else {
         long size = data->size();
         incr_sends.push_back(incr_send_data_t(requestor, data, property));
         x11.x11_select_prop_change(requestor, true);
         x11.x11_change_property(requestor, property, x11.get_atom(INCR), 32, X11_PROPERTY_REPLACE,
-                                (unsigned char *)&size, 1);
+                                reinterpret_cast<unsigned char *>(&size), 1);
       }
       return true;
     } else if (target == x11.get_atom(MULTIPLE)) {
@@ -741,9 +742,10 @@ class x11_driver_t {
       int actual_format;
       unsigned long nitems, bytes_after, i;
 
-      if (!x11.x11_get_window_property(requestor, property, 0, 100, false, x11.get_atom(ATOM_PAIR),
-                                       &actual_type, &actual_format, &nitems, &bytes_after,
-                                       (unsigned char **)&requested_conversions) ||
+      if (!x11.x11_get_window_property(
+              requestor, property, 0, 100, false, x11.get_atom(ATOM_PAIR), &actual_type,
+              &actual_format, &nitems, &bytes_after,
+              reinterpret_cast<unsigned char **>(&requested_conversions)) ||
           bytes_after != 0 || nitems & 1) {
         return false;
       }
@@ -756,7 +758,8 @@ class x11_driver_t {
         }
       }
       x11.x11_change_property(requestor, property, x11.get_atom(ATOM_PAIR), 32,
-                              X11_PROPERTY_REPLACE, (unsigned char *)requested_conversions, nitems);
+                              X11_PROPERTY_REPLACE,
+                              reinterpret_cast<unsigned char *>(requested_conversions), nitems);
       return true;
     } else {
       return false;
@@ -821,9 +824,9 @@ class x11_driver_t {
       for (incr_send_list_t::iterator iter = incr_sends.begin(); iter != incr_sends.end(); iter++) {
         if (iter->window == event->window) {
           unsigned long size = std::min(iter->data->size() - iter->offset, x11.get_max_data());
-          x11.x11_change_property(iter->window, iter->property, x11.get_atom(UTF8_STRING), 8,
-                                  X11_PROPERTY_REPLACE,
-                                  (const unsigned char *)iter->data->data() + iter->offset, size);
+          x11.x11_change_property(
+              iter->window, iter->property, x11.get_atom(UTF8_STRING), 8, X11_PROPERTY_REPLACE,
+              reinterpret_cast<const unsigned char *>(iter->data->data()) + iter->offset, size);
           if (size == 0) {
             x11.x11_select_prop_change(iter->window, false);
             incr_sends.erase(iter);
@@ -875,11 +878,12 @@ class x11_driver_t {
 
       switch (event->x11_response_type & ~0x80) {
         case X11_PROPERTY_NOTIFY:
-          handle_property_notify((x11_property_event_t *)event);
+          handle_property_notify(reinterpret_cast<x11_property_event_t *>(event));
           break;
 
         case X11_SELECTION_NOTIFY: {
-          x11_selection_event_t *selection_notify = (x11_selection_event_t *)event;
+          x11_selection_event_t *selection_notify =
+              reinterpret_cast<x11_selection_event_t *>(event);
           /* Conversion failed. */
           if (selection_notify->property == X11_ATOM_NONE) {
             if (action == CONVERT_CLIPBOARD || action == CONVERT_PRIMARY) {
@@ -920,7 +924,8 @@ class x11_driver_t {
           break;
         }
         case X11_SELECTION_CLEAR: {
-          x11_selection_clear_event_t *clear_event = (x11_selection_clear_event_t *)event;
+          x11_selection_clear_event_t *clear_event =
+              reinterpret_cast<x11_selection_clear_event_t *>(event);
           if (clear_event->selection == x11.get_atom(CLIPBOARD)) {
             clipboard_owner_since = X11_CURRENT_TIME;
             clipboard_data = nullptr;
@@ -940,7 +945,8 @@ class x11_driver_t {
           x11_selection_event_t reply;
           linked_ptr<std::string>::t data;
           x11_time_t since;
-          x11_selection_request_event_t *request_event = (x11_selection_request_event_t *)event;
+          x11_selection_request_event_t *request_event =
+              reinterpret_cast<x11_selection_request_event_t *>(event);
 
           /* Some other X11 client is requesting our selection. */
 
@@ -974,7 +980,8 @@ class x11_driver_t {
             reply.property = X11_ATOM_NONE;
           }
 
-          x11.x11_send_event(request_event->requestor, false, 0, (x11_event_t *)&reply);
+          x11.x11_send_event(request_event->requestor, false, 0,
+                             reinterpret_cast<x11_event_t *>(&reply));
           break;
         }
         default:

@@ -176,7 +176,7 @@ bool menu_bar_t::is_hotkey(key_t key) {
     return true;
   }
 
-  for (int i = 0; i < (int)impl->menus.size(); i++) {
+  for (int i = 0; i < static_cast<int>(impl->menus.size()); i++) {
     if (impl->menus[i]->is_hotkey(key)) {
       impl->old_menu = impl->current_menu = i;
       return true;

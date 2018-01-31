@@ -159,13 +159,13 @@ void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
 
 bool wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
   ASSERT(count > 0);
-  while (coord.line < (int)wrap_data.size() &&
-         (int)wrap_data[coord.line]->size() <= coord.pos + count) {
+  while (coord.line < static_cast<int>(wrap_data.size()) &&
+         static_cast<int>(wrap_data[coord.line]->size()) <= coord.pos + count) {
     count -= wrap_data[coord.line]->size() - coord.pos;
     coord.line++;
     coord.pos = 0;
   }
-  if (coord.line == (int)wrap_data.size()) {
+  if (coord.line == static_cast<int>(wrap_data.size())) {
     coord.line = wrap_data.size() - 1;
     coord.pos = wrap_data[coord.line]->size() - 1;
     return true;
@@ -183,7 +183,7 @@ bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
   }
   count -= coord.pos;
   coord.pos = 0;
-  while (coord.line > 0 && count >= (int)wrap_data[coord.line - 1]->size()) {
+  while (coord.line > 0 && count >= static_cast<int>(wrap_data[coord.line - 1]->size())) {
     coord.line--;
     count -= wrap_data[coord.line]->size();
   }
@@ -198,11 +198,13 @@ bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
   return false;
 }
 
-int wrap_info_t::get_line_count(int line) const { return (int)wrap_data[line]->size(); }
+int wrap_info_t::get_line_count(int line) const {
+  return static_cast<int>(wrap_data[line]->size());
+}
 
 text_coordinate_t wrap_info_t::get_end() const {
-  text_coordinate_t result((int)wrap_data.size() - 1,
-                           (int)wrap_data[wrap_data.size() - 1]->size() - 1);
+  text_coordinate_t result(static_cast<int>(wrap_data.size()) - 1,
+                           static_cast<int>(wrap_data[wrap_data.size() - 1]->size()) - 1);
   return result;
 }
 
@@ -225,7 +227,9 @@ int wrap_info_t::calculate_screen_pos(const text_coordinate_t *where) const {
 int wrap_info_t::calculate_line_pos(int line, int pos, int sub_line) const {
   return text->impl->lines[line]->calculate_line_pos(
       (*wrap_data[line])[sub_line],
-      sub_line + 1 < (int)wrap_data[line]->size() ? (*wrap_data[line])[sub_line + 1] - 1 : INT_MAX,
+      sub_line + 1 < static_cast<int>(wrap_data[line]->size())
+          ? (*wrap_data[line])[sub_line + 1] - 1
+          : INT_MAX,
       pos, tabsize);
 }
 
@@ -233,7 +237,7 @@ void wrap_info_t::paint_line(t3_window_t *win, text_coordinate_t line,
                              text_line_t::paint_info_t *info) const {
   info->start = (*wrap_data[line.line])[line.pos];
   info->flags &= ~text_line_t::BREAK;
-  if (line.pos + 1 < (int)wrap_data[line.line]->size()) {
+  if (line.pos + 1 < static_cast<int>(wrap_data[line.line]->size())) {
     info->max = (*wrap_data[line.line])[line.pos + 1];
     info->flags |= text_line_t::BREAK;
   } else {

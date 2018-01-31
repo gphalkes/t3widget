@@ -248,13 +248,13 @@ convert_mouse_event:
   idx = 0;
   switch (xterm_mouse_reporting) {
     case XTERM_MOUSE_SINGLE_BYTE:
-      buttons = (unsigned char)char_buffer[0];
-      x = (unsigned char)char_buffer[1];
-      y = (unsigned char)char_buffer[2];
+      buttons = static_cast<unsigned char>(char_buffer[0]);
+      x = static_cast<unsigned char>(char_buffer[1]);
+      y = static_cast<unsigned char>(char_buffer[2]);
       idx = 3;
       break;
     case XTERM_MOUSE_COORD_UTF:
-      buttons = (unsigned char)char_buffer[0];
+      buttons = static_cast<unsigned char>(char_buffer[0]);
       idx = 1;
       goto convert_coordinates;
     case XTERM_MOUSE_ALL_UTF:
