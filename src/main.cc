@@ -16,6 +16,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <new>
 #include <t3key/key.h>
 #include <transcript/transcript.h>
@@ -124,7 +125,7 @@ signals::connection connect_update_notification(const signals::slot<void> &slot)
 }
 
 static signals::signal<void, bool> &on_init() {
-  static cleanup_ptr<signals::signal<void, bool> >::t on_init_obj(
+  static std::unique_ptr<signals::signal<void, bool>> on_init_obj(
       new signals::signal<void, bool>());
   return *on_init_obj;
 }
@@ -134,7 +135,7 @@ signals::connection connect_on_init(const signals::slot<void, bool> &slot) {
 }
 
 static signals::signal<void> &terminal_settings_changed() {
-  static cleanup_ptr<signals::signal<void> >::t terminal_settings_changed_obj(
+  static std::unique_ptr<signals::signal<void>> terminal_settings_changed_obj(
       new signals::signal<void>());
   return *terminal_settings_changed_obj;
 }

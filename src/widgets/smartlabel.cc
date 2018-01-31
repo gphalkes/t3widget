@@ -42,7 +42,6 @@ static uint32_t casefold_single(uint32_t c) {
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
     : add_colon(_add_colon), underlined(false), hotkey(0) {
-  cleanup_ptr<text_line_t>::t line;
   char *underline_ptr;
 
   text_length = strlen(spec);
@@ -61,8 +60,8 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
     src_size = text_length - underline_start;
     hotkey = casefold_single(t3_utf8_get(underline_ptr, &src_size));
 
-    line = new text_line_t(text, text_length);
-    underline_length = line->adjust_position(underline_start, 1) - underline_start;
+    text_line_t line(text, text_length);
+    underline_length = line.adjust_position(underline_start, 1) - underline_start;
   }
 }
 

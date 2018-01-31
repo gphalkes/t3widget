@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <list>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -329,6 +330,10 @@ using x11_selection_request_event_t = xcb_selection_request_event_t;
 #define X11_PROPERTY_DELETE XCB_PROPERTY_DELETE
 #define x11_response_type response_type
 
+struct xcb_connection_deleter {
+  void operator()(xcb_connection_t *connection) { xcb_disconnect(connection); }
+};
+
 class x11_impl_t : public x11_base_t {
  public:
   ~x11_impl_t() {
@@ -344,20 +349,22 @@ class x11_impl_t : public x11_base_t {
     uint32_t values[2];
     uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     xcb_generic_error_t *error = nullptr;
-    cleanup_func_ptr<xcb_connection_t, xcb_disconnect>::t local_connection;
+    std::unique_ptr<xcb_connection_t, xcb_connection_deleter> local_connection;
     xcb_screen_t *screen;
     xcb_intern_atom_cookie_t cookies[ATOM_COUNT];
     size_t i;
 
-    if ((local_connection = xcb_connect(nullptr, nullptr)) == nullptr) {
+    local_connection.reset(xcb_connect(nullptr, nullptr));
+    if (local_connection == nullptr) {
       return false;
     }
 
     for (i = 0; i < ATOM_COUNT; i++) {
-      cookies[i] = xcb_intern_atom(local_connection, 0, strlen(atom_names[i]), atom_names[i]);
+      cookies[i] = xcb_intern_atom(local_connection.get(), 0, strlen(atom_names[i]), atom_names[i]);
     }
     for (i = 0; i < ATOM_COUNT; i++) {
-      xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(local_connection, cookies[i], nullptr);
+      xcb_intern_atom_reply_t *reply =
+          xcb_intern_atom_reply(local_connection.get(), cookies[i], nullptr);
       if (reply == nullptr) {
         return false;
       }
@@ -366,28 +373,28 @@ class x11_impl_t : public x11_base_t {
       free(reply);
     }
 
-    max_data = xcb_get_maximum_request_length(local_connection);
+    max_data = xcb_get_maximum_request_length(local_connection.get());
     if (max_data > DATA_BLOCK_SIZE * 4 + 100) {
       max_data = DATA_BLOCK_SIZE * 4;
     } else {
       max_data = max_data - 100;
     }
 
-    screen = xcb_setup_roots_iterator(xcb_get_setup(local_connection)).data;
-    window = xcb_generate_id(local_connection);
+    screen = xcb_setup_roots_iterator(xcb_get_setup(local_connection.get())).data;
+    window = xcb_generate_id(local_connection.get());
     values[0] = screen->white_pixel;
     values[1] = XCB_EVENT_MASK_PROPERTY_CHANGE;
 
     if ((error = xcb_request_check(
-             local_connection,
-             xcb_create_window_checked(local_connection, 0, window, screen->root, 0, 0, 1, 1, 0,
-                                       XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, mask,
+             local_connection.get(),
+             xcb_create_window_checked(local_connection.get(), 0, window, screen->root, 0, 0, 1, 1,
+                                       0, XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, mask,
                                        values))) != nullptr) {
       free(error);
       return false;
     }
 
-    xcb_flush(local_connection);
+    xcb_flush(local_connection.get());
 
     if (!x11_base_t::init()) {
       return false;
