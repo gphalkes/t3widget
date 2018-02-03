@@ -33,20 +33,10 @@
 #include <t3widget/ptr.h>
 
 // FIXME: remove incr_sends on long periods of inactivity
-/* This file contains parallel implementation of the X11 integration by use of
-   Xlib or XCB.
-
-   To maintain the same implementation method for both Xlib and XCB, a small
-   sacrifice to good coding practice has been made in the XCB implementation:
-   the reply from xcb_get_property_reply is saved in a global variable, and
-   free'd in x11_free_property_data. The last routine _ignores_ its argument.
-*/
-#ifdef USE_XLIB
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#else
+/* This file used to contain both the Xlib and the XCB implementations for connecting to the X11
+   clipboard. However, the Xlib version has been removed, but the code is still structured to have
+   multiple implementations. This should be cleaned up at some point. */
 #include <xcb/xcb.h>
-#endif
 
 namespace t3_widget {
 
@@ -59,13 +49,8 @@ static timeout_t timeout_time(int microseconds) {
 
 // Minimal set of typedefs and definitions to allow the common parts of the x11_imp_t class
 // to be implemented in a separate base class.
-#ifdef USE_XLIB
-typedef Atom x11_atom_t;
-typedef Window x11_window_t;
-#else
 using x11_atom_t = xcb_atom_t;
 using x11_window_t = xcb_window_t;
-#endif
 
 static const char *atom_names[] = {
     "CLIPBOARD",     "PRIMARY", "TARGETS",   "TIMESTAMP", "MULTIPLE", "UTF8_STRING",
@@ -134,179 +119,6 @@ class x11_base_t {
   x11_atom_t atoms[ATOM_COUNT];
 };
 
-#ifdef USE_XLIB
-typedef Time x11_time_t;
-
-typedef XEvent x11_event_t;
-typedef XPropertyEvent x11_property_event_t;
-typedef XSelectionEvent x11_selection_event_t;
-typedef XSelectionClearEvent x11_selection_clear_event_t;
-typedef XSelectionRequestEvent x11_selection_request_event_t;
-
-#define X11_PROPERTY_REPLACE PropModeReplace
-#define X11_PROPERTY_APPEND PropModeAppend
-#define X11_PROPERTY_PREPEND PropModePrepend
-#define X11_CURRENT_TIME CurrentTime
-#define X11_ATOM_WM_NAME XA_WM_NAME
-#define X11_ATOM_STRING XA_STRING
-#define X11_PROPERTY_NOTIFY PropertyNotify
-#define X11_SELECTION_NOTIFY SelectionNotify
-#define X11_SELECTION_CLEAR SelectionClear
-#define X11_SELECTION_REQUEST SelectionRequest
-#define X11_ATOM_NONE None
-#define X11_PROPERTY_NEW_VALUE PropertyNewValue
-#define X11_PROPERTY_DELETE PropertyDelete
-#define x11_response_type type
-
-class x11_impl_t : public x11_base_t {
- public:
-  x11_impl_t() : display(nullptr) {}
-  ~x11_impl_t() {
-    if (display != nullptr) x11_close_display();
-  }
-
-  bool init_x11() {
-    x11_window_t root;
-    char **atom_names_local = nullptr;
-    int black;
-    size_t i;
-
-    /* The XInternAtoms call expects an array of char *, not of const char *. Thus
-       we make a copy here, which we later discard again. */
-    if ((atom_names_local = (char **)malloc(sizeof(char *) * ATOM_COUNT)) == nullptr) return false;
-
-    /* First initialize all the pointers to nullptr, such that we can do a simple goto
-       error_exit if some allocation fails. */
-    for (i = 0; i < ATOM_COUNT; i++) atom_names_local[i] = nullptr;
-    for (i = 0; i < ATOM_COUNT; i++) {
-      if ((atom_names_local[i] = strdup(atom_names[i])) == nullptr) goto error_exit;
-    }
-
-    // Make sure X11 errors don't abort the program
-    XSetErrorHandler(error_handler);
-    XSetIOErrorHandler(io_error_handler);
-
-    if ((display = XOpenDisplay(nullptr)) == nullptr) goto error_exit;
-
-    max_data = XMaxRequestSize(display);
-    if (max_data > DATA_BLOCK_SIZE * 4 + 100)
-      max_data = DATA_BLOCK_SIZE * 4;
-    else
-      max_data = max_data - 100;
-
-    root = XDefaultRootWindow(display);
-    black = BlackPixel(display, DefaultScreen(display));
-    window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, black, black);
-
-    /* Discard all events, but process errors. */
-    XSync(display, True);
-    if (x11_error) goto error_exit;
-
-    if (!XInternAtoms(display, atom_names_local, ATOM_COUNT, False, atoms)) goto error_exit;
-
-    for (i = 0; i < ATOM_COUNT; i++) free(atom_names_local[i]);
-    free(atom_names_local);
-    atom_names_local = nullptr;
-
-    x11_select_prop_change(window, true);
-
-    /* Discard all events, but process errors. */
-    XSync(display, True);
-    if (x11_error) goto error_exit;
-
-    x11_initialized = true;
-    if (!x11_base_t::init()) goto error_exit;
-
-    lprintf("X11 interface initialized\n");
-    return true;
-
-  error_exit:
-    if (atom_names_local != nullptr) {
-      for (i = 0; i < ATOM_COUNT; i++) free(atom_names_local[i]);
-      free(atom_names_local);
-    }
-    if (display != nullptr) XCloseDisplay(display);
-    return false;
-  }
-
-  void x11_flush() {
-    XFlush(display);
-    write(wakeup_pipe[1], &wakeup_pipe, 1);
-  }
-
-  void x11_set_selection_owner(x11_atom_t selection, x11_window_t win, x11_time_t since) {
-    XSetSelectionOwner(display, selection, win, since);
-  }
-
-  x11_window_t x11_get_selection_owner(x11_atom_t selection) {
-    return XGetSelectionOwner(display, selection);
-  }
-
-  void x11_change_property(x11_window_t win, x11_atom_t property, x11_atom_t type, int format,
-                           int mode, const unsigned char *data, int nelements) {
-    XChangeProperty(display, win, property, type, format, mode, data, nelements);
-  }
-
-  bool x11_get_window_property(x11_window_t win, x11_atom_t property, long long_offset,
-                               long long_length, bool del, x11_atom_t req_type,
-                               x11_atom_t *actual_type_return, int *actual_format_return,
-                               unsigned long *nitems_return, unsigned long *bytes_after_return,
-                               unsigned char **prop_return) {
-    return XGetWindowProperty(display, win, property, long_offset, long_length, del, req_type,
-                              actual_type_return, actual_format_return, nitems_return,
-                              bytes_after_return, prop_return) == Success;
-  }
-
-  void x11_select_prop_change(x11_window_t win, bool interested) {
-    XSelectInput(display, win, interested ? PropertyChangeMask : 0);
-  }
-
-  void x11_free_property_data(void *data) { XFree(data); }
-
-  void x11_delete_property(x11_window_t win, x11_atom_t property) {
-    XDeleteProperty(display, win, property);
-  }
-
-  void x11_convert_selection(x11_atom_t selection, x11_atom_t type, x11_atom_t property,
-                             x11_window_t win, x11_time_t req_time) {
-    XConvertSelection(display, selection, type, property, win, req_time);
-  }
-
-  void x11_send_event(x11_window_t win, bool propagate, long event_mask, x11_event_t *event_send) {
-    XSendEvent(display, win, propagate, event_mask, event_send);
-  }
-
-  void x11_close_display() {
-    XCloseDisplay(display);
-    display = nullptr;
-  }
-
-  x11_event_t *x11_probe_event() {
-    if (!XPending(display)) return nullptr;
-    XNextEvent(display, &last_event);
-    return &last_event;
-  }
-
-  void x11_free_event(x11_event_t *event) { (void)event; }
-
-  int x11_fill_fds(fd_set *fds) {
-    int max_from_base = x11_base_t::x11_fill_fds(fds);
-    FD_SET(ConnectionNumber(display), fds);
-    return std::max(max_from_base, ConnectionNumber(display) + 1);
-  }
-
-  /** Handle error reports, i.e. BadAtom and such, from the server. */
-  static int error_handler(Display *_display, XErrorEvent *error);
-
-  /** Handle IO errors. */
-  static int io_error_handler(Display *_display);
-
- private:
-  Display *display;
-  XEvent last_event;
-};
-
-#else
 using x11_time_t = xcb_timestamp_t;
 
 using x11_event_t = xcb_generic_event_t;
@@ -337,9 +149,6 @@ struct xcb_connection_deleter {
 class x11_impl_t : public x11_base_t {
  public:
   ~x11_impl_t() {
-    if (property_reply != nullptr) {
-      x11_free_property_data(nullptr);
-    }
     if (connection != nullptr) {
       x11_close_display();
     }
@@ -438,20 +247,20 @@ class x11_impl_t : public x11_base_t {
                                long long_length, bool del, x11_atom_t req_type,
                                x11_atom_t *actual_type_return, int *actual_format_return,
                                unsigned long *nitems_return, unsigned long *bytes_after_return,
-                               unsigned char **prop_return) {
+                               unsigned char **prop_return, xcb_get_property_reply_t **reply) {
     xcb_get_property_cookie_t cookie =
         xcb_get_property(connection, del, win, property, req_type, long_offset, long_length);
-    property_reply = xcb_get_property_reply(connection, cookie, nullptr);
+    *reply = xcb_get_property_reply(connection, cookie, nullptr);
 
-    if (property_reply == nullptr) {
+    if (*reply == nullptr) {
       return false;
     }
 
-    *nitems_return = xcb_get_property_value_length(property_reply);
-    *prop_return = reinterpret_cast<unsigned char *>(xcb_get_property_value(property_reply));
-    *actual_type_return = property_reply->type;
-    *actual_format_return = property_reply->format;
-    *bytes_after_return = property_reply->bytes_after;
+    *nitems_return = xcb_get_property_value_length(*reply);
+    *prop_return = reinterpret_cast<unsigned char *>(xcb_get_property_value(*reply));
+    *actual_type_return = (*reply)->type;
+    *actual_format_return = (*reply)->format;
+    *bytes_after_return = (*reply)->bytes_after;
     return true;
   }
 
@@ -460,11 +269,7 @@ class x11_impl_t : public x11_base_t {
     xcb_change_window_attributes(connection, win, XCB_CW_EVENT_MASK, &value);
   }
 
-  void x11_free_property_data(void *data) {
-    (void)data;
-    free(property_reply);
-    property_reply = nullptr;
-  }
+  void x11_free_property_data(xcb_get_property_reply_t *reply) { free(reply); }
 
   void x11_delete_property(x11_window_t win, x11_atom_t property) {
     xcb_delete_property(connection, win, property);
@@ -509,9 +314,7 @@ class x11_impl_t : public x11_base_t {
 
  private:
   xcb_connection_t *connection = nullptr;
-  xcb_get_property_reply_t *property_reply = nullptr;
 };
-#endif
 
 //============================= END OF X11 IMPLEMENTATION SPECIFIC CODE ========================
 
@@ -675,16 +478,17 @@ class x11_driver_t {
          but in some cases we must iterate until we have all data. In that case
          we need to set offset, which happens to be in 4 byte words rather than
          bytes. */
+      xcb_get_property_reply_t *reply;
       if (!x11.x11_get_window_property(x11.get_window(), x11.get_atom(GDK_SELECTION), offset / 4,
                                        DATA_BLOCK_SIZE, false, x11.get_atom(UTF8_STRING),
-                                       &actual_type, &actual_format, &nitems, &bytes_after,
-                                       &prop)) {
+                                       &actual_type, &actual_format, &nitems, &bytes_after, &prop,
+                                       &reply)) {
         retrieved_data.clear();
         return -1;
       } else {
         retrieved_data.append(reinterpret_cast<char *>(prop), nitems);
         offset += nitems;
-        x11.x11_free_property_data(prop);
+        x11.x11_free_property_data(reply);
       }
       prop = nullptr;
     } while (bytes_after);
@@ -741,12 +545,13 @@ class x11_driver_t {
       x11_atom_t actual_type, *requested_conversions;
       int actual_format;
       unsigned long nitems, bytes_after, i;
+      xcb_get_property_reply_t *reply;
 
-      if (!x11.x11_get_window_property(
-              requestor, property, 0, 100, false, x11.get_atom(ATOM_PAIR), &actual_type,
-              &actual_format, &nitems, &bytes_after,
-              reinterpret_cast<unsigned char **>(&requested_conversions)) ||
-          bytes_after != 0 || nitems & 1) {
+      if (!x11.x11_get_window_property(requestor, property, 0, 100, false, x11.get_atom(ATOM_PAIR),
+                                       &actual_type, &actual_format, &nitems, &bytes_after,
+                                       reinterpret_cast<unsigned char **>(&requested_conversions),
+                                       &reply) ||
+          bytes_after != 0 || (nitems & 1)) {
         return false;
       }
 
@@ -760,7 +565,7 @@ class x11_driver_t {
       x11.x11_change_property(requestor, property, x11.get_atom(ATOM_PAIR), 32,
                               X11_PROPERTY_REPLACE,
                               reinterpret_cast<unsigned char *>(requested_conversions), nitems);
-      x11.x11_free_property_data(requested_conversions);
+      x11.x11_free_property_data(reply);
       return true;
     } else {
       return false;
@@ -1030,39 +835,8 @@ class x11_driver_t {
   std::condition_variable clipboard_signal;
 
   std::string retrieved_data;
-
-#ifdef USE_XLIB
-  friend class x11_impl_t;
-#endif
 };
 x11_driver_t *x11_driver_t::implementation;
-
-#ifdef USE_XLIB
-int x11_impl_t::error_handler(Display *_display, XErrorEvent *error) {
-#ifdef _T3_WIDGET_DEBUG
-  char error_text[1024];
-  XGetErrorText(_display, error->error_code, error_text, sizeof(error_text));
-
-  lprintf("X11 error handler: %s\n", error_text);
-#else
-  (void)_display;
-  (void)error;
-#endif
-  if (!x11_driver_t::implementation->x11.x11_initialized)
-    x11_driver_t::implementation->x11.x11_error = true;
-  return 0;
-}
-
-/** Handle IO errors. */
-int x11_impl_t::io_error_handler(Display *_display) {
-  (void)_display;
-  lprintf("X11 IO error\n");
-  /* Note that this is the only place this variable is ever written, so there
-     is no problem in not using a lock here. */
-  x11_driver_t::implementation->x11.x11_error = true;
-  return 0;
-}
-#endif
 
 static bool init_x11() {
   lprintf("Starting X11 initialization\n");

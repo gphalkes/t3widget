@@ -104,9 +104,6 @@ CXXFLAGS += -DHAS_DLFCN
 LDLIBS.libt3widget.la += -ldl
 #~ LDLIBS.libt3widget.la += -lltdl
 
-#~ CXXFLAGS.x11 += `pkg-config --cflags x11` -DUSE_XLIB
-#~ LDLIBS.x11.la += `pkg-config --libs x11`
-
 CXXFLAGS.x11 += `pkg-config --cflags xcb`
 LDLIBS.x11.la += `pkg-config --libs xcb`
 LDLIBS.x11.la += -L.libs -lt3widget

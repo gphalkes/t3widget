@@ -17,9 +17,9 @@
 #include <cstdint>
 #include <cstring>
 #include <map>
+#include <t3key/key.h>
 #include <thread>
 #include <transcript/transcript.h>
-#include <t3key/key.h>
 
 #include <t3widget/internal.h>
 #include <t3widget/key.h>
@@ -44,39 +44,37 @@ struct kp_mapping_t {
 };
 
 struct t3_key_map_deleter {
-  void operator()(const t3_key_node_t *node) {
-    t3_key_free_map(node);
-  }
+  void operator()(const t3_key_node_t *node) { t3_key_free_map(node); }
 };
 
 static const std::map<std::string, key_t> key_strings{{"insert", EKEY_INS},
-                                           {"delete", EKEY_DEL},
-                                           {"home", EKEY_HOME},
-                                           {"end", EKEY_END},
-                                           {"page_up", EKEY_PGUP},
-                                           {"page_down", EKEY_PGDN},
-                                           {"up", EKEY_UP},
-                                           {"left", EKEY_LEFT},
-                                           {"down", EKEY_DOWN},
-                                           {"right", EKEY_RIGHT},
-                                           {"kp_home", EKEY_KP_HOME},
-                                           {"kp_up", EKEY_KP_UP},
-                                           {"kp_page_up", EKEY_KP_PGUP},
-                                           {"kp_page_down", EKEY_KP_PGDN},
-                                           {"kp_left", EKEY_KP_LEFT},
-                                           {"kp_center", EKEY_KP_CENTER},
-                                           {"kp_right", EKEY_KP_RIGHT},
-                                           {"kp_end", EKEY_KP_END},
-                                           {"kp_down", EKEY_KP_DOWN},
-                                           {"kp_insert", EKEY_KP_INS},
-                                           {"kp_delete", EKEY_KP_DEL},
-                                           {"kp_enter", EKEY_KP_NL},
-                                           {"kp_div", EKEY_KP_DIV},
-                                           {"kp_mul", EKEY_KP_MUL},
-                                           {"kp_minus", EKEY_KP_MINUS},
-                                           {"kp_plus", EKEY_KP_PLUS},
-                                           {"tab", '\t'},
-                                           {"backspace", EKEY_BS}};
+                                                      {"delete", EKEY_DEL},
+                                                      {"home", EKEY_HOME},
+                                                      {"end", EKEY_END},
+                                                      {"page_up", EKEY_PGUP},
+                                                      {"page_down", EKEY_PGDN},
+                                                      {"up", EKEY_UP},
+                                                      {"left", EKEY_LEFT},
+                                                      {"down", EKEY_DOWN},
+                                                      {"right", EKEY_RIGHT},
+                                                      {"kp_home", EKEY_KP_HOME},
+                                                      {"kp_up", EKEY_KP_UP},
+                                                      {"kp_page_up", EKEY_KP_PGUP},
+                                                      {"kp_page_down", EKEY_KP_PGDN},
+                                                      {"kp_left", EKEY_KP_LEFT},
+                                                      {"kp_center", EKEY_KP_CENTER},
+                                                      {"kp_right", EKEY_KP_RIGHT},
+                                                      {"kp_end", EKEY_KP_END},
+                                                      {"kp_down", EKEY_KP_DOWN},
+                                                      {"kp_insert", EKEY_KP_INS},
+                                                      {"kp_delete", EKEY_KP_DEL},
+                                                      {"kp_enter", EKEY_KP_NL},
+                                                      {"kp_div", EKEY_KP_DIV},
+                                                      {"kp_mul", EKEY_KP_MUL},
+                                                      {"kp_minus", EKEY_KP_MINUS},
+                                                      {"kp_plus", EKEY_KP_PLUS},
+                                                      {"tab", '\t'},
+                                                      {"backspace", EKEY_BS}};
 
 static const kp_mapping_t kp_mappings[] = {
     {EKEY_KP_HOME, EKEY_HOME}, {EKEY_KP_PGUP, EKEY_PGUP},   {EKEY_KP_PGDN, EKEY_PGDN},
@@ -356,7 +354,8 @@ static key_t decode_sequence(bool outer) {
             unget_key_sequence(sequence);
             return -1;
           }
-          return decode_xterm_mouse_sgr_urxvt(sequence.data(), sequence.size()) ? EKEY_MOUSE_EVENT : -1;
+          return decode_xterm_mouse_sgr_urxvt(sequence.data(), sequence.size()) ? EKEY_MOUSE_EVENT
+                                                                                : -1;
         } else if (c == '~') {
           if (sequence.size() != 6 || sequence[2] != '2' || sequence[3] != '0') {
             return -1;

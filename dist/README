@@ -29,12 +29,12 @@ libt3window. Furthermore, a Pthread library is typically required for C++11
 thread support.
 
 libt3widget can optionally be built to include support for integration with the
-X11 clipboard and primary selection. If this is desired, either XCB or the Xlib
-library needs to be present when building. To allow using libt3widget without
-XCB/Xlib present, the integration is built as a separate module. This means
-libt3widget also needs a facility for dynamically loading this module. If your
-system provides the POSIX dlopen/dlsym/dlclose interface, this will be used.
-Otherwise, GNU libtool's libltdl needs to be present.
+X11 clipboard and primary selection. If this is desired, the XCB library needs
+to be present when building. To allow using libt3widget without XCB present,
+the integration is built as a separate module. This means libt3widget also
+needs a facility for dynamically loading this module. If your system provides
+the POSIX dlopen/dlsym/dlclose interface, this will be used. Otherwise, GNU
+libtool's libltdl needs to be present.
 
 There are two ways in which to compile libt3widget:
 

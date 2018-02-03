@@ -169,10 +169,16 @@ class mutable_reverse_view_object : public const_reverse_view_object<T> {
 };
 
 template <typename T>
-typename std::enable_if<std::is_const<T>::value, const_reverse_view_object<T>>::type reverse_view(T &t) { return t; }
+typename std::enable_if<std::is_const<T>::value, const_reverse_view_object<T>>::type reverse_view(
+    T &t) {
+  return t;
+}
 
 template <typename T>
-typename std::enable_if<!std::is_const<T>::value, mutable_reverse_view_object<T>>::type reverse_view(T &t) { return t; }
+typename std::enable_if<!std::is_const<T>::value, mutable_reverse_view_object<T>>::type
+reverse_view(T &t) {
+  return t;
+}
 
 T3_WIDGET_LOCAL bool starts_with(const std::string &str, const std::string &with);
 

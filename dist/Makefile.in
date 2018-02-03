@@ -29,8 +29,7 @@ CONFIGLIBS=
 # Target to define for X11 integration module. Leave blank if not desired.
 X11MODULE=src/libt3widget<LIBVERSION>-x11.la
 
-# Libs and flags for XCB or -DUSE_XLIB and the libs and flags for the Xlib
-# library.
+# Libs and flags for the XCB library.
 X11_FLAGS=
 X11_LIBS=
 
