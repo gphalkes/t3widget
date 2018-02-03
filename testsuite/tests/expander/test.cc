@@ -9,7 +9,7 @@ class main_window_t : public main_window_base_t {
 		main_window_t(void) {
 			expander = new expander_t("_Test");
 			button_t *button = new button_t("T_est");
-			button->connect_activate(sigc::ptr_fun(button_activated));
+			button->connect_activate(signals::ptr_fun(button_activated));
 			expander->set_child(button);
 			expander->set_size(None, 10);
 			push_back(expander);

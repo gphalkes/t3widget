@@ -9,7 +9,7 @@ class main_window_t : public main_window_base_t {
 		main_window_t(void) {
 			menu = new menu_bar_t();
 			push_back(menu);
-			menu->connect_activate(sigc::mem_fun(this, &main_window_t::menu_activated));
+			menu->connect_activate(signals::mem_fun(this, &main_window_t::menu_activated));
 
 			panel = new menu_panel_t("_File", menu);
 

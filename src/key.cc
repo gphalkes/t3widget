@@ -718,6 +718,7 @@ static void stop_keys() {
     read_key_thread.join();
   }
   stop_mouse_reporting();
+  t3_term_putp("\033[?2004l");
   if (!leave.empty()) {
     t3_term_putp(leave.c_str());
   }
