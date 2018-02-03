@@ -67,10 +67,10 @@ class T3_WIDGET_API init_parameters_t {
   const char *program_name; /**< Name of the program to print where appropriate. */
   const char *term;         /**< Override the terminal name derived from @c TERM. */
   /** Boolean indicating whether keypad keys are returned as separate from the regular cursor
-     control keys.
+      control keys.
 
-          If @c false, there will be no distinction between the user pressing e.g.
-          left arrow and keypad left arrow. This is the recommended behavior. */
+      If @c false, there will be no distinction between the user pressing e.g.
+      left arrow and keypad left arrow. This is the recommended behavior. */
   bool separate_keypad;
   /** Boolean indicating whether to explicitly disable the external clipboard.
 

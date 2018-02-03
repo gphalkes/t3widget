@@ -760,6 +760,7 @@ class x11_driver_t {
       x11.x11_change_property(requestor, property, x11.get_atom(ATOM_PAIR), 32,
                               X11_PROPERTY_REPLACE,
                               reinterpret_cast<unsigned char *>(requested_conversions), nitems);
+      x11.x11_free_property_data(requested_conversions);
       return true;
     } else {
       return false;
