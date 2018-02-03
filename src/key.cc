@@ -16,9 +16,9 @@
 #include <csignal>
 #include <cstdint>
 #include <cstring>
+#include <map>
 #include <thread>
 #include <transcript/transcript.h>
-
 #include <t3key/key.h>
 
 #include <t3widget/internal.h>
@@ -38,28 +38,18 @@ enum {
   EXIT_MAIN_LOOP_SIGNAL,
 };
 
-struct key_string_t {
-  const char *string;
-  key_t code;
-};
-
-struct mapping_t {
-  const char *string;
-  size_t string_length;
-  key_t key;
-};
-
-struct key_sequence_t {
-  key_t data[MAX_SEQUENCE];
-  size_t idx;
-};
-
 struct kp_mapping_t {
   key_t kp;
   key_t mapped;
 };
 
-static const key_string_t key_strings[] = {{"insert", EKEY_INS},
+struct t3_key_map_deleter {
+  void operator()(const t3_key_node_t *node) {
+    t3_key_free_map(node);
+  }
+};
+
+static const std::map<std::string, key_t> key_strings{{"insert", EKEY_INS},
                                            {"delete", EKEY_DEL},
                                            {"home", EKEY_HOME},
                                            {"end", EKEY_END},
@@ -95,13 +85,11 @@ static const kp_mapping_t kp_mappings[] = {
     {EKEY_KP_NL, EKEY_NL},     {EKEY_KP_DIV, '/'},          {EKEY_KP_MUL, '*'},
     {EKEY_KP_PLUS, '+'},       {EKEY_KP_MINUS, '-'}};
 
-static mapping_t *map;
-static int map_count;
+static std::map<std::string, key_t> map;
 static key_t map_single[128];
 
-static const char *leave, *enter;
+static std::string leave, enter;
 
-static const t3_key_node_t *keymap;
 static int signal_pipe[2] = {-1, -1};
 
 static key_buffer_t key_buffer;
@@ -117,9 +105,6 @@ static std::mutex key_timeout_lock;
 static int key_timeout = -1;
 static bool drop_single_esc = true;
 
-/* Used in decode_sequence and comparison routine to communicate whether the current
-   sequence is a prefix of any known sequence. */
-static bool is_prefix;
 static bool in_bracketed_paste;
 
 static key_t decode_sequence(bool outer);
@@ -196,7 +181,7 @@ static int get_next_keychar() {
   return -1;
 }
 
-static void unget_keychar(int c) {
+static void unget_keychar(char c) {
   // Prevent buffer overflow. This simply drops the oldest character off the buffer.
   if (char_buffer_fill >= ARRAY_SIZE(char_buffer)) {
     char_buffer_fill = ARRAY_SIZE(char_buffer) - 1;
@@ -320,52 +305,22 @@ static void read_keys() {
 
 key_t read_key() { return key_buffer.pop_front(); }
 
-static int compare_sequence_with_mapping(const void *key, const void *mapping) {
-  const key_sequence_t *_key;
-  const mapping_t *_mapping;
-  size_t i;
-
-  _key = reinterpret_cast<const key_sequence_t *>(key);
-  _mapping = reinterpret_cast<const mapping_t *>(mapping);
-
-  for (i = 0; i < _key->idx && i < _mapping->string_length; i++) {
-    if (_key->data[i] != _mapping->string[i]) {
-      if (static_cast<char>(_key->data[i]) < _mapping->string[i]) {
-        return -1;
-      }
-      return 1;
-    }
-  }
-
-  if (i < _mapping->string_length) {
-    is_prefix = true;
-    return -1;
-  }
-
-  if (i < _key->idx) {
-    return 1;
-  }
-  return 0;
-}
-
-static void unget_key_sequence(const key_sequence_t &sequence) {
-  for (size_t i = sequence.idx; i > 0; --i) {
-    unget_keychar(sequence.data[i - 1]);
+static void unget_key_sequence(const std::string &sequence) {
+  for (char c : reverse_view(sequence)) {
+    unget_keychar(c);
   }
 }
 
 static key_t decode_sequence(bool outer) {
-  key_sequence_t sequence;
-  mapping_t *matched;
+  std::string sequence;
   int c;
 
-  sequence.idx = 1;
-  sequence.data[0] = EKEY_ESC;
+  sequence.push_back(EKEY_ESC);
 
-  while (sequence.idx < MAX_SEQUENCE) {
+  while (sequence.size() < MAX_SEQUENCE) {
     while ((c = get_next_keychar()) >= 0) {
       if (c == EKEY_ESC) {
-        if (sequence.idx == 1 && outer) {
+        if (sequence.size() == 1 && outer) {
           key_t alted = decode_sequence(false);
           return alted >= 0 ? alted | EKEY_META : (alted == -2 ? EKEY_ESC : -1);
         }
@@ -373,19 +328,18 @@ static key_t decode_sequence(bool outer) {
         goto unknown_sequence;
       }
 
-      sequence.data[sequence.idx++] = c;
+      sequence.push_back(c);
 
-      is_prefix = false;
-      if ((matched = reinterpret_cast<mapping_t *>(bsearch(
-               &sequence, map, map_count, sizeof(mapping_t), compare_sequence_with_mapping))) !=
-          nullptr) {
-        return matched->key;
+      std::map<std::string, key_t>::iterator iter = map.lower_bound(sequence);
+      if (iter->first == sequence) {
+        return iter->second;
       }
+      bool is_prefix = starts_with(iter->first, sequence);
 
       /* Detect and ignore ANSI CSI sequences, regardless of whether they are recognised.
          An exception is made for mouse events, which also start with CSI. */
-      if (sequence.data[1] == '[' && !is_prefix) {
-        if (sequence.idx == 3 && c == 'M' && use_xterm_mouse_reporting()) {
+      if (sequence[1] == '[' && !is_prefix) {
+        if (sequence.size() == 3 && c == 'M' && use_xterm_mouse_reporting()) {
           if (!outer) {
             /* If this is not the outer decode_sequence call, push everything
                back onto the character list, and do nothing. A next call to
@@ -394,7 +348,7 @@ static key_t decode_sequence(bool outer) {
             return -1;
           }
           return decode_xterm_mouse() ? EKEY_MOUSE_EVENT : -1;
-        } else if (sequence.idx > 3 && (c == 'M' || c == 'm') && use_xterm_mouse_reporting()) {
+        } else if (sequence.size() > 3 && (c == 'M' || c == 'm') && use_xterm_mouse_reporting()) {
           if (!outer) {
             /* If this is not the outer decode_sequence call, push everything
                back onto the character list, and do nothing. A next call to
@@ -402,9 +356,9 @@ static key_t decode_sequence(bool outer) {
             unget_key_sequence(sequence);
             return -1;
           }
-          return decode_xterm_mouse_sgr_urxvt(sequence.data, sequence.idx) ? EKEY_MOUSE_EVENT : -1;
+          return decode_xterm_mouse_sgr_urxvt(sequence.data(), sequence.size()) ? EKEY_MOUSE_EVENT : -1;
         } else if (c == '~') {
-          if (sequence.idx != 6 || sequence.data[2] != '2' || sequence.data[3] != '0') {
+          if (sequence.size() != 6 || sequence[2] != '2' || sequence[3] != '0') {
             return -1;
           }
           if (!outer) {
@@ -414,12 +368,12 @@ static key_t decode_sequence(bool outer) {
             unget_key_sequence(sequence);
             return -1;
           }
-          if (sequence.data[4] == '0') {
+          if (sequence[4] == '0') {
             in_bracketed_paste = true;
             return EKEY_PASTE_START;
           }
           return -1;
-        } else if (sequence.idx > 2 && c >= 0x40 && c < 0x7f) {
+        } else if (sequence.size() > 2 && c >= 0x40 && c < 0x7f) {
           return -1;
         } else if (c < 0x20 || c > 0x7f) {
           /* Drop unknown leading sequence if some non-CSI byte is found. */
@@ -440,9 +394,9 @@ static key_t decode_sequence(bool outer) {
   }
 
 unknown_sequence:
-  if (sequence.idx == 2) {
+  if (sequence.size() == 2) {
     key_t alted_key;
-    unget_keychar(sequence.data[1]);
+    unget_keychar(sequence[1]);
     /* It is quite possible that we only read a partial character here. So if we haven't
        read a complete character yet (i.e. get_next_converted_key returns -1), we simply
        keep asking to read one more character. We use a one milisecond timeout, to ensure
@@ -458,7 +412,7 @@ unknown_sequence:
       alted_key = map_single[alted_key & EKEY_KEY_MASK];
     }
     return alted_key | EKEY_META;
-  } else if (sequence.idx == 1) {
+  } else if (sequence.size() == 1) {
     return drop_single_esc ? -2 : EKEY_ESC;
   }
 
@@ -493,13 +447,6 @@ static key_t bracketed_paste_decode() {
   return -1;
 }
 
-#define get_next_byte(x)                                      \
-  do {                                                        \
-    while ((x = get_next_keychar()) < 0 && read_keychar(1)) { \
-    }                                                         \
-    if (x < 0) return -1;                                     \
-  } while (0)
-
 void insert_protected_key(key_t key) {
   if (key >= 0) {
     key_buffer.push_back(key | EKEY_PROTECT);
@@ -522,25 +469,6 @@ static key_t map_kp(key_t kp) {
     }
   }
   return kp;
-}
-
-static int compare_mapping(const void *a, const void *b) {
-  const mapping_t *_a, *_b;
-  int result;
-
-  _a = reinterpret_cast<const mapping_t *>(a);
-  _b = reinterpret_cast<const mapping_t *>(b);
-
-  if ((result = memcmp(_a->string, _b->string, std::min(_a->string_length, _b->string_length))) !=
-      0) {
-    return result;
-  }
-  if (_a->string_length < _b->string_length) {
-    return -1;
-  } else if (_a->string_length > _b->string_length) {
-    return 1;
-  }
-  return 0;
 }
 
 static bool is_function_key(const char *str) {
@@ -576,8 +504,9 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
   complex_error_t result;
   struct sigaction sa;
   sigset_t sigs;
+  std::unique_ptr<const t3_key_node_t, t3_key_map_deleter> keymap;
   const t3_key_node_t *key_node;
-  int i, j, error, idx;
+  int i, error;
   transcript_error_t transcript_error;
   const char *shiftfn = nullptr;
 
@@ -587,7 +516,8 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
     RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
   }
 
-  if ((keymap = t3_key_load_map(term, nullptr, &error)) == nullptr) {
+  keymap.reset(t3_key_load_map(term, nullptr, &error));
+  if (keymap == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
   }
 
@@ -628,21 +558,21 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
   map_single[10] = EKEY_NL;
   map_single[13] = EKEY_NL;
 
-  if ((key_node = t3_key_get_named_node(keymap, "_enter")) != nullptr) {
+  if ((key_node = t3_key_get_named_node(keymap.get(), "_enter")) != nullptr) {
     t3_term_putp(key_node->string);
     enter = key_node->string;
   }
-  if ((key_node = t3_key_get_named_node(keymap, "_leave")) != nullptr) {
+  if ((key_node = t3_key_get_named_node(keymap.get(), "_leave")) != nullptr) {
     leave = key_node->string;
   }
-  if ((key_node = t3_key_get_named_node(keymap, "_shiftfn")) != nullptr) {
+  if ((key_node = t3_key_get_named_node(keymap.get(), "_shiftfn")) != nullptr) {
     shiftfn = key_node->string;
   }
 
   // Enable bracketed paste.
   t3_term_putp("\033[?2004h");
 
-  init_mouse_reporting(t3_key_get_named_node(keymap, "_xterm_mouse") != nullptr);
+  init_mouse_reporting(t3_key_get_named_node(keymap.get(), "_xterm_mouse") != nullptr);
 
   /* Load all the known keys from the terminfo database.
      - find out how many sequences there are
@@ -650,68 +580,23 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
      - fill the map
      - sort the map for quick searching
   */
-  for (key_node = keymap; key_node != nullptr; key_node = key_node->next) {
-    if (key_node->key[0] == '_') {
-      continue;
-    }
-    if (key_node->string[0] == 27) {
-      map_count++;
-    }
-  }
-
-  if ((map = reinterpret_cast<mapping_t *>(malloc(sizeof(mapping_t) * map_count))) == nullptr) {
-    RETURN_ERROR(complex_error_t::SRC_ERRNO, ENOMEM);
-  }
-
-  for (key_node = keymap, idx = 0; key_node != nullptr; key_node = key_node->next) {
+  for (key_node = keymap.get(); key_node != nullptr; key_node = key_node->next) {
     if (key_node->key[0] == '_') {
       continue;
     }
 
-    if (key_node->string[0] == 27) {
-      map[idx].string = key_node->string;
-      map[idx].string_length = key_node->string_length;
+    std::string key_name = key_node->key;
+    // Remove the modifiers from the name.
+    size_t dash = key_name.find('-');
+    if (dash != std::string::npos) {
+      key_name.resize(dash);
     }
+    const auto iter = key_strings.find(key_name);
 
-    for (i = 0; i < ARRAY_SIZE(key_strings); i++) {
-      /* Check if this is a sequence we know. */
-      for (j = 0; key_strings[i].string[j] == key_node->key[j] && key_strings[i].string[j] != 0 &&
-                  key_node->key[j] != 0;
-           j++) {
-      }
-
-      if (!(key_strings[i].string[j] == 0 && (key_node->key[j] == '-' || key_node->key[j] == 0))) {
-        continue;
-      }
-
-      if (key_node->string[0] != 27) {
-        map_single[static_cast<unsigned char>(key_node->string[0])] = key_strings[i].code;
-        break;
-      }
-
-      map[idx].key = separate_keypad ? key_strings[i].code : map_kp(key_strings[i].code);
-      for (; key_node->key[j] != 0; j++) {
-        switch (key_node->key[j]) {
-          case 'c':
-            map[idx].key |= EKEY_CTRL;
-            break;
-          case 'm':
-            map[idx].key |= EKEY_META;
-            break;
-          case 's':
-            map[idx].key |= EKEY_SHIFT;
-            break;
-          default:
-            break;
-        }
-      }
-      break;
-    }
-
-    if (i == ARRAY_SIZE(key_strings)) {
+    if (iter == key_strings.end()) {
       if (is_function_key(key_node->key)) {
         key_t key = EKEY_F1 + atoi(key_node->key + 1) - 1;
-        for (j = 2; key_node->key[j] != 0; j++) {
+        for (size_t j = dash; j != std::string::npos && key_node->key[j] != 0; j++) {
           switch (key_node->key[j]) {
             case 'c':
               key |= EKEY_CTRL;
@@ -732,21 +617,42 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
           key |= EKEY_SHIFT;
         }
         if (key_node->string[0] == 27) {
-          map[idx].key = key;
-        } else {
+          map[key_node->string] = key;
+        } else if (strlen(key_node->string) == 1) {
           map_single[static_cast<unsigned char>(key_node->string[0])] = key;
         }
       } else {
         if (key_node->string[0] == 27) {
-          map[idx].key = EKEY_IGNORE;
+          map[key_node->string] = EKEY_IGNORE;
         }
       }
-    }
-    if (key_node->string[0] == 27) {
-      idx++;
+
+    } else {
+      if (key_node->string[0] != 27) {
+        if (strlen(key_node->string) == 1) {
+          map_single[static_cast<unsigned char>(key_node->string[0])] = iter->second;
+        }
+      } else {
+        key_t key = separate_keypad ? iter->second : map_kp(iter->second);
+        for (size_t j = dash; j != std::string::npos && key_node->key[j] != 0; j++) {
+          switch (key_node->key[j]) {
+            case 'c':
+              key |= EKEY_CTRL;
+              break;
+            case 'm':
+              key |= EKEY_META;
+              break;
+            case 's':
+              key |= EKEY_SHIFT;
+              break;
+            default:
+              break;
+          }
+        }
+        map[key_node->string] = key;
+      }
     }
   }
-  qsort(map, map_count, sizeof(mapping_t), compare_mapping);
 
   read_key_thread = std::thread(read_keys);
 
@@ -777,12 +683,16 @@ void deinit_keys() {
   deinit_mouse_reporting();
   // Disable bracketed paste.
   t3_term_putp("\033[?2004l");
-  t3_term_putp(leave);
+  if (!leave.empty()) {
+    t3_term_putp(leave.c_str());
+  }
   in_bracketed_paste = false;
 }
 
 void reinit_keys() {
-  t3_term_putp(enter);
+  if (!enter.empty()) {
+    t3_term_putp(enter.c_str());
+  }
   // Enable bracketed paste.
   t3_term_putp("\033[?2004h");
   reinit_mouse_reporting();
@@ -794,17 +704,10 @@ void cleanup_keys() {
     transcript_close_converter(conversion_handle);
     conversion_handle = nullptr;
   }
-  if (keymap != nullptr) {
-    t3_key_free_map(keymap);
-    keymap = nullptr;
-  }
-  if (map != nullptr) {
-    free(map);
-    map = nullptr;
-  }
+  map.clear();
   memset(map_single, 0, sizeof(map_single));
-  leave = nullptr;
-  enter = nullptr;
+  leave.clear();
+  enter.clear();
 }
 
 static void stop_keys() {
@@ -816,7 +719,9 @@ static void stop_keys() {
     read_key_thread.join();
   }
   stop_mouse_reporting();
-  t3_term_putp(leave);
+  if (!leave.empty()) {
+    t3_term_putp(leave.c_str());
+  }
 }
 
 void set_key_timeout(int msec) {

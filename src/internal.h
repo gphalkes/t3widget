@@ -123,7 +123,7 @@ T3_WIDGET_LOCAL void stop_mouse_reporting();
 /** Decode an xterm mouse event. */
 T3_WIDGET_LOCAL bool decode_xterm_mouse();
 /** Decode an xterm mouse event using the SGR or URXVT protocols. */
-T3_WIDGET_LOCAL bool decode_xterm_mouse_sgr_urxvt(const key_t *data, size_t len);
+T3_WIDGET_LOCAL bool decode_xterm_mouse_sgr_urxvt(const char *data, size_t len);
 /** Report whether XTerm mouse reporting is active. */
 T3_WIDGET_LOCAL bool use_xterm_mouse_reporting();
 /** Set bit(s) for mouse event fd. */
@@ -141,6 +141,40 @@ template <typename C>
 void remove_element(C &container, typename C::value_type value) {
   container.erase(std::remove(container.begin(), container.end(), value), container.end());
 }
+
+// FIXME: it would be good if this could work for the non-const case as well.
+template <typename T>
+class const_reverse_view_object {
+ public:
+  const_reverse_view_object(T &t) : t_(t) {}
+
+  using const_iterator = typename T::const_reverse_iterator;
+
+  const_iterator begin() const { return t_.rbegin(); }
+  const_iterator end() const { return t_.rend(); }
+
+ protected:
+  T &t_;
+};
+
+template <typename T>
+class mutable_reverse_view_object : public const_reverse_view_object<T> {
+ public:
+  using const_reverse_view_object<T>::const_reverse_view_object;
+
+  using iterator = typename T::reverse_iterator;
+
+  iterator begin() { return this->t_.rbegin(); }
+  iterator end() { return this->t_.rend(); }
+};
+
+template <typename T>
+typename std::enable_if<std::is_const<T>::value, const_reverse_view_object<T>>::type reverse_view(T &t) { return t; }
+
+template <typename T>
+typename std::enable_if<!std::is_const<T>::value, mutable_reverse_view_object<T>>::type reverse_view(T &t) { return t; }
+
+T3_WIDGET_LOCAL bool starts_with(const std::string &str, const std::string &with);
 
 };  // namespace
 #endif

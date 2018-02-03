@@ -442,4 +442,8 @@ int get_class(const std::string *str, int pos) {
   return CLASS_OTHER;
 }
 
+bool starts_with(const std::string &str, const std::string &with) {
+  return str.size() >= with.size() && memcmp(str.data(), with.data(), with.size()) == 0;
+}
+
 };  // namespace

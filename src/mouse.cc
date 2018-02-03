@@ -278,7 +278,7 @@ convert_mouse_event:
     for both protocols. I.e. they need to decode three integers. Note that this
     code assumes that the last character of the sequence is either 'M' or 'm'.
  */
-bool decode_xterm_mouse_sgr_urxvt(const key_t *data, size_t len) {
+bool decode_xterm_mouse_sgr_urxvt(const char *data, size_t len) {
   bool sgr_mode = false;
   size_t idx = 2;
   if (data[2] == '<') {
