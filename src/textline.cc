@@ -155,7 +155,7 @@ text_line_t *text_line_t::cut_line(int start, int end) {
   text_line_t *retval;
 
   ASSERT((size_t)end == buffer.size() ||
-         t3_utf8_wcwidth(t3_utf8_get(buffer.data() + end, nullptr)) > 0);
+         t3_utf8_wcwidth(t3_utf8_get(buffer.data() + end, nullptr)) != 0);
   // FIXME: special case: if the selection cover a whole text_line_t (note: not wrapped) we
   // shouldn't copy
 
