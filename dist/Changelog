@@ -4,12 +4,22 @@ Version 0.6.0:
 	- Make key bindings configurable.
 	- Add select-all behavior to text fields.
 	- Add delete-line capability to edit window.
+	- Add support for the so-called SGR mouse protocol.
 	- Allow disabling of claiming the primary selection.
-	- Code cleanup: no more use of "using namespace std;".
+	- Use bracketed-paste mode where available to improve pasting by the
+	  terminal itself.
+	- Remove support for Xlib, leaving the XCB library as the only library for
+	  X11 support. The Xlib version was long untested and broken.
+	- Remove support for libsigc++. This has been superseeded by C++11 support,
+	  which libsigc++ itself has required now for a long time, removing the
+	  value of the libsigc++ library for libt3widget.
 
 	Bug fixes:
 	- Improved handling of conjoining Jamo (Hangul).
-	- Fixed compilation using xlib.
+	- Pressing enter while the color picker is selected in the
+	  attribute-selection dialog now activates the OK button as expected.
+	- Fix joining an unstarted thread when initialization failed.
+	- Correct reporting of libtranscript errors from initialization.
 
 Version 0.5.4:
 	- Removes pre-generated Doxygen documentation.
