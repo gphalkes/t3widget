@@ -11,4 +11,5 @@
 /testsuite/testlog*.txt
 /doc/doxygen.conf
 /doc/DoxygenLayout.xml
-src/.clang-tidy-opts
+/src/.clang-tidy-opts
+/libt3widget*
