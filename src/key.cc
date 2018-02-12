@@ -710,10 +710,12 @@ void cleanup_keys() {
 }
 
 static void stop_keys() {
-  char quit_signal = QUIT_SIGNAL;
-  nosig_write(signal_pipe[1], &quit_signal, 1);
-  close(signal_pipe[1]);
-  signal_pipe[1] = -1;
+  if (signal_pipe[1] != -1) {
+    char quit_signal = QUIT_SIGNAL;
+    nosig_write(signal_pipe[1], &quit_signal, 1);
+    close(signal_pipe[1]);
+    signal_pipe[1] = -1;
+  }
   if (read_key_thread.joinable()) {
     read_key_thread.join();
   }

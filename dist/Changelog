@@ -1,3 +1,7 @@
+Version 0.6.1:
+	Bug fixes:
+	- Key bindings for split windows (F8 and Shift-F8) were broken.
+
 Version 0.6.0:
 	New features:
 	- Allow replacing of menu items.
