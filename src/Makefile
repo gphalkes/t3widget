@@ -76,6 +76,7 @@ include ../../makesys/rules.mk
 #================================================#
 T3NAME := widget
 include ../../t3shared/rules.mk
+include ../../t3shared/rules-base.mk
 #================================================#
 
 CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
@@ -92,9 +93,9 @@ CXXFLAGS += -DX11_MOD_NAME=\"$(CURDIR)/.libs/x11.mod\"
 CXXFLAGS += -DHAS_GPM
 #~ CXXFLAGS += -DHAS_VECTOR_SHRINK_TO_FIT
 
-LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3window/.libs -lt3window
-LDLIBS.libt3widget.la += -L$(CURDIR)/../include/transcript/.libs -ltranscript
-LDLIBS.libt3widget.la += -L$(CURDIR)/../include/t3key/.libs -lt3key
+LDLIBS.libt3widget.la += $(T3LDFLAGS.t3window) -lt3window
+LDLIBS.libt3widget.la += $(T3LDFLAGS.transcript) -ltranscript
+LDLIBS.libt3widget.la += $(T3LDFLAGS.t3key) -lt3key
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
 LDLIBS.libt3widget.la += -lunistring
 LDLIBS.libt3widget.la += -lgpm
