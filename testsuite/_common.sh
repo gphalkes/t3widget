@@ -28,8 +28,8 @@ a #line $LINE \"../test.cc\"
 }" ../test.cc
 	} > test.cc
 
-	g++ -g -Wall `pkg-config --cflags sigc++-2.0` -I../../src -I../../include test.cc -L../../src/.libs/ \
-		-lt3widget -L../../../t3window/src/.libs -lt3window `pkg-config --libs sigc++-2.0` -o test \
+	g++ -g -Wall -I../../src -I../../../t3shared/include test.cc -L../../src/.libs/ \
+		-lt3widget -L../../../t3window/src/.libs -lt3window -o test \
 		-Wl,-rpath=$PWD/../../src/.libs:$PWD/../../../t3window/src/.libs:$PWD/../../../t3key/src/.libs:$PWD/../../../t3config/src/.libs:$PWD/../../../transcript/src/.libs || fail "!! Could not compile test"
 }
 

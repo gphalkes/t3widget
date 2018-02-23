@@ -192,6 +192,10 @@ static void unget_keychar(char c) {
 bool read_keychar(int timeout) {
   key_t c;
 
+  if (char_buffer_fill >= ARRAY_SIZE(char_buffer)) {
+    return true;
+  }
+
   while ((c = t3_term_get_keychar(timeout)) == T3_WARN_UPDATE_TERMINAL) {
     transcript_t *new_conversion_handle;
     transcript_error_t transcript_error;
@@ -271,25 +275,28 @@ static void read_keys() {
 
     while ((c = get_next_converted_key()) >= 0) {
       if (c == EKEY_ESC) {
-        key_t modifiers = t3_term_get_modifiers_hack();
-
-        key_timeout_lock.lock();
         if (in_bracketed_paste) {
           c = bracketed_paste_decode();
+          if (c < 0) {
+            continue;
+          }
         } else {
-          c = decode_sequence(true);
-        }
-        key_timeout_lock.unlock();
-        if (c < 0) {
-          continue;
-        } else if (drop_single_esc && c == (EKEY_ESC | EKEY_META)) {
-          c = EKEY_ESC;
-        } else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0) {
-          c = (c & ~EKEY_KEY_MASK) | map_single[c & EKEY_KEY_MASK];
-        }
+          key_t modifiers = t3_term_get_modifiers_hack();
 
-        if (c == '\t' || (c >= EKEY_FIRST_SPECIAL && c < 0x111000 && c != EKEY_NL)) {
-          c |= modifiers * EKEY_CTRL;
+          key_timeout_lock.lock();
+          c = decode_sequence(true);
+          key_timeout_lock.unlock();
+          if (c < 0) {
+            continue;
+          } else if (drop_single_esc && c == (EKEY_ESC | EKEY_META)) {
+            c = EKEY_ESC;
+          } else if ((c & EKEY_KEY_MASK) < 128 && map_single[c & EKEY_KEY_MASK] != 0) {
+            c = (c & ~EKEY_KEY_MASK) | map_single[c & EKEY_KEY_MASK];
+          }
+
+          if (c == '\t' || (c >= EKEY_FIRST_SPECIAL && c < 0x111000 && c != EKEY_NL)) {
+            c |= modifiers * EKEY_CTRL;
+          }
         }
       } else if (!in_bracketed_paste && c > 0 && c < 128 && map_single[c] != 0) {
         c = map_single[c];
@@ -396,7 +403,7 @@ static key_t decode_sequence(bool outer) {
       }
     }
 
-    if (!read_keychar(outer ? key_timeout : 50)) {
+    if (char_buffer_fill == 0 && !read_keychar(outer ? key_timeout : 50)) {
       break;
     }
   }
@@ -407,7 +414,7 @@ unknown_sequence:
     unget_keychar(sequence[1]);
     /* It is quite possible that we only read a partial character here. So if we haven't
        read a complete character yet (i.e. get_next_converted_key returns -1), we simply
-       keep asking to read one more character. We use a one milisecond timeout, to ensure
+       keep asking to read one more character. We use a one millisecond timeout, to ensure
        we don't get stuck waiting here. If reading the keychar times out, we need to skip
        this input. */
     while ((alted_key = get_next_converted_key()) < 0 && read_keychar(1)) {
@@ -451,7 +458,7 @@ static key_t bracketed_paste_decode() {
         return EKEY_PASTE_END;
       }
     }
-    if (!read_keychar(50)) {
+    if (char_buffer_fill == 0 && !read_keychar(50)) {
       break;
     }
   }
