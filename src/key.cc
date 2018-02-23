@@ -295,7 +295,16 @@ static void read_keys() {
         c = map_single[c];
       }
       if (c >= 0) {
-        key_buffer.push_back(in_bracketed_paste ? EKEY_PROTECT | c : c);
+        if (in_bracketed_paste) {
+          // Unfortunately, (some) terminals convert \n in the input into \r when pasting. There
+          // seems to be no way to turn this off. So we'll have to pretend that any \r is the same
+          // as the user pressing the return key, even though if the actual pasted text contains
+          // \r\n as line endings this will double the number of newlines. As this is the same when
+          // not using bracketed paste, this is a acceptable strategy.
+          key_buffer.push_back(c == '\n' || c == '\r' ? EKEY_NL : EKEY_PROTECT | c);
+        } else {
+          key_buffer.push_back(c);
+        }
       }
     }
   }
@@ -422,22 +431,28 @@ unknown_sequence:
 }
 
 static key_t bracketed_paste_decode() {
+  int c;
   char data[6];
   int idx = 1;
 
   data[0] = EKEY_ESC;
 
   while (idx < 6) {
-    data[idx++] = get_next_keychar();
-    if (strncmp(data, "\033[201~", idx) != 0) {
-      for (int i = idx; i > 0; --i) {
-        unget_keychar(data[i - 1]);
+    while ((c = get_next_keychar()) >= 0) {
+      data[idx++] = c;
+      if (strncmp(data, "\033[201~", idx) != 0) {
+        for (int i = idx; i > 1; --i) {
+          unget_keychar(data[i - 1]);
+        }
+        return EKEY_ESC;
       }
-      return -1;
+      if (idx == 6) {
+        in_bracketed_paste = false;
+        return EKEY_PASTE_END;
+      }
     }
-    if (idx == 6) {
-      in_bracketed_paste = false;
-      return EKEY_PASTE_END;
+    if (!read_keychar(50)) {
+      break;
     }
   }
   for (int i = idx; i > 0; --i) {
