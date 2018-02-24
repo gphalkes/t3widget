@@ -38,7 +38,7 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
           vertical(_vertical),
           dragging(false) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
  public:
   scrollbar_t(bool _vertical);

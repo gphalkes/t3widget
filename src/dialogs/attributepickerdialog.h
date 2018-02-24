@@ -38,7 +38,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
     t3_attr_t base_attributes;
     implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   void attribute_changed();
   void ok_activate();

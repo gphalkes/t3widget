@@ -55,7 +55,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
           indicator(_indicator),
           single_click_activate(false) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   void ensure_cursor_on_screen();
   void scroll(int change);

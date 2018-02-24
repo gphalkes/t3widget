@@ -58,7 +58,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
           columns_visible(0),
           scrollbar_range(1) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   /** Ensure that the updated value of #current does not put the highlighted entry outside the
    * visible range. */

@@ -31,7 +31,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 
     implementation_t();
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   bool process_key(key_t key) override;
 

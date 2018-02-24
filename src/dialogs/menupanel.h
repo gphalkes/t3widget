@@ -34,7 +34,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
     implementation_t(const char *name) : label(name), menu_bar(nullptr) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   void close() override;
   void set_menu_bar(menu_bar_t *_menu_bar);

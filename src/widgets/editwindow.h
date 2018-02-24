@@ -119,7 +119,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
           repaint_min(0),
           repaint_max(INT_MAX) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   /** Function to initialize the shared dialogs and data. */
   static void init(bool _init);

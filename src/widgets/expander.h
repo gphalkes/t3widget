@@ -46,7 +46,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
           label(text),
           full_height(2) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   void focus_up_from_child();
 

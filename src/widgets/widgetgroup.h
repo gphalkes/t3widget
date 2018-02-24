@@ -31,7 +31,7 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
     bool has_focus;
     implementation_t() : current_child(-1), has_focus(false) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   bool focus_next_int();
   bool focus_previous_int();

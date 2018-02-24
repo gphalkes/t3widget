@@ -38,7 +38,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
     signals::connection find_button_up_connection;
     int state;  // State of all the checkboxes converted to FIND_* flags
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   void backward_toggled();
   void icase_toggled();
@@ -64,7 +64,7 @@ class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
   struct implementation_t {
     button_t *find_button, *replace_button;
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
  public:
   replace_buttons_dialog_t();

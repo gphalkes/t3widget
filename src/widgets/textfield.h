@@ -83,7 +83,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
           filter_keys_accept(true),
           label(nullptr) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   /** Function to initialize the shared dialogs and data. */
   static void init(bool _init);

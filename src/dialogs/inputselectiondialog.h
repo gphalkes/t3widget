@@ -35,7 +35,7 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
     checkbox_t *enable_simulate_box, *disable_timeout_box;
     int old_timeout;
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
  public:
   input_selection_dialog_t(int height, int width, text_buffer_t *_text = nullptr);

@@ -43,7 +43,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 
     implementation_t() : view(&names), option_widget_set(false) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
  protected:
   file_dialog_t(int height, int width, const char *_title);
@@ -78,7 +78,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
     filter_text_field_t *filter_line;
     smart_label_t *filter_label;
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   const std::string *get_filter() override;
 
@@ -95,7 +95,7 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
   struct implementation_t {
     button_t *create_button;
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
  protected:
   const std::string *get_filter() override { return &empty_filter; }

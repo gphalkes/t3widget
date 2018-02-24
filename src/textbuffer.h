@@ -56,7 +56,7 @@ class T3_WIDGET_API text_buffer_t {
           last_undo(nullptr),
           line_factory(_line_factory == nullptr ? &default_text_line_factory : _line_factory) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
  protected:
   undo_t *get_undo(undo_type_t type);

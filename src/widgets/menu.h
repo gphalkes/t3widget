@@ -49,7 +49,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
           has_focus(false),
           button_down_idx(-1) {}
   };
-  pimpl_ptr<implementation_t>::t impl;
+  std::unique_ptr<implementation_t> impl;
 
   /** Draw the name of a single menu in the menu bar. */
   void draw_menu_name(menu_panel_t *menu, bool selected);
