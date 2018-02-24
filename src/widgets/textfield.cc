@@ -225,40 +225,41 @@ bool text_field_t::process_key(key_t key) {
             return true;
 
           case ACTION_PASTE:
-          case ACTION_PASTE_SELECTION:
-            WITH_CLIPBOARD_LOCK(
-                std::shared_ptr<std::string> copy_buffer =
-                    action == ACTION_PASTE ? get_clipboard() : get_primary();
-                if (copy_buffer != nullptr) {
-                  text_line_t insert_line(copy_buffer.get());
+          case ACTION_PASTE_SELECTION: {
+            ensure_clipboard_lock_t lock;
+            std::shared_ptr<std::string> copy_buffer =
+                action == ACTION_PASTE ? get_clipboard() : get_primary();
+            if (copy_buffer != nullptr) {
+              text_line_t insert_line(copy_buffer.get());
 
-                  // Don't allow pasting of values that do not match the filter
-                  if (impl->filter_keys != nullptr) {
-                    const std::string *insert_data = insert_line.get_data();
-                    size_t insert_data_length = insert_data->size();
-                    size_t bytes_read;
-                    do {
-                      key_t c;
-                      bytes_read = insert_data_length;
-                      c = t3_utf8_get(
-                          insert_data->data() + insert_data->size() - insert_data_length,
-                          &bytes_read);
-                      if ((std::find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size,
-                                     c) == impl->filter_keys + impl->filter_keys_size) ==
-                          impl->filter_keys_accept)
-                        return true;
-                      insert_data_length -= bytes_read;
-                    } while (insert_data_length > 0 && bytes_read > 0);
-                  }
+              // Don't allow pasting of values that do not match the filter
+              if (impl->filter_keys != nullptr) {
+                const std::string *insert_data = insert_line.get_data();
+                size_t insert_data_length = insert_data->size();
+                size_t bytes_read;
+                do {
+                  key_t c;
+                  bytes_read = insert_data_length;
+                  c = t3_utf8_get(insert_data->data() + insert_data->size() - insert_data_length,
+                                  &bytes_read);
+                  if ((std::find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size,
+                                 c) == impl->filter_keys + impl->filter_keys_size) ==
+                      impl->filter_keys_accept)
+                    return true;
+                  insert_data_length -= bytes_read;
+                } while (insert_data_length > 0 && bytes_read > 0);
+              }
 
-                  if (impl->selection_mode != selection_mode_t::NONE) delete_selection(false);
+              if (impl->selection_mode != selection_mode_t::NONE) delete_selection(false);
 
-                  impl->line->insert(&insert_line, impl->pos);
-                  impl->pos += insert_line.get_length();
-                  ensure_cursor_on_screen();
-                  redraw = true;
-                  impl->edited = true;
-                } return true;)
+              impl->line->insert(&insert_line, impl->pos);
+              impl->pos += insert_line.get_length();
+              ensure_cursor_on_screen();
+              redraw = true;
+              impl->edited = true;
+            }
+            return true;
+          }
           case ACTION_MARK_SELECTION:
             switch (impl->selection_mode) {
               case selection_mode_t::MARK:
@@ -538,13 +539,16 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
     reset_selection();
     impl->pos = impl->line->calculate_line_pos(0, INT_MAX, event.x - 1 + impl->leftcol, 0);
 
-    WITH_CLIPBOARD_LOCK(std::shared_ptr<std::string> primary = get_primary();
-                        if (primary != nullptr) {
-                          text_line_t insert_line(primary.get());
+    {
+      ensure_clipboard_lock_t lock;
+      std::shared_ptr<std::string> primary = get_primary();
+      if (primary != nullptr) {
+        text_line_t insert_line(primary.get());
 
-                          impl->line->insert(&insert_line, impl->pos);
-                          impl->pos += insert_line.get_length();
-                        })
+        impl->line->insert(&insert_line, impl->pos);
+        impl->pos += insert_line.get_length();
+      }
+    }
     ensure_cursor_on_screen();
   } else if ((event.type == EMOUSE_MOTION && (event.button_state & EMOUSE_BUTTON_LEFT)) ||
              (event.type == EMOUSE_BUTTON_RELEASE &&

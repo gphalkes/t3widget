@@ -20,12 +20,6 @@
 #include <t3widget/ptr.h>
 #include <t3widget/widget_api.h>
 
-#define WITH_CLIPBOARD_LOCK(code)             \
-  {                                           \
-    t3_widget::ensure_clipboard_lock_t _lock; \
-    code                                      \
-  }
-
 namespace t3_widget {
 
 T3_WIDGET_API std::shared_ptr<std::string> get_clipboard();
@@ -37,11 +31,12 @@ T3_WIDGET_API void release_selections();
 T3_WIDGET_API void lock_clipboard();
 T3_WIDGET_API void unlock_clipboard();
 
+/** A simple class to use RAII to ensure that the clipboard lock is held and released if and when
+    necessary. */
 class T3_WIDGET_API ensure_clipboard_lock_t {
  public:
   ensure_clipboard_lock_t() { lock_clipboard(); }
   ~ensure_clipboard_lock_t() { unlock_clipboard(); }
 };
-
-};  // namespace
+}  // namespace
 #endif

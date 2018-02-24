@@ -1211,26 +1211,27 @@ void edit_window_t::paste() { paste(true); }
 void edit_window_t::paste_selection() { paste(false); }
 
 void edit_window_t::paste(bool clipboard) {
-  WITH_CLIPBOARD_LOCK(
-      std::shared_ptr<std::string> copy_buffer = clipboard ? get_clipboard() : get_primary();
-      if (copy_buffer != nullptr) {
-        if (text->get_selection_mode() == selection_mode_t::NONE) {
-          update_repaint_lines(text->cursor.line, INT_MAX);
-          text->insert_block(copy_buffer.get());
-        } else {
-          text_coordinate_t current_start;
-          text_coordinate_t current_end;
-          current_start = text->get_selection_start();
-          current_end = text->get_selection_end();
-          update_repaint_lines(
-              current_start.line < current_end.line ? current_start.line : current_end.line,
-              INT_MAX);
-          text->replace_block(current_start, current_end, copy_buffer.get());
-          reset_selection();
-        }
-        ensure_cursor_on_screen();
-        impl->last_set_pos = impl->screen_pos;
-      })
+  {
+    ensure_clipboard_lock_t lock;
+    std::shared_ptr<std::string> copy_buffer = clipboard ? get_clipboard() : get_primary();
+    if (copy_buffer != nullptr) {
+      if (text->get_selection_mode() == selection_mode_t::NONE) {
+        update_repaint_lines(text->cursor.line, INT_MAX);
+        text->insert_block(copy_buffer.get());
+      } else {
+        text_coordinate_t current_start;
+        text_coordinate_t current_end;
+        current_start = text->get_selection_start();
+        current_end = text->get_selection_end();
+        update_repaint_lines(
+            current_start.line < current_end.line ? current_start.line : current_end.line, INT_MAX);
+        text->replace_block(current_start, current_end, copy_buffer.get());
+        reset_selection();
+      }
+      ensure_cursor_on_screen();
+      impl->last_set_pos = impl->screen_pos;
+    }
+  }
 }
 
 void edit_window_t::right_click_menu_activated(int action) {
@@ -1408,8 +1409,11 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
     } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
       reset_selection();
       text->cursor = xy_to_text_coordinate(event.x, event.y);
-      WITH_CLIPBOARD_LOCK(std::shared_ptr<std::string> primary = get_primary();
-                          if (primary != nullptr) text->insert_block(primary.get());)
+      {
+        ensure_clipboard_lock_t lock;
+        std::shared_ptr<std::string> primary = get_primary();
+        if (primary != nullptr) text->insert_block(primary.get());
+      }
       ensure_cursor_on_screen();
       impl->last_set_pos = impl->screen_pos;
     } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_RIGHT)) {
