@@ -36,8 +36,8 @@ using lt_dlhandle = void *;
 
 namespace t3_widget {
 
-linked_ptr<std::string>::t clipboard_data;
-linked_ptr<std::string>::t primary_data;
+std::shared_ptr<std::string> clipboard_data;
+std::shared_ptr<std::string> primary_data;
 
 static void init_external_clipboard(bool init);
 
@@ -50,7 +50,7 @@ static signals::connection init_connected =
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<std::string>::t get_clipboard() {
+std::shared_ptr<std::string> get_clipboard() {
   if (extclipboard_calls != nullptr) {
     return extclipboard_calls->get_selection(true);
   }
@@ -62,7 +62,7 @@ linked_ptr<std::string>::t get_clipboard() {
     While the returned linked_ptr is in scope, the clipboard should be locked.
     See lock_clipboard for details.
 */
-linked_ptr<std::string>::t get_primary() {
+std::shared_ptr<std::string> get_primary() {
   if (extclipboard_calls != nullptr) {
     return extclipboard_calls->get_selection(false);
   }
@@ -79,7 +79,7 @@ void set_clipboard(std::string *str) {
     extclipboard_calls->claim_selection(true, str);
     return;
   }
-  clipboard_data = str;
+  clipboard_data.reset(str);
 }
 
 void set_primary(std::string *str) {
@@ -94,7 +94,7 @@ void set_primary(std::string *str) {
     }
     return;
   }
-  primary_data = str;
+  primary_data.reset(str);
 }
 
 static void init_external_clipboard(bool init) {

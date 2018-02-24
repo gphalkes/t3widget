@@ -227,10 +227,10 @@ bool text_field_t::process_key(key_t key) {
           case ACTION_PASTE:
           case ACTION_PASTE_SELECTION:
             WITH_CLIPBOARD_LOCK(
-                linked_ptr<std::string>::t copy_buffer =
+                std::shared_ptr<std::string> copy_buffer =
                     action == ACTION_PASTE ? get_clipboard() : get_primary();
                 if (copy_buffer != nullptr) {
-                  text_line_t insert_line(copy_buffer);
+                  text_line_t insert_line(copy_buffer.get());
 
                   // Don't allow pasting of values that do not match the filter
                   if (impl->filter_keys != nullptr) {
@@ -538,9 +538,9 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
     reset_selection();
     impl->pos = impl->line->calculate_line_pos(0, INT_MAX, event.x - 1 + impl->leftcol, 0);
 
-    WITH_CLIPBOARD_LOCK(linked_ptr<std::string>::t primary = get_primary();
+    WITH_CLIPBOARD_LOCK(std::shared_ptr<std::string> primary = get_primary();
                         if (primary != nullptr) {
-                          text_line_t insert_line(primary);
+                          text_line_t insert_line(primary.get());
 
                           impl->line->insert(&insert_line, impl->pos);
                           impl->pos += insert_line.get_length();

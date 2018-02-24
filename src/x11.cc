@@ -357,9 +357,9 @@ class x11_driver_t {
 
 #define x11_working() (x11.is_initialized() && !x11.has_error())
 
-  linked_ptr<std::string>::t get_selection(bool clipboard) {
+  std::shared_ptr<std::string> get_selection(bool clipboard) {
     timeout_t timeout = timeout_time(1000000);
-    linked_ptr<std::string>::t result;
+    std::shared_ptr<std::string> result;
 
     /* NOTE: the clipboard is supposed to be locked when this routine is called. */
 
@@ -379,7 +379,7 @@ class x11_driver_t {
       x11.x11_flush();
       if (clipboard_signal.wait_until(clipboard_mutex_lock, timeout) != std::cv_status::timeout &&
           conversion_succeeded) {
-        result = new std::string(retrieved_data);
+        result.reset(new std::string(retrieved_data));
       }
       action = ACTION_NONE;
     } else {
@@ -393,9 +393,9 @@ class x11_driver_t {
 
     if (!x11_working()) {
       if (clipboard) {
-        clipboard_data = data;
+        clipboard_data.reset(data);
       } else {
-        primary_data = data;
+        primary_data.reset(data);
       }
       return;
     }
@@ -409,14 +409,14 @@ class x11_driver_t {
       }
 
       action = CLAIM_CLIPBOARD;
-      clipboard_data = data;
+      clipboard_data.reset(data);
     } else {
       /* If we don't own the selection, reseting is a no-op. */
       if (primary_owner_since == X11_CURRENT_TIME && data == nullptr) {
         return;
       }
       action = CLAIM_PRIMARY;
-      primary_data = data;
+      primary_data.reset(data);
     }
 
     if (data != nullptr) {
@@ -514,7 +514,7 @@ class x11_driver_t {
           @return A boolean indicating succes.
   */
   bool send_selection(x11_window_t requestor, x11_atom_t target, x11_atom_t property,
-                      linked_ptr<std::string>::t data, x11_time_t since) {
+                      std::shared_ptr<std::string> data, x11_time_t since) {
     if (target == x11.get_atom(TARGETS)) {
       x11.x11_change_property(requestor, property, x11.get_atom(ATOM), 32, X11_PROPERTY_REPLACE,
                               x11.get_targets_list(), 4);
@@ -749,7 +749,7 @@ class x11_driver_t {
         }
         case X11_SELECTION_REQUEST: {
           x11_selection_event_t reply;
-          linked_ptr<std::string>::t data;
+          std::shared_ptr<std::string> data;
           x11_time_t since;
           x11_selection_request_event_t *request_event =
               reinterpret_cast<x11_selection_request_event_t *>(event);
@@ -814,11 +814,12 @@ class x11_driver_t {
 
   struct incr_send_data_t {
     x11_window_t window;
-    linked_ptr<std::string>::t data;
+    std::shared_ptr<std::string> data;
     x11_atom_t property;
     size_t offset;
 
-    incr_send_data_t(x11_window_t _window, linked_ptr<std::string>::t &_data, x11_atom_t _property)
+    incr_send_data_t(x11_window_t _window, std::shared_ptr<std::string> &_data,
+                     x11_atom_t _property)
         : window(_window), data(_data), property(_property), offset(0) {}
   };
   using incr_send_list_t = std::list<incr_send_data_t>;
@@ -859,7 +860,7 @@ static void release_selections() {
   x11_driver_t::implementation->release_selections();
 }
 
-static linked_ptr<std::string>::t get_selection(bool clipboard) {
+static std::shared_ptr<std::string> get_selection(bool clipboard) {
   if (!x11_driver_t::implementation) {
     return clipboard ? clipboard_data : primary_data;
   }
