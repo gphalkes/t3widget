@@ -38,6 +38,8 @@ signals::connection edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
 signals::connection edit_window_t::replace_buttons_connection;
+menu_panel_t *edit_window_t::right_click_menu;
+signals::connection edit_window_t::right_click_menu_connection;
 
 signals::connection edit_window_t::init_connected =
     connect_on_init(signals::ptr_fun(edit_window_t::init));
@@ -57,6 +59,11 @@ void edit_window_t::init(bool _init) {
     goto_dialog = new goto_dialog_t();
     global_find_dialog = new find_dialog_t();
     replace_buttons = new replace_buttons_dialog_t();
+    right_click_menu = new menu_panel_t("");
+    right_click_menu->add_item(_("Cu_t"), nullptr, ACTION_CUT);
+    right_click_menu->add_item(_("_Copy"), nullptr, ACTION_COPY);
+    right_click_menu->add_item(_("_Paste"), nullptr, ACTION_PASTE);
+    right_click_menu->add_item(_("Paste _Selection"), nullptr, ACTION_PASTE_SELECTION);
   } else {
     delete goto_dialog;
     goto_dialog = nullptr;
@@ -1226,6 +1233,24 @@ void edit_window_t::paste(bool clipboard) {
       })
 }
 
+void edit_window_t::right_click_menu_activated(int action) {
+  lprintf("right click menu activated: %d\n", action);
+  switch (action) {
+    case ACTION_CUT:
+      cut_copy(true);
+      break;
+    case ACTION_COPY:
+      cut_copy(false);
+      break;
+    case ACTION_PASTE:
+      paste(true);
+      break;
+    case ACTION_PASTE_SELECTION:
+      paste(false);
+      break;
+  }
+}
+
 void edit_window_t::select_all() {
   text->set_selection_mode(selection_mode_t::ALL);
   update_repaint_lines(0, INT_MAX);
@@ -1387,6 +1412,14 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
                           if (primary != nullptr) text->insert_block(primary);)
       ensure_cursor_on_screen();
       impl->last_set_pos = impl->screen_pos;
+    } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_RIGHT)) {
+      right_click_menu->set_position(event.y + t3_win_get_abs_y(window),
+                                     event.x + t3_win_get_abs_x(window));
+      right_click_menu->connect_closed(
+          signals::mem_fun(&right_click_menu_connection, &signals::connection::disconnect));
+      right_click_menu_connection = right_click_menu->connect_activate(
+          signals::mem_fun(this, &edit_window_t::right_click_menu_activated));
+      right_click_menu->show();
     } else if (event.type == EMOUSE_BUTTON_PRESS &&
                (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
       scroll(event.button_state & EMOUSE_SCROLL_UP ? -3 : 3);

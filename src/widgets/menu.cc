@@ -50,6 +50,7 @@ void menu_bar_t::add_menu(menu_panel_t *menu) {
   menu->set_menu_bar(this);
   menu->set_position(None, impl->start_col);
   impl->start_col += menu->get_label_width() + 2;
+  menu->connect_activate(activate.make_slot());
   redraw = true;
 }
 
@@ -225,7 +226,7 @@ bool menu_bar_t::process_mouse_event(mouse_event_t event) {
   } else {
     event.x -= current_menu_x;
     event.y -= 1;
-    impl->menus[impl->current_menu]->process_mouse_event_from_menu(event);
+    impl->menus[impl->current_menu]->process_mouse_event(event);
     return true;
   }
   return true;

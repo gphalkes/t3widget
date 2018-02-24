@@ -46,7 +46,7 @@ bool menu_item_t::process_key(key_t key) {
     case ' ':
     case EKEY_HOTKEY:
       parent->close();
-      parent->signal(id);
+      parent->activate(id);
       break;
     default:
       return false;
@@ -86,9 +86,10 @@ void menu_item_t::hide() {}
 bool menu_item_t::is_hotkey(key_t key) { return label->is_hotkey(key); }
 
 void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
-  if (event.type == EMOUSE_BUTTON_RELEASE && (event.previous_button_state & EMOUSE_BUTTON_LEFT)) {
+  if (event.type == EMOUSE_BUTTON_RELEASE &&
+      (event.previous_button_state & (EMOUSE_BUTTON_LEFT | EMOUSE_BUTTON_RIGHT))) {
+    parent->activate(id);
     parent->close();
-    parent->signal(id);
   }
   return;
 }

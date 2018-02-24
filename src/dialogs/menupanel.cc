@@ -14,6 +14,7 @@
 #include <cstring>
 
 #include "dialogs/menupanel.h"
+#include "log.h"
 #include "main.h"
 #include "util.h"
 #include "widgets/menuitem.h"
@@ -63,9 +64,7 @@ bool menu_panel_t::process_key(key_t key) {
     case EKEY_SHIFT | '\t':
       break;
     case EKEY_ESC:
-      if (impl->menu_bar != nullptr) {
-        impl->menu_bar->close();
-      }
+      close();
       break;
     case EKEY_NL:
     case ' ':
@@ -87,8 +86,7 @@ bool menu_panel_t::process_key(key_t key) {
 }
 
 void menu_panel_t::set_position(optint top, optint left) {
-  (void)top;
-  dialog_t::set_position(1, left);
+  dialog_t::set_position(impl->menu_bar == nullptr ? top() : 1, left);
 }
 
 bool menu_panel_t::set_size(optint height, optint _width) {
@@ -104,23 +102,47 @@ bool menu_panel_t::set_size(optint height, optint _width) {
   return result;
 }
 
-void menu_panel_t::process_mouse_event_from_menu(mouse_event_t event) {
+bool menu_panel_t::process_mouse_event(mouse_event_t event) {
+  if ((event.x < 0 || event.y < 0 || event.x > t3_win_get_width(window) ||
+       event.y > t3_win_get_height(window)) &&
+      event.type & EMOUSE_OUTSIDE_GRAB &&
+      (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_RELEASE) {
+    close();
+    return true;
+  }
   if (event.x < 1 || event.x > t3_win_get_width(window) - 2 || event.y < 1 ||
       event.y > t3_win_get_height(window) - 2) {
-    return;
+    return true;
   }
   (*current_widget)->set_focus(FOCUS_OUT);
   current_widget = widgets.begin() + (event.y - 1);
+  event.type &= ~EMOUSE_OUTSIDE_GRAB;
   event.y = 0;
   event.x--;
   (*current_widget)->set_focus(FOCUS_SET);
   static_cast<menu_item_base_t *>(*current_widget)->process_mouse_event_from_menu(event);
-  return;
+  return true;
+}
+
+void menu_panel_t::show() {
+  dialog_t::show();
+  if (impl->menu_bar == nullptr) {
+    grab_mouse();
+  }
+}
+
+void menu_panel_t::hide() {
+  dialog_t::hide();
+  if (impl->menu_bar == nullptr) {
+    release_mouse_grab();
+  }
 }
 
 void menu_panel_t::close() {
   if (impl->menu_bar != nullptr) {
     impl->menu_bar->close();
+  } else {
+    dialog_t::close();
   }
 }
 
@@ -193,12 +215,6 @@ resize_panel:
   }
   set_size(widgets.size() + 2, impl->width);
   return new_item;
-}
-
-void menu_panel_t::signal(int id) {
-  if (impl->menu_bar != nullptr) {
-    impl->menu_bar->activate(id);
-  }
 }
 
 void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {

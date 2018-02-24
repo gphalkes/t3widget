@@ -24,6 +24,7 @@ class edit_window_t;
 #include <vector>
 
 #include <t3widget/autocompleter.h>
+#include <t3widget/dialogs/menupanel.h>
 #include <t3widget/dialogs/popup.h>
 #include <t3widget/interfaces.h>
 #include <t3widget/key.h>
@@ -57,6 +58,8 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   static finder_t global_finder;
   static replace_buttons_dialog_t *replace_buttons;
   static signals::connection replace_buttons_connection;
+  static menu_panel_t *right_click_menu;
+  static signals::connection right_click_menu_connection;
   static signals::connection init_connected;
 
   struct T3_WIDGET_LOCAL implementation_t {
@@ -166,6 +169,8 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void mark_selection();
   /** Pastes either the selection, or the clipboard. */
   void paste(bool clipboard);
+
+  void right_click_menu_activated(int action);
 
  protected:
   text_buffer_t *text;               /**< Buffer holding the text currently displayed. */

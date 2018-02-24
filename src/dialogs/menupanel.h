@@ -22,7 +22,7 @@ namespace t3_widget {
 class menu_item_base_t;
 class menu_item_t;
 
-class T3_WIDGET_API menu_panel_t : public dialog_t {
+class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   friend class menu_bar_t;
   friend class menu_item_t;
 
@@ -36,7 +36,6 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
   };
   pimpl_ptr<implementation_t>::t impl;
 
-  void signal(int id);
   void close() override;
   void set_menu_bar(menu_bar_t *_menu_bar);
   void draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const;
@@ -46,9 +45,11 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
  protected:
   bool is_child(window_component_t *widget) override;
 
-  /* Menu panels get their events from the menu_t, because that grabs the
-     mouse as soon as it is activated. */
-  void process_mouse_event_from_menu(mouse_event_t event);
+  /* Process the mouse event. If this menu_panel_t is associated with a menu_bar_t, the events will
+     be preprocessed by the menu_bar_t, and EMOUSE_OUTSIDE_GRAB will never be included. */
+  bool process_mouse_event(mouse_event_t event) override;
+
+  void hide() override;
 
  public:
   menu_panel_t(const char *name, menu_bar_t *_menu_bar = nullptr);
@@ -62,7 +63,11 @@ class T3_WIDGET_API menu_panel_t : public dialog_t {
   menu_item_base_t *replace_item(menu_item_base_t *old_item, const char *label, const char *hotkey,
                                  int id);
   menu_item_base_t *replace_item(menu_item_base_t *old_item, menu_item_t *new_item);
+
+  void show() override;
+
+  T3_WIDGET_SIGNAL(activate, void, int);
 };
 
-};  // namespace
+}  // namespace
 #endif
