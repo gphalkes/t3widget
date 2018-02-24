@@ -23,7 +23,7 @@ namespace t3_widget {
 class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
  private:
   /** Text to display on the button. */
-  cleanup_ptr<smart_label_text_t>::t text;
+  std::unique_ptr<smart_label_text_t> text;
 
   /** Width of the text. */
   int text_width;

@@ -28,7 +28,7 @@ file_pane_t::file_pane_t() : widget_t(3, 3), impl(new implementation_t()) {
                              T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
   impl->scrollbar.connect_clicked(signals::mem_fun(this, &file_pane_t::scrollbar_clicked));
   impl->scrollbar.connect_dragged(signals::mem_fun(this, &file_pane_t::scrollbar_dragged));
-  impl->search_panel = new search_panel_t(this);
+  impl->search_panel.reset(new search_panel_t(this));
 }
 
 file_pane_t::~file_pane_t() { impl->content_changed_connection.disconnect(); }

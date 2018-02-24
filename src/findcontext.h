@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_FINDCONTEXT_H
 #define T3_WIDGET_FINDCONTEXT_H
 
+#include <memory>
 #include <pcre.h>
 #include <string>
 
@@ -40,7 +41,7 @@ class T3_WIDGET_API finder_t {
   int flags;
 
   /** Pointer to a string_matcher_t, if a non-regex search was requested. */
-  cleanup_ptr<string_matcher_t>::t matcher;
+  std::unique_ptr<string_matcher_t> matcher;
 
   /* PCRE context and data */
   /** Pointer to a compiled regex. */
@@ -52,7 +53,7 @@ class T3_WIDGET_API finder_t {
   bool found; /**< Boolean indicating whether the regex match was successful. */
 
   /** Replacement string. */
-  cleanup_ptr<std::string>::t replacement;
+  std::unique_ptr<std::string> replacement;
 
   /** Space to store the case-folded representation of a single character. */
   cleanup_free_ptr<char>::t folded;
@@ -83,13 +84,8 @@ class T3_WIDGET_API finder_t {
       finder_t instance will take ownership of all objects allocated by
       @p other, and set @p other's object pointers to nullptr.
   */
-  finder_t &operator=(finder_t &other);
+  finder_t &operator=(finder_t &&other);
 
-  /** Set the search parameters.
-      May throw a @c const @c char pointer holding an error message. Caller
-      of this function remains owner of passed objects.
-  */
-  void set_context(const std::string *needle, int flags, const std::string *replacement = nullptr);
   /** Try to find the previously set @c needle in a string. */
   bool match(const std::string *haystack, find_result_t *result, bool reverse);
   /** Retrieve the flags set when setting the search context. */
@@ -101,5 +97,5 @@ class T3_WIDGET_API finder_t {
   std::string *get_replacement(const std::string *haystack);
 };
 
-};  // namespace
+}  // namespace
 #endif

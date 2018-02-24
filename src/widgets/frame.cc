@@ -22,7 +22,7 @@ frame_t::frame_t(frame_dimension_t _dimension)
 void frame_t::set_child(widget_t *_child) {
   int child_top = 1, child_left = 1;
 
-  child = _child;
+  child.reset(_child);
 
   if (dimension & COVER_TOP) {
     child_top = 0;
@@ -30,7 +30,7 @@ void frame_t::set_child(widget_t *_child) {
   if (dimension & COVER_LEFT) {
     child_left = 0;
   }
-  set_widget_parent(child);
+  set_widget_parent(child.get());
   child->set_anchor(this, 0);
   child->set_position(child_top, child_left);
   set_size(None, None);
@@ -108,7 +108,7 @@ void frame_t::force_redraw() {
 
 void frame_t::set_child_focus(window_component_t *target) {
   container_t *container;
-  if (target == child) {
+  if (target == child.get()) {
     child->set_focus(window_component_t::FOCUS_SET);
   }
   container = dynamic_cast<container_t *>(child.get());
@@ -119,11 +119,11 @@ void frame_t::set_child_focus(window_component_t *target) {
 
 bool frame_t::is_child(window_component_t *component) {
   container_t *container;
-  if (component == child) {
+  if (component == child.get()) {
     return true;
   }
   container = dynamic_cast<container_t *>(child.get());
   return container != nullptr && container->is_child(component);
 }
 
-};  // namespace
+}  // namespace

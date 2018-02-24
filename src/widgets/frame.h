@@ -65,8 +65,8 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   bool is_child(window_component_t *component) override;
 
  private:
-  frame_dimension_t dimension;    /**< Requested overlaps. */
-  cleanup_ptr<widget_t>::t child; /**< The widget to enclose. */
+  frame_dimension_t dimension;     /**< Requested overlaps. */
+  std::unique_ptr<widget_t> child; /**< The widget to enclose. */
 };
 
 };  // namespace

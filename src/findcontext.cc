@@ -70,14 +70,14 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
                       nullptr, nullptr, nullptr, &folded_needle_size)));
       /* When passing a const char * to string_matcher_t, it takes responsibility for
          de-allocation. */
-      matcher = new string_matcher_t(folded_needle.get(), folded_needle_size);
+      matcher.reset(new string_matcher_t(folded_needle.get(), folded_needle_size));
     } else {
-      matcher = new string_matcher_t(search_for);
+      matcher.reset(new string_matcher_t(search_for));
     }
   }
 
   if (_replacement != nullptr) {
-    replacement = new std::string(*_replacement);
+    replacement.reset(new std::string(*_replacement));
     if ((flags & find_flags_t::TRANSFROM_BACKSLASH) || (flags & find_flags_t::REGEX)) {
       if (!parse_escapes(*replacement, &error_message, (flags & find_flags_t::REGEX) != 0)) {
         throw error_message;
@@ -89,27 +89,20 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
 }
 
 finder_t::~finder_t() {}
-
-finder_t &finder_t::operator=(finder_t &other) {
+finder_t &finder_t::operator=(finder_t &&other) {
   if (&other == this) {
     return *this;
   }
 
   flags = other.flags;
-  matcher = other.matcher.release();
+  matcher.reset(other.matcher.release());
   regex = other.regex.release();
   memcpy(ovector, other.ovector, sizeof(ovector));
   captures = other.captures;
   found = other.found;
-  replacement = other.replacement.release();
+  replacement.reset(other.replacement.release());
 
   return *this;
-}
-
-void finder_t::set_context(const std::string *needle, int _flags, const std::string *_replacement) {
-  /* If this initialization fails, it will throw a message pointer. */
-  finder_t new_context(needle, _flags, _replacement);
-  *this = new_context;
 }
 
 bool finder_t::match(const std::string *haystack, find_result_t *result, bool reverse) {

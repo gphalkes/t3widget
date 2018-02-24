@@ -725,11 +725,11 @@ void text_field_t::drop_down_list_t::update_view() {
 }
 
 void text_field_t::drop_down_list_t::set_autocomplete(string_list_base_t *_completions) {
-  /* completions is a cleanup_ptr, thus it will be deleted if it is not nullptr. */
+  /* completions is a unique_ptr, thus it will be deleted if it is not nullptr. */
   if (dynamic_cast<file_list_t *>(_completions) != nullptr) {
-    completions = new filtered_file_list_t(static_cast<file_list_t *>(_completions));
+    completions.reset(new filtered_file_list_t(static_cast<file_list_t *>(_completions)));
   } else {
-    completions = new filtered_string_list_t(_completions);
+    completions.reset(new filtered_string_list_t(_completions));
   }
   update_list_pane();
 }

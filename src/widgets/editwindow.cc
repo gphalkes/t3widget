@@ -659,7 +659,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
 
   local_finder = impl->finder == nullptr ? &global_finder : impl->finder;
   if (_finder != nullptr) {
-    *local_finder = *_finder;
+    *local_finder = std::move(*_finder);
   }
 
   switch (action) {

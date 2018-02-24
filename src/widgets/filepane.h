@@ -46,7 +46,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
         scrollbar_range; /**< Visible range for scrollbar setting. */
     signals::connection
         content_changed_connection; /**< Connection to #file_list's content_changed signal. */
-    cleanup_ptr<search_panel_t>::t search_panel;
+    std::unique_ptr<search_panel_t> search_panel;
 
     implementation_t()
         : scrollbar(false),
