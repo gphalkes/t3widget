@@ -257,7 +257,7 @@ void file_pane_t::set_child_focus(window_component_t *target) {
 bool file_pane_t::is_child(window_component_t *widget) { return widget == &impl->scrollbar; }
 
 bool file_pane_t::process_mouse_event(mouse_event_t event) {
-  if (event.window != window.get()) {
+  if (event.window != window) {
     return true;
   }
   if ((event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT)) ||

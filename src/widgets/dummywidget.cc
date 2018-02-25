@@ -45,6 +45,6 @@ bool dummy_widget_t::set_size(optint height, optint width) {
   return true;
 }
 
-window_wrapper_t *dummy_widget_t::get_base_window() { return nullptr; }
+t3_window::window_t *dummy_widget_t::get_base_window() { return nullptr; }
 
 }  // namespace

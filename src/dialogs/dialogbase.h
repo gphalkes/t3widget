@@ -47,7 +47,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   widgets_t::iterator
       current_widget;             /**< Iterator indicating the widget that has the input focus. */
   bool redraw;                    /**< Boolean indicating whether redrawing is necessary. */
-  window_wrapper_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+  t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
 
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
   dialog_base_t(int height, int width, bool has_shadow);

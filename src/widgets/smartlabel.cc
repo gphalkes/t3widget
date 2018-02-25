@@ -58,7 +58,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
 
 smart_label_text_t::~smart_label_text_t() {}
 
-void smart_label_text_t::draw(window_wrapper_t *window, t3_attr_t attr, bool selected) {
+void smart_label_text_t::draw(t3_window::window_t *window, t3_attr_t attr, bool selected) {
   if (!underlined) {
     window->addnstr(text.data(), text.size(), attr);
   } else {

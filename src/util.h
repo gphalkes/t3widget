@@ -158,10 +158,6 @@ struct free_deleter {
   void operator()(void *val) { free(val); }
 };
 
-struct t3_window_deleter {
-  void operator()(t3_window_t *win) { t3_win_del(win); }
-};
-
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 

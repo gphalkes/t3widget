@@ -247,7 +247,7 @@ void text_window_t::set_tabsize(int size) { impl->wrap_info->set_tabsize(size); 
 int text_window_t::get_text_height() { return impl->wrap_info->get_text_size(); }
 
 bool text_window_t::process_mouse_event(mouse_event_t event) {
-  if (event.window != window.get() || event.type != EMOUSE_BUTTON_PRESS) {
+  if (event.window != window || event.type != EMOUSE_BUTTON_PRESS) {
     return true;
   }
   if (event.button_state & EMOUSE_SCROLL_UP) {

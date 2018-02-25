@@ -39,7 +39,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
   struct T3_WIDGET_LOCAL implementation_t {
     size_t top_idx, current;
-    window_wrapper_t widgets_window;
+    t3_window::window_t widgets_window;
     widgets_t widgets;
     bool has_focus;
     scrollbar_t scrollbar;

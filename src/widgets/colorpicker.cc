@@ -83,7 +83,7 @@ bool color_picker_base_t::set_size(optint height, optint width) {
 bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
   int new_color;
 
-  if (event.window != window.get()) {
+  if (event.window != window) {
     return true;
   }
   if (event.button_state & EMOUSE_CLICKED_LEFT) {

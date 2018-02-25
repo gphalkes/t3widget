@@ -63,7 +63,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   static connection_t init_connected;
 
   struct T3_WIDGET_LOCAL implementation_t {
-    window_wrapper_t edit_window, /**< Window containing the text. */
+    t3_window::window_t edit_window, /**< Window containing the text. */
         indicator_window; /**< Window holding the line, column, modified, etc. information line at
                              the bottom. */
     std::unique_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
@@ -173,8 +173,8 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void right_click_menu_activated(int action);
 
  protected:
-  text_buffer_t *text;          /**< Buffer holding the text currently displayed. */
-  window_wrapper_t info_window; /**< Window for other information, such as buffer name. */
+  text_buffer_t *text;             /**< Buffer holding the text currently displayed. */
+  t3_window::window_t info_window; /**< Window for other information, such as buffer name. */
 
   /** Draw the information in the #info_window.
 

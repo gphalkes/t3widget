@@ -21,7 +21,7 @@ namespace t3_widget {
 /* The default_parent must exist before any widgets are created. Thus using the
    #on_init method won't work. Instead we use a cleanup_t3_window.
 */
-window_wrapper_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
+t3_window::window_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
 
 bool widget_t::is_hotkey(key_t key) {
   (void)key;
@@ -38,7 +38,7 @@ widget_t::widget_t(int height, int width, bool register_as_mouse_target)
 widget_t::widget_t() : redraw(true), enabled(true), shown(true) {}
 
 void widget_t::init_window(int height, int width, bool register_as_mouse_target) {
-  window.alloc(default_parent.get(), height, width, 0, 0, 0);
+  window.alloc(&default_parent, height, width, 0, 0, 0);
   window.show();
   if (register_as_mouse_target) {
     register_mouse_target(&window);
@@ -46,7 +46,7 @@ void widget_t::init_window(int height, int width, bool register_as_mouse_target)
 }
 
 void widget_t::init_unbacked_window(int height, int width, bool register_as_mouse_target) {
-  window.alloc_unbacked(default_parent.get(), height, width, 0, 0, 0);
+  window.alloc_unbacked(&default_parent, height, width, 0, 0, 0);
   window.show();
   if (register_as_mouse_target) {
     register_mouse_target(&window);

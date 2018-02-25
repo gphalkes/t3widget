@@ -24,89 +24,11 @@
 
 namespace t3_widget {
 
-/** Wrapper class for t3_window_t, to allow C++ style access. */
-class T3_WIDGET_API window_wrapper_t {
- public:
-  window_wrapper_t() = default;
-
-  window_wrapper_t(t3_window_t *parent, int height, int width, int y, int x, int depth,
-                   bool backed = true) {
-    if (backed) {
-      alloc(parent, height, width, y, x, depth);
-    } else {
-      alloc_unbacked(parent, height, width, y, x, depth);
-    }
-  }
-
-  t3_window_t *get() { return window_.get(); }
-
-  void alloc(t3_window_t *parent, int height, int width, int y, int x, int depth) {
-    window_.reset(t3_win_new(parent, height, width, y, x, depth));
-    if (window_ == nullptr) {
-      throw std::bad_alloc();
-    }
-  }
-  void alloc_unbacked(t3_window_t *parent, int height, int width, int y, int x, int depth) {
-    window_.reset(t3_win_new_unbacked(parent, height, width, y, x, depth));
-    if (window_ == nullptr) {
-      throw std::bad_alloc();
-    }
-  }
-
-  bool operator==(std::nullptr_t) { return window_ == nullptr; }
-  bool operator!=(std::nullptr_t) { return window_ != nullptr; }
-
-  int get_height() const { return t3_win_get_height(window_.get()); }
-  int get_width() const { return t3_win_get_width(window_.get()); }
-
-  int get_y() const { return t3_win_get_y(window_.get()); }
-  int get_x() const { return t3_win_get_x(window_.get()); }
-  int get_abs_y() const { return t3_win_get_abs_y(window_.get()); }
-  int get_abs_x() const { return t3_win_get_abs_x(window_.get()); }
-  void move(int y, int x) { t3_win_move(window_.get(), y, x); }
-  bool set_anchor(const window_wrapper_t *anchor, int relation) {
-    return t3_win_set_anchor(window_.get(), anchor == nullptr ? nullptr : anchor->window_.get(),
-                             relation) != t3_false;
-  }
-  void set_default_attrs(t3_attr_t attr) { t3_win_set_default_attrs(window_.get(), attr); }
-  void set_paint(int y, int x) { t3_win_set_paint(window_.get(), y, x); }
-  void clrtoeol() { t3_win_clrtoeol(window_.get()); }
-  void clrtobot() { t3_win_clrtobot(window_.get()); }
-  int addstr(const char *str, t3_attr_t attr) { return t3_win_addstr(window_.get(), str, attr); }
-  int addnstr(const char *str, size_t size, t3_attr_t attr) {
-    return t3_win_addnstr(window_.get(), str, size, attr);
-  }
-  int addch(char ch, t3_attr_t attr) { return t3_win_addch(window_.get(), ch, attr); }
-  int addchrep(char ch, t3_attr_t attr, int rep) {
-    return t3_win_addchrep(window_.get(), ch, attr, rep);
-  }
-  int box(int y, int x, int height, int width, t3_attr_t attr) {
-    return t3_win_box(window_.get(), y, x, height, width, attr);
-  }
-  bool resize(int height, int width) {
-    return t3_win_resize(window_.get(), height, width) != t3_false;
-  }
-  void hide() { t3_win_hide(window_.get()); }
-  void show() { t3_win_show(window_.get()); }
-  void set_restrict(const window_wrapper_t *other) {
-    t3_win_set_restrict(window_.get(), other == nullptr ? nullptr : other->window_.get());
-  }
-  void set_depth(int depth) { t3_win_set_depth(window_.get(), depth); }
-  int get_depth() const { return t3_win_get_depth(window_.get()); }
-  bool set_parent(const window_wrapper_t *parent) const {
-    return t3_win_set_parent(window_.get(), parent == nullptr ? nullptr : parent->window_.get()) !=
-           t3_false;
-  }
-
- private:
-  std::unique_ptr<t3_window_t, t3_window_deleter> window_;
-};
-
 /** Abstract base class for all items displayed on screen. */
 class T3_WIDGET_API window_component_t {
  protected:
   /** The t3_window_t used for presenting this item on screen (see libt3window). */
-  window_wrapper_t window;
+  t3_window::window_t window;
 
  public:
   enum focus_t { FOCUS_OUT = 0, FOCUS_SET, FOCUS_IN_FWD, FOCUS_IN_BCK, FOCUS_REVERT };
@@ -117,11 +39,11 @@ class T3_WIDGET_API window_component_t {
   /* Virtual destructor is required for proper functioning of the delete
      operator in multiple-inheritance situations. */
   virtual ~window_component_t();
-  /** Retrieve the window_wrapper_t for this window_component_t.
+  /** Retrieve the window_t for this window_component_t.
       The returned pointer should be used only for setting anchor
       positions of other window_component_t's and similar operations.
   */
-  virtual window_wrapper_t *get_base_window();
+  virtual t3_window::window_t *get_base_window();
   /** Handle a key press by the user.
       @return A boolean indicating whether this window_component_t handled the
           key press.
@@ -209,10 +131,10 @@ class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 
  public:
   /** Register a window to receive mouse events. */
-  void register_mouse_target(window_wrapper_t *target);
+  void register_mouse_target(t3_window::window_t *target);
 
   /** Unregister a window to receive mouse events. */
-  void unregister_mouse_target(window_wrapper_t *target);
+  void unregister_mouse_target(t3_window::window_t *target);
 
   /** Process a mouse event.
       @return A boolean indicating whether this mouse_target_t handled the

@@ -234,7 +234,8 @@ void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
   }
 }
 
-void menu_panel_t::draw_label(window_wrapper_t *draw_window, t3_attr_t attr, bool selected) const {
+void menu_panel_t::draw_label(t3_window::window_t *draw_window, t3_attr_t attr,
+                              bool selected) const {
   impl->label.draw(draw_window, attr, selected);
 }
 

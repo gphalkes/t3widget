@@ -79,16 +79,16 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
      if the bottom line is clicked. */
   init_unbacked_window(11, 11, true);
 
-  impl->edit_window.alloc(window.get(), 10, 10, 0, 0, 0);
+  impl->edit_window.alloc(&window, 10, 10, 0, 0, 0);
   impl->edit_window.show();
 
-  impl->indicator_window.alloc(window.get(), 1, 10, 0, 0, 0);
+  impl->indicator_window.alloc(&window, 1, 10, 0, 0, 0);
 
   impl->indicator_window.set_anchor(
       &window, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   impl->indicator_window.show();
 
-  info_window.alloc(window.get(), 1, 1, 0, 0, 1);
+  info_window.alloc(&window, 1, 1, 0, 0, 1);
 
   info_window.set_anchor(&window, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
   info_window.show();
@@ -1363,7 +1363,7 @@ void edit_window_t::set_child_focus(window_component_t *target) {
 bool edit_window_t::is_child(window_component_t *widget) { return widget == impl->scrollbar.get(); }
 
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
-  if (event.window == impl->edit_window.get()) {
+  if (event.window == impl->edit_window) {
     if (event.button_state & EMOUSE_TRIPLE_CLICKED_LEFT) {
       text->cursor.pos = 0;
       text->set_selection_mode(selection_mode_t::SHIFT);

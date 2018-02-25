@@ -20,7 +20,7 @@ namespace t3_widget {
 list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator)) {
   init_unbacked_window(1, 4);
 
-  impl->widgets_window.alloc_unbacked(window.get(), 1, 3, 0, 0, 0);
+  impl->widgets_window.alloc_unbacked(&window, 1, 3, 0, 0, 0);
   impl->widgets_window.show();
   register_mouse_target(&impl->widgets_window);
 
@@ -197,12 +197,12 @@ void list_pane_t::set_focus(focus_t focus) {
 
 bool list_pane_t::process_mouse_event(mouse_event_t event) {
   if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
-      event.window != impl->widgets_window.get()) {
+      event.window != impl->widgets_window) {
     if (!impl->single_click_activate) {
       activate();
     }
   } else if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) &&
-             event.window != impl->widgets_window.get()) {
+             event.window != impl->widgets_window) {
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
     impl->current = event.y;
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
