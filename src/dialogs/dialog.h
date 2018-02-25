@@ -67,7 +67,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   void show() override;
   void hide() override;
 
-  /** @fn signals::connection connect_closed(const signals::slot<void> &_slot)
+  /** @fn signals::connection connect_closed(std::function<void()> func)
       Connect a callback to the #closed signal.
   */
   /** Signal emitted when the dialog is closed by calling #close. */

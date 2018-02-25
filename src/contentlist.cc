@@ -156,11 +156,11 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t &other) {
   return *this;
 }
 
-bool string_compare_filter(string_list_base_t *list, size_t idx, const std::string *str) {
+bool string_compare_filter(const std::string *str, string_list_base_t *list, size_t idx) {
   return (*list)[idx]->compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 
-bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, bool show_hidden) {
+bool glob_filter(const std::string *str, bool show_hidden, string_list_base_t *list, size_t idx) {
   file_list_t *file_list = dynamic_cast<file_list_t *>(list);
   const std::string *item_name = (*list)[idx];
   std::string fs_name;

@@ -47,7 +47,7 @@ class T3_WIDGET_API list_base_t {
     will not always be the same.
 */
 class T3_WIDGET_API string_list_base_t : public virtual list_base_t {
-  /** @fn signals::connection connect_content_changed(const signals::slot<void> &_slot)
+  /** @fn signals::connection connect_content_changed(std::function<void()> func)
       Connect to signal emitted when the content of the list changed.*/
   /** Signal emitted when the content of the list changed. */
   T3_WIDGET_SIGNAL(content_changed, void);
@@ -119,7 +119,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 class T3_WIDGET_API filtered_list_base_t : public virtual list_base_t {
  public:
   /** Set the filter callback. */
-  virtual void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &) = 0;
+  virtual void set_filter(std::function<bool(string_list_base_t *, size_t)>) = 0;
   /** Reset the filter. */
   virtual void reset_filter() = 0;
 };
@@ -133,7 +133,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
   /** Base list of which this is a filtered view. */
   list_t *base;
   /** Filter function. */
-  optional<signals::slot<bool, list_t *, size_t> > test;
+  optional<std::function<bool(string_list_base_t *, size_t)>> test;
   /** Connection to base list's content_changed signal. */
   signals::connection base_content_changed_connection;
 
@@ -157,17 +157,14 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
     list_t::content_changed();
   }
 
-  static bool null_filter(list_t *, size_t) { return false; }
-
  public:
   /** Make a new filtered_list_internal_t, wrapping an existing list. */
   filtered_list_internal_t(list_t *list)
-      : base(list), test(signals::ptr_fun(&filtered_list_internal_t::null_filter)) {
-    base_content_changed_connection = base->connect_content_changed(
-        signals::mem_fun(this, &filtered_list_internal_t::update_list));
+      : base(list), test([](string_list_base_t *, size_t) { return false; }) {
+    base_content_changed_connection = base->connect_content_changed([this] { update_list(); });
   }
   ~filtered_list_internal_t() override { base_content_changed_connection.disconnect(); }
-  void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) override {
+  void set_filter(std::function<bool(string_list_base_t *, size_t)> _test) override {
     test = _test;
     update_list();
   }
@@ -191,11 +188,9 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
 template <class list_t>
 class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
  public:
-  // typedef signals::slot<bool, list_t *, size_t> filter_type_t;
-
   filtered_list_t(list_t *list) : filtered_list_internal_t<list_t>(list) {}
   using filtered_list_internal_t<list_t>::set_filter;
-  void set_filter(const signals::slot<bool, string_list_base_t *, size_t> &_test) override {
+  void set_filter(std::function<bool(string_list_base_t *, size_t)> _test) override {
     this->test = _test;
     this->update_list();
   }
@@ -228,11 +223,11 @@ class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 };
 
 /** Filter function comparing the initial part of an entry with @p str. */
-T3_WIDGET_API bool string_compare_filter(string_list_base_t *list, size_t idx,
-                                         const std::string *str);
+T3_WIDGET_API bool string_compare_filter(const std::string *str, string_list_base_t *list,
+                                         size_t idx);
 /** Filter function using glob on the fs_name of a file entry. */
-T3_WIDGET_API bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str,
-                               bool show_hidden);
+T3_WIDGET_API bool glob_filter(const std::string *str, bool show_hidden, string_list_base_t *list,
+                               size_t idx);
 
 }  // namespace
 #endif

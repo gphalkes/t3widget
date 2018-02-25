@@ -39,27 +39,27 @@ insert_char_dialog_t::insert_char_dialog_t()
   description_line->set_position(0, 1);
   description_line->set_size(1, INSERT_CHAR_DIALOG_WIDTH - description_label->get_width() - 5);
   description_line->set_label(description_label);
-  description_line->connect_activate(signals::mem_fun(this, &insert_char_dialog_t::ok_activate));
+  description_line->connect_activate([this] { ok_activate(); });
 
   cancel_button = new button_t("_Cancel", false);
   cancel_button->set_anchor(this,
                             T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   cancel_button->set_position(-1, -2);
-  cancel_button->connect_activate(signals::mem_fun(this, &insert_char_dialog_t::close));
+  cancel_button->connect_activate([this] { close(); });
   cancel_button->connect_move_focus_left(
-      signals::mem_fun(this, &insert_char_dialog_t::focus_previous));
+      [this] { focus_previous(); });
   /* Nasty trick: registering a callback twice will call the callback twice. We need to do
      focus_previous twice here to emulate moving up, because the ok_button is in the way. */
   cancel_button->connect_move_focus_up(
-      signals::mem_fun(this, &insert_char_dialog_t::focus_previous));
+      [this] { focus_previous(); });
   cancel_button->connect_move_focus_up(
-      signals::mem_fun(this, &insert_char_dialog_t::focus_previous));
+      [this] { focus_previous(); });
   ok_button = new button_t("_OK", true);
   ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   ok_button->set_position(0, -2);
-  ok_button->connect_activate(signals::mem_fun(this, &insert_char_dialog_t::ok_activate));
-  ok_button->connect_move_focus_up(signals::mem_fun(this, &insert_char_dialog_t::focus_previous));
-  ok_button->connect_move_focus_right(signals::mem_fun(this, &insert_char_dialog_t::focus_next));
+  ok_button->connect_activate([this] { ok_activate(); });
+  ok_button->connect_move_focus_up([this] { focus_previous(); });
+  ok_button->connect_move_focus_right([this] { focus_next(); });
 
   push_back(description_label);
   push_back(description_line);

@@ -116,11 +116,11 @@ init_parameters_t::init_parameters_t()
       separate_keypad(false),
       disable_external_clipboard(false) {}
 
-signals::connection connect_resize(const signals::slot<void, int, int> &slot) {
+signals::connection connect_resize(signals::slot<void, int, int> slot) {
   return resize.connect(slot);
 }
 
-signals::connection connect_update_notification(const signals::slot<void> &slot) {
+signals::connection connect_update_notification(signals::slot<void> slot) {
   return update_notification.connect(slot);
 }
 
@@ -130,7 +130,7 @@ static signals::signal<void, bool> &on_init() {
   return *on_init_obj;
 }
 
-signals::connection connect_on_init(const signals::slot<void, bool> &slot) {
+signals::connection connect_on_init(signals::slot<void, bool> slot) {
   return on_init().connect(slot);
 }
 
@@ -140,7 +140,7 @@ static signals::signal<void> &terminal_settings_changed() {
   return *terminal_settings_changed_obj;
 }
 
-signals::connection connect_terminal_settings_changed(const signals::slot<void> &slot) {
+signals::connection connect_terminal_settings_changed(signals::slot<void> slot) {
   return terminal_settings_changed().connect(slot);
 }
 

@@ -56,7 +56,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
   /** Retrieve this button_t's width. */
   int get_width();
 
-  /** @fn signals::connection connect_activate(const signals::slot<void> &_slot)
+  /** @fn signals::connection connect_activate(std::function<void()> func)
       Connect a callback to the #activate signal.
   */
   /** Signal emitted when the button is pressed. */

@@ -41,7 +41,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title)
                               T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->file_line->set_position(0, 1);
   impl->file_line->set_size(None, width - 2 - impl->name_offset);
-  impl->file_line->connect_activate(signals::mem_fun0(this, &file_dialog_t::ok_callback));
+  impl->file_line->connect_activate([this] { ok_callback(); });
   impl->file_line->set_label(name_label);
   impl->file_line->set_key_filter(&nul, 1, false);
   impl->file_line->set_autocomplete(&impl->view);
@@ -49,7 +49,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title)
   impl->file_pane = new file_pane_t();
   impl->file_pane->set_file_list(&impl->names);
   impl->file_pane->set_text_field(impl->file_line);
-  impl->file_pane->connect_activate(signals::mem_fun1(this, &file_dialog_t::ok_callback));
+  impl->file_pane->connect_activate([this](const std::string *file) { ok_callback(file); });
   impl->file_pane->set_file_list(&impl->view);
 
   impl->file_pane_frame = new frame_t(frame_t::COVER_BOTTOM);
@@ -61,12 +61,10 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title)
   impl->show_hidden_box->set_anchor(impl->file_pane_frame,
                                     T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->show_hidden_box->set_position(0, 0);
-  impl->show_hidden_box->connect_toggled(signals::mem_fun(this, &file_dialog_t::refresh_view));
-  impl->show_hidden_box->connect_activate(signals::mem_fun0(this, &file_dialog_t::ok_callback));
-  impl->show_hidden_box->connect_move_focus_up(
-      signals::mem_fun(this, &file_dialog_t::focus_previous));
-  impl->show_hidden_box->connect_move_focus_right(
-      signals::mem_fun(this, &file_dialog_t::focus_next));
+  impl->show_hidden_box->connect_toggled([this] { refresh_view(); });
+  impl->show_hidden_box->connect_activate([this] { ok_callback(); });
+  impl->show_hidden_box->connect_move_focus_up([this] { focus_previous(); });
+  impl->show_hidden_box->connect_move_focus_right([this] { focus_next(); });
 
   impl->show_hidden_label = new smart_label_t("_Show hidden");
   impl->show_hidden_label->set_anchor(impl->show_hidden_box,
@@ -78,20 +76,19 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title)
   impl->cancel_button->set_anchor(
       this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   impl->cancel_button->set_position(-1, -2);
-  impl->cancel_button->connect_activate(signals::mem_fun(this, &file_dialog_t::close));
-  impl->cancel_button->connect_move_focus_left(
-      signals::mem_fun(this, &file_dialog_t::focus_previous));
-  impl->cancel_button_up_connection = impl->cancel_button->connect_move_focus_up(signals::bind(
-      signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->file_pane_frame));
+  impl->cancel_button->connect_activate([this] { close(); });
+  impl->cancel_button->connect_move_focus_left([this] { focus_previous(); });
+  impl->cancel_button_up_connection = impl->cancel_button->connect_move_focus_up(
+      [this] { set_child_focus(impl->file_pane_frame); });
   impl->ok_button = new button_t("_OK", true);
   impl->ok_button->set_anchor(impl->cancel_button,
                               T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   impl->ok_button->set_position(0, -2);
-  impl->ok_button->connect_activate(signals::mem_fun0(this, &file_dialog_t::ok_callback));
-  impl->ok_button->connect_move_focus_left(signals::mem_fun(this, &file_dialog_t::focus_previous));
-  impl->ok_button->connect_move_focus_right(signals::mem_fun(this, &file_dialog_t::focus_next));
-  impl->ok_button_up_connection = impl->ok_button->connect_move_focus_up(signals::bind(
-      signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->file_pane_frame));
+  impl->ok_button->connect_activate([this] { ok_callback(); });
+  impl->ok_button->connect_move_focus_left([this] { focus_previous(); });
+  impl->ok_button->connect_move_focus_right([this] { focus_next(); });
+  impl->ok_button_up_connection =
+      impl->ok_button->connect_move_focus_up([this] { set_child_focus(impl->file_pane_frame); });
 
   push_back(name_label);
   push_back(impl->file_line);
@@ -124,24 +121,20 @@ void file_dialog_t::set_options_widget(widget_t *options) {
   options->set_position(0, 0);
 
   impl->cancel_button_up_connection.disconnect();
-  impl->cancel_button->connect_move_focus_up(
-      signals::mem_fun(this, &file_dialog_t::focus_previous));
-  impl->cancel_button->connect_move_focus_up(
-      signals::mem_fun(this, &file_dialog_t::focus_previous));
-  impl->ok_button->connect_move_focus_left(signals::mem_fun(this, &file_dialog_t::focus_previous));
+  impl->cancel_button->connect_move_focus_up([this] { focus_previous(); });
+  impl->cancel_button->connect_move_focus_up([this] { focus_previous(); });
+  impl->ok_button->connect_move_focus_left([this] { focus_previous(); });
   impl->ok_button_up_connection.disconnect();
-  impl->ok_button->connect_move_focus_up(signals::mem_fun(this, &file_dialog_t::focus_previous));
-  impl->show_hidden_box->connect_move_focus_down(
-      signals::bind(signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->ok_button));
-  dynamic_cast<focus_widget_t *>(*(widgets.end() - 4))
-      ->connect_move_focus_down(
-          signals::bind(signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->ok_button));
+  impl->ok_button->connect_move_focus_up([this] { focus_previous(); });
+  impl->show_hidden_box->connect_move_focus_down([this] { set_child_focus(impl->ok_button); });
+  dynamic_cast<focus_widget_t *>(*(widgets.end() - 4))->connect_move_focus_down([this] {
+    set_child_focus(impl->ok_button);
+  });
 
   if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != nullptr) {
-    focus_widget->connect_move_focus_up(signals::bind(
-        signals::mem_fun(this, &file_dialog_t::set_child_focus), impl->file_pane_frame));
-    focus_widget->connect_move_focus_left(signals::mem_fun(this, &file_dialog_t::focus_previous));
-    focus_widget->connect_move_focus_down(signals::mem_fun(this, &file_dialog_t::focus_next));
+    focus_widget->connect_move_focus_up([this] { set_child_focus(impl->file_pane_frame); });
+    focus_widget->connect_move_focus_left([this] { focus_previous(); });
+    focus_widget->connect_move_focus_down([this] { focus_next(); });
   }
 }
 
@@ -255,8 +248,7 @@ void file_dialog_t::change_dir(const std::string *dir) {
 
   impl->names = new_names;
   impl->current_dir = new_dir;
-  impl->view.set_filter(signals::bind(signals::ptr_fun(glob_filter), get_filter(),
-                                      impl->show_hidden_box->get_state()));
+  impl->view.set_filter(bind_front(glob_filter, get_filter(), impl->show_hidden_box->get_state()));
   impl->file_pane->reset();
 }
 
@@ -265,8 +257,8 @@ void file_dialog_t::refresh_view() {
   if (impl->lang_codeset_filter.size() == 0) {
     impl->lang_codeset_filter = "*";
   }
-  impl->view.set_filter(signals::bind(signals::ptr_fun(glob_filter), &impl->lang_codeset_filter,
-                                      impl->show_hidden_box->get_state()));
+  impl->view.set_filter(
+      bind_front(glob_filter, &impl->lang_codeset_filter, impl->show_hidden_box->get_state()));
 
   impl->file_pane->set_file(impl->file_line->get_text());
 }
@@ -296,12 +288,10 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
   impl->filter_line->set_position(0, 1);
   impl->filter_line->set_size(None, impl->filter_width);
   impl->filter_line->set_text("*");
-  impl->filter_line->connect_activate(signals::mem_fun(this, &open_file_dialog_t::refresh_view));
-  impl->filter_line->connect_lose_focus(signals::mem_fun(this, &open_file_dialog_t::refresh_view));
-  impl->filter_line->connect_move_focus_up(
-      signals::mem_fun(this, &open_file_dialog_t::focus_previous));
-  impl->filter_line->connect_move_focus_up(
-      signals::mem_fun(this, &open_file_dialog_t::focus_previous));
+  impl->filter_line->connect_activate([this] { refresh_view(); });
+  impl->filter_line->connect_lose_focus([this] { refresh_view(); });
+  impl->filter_line->connect_move_focus_up([this] { focus_previous(); });
+  impl->filter_line->connect_move_focus_up([this] { focus_previous(); });
 
   impl->filter_line->set_label(impl->filter_label);
   impl->filter_line->set_key_filter(&nul, 1, false);
@@ -336,7 +326,7 @@ save_as_dialog_t::save_as_dialog_t(int height, int width)
   impl->create_button->set_anchor(get_anchor_widget(),
                                   T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->create_button->set_position(0, 2);
-  impl->create_button->connect_activate(signals::mem_fun(this, &save_as_dialog_t::create_folder));
+  impl->create_button->connect_activate([this] { create_folder(); });
   insert_extras(impl->create_button);
 }
 

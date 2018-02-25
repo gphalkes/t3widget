@@ -35,7 +35,7 @@ goto_dialog_t::goto_dialog_t() : dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH,
   number_line->set_position(0, 1);
   number_line->set_size(None, GOTO_DIALOG_WIDTH - number_label->get_width() - 5);
   number_line->set_label(number_label);
-  number_line->connect_activate(signals::mem_fun(this, &goto_dialog_t::ok_activate));
+  number_line->connect_activate([this] { ok_activate(); });
   number_line->set_key_filter(accepted_keys, sizeof(accepted_keys) / sizeof(accepted_keys[0]),
                               true);
 
@@ -44,19 +44,19 @@ goto_dialog_t::goto_dialog_t() : dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH,
                             T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   cancel_button->set_position(-1, -2);
 
-  cancel_button->connect_activate(signals::mem_fun(this, &goto_dialog_t::close));
-  cancel_button->connect_move_focus_left(signals::mem_fun(this, &goto_dialog_t::focus_previous));
+  cancel_button->connect_activate([this] { close(); });
+  cancel_button->connect_move_focus_left([this] { focus_previous(); });
   /* Nasty trick: registering a callback twice will call the callback twice. We need to do
      FOCUS_PREVIOUS twice here to emulate moving up, because the ok_button is in the way. */
-  cancel_button->connect_move_focus_up(signals::mem_fun(this, &goto_dialog_t::focus_previous));
-  cancel_button->connect_move_focus_up(signals::mem_fun(this, &goto_dialog_t::focus_previous));
+  cancel_button->connect_move_focus_up([this] { focus_previous(); });
+  cancel_button->connect_move_focus_up([this] { focus_previous(); });
   ok_button = new button_t("_OK", true);
   ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   ok_button->set_position(0, -2);
 
-  ok_button->connect_activate(signals::mem_fun(this, &goto_dialog_t::ok_activate));
-  ok_button->connect_move_focus_up(signals::mem_fun(this, &goto_dialog_t::focus_previous));
-  ok_button->connect_move_focus_right(signals::mem_fun(this, &goto_dialog_t::focus_next));
+  ok_button->connect_activate([this] { ok_activate(); });
+  ok_button->connect_move_focus_up([this] { focus_previous(); });
+  ok_button->connect_move_focus_right([this] { focus_next(); });
 
   push_back(number_label);
   push_back(number_line);

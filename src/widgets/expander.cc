@@ -62,7 +62,7 @@ void expander_t::set_child(widget_t *_child) {
   focus_child = dynamic_cast<focus_widget_t *>(impl->child.get());
   if (focus_child != nullptr) {
     impl->move_up_connection = focus_child->connect_move_focus_up(
-        signals::mem_fun(this, &expander_t::focus_up_from_child));
+        [this] { focus_up_from_child(); });
     impl->move_down_connection = focus_child->connect_move_focus_down(move_focus_down.make_slot());
     impl->move_right_connection =
         focus_child->connect_move_focus_right(move_focus_right.make_slot());

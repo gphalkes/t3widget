@@ -24,7 +24,7 @@ void expander_group_t::add_expander(expander_t *expander) {
     return;
   }
   expander->connect_expanded(
-      signals::bind(signals::mem_fun(this, &expander_group_t::widget_expanded), expander));
+      [this, expander](bool is_expanded) { widget_expanded(is_expanded, expander); });
   expander->set_expanded(false);
   height++;
 }

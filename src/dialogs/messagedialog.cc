@@ -34,7 +34,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
   impl->text_window = new text_window_t(nullptr, false);
   impl->text_window->set_size(1, width - 2);
   impl->text_window->set_position(1, 1);
-  impl->text_window->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
+  impl->text_window->connect_activate([this] { hide(); });
   impl->text_window->connect_activate(activate_internal.make_slot());
   impl->text_window->set_tabsize(0);
   impl->text_window->set_enabled(false);
@@ -45,7 +45,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
   while ((button_name = va_arg(ap, const char *)) != nullptr) {
     if (widgets.size() == 1) {
       button = new button_t(button_name, true);
-      button->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
+      button->connect_activate([this] { hide(); });
       button->connect_activate(activate_internal.make_slot());
       button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
     } else {
@@ -54,10 +54,9 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
                          T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
       button->set_position(0, 2);
 
-      static_cast<button_t *>(widgets.back())
-          ->connect_move_focus_right(signals::mem_fun(this, &message_dialog_t::focus_next));
-      button->connect_move_focus_left(signals::mem_fun(this, &message_dialog_t::focus_previous));
-      button->connect_activate(signals::mem_fun(this, &message_dialog_t::hide));
+      static_cast<button_t *>(widgets.back())->connect_move_focus_right([this] { focus_next(); });
+      button->connect_move_focus_left([this] { focus_previous(); });
+      button->connect_activate([this] { hide(); });
 
       total_width += 2;
     }
@@ -121,8 +120,7 @@ bool message_dialog_t::process_key(key_t key) {
   return dialog_t::process_key(key);
 }
 
-signals::connection message_dialog_t::connect_activate(const signals::slot<void> &_slot,
-                                                       size_t idx) {
+signals::connection message_dialog_t::connect_activate(signals::slot<void> _slot, size_t idx) {
   if (idx > widgets.size() - 1) {
     return signals::connection();
   }

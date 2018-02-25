@@ -41,8 +41,7 @@ signals::connection edit_window_t::replace_buttons_connection;
 menu_panel_t *edit_window_t::right_click_menu;
 signals::connection edit_window_t::right_click_menu_connection;
 
-signals::connection edit_window_t::init_connected =
-    connect_on_init(signals::ptr_fun(edit_window_t::init));
+signals::connection edit_window_t::init_connected = connect_on_init(edit_window_t::init);
 
 #define _T3_ACTION_FILE "widgets/editwindow.actions.h"
 #define _T3_ACTION_TYPE edit_window_t
@@ -98,8 +97,8 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
   container_t::set_widget_parent(impl->scrollbar.get());
   impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   impl->scrollbar->set_size(10, None);
-  impl->scrollbar->connect_clicked(signals::mem_fun(this, &edit_window_t::scrollbar_clicked));
-  impl->scrollbar->connect_dragged(signals::mem_fun(this, &edit_window_t::scrollbar_dragged));
+  impl->scrollbar->connect_clicked(bind_front(&edit_window_t::scrollbar_clicked, this));
+  impl->scrollbar->connect_dragged(bind_front(&edit_window_t::scrollbar_dragged, this));
 
   set_text(_text == nullptr ? new text_buffer_t() : _text, params);
 
@@ -107,8 +106,7 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
   impl->focus = false;
 
   impl->autocomplete_panel.reset(new autocomplete_panel_t(this));
-  impl->autocomplete_panel->connect_activate(
-      signals::mem_fun(this, &edit_window_t::autocomplete_activated));
+  impl->autocomplete_panel->connect_activate([this] { autocomplete_activated(); });
 }
 
 edit_window_t::~edit_window_t() { delete impl->wrap_info; }
@@ -642,7 +640,7 @@ void edit_window_t::delete_selection() {
   reset_selection();
 }
 
-void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
+void edit_window_t::find_activated(finder_t *_finder, find_action_t action) {
   finder_t *local_finder;
   find_result_t result;
 
@@ -665,8 +663,7 @@ void edit_window_t::find_activated(find_action_t action, finder_t *_finder) {
       if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
         replace_buttons_connection.disconnect();
         replace_buttons_connection = replace_buttons->connect_activate(
-            signals::bind(signals::mem_fun(this, &edit_window_t::find_activated),
-                          static_cast<finder_t *>(nullptr)));
+            bind_front(&edit_window_t::find_activated, this, nullptr));
         replace_buttons->center_over(center_window);
         replace_buttons->show();
       }
@@ -1266,8 +1263,7 @@ void edit_window_t::unindent_selection() {
 
 void edit_window_t::goto_line() {
   goto_connection.disconnect();
-  goto_connection =
-      goto_dialog->connect_activate(signals::mem_fun1(this, &edit_window_t::goto_line));
+  goto_connection = goto_dialog->connect_activate([this](int line) { goto_line(line); });
   goto_dialog->center_over(center_window);
   goto_dialog->reset();
   goto_dialog->show();
@@ -1289,8 +1285,8 @@ void edit_window_t::find_replace(bool replace) {
   find_dialog_t *dialog;
   if (impl->find_dialog == nullptr) {
     global_find_dialog_connection.disconnect();
-    global_find_dialog_connection = global_find_dialog->connect_activate(
-        signals::mem_fun(this, &edit_window_t::find_activated));
+    global_find_dialog_connection =
+        global_find_dialog->connect_activate(bind_front(&edit_window_t::find_activated, this));
     dialog = global_find_dialog;
   } else {
     dialog = impl->find_dialog;
@@ -1405,10 +1401,9 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
       impl->last_set_pos = impl->screen_pos;
     } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_RIGHT)) {
       right_click_menu->set_position(event.y + window.get_abs_y(), event.x + window.get_abs_x());
-      right_click_menu->connect_closed(
-          signals::mem_fun(&right_click_menu_connection, &signals::connection::disconnect));
+      right_click_menu->connect_closed([] { right_click_menu_connection.disconnect(); });
       right_click_menu_connection = right_click_menu->connect_activate(
-          signals::mem_fun(this, &edit_window_t::right_click_menu_activated));
+          [this](int action) { right_click_menu_activated(action); });
       right_click_menu->show();
     } else if (event.type == EMOUSE_BUTTON_PRESS &&
                (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
@@ -1875,7 +1870,7 @@ size_t edit_window_t::autocomplete_panel_t::get_selected_idx() const {
   return list_pane->get_current();
 }
 
-void edit_window_t::autocomplete_panel_t::connect_activate(const signals::slot<void> &slot) {
+void edit_window_t::autocomplete_panel_t::connect_activate(signals::slot<void> slot) {
   list_pane->connect_activate(slot);
 }
 

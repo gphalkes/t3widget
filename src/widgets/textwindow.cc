@@ -32,8 +32,8 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
     container_t::set_widget_parent(impl->scrollbar.get());
     impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     impl->scrollbar->set_size(11, None);
-    impl->scrollbar->connect_clicked(signals::mem_fun(this, &text_window_t::scrollbar_clicked));
-    impl->scrollbar->connect_dragged(signals::mem_fun(this, &text_window_t::scrollbar_dragged));
+    impl->scrollbar->connect_clicked(bind_front(&text_window_t::scrollbar_clicked, this));
+    impl->scrollbar->connect_dragged(bind_front(&text_window_t::scrollbar_dragged, this));
   }
 
   if (_text == nullptr) {

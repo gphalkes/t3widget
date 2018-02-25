@@ -97,13 +97,13 @@ struct T3_WIDGET_API text_coordinate_t {
   int pos;
 };
 
-#define T3_WIDGET_SIGNAL(_name, ...)                                             \
- protected:                                                                      \
-  signals::signal<__VA_ARGS__> _name;                                            \
-                                                                                 \
- public:                                                                         \
-  signals::connection connect_##_name(const signals::slot<__VA_ARGS__> &_slot) { \
-    return _name.connect(_slot);                                                 \
+#define T3_WIDGET_SIGNAL(_name, ...)                                      \
+ protected:                                                               \
+  signals::signal<__VA_ARGS__> _name;                                     \
+                                                                          \
+ public:                                                                  \
+  signals::connection connect_##_name(signals::slot<__VA_ARGS__> _slot) { \
+    return _name.connect(_slot);                                          \
   }
 
 #define _T3_WIDGET_ENUM(_name, ...)                                            \
@@ -174,6 +174,114 @@ T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string
                                         bool from);
 T3_WIDGET_API void convert_lang_codeset(const char *str, std::string *result, bool from);
 T3_WIDGET_API void convert_lang_codeset(const std::string *str, std::string *result, bool from);
+
+namespace internal {
+/* Template which forwards the type it is instantiated with. This prevents the type from
+   participating in type deduction, allowing multiple types in the template to use the same template
+   paramter, even though one is a base class of the other. */
+template <typename C>
+struct identity {
+  typedef C type;
+};
+}  // namespace internal
+
+template <typename R, typename A, typename... Args>
+std::function<R(Args...)> bind_front(R (*f)(A, Args...), typename internal::identity<A>::type a) {
+  return [=](Args... args) { return f(a, args...); };
+}
+
+template <typename R, typename A, typename B, typename... Args>
+std::function<R(Args...)> bind_front(R (*f)(A, B, Args...), typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b) {
+  return [=](Args... args) { return f(a, b, args...); };
+}
+
+template <typename R, typename A, typename B, typename C, typename... Args>
+std::function<R(Args...)> bind_front(R (*f)(A, B, C, Args...),
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b,
+                                     typename internal::identity<C>::type c) {
+  return [=](Args... args) { return f(a, b, c, args...); };
+}
+
+template <typename R, typename A, typename B, typename C, typename D, typename... Args>
+std::function<R(Args...)> bind_front(R (*f)(A, B, C, D, Args...),
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b,
+                                     typename internal::identity<C>::type c,
+                                     typename internal::identity<D>::type d) {
+  return [=](Args... args) { return f(a, b, c, d, args...); };
+}
+
+template <typename R, typename A, typename... Args>
+std::function<R(Args...)> bind_front(std::function<R(A, Args...)> f,
+                                     typename internal::identity<A>::type a) {
+  return [=](Args... args) { return f(a, args...); };
+}
+
+template <typename R, typename A, typename B, typename... Args>
+std::function<R(Args...)> bind_front(std::function<R(A, B, Args...)> f,
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b) {
+  return [=](Args... args) { return f(a, b, args...); };
+}
+
+template <typename R, typename A, typename B, typename C, typename... Args>
+std::function<R(Args...)> bind_front(std::function<R(A, B, C, Args...)> f,
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b,
+                                     typename internal::identity<C>::type c) {
+  return [=](Args... args) { return f(a, b, c, args...); };
+}
+
+template <typename R, typename A, typename B, typename C, typename D, typename... Args>
+std::function<R(Args...)> bind_front(std::function<R(A, B, C, D, Args...)> f,
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b,
+                                     typename internal::identity<C>::type c,
+                                     typename internal::identity<D>::type d) {
+  return [=](Args... args) { return f(a, b, c, d, args...); };
+}
+
+template <typename R, typename T, typename... Args>
+std::function<R(Args...)> bind_front(R (T::*func)(Args...),
+                                     typename internal::identity<T>::type *instance) {
+  return [=](Args... args) { return (instance->*func)(args...); };
+}
+
+template <typename R, typename T, typename A, typename... Args>
+std::function<R(Args...)> bind_front(R (T::*func)(A, Args...),
+                                     typename internal::identity<T>::type *instance,
+                                     typename internal::identity<A>::type a) {
+  return [=](Args... args) { return (instance->*func)(a, args...); };
+}
+
+template <typename R, typename T, typename A, typename B, typename... Args>
+std::function<R(Args...)> bind_front(R (T::*func)(A, B, Args...),
+                                     typename internal::identity<T>::type *instance,
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b) {
+  return [=](Args... args) { return (instance->*func)(a, b, args...); };
+}
+
+template <typename R, typename T, typename A, typename B, typename C, typename... Args>
+std::function<R(Args...)> bind_front(R (T::*func)(A, B, C, Args...),
+                                     typename internal::identity<T>::type *instance,
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b,
+                                     typename internal::identity<C>::type c) {
+  return [=](Args... args) { return (instance->*func)(a, b, c, args...); };
+}
+
+template <typename R, typename T, typename A, typename B, typename C, typename D, typename... Args>
+std::function<R(Args...)> bind_front(R (T::*func)(A, B, C, D, Args...),
+                                     typename internal::identity<T>::type *instance,
+                                     typename internal::identity<A>::type a,
+                                     typename internal::identity<B>::type b,
+                                     typename internal::identity<C>::type c,
+                                     typename internal::identity<D>::type d) {
+  return [=](Args... args) { return (instance->*func)(a, b, c, d, args...); };
+}
 
 }  // namespace
 #endif

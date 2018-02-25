@@ -158,7 +158,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void delete_selection();
 
   /** The find or replace action has been activated in the find or replace buttons dialog. */
-  void find_activated(find_action_t action, finder_t *finder);
+  void find_activated(finder_t *finder, find_action_t action);
   /** Handle setting of the wrap mode. */
   void set_wrap_internal(wrap_type_t wrap);
 
@@ -362,7 +362,7 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
 
   void set_completions(string_list_base_t *completions);
   size_t get_selected_idx() const;
-  void connect_activate(const signals::slot<void> &slot);
+  void connect_activate(signals::slot<void> slot);
 };
 
 }  // namespace

@@ -233,7 +233,7 @@ bool mouse_target_t::handle_mouse_event(mouse_event_t event) {
 
 std::list<bad_draw_recheck_t *> bad_draw_recheck_t::to_signal;
 signals::connection bad_draw_recheck_t::initialized =
-    connect_terminal_settings_changed(signals::ptr_fun(bad_draw_recheck_t::bad_draw_recheck_all));
+    connect_terminal_settings_changed(bad_draw_recheck_t::bad_draw_recheck_all);
 
 void bad_draw_recheck_t::bad_draw_recheck_all() {
   for (bad_draw_recheck_t *iter : to_signal) {

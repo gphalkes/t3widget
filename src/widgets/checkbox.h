@@ -52,12 +52,12 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
   /** Associate this checkbox_t with a smart_label_t. */
   void set_label(smart_label_t *_label);
 
-  /** @fn signals::connection connect_activate(const signals::slot<void> &_slot)
+  /** @fn signals::connection connect_activate(std::function<void()> func)
       Connect a callback to the #activate signal.
   */
   /** Signal emitted when the button is pressed. */
   T3_WIDGET_SIGNAL(activate, void);
-  /** @fn signals::connection connect_toggled(const signals::slot<void> &_slot)
+  /** @fn signals::connection connect_toggled(std::function<void()> func)
       Connect a callback to the #toggled signal.
   */
   /** Signal emitted when the state of the checkbox_t is toggled. */

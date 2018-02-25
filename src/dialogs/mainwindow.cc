@@ -29,7 +29,7 @@ main_window_base_t::main_window_base_t() : dialog_t() {
 
   window.alloc(nullptr, height, width, 0, 0, INT_MAX);
   window.show();
-  connect_resize(signals::mem_fun(this, &main_window_base_t::set_size_real));
+  connect_resize(bind_front(&main_window_base_t::set_size_real, this));
 }
 
 bool main_window_base_t::set_size(optint height, optint width) {

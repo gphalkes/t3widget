@@ -31,8 +31,8 @@ list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator
   container_t::set_widget_parent(&impl->scrollbar);
   impl->scrollbar.set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   impl->scrollbar.set_size(1, None);
-  impl->scrollbar.connect_clicked(signals::mem_fun(this, &list_pane_t::scrollbar_clicked));
-  impl->scrollbar.connect_dragged(signals::mem_fun(this, &list_pane_t::scrollbar_dragged));
+  impl->scrollbar.connect_clicked(bind_front(&list_pane_t::scrollbar_clicked, this));
+  impl->scrollbar.connect_dragged(bind_front(&list_pane_t::scrollbar_dragged, this));
 
   if (impl->indicator) {
     impl->indicator_widget.reset(new indicator_widget_t());
