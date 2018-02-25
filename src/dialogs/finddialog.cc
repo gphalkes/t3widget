@@ -284,7 +284,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
   replace_all_button->set_position(1, 2);
   replace_all_button->connect_activate([this] { hide(); });
   replace_all_button->connect_activate(
-      bind_front(activate.make_slot(), find_action_t::REPLACE_ALL));
+      bind_front(activate.get_trigger(), find_action_t::REPLACE_ALL));
   replace_all_button->connect_move_focus_right([this] { focus_next(); });
 
   impl->replace_button = new button_t("_Replace");
@@ -292,7 +292,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
                                    T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->replace_button->set_position(0, 2);
   impl->replace_button->connect_activate([this] { hide(); });
-  impl->replace_button->connect_activate(bind_front(activate.make_slot(), find_action_t::REPLACE));
+  impl->replace_button->connect_activate(bind_front(activate.get_trigger(), find_action_t::REPLACE));
   impl->replace_button->connect_move_focus_left([this] { focus_previous(); });
   impl->replace_button->connect_move_focus_right([this] { focus_next(); });
 
@@ -301,7 +301,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
                                 T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->find_button->set_position(0, 2);
   impl->find_button->connect_activate([this] { hide(); });
-  impl->find_button->connect_activate(bind_front(activate.make_slot(), find_action_t::SKIP));
+  impl->find_button->connect_activate(bind_front(activate.get_trigger(), find_action_t::SKIP));
   impl->find_button->connect_move_focus_left([this] { focus_previous(); });
   impl->find_button->connect_move_focus_right([this] { focus_next(); });
 

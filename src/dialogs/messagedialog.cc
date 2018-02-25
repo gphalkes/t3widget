@@ -35,7 +35,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
   impl->text_window->set_size(1, width - 2);
   impl->text_window->set_position(1, 1);
   impl->text_window->connect_activate([this] { hide(); });
-  impl->text_window->connect_activate(activate_internal.make_slot());
+  impl->text_window->connect_activate(activate_internal.get_trigger());
   impl->text_window->set_tabsize(0);
   impl->text_window->set_enabled(false);
 
@@ -46,7 +46,7 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
     if (widgets.size() == 1) {
       button = new button_t(button_name, true);
       button->connect_activate([this] { hide(); });
-      button->connect_activate(activate_internal.make_slot());
+      button->connect_activate(activate_internal.get_trigger());
       button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
     } else {
       button = new button_t(button_name);

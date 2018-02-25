@@ -63,10 +63,10 @@ void expander_t::set_child(widget_t *_child) {
   if (focus_child != nullptr) {
     impl->move_up_connection = focus_child->connect_move_focus_up(
         [this] { focus_up_from_child(); });
-    impl->move_down_connection = focus_child->connect_move_focus_down(move_focus_down.make_slot());
+    impl->move_down_connection = focus_child->connect_move_focus_down(move_focus_down.get_trigger());
     impl->move_right_connection =
-        focus_child->connect_move_focus_right(move_focus_right.make_slot());
-    impl->move_left_connection = focus_child->connect_move_focus_left(move_focus_left.make_slot());
+        focus_child->connect_move_focus_right(move_focus_right.get_trigger());
+    impl->move_left_connection = focus_child->connect_move_focus_left(move_focus_left.get_trigger());
   }
   set_size(None, impl->child->get_base_window()->get_width());
 }

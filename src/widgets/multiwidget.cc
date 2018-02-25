@@ -100,10 +100,10 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
          this widget. The destructor for multi_widget_t destroys all the widgets
          it contains, and there is no way to remove a widget from a multi_widget_t.
       */
-      focus_widget->connect_move_focus_left(move_focus_left.make_slot());
-      focus_widget->connect_move_focus_right(move_focus_right.make_slot());
-      focus_widget->connect_move_focus_up(move_focus_up.make_slot());
-      focus_widget->connect_move_focus_down(move_focus_down.make_slot());
+      focus_widget->connect_move_focus_left(move_focus_left.get_trigger());
+      focus_widget->connect_move_focus_right(move_focus_right.get_trigger());
+      focus_widget->connect_move_focus_up(move_focus_up.get_trigger());
+      focus_widget->connect_move_focus_down(move_focus_down.get_trigger());
     }
   }
 

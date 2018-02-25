@@ -162,7 +162,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
     default_button->set_anchor(cancel_button,
                                T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     default_button->set_position(0, -2);
-    default_button->connect_activate(default_selected.make_slot());
+    default_button->connect_activate(default_selected.get_trigger());
     default_button->connect_move_focus_left([this] { focus_previous(); });
     default_button->connect_move_focus_right([this] { focus_next(); });
     default_button->connect_move_focus_up([this] { focus_previous(); });

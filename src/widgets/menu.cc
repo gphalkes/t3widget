@@ -50,7 +50,7 @@ void menu_bar_t::add_menu(menu_panel_t *menu) {
   menu->set_menu_bar(this);
   menu->set_position(None, impl->start_col);
   impl->start_col += menu->get_label_width() + 2;
-  menu->connect_activate(activate.make_slot());
+  menu->connect_activate(activate.get_trigger());
   redraw = true;
 }
 
