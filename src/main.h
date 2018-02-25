@@ -216,6 +216,6 @@ T3_WIDGET_API void get_screen_size(int *height, int *width);
 
     This option does _not_ disable pasting the primary selection. */
 T3_WIDGET_API void set_primary_selection_mode(bool on);
-};  // namespace
+}  // namespace
 
 #endif

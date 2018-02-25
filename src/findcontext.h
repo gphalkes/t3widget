@@ -35,7 +35,10 @@ struct T3_WIDGET_API find_result_t {
 /** Class holding the context of a find operation. */
 class T3_WIDGET_API finder_t {
  private:
-  static void call_pcre_free(pcre *);
+  struct pcre_free_deleter {
+    void operator()(pcre *p) { pcre_free(p); }
+  };
+  using unique_pcre_ptr = std::unique_ptr<pcre, pcre_free_deleter>;
 
   /** Flags indicating what type of search was requested. */
   int flags;
@@ -45,7 +48,7 @@ class T3_WIDGET_API finder_t {
 
   /* PCRE context and data */
   /** Pointer to a compiled regex. */
-  cleanup_func_ptr<pcre, call_pcre_free>::t regex;
+  unique_pcre_ptr regex;
   /** Array to hold sub-matches information. */
   int ovector[30];
   /** The number of sub-matches captured. */
@@ -55,8 +58,9 @@ class T3_WIDGET_API finder_t {
   /** Replacement string. */
   std::unique_ptr<std::string> replacement;
 
-  /** Space to store the case-folded representation of a single character. */
-  cleanup_free_ptr<char>::t folded;
+  /** Space to store the case-folded representation of a single character. Allocation is handled by
+      the unistring library, hence we can not use string or vector. */
+  std::unique_ptr<char, free_deleter> folded;
   /** Size of the finder_t::folded buffer. */
   size_t folded_size;
 

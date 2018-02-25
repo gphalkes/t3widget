@@ -78,5 +78,5 @@ class T3_WIDGET_API attribute_test_line_t : public widget_t {
   void set_attribute(t3_attr_t _attr);
 };
 
-};  // namespace
+}  // namespace
 #endif

@@ -191,7 +191,8 @@ int text_buffer_t::calculate_line_pos(int line, int pos, int tabsize) const {
   return impl->lines[line]->calculate_line_pos(0, INT_MAX, pos, tabsize);
 }
 
-void text_buffer_t::paint_line(t3_window_t *win, int line, const text_line_t::paint_info_t *info) {
+void text_buffer_t::paint_line(window_wrapper_t *win, int line,
+                               const text_line_t::paint_info_t *info) {
   prepare_paint_line(line);
   impl->lines[line]->paint_line(win, info);
 }
@@ -1133,4 +1134,4 @@ void text_buffer_t::goto_pos(int line, int pos) {
   }
 }
 
-};  // namespace
+}  // namespace

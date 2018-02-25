@@ -186,4 +186,4 @@ bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str, b
   return true;
 }
 
-};  // namespace
+}  // namespace

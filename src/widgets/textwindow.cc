@@ -62,17 +62,17 @@ bool text_window_t::set_size(optint height, optint width) {
   bool result = true;
 
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
   if (!height.is_valid()) {
-    height = t3_win_get_height(window);
+    height = window.get_height();
   }
 
-  if (width != t3_win_get_width(window) || height > t3_win_get_height(window)) {
+  if (width != window.get_width() || height > window.get_height()) {
     redraw = true;
   }
 
-  result &= t3_win_resize(window, height, width);
+  result &= window.resize(height, width);
   if (impl->scrollbar != nullptr) {
     result &= impl->scrollbar->set_size(height, None);
     impl->wrap_info->set_wrap_width(width);
@@ -91,11 +91,11 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
     impl->scrollbar.reset(new scrollbar_t(true));
     set_widget_parent(impl->scrollbar.get());
     impl->scrollbar->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-    impl->scrollbar->set_size(t3_win_get_height(window), None);
-    impl->wrap_info->set_wrap_width(t3_win_get_width(window));
+    impl->scrollbar->set_size(window.get_height(), None);
+    impl->wrap_info->set_wrap_width(window.get_width());
   } else {
     impl->scrollbar = nullptr;
-    impl->wrap_info->set_wrap_width(t3_win_get_width(window) + 1);
+    impl->wrap_info->set_wrap_width(window.get_width() + 1);
   }
   redraw = true;
 }
@@ -103,8 +103,8 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
 void text_window_t::scroll_down(int lines) {
   text_coordinate_t new_top = impl->top;
 
-  if (impl->wrap_info->add_lines(new_top, t3_win_get_height(window) + lines)) {
-    impl->wrap_info->sub_lines(new_top, t3_win_get_height(window) - 1);
+  if (impl->wrap_info->add_lines(new_top, window.get_height() + lines)) {
+    impl->wrap_info->sub_lines(new_top, window.get_height() - 1);
     if (impl->top != new_top) {
       impl->top = new_top;
       redraw = true;
@@ -136,11 +136,11 @@ bool text_window_t::process_key(key_t key) {
       scroll_up(1);
       break;
     case EKEY_PGUP:
-      scroll_up(t3_win_get_height(window) - 1);
+      scroll_up(window.get_height() - 1);
       break;
     case EKEY_PGDN:
     case ' ':
-      scroll_down(t3_win_get_height(window) - 1);
+      scroll_down(window.get_height() - 1);
       break;
     case EKEY_HOME | EKEY_CTRL:
     case EKEY_HOME:
@@ -153,7 +153,7 @@ bool text_window_t::process_key(key_t key) {
     case EKEY_END | EKEY_CTRL:
     case EKEY_END: {
       text_coordinate_t new_top = impl->wrap_info->get_end();
-      impl->wrap_info->sub_lines(new_top, t3_win_get_height(window));
+      impl->wrap_info->sub_lines(new_top, window.get_height());
       if (new_top != impl->top) {
         redraw = true;
       }
@@ -175,9 +175,9 @@ void text_window_t::update_contents() {
   }
 
   redraw = false;
-  t3_win_set_default_attrs(window, attributes.dialog);
+  window.set_default_attrs(attributes.dialog);
 
-  info.size = t3_win_get_width(window);
+  info.size = window.get_width();
   if (impl->scrollbar == nullptr) {
     info.size++;
   }
@@ -192,7 +192,7 @@ void text_window_t::update_contents() {
   text_coordinate_t end = impl->wrap_info->get_end();
   text_coordinate_t draw_line = impl->top;
 
-  for (i = 0; i < t3_win_get_height(window); i++, impl->wrap_info->add_lines(draw_line, 1)) {
+  for (i = 0; i < window.get_height(); i++, impl->wrap_info->add_lines(draw_line, 1)) {
     if (impl->focus) {
       if (i == 0) {
         info.cursor = impl->wrap_info->calculate_line_pos(draw_line.line, 0, draw_line.pos);
@@ -200,16 +200,16 @@ void text_window_t::update_contents() {
         info.cursor = -1;
       }
     }
-    t3_win_set_paint(window, i, 0);
-    t3_win_clrtoeol(window);
-    impl->wrap_info->paint_line(window, draw_line, &info);
+    window.set_paint(i, 0);
+    window.clrtoeol();
+    impl->wrap_info->paint_line(&window, draw_line, &info);
 
     if (draw_line.line == end.line && draw_line.pos == end.pos) {
       break;
     }
   }
 
-  t3_win_clrtobot(window);
+  window.clrtobot();
 
   for (i = 0; i < impl->top.line; i++) {
     count += impl->wrap_info->get_line_count(i);
@@ -218,8 +218,8 @@ void text_window_t::update_contents() {
 
   if (impl->scrollbar != nullptr) {
     impl->scrollbar->set_parameters(
-        std::max(impl->wrap_info->get_text_size(), count + t3_win_get_height(window)), count,
-        t3_win_get_height(window));
+        std::max(impl->wrap_info->get_text_size(), count + window.get_height()), count,
+        window.get_height());
     impl->scrollbar->update_contents();
   }
 }
@@ -247,7 +247,7 @@ void text_window_t::set_tabsize(int size) { impl->wrap_info->set_tabsize(size); 
 int text_window_t::get_text_height() { return impl->wrap_info->get_text_size(); }
 
 bool text_window_t::process_mouse_event(mouse_event_t event) {
-  if (event.window != window || event.type != EMOUSE_BUTTON_PRESS) {
+  if (event.window != window.get() || event.type != EMOUSE_BUTTON_PRESS) {
     return true;
   }
   if (event.button_state & EMOUSE_SCROLL_UP) {
@@ -259,19 +259,18 @@ bool text_window_t::process_mouse_event(mouse_event_t event) {
 }
 
 void text_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
-  int scroll = step == scrollbar_t::BACK_SMALL
-                   ? -3
-                   : step == scrollbar_t::FWD_SMALL
-                         ? 3
-                         : step == scrollbar_t::BACK_MEDIUM
-                               ? -t3_win_get_height(window) / 2
-                               : step == scrollbar_t::FWD_MEDIUM
-                                     ? t3_win_get_height(window) / 2
-                                     : step == scrollbar_t::BACK_PAGE
-                                           ? -(t3_win_get_height(window) - 1)
-                                           : step == scrollbar_t::FWD_PAGE
-                                                 ? (t3_win_get_height(window) - 1)
-                                                 : 0;
+  int scroll =
+      step == scrollbar_t::BACK_SMALL
+          ? -3
+          : step == scrollbar_t::FWD_SMALL
+                ? 3
+                : step == scrollbar_t::BACK_MEDIUM
+                      ? -window.get_height() / 2
+                      : step == scrollbar_t::FWD_MEDIUM
+                            ? window.get_height() / 2
+                            : step == scrollbar_t::BACK_PAGE
+                                  ? -(window.get_height() - 1)
+                                  : step == scrollbar_t::FWD_PAGE ? (window.get_height() - 1) : 0;
 
   if (scroll < 0) {
     scroll_up(-scroll);
@@ -284,7 +283,7 @@ void text_window_t::scrollbar_dragged(int start) {
   text_coordinate_t new_top_left(0, 0);
   int count = 0;
 
-  if (start < 0 || start + t3_win_get_height(window) > impl->wrap_info->get_text_size()) {
+  if (start < 0 || start + window.get_height() > impl->wrap_info->get_text_size()) {
     return;
   }
 
@@ -306,4 +305,4 @@ void text_window_t::scrollbar_dragged(int start) {
   redraw = true;
 }
 
-};  // namespace
+}  // namespace

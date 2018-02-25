@@ -274,20 +274,20 @@ int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) co
   return std::min(max, get_length());
 }
 
-void text_line_t::paint_part(t3_window_t *win, const char *paint_buffer, bool is_print, int todo,
-                             t3_attr_t selection_attr) {
+void text_line_t::paint_part(window_wrapper_t *win, const char *paint_buffer, bool is_print,
+                             int todo, t3_attr_t selection_attr) {
   if (todo <= 0) {
     return;
   }
 
   if (is_print) {
-    t3_win_addnstr(win, paint_buffer, todo, selection_attr);
+    win->addnstr(paint_buffer, todo, selection_attr);
   } else {
     selection_attr = t3_term_combine_attrs(attributes.non_print, selection_attr);
     for (; static_cast<size_t>(todo) > sizeof(dots); todo -= sizeof(dots)) {
-      t3_win_addnstr(win, dots, sizeof(dots), selection_attr);
+      win->addnstr(dots, sizeof(dots), selection_attr);
     }
-    t3_win_addnstr(win, dots, todo, selection_attr);
+    win->addnstr(dots, todo, selection_attr);
   }
 }
 
@@ -315,7 +315,7 @@ t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *in
   return retval;
 }
 
-void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *info) {
+void text_line_t::paint_line(window_wrapper_t *win, const text_line_t::paint_info_t *info) {
   int i, j, total = 0, print_from, tabspaces, accumulated = 0, endchars = 0;
   bool _is_print, new_is_print;
   t3_attr_t selection_attr = 0, new_selection_attr;
@@ -355,25 +355,25 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
         if (flags & text_line_t::SHOW_TABS) {
           selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
           if (total - info->leftcol > 1) {
-            t3_win_addnstr(win, dashes, total - info->leftcol - 1, selection_attr);
+            win->addnstr(dashes, total - info->leftcol - 1, selection_attr);
           }
-          t3_win_addch(win, '>', selection_attr);
+          win->addch('>', selection_attr);
         } else {
-          t3_win_addnstr(win, spaces, total - info->leftcol, selection_attr);
+          win->addnstr(spaces, total - info->leftcol, selection_attr);
         }
       }
     } else if (static_cast<unsigned char>(buffer[i]) < 32) {
       total += 2;
       // If total > info->leftcol than only the right side character is visible
       if (total > info->leftcol) {
-        t3_win_addch(win, control_map[static_cast<int>(buffer[i])],
-                     t3_term_combine_attrs(attributes.non_print, selection_attr));
+        win->addch(control_map[static_cast<int>(buffer[i])],
+                   t3_term_combine_attrs(attributes.non_print, selection_attr));
       }
     } else if (width_at(i) > 1) {
       total += width_at(i);
       if (total > info->leftcol) {
         for (j = info->leftcol; j < total; j++) {
-          t3_win_addch(win, '<', t3_term_combine_attrs(attributes.non_print, selection_attr));
+          win->addch('<', t3_term_combine_attrs(attributes.non_print, selection_attr));
         }
       }
     } else {
@@ -436,7 +436,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
               tabspaces = size - total;*/
       if (i == info->cursor) {
         char cursor_char = (flags & text_line_t::SHOW_TABS) ? (tabspaces > 1 ? '<' : '>') : ' ';
-        t3_win_addch(win, cursor_char, selection_attr);
+        win->addch(cursor_char, selection_attr);
         tabspaces--;
         total++;
         selection_attr = i >= info->selection_start && i < info->selection_end ? info->selected_attr
@@ -446,14 +446,14 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
         if (flags & text_line_t::SHOW_TABS) {
           selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
           if (tabspaces > 1) {
-            t3_win_addch(win, i == info->cursor ? '-' : '<', selection_attr);
+            win->addch(i == info->cursor ? '-' : '<', selection_attr);
           }
           if (tabspaces > 2) {
-            t3_win_addnstr(win, dashes, tabspaces - 2, selection_attr);
+            win->addnstr(dashes, tabspaces - 2, selection_attr);
           }
-          t3_win_addch(win, '>', selection_attr);
+          win->addch('>', selection_attr);
         } else {
-          t3_win_addnstr(win, spaces, tabspaces, selection_attr);
+          win->addnstr(spaces, tabspaces, selection_attr);
         }
       }
       total += tabspaces;
@@ -464,11 +464,11 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
                  _is_print ? i - print_from : accumulated, selection_attr);
       total += accumulated;
       accumulated = 0;
-      t3_win_addch(win, '^', t3_term_combine_attrs(attributes.non_print, selection_attr));
+      win->addch('^', t3_term_combine_attrs(attributes.non_print, selection_attr));
       total += 2;
       if (total <= size) {
-        t3_win_addch(win, control_map[static_cast<int>(buffer[i])],
-                     t3_term_combine_attrs(attributes.non_print, selection_attr));
+        win->addch(control_map[static_cast<int>(buffer[i])],
+                   t3_term_combine_attrs(attributes.non_print, selection_attr));
       }
       print_from = i + 1;
     } else if (_is_print != new_is_print) {
@@ -502,7 +502,7 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
   }
 
   for (j = 0; j < endchars; j++) {
-    t3_win_addch(win, '>', t3_term_combine_attrs(attributes.non_print, selection_attr));
+    win->addch('>', t3_term_combine_attrs(attributes.non_print, selection_attr));
   }
   total += endchars;
 
@@ -510,27 +510,26 @@ void text_line_t::paint_line(t3_window_t *win, const text_line_t::paint_info_t *
      and this line is not merely a part of a broken line */
   if (total < size && !(flags & text_line_t::BREAK)) {
     if (i <= info->selection_end || i == info->cursor) {
-      t3_win_addch(win, ' ', get_draw_attrs(i, info));
+      win->addch(' ', get_draw_attrs(i, info));
       total++;
     }
   }
 
   if (flags & text_line_t::BREAK) {
     for (; total < size; total++) {
-      t3_win_addch(win, ' ', info->normal_attr);
+      win->addch(' ', info->normal_attr);
     }
-    t3_win_addstr(win, wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info->normal_attr));
+    win->addstr(wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info->normal_attr));
   } else if (flags & text_line_t::SPACECLEAR) {
     for (; total + sizeof(spaces) < static_cast<size_t>(size); total += sizeof(spaces)) {
-      t3_win_addnstr(
-          win, spaces, sizeof(spaces),
+      win->addnstr(
+          spaces, sizeof(spaces),
           (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
     }
-    t3_win_addnstr(
-        win, spaces, size - total,
-        (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
+    win->addnstr(spaces, size - total,
+                 (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
   } else {
-    t3_win_clrtoeol(win);
+    win->clrtoeol();
   }
 }
 
@@ -930,4 +929,4 @@ text_line_t *text_line_factory_t::new_text_line_t(const std::string *str) {
   return new text_line_t(str, this);
 }
 
-};  // namespace
+}  // namespace

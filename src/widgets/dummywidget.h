@@ -33,8 +33,8 @@ class T3_WIDGET_API dummy_widget_t : public widget_t {
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;
 
-  t3_window_t *get_base_window() override;
+  window_wrapper_t *get_base_window() override;
 };
 
-};  // namespace
+}  // namespace
 #endif

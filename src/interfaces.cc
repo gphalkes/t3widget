@@ -21,16 +21,16 @@
 
 namespace t3_widget {
 
-window_component_t::window_component_t() : window(nullptr) {}
+window_component_t::window_component_t() {}
 window_component_t::~window_component_t() {}
-t3_window_t *window_component_t::get_base_window() { return window; }
+window_wrapper_t *window_component_t::get_base_window() { return &window; }
 
 bool container_t::set_widget_parent(window_component_t *widget) {
-  return t3_win_set_parent(widget->get_base_window(), window);
+  return widget->get_base_window()->set_parent(&window);
 }
 
 void container_t::unset_widget_parent(window_component_t *widget) {
-  t3_win_set_parent(widget->get_base_window(), widget_t::default_parent.get());
+  widget->get_base_window()->set_parent(&widget_t::default_parent);
 }
 
 center_component_t::center_component_t() : center_window(this) {}
@@ -44,19 +44,21 @@ t3_window_t *mouse_target_t::grab_window;
 
 mouse_target_t::mouse_target_t(bool use_window) {
   if (use_window && window != nullptr) {
-    register_mouse_target(window);
+    register_mouse_target(&window);
   }
 }
 
-void mouse_target_t::register_mouse_target(t3_window_t *target) {
+void mouse_target_t::register_mouse_target(window_wrapper_t *target) {
   if (target == nullptr) {
     lprintf("Registering mouse target for nullptr window in %s\n", typeid(*this).name());
   } else {
-    targets[target] = this;
+    targets[target->get()] = this;
   }
 }
 
-void mouse_target_t::unregister_mouse_target(t3_window_t *target) { targets.erase(target); }
+void mouse_target_t::unregister_mouse_target(window_wrapper_t *target) {
+  targets.erase(target->get());
+}
 
 mouse_target_t::~mouse_target_t() {
 /* Can't use iter anymore after erasing, so we have to start our search all over
@@ -243,4 +245,4 @@ bad_draw_recheck_t::bad_draw_recheck_t() { to_signal.push_back(this); }
 
 bad_draw_recheck_t::~bad_draw_recheck_t() { remove_element(to_signal, this); }
 
-};  // namespace
+}  // namespace

@@ -16,6 +16,7 @@
 
 #include <deque>
 #include <memory>
+#include <string>
 
 #include <t3widget/interfaces.h>
 
@@ -27,7 +28,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
   friend class container_t;
 
   /** Default parent for widgets, making them invisible. */
-  static unique_t3_window_ptr default_parent;
+  static window_wrapper_t default_parent;
 
  protected:
   bool redraw, /**< Widget requires redrawing on next #update_contents call. */
@@ -100,5 +101,5 @@ class T3_WIDGET_API widget_container_t : public container_t {
 
 typedef std::deque<widget_t *> widgets_t;
 
-};  // namespace
+}  // namespace
 #endif

@@ -15,8 +15,6 @@
 #include <cstring>
 #include <string>
 
-#include <t3window/window.h>
-
 #include "dialogs/filedialog.h"
 #include "internal.h"
 #include "main.h"
@@ -117,7 +115,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
 
   set_widget_parent(options);
   /* Make the file pane one line less high. */
-  impl->file_pane_frame->set_size(t3_win_get_height(window) - 5, None);
+  impl->file_pane_frame->set_size(window.get_height() - 5, None);
 
   impl->option_widget_set = true;
   insert_extras(options);
@@ -151,7 +149,7 @@ bool file_dialog_t::set_size(optint height, optint width) {
   bool result = true;
   result &= dialog_t::set_size(height, width);
 
-  result &= impl->file_line->set_size(None, t3_win_get_width(window) - 3 - impl->name_offset);
+  result &= impl->file_line->set_size(None, window.get_width() - 3 - impl->name_offset);
   result &= impl->file_pane_frame->set_size(height - 4 - impl->option_widget_set, width - 4);
   return result;
 }
@@ -349,4 +347,4 @@ void save_as_dialog_t::create_folder() {
   // FIXME: create folder here
 }
 
-};  // namespace
+}  // namespace

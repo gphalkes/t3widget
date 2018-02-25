@@ -22,15 +22,15 @@ namespace t3_widget {
 class T3_WIDGET_API smart_label_text_t {
  protected:
   bool add_colon;
-  cleanup_free_ptr<char>::t text;
-  size_t underline_start, underline_length, text_length;
+  std::string text;
+  size_t underline_start, underline_length;
   bool underlined;
   key_t hotkey;
 
  public:
   smart_label_text_t(const char *spec, bool _addColon = false);
   virtual ~smart_label_text_t();
-  void draw(t3_window_t *win, int attr, bool selected = false);
+  void draw(window_wrapper_t *win, t3_attr_t attr, bool selected = false);
   int get_width();
   bool is_hotkey(key_t key);
 };
@@ -47,5 +47,5 @@ class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
   bool accepts_focus() override;
 };
 
-};  // namespace
+}  // namespace
 #endif

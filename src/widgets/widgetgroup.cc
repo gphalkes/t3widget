@@ -143,13 +143,13 @@ void widget_group_t::set_focus(focus_t focus) {
 
 bool widget_group_t::set_size(optint height, optint width) {
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
   if (!height.is_valid()) {
-    height = t3_win_get_height(window);
+    height = window.get_height();
   }
 
-  t3_win_resize(window, height, width);
+  window.resize(height, width);
   return true;
 }
 
@@ -222,4 +222,4 @@ bool widget_group_t::is_hotkey(key_t key) {
   return false;
 }
 
-};  // namespace
+}  // namespace

@@ -73,5 +73,5 @@ class T3_WIDGET_API label_t : public widget_t {
   int get_text_width() const;
 };
 
-};  // namespace
+}  // namespace
 #endif

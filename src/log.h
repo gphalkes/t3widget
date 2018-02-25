@@ -46,5 +46,5 @@ T3_WIDGET_API void logkeyseq(const char *keys);
 #define logkeyseq(keys)
 #endif
 
-};  // namespace
+}  // namespace
 #endif

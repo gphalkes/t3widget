@@ -55,12 +55,12 @@ bool button_t::set_size(optint height, optint width) {
 
   if (width.is_valid()) {
     if (width <= 0) {
-      if (text_width + 4 == t3_win_get_width(window)) {
+      if (text_width + 4 == window.get_width()) {
         return true;
       }
       width = text_width + 4;
     }
-    return t3_win_resize(window, 1, width);
+    return window.resize(1, width);
   }
   return true;
 }
@@ -76,21 +76,21 @@ void button_t::update_contents() {
 
   attr = has_focus ? attributes.button_selected : 0;
 
-  width = t3_win_get_width(window);
+  width = window.get_width();
 
-  t3_win_set_default_attrs(window, attributes.dialog);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addstr(window, is_default ? "[<" : "[ ", attr);
+  window.set_default_attrs(attributes.dialog);
+  window.set_paint(0, 0);
+  window.addstr(is_default ? "[<" : "[ ", attr);
   if (width > text_width + 4) {
-    t3_win_addchrep(window, ' ', attr, (width - 4 - text_width) / 2);
+    window.addchrep(' ', attr, (width - 4 - text_width) / 2);
   }
-  text->draw(window, attr, has_focus);
+  text->draw(&window, attr, has_focus);
   if (width > text_width + 4) {
-    t3_win_addchrep(window, ' ', attr, (width - 4 - text_width + 1) / 2);
+    window.addchrep(' ', attr, (width - 4 - text_width + 1) / 2);
   } else if (width > 0) {
-    t3_win_set_paint(window, 0, width - 2);
+    window.set_paint(0, width - 2);
   }
-  t3_win_addstr(window, is_default ? ">]" : " ]", attr);
+  window.addstr(is_default ? ">]" : " ]", attr);
 }
 
 void button_t::set_focus(focus_t focus) {
@@ -108,8 +108,8 @@ bool button_t::process_mouse_event(mouse_event_t event) {
   return true;
 }
 
-int button_t::get_width() { return t3_win_get_width(window); }
+int button_t::get_width() { return window.get_width(); }
 
 bool button_t::is_hotkey(key_t key) { return text->is_hotkey(key); }
 
-};  // namespace
+}  // namespace

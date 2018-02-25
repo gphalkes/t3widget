@@ -35,7 +35,7 @@ void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
       expanded_widget->set_expanded(false);
       /* This will generate another signal which will reduce the height. */
     }
-    expanded_height = t3_win_get_height(source->get_base_window()) - 1;
+    expanded_height = source->get_base_window()->get_height() - 1;
     height += expanded_height;
     expanded_widget = source;
   } else {
@@ -57,4 +57,4 @@ void expander_group_t::collapse() {
 
 int expander_group_t::get_group_height() { return height; }
 
-};  // namespace
+}  // namespace

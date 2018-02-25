@@ -103,15 +103,15 @@ bool menu_panel_t::set_size(optint height, optint _width) {
 }
 
 bool menu_panel_t::process_mouse_event(mouse_event_t event) {
-  if ((event.x < 0 || event.y < 0 || event.x > t3_win_get_width(window) ||
-       event.y > t3_win_get_height(window)) &&
+  if ((event.x < 0 || event.y < 0 || event.x > window.get_width() ||
+       event.y > window.get_height()) &&
       event.type & EMOUSE_OUTSIDE_GRAB &&
       (event.type & ~EMOUSE_OUTSIDE_GRAB) == EMOUSE_BUTTON_RELEASE) {
     close();
     return true;
   }
-  if (event.x < 1 || event.x > t3_win_get_width(window) - 2 || event.y < 1 ||
-      event.y > t3_win_get_height(window) - 2) {
+  if (event.x < 1 || event.x > window.get_width() - 2 || event.y < 1 ||
+      event.y > window.get_height() - 2) {
     return true;
   }
   (*current_widget)->set_focus(FOCUS_OUT);
@@ -224,17 +224,17 @@ void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
 
   if (_menu_bar == nullptr) {
     impl->menu_bar = nullptr;
-    t3_win_set_anchor(window, nullptr, 0);
+    window.set_anchor(nullptr, 0);
   } else {
     if (impl->menu_bar != nullptr) {
       impl->menu_bar->remove_menu(this);
     }
     impl->menu_bar = _menu_bar;
-    t3_win_set_anchor(window, impl->menu_bar->get_base_window(), 0);
+    window.set_anchor(impl->menu_bar->get_base_window(), 0);
   }
 }
 
-void menu_panel_t::draw_label(t3_window_t *draw_window, t3_attr_t attr, bool selected) const {
+void menu_panel_t::draw_label(window_wrapper_t *draw_window, t3_attr_t attr, bool selected) const {
   impl->label.draw(draw_window, attr, selected);
 }
 
@@ -244,4 +244,4 @@ bool menu_panel_t::is_hotkey(key_t key) const { return impl->label.is_hotkey(key
 
 bool menu_panel_t::is_child(window_component_t *widget) { return dialog_t::is_child(widget); }
 
-};  // namespace
+}  // namespace

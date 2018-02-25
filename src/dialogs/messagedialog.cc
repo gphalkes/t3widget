@@ -76,7 +76,7 @@ void message_dialog_t::set_message(const char *message, size_t length) {
   text_buffer_t *text = new text_buffer_t();
   int text_height;
 
-  impl->text_window->set_size(None, t3_win_get_width(window) - 2);
+  impl->text_window->set_size(None, window.get_width() - 2);
 
   text->append_text(message, length);
   old_text = impl->text_window->get_text();
@@ -134,4 +134,4 @@ signals::connection message_dialog_t::connect_activate(const signals::slot<void>
 
 void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = max; }
 
-};  // namespace
+}  // namespace

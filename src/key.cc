@@ -776,4 +776,4 @@ void async_safe_exit_main_loop(int exit_code) {
   errno = saved_errno;
 }
 
-};  // namespace
+}  // namespace

@@ -41,48 +41,41 @@ static uint32_t casefold_single(uint32_t c) {
 }
 
 smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
-    : add_colon(_add_colon), underlined(false), hotkey(0) {
-  char *underline_ptr;
-
-  text_length = strlen(spec);
-  if ((text = _t3_widget_strdup(spec)) == nullptr) {
-    throw std::bad_alloc();
-  }
-
-  if ((underline_ptr = strchr(text, '_')) != nullptr) {
+    : add_colon(_add_colon), text(spec), underlined(false), hotkey(0) {
+  if ((underline_start = text.find('_')) != std::string::npos) {
     size_t src_size;
 
     underlined = true;
-    underline_start = underline_ptr - text;
-    memmove(underline_ptr, underline_ptr + 1, text_length - underline_start);
-    text_length--;
+    text.erase(underline_start, 1);
 
-    src_size = text_length - underline_start;
-    hotkey = casefold_single(t3_utf8_get(underline_ptr, &src_size));
+    src_size = text.size() - underline_start;
+    hotkey = casefold_single(t3_utf8_get(text.data() + underline_start, &src_size));
 
-    text_line_t line(text, text_length);
+    text_line_t line(text.data(), text.size());
     underline_length = line.adjust_position(underline_start, 1) - underline_start;
   }
 }
 
 smart_label_text_t::~smart_label_text_t() {}
 
-void smart_label_text_t::draw(t3_window_t *window, int attr, bool selected) {
+void smart_label_text_t::draw(window_wrapper_t *window, t3_attr_t attr, bool selected) {
   if (!underlined) {
-    t3_win_addnstr(window, text, text_length, attr);
+    window->addnstr(text.data(), text.size(), attr);
   } else {
-    t3_win_addnstr(window, text, underline_start, attr);
-    t3_win_addnstr(window, text + underline_start, underline_length,
-                   selected ? attr : t3_term_combine_attrs(attributes.hotkey_highlight, attr));
-    t3_win_addnstr(window, text + underline_start + underline_length,
-                   text_length - underline_start - underline_length, attr);
+    window->addnstr(text.data(), underline_start, attr);
+    window->addnstr(text.data() + underline_start, underline_length,
+                    selected ? attr : t3_term_combine_attrs(attributes.hotkey_highlight, attr));
+    window->addnstr(text.data() + underline_start + underline_length,
+                    text.size() - underline_start - underline_length, attr);
   }
   if (add_colon) {
-    t3_win_addch(window, ':', attr);
+    window->addch(':', attr);
   }
 }
 
-int smart_label_text_t::get_width() { return t3_term_strwidth(text) + (add_colon ? 1 : 0); }
+int smart_label_text_t::get_width() {
+  return t3_term_strnwidth(text.data(), text.size()) + (add_colon ? 1 : 0);
+}
 
 bool smart_label_text_t::is_hotkey(key_t key) {
   if (hotkey == 0) {
@@ -104,9 +97,9 @@ bool smart_label_t::process_key(key_t key) {
 bool smart_label_t::set_size(optint height, optint width) {
   (void)height;
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
-  t3_win_resize(window, 1, width);
+  window.resize(1, width);
   return true;
 }
 
@@ -115,8 +108,8 @@ void smart_label_t::update_contents() {
     return;
   }
   redraw = false;
-  t3_win_set_paint(window, 0, 0);
-  draw(window, attributes.dialog);
+  window.set_paint(0, 0);
+  draw(&window, attributes.dialog);
 }
 
 void smart_label_t::set_focus(focus_t focus) { (void)focus; }
@@ -125,4 +118,4 @@ bool smart_label_t::is_hotkey(key_t key) { return smart_label_text_t::is_hotkey(
 
 bool smart_label_t::accepts_focus() { return false; }
 
-};  // namespace
+}  // namespace

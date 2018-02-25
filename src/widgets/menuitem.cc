@@ -21,7 +21,7 @@ void menu_item_base_t::set_position(optint top, optint left) {
   if (!top.is_valid()) {
     return;
   }
-  t3_win_move(window, top, 1);
+  window.move(top, 1);
 }
 
 bool menu_item_base_t::set_size(optint height, optint width) {
@@ -30,7 +30,7 @@ bool menu_item_base_t::set_size(optint height, optint width) {
     return true;
   }
   redraw = true;
-  return t3_win_resize(window, 1, width);
+  return window.resize(1, width);
 }
 
 void menu_item_base_t::process_mouse_event_from_menu(mouse_event_t event) { (void)event; }
@@ -60,15 +60,15 @@ void menu_item_t::update_contents() {
   }
   redraw = false;
 
-  t3_win_set_paint(window, 0, 0);
-  t3_win_clrtoeol(window);
-  t3_win_set_paint(window, 0, 1);
-  t3_win_set_default_attrs(window, has_focus ? attributes.dialog_selected : attributes.dialog);
-  label->draw(window, 0, has_focus);
+  window.set_paint(0, 0);
+  window.clrtoeol();
+  window.set_paint(0, 1);
+  window.set_default_attrs(has_focus ? attributes.dialog_selected : attributes.dialog);
+  label->draw(&window, 0, has_focus);
 
   if (hotkey != nullptr) {
-    t3_win_set_paint(window, 0, t3_win_get_width(window) - t3_term_strwidth(hotkey) - 1);
-    t3_win_addstr(window, hotkey, 0);
+    window.set_paint(0, window.get_width() - t3_term_strwidth(hotkey) - 1);
+    window.addstr(hotkey, 0);
   }
 }
 
@@ -112,8 +112,8 @@ void menu_separator_t::update_contents() {
     return;
   }
   redraw = false;
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, t3_win_get_width(window));
+  window.set_paint(0, 0);
+  window.addchrep(T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, window.get_width());
 }
 
 void menu_separator_t::set_focus(focus_t focus) { (void)focus; }
@@ -123,4 +123,4 @@ void menu_separator_t::hide() {}
 
 bool menu_separator_t::accepts_focus() { return false; }
 
-};  // namespace
+}  // namespace

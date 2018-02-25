@@ -45,11 +45,11 @@ void frame_t::update_contents() {
     return;
   }
   redraw = false;
-  t3_win_set_default_attrs(window, attributes.dialog);
+  window.set_default_attrs(attributes.dialog);
 
-  t3_win_set_paint(window, 0, 0);
-  t3_win_clrtobot(window);
-  t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
+  window.set_paint(0, 0);
+  window.clrtobot();
+  window.box(0, 0, window.get_height(), window.get_width(), 0);
 }
 
 void frame_t::set_focus(focus_t focus) {
@@ -63,24 +63,24 @@ bool frame_t::set_size(optint height, optint width) {
   bool result;
 
   if (!height.is_valid()) {
-    height = t3_win_get_height(window);
+    height = window.get_height();
   }
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
 
-  result = t3_win_resize(window, height, width);
+  result = window.resize(height, width);
   redraw = true;
 
   if (child != nullptr) {
-    child_height = t3_win_get_height(window);
+    child_height = window.get_height();
     if (!(dimension & COVER_TOP)) {
       child_height--;
     }
     if (!(dimension & COVER_BOTTOM)) {
       child_height--;
     }
-    child_width = t3_win_get_width(window);
+    child_width = window.get_width();
     if (!(dimension & COVER_LEFT)) {
       child_width--;
     }

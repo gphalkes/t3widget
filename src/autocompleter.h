@@ -26,6 +26,6 @@ class T3_WIDGET_API autocompleter_t {
   virtual void autocomplete(text_buffer_t *text, size_t idx) = 0;
 };
 
-};  // namespace
+}  // namespace
 
 #endif

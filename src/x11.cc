@@ -30,7 +30,6 @@
 
 #include <t3widget/extclipboard.h>
 #include <t3widget/log.h>
-#include <t3widget/ptr.h>
 
 // FIXME: remove incr_sends on long periods of inactivity
 /* This file used to contain both the Xlib and the XCB implementations for connecting to the X11
@@ -908,4 +907,4 @@ T3_WIDGET_API extclipboard_interface_t _t3_widget_extclipboard_calls = {EXTCLIPB
                                                                         stop_x11};
 };
 
-};  // namespace
+}  // namespace

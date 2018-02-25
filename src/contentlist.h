@@ -234,5 +234,5 @@ T3_WIDGET_API bool string_compare_filter(string_list_base_t *list, size_t idx,
 T3_WIDGET_API bool glob_filter(string_list_base_t *list, size_t idx, const std::string *str,
                                bool show_hidden);
 
-};  // namespace
+}  // namespace
 #endif

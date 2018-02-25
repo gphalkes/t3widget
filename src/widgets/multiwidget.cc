@@ -34,8 +34,8 @@ bool multi_widget_t::process_key(key_t key) {
 
 bool multi_widget_t::set_size(optint height, optint width) {
   (void)height;
-  if (width.is_valid() && t3_win_get_width(window) != width) {
-    t3_win_resize(window, 1, width);
+  if (width.is_valid() && window.get_width() != width) {
+    window.resize(1, width);
     resize_widgets();
   }
   return true;  // FIXME: use result of widgets
@@ -119,7 +119,7 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 
 void multi_widget_t::resize_widgets() {
   if (proportion_sum > 0) {
-    int width = t3_win_get_width(window);
+    int width = window.get_width();
     double scale = static_cast<double>(width - fixed_sum) / proportion_sum;
     int size = 0;
 
@@ -192,4 +192,4 @@ bool multi_widget_t::is_child(window_component_t *widget) {
   return false;
 }
 
-};  // namespace
+}  // namespace

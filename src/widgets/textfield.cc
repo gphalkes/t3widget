@@ -335,8 +335,8 @@ bool text_field_t::process_key(key_t key) {
 
 bool text_field_t::set_size(optint height, optint width) {
   (void)height;
-  if (width.is_valid() && t3_win_get_width(window) != width) {
-    t3_win_resize(window, 1, width);
+  if (width.is_valid() && window.get_width() != width) {
+    window.resize(1, width);
     if (impl->drop_down_list != nullptr) {
       impl->drop_down_list->set_size(None, width);
     }
@@ -380,14 +380,14 @@ void text_field_t::update_contents() {
 
   text_line_t::paint_info_t info;
 
-  t3_win_set_default_attrs(window, attributes.dialog);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addch(window, impl->leftcol == 0 ? '[' : '(', 0);
+  window.set_default_attrs(attributes.dialog);
+  window.set_paint(0, 0);
+  window.addch(impl->leftcol == 0 ? '[' : '(', 0);
 
   info.start = 0;
   info.leftcol = impl->leftcol;
   info.max = INT_MAX;
-  info.size = t3_win_get_width(window) - 2;
+  info.size = window.get_width() - 2;
   info.tabsize = 0;
   info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL;
   if (!impl->focus) {
@@ -404,12 +404,10 @@ void text_field_t::update_contents() {
   info.normal_attr = attributes.dialog;
   info.selected_attr = attributes.dialog_selected;
 
-  impl->line->paint_line(window, &info);
-  t3_win_addch(
-      window,
-      impl->line->calculate_screen_width(impl->leftcol, INT_MAX, 0) > t3_win_get_width(window) - 2
-          ? ')'
-          : ']',
+  impl->line->paint_line(&window, &info);
+  window.addch(
+      impl->line->calculate_screen_width(impl->leftcol, INT_MAX, 0) > window.get_width() - 2 ? ')'
+                                                                                             : ']',
       0);
 }
 
@@ -465,7 +463,7 @@ void text_field_t::ensure_cursor_on_screen() {
     redraw = true;
   }
 
-  width = t3_win_get_width(window);
+  width = window.get_width();
   if (impl->screen_pos + char_width > impl->leftcol + width - 2) {
     impl->leftcol = impl->screen_pos - (width - 2) + char_width;
     redraw = true;
@@ -602,15 +600,15 @@ bool text_field_t::has_focus() const { return impl->focus; }
 #define DDL_HEIGHT 6
 
 text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field)
-    : popup_t(DDL_HEIGHT, t3_win_get_width(_field->get_base_window()), false, false),
+    : popup_t(DDL_HEIGHT, _field->get_base_window()->get_width(), false, false),
       field(_field),
       list_pane(nullptr) {
-  t3_win_set_anchor(window, field->get_base_window(),
+  window.set_anchor(field->get_base_window(),
                     T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
-  t3_win_move(window, 1, 0);
+  window.move(1, 0);
 
   list_pane = new list_pane_t(false);
-  list_pane->set_size(DDL_HEIGHT - 1, t3_win_get_width(window) - 1);
+  list_pane->set_size(DDL_HEIGHT - 1, window.get_width() - 1);
   list_pane->set_position(0, 1);
   list_pane->connect_activate(
       signals::mem_fun(this, &text_field_t::drop_down_list_t::item_activated));
@@ -679,20 +677,20 @@ void text_field_t::drop_down_list_t::update_contents() {
 
   popup_t::update_contents();
   if (saved_redraw) {
-    width = t3_win_get_width(window);
-    t3_win_set_default_attrs(window, attributes.dialog);
-    t3_win_set_paint(window, 0, 0);
-    t3_win_clrtobot(window);
+    width = window.get_width();
+    window.set_default_attrs(attributes.dialog);
+    window.set_paint(0, 0);
+    window.clrtobot();
     for (i = 0; i < (DDL_HEIGHT - 1); i++) {
-      t3_win_set_paint(window, i, 0);
-      t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
-      t3_win_set_paint(window, i, width - 1);
-      t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
+      window.set_paint(i, 0);
+      window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
+      window.set_paint(i, width - 1);
+      window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
     }
-    t3_win_set_paint(window, (DDL_HEIGHT - 1), 0);
-    t3_win_addch(window, T3_ACS_LLCORNER, T3_ATTR_ACS);
-    t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
-    t3_win_addch(window, T3_ACS_LRCORNER, T3_ATTR_ACS);
+    window.set_paint((DDL_HEIGHT - 1), 0);
+    window.addch(T3_ACS_LLCORNER, T3_ATTR_ACS);
+    window.addchrep(T3_ACS_HLINE, T3_ATTR_ACS, width - 2);
+    window.addch(T3_ACS_LRCORNER, T3_ATTR_ACS);
   }
 }
 
@@ -771,4 +769,4 @@ void text_field_t::drop_down_list_t::selection_changed() {
   field->set_text((*completions)[list_pane->get_current()]);
 }
 
-};  // namespace
+}  // namespace

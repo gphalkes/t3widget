@@ -64,5 +64,5 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
   T3_WIDGET_SIGNAL(dragged, void, int);
 };
 
-};  // namespace
+}  // namespace
 #endif

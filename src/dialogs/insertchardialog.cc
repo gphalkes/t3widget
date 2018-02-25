@@ -125,4 +125,4 @@ void insert_char_dialog_t::ok_activate() {
   }
 }
 
-};  // namespace
+}  // namespace

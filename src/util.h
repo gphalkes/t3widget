@@ -19,7 +19,6 @@
 #include <t3window/window.h>
 #include <unistd.h>
 
-#include <t3widget/ptr.h>
 #include <t3widget/signals.h>
 #include <t3widget/widget_api.h>
 
@@ -155,8 +154,6 @@ _T3_WIDGET_ENUM(wrap_type_t, NONE, WORD, CHARACTER);
 
 #undef _T3_WIDGET_ENUM
 
-using cleanup_t3_window_ptr = cleanup_func_ptr<t3_window_t, t3_win_del>::t;
-
 struct free_deleter {
   void operator()(void *val) { free(val); }
 };
@@ -164,7 +161,6 @@ struct free_deleter {
 struct t3_window_deleter {
   void operator()(t3_window_t *win) { t3_win_del(win); }
 };
-using unique_t3_window_ptr = std::unique_ptr<t3_window_t, t3_window_deleter>;
 
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
@@ -179,5 +175,5 @@ T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string
 T3_WIDGET_API void convert_lang_codeset(const char *str, std::string *result, bool from);
 T3_WIDGET_API void convert_lang_codeset(const std::string *str, std::string *result, bool from);
 
-};  // namespace
+}  // namespace
 #endif

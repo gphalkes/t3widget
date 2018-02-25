@@ -48,5 +48,5 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
   signals::connection connect_activate(const signals::slot<void> &_slot, size_t idx);
 };
 
-};  // namespace
+}  // namespace
 #endif

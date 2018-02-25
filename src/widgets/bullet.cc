@@ -31,15 +31,15 @@ bool bullet_t::process_key(key_t key) {
 }
 
 void bullet_t::update_contents() {
-  t3_win_set_default_attrs(window, attributes.dialog);
-  t3_win_set_paint(window, 0, 0);
+  window.set_default_attrs(attributes.dialog);
+  window.set_paint(0, 0);
   if (source()) {
-    t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | (has_focus ? T3_ATTR_REVERSE : 0));
+    window.addch(T3_ACS_DIAMOND, T3_ATTR_ACS | (has_focus ? T3_ATTR_REVERSE : 0));
   } else {
-    t3_win_addch(window, ' ', has_focus ? T3_ATTR_REVERSE : 0);
+    window.addch(' ', has_focus ? T3_ATTR_REVERSE : 0);
   }
 }
 
 void bullet_t::set_focus(focus_t focus) { has_focus = focus; }
 
-};  // namespace
+}  // namespace

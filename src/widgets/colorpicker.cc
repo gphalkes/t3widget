@@ -83,7 +83,7 @@ bool color_picker_base_t::set_size(optint height, optint width) {
 bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
   int new_color;
 
-  if (event.window != window) {
+  if (event.window != window.get()) {
     return true;
   }
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
@@ -143,53 +143,53 @@ void color_picker_base_t::update_contents() {
     return;
   }
 
-  t3_win_set_default_attrs(window, attributes.dialog);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_clrtobot(window);
-  t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
-  t3_win_set_paint(window, 1, 1);
+  window.set_default_attrs(attributes.dialog);
+  window.set_paint(0, 0);
+  window.clrtobot();
+  window.box(0, 0, window.get_height(), window.get_width(), 0);
+  window.set_paint(1, 1);
 
   for (i = -2, old_y = 1; i <= max_color; i++) {
     color_to_xy(i, x, y);
     if (y != old_y) {
-      t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
-      t3_win_set_paint(window, y, 1);
+      window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
+      window.set_paint(y, 1);
       old_y = y;
     }
-    t3_win_addch(window, ' ', get_paint_attr(i));
+    window.addch(' ', get_paint_attr(i));
   }
-  t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
+  window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
 
   if (has_focus) {
     color_to_xy(current_color, x, y);
-    t3_win_set_paint(window, 0, x);
-    t3_win_addch(window, T3_ACS_DARROW, T3_ATTR_ACS);
-    t3_win_set_paint(window, y, 0);
-    t3_win_addch(window, T3_ACS_RARROW, T3_ATTR_ACS);
-    t3_win_set_paint(window, y, x);
-    t3_win_addch(window, T3_ACS_DIAMOND, T3_ATTR_ACS | get_paint_attr(current_color));
+    window.set_paint(0, x);
+    window.addch(T3_ACS_DARROW, T3_ATTR_ACS);
+    window.set_paint(y, 0);
+    window.addch(T3_ACS_RARROW, T3_ATTR_ACS);
+    window.set_paint(y, x);
+    window.addch(T3_ACS_DIAMOND, T3_ATTR_ACS | get_paint_attr(current_color));
   }
 
-  t3_win_set_paint(window, t3_win_get_height(window) - 1, 1);
-  t3_win_addstr(window, color_str, 0);
+  window.set_paint(window.get_height() - 1, 1);
+  window.addstr(color_str, 0);
   paint_color_name(current_color);
-  t3_win_addch(window, ' ', 0);
+  window.addch(' ', 0);
 }
 
 void color_picker_base_t::paint_color_name(int color) {
   if (color == -2) {
     if ((fg && (undefined_colors & T3_ATTR_FG_MASK)) ||
         (!fg && (undefined_colors & T3_ATTR_BG_MASK))) {
-      t3_win_addstr(window, "Base", 0);
+      window.addstr("Base", 0);
     } else {
-      t3_win_addstr(window, "Undefined", 0);
+      window.addstr("Undefined", 0);
     }
   } else if (current_color == -1) {
-    t3_win_addstr(window, "Terminal default", 0);
+    window.addstr("Terminal default", 0);
   } else {
     char color_number[20];
     sprintf(color_number, "%d", color);
-    t3_win_addstr(window, color_number, 0);
+    window.addstr(color_number, 0);
   }
 }
 
@@ -232,7 +232,7 @@ void color_picker_t::paint_color_name(int color) {
       "Cyan",       "Gray",          "Dark gray",  "Light red", "Light green", "Light yellow",
       "Light blue", "Light magenta", "Light cyan", "White"};
   if (color >= 0 && color < 16) {
-    t3_win_addstr(window, color_to_text[color], 0);
+    window.addstr(color_to_text[color], 0);
   } else {
     color_picker_base_t::paint_color_name(color);
   }
@@ -240,7 +240,7 @@ void color_picker_t::paint_color_name(int color) {
 
 int color_picker_t::xy_to_color(int x, int y) {
   int color;
-  if (x == 0 || x == t3_win_get_width(window) - 1 || y == 0 || y == t3_win_get_height(window) - 1) {
+  if (x == 0 || x == window.get_width() - 1 || y == 0 || y == window.get_height() - 1) {
     return INT_MIN;
   }
   if (y == 1) {
@@ -289,7 +289,7 @@ color_pair_picker_t::color_pair_picker_t() : color_picker_base_t(true) {
 int color_pair_picker_t::xy_to_color(int x, int y) {
   int color;
 
-  if (x == 0 || x == t3_win_get_width(window) - 1 || y == 0 || y == t3_win_get_height(window) - 1) {
+  if (x == 0 || x == window.get_width() - 1 || y == 0 || y == window.get_height() - 1) {
     return INT_MIN;
   }
   color = (x - 1) + (y - 1) * COLORS_PER_LINE;
@@ -319,4 +319,4 @@ t3_attr_t color_pair_picker_t::get_paint_attr(int color) {
   }
 }
 
-};  // namespace
+}  // namespace

@@ -19,12 +19,9 @@ namespace t3_widget {
 
 expander_t::expander_t(const char *text) : impl(new implementation_t(text)) {
   init_unbacked_window(1, impl->label.get_width() + 2);
-  impl->symbol_window.reset(t3_win_new(window, 1, 2 + impl->label.get_width(), 0, 0, 0));
-  if (impl->symbol_window == nullptr) {
-    throw std::bad_alloc();
-  }
-  t3_win_show(impl->symbol_window.get());
-  register_mouse_target(impl->symbol_window.get());
+  impl->symbol_window.alloc(window.get(), 1, 2 + impl->label.get_width(), 0, 0, 0);
+  impl->symbol_window.show();
+  register_mouse_target(&impl->symbol_window);
 }
 
 void expander_t::focus_up_from_child() {
@@ -49,7 +46,7 @@ void expander_t::set_child(widget_t *_child) {
 
   if (_child == nullptr) {
     if (impl->is_expanded) {
-      t3_win_resize(window, 1, t3_win_get_width(window));
+      window.resize(1, window.get_width());
       impl->is_expanded = false;
       redraw = true;
       expanded(false);
@@ -61,7 +58,7 @@ void expander_t::set_child(widget_t *_child) {
   set_widget_parent(impl->child.get());
   impl->child->set_anchor(this, 0);
   impl->child->set_position(1, 0);
-  impl->full_height = t3_win_get_height(impl->child->get_base_window()) + 1;
+  impl->full_height = impl->child->get_base_window()->get_height() + 1;
   focus_child = dynamic_cast<focus_widget_t *>(impl->child.get());
   if (focus_child != nullptr) {
     impl->move_up_connection = focus_child->connect_move_focus_up(
@@ -71,7 +68,7 @@ void expander_t::set_child(widget_t *_child) {
         focus_child->connect_move_focus_right(move_focus_right.make_slot());
     impl->move_left_connection = focus_child->connect_move_focus_left(move_focus_left.make_slot());
   }
-  set_size(None, t3_win_get_width(impl->child->get_base_window()));
+  set_size(None, impl->child->get_base_window()->get_width());
 }
 
 void expander_t::set_expanded(bool expand) {
@@ -82,13 +79,13 @@ void expander_t::set_expanded(bool expand) {
     }
     impl->child->hide();
     impl->is_expanded = false;
-    t3_win_resize(window, 1, t3_win_get_width(window));
+    window.resize(1, window.get_width());
     redraw = true;
     expanded(false);
   } else if (expand && !impl->is_expanded && impl->child != nullptr) {
     impl->child->show();
     impl->is_expanded = true;
-    t3_win_resize(window, impl->full_height, t3_win_get_width(window));
+    window.resize(impl->full_height, window.get_width());
     redraw = true;
     expanded(true);
   }
@@ -113,7 +110,7 @@ bool expander_t::process_key(key_t key) {
       move_focus_left();
     } else if (key == ' ' || key == EKEY_NL || key == EKEY_HOTKEY) {
       if (!impl->is_expanded && impl->child != nullptr) {
-        t3_win_resize(window, impl->full_height, t3_win_get_width(window));
+        window.resize(impl->full_height, window.get_width());
         impl->is_expanded = true;
         redraw = true;
         impl->child->show();
@@ -126,7 +123,7 @@ bool expander_t::process_key(key_t key) {
         if (impl->child != nullptr) {
           impl->child->hide();
         }
-        t3_win_resize(window, 1, t3_win_get_width(window));
+        window.resize(1, window.get_width());
         impl->is_expanded = false;
         redraw = true;
         expanded(false);
@@ -153,14 +150,12 @@ void expander_t::update_contents() {
     return;
   }
 
-  t3_win_set_paint(impl->symbol_window.get(), 0, 0);
-  t3_win_set_default_attrs(
-      impl->symbol_window.get(),
+  impl->symbol_window.set_paint(0, 0);
+  impl->symbol_window.set_default_attrs(
       (impl->focus == FOCUS_SELF ? attributes.dialog_selected : attributes.dialog));
-  t3_win_addch(impl->symbol_window.get(), impl->is_expanded ? T3_ACS_DARROW : T3_ACS_RARROW,
-               T3_ATTR_ACS);
-  t3_win_addch(impl->symbol_window.get(), ' ', 0);
-  impl->label.draw(impl->symbol_window.get(), 0, impl->focus == FOCUS_SELF);
+  impl->symbol_window.addch(impl->is_expanded ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS);
+  impl->symbol_window.addch(' ', 0);
+  impl->label.draw(&impl->symbol_window, 0, impl->focus == FOCUS_SELF);
 }
 
 void expander_t::set_focus(focus_t _focus) {
@@ -193,12 +188,12 @@ bool expander_t::set_size(optint height, optint width) {
   }
 
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
   if (impl->is_expanded) {
-    result &= t3_win_resize(window, impl->full_height, width);
+    result &= window.resize(impl->full_height, width);
   } else {
-    result &= t3_win_resize(window, 1, width);
+    result &= window.resize(1, width);
   }
   return result;
 }
@@ -258,7 +253,7 @@ widget_t *expander_t::is_child_hotkey(key_t key) {
 bool expander_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
     if (!impl->is_expanded && impl->child != nullptr) {
-      t3_win_resize(window, impl->full_height, t3_win_get_width(window));
+      window.resize(impl->full_height, window.get_width());
       impl->is_expanded = true;
       redraw = true;
       impl->child->show();
@@ -273,7 +268,7 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
       if (impl->child != nullptr) {
         impl->child->hide();
       }
-      t3_win_resize(window, 1, t3_win_get_width(window));
+      window.resize(1, window.get_width());
       impl->is_expanded = false;
       redraw = true;
       expanded(false);
@@ -282,4 +277,4 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
   return true;
 }
 
-};  // namespace
+}  // namespace

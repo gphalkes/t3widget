@@ -174,5 +174,5 @@ T3_WIDGET_API int get_key_timeout();
 */
 T3_WIDGET_API void signal_update();
 
-};  // namespace
+}  // namespace
 #endif

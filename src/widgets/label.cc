@@ -15,7 +15,6 @@
 #include "colorscheme.h"
 #include "log.h"
 #include "textline.h"
-#include <t3window/window.h>
 
 namespace t3_widget {
 
@@ -39,8 +38,8 @@ bool label_t::set_size(optint height, optint width) {
   bool result = true;
 
   (void)height;
-  if (width.is_valid() && t3_win_get_width(window) != width) {
-    result = t3_win_resize(window, 1, width);
+  if (width.is_valid() && window.get_width() != width) {
+    result = window.resize(1, width);
     redraw = true;
   }
   return result;
@@ -54,13 +53,13 @@ void label_t::update_contents() {
   }
   redraw = false;
 
-  width = t3_win_get_width(window);
+  width = window.get_width();
   text_line_t line(&text);
   text_line_t::paint_info_t paint_info;
 
-  t3_win_set_default_attrs(window, focus ? attributes.dialog_selected : attributes.dialog);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_clrtoeol(window);
+  window.set_default_attrs(focus ? attributes.dialog_selected : attributes.dialog);
+  window.set_paint(0, 0);
+  window.clrtoeol();
   int x = 0;
   if (width > text_width) {
     switch (align) {
@@ -75,13 +74,13 @@ void label_t::update_contents() {
         break;
     }
   }
-  t3_win_set_paint(window, 0, x);
+  window.set_paint(0, x);
 
   paint_info.start = 0;
   if (width < text_width && (align == ALIGN_LEFT_UNDERFLOW || align == ALIGN_RIGHT_UNDERFLOW)) {
     paint_info.leftcol = text_width - width + 2;
     paint_info.size = width - 2;
-    t3_win_addstr(window, "..", 0);
+    window.addstr("..", 0);
   } else {
     paint_info.leftcol = 0;
     paint_info.size = width;
@@ -95,7 +94,7 @@ void label_t::update_contents() {
   paint_info.normal_attr = 0;
   paint_info.selected_attr = 0;
 
-  line.paint_line(window, &paint_info);
+  line.paint_line(&window, &paint_info);
 }
 
 void label_t::set_focus(focus_t _focus) {
@@ -116,4 +115,4 @@ int label_t::get_text_width() const { return text_width; }
 void label_t::set_accepts_focus(bool _can_focus) { can_focus = _can_focus; }
 bool label_t::accepts_focus() { return can_focus && widget_t::accepts_focus(); }
 
-};  // namespace
+}  // namespace

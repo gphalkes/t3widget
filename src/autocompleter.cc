@@ -19,4 +19,4 @@ namespace t3_widget {
 
 autocompleter_t::~autocompleter_t() {}
 
-};  // namespace
+}  // namespace

@@ -19,9 +19,9 @@ namespace t3_widget {
 /** Base class for dialogs. */
 popup_t::popup_t(int height, int width, bool shadow, bool _draw)
     : dialog_base_t(height, width, shadow), draw(_draw), shown(false) {
-  t3_win_set_depth(window, INT_MIN);
+  window.set_depth(INT_MIN);
   if (shadow) {
-    t3_win_set_depth(shadow_window, INT_MIN + 1);
+    shadow_window.set_depth(INT_MIN + 1);
   }
 }
 

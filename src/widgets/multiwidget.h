@@ -48,5 +48,5 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
   void resize_widgets();
 };
 
-};  // namespace
+}  // namespace
 #endif

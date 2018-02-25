@@ -454,4 +454,4 @@ bool check_mouse_fd(fd_set *readset) {
   return false;
 }
 
-};  // namespace
+}  // namespace

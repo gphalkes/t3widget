@@ -39,17 +39,13 @@ void dialog_base_t::init(bool _init) {
 }
 
 dialog_base_t::dialog_base_t(int height, int width, bool has_shadow) : redraw(true) {
-  if ((window = t3_win_new(nullptr, height, width, 0, 0, 0)) == nullptr) {
-    throw std::bad_alloc();
-  }
+  window.alloc(nullptr, height, width, 0, 0, 0);
   if (has_shadow) {
-    if ((shadow_window = t3_win_new(nullptr, height, width, 1, 1, 1)) == nullptr) {
-      throw std::bad_alloc();
-    }
-    t3_win_set_anchor(shadow_window, window, 0);
+    shadow_window.alloc(nullptr, height, width, 1, 1, 1);
+    shadow_window.set_anchor(&window, 0);
   }
   dialog_base_list.push_back(this);
-  t3_win_set_restrict(window, nullptr);
+  window.set_restrict(nullptr);
   current_widget = widgets.begin();
 }
 
@@ -76,13 +72,13 @@ dialog_base_t::~dialog_base_t() {
 
 void dialog_base_t::set_position(optint top, optint left) {
   if (!top.is_valid()) {
-    top = t3_win_get_y(window);
+    top = window.get_y();
   }
   if (!left.is_valid()) {
-    left = t3_win_get_x(window);
+    left = window.get_x();
   }
 
-  t3_win_move(window, top, left);
+  window.move(top, left);
 }
 
 bool dialog_base_t::set_size(optint height, optint width) {
@@ -90,15 +86,15 @@ bool dialog_base_t::set_size(optint height, optint width) {
 
   redraw = true;
   if (!height.is_valid()) {
-    height = t3_win_get_height(window);
+    height = window.get_height();
   }
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
 
-  result &= (t3_win_resize(window, height, width) == 0);
+  result &= (window.resize(height, width) == 0);
   if (shadow_window != nullptr) {
-    result &= (t3_win_resize(shadow_window, height, width) == 0);
+    result &= (shadow_window.resize(height, width) == 0);
   }
   return result;
 }
@@ -108,23 +104,23 @@ void dialog_base_t::update_contents() {
     int i, x;
 
     redraw = false;
-    t3_win_set_default_attrs(window, attributes.dialog);
+    window.set_default_attrs(attributes.dialog);
 
     /* Just clear the whole thing and redraw */
-    t3_win_set_paint(window, 0, 0);
-    t3_win_clrtobot(window);
+    window.set_paint(0, 0);
+    window.clrtobot();
 
-    t3_win_box(window, 0, 0, t3_win_get_height(window), t3_win_get_width(window), 0);
+    window.box(0, 0, window.get_height(), window.get_width(), 0);
 
     if (shadow_window != nullptr) {
-      t3_win_set_default_attrs(shadow_window, attributes.shadow);
-      x = t3_win_get_width(shadow_window) - 1;
-      for (i = t3_win_get_height(shadow_window) - 1; i > 0; i--) {
-        t3_win_set_paint(shadow_window, i - 1, x);
-        t3_win_addch(shadow_window, ' ', 0);
+      shadow_window.set_default_attrs(attributes.shadow);
+      x = shadow_window.get_width() - 1;
+      for (i = shadow_window.get_height() - 1; i > 0; i--) {
+        shadow_window.set_paint(i - 1, x);
+        shadow_window.addch(' ', 0);
       }
-      t3_win_set_paint(shadow_window, t3_win_get_height(shadow_window) - 1, 0);
-      t3_win_addchrep(shadow_window, ' ', 0, t3_win_get_width(shadow_window));
+      shadow_window.set_paint(shadow_window.get_height() - 1, 0);
+      shadow_window.addchrep(' ', 0, shadow_window.get_width());
     }
   }
 
@@ -149,16 +145,16 @@ void dialog_base_t::show() {
     current_widget = widgets.begin();
   }
 
-  t3_win_show(window);
+  window.show();
   if (shadow_window != nullptr) {
-    t3_win_show(shadow_window);
+    shadow_window.show();
   }
 }
 
 void dialog_base_t::hide() {
-  t3_win_hide(window);
+  window.hide();
   if (shadow_window != nullptr) {
-    t3_win_hide(shadow_window);
+    shadow_window.hide();
   }
   if (widgets.front() == dummy) {
     widgets.pop_front();
@@ -251,9 +247,9 @@ void dialog_base_t::force_redraw() {
 }
 
 void dialog_base_t::center_over(window_component_t *center) {
-  t3_win_set_anchor(window, center->get_base_window(),
+  window.set_anchor(center->get_base_window(),
                     T3_PARENT(T3_ANCHOR_CENTER) | T3_CHILD(T3_ANCHOR_CENTER));
-  t3_win_move(window, 0, 0);
+  window.move(0, 0);
 }
 
 void dialog_base_t::force_redraw_all() {
@@ -262,4 +258,4 @@ void dialog_base_t::force_redraw_all() {
   }
 }
 
-};  // namespace
+}  // namespace

@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include "ptr.h"
 #include "widget_api.h"
 
 namespace t3_widget {
@@ -45,5 +44,5 @@ struct extclipboard_interface_t {
   void (*stop)();
 };
 
-};  // namespace
+}  // namespace
 #endif

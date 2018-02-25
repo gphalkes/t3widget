@@ -27,7 +27,6 @@ using lt_dlhandle = void *;
 
 #include "clipboard.h"
 #include "extclipboard.h"
-#include "ptr.h"
 
 /* Ensure that functions with internal linkage as defined in internal.h actually
    get compiled with internal linkage. */
@@ -171,4 +170,4 @@ void stop_clipboard() {
   }
 }
 
-};  // namespace
+}  // namespace

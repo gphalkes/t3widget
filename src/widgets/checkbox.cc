@@ -60,11 +60,11 @@ void checkbox_t::update_contents() {
     return;
   }
   redraw = false;
-  t3_win_set_default_attrs(window, attributes.dialog);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addch(window, '[', 0);
-  t3_win_addch(window, enabled ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);
-  t3_win_addch(window, ']', 0);
+  window.set_default_attrs(attributes.dialog);
+  window.set_paint(0, 0);
+  window.addch('[', 0);
+  window.addch(enabled ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);
+  window.addch(']', 0);
 }
 
 void checkbox_t::set_focus(focus_t focus) {
@@ -107,4 +107,4 @@ bool checkbox_t::process_mouse_event(mouse_event_t event) {
   return true;
 }
 
-};  // namespace
+}  // namespace

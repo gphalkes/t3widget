@@ -27,10 +27,8 @@ main_window_base_t::main_window_base_t() : dialog_t() {
     width = 80;
   }
 
-  if ((window = t3_win_new_unbacked(nullptr, height, width, 0, 0, INT_MAX)) == nullptr) {
-    throw std::bad_alloc();
-  }
-  t3_win_show(window);
+  window.alloc(nullptr, height, width, 0, 0, INT_MAX);
+  window.show();
   connect_resize(signals::mem_fun(this, &main_window_base_t::set_size_real));
 }
 
@@ -62,8 +60,8 @@ void main_window_base_t::show() {
 void main_window_base_t::close() {}
 
 void main_window_base_t::set_size_real(int height, int width) {
-  t3_win_resize(window, height, width);
+  window.resize(height, width);
   set_size(height, width);
 }
 
-};  // namespace
+}  // namespace

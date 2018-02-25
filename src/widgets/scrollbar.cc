@@ -44,12 +44,12 @@ bool scrollbar_t::set_size(optint height, optint width) {
   if (impl->vertical) {
     if (height.is_valid()) {
       impl->length = height;
-      result = t3_win_resize(window, impl->length, 1);
+      result = window.resize(impl->length, 1);
     }
   } else {
     if (width.is_valid()) {
       impl->length = width;
-      result = t3_win_resize(window, 1, impl->length);
+      result = window.resize(1, impl->length);
     }
   }
   redraw = true;
@@ -95,34 +95,32 @@ void scrollbar_t::update_contents() {
     impl->before = impl->length - 2 - impl->slider_size;
   }
 
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addch(window, impl->vertical ? T3_ACS_UARROW : T3_ACS_LARROW,
-               T3_ATTR_ACS | attributes.scrollbar);
+  window.set_paint(0, 0);
+  window.addch(impl->vertical ? T3_ACS_UARROW : T3_ACS_LARROW, T3_ATTR_ACS | attributes.scrollbar);
 
   for (i = 1; i < impl->length - 1 && i < impl->before + 1; i++) {
     if (impl->vertical) {
-      t3_win_set_paint(window, i, 0);
+      window.set_paint(i, 0);
     }
-    t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
+    window.addch(T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
   }
   for (; i < impl->length - 1 && i < impl->before + impl->slider_size + 1; i++) {
     if (impl->vertical) {
-      t3_win_set_paint(window, i, 0);
+      window.set_paint(i, 0);
     }
-    t3_win_addch(window, ' ', attributes.scrollbar);
+    window.addch(' ', attributes.scrollbar);
   }
   for (; i < impl->length - 1; i++) {
     if (impl->vertical) {
-      t3_win_set_paint(window, i, 0);
+      window.set_paint(i, 0);
     }
-    t3_win_addch(window, T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
+    window.addch(T3_ACS_CKBOARD, T3_ATTR_ACS | attributes.scrollbar);
   }
 
   if (impl->vertical) {
-    t3_win_set_paint(window, impl->length - 1, 0);
+    window.set_paint(impl->length - 1, 0);
   }
-  t3_win_addch(window, impl->vertical ? T3_ACS_DARROW : T3_ACS_RARROW,
-               T3_ATTR_ACS | attributes.scrollbar);
+  window.addch(impl->vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | attributes.scrollbar);
 }
 
 bool scrollbar_t::accepts_focus() { return false; }
@@ -185,4 +183,4 @@ void scrollbar_t::set_parameters(int _range, int _start, int _used) {
   impl->used = _used;
 }
 
-};  // namespace
+}  // namespace

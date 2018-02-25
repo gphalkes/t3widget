@@ -212,4 +212,4 @@ void undo_double_text_triple_coord_t::set_new_end(text_coordinate_t _new_end) {
 }
 text_coordinate_t undo_double_text_triple_coord_t::get_new_end() const { return new_end; }
 
-};  // namespace
+}  // namespace

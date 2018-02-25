@@ -69,5 +69,5 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   std::unique_ptr<widget_t> child; /**< The widget to enclose. */
 };
 
-};  // namespace
+}  // namespace
 #endif

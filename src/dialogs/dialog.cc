@@ -47,9 +47,9 @@ void dialog_t::activate_dialog() {
   active = true;
   set_focus(window_component_t::FOCUS_SET);
   dialog_depth -= 2;
-  t3_win_set_depth(window, dialog_depth);
+  window.set_depth(dialog_depth);
   if (shadow_window != nullptr) {
-    t3_win_set_depth(shadow_window, dialog_depth + 1);
+    shadow_window.set_depth(dialog_depth + 1);
   }
   active_dialogs.push_back(this);
   if (active_popup != nullptr) {
@@ -68,7 +68,7 @@ void dialog_t::deactivate_dialog() {
     this->set_focus(window_component_t::FOCUS_OUT);
     active_dialogs.pop_back();
     active_dialogs.back()->set_focus(window_component_t::FOCUS_REVERT);
-    dialog_depth = t3_win_get_depth(active_dialogs.back()->window);
+    dialog_depth = active_dialogs.back()->window.get_depth();
     return;
   }
 
@@ -140,10 +140,10 @@ void dialog_t::update_contents() {
   dialog_base_t::update_contents();
 
   if (redraw_title && title != nullptr) {
-    t3_win_set_paint(window, 0, 3);
-    t3_win_addstr(window, " ", 0);
-    t3_win_addstr(window, title, 0);
-    t3_win_addstr(window, " ", 0);
+    window.set_paint(0, 3);
+    window.addstr(" ", 0);
+    window.addstr(title, 0);
+    window.addstr(" ", 0);
   }
 }
 
@@ -197,4 +197,4 @@ void dialog_t::update_dialogs() {
   }
 }
 
-};  // namespace
+}  // namespace

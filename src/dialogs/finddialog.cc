@@ -370,4 +370,4 @@ void replace_buttons_dialog_t::reshow(find_action_t button) {
   }
 }
 
-};  // namespace
+}  // namespace

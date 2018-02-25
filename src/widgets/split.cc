@@ -64,13 +64,13 @@ bool split_t::set_size(optint height, optint width) {
   bool result;
 
   if (!height.is_valid()) {
-    height = t3_win_get_height(window);
+    height = window.get_height();
   }
   if (!width.is_valid()) {
-    width = t3_win_get_width(window);
+    width = window.get_width();
   }
 
-  result = t3_win_resize(window, height, width);
+  result = window.resize(height, width);
 
   if (horizontal) {
     int idx;
@@ -335,4 +335,4 @@ void split_t::set_to_end() {
   }
 }
 
-};  // namespace
+}  // namespace

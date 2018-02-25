@@ -77,4 +77,4 @@ void goto_dialog_t::ok_activate() {
   activate(atoi(number_line->get_text()->c_str()));
 }
 
-};  // namespace
+}  // namespace

@@ -57,5 +57,5 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
   void focus_previous();
 };
 
-};  // namespace
+}  // namespace
 #endif

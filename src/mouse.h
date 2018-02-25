@@ -64,5 +64,5 @@ enum {
 
 /** Retrieve a mouse event from the input queue. */
 T3_WIDGET_API mouse_event_t read_mouse_event();
-};  // namespace
+}  // namespace
 #endif

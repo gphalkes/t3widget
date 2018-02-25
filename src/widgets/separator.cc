@@ -22,11 +22,11 @@ bool separator_t::set_size(optint height, optint width) {
   bool result = true;
   if (horizontal) {
     if (width.is_valid()) {
-      result = t3_win_resize(window, 1, width);
+      result = window.resize(1, width);
     }
   } else {
     if (height.is_valid()) {
-      result = t3_win_resize(window, height, 1);
+      result = window.resize(height, 1);
     }
   }
 
@@ -39,15 +39,15 @@ bool separator_t::process_key(key_t key) {
 }
 
 void separator_t::update_contents() {
-  t3_win_set_default_attrs(window, attributes.dialog);
+  window.set_default_attrs(attributes.dialog);
   if (horizontal) {
-    t3_win_set_paint(window, 0, 0);
-    t3_win_addchrep(window, T3_ACS_HLINE, T3_ATTR_ACS, t3_win_get_width(window));
+    window.set_paint(0, 0);
+    window.addchrep(T3_ACS_HLINE, T3_ATTR_ACS, window.get_width());
   } else {
-    int i, height = t3_win_get_height(window);
+    int i, height = window.get_height();
     for (i = 0; i < height; i++) {
-      t3_win_set_paint(window, i, 0);
-      t3_win_addch(window, T3_ACS_VLINE, T3_ATTR_ACS);
+      window.set_paint(i, 0);
+      window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
     }
   }
 }
@@ -55,4 +55,4 @@ void separator_t::update_contents() {
 void separator_t::set_focus(focus_t focus) { (void)focus; }
 bool separator_t::accepts_focus() { return false; }
 
-};  // namespace
+}  // namespace

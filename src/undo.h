@@ -161,5 +161,5 @@ class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t 
   text_coordinate_t get_new_end() const override;
 };
 
-};  // namespace
+}  // namespace
 #endif

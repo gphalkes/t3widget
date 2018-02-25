@@ -68,5 +68,5 @@ class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
   bool accepts_focus() override;
 };
 
-};  // namespace
+}  // namespace
 #endif

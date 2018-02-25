@@ -34,7 +34,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
     expander_focus_t focus, last_focus;
     bool is_expanded;
     smart_label_text_t label;
-    unique_t3_window_ptr symbol_window;
+    window_wrapper_t symbol_window;
     std::unique_ptr<widget_t> child; /**< The widget to enclose. */
     int full_height;
     signals::connection move_up_connection, move_down_connection, move_right_connection,
@@ -78,5 +78,5 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   T3_WIDGET_SIGNAL(expanded, void, bool);
 };
 
-};  // namespace
+}  // namespace
 #endif

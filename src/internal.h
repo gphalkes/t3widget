@@ -182,5 +182,5 @@ reverse_view(T &t) {
 
 T3_WIDGET_LOCAL bool starts_with(const std::string &str, const std::string &with);
 
-};  // namespace
+}  // namespace
 #endif

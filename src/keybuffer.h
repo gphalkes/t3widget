@@ -90,5 +90,5 @@ class T3_WIDGET_LOCAL key_buffer_t : public item_buffer_t<key_t> {
 
 typedef item_buffer_t<mouse_event_t> mouse_event_buffer_t;
 
-};  // namespace
+}  // namespace
 #endif

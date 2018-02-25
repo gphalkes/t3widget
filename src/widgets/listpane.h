@@ -39,7 +39,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
   struct T3_WIDGET_LOCAL implementation_t {
     size_t top_idx, current;
-    unique_t3_window_ptr widgets_window;
+    window_wrapper_t widgets_window;
     widgets_t widgets;
     bool has_focus;
     scrollbar_t scrollbar;
@@ -105,5 +105,5 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   T3_WIDGET_SIGNAL(selection_changed, void);
 };
 
-};  // namespace
+}  // namespace
 #endif

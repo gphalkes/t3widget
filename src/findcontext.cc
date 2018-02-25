@@ -27,7 +27,6 @@ namespace t3_widget {
 /* This function exists as a wrapper around pcre_free, because pcre_free is not
    a function but a variable, and therefore can not be passed as a template
    parameter. */
-void finder_t::call_pcre_free(pcre *p) { pcre_free(p); }
 
 finder_t::finder_t() : flags(0), folded_size(0) {}
 
@@ -46,8 +45,8 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
       pcre_flags |= PCRE_CASELESS;
     }
 
-    if ((regex = pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset,
-                              nullptr)) == nullptr) {
+    regex.reset(pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, nullptr));
+    if (regex == nullptr) {
       // FIXME: error offset should be added for clarity
       throw error_message;
     }
@@ -96,7 +95,7 @@ finder_t &finder_t::operator=(finder_t &&other) {
 
   flags = other.flags;
   matcher.reset(other.matcher.release());
-  regex = other.regex.release();
+  regex.reset(other.regex.release());
   memcpy(ovector, other.ovector, sizeof(ovector));
   captures = other.captures;
   found = other.found;
@@ -135,7 +134,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
 
     if (reverse) {
       do {
-        match_result = pcre_exec(regex, nullptr, haystack->data(), end, start, pcre_flags,
+        match_result = pcre_exec(regex.get(), nullptr, haystack->data(), end, start, pcre_flags,
                                  local_ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
         if (match_result >= 0) {
           found = true;
@@ -145,8 +144,8 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
         }
       } while (match_result >= 0);
     } else {
-      match_result = pcre_exec(regex, nullptr, haystack->data(), end, start, pcre_flags, ovector,
-                               sizeof(ovector) / sizeof(ovector[0]));
+      match_result = pcre_exec(regex.get(), nullptr, haystack->data(), end, start, pcre_flags,
+                               ovector, sizeof(ovector) / sizeof(ovector[0]));
       captures = match_result;
       found = match_result >= 0;
     }
@@ -190,9 +189,9 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
               u8_casefold(reinterpret_cast<const uint8_t *>(substr.data()), substr.size(), nullptr,
                           nullptr, reinterpret_cast<uint8_t *>(folded.get()), &c_size));
           c = c_data;
-          if (c != folded) {
+          if (c_data != folded.get()) {
             // Previous value of folded will be automatically deleted.
-            folded = c_data;
+            folded.reset(c_data);
             folded_size = c_size;
           }
         } else {
@@ -228,9 +227,9 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
               u8_casefold(reinterpret_cast<const uint8_t *>(substr.data()), substr.size(), nullptr,
                           nullptr, reinterpret_cast<uint8_t *>(folded.get()), &c_size));
           c = c_data;
-          if (c != folded) {
+          if (c_data != folded.get()) {
             // Previous value of folded will be automatically deleted.
-            folded = c_data;
+            folded.reset(c_data);
             folded_size = c_size;
           }
         } else {
@@ -329,4 +328,4 @@ std::string *finder_t::get_replacement(const std::string *haystack) {
   return retval;
 }
 
-};  // namespace
+}  // namespace

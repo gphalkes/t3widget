@@ -338,11 +338,11 @@ void attribute_test_line_t::update_contents() {
   if (!redraw) {
     return;
   }
-  t3_win_set_default_attrs(window, attr);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_clrtoeol(window);
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addstr(window, "Abcd", 0);
+  window.set_default_attrs(attr);
+  window.set_paint(0, 0);
+  window.clrtoeol();
+  window.set_paint(0, 0);
+  window.addstr("Abcd", 0);
 }
 
 bool attribute_test_line_t::accepts_focus() { return false; }
@@ -352,4 +352,4 @@ void attribute_test_line_t::set_attribute(t3_attr_t _attr) {
   attr = _attr;
 }
 
-};  // namespace
+}  // namespace

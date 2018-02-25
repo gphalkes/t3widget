@@ -46,5 +46,5 @@ class T3_WIDGET_API main_window_base_t : public dialog_t {
   void show() override;
 };
 
-};  // namespace
+}  // namespace
 #endif

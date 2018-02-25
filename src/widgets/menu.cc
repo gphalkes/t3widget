@@ -25,9 +25,9 @@ namespace t3_widget {
 
 menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_t(_hidden)) {
   // Menu bar should be above normal widgets
-  t3_win_set_depth(window, -1);
+  window.set_depth(-1);
   if (impl->hidden) {
-    t3_win_hide(window);
+    window.hide();
   }
 }
 
@@ -39,10 +39,10 @@ menu_bar_t::~menu_bar_t() {
 
 void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
   int attr = selected ? attributes.menubar_selected : attributes.menubar;
-  t3_win_set_paint(window, 0, t3_win_get_x(menu->get_base_window()) + 1);
-  t3_win_addch(window, ' ', attr);
-  menu->draw_label(window, attr, selected);
-  t3_win_addch(window, ' ', attr);
+  window.set_paint(0, menu->get_base_window()->get_x() + 1);
+  window.addch(' ', attr);
+  menu->draw_label(&window, attr, selected);
+  window.addch(' ', attr);
 }
 
 void menu_bar_t::add_menu(menu_panel_t *menu) {
@@ -72,7 +72,7 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
       }
       impl->old_menu = 0;  // Make sure impl->old_menu isn't out of bounds
 
-      impl->start_col = t3_win_get_x((*iter)->get_base_window());
+      impl->start_col = (*iter)->get_base_window()->get_x();
       iter = impl->menus.erase(iter);
       /* Move all the remaining impl->menus to their new position. */
       for (; iter != impl->menus.end(); iter++) {
@@ -88,7 +88,7 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
 void menu_bar_t::close() {
   impl->has_focus = false;
   if (impl->hidden) {
-    t3_win_hide(window);
+    window.hide();
   }
   draw_menu_name(impl->menus[impl->current_menu], false);
   impl->menus[impl->current_menu]->hide();
@@ -125,7 +125,7 @@ bool menu_bar_t::set_size(optint height, optint width) {
     return true;
   }
   redraw = true;
-  return t3_win_resize(window, 1, width) == 0;
+  return window.resize(1, width) == 0;
 }
 
 void menu_bar_t::update_contents() {
@@ -159,7 +159,7 @@ void menu_bar_t::show() {
   if (!impl->has_focus) {
     impl->has_focus = true;
     redraw = true;
-    t3_win_show(window);
+    window.show();
     draw_menu_name(impl->menus[impl->current_menu], true);
     impl->menus[impl->current_menu]->show();
     grab_mouse();
@@ -195,12 +195,12 @@ bool menu_bar_t::process_mouse_event(mouse_event_t event) {
   event.type &= ~EMOUSE_OUTSIDE_GRAB;
 
   if (event.y == 0) {
-    outside_area = event.x < 0 || event.x >= t3_win_get_width(window);
+    outside_area = event.x < 0 || event.x >= window.get_width();
     on_bar = !outside_area;
   } else {
-    int current_menu_width = t3_win_get_width(impl->menus[impl->current_menu]->get_base_window());
-    int current_menu_height = t3_win_get_height(impl->menus[impl->current_menu]->get_base_window());
-    current_menu_x = t3_win_get_x(impl->menus[impl->current_menu]->get_base_window());
+    int current_menu_width = impl->menus[impl->current_menu]->get_base_window()->get_width();
+    int current_menu_height = impl->menus[impl->current_menu]->get_base_window()->get_height();
+    current_menu_x = impl->menus[impl->current_menu]->get_base_window()->get_x();
 
     outside_area = event.x < current_menu_x || event.x >= current_menu_x + current_menu_width ||
                    event.y > current_menu_height || event.y < 0;
@@ -238,7 +238,7 @@ int menu_bar_t::coord_to_menu_idx(int x) {
   int menu_start;
 
   for (iter = impl->menus.begin(), idx = 0; iter != impl->menus.end(); iter++, idx++) {
-    menu_start = t3_win_get_x((*iter)->get_base_window()) + 2;
+    menu_start = (*iter)->get_base_window()->get_x() + 2;
     if (x < menu_start) {
       return -1;
     }
@@ -251,8 +251,8 @@ int menu_bar_t::coord_to_menu_idx(int x) {
 
 void menu_bar_t::draw() {
   redraw = false;
-  t3_win_set_paint(window, 0, 0);
-  t3_win_addchrep(window, ' ', attributes.menubar, t3_win_get_width(window));
+  window.set_paint(0, 0);
+  window.addchrep(' ', attributes.menubar, window.get_width());
   for (menu_panel_t *menu : impl->menus) {
     draw_menu_name(menu, false);
   }
@@ -261,10 +261,10 @@ void menu_bar_t::draw() {
 void menu_bar_t::set_hidden(bool _hidden) {
   impl->hidden = _hidden;
   if (impl->hidden) {
-    t3_win_hide(window);
+    window.hide();
   } else {
-    t3_win_show(window);
+    window.show();
   }
 }
 
-};  // namespace
+}  // namespace

@@ -21,7 +21,7 @@ namespace t3_widget {
 /* The default_parent must exist before any widgets are created. Thus using the
    #on_init method won't work. Instead we use a cleanup_t3_window.
 */
-unique_t3_window_ptr widget_t::default_parent(t3_win_new_unbacked(nullptr, 1, 1, 0, 0, 0));
+window_wrapper_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
 
 bool widget_t::is_hotkey(key_t key) {
   (void)key;
@@ -38,47 +38,43 @@ widget_t::widget_t(int height, int width, bool register_as_mouse_target)
 widget_t::widget_t() : redraw(true), enabled(true), shown(true) {}
 
 void widget_t::init_window(int height, int width, bool register_as_mouse_target) {
-  if ((window = t3_win_new(default_parent.get(), height, width, 0, 0, 0)) == nullptr) {
-    throw std::bad_alloc();
-  }
-  t3_win_show(window);
+  window.alloc(default_parent.get(), height, width, 0, 0, 0);
+  window.show();
   if (register_as_mouse_target) {
-    register_mouse_target(window);
+    register_mouse_target(&window);
   }
 }
 
 void widget_t::init_unbacked_window(int height, int width, bool register_as_mouse_target) {
-  if ((window = t3_win_new_unbacked(default_parent.get(), height, width, 0, 0, 0)) == nullptr) {
-    throw std::bad_alloc();
-  }
-  t3_win_show(window);
+  window.alloc_unbacked(default_parent.get(), height, width, 0, 0, 0);
+  window.show();
   if (register_as_mouse_target) {
-    register_mouse_target(window);
+    register_mouse_target(&window);
   }
 }
 
 void widget_t::set_anchor(window_component_t *anchor, int relation) {
-  t3_win_set_anchor(window, anchor->get_base_window(), relation);
+  window.set_anchor(anchor->get_base_window(), relation);
 }
 
 void widget_t::set_position(optint top, optint left) {
   if (!top.is_valid()) {
-    top = t3_win_get_y(window);
+    top = window.get_y();
   }
   if (!left.is_valid()) {
-    left = t3_win_get_x(window);
+    left = window.get_x();
   }
 
-  t3_win_move(window, top, left);
+  window.move(top, left);
 }
 
 void widget_t::show() {
-  t3_win_show(window);
+  window.show();
   shown = true;
 }
 
 void widget_t::hide() {
-  t3_win_hide(window);
+  window.hide();
   shown = false;
 }
 
@@ -100,4 +96,4 @@ bool widget_t::process_mouse_event(mouse_event_t event) {
   return accepts_focus() && (event.button_state & EMOUSE_CLICK_BUTTONS);
 }
 
-};  // namespace
+}  // namespace

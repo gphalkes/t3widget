@@ -76,5 +76,5 @@ class T3_WIDGET_API color_pair_picker_t : public color_picker_base_t {
   color_pair_picker_t();
 };
 
-};  // namespace
+}  // namespace
 #endif
