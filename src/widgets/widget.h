@@ -79,19 +79,19 @@ class T3_WIDGET_API focus_widget_t {
   /** @fn signals::connection connect_move_focus_left(std::function<void()> func)
       Connect a callback to be called on emission of the move_focus_left_signal. */
   /** Signal emitted when the user pressed the left arrow key and focus should move. */
-  T3_WIDGET_SIGNAL(move_focus_left, void());
+  T3_WIDGET_SIGNAL(move_focus_left);
   /** @fn signals::connection connect_move_focus_right(std::function<void()> func)
       Connect a callback to be called on emission of the move_focus_right_signal. */
   /** Signal emitted when the user pressed the right arrow key and focus should move. */
-  T3_WIDGET_SIGNAL(move_focus_right, void());
+  T3_WIDGET_SIGNAL(move_focus_right);
   /** @fn signals::connection connect_move_focus_up(std::function<void()> func)
       Connect a callback to be called on emission of the move_focus_up_signal. */
   /** Signal emitted when the user pressed the up arrow key and focus should move. */
-  T3_WIDGET_SIGNAL(move_focus_up, void());
+  T3_WIDGET_SIGNAL(move_focus_up);
   /** @fn signals::connection connect_move_focus_down(std::function<void()> func)
       Connect a callback to be called on emission of the move_focus_down_signal. */
   /** Signal emitted when the user pressed the down arrow key and focus should move. */
-  T3_WIDGET_SIGNAL(move_focus_down, void());
+  T3_WIDGET_SIGNAL(move_focus_down);
 };
 
 class T3_WIDGET_API widget_container_t : public container_t {

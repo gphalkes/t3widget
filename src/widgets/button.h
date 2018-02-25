@@ -60,7 +60,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
       Connect a callback to the #activate signal.
   */
   /** Signal emitted when the button is pressed. */
-  T3_WIDGET_SIGNAL(activate, void());
+  T3_WIDGET_SIGNAL(activate);
 };
 
 }  // namespace

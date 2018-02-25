@@ -62,7 +62,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   void set_options_widget(widget_t *options);
   virtual void reset();
 
-  T3_WIDGET_SIGNAL(file_selected, void(const std::string *));
+  T3_WIDGET_SIGNAL(file_selected, const std::string *);
 };
 
 class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
@@ -70,7 +70,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
   class T3_WIDGET_API filter_text_field_t : public text_field_t {
    public:
     void set_focus(focus_t _focus) override;
-    T3_WIDGET_SIGNAL(lose_focus, void());
+    T3_WIDGET_SIGNAL(lose_focus);
   };
 
   struct implementation_t {

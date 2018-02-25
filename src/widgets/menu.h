@@ -109,7 +109,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
       The integer passed as the first argument is determined when creating the
       menu item through menu_panel_t::add_item.
   */
-  T3_WIDGET_SIGNAL(activate, void(int));
+  T3_WIDGET_SIGNAL(activate, int);
 };
 
 }  // namespace

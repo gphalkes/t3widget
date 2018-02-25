@@ -60,8 +60,8 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
   */
   void set_base_attributes(t3_attr_t attr);
 
-  T3_WIDGET_SIGNAL(attribute_selected, void(t3_attr_t));
-  T3_WIDGET_SIGNAL(default_selected, void());
+  T3_WIDGET_SIGNAL(attribute_selected, t3_attr_t);
+  T3_WIDGET_SIGNAL(default_selected);
 };
 
 class T3_WIDGET_API attribute_test_line_t : public widget_t {

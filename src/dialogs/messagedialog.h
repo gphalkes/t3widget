@@ -35,7 +35,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 
   bool process_key(key_t key) override;
 
-  T3_WIDGET_SIGNAL(activate_internal, void());
+  T3_WIDGET_SIGNAL(activate_internal);
 
  public:
   message_dialog_t(int width, const char *_title, ...);

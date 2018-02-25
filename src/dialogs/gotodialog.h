@@ -30,7 +30,7 @@ class T3_WIDGET_API goto_dialog_t : public dialog_t {
   bool set_size(optint height, optint width) override;
   void reset();
 
-  T3_WIDGET_SIGNAL(activate, void(int));
+  T3_WIDGET_SIGNAL(activate, int);
 };
 
 }  // namespace

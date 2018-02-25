@@ -40,14 +40,14 @@ class func_ptr_base {
   bool blocked = false;
 };
 
-template <typename R, typename... Args>
+template <typename... Args>
 class func_ptr : public func_ptr_base {
  public:
-  using F = std::function<R(Args...)>;
+  using F = std::function<void(Args...)>;
   func_ptr(F f) : func(new F(f)) {}
   void disconnect() override { func.reset(); }
   bool is_valid() override { return !!func; }
-  R call(Args... args) { return (*func)(args...); }
+  void call(Args... args) { return (*func)(args...); }
 
  private:
   std::unique_ptr<F> func;
@@ -73,37 +73,28 @@ class T3_WIDGET_API connection {
   std::shared_ptr<internal::func_ptr_base> func;
 };
 
-template <typename S>
-class T3_WIDGET_API signal;
-
-template <typename R, typename... Args>
-class T3_WIDGET_API signal<R(Args...)> {
+template <typename... Args>
+class T3_WIDGET_API signal {
  public:
-  connection connect(std::function<R(Args...)> func) {
-    funcs.emplace_back(new internal::func_ptr<R, Args...>(func));
+  connection connect(std::function<void(Args...)> func) {
+    funcs.emplace_back(new internal::func_ptr<Args...>(func));
     return connection(funcs.back());
   }
-  R operator()(Args... args) {
-    auto iter = funcs.begin();
-    auto last_valid = funcs.end();
-    // Remove functions that no longer exist.
-    while (iter != funcs.end()) {
+  void operator()(Args... args) {
+    for (auto iter = funcs.begin(); iter != funcs.end();) {
       if (!(*iter)->is_valid()) {
+        // Remove functions that no longer exist.
         iter = funcs.erase(iter);
-      } else if ((*iter)->is_blocked()) {
-        ++iter;
       } else {
-        last_valid = iter;
+        if (!(*iter)->is_blocked()) {
+          static_cast<internal::func_ptr<Args...> *>(iter->get())->call(args...);
+        }
         ++iter;
       }
     }
-    for (iter = funcs.begin(); iter != last_valid; ++iter)
-      static_cast<internal::func_ptr<R, Args...> *>(iter->get())->call(args...);
-    if (iter == funcs.end()) return R();
-    return static_cast<internal::func_ptr<R, Args...> *>(last_valid->get())->call(args...);
   }
-  std::function<R(Args...)> make_slot() {
-    return [this](Args... args) { return (*this)(args...); };
+  std::function<void(Args...)> make_slot() {
+    return [this](Args... args) { (*this)(args...); };
   }
 
  private:

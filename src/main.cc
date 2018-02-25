@@ -40,8 +40,8 @@ namespace t3_widget {
 
 static int init_level;
 static int screen_lines, screen_columns;
-static signals::signal<void(int, int)> resize;
-static signals::signal<void()> update_notification;
+static signals::signal<int, int> resize;
+static signals::signal<> update_notification;
 
 init_parameters_t *init_params;
 bool disable_primary_selection;
@@ -124,9 +124,8 @@ signals::connection connect_update_notification(std::function<void()> func) {
   return update_notification.connect(func);
 }
 
-static signals::signal<void(bool)> &on_init() {
-  static std::unique_ptr<signals::signal<void(bool)>> on_init_obj(
-      new signals::signal<void(bool)>());
+static signals::signal<bool> &on_init() {
+  static std::unique_ptr<signals::signal<bool>> on_init_obj(new signals::signal<bool>());
   return *on_init_obj;
 }
 
@@ -134,9 +133,8 @@ signals::connection connect_on_init(std::function<void(bool)> func) {
   return on_init().connect(func);
 }
 
-static signals::signal<void()> &terminal_settings_changed() {
-  static std::unique_ptr<signals::signal<void()>> terminal_settings_changed_obj(
-      new signals::signal<void()>());
+static signals::signal<> &terminal_settings_changed() {
+  static std::unique_ptr<signals::signal<>> terminal_settings_changed_obj(new signals::signal<>());
   return *terminal_settings_changed_obj;
 }
 
