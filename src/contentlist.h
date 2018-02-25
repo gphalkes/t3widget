@@ -50,7 +50,7 @@ class T3_WIDGET_API string_list_base_t : public virtual list_base_t {
   /** @fn signals::connection connect_content_changed(std::function<void()> func)
       Connect to signal emitted when the content of the list changed.*/
   /** Signal emitted when the content of the list changed. */
-  T3_WIDGET_SIGNAL(content_changed, void);
+  T3_WIDGET_SIGNAL(content_changed, void());
 };
 
 /** Implementation of a string list. */

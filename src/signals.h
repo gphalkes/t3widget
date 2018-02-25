@@ -26,10 +26,6 @@
 namespace t3_widget {
 namespace signals {
 
-// slot
-template <typename R, typename... Args>
-using slot = std::function<R(Args...)>;
-
 namespace internal {
 class func_ptr_base {
  public:
@@ -77,8 +73,11 @@ class T3_WIDGET_API connection {
   std::shared_ptr<internal::func_ptr_base> func;
 };
 
+template <typename S>
+class T3_WIDGET_API signal;
+
 template <typename R, typename... Args>
-class T3_WIDGET_API signal {
+class T3_WIDGET_API signal<R(Args...)> {
  public:
   connection connect(std::function<R(Args...)> func) {
     funcs.emplace_back(new internal::func_ptr<R, Args...>(func));

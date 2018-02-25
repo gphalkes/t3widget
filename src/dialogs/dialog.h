@@ -71,7 +71,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
       Connect a callback to the #closed signal.
   */
   /** Signal emitted when the dialog is closed by calling #close. */
-  T3_WIDGET_SIGNAL(closed, void);
+  T3_WIDGET_SIGNAL(closed, void());
 };
 
 }  // namespace

@@ -49,7 +49,7 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
 
   static text_buffer_t *get_default_text();
 
-  T3_WIDGET_SIGNAL(activate, void);
+  T3_WIDGET_SIGNAL(activate, void());
 };
 
 }  // namespace

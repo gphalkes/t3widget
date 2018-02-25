@@ -40,8 +40,8 @@ namespace t3_widget {
 
 static int init_level;
 static int screen_lines, screen_columns;
-static signals::signal<void, int, int> resize;
-static signals::signal<void> update_notification;
+static signals::signal<void(int, int)> resize;
+static signals::signal<void()> update_notification;
 
 init_parameters_t *init_params;
 bool disable_primary_selection;
@@ -116,32 +116,32 @@ init_parameters_t::init_parameters_t()
       separate_keypad(false),
       disable_external_clipboard(false) {}
 
-signals::connection connect_resize(signals::slot<void, int, int> slot) {
-  return resize.connect(slot);
+signals::connection connect_resize(std::function<void(int, int)> func) {
+  return resize.connect(func);
 }
 
-signals::connection connect_update_notification(signals::slot<void> slot) {
-  return update_notification.connect(slot);
+signals::connection connect_update_notification(std::function<void()> func) {
+  return update_notification.connect(func);
 }
 
-static signals::signal<void, bool> &on_init() {
-  static std::unique_ptr<signals::signal<void, bool>> on_init_obj(
-      new signals::signal<void, bool>());
+static signals::signal<void(bool)> &on_init() {
+  static std::unique_ptr<signals::signal<void(bool)>> on_init_obj(
+      new signals::signal<void(bool)>());
   return *on_init_obj;
 }
 
-signals::connection connect_on_init(signals::slot<void, bool> slot) {
-  return on_init().connect(slot);
+signals::connection connect_on_init(std::function<void(bool)> func) {
+  return on_init().connect(func);
 }
 
-static signals::signal<void> &terminal_settings_changed() {
-  static std::unique_ptr<signals::signal<void>> terminal_settings_changed_obj(
-      new signals::signal<void>());
+static signals::signal<void()> &terminal_settings_changed() {
+  static std::unique_ptr<signals::signal<void()>> terminal_settings_changed_obj(
+      new signals::signal<void()>());
   return *terminal_settings_changed_obj;
 }
 
-signals::connection connect_terminal_settings_changed(signals::slot<void> slot) {
-  return terminal_settings_changed().connect(slot);
+signals::connection connect_terminal_settings_changed(std::function<void()> func) {
+  return terminal_settings_changed().connect(func);
 }
 
 static void do_resize() {

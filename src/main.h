@@ -94,22 +94,22 @@ T3_WIDGET_API extern insert_char_dialog_t *insert_char_dialog;
 T3_WIDGET_API extern message_dialog_t *message_dialog;
 
 /** Connect a callback to the @c resize signal. */
-T3_WIDGET_API signals::connection connect_resize(signals::slot<void, int, int> slot);
+T3_WIDGET_API signals::connection connect_resize(std::function<void(int, int)> func);
 /** Connect a callback to the @c update_notification signal.
     The @c update_notification signal is sent in response to #signal_update function.
 */
-T3_WIDGET_API signals::connection connect_update_notification(signals::slot<void> slot);
+T3_WIDGET_API signals::connection connect_update_notification(std::function<void()> func);
 /** Connect a callback to the @c on_init signal.
     The @c on_init signal is emitted after initialization is complete. The signal
     is provided to allow initialization of global variables after initialization
     is complete, but without knowledge of when #init is called.
 */
-T3_WIDGET_API signals::connection connect_on_init(signals::slot<void, bool> slot);
+T3_WIDGET_API signals::connection connect_on_init(std::function<void(bool)> func);
 /** Connect a callback to the @c terminal_settings_changed signal.
     The @c terminal_settings_changed signal is emitted when the libt3window
     library has completed the terminal capability detection.
 */
-T3_WIDGET_API signals::connection connect_terminal_settings_changed(signals::slot<void> slot);
+T3_WIDGET_API signals::connection connect_terminal_settings_changed(std::function<void()> func);
 
 /** Initialize the libt3widget library.
 

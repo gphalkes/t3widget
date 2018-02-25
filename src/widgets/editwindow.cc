@@ -1870,8 +1870,8 @@ size_t edit_window_t::autocomplete_panel_t::get_selected_idx() const {
   return list_pane->get_current();
 }
 
-void edit_window_t::autocomplete_panel_t::connect_activate(signals::slot<void> slot) {
-  list_pane->connect_activate(slot);
+void edit_window_t::autocomplete_panel_t::connect_activate(std::function<void()> func) {
+  list_pane->connect_activate(func);
 }
 
 }  // namespace

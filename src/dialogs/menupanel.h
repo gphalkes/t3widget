@@ -66,7 +66,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
   void show() override;
 
-  T3_WIDGET_SIGNAL(activate, void, int);
+  T3_WIDGET_SIGNAL(activate, void(int));
 };
 
 }  // namespace

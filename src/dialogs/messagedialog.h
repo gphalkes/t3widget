@@ -35,7 +35,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 
   bool process_key(key_t key) override;
 
-  T3_WIDGET_SIGNAL(activate_internal, void);
+  T3_WIDGET_SIGNAL(activate_internal, void());
 
  public:
   message_dialog_t(int width, const char *_title, ...);
@@ -45,7 +45,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
   void set_message(const std::string *message);
   void set_max_text_height(int max);
 
-  signals::connection connect_activate(signals::slot<void> _slot, size_t idx);
+  signals::connection connect_activate(std::function<void()> _slot, size_t idx);
 };
 
 }  // namespace

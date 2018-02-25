@@ -58,7 +58,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   void set_tabsize(int size);
   int get_text_height();
 
-  T3_WIDGET_SIGNAL(activate, void);
+  T3_WIDGET_SIGNAL(activate, void());
 };
 
 }  // namespace

@@ -101,8 +101,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
   void set_single_click_activate(bool sca);
 
-  T3_WIDGET_SIGNAL(activate, void);
-  T3_WIDGET_SIGNAL(selection_changed, void);
+  T3_WIDGET_SIGNAL(activate, void());
+  T3_WIDGET_SIGNAL(selection_changed, void());
 };
 
 }  // namespace

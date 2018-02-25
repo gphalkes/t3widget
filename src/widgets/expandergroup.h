@@ -36,7 +36,7 @@ class T3_WIDGET_API expander_group_t {
   void collapse();
   int get_group_height();
 
-  T3_WIDGET_SIGNAL(expanded, void, bool);
+  T3_WIDGET_SIGNAL(expanded, void(bool));
 };
 
 }  // namespace
