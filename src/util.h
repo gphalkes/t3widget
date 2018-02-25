@@ -97,13 +97,13 @@ struct T3_WIDGET_API text_coordinate_t {
   int pos;
 };
 
-#define T3_WIDGET_SIGNAL(_name, ...)                                            \
- protected:                                                                     \
-  signals::signal<__VA_ARGS__> _name;                                           \
-                                                                                \
- public:                                                                        \
-  signals::connection connect_##_name(std::function<void(__VA_ARGS__)> _slot) { \
-    return _name.connect(_slot);                                                \
+#define T3_WIDGET_SIGNAL(_name, ...)                                     \
+ protected:                                                              \
+  signal_t<__VA_ARGS__> _name;                                           \
+                                                                         \
+ public:                                                                 \
+  connection_t connect_##_name(std::function<void(__VA_ARGS__)> _slot) { \
+    return _name.connect(_slot);                                         \
   }
 
 #define _T3_WIDGET_ENUM(_name, ...)                                            \

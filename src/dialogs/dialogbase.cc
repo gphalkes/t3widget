@@ -23,7 +23,7 @@ namespace t3_widget {
 dialog_base_list_t dialog_base_t::dialog_base_list;
 
 dummy_widget_t *dialog_base_t::dummy;
-signals::connection dialog_base_t::init_connected = connect_on_init(dialog_base_t::init);
+connection_t dialog_base_t::init_connected = connect_on_init(dialog_base_t::init);
 
 void dialog_base_t::init(bool _init) {
   if (_init) {

@@ -37,7 +37,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
     window_wrapper_t symbol_window;
     std::unique_ptr<widget_t> child; /**< The widget to enclose. */
     int full_height;
-    signals::connection move_up_connection, move_down_connection, move_right_connection,
+    connection_t move_up_connection, move_down_connection, move_right_connection,
         move_left_connection;
     implementation_t(const char *text)
         : focus(FOCUS_NONE),

@@ -35,7 +35,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
     checkbox_t *whole_word_checkbox, *match_case_checkbox, *regex_checkbox, *wrap_checkbox,
         *transform_backslash_checkbox, *reverse_direction_checkbox;
     button_t *in_selection_button, *replace_all_button;
-    signals::connection find_button_up_connection;
+    connection_t find_button_up_connection;
     int state;  // State of all the checkboxes converted to FIND_* flags
   };
   std::unique_ptr<implementation_t> impl;

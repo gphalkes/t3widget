@@ -102,7 +102,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   */
   void set_hidden(bool _hidden);
 
-  /** @fn signals::connection connect_activate(std::function<void(int)> &_slot)
+  /** @fn connection_t connect_activate(std::function<void(int)> &_slot)
       Connect a callback to the #activate signal.
   */
   /** Signal emitted when a menu item is selected.

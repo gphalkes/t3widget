@@ -39,7 +39,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
     checkbox_t *show_hidden_box;
     smart_label_t *show_hidden_label;
     bool option_widget_set;
-    signals::connection cancel_button_up_connection, ok_button_up_connection;
+    connection_t cancel_button_up_connection, ok_button_up_connection;
 
     implementation_t() : view(&names), option_widget_set(false) {}
   };

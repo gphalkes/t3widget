@@ -21,15 +21,14 @@
 #include <t3widget/widget_api.h>
 
 namespace t3_widget {
-namespace signals {
 
 namespace internal {
 /* Base class for function wrappers. This provides the part of the functionality that is not
    dependent on actual function argument types, and defines the generic functionality in terms of
-   abstract functions. Having this base class allows the connection class to be fully generic. */
-class func_ptr_base {
+   abstract functions. Having this base class allows the connection_t class to be fully generic. */
+class func_ptr_base_t {
  public:
-  virtual ~func_ptr_base() = default;
+  virtual ~func_ptr_base_t() = default;
   virtual void disconnect() = 0;
   virtual bool is_valid() = 0;
   // Blocked signals don't get called.
@@ -44,10 +43,10 @@ class func_ptr_base {
 /* Templated subclass of func_base_ptr which implements the actual call functionality and holds the
    pointer to the actual std::function. */
 template <typename... Args>
-class func_ptr : public func_ptr_base {
+class func_ptr_t : public func_ptr_base_t {
  public:
   using F = std::function<void(Args...)>;
-  func_ptr(F f) : func(new F(f)) {}
+  func_ptr_t(F f) : func(new F(f)) {}
   void disconnect() override { func.reset(); }
   bool is_valid() override { return !!func; }
   void call(Args... args) { return (*func)(args...); }
@@ -57,18 +56,18 @@ class func_ptr : public func_ptr_base {
 };
 }  // namespace internal
 
-/** A connection is the handle for a callback that is associated with a signal.
+/** A connection_t is the handle for a callback that is associated with a signal.
 
-    Using the @c connection, a callback can be removed from the signal, or it can be blocked and
-    unblocked to temporarily stop the callback from being called. The @c connection object does not
-    have to be alive for the callback to be activated. I.e., if the lifetime of the callback is no
-    bound to the @c connection object.
+    Using the @c connection_t, a callback can be removed from the signal, or it can be blocked and
+    unblocked to temporarily stop the callback from being called. The @c connection_t object does
+    not have to be alive for the callback to be activated. I.e., if the lifetime of the callback is
+    not bound to the @c connection_t object.
 */
-class T3_WIDGET_API connection {
+class T3_WIDGET_API connection_t {
  public:
-  connection() = default;
-  connection(std::shared_ptr<internal::func_ptr_base> f) : func(f) {}
-  connection(const connection &other) : func(other.func) {}
+  connection_t() = default;
+  connection_t(std::shared_ptr<internal::func_ptr_base_t> f) : func(f) {}
+  connection_t(const connection_t &other) : func(other.func) {}
   /// Disconnect the callback from the signal.
   void disconnect() {
     if (func) {
@@ -86,24 +85,24 @@ class T3_WIDGET_API connection {
   }
 
  private:
-  std::shared_ptr<internal::func_ptr_base> func;
+  std::shared_ptr<internal::func_ptr_base_t> func;
 };
 
 /** A signal object allows a set of callbacks to be called on activation.
 
     The signal object holds zero or more callbacks, which get called when operator() is called. The
     purpose of this is to allow an object to provide a callback interface, which may be hooked into
-    by multiple other objects. Through the returned @c connection object, registered callbacks can
+    by multiple other objects. Through the returned @c connection_t object, registered callbacks can
     be controlled or removed. Note that actual removal of the callback object (std::function) only
     happens on activation of the signal.
 */
 template <typename... Args>
-class T3_WIDGET_API signal {
+class T3_WIDGET_API signal_t {
  public:
   /// Add a callback to be called on activation.
-  connection connect(std::function<void(Args...)> func) {
-    funcs.emplace_back(new internal::func_ptr<Args...>(func));
-    return connection(funcs.back());
+  connection_t connect(std::function<void(Args...)> func) {
+    funcs.emplace_back(new internal::func_ptr_t<Args...>(func));
+    return connection_t(funcs.back());
   }
 
   /// Activate the signal, i.e. call all the registered active callbacks.
@@ -114,7 +113,7 @@ class T3_WIDGET_API signal {
         iter = funcs.erase(iter);
       } else {
         if (!(*iter)->is_blocked()) {
-          static_cast<internal::func_ptr<Args...> *>(iter->get())->call(args...);
+          static_cast<internal::func_ptr_t<Args...> *>(iter->get())->call(args...);
         }
         ++iter;
       }
@@ -130,10 +129,9 @@ class T3_WIDGET_API signal {
   }
 
  private:
-  std::list<std::shared_ptr<internal::func_ptr_base>> funcs;
+  std::list<std::shared_ptr<internal::func_ptr_base_t>> funcs;
 };
 
-}  // namesapce signals
 }  // namesapce t3_widget
 
 #endif

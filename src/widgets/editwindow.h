@@ -52,15 +52,15 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   class T3_WIDGET_LOCAL autocomplete_panel_t;
 
   static goto_dialog_t *goto_dialog;
-  static signals::connection goto_connection;
+  static connection_t goto_connection;
   static find_dialog_t *global_find_dialog;
-  static signals::connection global_find_dialog_connection;
+  static connection_t global_find_dialog_connection;
   static finder_t global_finder;
   static replace_buttons_dialog_t *replace_buttons;
-  static signals::connection replace_buttons_connection;
+  static connection_t replace_buttons_connection;
   static menu_panel_t *right_click_menu;
-  static signals::connection right_click_menu_connection;
-  static signals::connection init_connected;
+  static connection_t right_click_menu_connection;
+  static connection_t init_connected;
 
   struct T3_WIDGET_LOCAL implementation_t {
     window_wrapper_t edit_window, /**< Window containing the text. */

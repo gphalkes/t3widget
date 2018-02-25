@@ -45,7 +45,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
   void set_message(const std::string *message);
   void set_max_text_height(int max);
 
-  signals::connection connect_activate(std::function<void()> _slot, size_t idx);
+  connection_t connect_activate(std::function<void()> _slot, size_t idx);
 };
 
 }  // namespace

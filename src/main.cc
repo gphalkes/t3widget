@@ -40,8 +40,8 @@ namespace t3_widget {
 
 static int init_level;
 static int screen_lines, screen_columns;
-static signals::signal<int, int> resize;
-static signals::signal<> update_notification;
+static signal_t<int, int> resize;
+static signal_t<> update_notification;
 
 init_parameters_t *init_params;
 bool disable_primary_selection;
@@ -116,29 +116,25 @@ init_parameters_t::init_parameters_t()
       separate_keypad(false),
       disable_external_clipboard(false) {}
 
-signals::connection connect_resize(std::function<void(int, int)> func) {
-  return resize.connect(func);
-}
+connection_t connect_resize(std::function<void(int, int)> func) { return resize.connect(func); }
 
-signals::connection connect_update_notification(std::function<void()> func) {
+connection_t connect_update_notification(std::function<void()> func) {
   return update_notification.connect(func);
 }
 
-static signals::signal<bool> &on_init() {
-  static std::unique_ptr<signals::signal<bool>> on_init_obj(new signals::signal<bool>());
+static signal_t<bool> &on_init() {
+  static std::unique_ptr<signal_t<bool>> on_init_obj(new signal_t<bool>());
   return *on_init_obj;
 }
 
-signals::connection connect_on_init(std::function<void(bool)> func) {
-  return on_init().connect(func);
-}
+connection_t connect_on_init(std::function<void(bool)> func) { return on_init().connect(func); }
 
-static signals::signal<> &terminal_settings_changed() {
-  static std::unique_ptr<signals::signal<>> terminal_settings_changed_obj(new signals::signal<>());
+static signal_t<> &terminal_settings_changed() {
+  static std::unique_ptr<signal_t<>> terminal_settings_changed_obj(new signal_t<>());
   return *terminal_settings_changed_obj;
 }
 
-signals::connection connect_terminal_settings_changed(std::function<void()> func) {
+connection_t connect_terminal_settings_changed(std::function<void()> func) {
   return terminal_settings_changed().connect(func);
 }
 

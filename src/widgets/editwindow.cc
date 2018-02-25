@@ -32,16 +32,16 @@
 namespace t3_widget {
 
 goto_dialog_t *edit_window_t::goto_dialog;
-signals::connection edit_window_t::goto_connection;
+connection_t edit_window_t::goto_connection;
 find_dialog_t *edit_window_t::global_find_dialog;
-signals::connection edit_window_t::global_find_dialog_connection;
+connection_t edit_window_t::global_find_dialog_connection;
 finder_t edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
-signals::connection edit_window_t::replace_buttons_connection;
+connection_t edit_window_t::replace_buttons_connection;
 menu_panel_t *edit_window_t::right_click_menu;
-signals::connection edit_window_t::right_click_menu_connection;
+connection_t edit_window_t::right_click_menu_connection;
 
-signals::connection edit_window_t::init_connected = connect_on_init(edit_window_t::init);
+connection_t edit_window_t::init_connected = connect_on_init(edit_window_t::init);
 
 #define _T3_ACTION_FILE "widgets/editwindow.actions.h"
 #define _T3_ACTION_TYPE edit_window_t

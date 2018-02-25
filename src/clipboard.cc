@@ -41,7 +41,7 @@ std::shared_ptr<std::string> primary_data;
 static void init_external_clipboard(bool init);
 
 static extclipboard_interface_t *extclipboard_calls;
-static signals::connection init_connected = connect_on_init(init_external_clipboard);
+static connection_t init_connected = connect_on_init(init_external_clipboard);
 
 /** Get the clipboard data.
 

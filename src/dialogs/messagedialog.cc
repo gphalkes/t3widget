@@ -120,9 +120,9 @@ bool message_dialog_t::process_key(key_t key) {
   return dialog_t::process_key(key);
 }
 
-signals::connection message_dialog_t::connect_activate(std::function<void()> _slot, size_t idx) {
+connection_t message_dialog_t::connect_activate(std::function<void()> _slot, size_t idx) {
   if (idx > widgets.size() - 1) {
-    return signals::connection();
+    return connection_t();
   }
   if (idx == 0) {
     return activate_internal.connect(_slot);

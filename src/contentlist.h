@@ -47,7 +47,7 @@ class T3_WIDGET_API list_base_t {
     will not always be the same.
 */
 class T3_WIDGET_API string_list_base_t : public virtual list_base_t {
-  /** @fn signals::connection connect_content_changed(std::function<void()> func)
+  /** @fn connection_t connect_content_changed(std::function<void()> func)
       Connect to signal emitted when the content of the list changed.*/
   /** Signal emitted when the content of the list changed. */
   T3_WIDGET_SIGNAL(content_changed);
@@ -135,7 +135,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
   /** Filter function. */
   optional<std::function<bool(string_list_base_t *, size_t)>> test;
   /** Connection to base list's content_changed signal. */
-  signals::connection base_content_changed_connection;
+  connection_t base_content_changed_connection;
 
   /** Update the filtered list.
           Called automatically when the base list changes, through the use of the

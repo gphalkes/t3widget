@@ -34,16 +34,16 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   static dummy_widget_t
       *dummy; /**< Dummy widget to ensure that a dialog is never empty when shown. */
 
-  static void init(bool _init);              /**< Function to initialize the dummy widget. */
-  static signals::connection init_connected; /**< Dummy value to allow static connection of the @c
-                                                on_init signal to #init. */
+  static void init(bool _init); /**< Function to initialize the dummy widget. */
+  /** Dummy value to allow static connection_t of the @c on_init signal to #init. */
+  static connection_t init_connected;
 
   /** Default constructor, made private to avoid use. */
   dialog_base_t();
 
  protected:
-  widgets_t widgets; /**< List of widgets on this dialog. This list should only be filled using
-                        #push_back. */
+  /** List of widgets on this dialog. This list should only be filled using #push_back. */
+  widgets_t widgets;
   widgets_t::iterator
       current_widget;             /**< Iterator indicating the widget that has the input focus. */
   bool redraw;                    /**< Boolean indicating whether redrawing is necessary. */

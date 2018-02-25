@@ -37,7 +37,7 @@ class T3_WIDGET_LOCAL wrap_info_t {
   wrap_data_t wrap_data;
   text_buffer_t *text;
   int size, tabsize, wrap_width;
-  signals::connection rewrap_connection;
+  connection_t rewrap_connection;
 
   void delete_lines(int first, int last);
   void insert_lines(int first, int last);
@@ -63,7 +63,8 @@ class T3_WIDGET_LOCAL wrap_info_t {
   int calculate_screen_pos() const;
   int calculate_screen_pos(const text_coordinate_t *where) const;
   int calculate_line_pos(int line, int pos, int subline) const;
-  void paint_line(window_wrapper_t *win, text_coordinate_t line, text_line_t::paint_info_t *info) const;
+  void paint_line(window_wrapper_t *win, text_coordinate_t line,
+                  text_line_t::paint_info_t *info) const;
 };
 
 }  // namespace
