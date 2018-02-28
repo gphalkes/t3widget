@@ -25,17 +25,11 @@
 
 namespace t3_widget {
 
-string_list_t::~string_list_t() {
-  for (std::string *string : strings) {
-    delete string;
-  }
-}
-
 size_t string_list_t::size() const { return strings.size(); }
 
-const std::string *string_list_t::operator[](size_t idx) const { return strings[idx]; }
+const std::string *string_list_t::operator[](size_t idx) const { return &strings[idx]; }
 
-void string_list_t::push_back(std::string *str) { strings.push_back(str); }
+void string_list_t::push_back(std::string str) { strings.push_back(str); }
 
 file_name_list_t::file_name_entry_t::file_name_entry_t() : is_dir(false) {
   display_name = &file_name_entry_t::name;

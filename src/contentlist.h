@@ -56,13 +56,12 @@ class T3_WIDGET_API string_list_base_t : public virtual list_base_t {
 /** Implementation of a string list. */
 class T3_WIDGET_API string_list_t : public string_list_base_t {
  protected:
-  std::vector<std::string *> strings;
+  std::vector<std::string> strings;
 
  public:
-  ~string_list_t() override;
   size_t size() const override;
   const std::string *operator[](size_t idx) const override;
-  virtual void push_back(std::string *str);
+  virtual void push_back(std::string str);
 };
 
 /** Abstract base class for file lists. */
