@@ -204,7 +204,7 @@ bool find_dialog_t::set_size(optint height, optint width) {
   return true;
 }
 
-void find_dialog_t::set_text(const std::string *str) { impl->find_line->set_text(str); }
+void find_dialog_t::set_text(string_view str) { impl->find_line->set_text(str); }
 
 #define TOGGLED_CALLBACK(name, flag_name) \
   void find_dialog_t::name##_toggled() { impl->state ^= find_flags_t::flag_name; }

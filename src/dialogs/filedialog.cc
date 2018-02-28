@@ -169,7 +169,7 @@ int file_dialog_t::set_file(const char *file) {
   }
 
   impl->file_line->set_autocomplete(&impl->names);
-  impl->file_line->set_text(&file_string);
+  impl->file_line->set_text(file_string);
   refresh_view();
   return result;
 }

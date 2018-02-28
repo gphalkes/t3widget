@@ -22,6 +22,7 @@
 #include <t3widget/contentlist.h>
 #include <t3widget/dialogs/popup.h>
 #include <t3widget/key_binding.h>
+#include <t3widget/string_view.h>
 #include <t3widget/textline.h>
 #include <t3widget/widgets/listpane.h>
 #include <t3widget/widgets/smartlabel.h>
@@ -113,11 +114,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
   void show() override;
   void hide() override;
   /** Set the text of the text_field_t. */
-  void set_text(const std::string *text);
-  /** Set the text of the text_field_t. */
-  void set_text(const char *text);
-  /** Set the text of the text_field_t. */
-  void set_text(const char *text, size_t size);
+  void set_text(string_view text);
   /** Set the autocompletion list. */
   void set_autocomplete(string_list_base_t *_completions);
   /** Set the list of keys to accept or reject.

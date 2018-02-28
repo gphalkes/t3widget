@@ -470,12 +470,8 @@ void text_field_t::ensure_cursor_on_screen() {
   }
 }
 
-void text_field_t::set_text(const std::string *text) { set_text(text->data(), text->size()); }
-
-void text_field_t::set_text(const char *text) { set_text(text, strlen(text)); }
-
-void text_field_t::set_text(const char *text, size_t size) {
-  impl->line->set_text(string_view(text, size));
+void text_field_t::set_text(string_view text) {
+  impl->line->set_text(text);
   impl->pos = impl->line->get_length();
   impl->leftcol = 0;
   ensure_cursor_on_screen();
@@ -694,7 +690,7 @@ void text_field_t::drop_down_list_t::update_contents() {
 
 void text_field_t::drop_down_list_t::set_focus(focus_t focus) {
   if (focus && field->impl->in_drop_down_list) {
-    field->set_text((*completions)[list_pane->get_current()]);
+    field->set_text(*(*completions)[list_pane->get_current()]);
   }
   popup_t::set_focus(focus);
 }
@@ -758,12 +754,12 @@ void text_field_t::drop_down_list_t::update_list_pane() {
 }
 
 void text_field_t::drop_down_list_t::item_activated() {
-  field->set_text((*completions)[list_pane->get_current()]);
+  field->set_text(*(*completions)[list_pane->get_current()]);
   hide();
 }
 
 void text_field_t::drop_down_list_t::selection_changed() {
-  field->set_text((*completions)[list_pane->get_current()]);
+  field->set_text(*(*completions)[list_pane->get_current()]);
 }
 
 }  // namespace

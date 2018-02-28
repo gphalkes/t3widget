@@ -1298,7 +1298,7 @@ void edit_window_t::find_replace(bool replace) {
       text->get_selection_start().line == text->get_selection_end().line) {
     std::unique_ptr<std::string> selected_text(
         text->convert_block(text->get_selection_start(), text->get_selection_end()));
-    dialog->set_text(selected_text.get());
+    dialog->set_text(*selected_text);
   }
   dialog->show();
 }
