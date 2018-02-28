@@ -230,7 +230,7 @@ bool text_field_t::process_key(key_t key) {
             std::shared_ptr<std::string> copy_buffer =
                 action == ACTION_PASTE ? get_clipboard() : get_primary();
             if (copy_buffer != nullptr) {
-              text_line_t insert_line(copy_buffer.get());
+              text_line_t insert_line(*copy_buffer.get());
 
               // Don't allow pasting of values that do not match the filter
               if (impl->filter_keys != nullptr) {
@@ -475,7 +475,7 @@ void text_field_t::set_text(const std::string *text) { set_text(text->data(), te
 void text_field_t::set_text(const char *text) { set_text(text, strlen(text)); }
 
 void text_field_t::set_text(const char *text, size_t size) {
-  impl->line->set_text(text, size);
+  impl->line->set_text(string_view(text, size));
   impl->pos = impl->line->get_length();
   impl->leftcol = 0;
   ensure_cursor_on_screen();
@@ -541,7 +541,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       ensure_clipboard_lock_t lock;
       std::shared_ptr<std::string> primary = get_primary();
       if (primary != nullptr) {
-        text_line_t insert_line(primary.get());
+        text_line_t insert_line(*primary);
 
         impl->line->insert(&insert_line, impl->pos);
         impl->pos += insert_line.get_length();

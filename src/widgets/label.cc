@@ -54,7 +54,7 @@ void label_t::update_contents() {
   redraw = false;
 
   width = window.get_width();
-  text_line_t line(&text);
+  text_line_t line(text);
   text_line_t::paint_info_t paint_info;
 
   window.set_default_attrs(focus ? attributes.dialog_selected : attributes.dialog);

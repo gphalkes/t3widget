@@ -51,7 +51,7 @@ smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
     src_size = text.size() - underline_start;
     hotkey = casefold_single(t3_utf8_get(text.data() + underline_start, &src_size));
 
-    text_line_t line(text.data(), text.size());
+    text_line_t line(text);
     underline_length = line.adjust_position(underline_start, 1) - underline_start;
   }
 }

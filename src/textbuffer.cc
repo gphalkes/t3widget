@@ -142,7 +142,7 @@ bool text_buffer_t::append_text(const char *text) { return append_text(text, str
 bool text_buffer_t::append_text(const char *text, size_t _size) {
   bool result;
   text_coordinate_t at(impl->lines.size() - 1, INT_MAX);
-  result = insert_block_internal(at, impl->line_factory->new_text_line_t(text, _size));
+  result = insert_block_internal(at, impl->line_factory->new_text_line_t(string_view(text, _size)));
   return result;
 }
 
@@ -161,7 +161,7 @@ bool text_buffer_t::break_line_internal(const std::string *indent) {
   if (indent == nullptr) {
     cursor.pos = 0;
   } else {
-    text_line_t *new_line = impl->line_factory->new_text_line_t(indent);
+    text_line_t *new_line = impl->line_factory->new_text_line_t(*indent);
     new_line->merge(impl->lines[cursor.line]);
     impl->lines[cursor.line] = new_line;
     cursor.pos = indent->size();
@@ -434,7 +434,7 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
 
 bool text_buffer_t::insert_block(const std::string *block) {
   text_coordinate_t cursor_at_start = cursor;
-  text_line_t *converted_block = impl->line_factory->new_text_line_t(block);
+  text_line_t *converted_block = impl->line_factory->new_text_line_t(*block);
   std::string sanitized_block(*converted_block->get_data());
   undo_t *undo;
 
@@ -471,7 +471,7 @@ bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end
     start = end;
   }
 
-  converted_block = impl->line_factory->new_text_line_t(block);
+  converted_block = impl->line_factory->new_text_line_t(*block);
   sanitized_block = *converted_block->get_data();
   // FIXME: insert_block_internal may fail!!!
   insert_block_internal(start, converted_block);
@@ -616,7 +616,7 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
     case UNDO_ADD_REDO:
     case UNDO_DELETE:
       start = current->get_start();
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
+      insert_block_internal(start, impl->line_factory->new_text_line_t(*current->get_text()));
       if (type == UNDO_DELETE) {
         cursor = start;
       }
@@ -632,13 +632,13 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
       if (end.line < start.line || (end.line == start.line && end.pos < start.pos)) {
         start = end;
       }
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
+      insert_block_internal(start, impl->line_factory->new_text_line_t(*current->get_text()));
       cursor = end;
       break;
     case UNDO_BACKSPACE:
       start = current->get_start();
       start.pos -= current->get_text()->size();
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
+      insert_block_internal(start, impl->line_factory->new_text_line_t(*current->get_text()));
       break;
     case UNDO_BACKSPACE_REDO:
       end = start = current->get_start();
@@ -649,14 +649,15 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
       end = start = current->get_start();
       end.pos += current->get_replacement()->size();
       delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
+      insert_block_internal(start, impl->line_factory->new_text_line_t(*current->get_text()));
       cursor = start;
       break;
     case UNDO_OVERWRITE_REDO:
       end = start = current->get_start();
       end.pos += current->get_text()->size();
       delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_replacement()));
+      insert_block_internal(start,
+                            impl->line_factory->new_text_line_t(*current->get_replacement()));
       break;
     case UNDO_REPLACE_BLOCK:
       start = current->get_start();
@@ -666,7 +667,7 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
       }
       end = current->get_new_end();
       delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_text()));
+      insert_block_internal(start, impl->line_factory->new_text_line_t(*current->get_text()));
       cursor = current->get_end();
       break;
     case UNDO_REPLACE_BLOCK_REDO:
@@ -676,7 +677,8 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
       if (end.line < start.line || (end.line == start.line && end.pos < start.pos)) {
         start = end;
       }
-      insert_block_internal(start, impl->line_factory->new_text_line_t(current->get_replacement()));
+      insert_block_internal(start,
+                            impl->line_factory->new_text_line_t(*current->get_replacement()));
       break;
     case UNDO_BACKSPACE_NEWLINE:
       cursor = current->get_start();
@@ -701,7 +703,7 @@ int text_buffer_t::apply_undo_redo(undo_type_t type, undo_t *current) {
       break;
     case UNDO_ADD_NEWLINE_INDENT_REDO:
       insert_block_internal(current->get_start(),
-                            impl->line_factory->new_text_line_t(current->get_text()));
+                            impl->line_factory->new_text_line_t(*current->get_text()));
       break;
     case UNDO_BLOCK_START:
     case UNDO_BLOCK_END_REDO:
@@ -942,7 +944,7 @@ bool text_buffer_t::indent_block(text_coordinate_t &start, text_coordinate_t &en
   for (; insert_at.line <= end_line; insert_at.line++) {
     undo_text->append(str);
     undo_text->append(1, 'X');  // Simply add a non-space/tab as marker
-    indent = impl->line_factory->new_text_line_t(&str);
+    indent = impl->line_factory->new_text_line_t(str);
     insert_block_internal(insert_at, indent);
   }
   start.pos = 0;
@@ -987,8 +989,8 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
     } else {
       text_coordinate_t insert_at(first_line, 0);
       if (next_pos != pos) {
-        text_line_t *indent =
-            impl->line_factory->new_text_line_t(undo_text->data() + pos, next_pos - pos);
+        text_line_t *indent = impl->line_factory->new_text_line_t(
+            string_view(undo_text->data() + pos, next_pos - pos));
         insert_block_internal(insert_at, indent);
       }
     }

@@ -60,7 +60,7 @@ text_line_t::text_line_t(int buffersize, text_line_factory_t *_factory)
 
 text_line_t::~text_line_t() {}
 
-void text_line_t::fill_line(const char *_buffer, int length) {
+void text_line_t::fill_line(string_view _buffer) {
   size_t char_bytes, round_trip_bytes;
   key_t next;
   char byte_buffer[5];
@@ -68,50 +68,27 @@ void text_line_t::fill_line(const char *_buffer, int length) {
   /* If _buffer is valid UTF-8, we will end up with a buffer of size length.
      So just tell the buffer that, such that it can allocate an appropriately
      sized buffer. */
-  reserve(length);
+  reserve(_buffer.size());
 
-  while (length > 0) {
-    char_bytes = length;
-    next = t3_utf8_get(_buffer, &char_bytes);
+  while (!_buffer.empty()) {
+    char_bytes = _buffer.size();
+    next = t3_utf8_get(_buffer.data(), &char_bytes);
     round_trip_bytes = t3_utf8_put(next, byte_buffer);
     buffer.append(byte_buffer, round_trip_bytes);
-    length -= char_bytes;
-    _buffer += char_bytes;
+    _buffer.remove_prefix(char_bytes);
   }
   starts_with_combining = buffer.size() > 0 && width_at(0) == 0;
 }
 
-text_line_t::text_line_t(const char *_buffer, text_line_factory_t *_factory)
+text_line_t::text_line_t(string_view _buffer, text_line_factory_t *_factory)
     : starts_with_combining(false),
       factory(_factory == nullptr ? &default_text_line_factory : _factory) {
-  fill_line(_buffer, strlen(_buffer));
+  fill_line(_buffer);
 }
 
-text_line_t::text_line_t(const char *_buffer, int length, text_line_factory_t *_factory)
-    : starts_with_combining(false),
-      factory(_factory == nullptr ? &default_text_line_factory : _factory) {
-  fill_line(_buffer, length);
-}
-
-text_line_t::text_line_t(const std::string *str, text_line_factory_t *_factory)
-    : starts_with_combining(false),
-      factory(_factory == nullptr ? &default_text_line_factory : _factory) {
-  fill_line(str->data(), str->size());
-}
-
-void text_line_t::set_text(const char *_buffer) {
+void text_line_t::set_text(string_view _buffer) {
   buffer.clear();
-  fill_line(_buffer, strlen(_buffer));
-}
-
-void text_line_t::set_text(const char *_buffer, size_t length) {
-  buffer.clear();
-  fill_line(_buffer, length);
-}
-
-void text_line_t::set_text(const std::string *str) {
-  buffer.clear();
-  fill_line(str->data(), str->size());
+  fill_line(_buffer);
 }
 
 /* Merge line2 into line1, freeing line2 */
@@ -919,14 +896,8 @@ text_line_factory_t::~text_line_factory_t() {}
 text_line_t *text_line_factory_t::new_text_line_t(int buffersize) {
   return new text_line_t(buffersize, this);
 }
-text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer) {
+text_line_t *text_line_factory_t::new_text_line_t(string_view _buffer) {
   return new text_line_t(_buffer, this);
-}
-text_line_t *text_line_factory_t::new_text_line_t(const char *_buffer, int length) {
-  return new text_line_t(_buffer, length, this);
-}
-text_line_t *text_line_factory_t::new_text_line_t(const std::string *str) {
-  return new text_line_t(str, this);
 }
 
 }  // namespace

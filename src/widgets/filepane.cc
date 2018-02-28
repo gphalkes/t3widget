@@ -183,7 +183,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 
   int column;
   int height = window.get_height() - 1;
-  text_line_t line((*impl->file_list)[idx]);
+  text_line_t line(*(*impl->file_list)[idx]);
   bool is_dir = impl->file_list->is_dir(idx);
   text_line_t::paint_info_t info;
 

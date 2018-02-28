@@ -24,6 +24,7 @@
 
 #include <t3widget/interfaces.h>
 #include <t3widget/key.h>
+#include <t3widget/string_view.h>
 #include <t3widget/widget_api.h>
 
 namespace t3_widget {
@@ -87,7 +88,7 @@ class T3_WIDGET_API text_line_t {
 
   t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info);
 
-  void fill_line(const char *_buffer, int length);
+  void fill_line(string_view _buffer);
   bool check_boundaries(int match_start, int match_end) const;
   void update_meta_buffer(int start_pos = 0);
   char get_char_meta(int pos) const;
@@ -97,14 +98,10 @@ class T3_WIDGET_API text_line_t {
 
  public:
   text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = nullptr);
-  text_line_t(const char *_buffer, text_line_factory_t *_factory = nullptr);
-  text_line_t(const char *_buffer, int length, text_line_factory_t *_factory = nullptr);
-  text_line_t(const std::string *str, text_line_factory_t *_factory = nullptr);
+  text_line_t(string_view _buffer, text_line_factory_t *_factory = nullptr);
   virtual ~text_line_t();
 
-  void set_text(const char *_buffer);
-  void set_text(const char *_buffer, size_t length);
-  void set_text(const std::string *str);
+  void set_text(string_view _buffer);
 
   void merge(text_line_t *other);
   text_line_t *break_line(int pos);
@@ -155,9 +152,7 @@ class T3_WIDGET_API text_line_factory_t {
   text_line_factory_t();
   virtual ~text_line_factory_t();
   virtual text_line_t *new_text_line_t(int buffersize = BUFFERSIZE);
-  virtual text_line_t *new_text_line_t(const char *_buffer);
-  virtual text_line_t *new_text_line_t(const char *_buffer, int length);
-  virtual text_line_t *new_text_line_t(const std::string *str);
+  virtual text_line_t *new_text_line_t(string_view _buffer);
 };
 
 T3_WIDGET_API extern text_line_factory_t default_text_line_factory;
