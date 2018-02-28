@@ -83,7 +83,7 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 
   result = impl->line->cut_line(start, end);
   if (save_to_copy_buffer) {
-    set_clipboard(new std::string(*result->get_data()));
+    set_clipboard(make_unique<std::string>(*result->get_data()));
   }
 
   delete result;
@@ -220,7 +220,7 @@ bool text_field_t::process_key(key_t key) {
                 end = impl->selection_start_pos;
               }
 
-              set_clipboard(new std::string(*impl->line->get_data(), start, end - start));
+              set_clipboard(make_unique<std::string>(*impl->line->get_data(), start, end - start));
             }
             return true;
 
@@ -588,7 +588,7 @@ void text_field_t::set_selection_end(bool update_primary) {
       start = impl->selection_end_pos;
       length = impl->selection_start_pos - start;
     }
-    set_primary(new std::string(*impl->line->get_data(), start, length));
+    set_primary(make_unique<std::string>(*impl->line->get_data(), start, length));
   }
 }
 

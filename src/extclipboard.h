@@ -38,7 +38,7 @@ struct extclipboard_interface_t {
   bool (*init)();
   void (*release_selections)();
   std::shared_ptr<std::string> (*get_selection)(bool clipboard);
-  void (*claim_selection)(bool clipboard, std::string *data);
+  void (*claim_selection)(bool clipboard, std::unique_ptr<std::string> data);
   void (*lock)();
   void (*unlock)();
   void (*stop)();

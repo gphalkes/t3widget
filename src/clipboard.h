@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <t3widget/widget_api.h>
 
@@ -24,8 +25,8 @@ namespace t3_widget {
 T3_WIDGET_API std::shared_ptr<std::string> get_clipboard();
 T3_WIDGET_API std::shared_ptr<std::string> get_primary();
 
-T3_WIDGET_API void set_clipboard(std::string *str);
-T3_WIDGET_API void set_primary(std::string *str);
+T3_WIDGET_API void set_clipboard(std::unique_ptr<std::string> str);
+T3_WIDGET_API void set_primary(std::unique_ptr<std::string> str);
 T3_WIDGET_API void release_selections();
 T3_WIDGET_API void lock_clipboard();
 T3_WIDGET_API void unlock_clipboard();

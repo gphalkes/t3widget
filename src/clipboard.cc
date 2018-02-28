@@ -67,32 +67,30 @@ std::shared_ptr<std::string> get_primary() {
   return primary_data;
 }
 
-void set_clipboard(std::string *str) {
+void set_clipboard(std::unique_ptr<std::string> str) {
   if (str != nullptr && str->size() == 0) {
-    delete str;
-    str = nullptr;
+    str.reset();
   }
 
   if (extclipboard_calls != nullptr) {
-    extclipboard_calls->claim_selection(true, str);
+    extclipboard_calls->claim_selection(true, std::move(str));
     return;
   }
-  clipboard_data.reset(str);
+  clipboard_data.reset(str.release());
 }
 
-void set_primary(std::string *str) {
+void set_primary(std::unique_ptr<std::string> str) {
   if (str != nullptr && str->size() == 0) {
-    delete str;
-    str = nullptr;
+    str.reset();
   }
 
   if (extclipboard_calls != nullptr) {
     if (!disable_primary_selection) {
-      extclipboard_calls->claim_selection(false, str);
+      extclipboard_calls->claim_selection(false, std::move(str));
     }
     return;
   }
-  primary_data.reset(str);
+  primary_data.reset(str.release());
 }
 
 static void init_external_clipboard(bool init) {

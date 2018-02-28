@@ -158,6 +158,12 @@ struct free_deleter {
   void operator()(void *val) { free(val); }
 };
 
+template <typename T, typename... Args>
+typename std::enable_if<!std::is_array<T>::value, std::unique_ptr<T>>::type make_unique(
+    Args &&... args) {
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 

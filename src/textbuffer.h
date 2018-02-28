@@ -15,6 +15,7 @@
 #define T3_WIDGET_TEXTBUFFER_H
 
 #include <cstdio>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -140,7 +141,7 @@ class T3_WIDGET_API text_buffer_t {
   void replace(finder_t *finder, find_result_t *result);
 
   bool is_modified() const;
-  std::string *convert_block(text_coordinate_t start, text_coordinate_t end);
+  std::unique_ptr<std::string> convert_block(text_coordinate_t start, text_coordinate_t end);
   int apply_undo();
   int apply_redo();
   void start_undo_block();

@@ -387,20 +387,21 @@ class x11_driver_t {
     return result;
   }
 
-  void claim_selection(bool clipboard, std::string *data) {
+  void claim_selection(bool clipboard, std::unique_ptr<std::string> data) {
     timeout_t timeout = timeout_time(1000000);
 
     if (!x11_working()) {
       if (clipboard) {
-        clipboard_data.reset(data);
+        clipboard_data.reset(data.release());
       } else {
-        primary_data.reset(data);
+        primary_data.reset(data.release());
       }
       return;
     }
 
     std::unique_lock<std::mutex> l(clipboard_mutex);
 
+    const bool has_data = data != nullptr;
     if (clipboard) {
       /* If we don't own the selection, reseting is a no-op. */
       if (clipboard_owner_since == X11_CURRENT_TIME && data == nullptr) {
@@ -408,17 +409,17 @@ class x11_driver_t {
       }
 
       action = CLAIM_CLIPBOARD;
-      clipboard_data.reset(data);
+      clipboard_data.reset(data.release());
     } else {
       /* If we don't own the selection, reseting is a no-op. */
       if (primary_owner_since == X11_CURRENT_TIME && data == nullptr) {
         return;
       }
       action = CLAIM_PRIMARY;
-      primary_data.reset(data);
+      primary_data.reset(data.release());
     }
 
-    if (data != nullptr) {
+    if (has_data) {
       x11.x11_change_property(x11.get_window(), X11_ATOM_WM_NAME, X11_ATOM_STRING, 8,
                               X11_PROPERTY_APPEND, nullptr, 0);
     } else {
@@ -866,11 +867,11 @@ static std::shared_ptr<std::string> get_selection(bool clipboard) {
   return x11_driver_t::implementation->get_selection(clipboard);
 }
 
-static void claim_selection(bool clipboard, std::string *data) {
+static void claim_selection(bool clipboard, std::unique_ptr<std::string> data) {
   if (!x11_driver_t::implementation) {
     return;
   }
-  x11_driver_t::implementation->claim_selection(clipboard, data);
+  x11_driver_t::implementation->claim_selection(clipboard, std::move(data));
 }
 
 static void lock() {

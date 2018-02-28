@@ -483,9 +483,9 @@ bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end
   return true;
 }
 
-std::string *text_buffer_t::convert_block(text_coordinate_t start, text_coordinate_t end) {
+std::unique_ptr<std::string> text_buffer_t::convert_block(text_coordinate_t start,
+                                                          text_coordinate_t end) {
   text_coordinate_t current_start, current_end;
-  std::string *retval;
   int i;
 
   current_start = start;
@@ -505,12 +505,13 @@ std::string *text_buffer_t::convert_block(text_coordinate_t start, text_coordina
   }
 
   if (current_start.line == current_end.line) {
-    return new std::string(*impl->lines[current_start.line]->get_data(), current_start.pos,
-                           current_end.pos - current_start.pos);
+    return make_unique<std::string>(*impl->lines[current_start.line]->get_data(), current_start.pos,
+                                    current_end.pos - current_start.pos);
   }
 
   // FIXME: new and append may fail!
-  retval = new std::string(*impl->lines[current_start.line]->get_data(), current_start.pos);
+  std::unique_ptr<std::string> retval(
+      new std::string(*impl->lines[current_start.line]->get_data(), current_start.pos));
   retval->append(1, '\n');
 
   for (i = current_start.line + 1; i < current_end.line; i++) {
