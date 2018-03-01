@@ -27,7 +27,7 @@ namespace t3_widget {
 
 size_t string_list_t::size() const { return strings.size(); }
 
-const std::string *string_list_t::operator[](size_t idx) const { return &strings[idx]; }
+const std::string &string_list_t::operator[](size_t idx) const { return strings[idx]; }
 
 void string_list_t::push_back(std::string str) { strings.push_back(str); }
 
@@ -83,8 +83,8 @@ bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_
 
 size_t file_name_list_t::size() const { return files.size(); }
 
-const std::string *file_name_list_t::operator[](size_t idx) const {
-  return &(files[idx].*(files[idx].display_name));
+const std::string &file_name_list_t::operator[](size_t idx) const {
+  return files[idx].*(files[idx].display_name);
 }
 
 const std::string *file_name_list_t::get_fs_name(size_t idx) const { return &files[idx].name; }
@@ -151,19 +151,19 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t &other) {
 }
 
 bool string_compare_filter(const std::string *str, string_list_base_t *list, size_t idx) {
-  return (*list)[idx]->compare(0, str->size(), *str, 0, str->size()) == 0;
+  return (*list)[idx].compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 
 bool glob_filter(const std::string *str, bool show_hidden, string_list_base_t *list, size_t idx) {
   file_list_t *file_list = dynamic_cast<file_list_t *>(list);
-  const std::string *item_name = (*list)[idx];
+  const std::string &item_name = (*list)[idx];
   std::string fs_name;
 
-  if (item_name->compare("..") == 0) {
+  if (item_name.compare("..") == 0) {
     return true;
   }
 
-  if (!show_hidden && (*item_name)[0] == '.') {
+  if (!show_hidden && item_name[0] == '.') {
     return false;
   }
 
@@ -172,7 +172,7 @@ bool glob_filter(const std::string *str, bool show_hidden, string_list_base_t *l
      collation which is too complicated to handle ourselves. So we convert the
      file names to the locale codeset, and use fnmatch on those. Note that the
      filter string passed to this function is already in the locale codeset. */
-  convert_lang_codeset(item_name, &fs_name, false);
+  convert_lang_codeset(&item_name, &fs_name, false);
   if ((file_list == nullptr || !file_list->is_dir(idx)) &&
       fnmatch(str->c_str(), fs_name.c_str(), 0) != 0) {
     return false;

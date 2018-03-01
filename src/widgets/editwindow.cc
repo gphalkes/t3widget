@@ -1849,7 +1849,7 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
   }
 
   for (size_t i = 0; i < completions->size(); i++) {
-    label_t *label = new label_t((*completions)[i]->c_str());
+    label_t *label = new label_t((*completions)[i]);
     list_pane->push_back(label);
     if (label->get_text_width() > new_width) {
       new_width = label->get_text_width();

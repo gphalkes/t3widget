@@ -33,7 +33,7 @@ class T3_WIDGET_API list_base_t {
   /** Retrieve the size of the list. */
   virtual size_t size() const = 0;
   /** Retrieve element @p idx. */
-  virtual const std::string *operator[](size_t idx) const = 0;
+  virtual const std::string &operator[](size_t idx) const = 0;
 };
 
 /** Abstract base class for string and file lists, but not for filtered lists.
@@ -60,7 +60,7 @@ class T3_WIDGET_API string_list_t : public string_list_base_t {
 
  public:
   size_t size() const override;
-  const std::string *operator[](size_t idx) const override;
+  const std::string &operator[](size_t idx) const override;
   virtual void push_back(std::string str);
 };
 
@@ -105,7 +105,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 
  public:
   size_t size() const override;
-  const std::string *operator[](size_t idx) const override;
+  const std::string &operator[](size_t idx) const override;
   const std::string *get_fs_name(size_t idx) const override;
   bool is_dir(size_t idx) const override;
   /** Load the contents of @p dir_name into this list. */
@@ -173,7 +173,7 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
     list_t::content_changed();
   }
   size_t size() const override { return test.is_valid() ? items.size() : base->size(); }
-  const std::string *operator[](size_t idx) const override {
+  const std::string &operator[](size_t idx) const override {
     return (*base)[test.is_valid() ? items[idx] : idx];
   }
 };

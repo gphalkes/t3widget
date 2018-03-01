@@ -147,7 +147,7 @@ bool file_pane_t::process_key(key_t key) {
   }
   if (impl->file_list->size() != 0) {
     if (impl->field != nullptr) {
-      impl->field->set_text((*impl->file_list)[impl->current]->c_str());
+      impl->field->set_text((*impl->file_list)[impl->current]);
     }
     ensure_cursor_on_screen();
   }
@@ -183,7 +183,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
 
   int column;
   int height = window.get_height() - 1;
-  text_line_t line(*(*impl->file_list)[idx]);
+  text_line_t line((*impl->file_list)[idx]);
   bool is_dir = impl->file_list->is_dir(idx);
   text_line_t::paint_info_t info;
 
@@ -283,7 +283,7 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
     } else if (event.button_state & EMOUSE_BUTTON_LEFT) {
       impl->current = idx;
       if (impl->field != nullptr) {
-        impl->field->set_text((*impl->file_list)[impl->current]->c_str());
+        impl->field->set_text((*impl->file_list)[impl->current]);
       }
       redraw = true;
       return true;
@@ -312,7 +312,7 @@ void file_pane_t::set_file_list(file_list_t *_file_list) {
 
 void file_pane_t::set_file(const std::string *name) {
   for (impl->current = 0; impl->current < impl->file_list->size(); impl->current++) {
-    if (name->compare(*(*impl->file_list)[impl->current]) == 0) {
+    if (name->compare((*impl->file_list)[impl->current]) == 0) {
       break;
     }
   }
@@ -327,8 +327,9 @@ void file_pane_t::update_column_width(int column, int start) {
   int height = window.get_height() - 1;
   impl->column_widths[column] = 0;
   for (int i = 0; i < height && start + i < static_cast<int>(impl->file_list->size()); i++) {
-    impl->column_widths[column] = std::max(
-        impl->column_widths[column], t3_term_strwidth((*impl->file_list)[i + start]->c_str()));
+    const std::string &item = (*impl->file_list)[i + start];
+    impl->column_widths[column] =
+        std::max(impl->column_widths[column], t3_term_strnwidth(item.data(), item.size()));
   }
 }
 
@@ -439,7 +440,7 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
   redraw = true;
 
   if (impl->file_list->size() != 0 && impl->field != nullptr) {
-    impl->field->set_text((*impl->file_list)[impl->current]->c_str());
+    impl->field->set_text((*impl->file_list)[impl->current]);
   }
 }
 
@@ -458,8 +459,9 @@ void file_pane_t::search(const std::string *text) {
   size_t longest_match_idx = 0;
 
   for (i = 0; i < impl->file_list->size(); i++) {
-    for (j = 0; j < (*impl->file_list)[i]->size() && j < text->size(); j++) {
-      if ((*(*impl->file_list)[i])[j] != (*text)[j]) {
+    const std::string &item = (*impl->file_list)[i];
+    for (j = 0; j < item.size() && j < text->size(); j++) {
+      if (item[j] != (*text)[j]) {
         break;
       }
     }

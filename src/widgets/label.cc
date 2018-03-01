@@ -20,7 +20,7 @@ namespace t3_widget {
 
 // FIXME: maybe we should allow scrolling with the left and right keys
 
-label_t::label_t(const char *_text)
+label_t::label_t(string_view _text)
     : text(_text), align(ALIGN_LEFT), focus(false), can_focus(true) {
   int width = text_width = t3_term_strwidth(text.c_str());
   if (width == 0) {

@@ -690,7 +690,7 @@ void text_field_t::drop_down_list_t::update_contents() {
 
 void text_field_t::drop_down_list_t::set_focus(focus_t focus) {
   if (focus && field->impl->in_drop_down_list) {
-    field->set_text(*(*completions)[list_pane->get_current()]);
+    field->set_text((*completions)[list_pane->get_current()]);
   }
   popup_t::set_focus(focus);
 }
@@ -748,18 +748,18 @@ void text_field_t::drop_down_list_t::update_list_pane() {
   }
 
   for (size_t i = 0; i < completions->size(); i++) {
-    label_t *label = new label_t((*completions)[i]->c_str());
+    label_t *label = new label_t((*completions)[i]);
     list_pane->push_back(label);
   }
 }
 
 void text_field_t::drop_down_list_t::item_activated() {
-  field->set_text(*(*completions)[list_pane->get_current()]);
+  field->set_text((*completions)[list_pane->get_current()]);
   hide();
 }
 
 void text_field_t::drop_down_list_t::selection_changed() {
-  field->set_text(*(*completions)[list_pane->get_current()]);
+  field->set_text((*completions)[list_pane->get_current()]);
 }
 
 }  // namespace

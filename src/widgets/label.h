@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_LABEL_H
 #define T3_WIDGET_LABEL_H
 
+#include <t3widget/string_view.h>
 #include <t3widget/widgets/widget.h>
 
 namespace t3_widget {
@@ -53,7 +54,7 @@ class T3_WIDGET_API label_t : public widget_t {
 
  public:
   /** Create a new label_t. */
-  label_t(const char *_text);
+  label_t(string_view _text);
 
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
