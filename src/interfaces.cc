@@ -23,7 +23,7 @@ namespace t3_widget {
 
 window_component_t::window_component_t() {}
 window_component_t::~window_component_t() {}
-t3_window::window_t *window_component_t::get_base_window() { return &window; }
+const t3_window::window_t *window_component_t::get_base_window() const { return &window; }
 
 bool container_t::set_widget_parent(window_component_t *widget) {
   return widget->get_base_window()->set_parent(&window);
@@ -34,13 +34,13 @@ void container_t::unset_widget_parent(window_component_t *widget) {
 }
 
 center_component_t::center_component_t() : center_window(this) {}
-void center_component_t::set_center_window(window_component_t *_center_window) {
+void center_component_t::set_center_window(const window_component_t *_center_window) {
   center_window = _center_window;
 }
 
 mouse_target_t::mouse_target_map_t mouse_target_t::targets;
 mouse_target_t *mouse_target_t::grab_target;
-t3_window_t *mouse_target_t::grab_window;
+const t3_window_t *mouse_target_t::grab_window;
 
 mouse_target_t::mouse_target_t(bool use_window) {
   if (use_window && window != nullptr) {
@@ -48,7 +48,7 @@ mouse_target_t::mouse_target_t(bool use_window) {
   }
 }
 
-void mouse_target_t::register_mouse_target(t3_window::window_t *target) {
+void mouse_target_t::register_mouse_target(const t3_window::window_t *target) {
   if (target == nullptr) {
     lprintf("Registering mouse target for nullptr window in %s\n", typeid(*this).name());
   } else {
@@ -56,7 +56,7 @@ void mouse_target_t::register_mouse_target(t3_window::window_t *target) {
   }
 }
 
-void mouse_target_t::unregister_mouse_target(t3_window::window_t *target) {
+void mouse_target_t::unregister_mouse_target(const t3_window::window_t *target) {
   targets.erase(target->get());
 }
 

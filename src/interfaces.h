@@ -43,7 +43,7 @@ class T3_WIDGET_API window_component_t {
       The returned pointer should be used only for setting anchor
       positions of other window_component_t's and similar operations.
   */
-  virtual t3_window::window_t *get_base_window();
+  virtual const t3_window::window_t *get_base_window() const;
   /** Handle a key press by the user.
       @return A boolean indicating whether this window_component_t handled the
           key press.
@@ -107,7 +107,7 @@ class T3_WIDGET_API container_t : protected virtual window_component_t {
 class T3_WIDGET_API center_component_t : protected virtual window_component_t {
  protected:
   /** The window_component_t to center over. */
-  window_component_t *center_window;
+  const window_component_t *center_window;
 
  public:
   /** Create a new center_component_t.
@@ -115,26 +115,26 @@ class T3_WIDGET_API center_component_t : protected virtual window_component_t {
   */
   center_component_t();
   /** Set the window_component_t to center over. */
-  virtual void set_center_window(window_component_t *_center_window);
+  virtual void set_center_window(const window_component_t *_center_window);
 };
 
 class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
-  typedef std::map<t3_window_t *, mouse_target_t *> mouse_target_map_t;
+  typedef std::map<const t3_window_t *, mouse_target_t *> mouse_target_map_t;
 
  private:
   static mouse_target_map_t targets;
   static mouse_target_t *grab_target;
-  static t3_window_t *grab_window;
+  static const t3_window_t *grab_window;
 
  protected:
   mouse_target_t(bool use_window = true);
 
  public:
   /** Register a window to receive mouse events. */
-  void register_mouse_target(t3_window::window_t *target);
+  void register_mouse_target(const t3_window::window_t *target);
 
   /** Unregister a window to receive mouse events. */
-  void unregister_mouse_target(t3_window::window_t *target);
+  void unregister_mouse_target(const t3_window::window_t *target);
 
   /** Process a mouse event.
       @return A boolean indicating whether this mouse_target_t handled the

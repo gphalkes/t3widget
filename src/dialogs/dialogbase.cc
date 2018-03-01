@@ -245,7 +245,7 @@ void dialog_base_t::force_redraw() {
   }
 }
 
-void dialog_base_t::center_over(window_component_t *center) {
+void dialog_base_t::center_over(const window_component_t *center) {
   window.set_anchor(center->get_base_window(),
                     T3_PARENT(T3_ANCHOR_CENTER) | T3_CHILD(T3_ANCHOR_CENTER));
   window.move(0, 0);

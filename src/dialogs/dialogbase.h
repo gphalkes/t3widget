@@ -45,8 +45,8 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   /** List of widgets on this dialog. This list should only be filled using #push_back. */
   widgets_t widgets;
   widgets_t::iterator
-      current_widget;             /**< Iterator indicating the widget that has the input focus. */
-  bool redraw;                    /**< Boolean indicating whether redrawing is necessary. */
+      current_widget; /**< Iterator indicating the widget that has the input focus. */
+  bool redraw;        /**< Boolean indicating whether redrawing is necessary. */
   t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
 
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
@@ -77,7 +77,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   void force_redraw() override;
   /** Set the position and anchoring for this dialog such that it is centered over a
    * window_component_t. */
-  virtual void center_over(window_component_t *center);
+  virtual void center_over(const window_component_t *center);
 
   /** Call #force_redraw on all dialogs. */
   static void force_redraw_all();
