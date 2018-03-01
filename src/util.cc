@@ -425,9 +425,9 @@ void convert_lang_codeset(const std::string *str, std::string *result, bool from
   convert_lang_codeset(str->c_str(), str->size(), result, from);
 }
 
-int get_class(const std::string *str, int pos) {
-  size_t data_len = str->size() - pos;
-  uint32_t c = t3_utf8_get(str->data() + pos, &data_len);
+int get_class(const std::string &str, int pos) {
+  size_t data_len = str.size() - pos;
+  uint32_t c = t3_utf8_get(str.data() + pos, &data_len);
 
   if (uc_is_property_id_continue(c)) {
     return CLASS_ALNUM;

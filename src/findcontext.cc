@@ -30,7 +30,7 @@ namespace t3_widget {
 
 finder_t::finder_t() : flags(0), folded_size(0) {}
 
-finder_t::finder_t(const std::string *needle, int _flags, const std::string *_replacement)
+finder_t::finder_t(const std::string &needle, int _flags, const std::string *_replacement)
     : flags(_flags), folded_size(0) {
   const char *error_message;
   if (flags & find_flags_t::REGEX) {
@@ -38,7 +38,7 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
     int pcre_flags = PCRE_UTF8;
 
     std::string pattern = flags & find_flags_t::ANCHOR_WORD_LEFT ? "(?:\\b" : "(?:";
-    pattern += *needle;
+    pattern += needle;
     pattern += flags & find_flags_t::ANCHOR_WORD_RIGHT ? "\\b)" : ")";
 
     if (flags & find_flags_t::ICASE) {
@@ -52,7 +52,7 @@ finder_t::finder_t(const std::string *needle, int _flags, const std::string *_re
     }
   } else {
     /* Create a copy of needle, for transformation purposes. */
-    std::string search_for(*needle);
+    std::string search_for(needle);
 
     if (flags & find_flags_t::TRANSFROM_BACKSLASH) {
       if (!parse_escapes(search_for, &error_message)) {
@@ -104,7 +104,7 @@ finder_t &finder_t::operator=(finder_t &&other) {
   return *this;
 }
 
-bool finder_t::match(const std::string *haystack, find_result_t *result, bool reverse) {
+bool finder_t::match(const std::string &haystack, find_result_t *result, bool reverse) {
   int match_result;
   int start, end;
 
@@ -126,15 +126,15 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
     start = result->start.pos;
     end = result->end.pos;
 
-    if (static_cast<size_t>(end) >= haystack->size()) {
-      end = haystack->size();
+    if (static_cast<size_t>(end) >= haystack.size()) {
+      end = haystack.size();
     } else {
       pcre_flags |= PCRE_NOTEOL;
     }
 
     if (reverse) {
       do {
-        match_result = pcre_exec(regex.get(), nullptr, haystack->data(), end, start, pcre_flags,
+        match_result = pcre_exec(regex.get(), nullptr, haystack.data(), end, start, pcre_flags,
                                  local_ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
         if (match_result >= 0) {
           found = true;
@@ -144,7 +144,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
         }
       } while (match_result >= 0);
     } else {
-      match_result = pcre_exec(regex.get(), nullptr, haystack->data(), end, start, pcre_flags,
+      match_result = pcre_exec(regex.get(), nullptr, haystack.data(), end, start, pcre_flags,
                                ovector, sizeof(ovector) / sizeof(ovector[0]));
       captures = match_result;
       found = match_result >= 0;
@@ -162,12 +162,12 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
     const char *c;
 
     if (reverse) {
-      start = result->end.pos >= 0 && static_cast<size_t>(result->end.pos) > haystack->size()
-                  ? haystack->size()
+      start = result->end.pos >= 0 && static_cast<size_t>(result->end.pos) > haystack.size()
+                  ? haystack.size()
                   : static_cast<size_t>(result->end.pos);
     } else {
-      start = result->start.pos >= 0 && static_cast<size_t>(result->start.pos) > haystack->size()
-                  ? haystack->size()
+      start = result->start.pos >= 0 && static_cast<size_t>(result->start.pos) > haystack.size()
+                  ? haystack.size()
                   : static_cast<size_t>(result->start.pos);
     }
     curr_char = start;
@@ -182,7 +182,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
         }
 
         substr.clear();
-        substr = haystack->substr(next_char, curr_char - next_char);
+        substr = haystack.substr(next_char, curr_char - next_char);
         if (flags & find_flags_t::ICASE) {
           c_size = folded_size;
           char *c_data = reinterpret_cast<char *>(
@@ -212,7 +212,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
       return false;
     } else {
       matcher->reset();
-      while (static_cast<size_t>(curr_char) < haystack->size()) {
+      while (static_cast<size_t>(curr_char) < haystack.size()) {
         next_char = adjust_position(haystack, curr_char, 1);
 
         if (next_char > result->end.pos) {
@@ -220,7 +220,7 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
         }
 
         substr.clear();
-        substr = haystack->substr(curr_char, next_char - curr_char);
+        substr = haystack.substr(curr_char, next_char - curr_char);
         if (flags & find_flags_t::ICASE) {
           c_size = folded_size;
           char *c_data = reinterpret_cast<char *>(
@@ -254,16 +254,15 @@ bool finder_t::match(const std::string *haystack, find_result_t *result, bool re
 
 static inline int is_start_char(int c) { return (c & 0xc0) != 0x80; }
 
-int finder_t::adjust_position(const std::string *str, int pos, int adjust) {
+int finder_t::adjust_position(const std::string &str, int pos, int adjust) {
   if (adjust > 0) {
-    for (; adjust > 0 && static_cast<size_t>(pos) < str->size();
-         adjust -= is_start_char((*str)[pos])) {
+    for (; adjust > 0 && static_cast<size_t>(pos) < str.size(); adjust -= is_start_char(str[pos])) {
       pos++;
     }
   } else {
-    for (; adjust < 0 && pos > 0; adjust += is_start_char((*str)[pos])) {
+    for (; adjust < 0 && pos > 0; adjust += is_start_char(str[pos])) {
       pos--;
-      while (pos > 0 && !is_start_char((*str)[pos])) {
+      while (pos > 0 && !is_start_char(str[pos])) {
         pos--;
       }
     }
@@ -271,7 +270,7 @@ int finder_t::adjust_position(const std::string *str, int pos, int adjust) {
   return pos;
 }
 
-bool finder_t::check_boundaries(const std::string *str, int match_start, int match_end) {
+bool finder_t::check_boundaries(const std::string &str, int match_start, int match_end) {
   if ((flags & find_flags_t::ANCHOR_WORD_LEFT) &&
       !(match_start == 0 ||
         get_class(str, match_start) != get_class(str, adjust_position(str, match_start, -1)))) {
@@ -279,7 +278,7 @@ bool finder_t::check_boundaries(const std::string *str, int match_start, int mat
   }
 
   if ((flags & find_flags_t::ANCHOR_WORD_RIGHT) &&
-      !(match_end == static_cast<int>(str->size()) ||
+      !(match_end == static_cast<int>(str.size()) ||
         get_class(str, match_end) != get_class(str, adjust_position(str, match_end, -1)))) {
     return false;
   }
@@ -288,28 +287,28 @@ bool finder_t::check_boundaries(const std::string *str, int match_start, int mat
 
 int finder_t::get_flags() { return flags; }
 
-#define REPLACE_CAPTURE(x)                                       \
-  case x:                                                        \
-    if (captures > x)                                            \
-      retval->replace(pos, 3, haystack->data() + ovector[2 * x], \
-                      ovector[2 * x + 1] - ovector[2 * x]);      \
-    else                                                         \
-      retval->erase(pos, 3);                                     \
+#define REPLACE_CAPTURE(x)                                     \
+  case x:                                                      \
+    if (captures > x)                                          \
+      retval.replace(pos, 3, haystack.data() + ovector[2 * x], \
+                     ovector[2 * x + 1] - ovector[2 * x]);     \
+    else                                                       \
+      retval.erase(pos, 3);                                    \
     break;
 
-std::string *finder_t::get_replacement(const std::string *haystack) {
-  std::string *retval = new std::string(*replacement);
+std::string finder_t::get_replacement(const std::string &haystack) {
+  std::string retval(*replacement);
   if (flags & find_flags_t::REGEX) {
     /* Replace the following strings with the matched items:
        EDA481 - EDA489. */
     size_t pos = 0;
 
-    while ((pos = retval->find("\xed\xa4", pos)) != std::string::npos) {
-      if (pos + 3 > retval->size()) {
-        retval->erase(pos, 2);
+    while ((pos = retval.find("\xed\xa4", pos)) != std::string::npos) {
+      if (pos + 3 > retval.size()) {
+        retval.erase(pos, 2);
         break;
       }
-      switch ((*retval)[pos + 2] & 0x7f) {
+      switch (retval[pos + 2] & 0x7f) {
         REPLACE_CAPTURE(1)
         REPLACE_CAPTURE(2)
         REPLACE_CAPTURE(3)
@@ -320,7 +319,7 @@ std::string *finder_t::get_replacement(const std::string *haystack) {
         REPLACE_CAPTURE(8)
         REPLACE_CAPTURE(9)
         default:
-          retval->erase(pos, 3);
+          retval.erase(pos, 3);
           break;
       }
     }

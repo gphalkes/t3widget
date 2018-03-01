@@ -26,7 +26,7 @@ namespace t3_widget {
 
 // Simple basic_string_view implementation, which should be compatible with the C++17 standard
 // version for most purposes. Once the minimum standard version is increased to C++17, it should
-// be easy enough to replace util::basic_string_view with std::basic_string_view.
+// be easy enough to replace this basic_string_view with std::basic_string_view.
 template <class CharT>
 class basic_string_view {
  public:

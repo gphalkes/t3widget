@@ -224,7 +224,7 @@ void find_dialog_t::find_activated() { find_activated(find_action_t::FIND); }
 
 void find_dialog_t::find_activated(find_action_t action) {
   try {
-    finder_t context(impl->find_line->get_text(), impl->state,
+    finder_t context(*impl->find_line->get_text(), impl->state,
                      impl->replace_line->is_shown() ? impl->replace_line->get_text() : nullptr);
     hide();
     activate(&context, action);

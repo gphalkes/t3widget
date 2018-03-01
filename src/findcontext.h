@@ -18,6 +18,7 @@
 #include <pcre.h>
 #include <string>
 
+#include <t3widget/string_view.h>
 #include <t3widget/stringmatcher.h>
 #include <t3widget/util.h>
 #include <t3widget/widget_api.h>
@@ -65,13 +66,13 @@ class T3_WIDGET_API finder_t {
   size_t folded_size;
 
   /** Get the next position of a UTF-8 character. */
-  static int adjust_position(const std::string *str, int pos, int adjust);
+  static int adjust_position(const std::string &str, int pos, int adjust);
   /** Check if the start and end of a match are on word boundaries.
       @param str The string to check.
       @param match_start The position of the start of the match in @p str.
       @param match_end The position of the end of the match in @p str.
   */
-  bool check_boundaries(const std::string *str, int match_start, int match_end);
+  bool check_boundaries(const std::string &str, int match_start, int match_end);
 
  public:
   /** Create a new empty finder_t. */
@@ -80,7 +81,7 @@ class T3_WIDGET_API finder_t {
       May throw a @c const @c char pointer holding an error message. Caller
       of this constructor remains owner of passed objects.
   */
-  finder_t(const std::string *needle, int flags, const std::string *replacement = nullptr);
+  finder_t(const std::string &needle, int flags, const std::string *replacement = nullptr);
   /** Destroy a finder_t instance. */
   virtual ~finder_t();
   /** Assign the value of another finder_t to this finder_t.
@@ -91,14 +92,14 @@ class T3_WIDGET_API finder_t {
   finder_t &operator=(finder_t &&other);
 
   /** Try to find the previously set @c needle in a string. */
-  bool match(const std::string *haystack, find_result_t *result, bool reverse);
+  bool match(const std::string &haystack, find_result_t *result, bool reverse);
   /** Retrieve the flags set when setting the search context. */
   int get_flags();
   /** Retrieve the replacement string.
       Returns a newly allocated string, for which the caller will have
       ownership.
   */
-  std::string *get_replacement(const std::string *haystack);
+  std::string get_replacement(const std::string &haystack);
 };
 
 }  // namespace

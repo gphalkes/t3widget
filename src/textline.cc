@@ -542,7 +542,7 @@ text_line_t::break_pos_t text_line_t::find_next_break_pos(int start, int length,
       break;
     }
 
-    cclass = get_class(&buffer, i);
+    cclass = get_class(buffer, i);
     if (buffer[i] < 32 && (buffer[i] != '\t' || tabsize == 0)) {
       cclass = CLASS_GRAPH;
     }
@@ -580,12 +580,12 @@ int text_line_t::get_next_word(int start) const {
     start = 0;
     cclass = CLASS_WHITESPACE;
   } else {
-    cclass = get_class(&buffer, start);
+    cclass = get_class(buffer, start);
     start = adjust_position(start, 1);
   }
 
   for (i = start; static_cast<size_t>(i) < buffer.size() &&
-                  ((newCclass = get_class(&buffer, i)) == cclass || newCclass == CLASS_WHITESPACE);
+                  ((newCclass = get_class(buffer, i)) == cclass || newCclass == CLASS_WHITESPACE);
        i = adjust_position(i, 1)) {
     cclass = newCclass;
   }
@@ -604,8 +604,8 @@ int text_line_t::get_previous_word(int start) const {
     start = buffer.size();
   }
 
-  for (i = adjust_position(start, -1);
-       i > 0 && (cclass = get_class(&buffer, i)) == CLASS_WHITESPACE; i = adjust_position(i, -1)) {
+  for (i = adjust_position(start, -1); i > 0 && (cclass = get_class(buffer, i)) == CLASS_WHITESPACE;
+       i = adjust_position(i, -1)) {
   }
 
   if (i == 0 && cclass == CLASS_WHITESPACE) {
@@ -614,12 +614,12 @@ int text_line_t::get_previous_word(int start) const {
 
   savePos = i;
 
-  for (i = adjust_position(i, -1); i > 0 && get_class(&buffer, i) == cclass;
+  for (i = adjust_position(i, -1); i > 0 && get_class(buffer, i) == cclass;
        i = adjust_position(i, -1)) {
     savePos = i;
   }
 
-  if (i == 0 && get_class(&buffer, i) == cclass) {
+  if (i == 0 && get_class(buffer, i) == cclass) {
     savePos = i;
   }
 
@@ -629,10 +629,10 @@ int text_line_t::get_previous_word(int start) const {
 int text_line_t::get_next_word_boundary(int start) const {
   int i, cclass;
 
-  cclass = get_class(&buffer, start);
+  cclass = get_class(buffer, start);
 
   for (i = adjust_position(start, 1);
-       static_cast<size_t>(i) < buffer.size() && get_class(&buffer, i) == cclass;
+       static_cast<size_t>(i) < buffer.size() && get_class(buffer, i) == cclass;
        i = adjust_position(i, 1)) {
   }
 
@@ -646,15 +646,15 @@ int text_line_t::get_previous_word_boundary(int start) const {
     return 0;
   }
 
-  cclass = get_class(&buffer, start);
+  cclass = get_class(buffer, start);
   savePos = start;
 
-  for (i = adjust_position(start, -1); i > 0 && get_class(&buffer, i) == cclass;
+  for (i = adjust_position(start, -1); i > 0 && get_class(buffer, i) == cclass;
        i = adjust_position(i, -1)) {
     savePos = i;
   }
 
-  if (i == 0 && get_class(&buffer, i) == cclass) {
+  if (i == 0 && get_class(buffer, i) == cclass) {
     return 0;
   }
 
@@ -862,8 +862,8 @@ bool text_line_t::is_print(int pos) const {
          !uc_is_general_category_withtable(t3_utf8_get(buffer.data() + pos, nullptr),
                                            T3_UTF8_CONTROL_MASK);
 }
-bool text_line_t::is_alnum(int pos) const { return get_class(&buffer, pos) == CLASS_ALNUM; }
-bool text_line_t::is_space(int pos) const { return get_class(&buffer, pos) == CLASS_WHITESPACE; }
+bool text_line_t::is_alnum(int pos) const { return get_class(buffer, pos) == CLASS_ALNUM; }
+bool text_line_t::is_space(int pos) const { return get_class(buffer, pos) == CLASS_WHITESPACE; }
 bool text_line_t::is_bad_draw(int pos) const {
   return !t3_term_can_draw(buffer.data() + pos, adjust_position(pos, 1) - pos);
 }
@@ -883,10 +883,9 @@ void text_line_t::reserve(int size) { buffer.reserve(size); }
 
 bool text_line_t::check_boundaries(int match_start, int match_end) const {
   return (match_start == 0 ||
-          get_class(&buffer, match_start) !=
-              get_class(&buffer, adjust_position(match_start, -1))) &&
+          get_class(buffer, match_start) != get_class(buffer, adjust_position(match_start, -1))) &&
          (match_end == get_length() ||
-          get_class(&buffer, match_end) != get_class(&buffer, adjust_position(match_end, 1)));
+          get_class(buffer, match_end) != get_class(buffer, adjust_position(match_end, 1)));
 }
 
 //============================= text_line_factory_t ========================

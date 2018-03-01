@@ -780,7 +780,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
     start = idx = result->start.line;
     result->end = result->start;
     result->start.pos = 0;
-    if (finder->match(impl->lines[idx]->get_data(), result, true)) {
+    if (finder->match(*impl->lines[idx]->get_data(), result, true)) {
       result->start.line = result->end.line = idx;
       return true;
     }
@@ -788,7 +788,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
     result->end.pos = INT_MAX;
     for (; idx > 0;) {
       idx--;
-      if (finder->match(impl->lines[idx]->get_data(), result, true)) {
+      if (finder->match(*impl->lines[idx]->get_data(), result, true)) {
         result->start.line = result->end.line = idx;
         return true;
       }
@@ -800,7 +800,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
 
     for (idx = impl->lines.size(); idx > start;) {
       idx--;
-      if (finder->match(impl->lines[idx]->get_data(), result, true)) {
+      if (finder->match(*impl->lines[idx]->get_data(), result, true)) {
         result->start.line = result->end.line = idx;
         return true;
       }
@@ -809,14 +809,14 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
     start = idx = cursor.line;
     result->start = cursor;
     result->end.pos = INT_MAX;
-    if (finder->match(impl->lines[idx]->get_data(), result, false)) {
+    if (finder->match(*impl->lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;
     }
 
     result->start.pos = 0;
     for (idx++; idx < impl->lines.size(); idx++) {
-      if (finder->match(impl->lines[idx]->get_data(), result, false)) {
+      if (finder->match(*impl->lines[idx]->get_data(), result, false)) {
         result->start.line = result->end.line = idx;
         return true;
       }
@@ -827,7 +827,7 @@ bool text_buffer_t::find(finder_t *finder, find_result_t *result, bool reverse) 
     }
 
     for (idx = 0; idx <= start; idx++) {
-      if (finder->match(impl->lines[idx]->get_data(), result, false)) {
+      if (finder->match(*impl->lines[idx]->get_data(), result, false)) {
         result->start.line = result->end.line = idx;
         return true;
       }
@@ -847,7 +847,7 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
   result->end.pos = INT_MAX;
 
   for (idx = start.line; idx < impl->lines.size() && idx < static_cast<size_t>(end.line); idx++) {
-    if (finder->match(impl->lines[idx]->get_data(), result, false)) {
+    if (finder->match(*impl->lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;
     }
@@ -855,7 +855,7 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
   }
 
   result->end = end;
-  if (idx < impl->lines.size() && finder->match(impl->lines[idx]->get_data(), result, false)) {
+  if (idx < impl->lines.size() && finder->match(*impl->lines[idx]->get_data(), result, false)) {
     result->start.line = result->end.line = idx;
     return true;
   }
@@ -864,16 +864,15 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
 }
 
 void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
-  std::string *replacement_str;
+  std::string replacement_str;
 
   if (result->start == result->end) {
     return;
   }
 
-  replacement_str = finder->get_replacement(impl->lines[result->start.line]->get_data());
+  replacement_str = finder->get_replacement(*impl->lines[result->start.line]->get_data());
 
-  replace_block(result->start, result->end, replacement_str);
-  delete replacement_str;
+  replace_block(result->start, result->end, &replacement_str);
 }
 
 void text_buffer_t::set_selection_mode(selection_mode_t mode) {
