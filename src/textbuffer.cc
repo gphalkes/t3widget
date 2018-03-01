@@ -137,17 +137,11 @@ bool text_buffer_t::merge(bool backspace) {
   return true;
 }
 
-bool text_buffer_t::append_text(const char *text) { return append_text(text, strlen(text)); }
-
-bool text_buffer_t::append_text(const char *text, size_t _size) {
+bool text_buffer_t::append_text(string_view text) {
   bool result;
   text_coordinate_t at(impl->lines.size() - 1, INT_MAX);
-  result = insert_block_internal(at, impl->line_factory->new_text_line_t(string_view(text, _size)));
+  result = insert_block_internal(at, impl->line_factory->new_text_line_t(text));
   return result;
-}
-
-bool text_buffer_t::append_text(const std::string *text) {
-  return append_text(text->data(), text->size());
 }
 
 bool text_buffer_t::break_line_internal(const std::string *indent) {

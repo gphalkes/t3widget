@@ -173,11 +173,11 @@ text_buffer_t *input_selection_dialog_t::get_default_text() {
 
   const char *insert_point = strstr(intl_text, "%s");
 
-  default_text->append_text(intl_text, insert_point - intl_text);
+  default_text->append_text(string_view(intl_text, insert_point - intl_text));
   default_text->append_text(init_params->program_name);
   intl_text = insert_point + 2;
   insert_point = strstr(intl_text, "%s");
-  default_text->append_text(intl_text, insert_point - intl_text);
+  default_text->append_text(string_view(intl_text, insert_point - intl_text));
   default_text->append_text(init_params->program_name);
   default_text->append_text(insert_point + 2);
 
@@ -192,7 +192,7 @@ text_buffer_t *input_selection_dialog_t::get_default_text() {
         "dialogs "
         "(except this one) with a single press of the Esc key.\n\n");
   insert_point = strstr(intl_text, "%s");
-  default_text->append_text(intl_text, insert_point - intl_text);
+  default_text->append_text(string_view(intl_text, insert_point - intl_text));
   default_text->append_text(init_params->program_name);
   default_text->append_text(insert_point + 2);
 

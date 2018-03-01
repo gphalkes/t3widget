@@ -19,6 +19,7 @@
 #endif
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <t3widget/key.h>
 
@@ -36,12 +37,6 @@
 #include "string_view.h"
 #include "util.h"
 #include "widget_api.h"
-
-#ifdef HAS_STRDUP
-#define _t3_widget_strdup strdup
-#else
-T3_WIDGET_LOCAL char *_t3_widget_strdup(const char *str);
-#endif
 
 namespace t3_widget {
 
@@ -95,7 +90,7 @@ T3_WIDGET_LOCAL bool parse_escapes(std::string &str, const char **error_message,
 /* Key handling routines. */
 class complex_error_t;
 /** Initialize the key handling code. */
-T3_WIDGET_LOCAL complex_error_t init_keys(const char *term, bool separate_keypad);
+T3_WIDGET_LOCAL complex_error_t init_keys(const optional<std::string> &term, bool separate_keypad);
 /** Clean-up any data allocated for the key handling code. */
 T3_WIDGET_LOCAL void cleanup_keys();
 /** Switch to the default keypad mode to allow other applications to function. */

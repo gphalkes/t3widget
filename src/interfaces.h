@@ -181,7 +181,8 @@ class T3_WIDGET_API bad_draw_recheck_t {
       Automatically adds this object to the list of objects to signal.
   */
   bad_draw_recheck_t();
-  /** Base destructor. */
+  /** Base destructor.
+      Detaches this object from the list of objects to signal. */
   virtual ~bad_draw_recheck_t();
 
   /** Function called on reception of the @c terminal_settings_changed signal. */

@@ -111,10 +111,7 @@ const char *complex_error_t::get_string() {
 init_parameters_t *init_parameters_t::create() { return new init_parameters_t(); }
 
 init_parameters_t::init_parameters_t()
-    : program_name(nullptr),
-      term(nullptr),
-      separate_keypad(false),
-      disable_external_clipboard(false) {}
+    : separate_keypad(false), disable_external_clipboard(false) {}
 
 connection_t connect_resize(std::function<void(int, int)> func) { return resize.connect(func); }
 
@@ -200,12 +197,12 @@ static void terminal_specific_restore() {
 static void terminal_specific_setup() {
   int i;
 
-  if (init_params->term == nullptr) {
+  if (!init_params->term.is_valid()) {
     return;
   }
 
-  for (i = 0; terminal_mapping[i].name != nullptr &&
-              strcmp(terminal_mapping[i].name, init_params->term) != 0;
+  for (i = 0;
+       terminal_mapping[i].name != nullptr && terminal_mapping[i].name != init_params->term();
        i++) {
   }
   terminal = terminal_mapping[i].code;
@@ -249,10 +246,6 @@ void restore() {
     /* FALLTHROUGH */
     case 0:
       if (init_params != nullptr) {
-        free(const_cast<char *>(init_params->term));
-        init_params->term = nullptr;
-        free(const_cast<char *>(init_params->program_name));
-        init_params->program_name = nullptr;
         delete init_params;
         init_params = nullptr;
       }
@@ -276,26 +269,28 @@ complex_error_t init(const init_parameters_t *params) {
     init_params = init_parameters_t::create();
   }
 
-  if (params == nullptr || params->term == nullptr) {
+  if (params == nullptr || !params->term.is_valid()) {
     const char *term_env = getenv("TERM");
     /* If term_env == nullptr, t3_term_init will abort anyway, so we ignore
        that case. */
     if (term_env != nullptr) {
-      init_params->term = _t3_widget_strdup(term_env);
+      init_params->term = std::string(term_env);
     }
   } else {
-    init_params->term = _t3_widget_strdup(params->term);
+    init_params->term = params->term;
   }
 
   if (params != nullptr) {
     init_params->program_name =
-        _t3_widget_strdup(params->program_name == nullptr ? "This program" : params->program_name);
+        params->program_name.empty() ? std::string("This program") : params->program_name;
     init_params->separate_keypad = params->separate_keypad;
     init_params->disable_external_clipboard = params->disable_external_clipboard;
   }
 
   atexit(restore);
-  if ((term_init_result = t3_term_init(-1, init_params->term)) != T3_ERR_SUCCESS) {
+  if ((term_init_result =
+           t3_term_init(-1, init_params->term.is_valid() ? init_params->term->c_str() : nullptr)) !=
+      T3_ERR_SUCCESS) {
     int saved_errno = errno;
     restore();
     result.set_error(complex_error_t::SRC_T3_WINDOW, term_init_result);
@@ -410,8 +405,8 @@ void suspend() {
   deinit_keys();
   terminal_specific_restore();
   t3_term_restore();
-  printf("%s has been stopped. You can return to %s by entering 'fg'.\n", init_params->program_name,
-         init_params->program_name);
+  printf("%s has been stopped. You can return to %s by entering 'fg'.\n",
+         init_params->program_name.c_str(), init_params->program_name.c_str());
   kill(getpid(), SIGSTOP);
   t3_term_init(-1, nullptr);
   terminal_specific_setup();

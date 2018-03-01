@@ -64,8 +64,8 @@ class T3_WIDGET_API complex_error_t {
 */
 class T3_WIDGET_API init_parameters_t {
  public:
-  const char *program_name; /**< Name of the program to print where appropriate. */
-  const char *term;         /**< Override the terminal name derived from @c TERM. */
+  std::string program_name;   /**< Name of the program to print where appropriate. */
+  optional<std::string> term; /**< Override the terminal name derived from @c TERM. */
   /** Boolean indicating whether keypad keys are returned as separate from the regular cursor
       control keys.
 

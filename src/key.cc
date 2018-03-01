@@ -521,7 +521,7 @@ static bool is_function_key(const char *str) {
   } while (false)
 
 /* Initialize the key map */
-complex_error_t init_keys(const char *term, bool separate_keypad) {
+complex_error_t init_keys(const optional<std::string> &term, bool separate_keypad) {
   complex_error_t result;
   struct sigaction sa;
   sigset_t sigs;
@@ -537,7 +537,7 @@ complex_error_t init_keys(const char *term, bool separate_keypad) {
     RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
   }
 
-  keymap.reset(t3_key_load_map(term, nullptr, &error));
+  keymap.reset(t3_key_load_map(term.is_valid() ? term->c_str() : nullptr, nullptr, &error));
   if (keymap == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
   }

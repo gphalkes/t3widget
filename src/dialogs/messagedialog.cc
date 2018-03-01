@@ -70,14 +70,14 @@ message_dialog_t::message_dialog_t(int width, const char *_title, ...)
 
 message_dialog_t::~message_dialog_t() { delete impl->text_window->get_text(); }
 
-void message_dialog_t::set_message(const char *message, size_t length) {
+void message_dialog_t::set_message(string_view message) {
   text_buffer_t *old_text;
   text_buffer_t *text = new text_buffer_t();
   int text_height;
 
   impl->text_window->set_size(None, window.get_width() - 2);
 
-  text->append_text(message, length);
+  text->append_text(message);
   old_text = impl->text_window->get_text();
   impl->text_window->set_text(text);
   delete old_text;
@@ -105,12 +105,6 @@ void message_dialog_t::set_message(const char *message, size_t length) {
   impl->text_window->set_size(impl->height - 4, None);
   set_size(impl->height, None);
   update_contents();
-}
-
-void message_dialog_t::set_message(const char *message) { set_message(message, strlen(message)); }
-
-void message_dialog_t::set_message(const std::string *message) {
-  set_message(message->data(), message->size());
 }
 
 bool message_dialog_t::process_key(key_t key) {

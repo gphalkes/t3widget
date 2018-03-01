@@ -27,18 +27,6 @@
 #include "main.h"
 #include "util.h"
 
-#ifndef HAS_STRDUP
-/** strdup implementation if none is provided by the environment. */
-char *_t3_widget_strdup(const char *str) {
-  char *result;
-  size_t len = strlen(str) + 1;
-
-  if ((result = (char *)malloc(len)) == nullptr) return nullptr;
-  memcpy(result, str, len);
-  return result;
-}
-#endif
-
 namespace t3_widget {
 
 static void lang_codeset_init(bool init);

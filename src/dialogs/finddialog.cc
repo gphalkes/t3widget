@@ -231,7 +231,7 @@ void find_dialog_t::find_activated(find_action_t action) {
   } catch (const char *message) {
     std::string full_message("Error in search expression: ");
     full_message.append(message);
-    message_dialog->set_message(&full_message);
+    message_dialog->set_message(full_message);
     message_dialog->center_over(this);
     message_dialog->show();
   }

@@ -95,9 +95,7 @@ class T3_WIDGET_API text_buffer_t {
   bool break_line(const std::string *indent = nullptr);
   bool insert_block(const std::string *block);
 
-  bool append_text(const char *text);
-  bool append_text(const char *text, size_t _size);
-  bool append_text(const std::string *text);
+  bool append_text(string_view text);
 
   int get_line_max(int line) const;
   void adjust_position(int adjust);

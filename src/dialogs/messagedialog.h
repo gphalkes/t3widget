@@ -40,9 +40,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
  public:
   message_dialog_t(int width, const char *_title, ...);
   ~message_dialog_t() override;
-  void set_message(const char *message, size_t length);
-  void set_message(const char *message);
-  void set_message(const std::string *message);
+  void set_message(string_view message);
   void set_max_text_height(int max);
 
   connection_t connect_activate(std::function<void()> _slot, size_t idx);
