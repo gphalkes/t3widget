@@ -72,7 +72,7 @@ class T3_WIDGET_API file_list_t : public string_list_base_t {
       The file-system name is the name of the file as it is written in the
       file system. This is opposed to the name retrieved by @c operator[]
       which has been converted to UTF-8. */
-  virtual const std::string *get_fs_name(size_t idx) const = 0;
+  virtual const std::string &get_fs_name(size_t idx) const = 0;
   /** Retrieve whether the file at index @p idx in the list is a directory. */
   virtual bool is_dir(size_t idx) const = 0;
 };
@@ -85,14 +85,14 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
    public:
     std::string name, /**< The name of the file as written on disk. */
         utf8_name, /**< The name of the file converted to UTF-8 (or empty if the same as #name). */
-        file_name_entry_t::
-            *display_name; /**< Pointer to member to the name to use for dispay purposes. */
-    bool is_dir;           /**< Boolean indicating whether this name represents a directory. */
+        /** Pointer to member to the name to use for dispay purposes. */
+        file_name_entry_t::*display_name;
+    bool is_dir; /**< Boolean indicating whether this name represents a directory. */
     /** Make a new file_name_entry_t. Implemented specifically to allow use in
         std::vector<file_name_entry_t>. */
     file_name_entry_t();
     /** Make a new file_name_entry_t. */
-    file_name_entry_t(const char *_name, const std::string &_utf8_name, bool _is_dir);
+    file_name_entry_t(std::string _name, std::string _utf8_name, bool _is_dir);
     /** Construct a copy of an existing file_name_entry_t. */
     file_name_entry_t(const file_name_entry_t &other);
   };
@@ -106,7 +106,7 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
  public:
   size_t size() const override;
   const std::string &operator[](size_t idx) const override;
-  const std::string *get_fs_name(size_t idx) const override;
+  const std::string &get_fs_name(size_t idx) const override;
   bool is_dir(size_t idx) const override;
   /** Load the contents of @p dir_name into this list. */
   int load_directory(std::string *dir_name);
@@ -117,22 +117,24 @@ class T3_WIDGET_API file_name_list_t : public file_list_t {
 /** Abstract base class for filtered string and file lists. */
 class T3_WIDGET_API filtered_list_base_t : public virtual list_base_t {
  public:
-  /** Set the filter callback. */
-  virtual void set_filter(std::function<bool(string_list_base_t *, size_t)>) = 0;
+  /** Set the filter callback.
+      The filter should return @c true if the item at the index indicated in the second parameter
+      should be retained in the list. */
+  virtual void set_filter(std::function<bool(const string_list_base_t &, size_t)>) = 0;
   /** Reset the filter. */
   virtual void reset_filter() = 0;
 };
 
 /** Partial implementation of the filtered list. */
-template <class list_t>
-class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_list_base_t {
+template <class L>
+class T3_WIDGET_API filtered_list_internal_t : public L, public filtered_list_base_t {
  protected:
   /** Vector holding the indices in the base list of the items included in the filtered list. */
   std::vector<size_t> items;
-  /** Base list of which this is a filtered view. */
-  list_t *base;
+  /** Base list of which this is a filtered view. Not owned. */
+  L *base;
   /** Filter function. */
-  optional<std::function<bool(string_list_base_t *, size_t)>> test;
+  optional<std::function<bool(const string_list_base_t &, size_t)>> test;
   /** Connection to base list's content_changed signal. */
   connection_t base_content_changed_connection;
 
@@ -148,29 +150,30 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
     items.clear();
 
     for (size_t i = 0; i < base->size(); i++) {
-      if (test()(base, i)) {
+      if (test()(*base, i)) {
         items.push_back(i);
       }
     }
     items.reserve(items.size());
-    list_t::content_changed();
+    L::content_changed();
   }
 
  public:
-  /** Make a new filtered_list_internal_t, wrapping an existing list. */
-  filtered_list_internal_t(list_t *list)
-      : base(list), test([](string_list_base_t *, size_t) { return false; }) {
+  /** Make a new filtered_list_internal_t, wrapping an existing list.
+      The filtered_list_internal_t does not take ownership of the list_t. */
+  filtered_list_internal_t(L *list)
+      : base(list), test([](const string_list_base_t &, size_t) { return false; }) {
     base_content_changed_connection = base->connect_content_changed([this] { update_list(); });
   }
   ~filtered_list_internal_t() override { base_content_changed_connection.disconnect(); }
-  void set_filter(std::function<bool(string_list_base_t *, size_t)> _test) override {
+  void set_filter(std::function<bool(const string_list_base_t &, size_t)> _test) override {
     test = _test;
     update_list();
   }
   void reset_filter() override {
     items.clear();
     test.unset();
-    list_t::content_changed();
+    L::content_changed();
   }
   size_t size() const override { return test.is_valid() ? items.size() : base->size(); }
   const std::string &operator[](size_t idx) const override {
@@ -184,12 +187,12 @@ class T3_WIDGET_API filtered_list_internal_t : public list_t, public filtered_li
     depending on the type of @p list_t, there may be more functions that need
     to be implemented.
 */
-template <class list_t>
-class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<list_t> {
+template <class L>
+class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<L> {
  public:
-  filtered_list_t(list_t *list) : filtered_list_internal_t<list_t>(list) {}
-  using filtered_list_internal_t<list_t>::set_filter;
-  void set_filter(std::function<bool(string_list_base_t *, size_t)> _test) override {
+  filtered_list_t(L *list) : filtered_list_internal_t<L>(list) {}
+  using filtered_list_internal_t<L>::set_filter;
+  void set_filter(std::function<bool(const string_list_base_t &, size_t)> _test) override {
     this->test = _test;
     this->update_list();
   }
@@ -213,7 +216,7 @@ typedef filtered_list_t<string_list_base_t> filtered_string_list_t;
 class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
  public:
   filtered_file_list_t(file_list_t *list) : filtered_list_t<file_list_t>(list) {}
-  const std::string *get_fs_name(size_t idx) const override {
+  const std::string &get_fs_name(size_t idx) const override {
     return base->get_fs_name(test.is_valid() ? items[idx] : idx);
   }
   bool is_dir(size_t idx) const override {
@@ -222,11 +225,15 @@ class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 };
 
 /** Filter function comparing the initial part of an entry with @p str. */
-T3_WIDGET_API bool string_compare_filter(const std::string *str, string_list_base_t *list,
+/* This uses a pointer and not a reference for str, because it is intended to be used with
+   bind_front. The latter would make a copy of the string, which is not intended. */
+T3_WIDGET_API bool string_compare_filter(const std::string *str, const string_list_base_t &list,
                                          size_t idx);
 /** Filter function using glob on the fs_name of a file entry. */
-T3_WIDGET_API bool glob_filter(const std::string *str, bool show_hidden, string_list_base_t *list,
-                               size_t idx);
+/* This uses a pointer and not a reference for str, because it is intended to be used with
+   bind_front. The latter would make a copy of the string, which is not intended. */
+T3_WIDGET_API bool glob_filter(const std::string *str, bool show_hidden,
+                               const string_list_base_t &list, size_t idx);
 
 }  // namespace
 #endif

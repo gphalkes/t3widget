@@ -49,7 +49,7 @@ file_dialog_t::file_dialog_t(int height, int width, const char *_title)
   impl->file_pane = new file_pane_t();
   impl->file_pane->set_file_list(&impl->names);
   impl->file_pane->set_text_field(impl->file_line);
-  impl->file_pane->connect_activate([this](const std::string *file) { ok_callback(file); });
+  impl->file_pane->connect_activate([this](const std::string &file) { ok_callback(file); });
   impl->file_pane->set_file_list(&impl->view);
 
   impl->file_pane_frame = new frame_t(frame_t::COVER_BOTTOM);
@@ -182,24 +182,24 @@ void file_dialog_t::reset() {
 void file_dialog_t::ok_callback() {
   std::string pass_result;
   convert_lang_codeset(impl->file_line->get_text(), &pass_result, false);
-  ok_callback(&pass_result);
+  ok_callback(pass_result);
 }
 
-void file_dialog_t::ok_callback(const std::string *file) {
-  if (file->size() == 0) {
+void file_dialog_t::ok_callback(const std::string &file) {
+  if (file.size() == 0) {
     return;
   }
 
-  if (is_dir(&impl->current_dir, file->c_str()) || file->compare("..") == 0) {
-    change_dir(file);
+  if (is_dir(&impl->current_dir, file.c_str()) || file.compare("..") == 0) {
+    change_dir(&file);
     impl->file_line->set_text("");
   } else {
     std::string full_name;
-    if ((*file)[0] != '/') {
+    if (file[0] != '/') {
       full_name += impl->current_dir;
       full_name += "/";
     }
-    full_name += *file;
+    full_name += file;
     hide();
     file_selected(&full_name);
   }

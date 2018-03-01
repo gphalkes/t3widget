@@ -51,7 +51,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   widget_t *get_anchor_widget();
   void insert_extras(widget_t *widget);
   void ok_callback();
-  void ok_callback(const std::string *file);
+  void ok_callback(const std::string &file);
   virtual const std::string *get_filter() = 0;
 
  public:

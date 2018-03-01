@@ -35,8 +35,8 @@ file_name_list_t::file_name_entry_t::file_name_entry_t() : is_dir(false) {
   display_name = &file_name_entry_t::name;
 }
 
-file_name_list_t::file_name_entry_t::file_name_entry_t(const char *_name,
-                                                       const std::string &_utf8_name, bool _is_dir)
+file_name_list_t::file_name_entry_t::file_name_entry_t(std::string _name, std::string _utf8_name,
+                                                       bool _is_dir)
     : name(_name), utf8_name(_utf8_name), is_dir(_is_dir) {
   display_name = utf8_name.size() == 0 ? &file_name_entry_t::name : &file_name_entry_t::utf8_name;
 }
@@ -87,7 +87,7 @@ const std::string &file_name_list_t::operator[](size_t idx) const {
   return files[idx].*(files[idx].display_name);
 }
 
-const std::string *file_name_list_t::get_fs_name(size_t idx) const { return &files[idx].name; }
+const std::string &file_name_list_t::get_fs_name(size_t idx) const { return files[idx].name; }
 
 bool file_name_list_t::is_dir(size_t idx) const { return files[idx].is_dir; }
 
@@ -150,13 +150,14 @@ file_name_list_t &file_name_list_t::operator=(const file_name_list_t &other) {
   return *this;
 }
 
-bool string_compare_filter(const std::string *str, string_list_base_t *list, size_t idx) {
-  return (*list)[idx].compare(0, str->size(), *str, 0, str->size()) == 0;
+bool string_compare_filter(const std::string *str, const string_list_base_t &list, size_t idx) {
+  return list[idx].compare(0, str->size(), *str, 0, str->size()) == 0;
 }
 
-bool glob_filter(const std::string *str, bool show_hidden, string_list_base_t *list, size_t idx) {
-  file_list_t *file_list = dynamic_cast<file_list_t *>(list);
-  const std::string &item_name = (*list)[idx];
+bool glob_filter(const std::string *str, bool show_hidden, const string_list_base_t &list,
+                 size_t idx) {
+  const file_list_t *file_list = dynamic_cast<const file_list_t *>(&list);
+  const std::string &item_name = list[idx];
   std::string fs_name;
 
   if (item_name.compare("..") == 0) {

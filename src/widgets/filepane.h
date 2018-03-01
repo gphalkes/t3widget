@@ -102,7 +102,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   /** Set the current selected item to the named item. */
   void set_file(const std::string *name);
 
-  T3_WIDGET_SIGNAL(activate, const std::string *);
+  T3_WIDGET_SIGNAL(activate, const std::string &);
 };
 
 class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
