@@ -55,7 +55,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   static connection_t goto_connection;
   static find_dialog_t *global_find_dialog;
   static connection_t global_find_dialog_connection;
-  static finder_t global_finder;
+  static std::shared_ptr<finder_t> global_finder;
   static replace_buttons_dialog_t *replace_buttons;
   static connection_t replace_buttons_connection;
   static menu_panel_t *right_click_menu;
@@ -67,57 +67,42 @@ class T3_WIDGET_API edit_window_t : public widget_t,
         indicator_window; /**< Window holding the line, column, modified, etc. information line at
                              the bottom. */
     std::unique_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
-    int screen_pos;                         /**< Cached position of cursor in screen coordinates. */
-    int tabsize;                            /**< Width of a tab, in cells. */
-    bool focus;      /**< Boolean indicating whether this edit_window_t has the input focus. */
-    bool tab_spaces; /**< Boolean indicating whether to use spaces for tab. */
+    int screen_pos = 0;                     /**< Cached position of cursor in screen coordinates. */
+    int tabsize = 8;                        /**< Width of a tab, in cells. */
+    bool focus = false; /**< Boolean indicating whether this edit_window_t has the input focus. */
+    bool tab_spaces = false; /**< Boolean indicating whether to use spaces for tab. */
     /** Associated find dialog.
-            By default this is the shared dialog, but can be set to a different one.
-    */
-    find_dialog_t *find_dialog;
-    finder_t *finder;      /**< Object used for find actions in the text. */
-    wrap_type_t wrap_type; /**< The wrap_type_t used for display. */
-    wrap_info_t
-        *wrap_info; /**< Required information for wrapped display, or @c nullptr if not in use. */
+        By default this is the shared dialog, but can be set to a different one. */
+    find_dialog_t *find_dialog = nullptr;
+    bool use_local_finder = false;
+    std::shared_ptr<finder_t> finder;          /**< Object used for find actions in the text. */
+    wrap_type_t wrap_type = wrap_type_t::NONE; /**< The wrap_type_t used for display. */
+    wrap_info_t *wrap_info =
+        nullptr; /**< Required information for wrapped display, or @c nullptr if not in use. */
     /** The top-left coordinate in the text.
             This is either a proper text_coordinate_t when wrapping is disabled, or
             a line and sub-line (pos @c member) coordinate when wrapping is enabled.
     */
     text_coordinate_t top_left;
-    int ins_mode,     /**< Current insert/overwrite mode. */
-        last_set_pos; /**< Last horiziontal position set by user action. */
-    bool auto_indent; /**< Boolean indicating whether automatic indentation should be enabled. */
+    int ins_mode = 0,     /**< Current insert/overwrite mode. */
+        last_set_pos = 0; /**< Last horiziontal position set by user action. */
+    bool auto_indent =
+        true; /**< Boolean indicating whether automatic indentation should be enabled. */
     /** Boolean indicating whether the current text is part of a paste operation.
         Set automatically as a response to bracketed paste. Disables auto-indent. */
-    bool pasting_text;
-    bool indent_aware_home; /**< Boolean indicating whether home key should handle indentation
-                               specially. */
-    bool show_tabs;         /**< Boolean indicating whether to explicitly show tabs. */
+    bool pasting_text = false;
+    /** Boolean indicating whether home key should handle indentation specially. */
+    bool indent_aware_home = true;
+    bool show_tabs = false; /**< Boolean indicating whether to explicitly show tabs. */
 
     std::unique_ptr<autocompleter_t> autocompleter; /**< Object used for autocompletion. */
     std::unique_ptr<autocomplete_panel_t>
         autocomplete_panel; /**< Panel for showing autocomplete options. */
 
-    int repaint_min, /**< First line to repaint. */
-        repaint_max; /**< Last line to repaint. */
+    int repaint_min = 0,       /**< First line to repaint. */
+        repaint_max = INT_MAX; /**< Last line to repaint. */
 
-    implementation_t()
-        : screen_pos(0),
-          tabsize(8),
-          focus(false),
-          tab_spaces(false),
-          find_dialog(nullptr),
-          finder(nullptr),
-          wrap_type(wrap_type_t::NONE),
-          wrap_info(nullptr),
-          ins_mode(0),
-          last_set_pos(0),
-          auto_indent(true),
-          pasting_text(false),
-          indent_aware_home(true),
-          show_tabs(false),
-          repaint_min(0),
-          repaint_max(INT_MAX) {}
+    implementation_t() {}
   };
   std::unique_ptr<implementation_t> impl;
 
@@ -158,7 +143,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void delete_selection();
 
   /** The find or replace action has been activated in the find or replace buttons dialog. */
-  void find_activated(finder_t *finder, find_action_t action);
+  void find_activated(std::shared_ptr<finder_t> finder, find_action_t action);
   /** Handle setting of the wrap mode. */
   void set_wrap_internal(wrap_type_t wrap);
 
@@ -273,12 +258,12 @@ class T3_WIDGET_API edit_window_t : public widget_t,
       This function allows one to set the find_dialog_t used.
   */
   void set_find_dialog(find_dialog_t *_find_dialog);
-  /** Set the finder_t to use.
+  /** Set whether to use a local @c finder_t instance, or to use the shared global @c finder_t.
       Because the finder_t stores the search information, such as the text searched
       for, it is sometimes useful to use different finder_t instances for different windows.
       The finder_t is used for example for the find-next action.
   */
-  void set_finder(finder_t *_finder);
+  void set_use_local_finder(bool _use_local_finder);
 
   /** Set the size of a tab. */
   void set_tabsize(int _tabsize);

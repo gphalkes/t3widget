@@ -82,14 +82,9 @@ class T3_WIDGET_API finder_t {
       of this constructor remains owner of passed objects.
   */
   finder_t(const std::string &needle, int flags, const std::string *replacement = nullptr);
+
   /** Destroy a finder_t instance. */
   virtual ~finder_t();
-  /** Assign the value of another finder_t to this finder_t.
-      Assignment using this operator is destructive to @p other. I.e. this
-      finder_t instance will take ownership of all objects allocated by
-      @p other, and set @p other's object pointers to nullptr.
-  */
-  finder_t &operator=(finder_t &&other);
 
   /** Try to find the previously set @c needle in a string. */
   bool match(const std::string &haystack, find_result_t *result, bool reverse);
@@ -100,6 +95,8 @@ class T3_WIDGET_API finder_t {
       ownership.
   */
   std::string get_replacement(const std::string &haystack);
+
+  T3_WIDGET_DISALLOW_COPY(finder_t);
 };
 
 }  // namespace

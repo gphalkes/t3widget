@@ -24,6 +24,12 @@
 
 namespace t3_widget {
 
+#define T3_WIDGET_DISALLOW_COPY(c)  \
+  c(const c &) = delete;            \
+  c(c &&) = delete;                 \
+  c &operator=(const c &) = delete; \
+  c &operator=(c &&) = delete;
+
 struct nullopt_t {
   // Constructor to allow pre Defect 253 compilers to compile the code as well.
   constexpr nullopt_t() {}
@@ -33,6 +39,10 @@ T3_WIDGET_API extern const nullopt_t nullopt;
 /** Class defining values with a separate validity check. */
 template <class T>
 class T3_WIDGET_API optional {
+  // FIXME: this should use placement new/delete to only initialize the value if it is actually used
+  // FIXME: it would be good if this would be compatible with C++17 std::optional.
+  // FIXME: this should provide a move constructor for the original type.
+  // FIXME: this should either delete or provide copy and move constructors
  private:
   T value;          /**< Value, if #initialized is @c true. */
   bool initialized; /**< Boolean indicating whether #value has been initialized. */
@@ -49,25 +59,25 @@ class T3_WIDGET_API optional {
     }
     return value;
   }
-  const T& operator()() const {
+  const T &operator()() const {
     if (!initialized) {
       throw(0);
     }
     return value;
   }
-  T& operator()() {
+  T &operator()() {
     if (!initialized) {
       throw(0);
     }
     return value;
   }
-  const T* operator->() const {
+  const T *operator->() const {
     if (!initialized) {
       throw(0);
     }
     return &value;
   }
-  T* operator->() {
+  T *operator->() {
     if (!initialized) {
       throw(0);
     }

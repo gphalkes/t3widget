@@ -88,21 +88,6 @@ finder_t::finder_t(const std::string &needle, int _flags, const std::string *_re
 }
 
 finder_t::~finder_t() {}
-finder_t &finder_t::operator=(finder_t &&other) {
-  if (&other == this) {
-    return *this;
-  }
-
-  flags = other.flags;
-  matcher.reset(other.matcher.release());
-  regex.reset(other.regex.release());
-  memcpy(ovector, other.ovector, sizeof(ovector));
-  captures = other.captures;
-  found = other.found;
-  replacement.reset(other.replacement.release());
-
-  return *this;
-}
 
 bool finder_t::match(const std::string &haystack, find_result_t *result, bool reverse) {
   int match_result;

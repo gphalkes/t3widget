@@ -223,11 +223,11 @@ void find_dialog_t::regex_toggled() {
 void find_dialog_t::find_activated() { find_activated(find_action_t::FIND); }
 
 void find_dialog_t::find_activated(find_action_t action) {
+  std::shared_ptr<finder_t> context;
   try {
-    finder_t context(*impl->find_line->get_text(), impl->state,
-                     impl->replace_line->is_shown() ? impl->replace_line->get_text() : nullptr);
-    hide();
-    activate(&context, action);
+    context = std::make_shared<finder_t>(
+        *impl->find_line->get_text(), impl->state,
+        impl->replace_line->is_shown() ? impl->replace_line->get_text() : nullptr);
   } catch (const char *message) {
     std::string full_message("Error in search expression: ");
     full_message.append(message);
@@ -235,6 +235,8 @@ void find_dialog_t::find_activated(find_action_t action) {
     message_dialog->center_over(this);
     message_dialog->show();
   }
+  hide();
+  activate(context, action);
 }
 
 void find_dialog_t::set_replace(bool replace) {

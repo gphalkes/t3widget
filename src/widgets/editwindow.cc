@@ -35,7 +35,7 @@ goto_dialog_t *edit_window_t::goto_dialog;
 connection_t edit_window_t::goto_connection;
 find_dialog_t *edit_window_t::global_find_dialog;
 connection_t edit_window_t::global_find_dialog_connection;
-finder_t edit_window_t::global_finder;
+std::shared_ptr<finder_t> edit_window_t::global_finder;
 replace_buttons_dialog_t *edit_window_t::replace_buttons;
 connection_t edit_window_t::replace_buttons_connection;
 menu_panel_t *edit_window_t::right_click_menu;
@@ -640,14 +640,17 @@ void edit_window_t::delete_selection() {
   reset_selection();
 }
 
-void edit_window_t::find_activated(finder_t *_finder, find_action_t action) {
-  finder_t *local_finder;
+void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_action_t action) {
   find_result_t result;
 
-  local_finder = impl->finder == nullptr ? &global_finder : impl->finder;
-  if (_finder != nullptr) {
-    *local_finder = std::move(*_finder);
+  if (_finder) {
+    if (impl->use_local_finder) {
+      impl->finder = _finder;
+    } else {
+      global_finder = _finder;
+    }
   }
+  finder_t *local_finder = impl->use_local_finder ? impl->finder.get() : global_finder.get();
 
   switch (action) {
     case find_action_t::FIND:
@@ -1316,7 +1319,8 @@ void edit_window_t::find_next(bool backward) {
     }
   }
 
-  if (!text->find(impl->finder != nullptr ? impl->finder : &global_finder, &result, backward)) {
+  if (!text->find(impl->finder == nullptr ? global_finder.get() : impl->finder.get(), &result,
+                  backward)) {
     // FIXME: show search string
     message_dialog->set_message("Search string not found");
     message_dialog->center_over(center_window);
@@ -1333,7 +1337,14 @@ void edit_window_t::set_find_dialog(find_dialog_t *_find_dialog) {
   impl->find_dialog = _find_dialog;
 }
 
-void edit_window_t::set_finder(finder_t *_finder) { impl->finder = _finder; }
+void edit_window_t::set_use_local_finder(bool _use_local_finder) {
+  impl->use_local_finder = _use_local_finder;
+  if (_use_local_finder) {
+    impl->finder.reset(new finder_t());
+  } else {
+    impl->finder.reset();
+  }
+}
 
 void edit_window_t::force_redraw() {
   widget_t::force_redraw();

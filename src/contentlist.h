@@ -126,13 +126,13 @@ class T3_WIDGET_API filtered_list_base_t : public virtual list_base_t {
 };
 
 /** Partial implementation of the filtered list. */
-template <class L>
-class T3_WIDGET_API filtered_list_internal_t : public L, public filtered_list_base_t {
+template <class List>
+class T3_WIDGET_API filtered_list_internal_t : public List, public filtered_list_base_t {
  protected:
   /** Vector holding the indices in the base list of the items included in the filtered list. */
   std::vector<size_t> items;
   /** Base list of which this is a filtered view. Not owned. */
-  L *base;
+  List *base;
   /** Filter function. */
   optional<std::function<bool(const string_list_base_t &, size_t)>> test;
   /** Connection to base list's content_changed signal. */
@@ -155,13 +155,13 @@ class T3_WIDGET_API filtered_list_internal_t : public L, public filtered_list_ba
       }
     }
     items.reserve(items.size());
-    L::content_changed();
+    List::content_changed();
   }
 
  public:
   /** Make a new filtered_list_internal_t, wrapping an existing list.
       The filtered_list_internal_t does not take ownership of the list_t. */
-  filtered_list_internal_t(L *list)
+  filtered_list_internal_t(List *list)
       : base(list), test([](const string_list_base_t &, size_t) { return false; }) {
     base_content_changed_connection = base->connect_content_changed([this] { update_list(); });
   }
@@ -173,7 +173,7 @@ class T3_WIDGET_API filtered_list_internal_t : public L, public filtered_list_ba
   void reset_filter() override {
     items.clear();
     test.unset();
-    L::content_changed();
+    List::content_changed();
   }
   size_t size() const override { return test.is_valid() ? items.size() : base->size(); }
   const std::string &operator[](size_t idx) const override {
@@ -183,15 +183,15 @@ class T3_WIDGET_API filtered_list_internal_t : public L, public filtered_list_ba
 
 /** Generic filtered list template.
 
-    Because the instantiation of this template is a subclass of @p list_t,
-    depending on the type of @p list_t, there may be more functions that need
+    Because the instantiation of this template is a subclass of @p List,
+    depending on the type of @p List, there may be more functions that need
     to be implemented.
 */
-template <class L>
-class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<L> {
+template <class List>
+class T3_WIDGET_API filtered_list_t : public filtered_list_internal_t<List> {
  public:
-  filtered_list_t(L *list) : filtered_list_internal_t<L>(list) {}
-  using filtered_list_internal_t<L>::set_filter;
+  filtered_list_t(List *list) : filtered_list_internal_t<List>(list) {}
+  using filtered_list_internal_t<List>::set_filter;
   void set_filter(std::function<bool(const string_list_base_t &, size_t)> _test) override {
     this->test = _test;
     this->update_list();
