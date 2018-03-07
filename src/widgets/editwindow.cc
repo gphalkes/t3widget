@@ -1339,11 +1339,6 @@ void edit_window_t::set_find_dialog(find_dialog_t *_find_dialog) {
 
 void edit_window_t::set_use_local_finder(bool _use_local_finder) {
   impl->use_local_finder = _use_local_finder;
-  if (_use_local_finder) {
-    impl->finder.reset(new finder_t());
-  } else {
-    impl->finder.reset();
-  }
 }
 
 void edit_window_t::force_redraw() {

@@ -35,68 +35,29 @@ struct T3_WIDGET_API find_result_t {
 
 /** Class holding the context of a find operation. */
 class T3_WIDGET_API finder_t {
- private:
-  struct pcre_free_deleter {
-    void operator()(pcre *p) { pcre_free(p); }
-  };
-  using unique_pcre_ptr = std::unique_ptr<pcre, pcre_free_deleter>;
-
-  /** Flags indicating what type of search was requested. */
-  int flags;
-
-  /** Pointer to a string_matcher_t, if a non-regex search was requested. */
-  std::unique_ptr<string_matcher_t> matcher;
-
-  /* PCRE context and data */
-  /** Pointer to a compiled regex. */
-  unique_pcre_ptr regex;
-  /** Array to hold sub-matches information. */
-  int ovector[30];
-  /** The number of sub-matches captured. */
-  int captures;
-  bool found; /**< Boolean indicating whether the regex match was successful. */
-
-  /** Replacement string. */
-  std::unique_ptr<std::string> replacement;
-
-  /** Space to store the case-folded representation of a single character. Allocation is handled by
-      the unistring library, hence we can not use string or vector. */
-  std::unique_ptr<char, free_deleter> folded;
-  /** Size of the finder_t::folded buffer. */
-  size_t folded_size;
-
-  /** Get the next position of a UTF-8 character. */
-  static int adjust_position(const std::string &str, int pos, int adjust);
-  /** Check if the start and end of a match are on word boundaries.
-      @param str The string to check.
-      @param match_start The position of the start of the match in @p str.
-      @param match_end The position of the end of the match in @p str.
-  */
-  bool check_boundaries(const std::string &str, int match_start, int match_end);
-
  public:
-  /** Create a new empty finder_t. */
-  finder_t();
-  /** Create a new finder_t for a specific search.
-      May throw a @c const @c char pointer holding an error message. Caller
-      of this constructor remains owner of passed objects.
-  */
-  finder_t(const std::string &needle, int flags, const std::string *replacement = nullptr);
+  finder_t() = default;
+  T3_WIDGET_DISALLOW_COPY(finder_t)
 
   /** Destroy a finder_t instance. */
   virtual ~finder_t();
 
   /** Try to find the previously set @c needle in a string. */
-  bool match(const std::string &haystack, find_result_t *result, bool reverse);
+  virtual bool match(const std::string &haystack, find_result_t *result, bool reverse) = 0;
   /** Retrieve the flags set when setting the search context. */
-  int get_flags();
-  /** Retrieve the replacement string.
-      Returns a newly allocated string, for which the caller will have
-      ownership.
-  */
-  std::string get_replacement(const std::string &haystack);
+  virtual int get_flags() const = 0;
+  /** Retrieve the replacement string. */
+  virtual std::string get_replacement(const std::string &haystack) const = 0;
 
-  T3_WIDGET_DISALLOW_COPY(finder_t);
+  /** Creates a finder_t (or rather a subclass) with the given parameters.
+      @param needle The string to search for.
+      @param flags A logical or of flags from find_flags_t.
+      @param replacement The optional replacement string.
+
+      For regular expression searches, the replacement string may contain references of the form \0
+      .. \9. */
+  static std::unique_ptr<finder_t> create(const std::string &needle, int flags,
+                                          const std::string *replacement = nullptr);
 };
 
 }  // namespace

@@ -135,6 +135,7 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
 
       return value;
     }
+    case '0':
     case '1':
     case '2':
     case '3':
@@ -145,19 +146,17 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
       if (replacements) {
         return (str[read_position - 1] - '0') | ESCAPE_REPLACEMENT;
       } else {
-        case '0':
-          /* Octal escapes */
-          int value = (str[read_position - 1] - '0');
-          size_t max_idx = str[read_position - 1] < '4' ? 2 : 1;
-          for (i = 0; i < max_idx && read_position + i < str.size() &&
-                      str[read_position + i] >= '0' && str[read_position + i] <= '7';
-               i++) {
-            value = value * 8 + (str[read_position + i] - '0');
-          }
+        /* Octal escapes */
+        int value = (str[read_position - 1] - '0');
+        size_t max_idx = str[read_position - 1] < '4' ? 2 : 1;
+        for (i = 0; i < max_idx && read_position + i < str.size() &&
+                    str[read_position + i] >= '0' && str[read_position + i] <= '7';
+             i++) {
+          value = value * 8 + (str[read_position + i] - '0');
+        }
 
-          read_position += i;
-
-          return value;
+        read_position += i;
+        return value;
       }
     case '8':
     case '9':
