@@ -1319,16 +1319,22 @@ void edit_window_t::find_next(bool backward) {
     }
   }
 
-  if (!text->find(impl->finder == nullptr ? global_finder.get() : impl->finder.get(), &result,
-                  backward)) {
-    // FIXME: show search string
-    message_dialog->set_message("Search string not found");
+  finder_t *local_finder = impl->use_local_finder ? impl->finder.get() : global_finder.get();
+  if (local_finder == nullptr) {
+    message_dialog->set_message("No previous search");
     message_dialog->center_over(center_window);
     message_dialog->show();
   } else {
-    text->set_selection_from_find(&result);
+    if (!text->find(local_finder, &result, backward)) {
+      // FIXME: show search string
+      message_dialog->set_message("Search string not found");
+      message_dialog->center_over(center_window);
+      message_dialog->show();
+    } else {
+      text->set_selection_from_find(&result);
+      ensure_cursor_on_screen();
+    }
   }
-  ensure_cursor_on_screen();
 }
 
 text_buffer_t *edit_window_t::get_text() const { return text; }
