@@ -76,7 +76,7 @@ T3_WIDGET_LOCAL void stop_clipboard();
         @param replacements A boolean indicating whether replacement markers should be parsed as
    such.
 */
-T3_WIDGET_LOCAL int parse_escape(const std::string &str, const char **error_message,
+T3_WIDGET_LOCAL int parse_escape(const std::string &str, std::string *error_message,
                                  size_t &read_position, bool replacements = false);
 /** Convert escapes in a string to associated values.
     @param str The string to parse, updated by this function.
@@ -84,7 +84,7 @@ T3_WIDGET_LOCAL int parse_escape(const std::string &str, const char **error_mess
         @param replacements A boolean indicating whether replacement markers should be parsed as
    such.
 */
-T3_WIDGET_LOCAL bool parse_escapes(std::string &str, const char **error_message,
+T3_WIDGET_LOCAL bool parse_escapes(std::string &str, std::string *error_message,
                                    bool replacements = false);
 
 /* Key handling routines. */

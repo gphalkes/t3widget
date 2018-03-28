@@ -25,6 +25,12 @@
 namespace t3_widget {
 
 class T3_WIDGET_LOCAL finder_base_t : public finder_t {
+ public:
+  /** Set the needle.
+      @returns Whether the operation was successful. If unsuccessful, error_message will contain a
+     description of the error. */
+  virtual bool set_needle(const std::string &needle, std::string *error_message) = 0;
+
  protected:
   /** Create a new empty finder_t. */
   finder_base_t(int flags, const std::string *replacement) : flags_(flags) {
@@ -44,6 +50,19 @@ class T3_WIDGET_LOCAL finder_base_t : public finder_t {
 };
 
 class T3_WIDGET_LOCAL plain_finder_t : public finder_base_t {
+ public:
+  /** Create a new full_finder_t for a specific search.
+      May throw a @c const @c char pointer holding an error message. Caller
+      of this constructor remains owner of passed objects. */
+  plain_finder_t(int flags, const std::string *replacement);
+
+  bool set_needle(const std::string &needle, std::string *error_message) override;
+
+  /** Try to find the previously set @c needle in a string. */
+  bool match(const std::string &haystack, find_result_t *result, bool reverse) override;
+  /** Retrieve the replacement string. */
+  std::string get_replacement(const std::string &haystack) const override;
+
  private:
   /** Pointer to a string_matcher_t, if a non-regex search was requested. */
   std::unique_ptr<string_matcher_t> matcher;
@@ -62,21 +81,23 @@ class T3_WIDGET_LOCAL plain_finder_t : public finder_base_t {
       @param match_end The position of the end of the match in @p str.
   */
   bool check_boundaries(const std::string &str, int match_start, int match_end);
-
- public:
-  /** Create a new full_finder_t for a specific search.
-      May throw a @c const @c char pointer holding an error message. Caller
-      of this constructor remains owner of passed objects. */
-  plain_finder_t(const std::string &needle, int flags, const std::string *replacement);
-
-  /** Try to find the previously set @c needle in a string. */
-  bool match(const std::string &haystack, find_result_t *result, bool reverse) override;
-  /** Retrieve the replacement string. */
-  std::string get_replacement(const std::string &haystack) const override;
 };
 
 /** Implementation of the finder_t interface for regular expression based searches. */
 class T3_WIDGET_LOCAL regex_finder_t : public finder_base_t {
+ public:
+  /** Create a new full_finder_t for a specific search.
+      May throw a @c const @c char pointer holding an error message. Caller
+      of this constructor remains owner of passed objects. */
+  regex_finder_t(int flags, const std::string *replacement);
+
+  bool set_needle(const std::string &needle, std::string *error_message) override;
+
+  /** Try to find the previously set @c needle in a string. */
+  bool match(const std::string &haystack, find_result_t *result, bool reverse) override;
+  /** Retrieve the replacement string. */
+  std::string get_replacement(const std::string &) const override;
+
  private:
   struct pcre_free_deleter {
     void operator()(pcre *p) { pcre_free(p); }
@@ -91,40 +112,36 @@ class T3_WIDGET_LOCAL regex_finder_t : public finder_base_t {
   /** The number of sub-matches captured. */
   int captures_;
   bool found_; /**< Boolean indicating whether the regex match was successful. */
-
- public:
-  /** Create a new full_finder_t for a specific search.
-      May throw a @c const @c char pointer holding an error message. Caller
-      of this constructor remains owner of passed objects. */
-  regex_finder_t(const std::string &needle, int flags, const std::string *replacement);
-
-  /** Try to find the previously set @c needle in a string. */
-  bool match(const std::string &haystack, find_result_t *result, bool reverse) override;
-  /** Retrieve the replacement string. */
-  std::string get_replacement(const std::string &) const override;
 };
 //================================= finder_t implementation ========================================
 finder_t::~finder_t() {}
 
 std::unique_ptr<finder_t> finder_t::create(const std::string &needle, int flags,
+                                           std::string *error_message,
                                            const std::string *replacement) {
+  std::unique_ptr<finder_base_t> result;
   if (flags & find_flags_t::REGEX) {
-    return make_unique<regex_finder_t>(needle, flags, replacement);
+    result = make_unique<regex_finder_t>(flags, replacement);
   } else {
-    return make_unique<plain_finder_t>(needle, flags, replacement);
+    result = make_unique<plain_finder_t>(flags, replacement);
   }
+  if (!result->set_needle(needle, error_message)) {
+    return nullptr;
+  }
+  return result;
 }
 
 //================================= plain_finder_t implementation ==================================
-plain_finder_t::plain_finder_t(const std::string &needle, int flags, const std::string *replacement)
-    : finder_base_t(flags, replacement), folded_size_(0) {
-  const char *error_message;
+plain_finder_t::plain_finder_t(int flags, const std::string *replacement)
+    : finder_base_t(flags, replacement), folded_size_(0) {}
+
+bool plain_finder_t::set_needle(const std::string &needle, std::string *error_message) {
   /* Create a copy of needle, for transformation purposes. */
   std::string search_for(needle);
 
   if (flags_ & find_flags_t::TRANSFROM_BACKSLASH) {
-    if (!parse_escapes(search_for, &error_message)) {
-      throw error_message;
+    if (!parse_escapes(search_for, error_message)) {
+      return false;
     }
   }
 
@@ -144,13 +161,14 @@ plain_finder_t::plain_finder_t(const std::string &needle, int flags, const std::
 
   if (replacement_ != nullptr) {
     if ((flags_ & find_flags_t::TRANSFROM_BACKSLASH)) {
-      if (!parse_escapes(*replacement_, &error_message, false)) {
-        throw error_message;
+      if (!parse_escapes(*replacement_, error_message, false)) {
+        return false;
       }
     }
     flags_ |= find_flags_t::REPLACEMENT_VALID;
   }
   flags_ |= find_flags_t::VALID;
+  return true;
 }
 
 bool plain_finder_t::match(const std::string &haystack, find_result_t *result, bool reverse) {
@@ -291,9 +309,11 @@ bool plain_finder_t::check_boundaries(const std::string &str, int match_start, i
 std::string plain_finder_t::get_replacement(const std::string &) const { return *replacement_; }
 
 //================================= regex_finder_t implementation ==================================
-regex_finder_t::regex_finder_t(const std::string &needle, int flags, const std::string *replacement)
-    : finder_base_t(flags, replacement) {
-  const char *error_message;
+regex_finder_t::regex_finder_t(int flags, const std::string *replacement)
+    : finder_base_t(flags, replacement) {}
+
+bool regex_finder_t::set_needle(const std::string &needle, std::string *error_message) {
+  const char *char_error_message;
   int error_offset;
   int pcre_flags = PCRE_UTF8;
 
@@ -305,19 +325,22 @@ regex_finder_t::regex_finder_t(const std::string &needle, int flags, const std::
     pcre_flags |= PCRE_CASELESS;
   }
 
-  regex_.reset(pcre_compile(pattern.c_str(), pcre_flags, &error_message, &error_offset, nullptr));
+  regex_.reset(
+      pcre_compile(pattern.c_str(), pcre_flags, &char_error_message, &error_offset, nullptr));
   if (regex_ == nullptr) {
-    // FIXME: error offset should be added for clarity
-    throw error_message;
+    // FIXME: this should include the offset.
+    *error_message = char_error_message;
+    return false;
   }
 
   if (replacement_ != nullptr) {
-    if (!parse_escapes(*replacement_, &error_message, true)) {
-      throw error_message;
+    if (!parse_escapes(*replacement_, error_message, true)) {
+      return false;
     }
     flags_ |= find_flags_t::REPLACEMENT_VALID;
   }
   flags_ |= find_flags_t::VALID;
+  return true;
 }
 
 bool regex_finder_t::match(const std::string &haystack, find_result_t *result, bool reverse) {

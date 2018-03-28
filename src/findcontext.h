@@ -36,7 +36,6 @@ struct T3_WIDGET_API find_result_t {
 /** Class holding the context of a find operation. */
 class T3_WIDGET_API finder_t {
  public:
-  finder_t() = default;
   T3_WIDGET_DISALLOW_COPY(finder_t)
 
   /** Destroy a finder_t instance. */
@@ -53,11 +52,16 @@ class T3_WIDGET_API finder_t {
       @param needle The string to search for.
       @param flags A logical or of flags from find_flags_t.
       @param replacement The optional replacement string.
+      @returns A new finder_t subclass instance or @c nullptr on failure.
 
       For regular expression searches, the replacement string may contain references of the form \0
       .. \9. */
   static std::unique_ptr<finder_t> create(const std::string &needle, int flags,
+                                          std::string *error_message,
                                           const std::string *replacement = nullptr);
+
+ protected:
+  finder_t() = default;
 };
 
 }  // namespace

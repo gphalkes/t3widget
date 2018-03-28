@@ -82,7 +82,7 @@ static bool is_hex_digit(int c) { return strchr("abcdefABCDEF0123456789", c) != 
 
 static int to_lower(int c) { return 'a' + (c - 'A'); }
 
-int parse_escape(const std::string &str, const char **error_message, size_t &read_position,
+int parse_escape(const std::string &str, std::string *error_message, size_t &read_position,
                  bool replacements) {
   size_t i;
 
@@ -204,15 +204,15 @@ int parse_escape(const std::string &str, const char **error_message, size_t &rea
 }
 
 /** Convert a string from the input format to an internally usable string.
-        @param str A @a Token with the str to be converted.
-        @param error_message Location to store the error message if necessary.
+    @param str A @a Token with the str to be converted.
+    @param error_message Location to store the error message if necessary.
     @param replacements Mark replacment substitutions (\\1 .. \\9) in the string.
-        @return The length of the resulting str.
+    @return The length of the resulting str.
 
-        The use of this function processes escape characters. The converted
-        characters are written in the original str.
+    The use of this function processes escape characters. The converted characters are written in
+    the original str.
 */
-bool parse_escapes(std::string &str, const char **error_message, bool replacements) {
+bool parse_escapes(std::string &str, std::string *error_message, bool replacements) {
   size_t read_position = 0, write_position = 0;
   char buffer[5];
 
