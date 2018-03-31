@@ -43,12 +43,12 @@ bool scrollbar_t::set_size(optint height, optint width) {
   bool result = true;
   if (impl->vertical) {
     if (height.is_valid()) {
-      impl->length = height;
+      impl->length = height.value();
       result = window.resize(impl->length, 1);
     }
   } else {
     if (width.is_valid()) {
-      impl->length = width;
+      impl->length = width.value();
       result = window.resize(1, impl->length);
     }
   }

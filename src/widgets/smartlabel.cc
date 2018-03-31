@@ -99,7 +99,7 @@ bool smart_label_t::set_size(optint height, optint width) {
   if (!width.is_valid()) {
     width = window.get_width();
   }
-  window.resize(1, width);
+  window.resize(1, width.value());
   return true;
 }
 

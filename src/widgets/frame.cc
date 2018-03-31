@@ -69,7 +69,7 @@ bool frame_t::set_size(optint height, optint width) {
     width = window.get_width();
   }
 
-  result = window.resize(height, width);
+  result = window.resize(height.value(), width.value());
   redraw = true;
 
   if (child != nullptr) {

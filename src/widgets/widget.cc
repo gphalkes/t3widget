@@ -65,7 +65,7 @@ void widget_t::set_position(optint top, optint left) {
     left = window.get_x();
   }
 
-  window.move(top, left);
+  window.move(top.value(), left.value());
 }
 
 void widget_t::show() {

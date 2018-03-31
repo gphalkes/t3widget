@@ -76,7 +76,7 @@ class T3_WIDGET_API key_bindings_t : public key_bindings_base_t {
     if (!action.is_valid()) {
       return false;
     }
-    key_bindings[key] = action;
+    key_bindings[key] = action.value();
     return true;
   }
 

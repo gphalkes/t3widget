@@ -68,16 +68,16 @@ bool text_window_t::set_size(optint height, optint width) {
     height = window.get_height();
   }
 
-  if (width != window.get_width() || height > window.get_height()) {
+  if (width.value() != window.get_width() || height.value() > window.get_height()) {
     redraw = true;
   }
 
-  result &= window.resize(height, width);
+  result &= window.resize(height.value(), width.value());
   if (impl->scrollbar != nullptr) {
     result &= impl->scrollbar->set_size(height, None);
-    impl->wrap_info->set_wrap_width(width);
+    impl->wrap_info->set_wrap_width(width.value());
   } else {
-    impl->wrap_info->set_wrap_width(width + 1);
+    impl->wrap_info->set_wrap_width(width.value() + 1);
   }
 
   return result;

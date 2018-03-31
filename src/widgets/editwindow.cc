@@ -138,18 +138,18 @@ bool edit_window_t::set_size(optint height, optint width) {
   bool result = true;
   // FIXME: these int's are optional!!! Take that into account below!
 
-  if (width != window.get_width() || height > window.get_height()) {
+  if (width.value() != window.get_width() || height.value() > window.get_height()) {
     update_repaint_lines(0, INT_MAX);
   }
 
-  result &= window.resize(height, width);
-  result &= impl->edit_window.resize(height - 1, width - 1);
-  result &= impl->scrollbar->set_size(height - 1, None);
+  result &= window.resize(height.value(), width.value());
+  result &= impl->edit_window.resize(height.value() - 1, width.value() - 1);
+  result &= impl->scrollbar->set_size(height.value() - 1, None);
 
   if (impl->wrap_type != wrap_type_t::NONE) {
     impl->top_left.pos =
         impl->wrap_info->calculate_line_pos(impl->top_left.line, 0, impl->top_left.pos);
-    impl->wrap_info->set_wrap_width(width - 1);
+    impl->wrap_info->set_wrap_width(width.value() - 1);
     impl->top_left.pos = impl->wrap_info->find_line(impl->top_left);
     impl->last_set_pos = impl->wrap_info->calculate_screen_pos();
   }
@@ -996,7 +996,7 @@ bool edit_window_t::process_key(key_t key) {
 
       optional<Action> action = key_bindings.find_action(key);
       if (action.is_valid()) {
-        switch (action) {
+        switch (action.value()) {
           case ACTION_COPY:
             cut_copy(false);
             return true;
@@ -1824,8 +1824,8 @@ void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left
 
   get_screen_size(&screen_height, &screen_width);
 
-  top = _top.is_valid() ? _top() : window.get_y();
-  left = _left.is_valid() ? _left() : window.get_x();
+  top = _top.is_valid() ? _top.value() : window.get_y();
+  left = _left.is_valid() ? _left.value() : window.get_x();
 
   window.move(top, left);
 

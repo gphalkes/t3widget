@@ -200,7 +200,7 @@ bool text_field_t::process_key(key_t key) {
     default: {
       optional<Action> action = key_bindings.find_action(key);
       if (action.is_valid()) {
-        switch (action) {
+        switch (action.value()) {
           case ACTION_CUT:
             if (impl->selection_mode != selection_mode_t::NONE) {
               delete_selection(true);
@@ -228,7 +228,7 @@ bool text_field_t::process_key(key_t key) {
           case ACTION_PASTE_SELECTION: {
             ensure_clipboard_lock_t lock;
             std::shared_ptr<std::string> copy_buffer =
-                action == ACTION_PASTE ? get_clipboard() : get_primary();
+                action.value() == ACTION_PASTE ? get_clipboard() : get_primary();
             if (copy_buffer != nullptr) {
               text_line_t insert_line(*copy_buffer.get());
 
@@ -335,8 +335,8 @@ bool text_field_t::process_key(key_t key) {
 
 bool text_field_t::set_size(optint height, optint width) {
   (void)height;
-  if (width.is_valid() && window.get_width() != width) {
-    window.resize(1, width);
+  if (width.is_valid() && window.get_width() != width.value()) {
+    window.resize(1, width.value());
     if (impl->drop_down_list != nullptr) {
       impl->drop_down_list->set_size(None, width);
     }
@@ -661,7 +661,7 @@ bool text_field_t::drop_down_list_t::set_size(optint height, optint width) {
   bool result;
   (void)height;
   result = popup_t::set_size(DDL_HEIGHT, width);
-  result &= list_pane->set_size(DDL_HEIGHT - 1, width - 1);
+  result &= list_pane->set_size(DDL_HEIGHT - 1, width.value() - 1);
   return result;
 }
 

@@ -202,7 +202,7 @@ static void terminal_specific_setup() {
   }
 
   for (i = 0;
-       terminal_mapping[i].name != nullptr && terminal_mapping[i].name != init_params->term();
+       terminal_mapping[i].name != nullptr && terminal_mapping[i].name != init_params->term.value();
        i++) {
   }
   terminal = terminal_mapping[i].code;
@@ -288,8 +288,8 @@ complex_error_t init(const init_parameters_t *params) {
   }
 
   atexit(restore);
-  if ((term_init_result =
-           t3_term_init(-1, init_params->term.is_valid() ? init_params->term->c_str() : nullptr)) !=
+  if ((term_init_result = t3_term_init(
+           -1, init_params->term.is_valid() ? init_params->term.value().c_str() : nullptr)) !=
       T3_ERR_SUCCESS) {
     int saved_errno = errno;
     restore();

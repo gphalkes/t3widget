@@ -143,7 +143,8 @@ bool file_dialog_t::set_size(optint height, optint width) {
   result &= dialog_t::set_size(height, width);
 
   result &= impl->file_line->set_size(None, window.get_width() - 3 - impl->name_offset);
-  result &= impl->file_pane_frame->set_size(height - 4 - impl->option_widget_set, width - 4);
+  result &= impl->file_pane_frame->set_size(height.value() - 4 - impl->option_widget_set,
+                                            width.value() - 4);
   return result;
 }
 
@@ -305,7 +306,7 @@ const std::string *open_file_dialog_t::get_filter() { return impl->filter_line->
 bool open_file_dialog_t::set_size(optint height, optint width) {
   bool result = file_dialog_t::set_size(height, width);
   if (width.is_valid()) {
-    result &= impl->filter_line->set_size(None, std::min(std::max(10, width - 60), 25));
+    result &= impl->filter_line->set_size(None, std::min(std::max(10, width.value() - 60), 25));
   }
   return result;
 }

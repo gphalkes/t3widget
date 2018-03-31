@@ -181,8 +181,8 @@ void expander_t::set_focus(focus_t _focus) {
 
 bool expander_t::set_size(optint height, optint width) {
   bool result = true;
-  if (height.is_valid() && height > 1) {
-    impl->full_height = height;
+  if (height.is_valid() && height.value() > 1) {
+    impl->full_height = height.value();
   }
 
   if (impl->child != nullptr) {
@@ -193,9 +193,9 @@ bool expander_t::set_size(optint height, optint width) {
     width = window.get_width();
   }
   if (impl->is_expanded) {
-    result &= window.resize(impl->full_height, width);
+    result &= window.resize(impl->full_height, width.value());
   } else {
-    result &= window.resize(1, width);
+    result &= window.resize(1, width.value());
   }
   return result;
 }

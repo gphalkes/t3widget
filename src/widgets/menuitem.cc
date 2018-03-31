@@ -21,7 +21,7 @@ void menu_item_base_t::set_position(optint top, optint left) {
   if (!top.is_valid()) {
     return;
   }
-  window.move(top, 1);
+  window.move(top.value(), 1);
 }
 
 bool menu_item_base_t::set_size(optint height, optint width) {
@@ -30,7 +30,7 @@ bool menu_item_base_t::set_size(optint height, optint width) {
     return true;
   }
   redraw = true;
-  return window.resize(1, width);
+  return window.resize(1, width.value());
 }
 
 void menu_item_base_t::process_mouse_event_from_menu(mouse_event_t event) { (void)event; }

@@ -22,11 +22,11 @@ bool separator_t::set_size(optint height, optint width) {
   bool result = true;
   if (horizontal) {
     if (width.is_valid()) {
-      result = window.resize(1, width);
+      result = window.resize(1, width.value());
     }
   } else {
     if (height.is_valid()) {
-      result = window.resize(height, 1);
+      result = window.resize(height.value(), 1);
     }
   }
 

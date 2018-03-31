@@ -150,7 +150,7 @@ class T3_WIDGET_API filtered_list_internal_t : public List, public filtered_list
     items.clear();
 
     for (size_t i = 0; i < base->size(); i++) {
-      if (test()(*base, i)) {
+      if (test.value()(*base, i)) {
         items.push_back(i);
       }
     }
@@ -172,7 +172,7 @@ class T3_WIDGET_API filtered_list_internal_t : public List, public filtered_list
   }
   void reset_filter() override {
     items.clear();
-    test.unset();
+    test.reset();
     List::content_changed();
   }
   size_t size() const override { return test.is_valid() ? items.size() : base->size(); }

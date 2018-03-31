@@ -111,7 +111,7 @@ bool input_selection_dialog_t::set_size(optint height, optint width) {
   }
 
   result = dialog_t::set_size(height, width);
-  result &= impl->text_frame->set_size(height - 9, width - 2);
+  result &= impl->text_frame->set_size(height.value() - 9, width.value() - 2);
   return result;
 }
 

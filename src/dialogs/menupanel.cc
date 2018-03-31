@@ -86,7 +86,7 @@ bool menu_panel_t::process_key(key_t key) {
 }
 
 void menu_panel_t::set_position(optint top, optint left) {
-  dialog_t::set_position(impl->menu_bar == nullptr ? top() : 1, left);
+  dialog_t::set_position(impl->menu_bar == nullptr ? top.value() : 1, left);
 }
 
 bool menu_panel_t::set_size(optint height, optint _width) {

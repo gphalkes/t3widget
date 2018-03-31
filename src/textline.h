@@ -82,8 +82,8 @@ class T3_WIDGET_API text_line_t {
   static const char *control_map;
   static const char *wrap_symbol;
 
-  static void paint_part(t3_window::window_t *win, const char *paint_buffer, bool is_print, int todo,
-                         t3_attr_t selection_attr);
+  static void paint_part(t3_window::window_t *win, const char *paint_buffer, bool is_print,
+                         int todo, t3_attr_t selection_attr);
   static int key_width(key_t key);
 
   t3_attr_t get_draw_attrs(int i, const text_line_t::paint_info_t *info);

@@ -77,7 +77,7 @@ void dialog_base_t::set_position(optint top, optint left) {
     left = window.get_x();
   }
 
-  window.move(top, left);
+  window.move(top.value(), left.value());
 }
 
 bool dialog_base_t::set_size(optint height, optint width) {
@@ -91,9 +91,9 @@ bool dialog_base_t::set_size(optint height, optint width) {
     width = window.get_width();
   }
 
-  result &= (window.resize(height, width) == 0);
+  result &= (window.resize(height.value(), width.value()) == 0);
   if (shadow_window != nullptr) {
-    result &= (shadow_window.resize(height, width) == 0);
+    result &= (shadow_window.resize(height.value(), width.value()) == 0);
   }
   return result;
 }

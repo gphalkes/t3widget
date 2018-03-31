@@ -125,7 +125,7 @@ bool menu_bar_t::set_size(optint height, optint width) {
     return true;
   }
   redraw = true;
-  return window.resize(1, width) == 0;
+  return window.resize(1, width.value()) == 0;
 }
 
 void menu_bar_t::update_contents() {

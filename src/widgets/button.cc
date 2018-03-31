@@ -54,13 +54,13 @@ bool button_t::set_size(optint height, optint width) {
   (void)height;
 
   if (width.is_valid()) {
-    if (width <= 0) {
+    if (width.value() <= 0) {
       if (text_width + 4 == window.get_width()) {
         return true;
       }
       width = text_width + 4;
     }
-    return window.resize(1, width);
+    return window.resize(1, width.value());
   }
   return true;
 }

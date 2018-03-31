@@ -537,7 +537,7 @@ complex_error_t init_keys(const optional<std::string> &term, bool separate_keypa
     RETURN_ERROR(complex_error_t::SRC_TRANSCRIPT, transcript_error);
   }
 
-  keymap.reset(t3_key_load_map(term.is_valid() ? term->c_str() : nullptr, nullptr, &error));
+  keymap.reset(t3_key_load_map(term.is_valid() ? term.value().c_str() : nullptr, nullptr, &error));
   if (keymap == nullptr) {
     RETURN_ERROR(complex_error_t::SRC_T3_KEY, error);
   }

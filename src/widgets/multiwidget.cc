@@ -34,8 +34,8 @@ bool multi_widget_t::process_key(key_t key) {
 
 bool multi_widget_t::set_size(optint height, optint width) {
   (void)height;
-  if (width.is_valid() && window.get_width() != width) {
-    window.resize(1, width);
+  if (width.is_valid() && window.get_width() != width.value()) {
+    window.resize(1, width.value());
     resize_widgets();
   }
   return true;  // FIXME: use result of widgets

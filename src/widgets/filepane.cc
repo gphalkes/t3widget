@@ -162,13 +162,14 @@ bool file_pane_t::set_size(optint height, optint width) {
   if (!width.is_valid()) {
     width = window.get_height();
   }
-  result = window.resize(height, width);
+  result = window.resize(height.value(), width.value());
   result &= impl->scrollbar.set_size(None, width);
 
-  height = height - 1;
+  height = height.value() - 1;
   if (impl->file_list != nullptr && impl->file_list->size() != 0) {
     update_column_widths();
-    impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
+    impl->scrollbar_range =
+        ((impl->file_list->size() + height.value() - 1) / height.value()) * height.value();
     ensure_cursor_on_screen();
   }
   redraw = true;

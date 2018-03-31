@@ -38,8 +38,8 @@ bool label_t::set_size(optint height, optint width) {
   bool result = true;
 
   (void)height;
-  if (width.is_valid() && window.get_width() != width) {
-    result = window.resize(1, width);
+  if (width.is_valid() && window.get_width() != width.value()) {
+    result = window.resize(1, width.value());
     redraw = true;
   }
   return result;

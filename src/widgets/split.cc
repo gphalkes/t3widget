@@ -44,7 +44,7 @@ bool split_t::process_key(key_t key) {
 
   optional<Action> action = key_bindings.find_action(key);
   if (action.is_valid()) {
-    switch (action) {
+    switch (action.value()) {
       case ACTION_NEXT_SPLIT:
         next();
         break;
@@ -70,12 +70,12 @@ bool split_t::set_size(optint height, optint width) {
     width = window.get_width();
   }
 
-  result = window.resize(height, width);
+  result = window.resize(height.value(), width.value());
 
   if (horizontal) {
     int idx;
-    int step = height / widgets.size();
-    int left_over = height % widgets.size();
+    int step = height.value() / widgets.size();
+    int left_over = height.value() % widgets.size();
     widgets_t::iterator iter;
 
     for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
@@ -84,8 +84,8 @@ bool split_t::set_size(optint height, optint width) {
     }
   } else {
     int idx;
-    int step = width / widgets.size();
-    int left_over = width % widgets.size();
+    int step = width.value() / widgets.size();
+    int left_over = width.value() % widgets.size();
     widgets_t::iterator iter;
 
     for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {

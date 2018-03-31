@@ -15,9 +15,12 @@
 #define T3_WIDGET_UTIL_H
 #include <cstdlib>
 #include <memory>
+#include <new>
 #include <string>
 #include <t3window/window.h>
+#include <type_traits>
 #include <unistd.h>
+#include <utility>
 
 #include <t3widget/signals.h>
 #include <t3widget/widget_api.h>
@@ -30,73 +33,177 @@ namespace t3_widget {
   c &operator=(const c &) = delete; \
   c &operator=(c &&) = delete;
 
+#if defined(__GNUC__) || defined(__clang__)
+#define T3_WIDGET_UNLIKELY(x) __builtin_expect(!!(x), false)
+#else
+#define T3_WIDGET_UNLIKELY(x) (bool)(x)
+#endif
+
 struct nullopt_t {
   // Constructor to allow pre Defect 253 compilers to compile the code as well.
   constexpr nullopt_t() {}
 };
 T3_WIDGET_API extern const nullopt_t nullopt;
 
-/** Class defining values with a separate validity check. */
-template <class T>
-class T3_WIDGET_API optional {
-  // FIXME: this should use placement new/delete to only initialize the value if it is actually used
-  // FIXME: it would be good if this would be compatible with C++17 std::optional.
-  // FIXME: this should provide a move constructor for the original type.
-  // FIXME: this should either delete or provide copy and move constructors
+namespace internal {
+/* As it is impossible to simply disable certain functions, an indirect way needs to be used. In
+   this case, we want to disable the copy/move constructors and assignment operators. The way this
+   can be achieved is by deriving from a base class that explicitly deletes these functions, and not
+   defining them ourselves. This also means that all the functionality of the class itself must be
+   in a a separate base class. */
+template <bool copy_construct, bool move_construct, bool copy_assign, bool move_assign>
+struct enable_copy_assign;
+
+#define _T3_WIDGET_ENABLE_COPY_ASSIGN(cc, mc, ca, ma, cc_en, mc_en, ca_en, ma_en) \
+  template <>                                                                     \
+  struct enable_copy_assign<cc, mc, ca, ma> {                                     \
+    enable_copy_assign() = default;                                               \
+    enable_copy_assign(const enable_copy_assign &) = cc_en;                       \
+    enable_copy_assign(enable_copy_assign &&) = mc_en;                            \
+    enable_copy_assign &operator=(const enable_copy_assign &) = ca_en;            \
+    enable_copy_assign &operator=(enable_copy_assign &&) = ma_en;                 \
+  }
+
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, false, false, false, delete, delete, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, false, false, true, delete, delete, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, false, true, false, delete, delete, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, false, true, true, delete, delete, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, true, false, false, delete, default, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, true, false, true, delete, default, delete, default);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, true, true, false, delete, default, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(false, true, true, true, delete, default, delete, default);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, false, false, false, default, delete, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, false, false, true, default, delete, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, false, true, false, default, delete, default, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, false, true, true, default, delete, default, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, true, false, false, default, default, delete, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, true, false, true, default, default, delete, default);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, true, true, false, default, default, default, delete);
+_T3_WIDGET_ENABLE_COPY_ASSIGN(true, true, true, true, default, default, default, default);
+#undef _T3_WIDGET_ENABLE_COPY_ASSIGN
+
+/* Base class for the optional class, which defines all the functionality. This is separate from the
+   actual optional class, because we want to disable copy/move constructors and assignment
+   operators, depending on the template parameter. See the description of enable_copy_assign for
+   more details.
+
+   The interface of the class is meant to be a subset of the std::optional class, such that at some
+   point in the future this may be replaced by std::optional. It only implements the checked value
+   access though, to prevent accidental access to invalid values.
+*/
+template <typename T>
+class optional_base {
  private:
-  T value;          /**< Value, if #initialized is @c true. */
-  bool initialized; /**< Boolean indicating whether #value has been initialized. */
+  char value_[sizeof(T)]; /**< Value, if #initialized is @c true. */
+  bool initialized_;      /**< Boolean indicating whether #value_ has been initialized. */
+
+  T &&as_xvalue() { return std::move(*reinterpret_cast<T *>(value_)); }
+  T &as_value() { return *reinterpret_cast<T *>(value_); }
+  const T &as_const_value() const { return *reinterpret_cast<const T *>(value_); }
 
  public:
-  optional() : initialized(false) {}
-  optional(nullopt_t) : initialized(false) {}
-  optional(T _value) : value(_value), initialized(true) {}
-  bool is_valid() const { return initialized; }
-  void unset() { initialized = false; }
-  operator T(void) const {
-    if (!initialized) {
+  constexpr optional_base() noexcept : initialized_(false) {}
+  constexpr optional_base(nullopt_t) noexcept : initialized_(false) {}
+  optional_base(const optional_base &other) : initialized_(other.initialized_) {
+    if (initialized_) {
+      new (value_) T(other.as_const_value());
+    }
+  }
+  optional_base(optional_base &&other) : initialized_(other.initialized_) {
+    if (initialized_) {
+      new (value_) T(std::forward<T>(other.as_xvalue()));
+    }
+  }
+  template <typename X = T,
+            typename = typename std::enable_if<
+                std::is_constructible<T, X &&>::value &&
+                !std::is_same<optional_base<T>, typename std::decay<X>::type>::value>::type>
+  optional_base(X &&value) : initialized_(true) {
+    new (value_) T(std::forward<X>(value));
+  }
+  ~optional_base() {
+    if (initialized_) as_value().~T();
+  }
+  bool is_valid() const { return initialized_; }
+  void reset() {
+    if (initialized_) as_value().~T();
+    initialized_ = false;
+  }
+  T &value() {
+    if (T3_WIDGET_UNLIKELY(!initialized_)) {
       throw(0);
     }
-    return value;
+    return as_value();
   }
-  const T &operator()() const {
-    if (!initialized) {
+  const T &value() const {
+    if (T3_WIDGET_UNLIKELY(!initialized_)) {
       throw(0);
     }
-    return value;
+    return as_const_value();
   }
-  T &operator()() {
-    if (!initialized) {
-      throw(0);
+  optional_base &operator=(const optional_base &other) {
+    if (initialized_) {
+      if (other.initialized_) {
+        as_value() = other.as_const_value();
+      } else {
+        as_value().~T();
+        initialized_ = false;
+      }
+    } else if (other.initialized_) {
+      new (value_) T(other.as_const_value());
+      initialized_ = true;
     }
-    return value;
-  }
-  const T *operator->() const {
-    if (!initialized) {
-      throw(0);
-    }
-    return &value;
-  }
-  T *operator->() {
-    if (!initialized) {
-      throw(0);
-    }
-    return &value;
-  }
-  optional &operator=(const optional &other) {
-    initialized = other.initialized;
-    value = other.value;
     return *this;
   }
-  optional &operator=(const T other) {
-    initialized = true;
-    value = other;
+  optional_base &operator=(optional_base &&other) {
+    if (initialized_) {
+      if (other.initialized_) {
+        as_value() = std::forward<T>(other.as_xvalue());
+      } else {
+        as_value().~T();
+        initialized_ = false;
+      }
+    } else if (other.initialized_) {
+      new (value_) T(std::forward<T>(other.as_xvalue()));
+      initialized_ = true;
+    }
     return *this;
   }
-  T value_or_default(T dflt) { return initialized ? value : dflt; }
+  template <class X = T, typename = typename std::enable_if<
+              std::is_constructible<T, X &&>::value &&
+              std::is_assignable<T, X &&>::value &&
+              !std::is_same<optional_base<T>, typename std::decay<X>::type>::value>::type>
+  optional_base& operator=(X&& value) {
+    if (initialized_) {
+      as_value() = std::forward<T>(value);
+    } else {
+      new (value_) T(std::forward<T>(value));
+      initialized_ = true;
+    }
+  }
+  template <typename X>
+  T value_or(X &&dflt) const {
+    if (initialized_) {
+      return as_const_value();
+    } else {
+      return static_cast<T>(std::forward<X>(dflt));
+    }
+  }
+};
+}  // namespace internal
+
+/** Class defining values with a separate validity check. */
+template <typename T>
+class T3_WIDGET_API optional
+    : public internal::optional_base<T>,
+      public internal::enable_copy_assign<
+          std::is_copy_constructible<T>::value, std::is_move_constructible<T>::value,
+          std::is_copy_assignable<T>::value, std::is_move_assignable<T>::value> {
+ public:
+  using internal::optional_base<T>::optional_base;
 };
 
-typedef optional<int> optint;
+using optint = optional<int>;
 /** Standard uninitialized @ref optint value. */
 T3_WIDGET_API extern const optint None;
 

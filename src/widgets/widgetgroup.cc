@@ -149,7 +149,7 @@ bool widget_group_t::set_size(optint height, optint width) {
     height = window.get_height();
   }
 
-  window.resize(height, width);
+  window.resize(height.value(), width.value());
   return true;
 }
 

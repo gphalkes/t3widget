@@ -139,7 +139,7 @@ void list_pane_t::set_position(optint top, optint left) {
   if (!left.is_valid()) {
     left = window.get_x();
   }
-  window.move(top, left);
+  window.move(top.value(), left.value());
 }
 
 bool list_pane_t::set_size(optint height, optint width) {
@@ -153,13 +153,13 @@ bool list_pane_t::set_size(optint height, optint width) {
     width = window.get_width();
   }
 
-  result = window.resize(height, width);
-  result &= impl->widgets_window.resize(impl->widgets_window.get_height(), width - 1);
+  result = window.resize(height.value(), width.value());
+  result &= impl->widgets_window.resize(impl->widgets_window.get_height(), width.value() - 1);
   if (impl->indicator) {
-    result &= impl->indicator_widget->set_size(None, width - 1);
+    result &= impl->indicator_widget->set_size(None, width.value() - 1);
   }
 
-  widget_width = impl->indicator ? width() - 3 : width() - 1;
+  widget_width = impl->indicator ? width.value() - 3 : width.value() - 1;
 
   for (widget_t *widget : impl->widgets) {
     result &= widget->set_size(None, widget_width);
@@ -448,7 +448,7 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
     return true;
   }
   redraw = true;
-  return window.resize(1, width);
+  return window.resize(1, width.value());
 }
 
 bool list_pane_t::indicator_widget_t::accepts_focus() { return false; }
