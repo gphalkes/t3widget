@@ -192,7 +192,7 @@ void file_dialog_t::ok_callback(const std::string &file) {
   }
 
   if (is_dir(&impl->current_dir, file.c_str()) || file.compare("..") == 0) {
-    change_dir(&file);
+    change_dir(file);
     impl->file_line->set_text("");
   } else {
     std::string full_name;
@@ -202,16 +202,16 @@ void file_dialog_t::ok_callback(const std::string &file) {
     }
     full_name += file;
     hide();
-    file_selected(&full_name);
+    file_selected(full_name);
   }
 }
 
-void file_dialog_t::change_dir(const std::string *dir) {
+void file_dialog_t::change_dir(const std::string &dir) {
   file_name_list_t new_names;
   std::string new_dir, file_string;
   int error;
 
-  if (dir->compare("..") == 0) {
+  if (dir.compare("..") == 0) {
     size_t idx = impl->current_dir.rfind('/');
 
     if (idx == std::string::npos || idx == impl->current_dir.size() - 1) {
@@ -223,14 +223,14 @@ void file_dialog_t::change_dir(const std::string *dir) {
       idx++;
     }
     new_dir = impl->current_dir.substr(0, idx);
-  } else if ((*dir)[0] == '/') {
-    new_dir = *dir;
+  } else if (dir[0] == '/') {
+    new_dir = dir;
   } else {
     new_dir = impl->current_dir;
     if (impl->current_dir.compare("/") != 0) {
       new_dir += "/";
     }
-    new_dir += *dir;
+    new_dir += dir;
   }
 
   sanitize_dir(&new_dir);
@@ -238,7 +238,7 @@ void file_dialog_t::change_dir(const std::string *dir) {
   /* Check whether we can load the dir. If not, show message and don't change state. */
   if ((error = new_names.load_directory(&new_dir)) != 0) {
     std::string message = _("Couldn't change to directory '");
-    message += dir->c_str();
+    message += dir.c_str();
     message += "': ";
     message += strerror(errno);
     message_dialog->set_message(message);
@@ -249,12 +249,12 @@ void file_dialog_t::change_dir(const std::string *dir) {
 
   impl->names = new_names;
   impl->current_dir = new_dir;
-  impl->view.set_filter(bind_front(glob_filter, get_filter(), impl->show_hidden_box->get_state()));
+  impl->view.set_filter(bind_front(glob_filter, &get_filter(), impl->show_hidden_box->get_state()));
   impl->file_pane->reset();
 }
 
 void file_dialog_t::refresh_view() {
-  convert_lang_codeset(get_filter(), &impl->lang_codeset_filter, false);
+  convert_lang_codeset(&get_filter(), &impl->lang_codeset_filter, false);
   if (impl->lang_codeset_filter.size() == 0) {
     impl->lang_codeset_filter = "*";
   }
@@ -301,7 +301,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
   insert_extras(impl->filter_line);
 }
 
-const std::string *open_file_dialog_t::get_filter() { return impl->filter_line->get_text(); }
+const std::string &open_file_dialog_t::get_filter() { return *impl->filter_line->get_text(); }
 
 bool open_file_dialog_t::set_size(optint height, optint width) {
   bool result = file_dialog_t::set_size(height, width);

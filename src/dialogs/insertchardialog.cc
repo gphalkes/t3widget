@@ -72,13 +72,13 @@ bool insert_char_dialog_t::set_size(optint height, optint width) {
 
 void insert_char_dialog_t::reset() { description_line->set_text(""); }
 
-key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
+key_t insert_char_dialog_t::interpret_key(const std::string &descr) {
   char codepoint[16];
   key_t result;
   int next;
 
-  if (sscanf(descr->c_str(), " %*[uU]+%6[0-9a-fA-F]%n", codepoint, &next) >= 1) {
-    if (descr->find_first_not_of(" \t", next) != std::string::npos) {
+  if (sscanf(descr.c_str(), " %*[uU]+%6[0-9a-fA-F]%n", codepoint, &next) >= 1) {
+    if (descr.find_first_not_of(" \t", next) != std::string::npos) {
       return -1;
     }
     result = static_cast<key_t>(strtol(codepoint, nullptr, 16));
@@ -86,8 +86,8 @@ key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
       return -1;
     }
     return result;
-  } else if (sscanf(descr->c_str(), " \\%15[^ ]%n", codepoint, &next) >= 1) {
-    if (descr->find_first_not_of(" \t", next) != std::string::npos) {
+  } else if (sscanf(descr.c_str(), " \\%15[^ ]%n", codepoint, &next) >= 1) {
+    if (descr.find_first_not_of(" \t", next) != std::string::npos) {
       return -1;
     }
 
@@ -107,7 +107,7 @@ key_t insert_char_dialog_t::interpret_key(const std::string *descr) {
 }
 
 void insert_char_dialog_t::ok_activate() {
-  key_t key = interpret_key(description_line->get_text());
+  key_t key = interpret_key(*description_line->get_text());
   if (key >= 0) {
     hide();
     lprintf("Inserting key: %d\n", key);

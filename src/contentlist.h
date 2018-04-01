@@ -226,12 +226,12 @@ class T3_WIDGET_API filtered_file_list_t : public filtered_list_t<file_list_t> {
 
 /** Filter function comparing the initial part of an entry with @p str. */
 /* This uses a pointer and not a reference for str, because it is intended to be used with
-   bind_front. The latter would make a copy of the string, which is not intended. */
+   bind_front. Using a reference would make a copy of the string, which is not intended. */
 T3_WIDGET_API bool string_compare_filter(const std::string *str, const string_list_base_t &list,
                                          size_t idx);
 /** Filter function using glob on the fs_name of a file entry. */
 /* This uses a pointer and not a reference for str, because it is intended to be used with
-   bind_front. The latter would make a copy of the string, which is not intended. */
+   bind_front. Using a reference would make a copy of the string, which is not intended. */
 T3_WIDGET_API bool glob_filter(const std::string *str, bool show_hidden,
                                const string_list_base_t &list, size_t idx);
 

@@ -52,17 +52,17 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   void insert_extras(widget_t *widget);
   void ok_callback();
   void ok_callback(const std::string &file);
-  virtual const std::string *get_filter() = 0;
+  virtual const std::string &get_filter() = 0;
 
  public:
   bool set_size(optint height, optint width) override;
-  void change_dir(const std::string *dir);
+  void change_dir(const std::string &dir);
   virtual int set_file(const char *file);
   void refresh_view();
   void set_options_widget(widget_t *options);
   virtual void reset();
 
-  T3_WIDGET_SIGNAL(file_selected, const std::string *);
+  T3_WIDGET_SIGNAL(file_selected, const std::string &);
 };
 
 class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
@@ -80,7 +80,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
   };
   std::unique_ptr<implementation_t> impl;
 
-  const std::string *get_filter() override;
+  const std::string &get_filter() override;
 
  public:
   open_file_dialog_t(int height, int width);
@@ -98,7 +98,7 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
   std::unique_ptr<implementation_t> impl;
 
  protected:
-  const std::string *get_filter() override { return &empty_filter; }
+  const std::string &get_filter() override { return empty_filter; }
 
  public:
   save_as_dialog_t(int height, int width);
