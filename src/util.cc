@@ -339,15 +339,15 @@ void sanitize_dir(std::string *directory) {
   }
 }
 
-bool is_dir(const std::string *current_dir, const char *name) {
+bool is_dir(string_view current_dir, string_view name) {
   struct stat file_info;
   std::string file;
 
   if (name[0] != '/') {
-    file += *current_dir;
+    file = as_string(current_dir);
     file += '/';
   }
-  file += name;
+  file.append(name.data(), name.size());
 
   if (stat(file.c_str(), &file_info) < 0) {
     // This would be weird, but still we have to do something
@@ -377,39 +377,31 @@ void lang_codeset_init(bool init) {
   }
 }
 
-void convert_lang_codeset(const char *str, size_t len, std::string *result, bool from) {
+std::string convert_lang_codeset(string_view str, bool from) {
+  if (!from && lang_codeset_is_utf8) {
+    return as_string(str);
+  }
+
+  std::string result;
   char output_buffer[1024], *output_buffer_ptr;
-  const char *str_ptr = str;
+  const char *str_ptr = str.data();
   transcript_error_t conversion_result;
   transcript_error_t (*convert)(transcript_t *, const char **, const char *, char **, const char *,
                                 int) = from ? transcript_to_unicode : transcript_from_unicode;
 
-  result->clear();
-  if (!from && lang_codeset_is_utf8) {
-    result->append(str, len);
-    return;
-  }
-
   while (true) {
     output_buffer_ptr = output_buffer;
 
-    conversion_result = convert(
-        lang_codeset_handle, &str_ptr, str + len, &output_buffer_ptr,
-        output_buffer + sizeof(output_buffer),
-        str_ptr == str ? TRANSCRIPT_FILE_START | TRANSCRIPT_END_OF_TEXT : TRANSCRIPT_END_OF_TEXT);
-    result->append(output_buffer, output_buffer_ptr - output_buffer);
+    conversion_result =
+        convert(lang_codeset_handle, &str_ptr, str.data() + str.size(), &output_buffer_ptr,
+                output_buffer + sizeof(output_buffer),
+                str_ptr == str.data() ? TRANSCRIPT_FILE_START | TRANSCRIPT_END_OF_TEXT
+                                      : TRANSCRIPT_END_OF_TEXT);
+    result.append(output_buffer, output_buffer_ptr - output_buffer);
     if (conversion_result != TRANSCRIPT_NO_SPACE) {
-      return;
+      return result;
     }
   }
-}
-
-void convert_lang_codeset(const char *str, std::string *result, bool from) {
-  convert_lang_codeset(str, strlen(str), result, from);
-}
-
-void convert_lang_codeset(const std::string *str, std::string *result, bool from) {
-  convert_lang_codeset(str->c_str(), str->size(), result, from);
 }
 
 int get_class(const std::string &str, int pos) {

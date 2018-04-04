@@ -162,7 +162,7 @@ int file_dialog_t::set_file(const char *file) {
     file_string = file;
   }
 
-  result = impl->names.load_directory(&impl->current_dir);
+  result = impl->names.load_directory(impl->current_dir);
 
   idx = file_string.rfind('/');
   if (idx != std::string::npos) {
@@ -181,8 +181,7 @@ void file_dialog_t::reset() {
 }
 
 void file_dialog_t::ok_callback() {
-  std::string pass_result;
-  convert_lang_codeset(impl->file_line->get_text(), &pass_result, false);
+  std::string pass_result = convert_lang_codeset(*impl->file_line->get_text(), false);
   ok_callback(pass_result);
 }
 
@@ -191,7 +190,7 @@ void file_dialog_t::ok_callback(const std::string &file) {
     return;
   }
 
-  if (is_dir(&impl->current_dir, file.c_str()) || file.compare("..") == 0) {
+  if (is_dir(impl->current_dir, file) || file.compare("..") == 0) {
     change_dir(file);
     impl->file_line->set_text("");
   } else {
@@ -236,7 +235,7 @@ void file_dialog_t::change_dir(const std::string &dir) {
   sanitize_dir(&new_dir);
 
   /* Check whether we can load the dir. If not, show message and don't change state. */
-  if ((error = new_names.load_directory(&new_dir)) != 0) {
+  if ((error = new_names.load_directory(new_dir)) != 0) {
     std::string message = _("Couldn't change to directory '");
     message += dir.c_str();
     message += "': ";
@@ -254,7 +253,7 @@ void file_dialog_t::change_dir(const std::string &dir) {
 }
 
 void file_dialog_t::refresh_view() {
-  convert_lang_codeset(&get_filter(), &impl->lang_codeset_filter, false);
+  impl->lang_codeset_filter = convert_lang_codeset(get_filter(), false);
   if (impl->lang_codeset_filter.size() == 0) {
     impl->lang_codeset_filter = "*";
   }

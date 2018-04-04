@@ -23,6 +23,7 @@
 #include <utility>
 
 #include <t3widget/signals.h>
+#include <t3widget/string_view.h>
 #include <t3widget/widget_api.h>
 
 namespace t3_widget {
@@ -169,11 +170,11 @@ class optional_base {
     }
     return *this;
   }
-  template <class X = T, typename = typename std::enable_if<
-              std::is_constructible<T, X &&>::value &&
-              std::is_assignable<T, X &&>::value &&
-              !std::is_same<optional_base<T>, typename std::decay<X>::type>::value>::type>
-  optional_base& operator=(X&& value) {
+  template <class X = T,
+            typename = typename std::enable_if<
+                std::is_constructible<T, X &&>::value && std::is_assignable<T, X &&>::value &&
+                !std::is_same<optional_base<T>, typename std::decay<X>::type>::value>::type>
+  optional_base &operator=(X &&value) {
     if (initialized_) {
       as_value() = std::forward<T>(value);
     } else {
@@ -305,17 +306,16 @@ T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 T3_WIDGET_API std::string get_working_directory();
 T3_WIDGET_API std::string get_directory(const char *directory);
 T3_WIDGET_API void sanitize_dir(std::string *directory);
-T3_WIDGET_API bool is_dir(const std::string *current_dir, const char *name);
+T3_WIDGET_API bool is_dir(string_view current_dir, string_view name);
 
-T3_WIDGET_API void convert_lang_codeset(const char *str, size_t len, std::string *result,
-                                        bool from);
-T3_WIDGET_API void convert_lang_codeset(const char *str, std::string *result, bool from);
-T3_WIDGET_API void convert_lang_codeset(const std::string *str, std::string *result, bool from);
+/** Utility function to convert a string to or from the LANG codeset. Does not return errors, but
+    simply provides the best possible conversion. */
+T3_WIDGET_API std::string convert_lang_codeset(string_view str, bool from);
 
 namespace internal {
-/* Template which forwards the type it is instantiated with. This prevents the type from
-   participating in type deduction, allowing multiple types in the template to use the same template
-   paramter, even though one is a base class of the other. */
+/** Template which forwards the type it is instantiated with. This prevents the type from
+    participating in type deduction, allowing multiple types in the template to use the same
+    template paramter, even though one is a base class of the other. */
 template <typename C>
 struct identity {
   typedef C type;

@@ -91,16 +91,16 @@ const std::string &file_name_list_t::get_fs_name(size_t idx) const { return file
 
 bool file_name_list_t::is_dir(size_t idx) const { return files[idx].is_dir; }
 
-int file_name_list_t::load_directory(std::string *dir_name) {
+int file_name_list_t::load_directory(const std::string &dir_name) {
   struct dirent *entry;
   DIR *dir;
 
   files.clear();
-  if (dir_name->compare("/") != 0) {
+  if (dir_name.compare("/") != 0) {
     files.push_back(file_name_entry_t("..", "..", true));
   }
 
-  if ((dir = opendir(dir_name->c_str())) == nullptr) {
+  if ((dir = opendir(dir_name.c_str())) == nullptr) {
     content_changed();
     return errno;
   }
@@ -108,13 +108,11 @@ int file_name_list_t::load_directory(std::string *dir_name) {
   // Make sure errno is clear on EOF
   errno = 0;
   while ((entry = readdir(dir)) != nullptr) {
-    std::string utf8_name;
-
     if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
       continue;
     }
 
-    convert_lang_codeset(entry->d_name, &utf8_name, true);
+    std::string utf8_name = convert_lang_codeset(entry->d_name, true);
     if (strcmp(entry->d_name, utf8_name.c_str()) == 0) {
       utf8_name.clear();
     }
@@ -158,7 +156,6 @@ bool glob_filter(const std::string *str, bool show_hidden, const string_list_bas
                  size_t idx) {
   const file_list_t *file_list = dynamic_cast<const file_list_t *>(&list);
   const std::string &item_name = list[idx];
-  std::string fs_name;
 
   if (item_name.compare("..") == 0) {
     return true;
@@ -173,7 +170,7 @@ bool glob_filter(const std::string *str, bool show_hidden, const string_list_bas
      collation which is too complicated to handle ourselves. So we convert the
      file names to the locale codeset, and use fnmatch on those. Note that the
      filter string passed to this function is already in the locale codeset. */
-  convert_lang_codeset(&item_name, &fs_name, false);
+  std::string fs_name = convert_lang_codeset(item_name, false);
   if ((file_list == nullptr || !file_list->is_dir(idx)) &&
       fnmatch(str->c_str(), fs_name.c_str(), 0) != 0) {
     return false;
