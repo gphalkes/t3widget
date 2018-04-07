@@ -242,51 +242,56 @@ struct T3_WIDGET_API text_coordinate_t {
     return _name.connect(_slot);                                         \
   }
 
-#define _T3_WIDGET_ENUM(_name, ...)                                            \
-  class T3_WIDGET_API _name {                                                  \
-   public:                                                                     \
-    enum _values { __VA_ARGS__ };                                              \
-    _name() {}                                                                 \
-    _name(_values _value_arg) : _value(_value_arg) {}                          \
-    _values operator=(_values _value_arg) {                                    \
-      _value = _value_arg;                                                     \
-      return _value;                                                           \
-    }                                                                          \
-    operator int(void) const { return (int)_value; }                           \
-    bool operator==(_values _value_arg) const { return _value == _value_arg; } \
-                                                                               \
-   private:                                                                    \
-    _values _value;                                                            \
-  }
+enum class selection_mode_t { NONE, SHIFT, MARK, ALL };
 
-_T3_WIDGET_ENUM(selection_mode_t, NONE, SHIFT, MARK, ALL);
+/* This uses a namespace like a type, to ensure that the flags don't end up in the default
+   namespace. As they are used as integer constants, it is not practical to use an enum class. */
+namespace find_flags_t {
+enum {
+  BACKWARD = (1 << 0),
+  ICASE = (1 << 1),
+  REGEX = (1 << 2),
+  WRAP = (1 << 3),
+  TRANSFROM_BACKSLASH = (1 << 4),
+  WHOLE_WORD = (1 << 5) | (1 << 6),
+  ANCHOR_WORD_LEFT = (1 << 5),
+  ANCHOR_WORD_RIGHT = (1 << 6),
+  VALID = (1 << 7),
+  REPLACEMENT_VALID = (1 << 8)
+};
+}  // namespace find_flags_t
 
-_T3_WIDGET_ENUM(find_flags_t, BACKWARD = (1 << 0), ICASE = (1 << 1), REGEX = (1 << 2),
-                WRAP = (1 << 3), TRANSFROM_BACKSLASH = (1 << 4), WHOLE_WORD = (1 << 5) | (1 << 6),
-                ANCHOR_WORD_LEFT = (1 << 5), ANCHOR_WORD_RIGHT = (1 << 6), VALID = (1 << 7),
-                REPLACEMENT_VALID = (1 << 8), );
-
-_T3_WIDGET_ENUM(find_action_t, FIND, SKIP, REPLACE, REPLACE_ALL, REPLACE_IN_SELECTION);
+enum class find_action_t { FIND, SKIP, REPLACE, REPLACE_ALL, REPLACE_IN_SELECTION };
 
 /** Constants for indicating which attribute to change/retrieve. */
-_T3_WIDGET_ENUM(attribute_t, NON_PRINT, TEXT_SELECTION_CURSOR, TEXT_SELECTION_CURSOR2, BAD_DRAW,
-                TEXT_CURSOR, TEXT, TEXT_SELECTED, HOTKEY_HIGHLIGHT, DIALOG, DIALOG_SELECTED,
-                BUTTON_SELECTED, SCROLLBAR, MENUBAR, MENUBAR_SELECTED, BACKGROUND, SHADOW,
-                META_TEXT);
-/** @var attribute_t::NON_PRINT
-    Attribute specifier for non-printable characters. */
-/** @var attribute_t::SELECTION_CURSOR
-    Attribute specifier for cursor when selecting text. */
-/** @var attribute_t::SELECTION_CURSOR2
-    Attribute specifier for cursor when selecting text in reverse direction. */
-/** @var attribute_t::BAD_DRAW
-    Attribute specifier for text which the terminal is not able to draw correctly. */
-// FIXME: list other attributes
+enum class attribute_t {
+  /** Attribute specifier for non-printable characters. */
+  NON_PRINT,
+  /** Attribute specifier for cursor when selecting text. */
+  TEXT_SELECTION_CURSOR,
+  /** Attribute specifier for cursor when selecting text in reverse direction. */
+  TEXT_SELECTION_CURSOR2,
+  /** Attribute specifier for text which the terminal is not able to draw correctly. */
+  BAD_DRAW,
+  // FIXME: document other attributes
+  TEXT_CURSOR,
+  TEXT,
+  TEXT_SELECTED,
+  HOTKEY_HIGHLIGHT,
+  DIALOG,
+  DIALOG_SELECTED,
+  BUTTON_SELECTED,
+  SCROLLBAR,
+  MENUBAR,
+  MENUBAR_SELECTED,
+  BACKGROUND,
+  SHADOW,
+  META_TEXT
+};
 
-_T3_WIDGET_ENUM(rewrap_type_t, REWRAP_ALL, REWRAP_LINE, REWRAP_LINE_LOCAL, INSERT_LINES,
-                DELETE_LINES);
+enum class rewrap_type_t { REWRAP_ALL, REWRAP_LINE, REWRAP_LINE_LOCAL, INSERT_LINES, DELETE_LINES };
 
-_T3_WIDGET_ENUM(wrap_type_t, NONE, WORD, CHARACTER);
+enum class wrap_type_t { NONE, WORD, CHARACTER };
 
 #undef _T3_WIDGET_ENUM
 
