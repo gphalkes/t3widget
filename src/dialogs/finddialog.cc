@@ -238,7 +238,7 @@ void find_dialog_t::find_activated(find_action_t action) {
   }
   hide();
   if (context != nullptr) {
-    activate(context, action);
+    impl->activate(context, action);
   }
 }
 
@@ -278,6 +278,11 @@ void find_dialog_t::set_state(int _state) {
   impl->reverse_direction_checkbox->set_state(impl->state & find_flags_t::BACKWARD);
 }
 
+connection_t find_dialog_t::connect_activate(
+    std::function<void(std::shared_ptr<finder_t>, find_action_t)> cb) {
+  return impl->activate.connect(cb);
+}
+
 //============= replace_buttons_dialog_t ===============
 
 replace_buttons_dialog_t::replace_buttons_dialog_t()
@@ -289,7 +294,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
   replace_all_button->set_position(1, 2);
   replace_all_button->connect_activate([this] { hide(); });
   replace_all_button->connect_activate(
-      bind_front(activate.get_trigger(), find_action_t::REPLACE_ALL));
+      bind_front(impl->activate.get_trigger(), find_action_t::REPLACE_ALL));
   replace_all_button->connect_move_focus_right([this] { focus_next(); });
 
   impl->replace_button = new button_t("_Replace");
@@ -298,7 +303,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
   impl->replace_button->set_position(0, 2);
   impl->replace_button->connect_activate([this] { hide(); });
   impl->replace_button->connect_activate(
-      bind_front(activate.get_trigger(), find_action_t::REPLACE));
+      bind_front(impl->activate.get_trigger(), find_action_t::REPLACE));
   impl->replace_button->connect_move_focus_left([this] { focus_previous(); });
   impl->replace_button->connect_move_focus_right([this] { focus_next(); });
 
@@ -307,7 +312,8 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
                                 T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->find_button->set_position(0, 2);
   impl->find_button->connect_activate([this] { hide(); });
-  impl->find_button->connect_activate(bind_front(activate.get_trigger(), find_action_t::SKIP));
+  impl->find_button->connect_activate(
+      bind_front(impl->activate.get_trigger(), find_action_t::SKIP));
   impl->find_button->connect_move_focus_left([this] { focus_previous(); });
   impl->find_button->connect_move_focus_right([this] { focus_next(); });
 
@@ -340,6 +346,10 @@ void replace_buttons_dialog_t::reshow(find_action_t button) {
     default:
       break;
   }
+}
+
+connection_t replace_buttons_dialog_t::connect_activate(std::function<void(find_action_t)> cb) {
+  return impl->activate.connect(cb);
 }
 
 }  // namespace

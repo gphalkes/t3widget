@@ -36,6 +36,8 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
     std::unique_ptr<expander_group_t> expander_group;
     expander_t *fg_expander, *bg_expander;
     t3_attr_t base_attributes;
+    signal_t<t3_attr_t> attribute_selected;
+    signal_t<> default_selected;
     implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
   };
   std::unique_ptr<implementation_t> impl;
@@ -60,8 +62,8 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
   */
   void set_base_attributes(t3_attr_t attr);
 
-  T3_WIDGET_SIGNAL(attribute_selected, t3_attr_t);
-  T3_WIDGET_SIGNAL(default_selected);
+  connection_t connect_attribute_selected(std::function<void(t3_attr_t)> cb);
+  connection_t connect_default_selected(std::function<void()> cb);
 };
 
 class T3_WIDGET_API attribute_test_line_t : public widget_t {

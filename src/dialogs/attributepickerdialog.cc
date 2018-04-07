@@ -162,7 +162,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
     default_button->set_anchor(cancel_button,
                                T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     default_button->set_position(0, -2);
-    default_button->connect_activate(default_selected.get_trigger());
+    default_button->connect_activate(impl->default_selected.get_trigger());
     default_button->connect_move_focus_left([this] { focus_previous(); });
     default_button->connect_move_focus_right([this] { focus_next(); });
     default_button->connect_move_focus_up([this] { focus_previous(); });
@@ -210,7 +210,7 @@ void attribute_picker_dialog_t::attribute_changed() {
   impl->test_line->set_attribute(t3_term_combine_attrs(get_attribute(), impl->base_attributes));
 }
 
-void attribute_picker_dialog_t::ok_activate() { attribute_selected(get_attribute()); }
+void attribute_picker_dialog_t::ok_activate() { impl->attribute_selected(get_attribute()); }
 
 void attribute_picker_dialog_t::group_expanded(bool state) {
   (void)state;
@@ -274,6 +274,15 @@ void attribute_picker_dialog_t::show() {
     impl->expander_group->collapse();
   }
   dialog_t::show();
+}
+
+connection_t attribute_picker_dialog_t::connect_attribute_selected(
+    std::function<void(t3_attr_t)> cb) {
+  return impl->attribute_selected.connect(cb);
+}
+
+connection_t attribute_picker_dialog_t::connect_default_selected(std::function<void()> cb) {
+  return impl->default_selected.connect(cb);
 }
 
 //================================================================================

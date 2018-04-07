@@ -47,6 +47,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
     connection_t
         content_changed_connection; /**< Connection to #file_list's content_changed signal. */
     std::unique_ptr<search_panel_t> search_panel;
+    signal_t<const std::string &> activate;
 
     implementation_t()
         : scrollbar(false),
@@ -102,7 +103,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   /** Set the current selected item to the named item. */
   void set_file(const std::string *name);
 
-  T3_WIDGET_SIGNAL(activate, const std::string &);
+  connection_t connect_activate(std::function<void(const std::string &)> cb);
 };
 
 class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {

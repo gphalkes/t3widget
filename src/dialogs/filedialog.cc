@@ -180,6 +180,10 @@ void file_dialog_t::reset() {
   impl->file_pane->reset();
 }
 
+connection_t file_dialog_t::connect_file_selected(std::function<void(const std::string &)> cb) {
+  return impl->file_selected.connect(cb);
+}
+
 void file_dialog_t::ok_callback() {
   std::string pass_result = convert_lang_codeset(*impl->file_line->get_text(), false);
   ok_callback(pass_result);
@@ -201,7 +205,7 @@ void file_dialog_t::ok_callback(const std::string &file) {
     }
     full_name += file;
     hide();
-    file_selected(full_name);
+    impl->file_selected(full_name);
   }
 }
 
@@ -268,7 +272,7 @@ void open_file_dialog_t::filter_text_field_t::set_focus(focus_t _focus) {
   bool old_focus = has_focus();
   text_field_t::set_focus(_focus);
   if (old_focus && !has_focus()) {
-    lose_focus();
+    lose_focus_();
   }
 }
 

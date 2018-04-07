@@ -44,6 +44,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   void deactivate_dialog(); /**< Remove this dialog from the dialog stack. Called from #hide. */
 
   bool active; /**< Boolean indicating whether this dialog is currently being shown on screen. */
+  signal_t<> closed; /**< Signal emitted when the dialog is closed by calling #close. */
 
   /** Default constructor, made private to avoid use. */
   dialog_t();
@@ -67,11 +68,8 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   void show() override;
   void hide() override;
 
-  /** @fn connection_t connect_closed(std::function<void()> func)
-      Connect a callback to the #closed signal.
-  */
-  /** Signal emitted when the dialog is closed by calling #close. */
-  T3_WIDGET_SIGNAL(closed);
+  /** Connect a callback to the #closed signal. */
+  connection_t connect_closed(std::function<void()> cb) { return closed.connect(cb); }
 };
 
 }  // namespace

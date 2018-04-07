@@ -40,6 +40,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
     smart_label_t *show_hidden_label;
     bool option_widget_set;
     connection_t cancel_button_up_connection, ok_button_up_connection;
+    signal_t<const std::string &> file_selected;
 
     implementation_t() : view(&names), option_widget_set(false) {}
   };
@@ -62,7 +63,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   void set_options_widget(widget_t *options);
   virtual void reset();
 
-  T3_WIDGET_SIGNAL(file_selected, const std::string &);
+  connection_t connect_file_selected(std::function<void(const std::string &)> cb);
 };
 
 class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
@@ -70,7 +71,10 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
   class T3_WIDGET_API filter_text_field_t : public text_field_t {
    public:
     void set_focus(focus_t _focus) override;
-    T3_WIDGET_SIGNAL(lose_focus);
+    connection_t connect_lose_focus(std::function<void()> cb) { return lose_focus_.connect(cb); }
+
+   private:
+    signal_t<> lose_focus_;
   };
 
   struct implementation_t {

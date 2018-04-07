@@ -135,7 +135,7 @@ bool file_pane_t::process_key(key_t key) {
       redraw = true;
       break;
     case EKEY_NL:
-      activate(impl->file_list->get_fs_name(impl->current));
+      impl->activate(impl->file_list->get_fs_name(impl->current));
       return true;
     default:
       if (key >= 32 && key < EKEY_FIRST_SPECIAL) {
@@ -280,7 +280,7 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
       return true;
     }
     if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
-      activate(impl->file_list->get_fs_name(impl->current));
+      impl->activate(impl->file_list->get_fs_name(impl->current));
     } else if (event.button_state & EMOUSE_BUTTON_LEFT) {
       impl->current = idx;
       if (impl->field != nullptr) {
@@ -572,6 +572,10 @@ bool file_pane_t::search_panel_t::process_mouse_event(mouse_event_t event) {
     return false;
   }
   return true;
+}
+
+connection_t file_pane_t::connect_activate(std::function<void(const std::string &)> cb) {
+  return impl->activate.connect(cb);
 }
 
 }  // namespace

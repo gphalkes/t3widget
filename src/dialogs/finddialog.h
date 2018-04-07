@@ -38,6 +38,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
     button_t *in_selection_button, *replace_all_button;
     connection_t find_button_up_connection;
     int state;  // State of all the checkboxes converted to FIND_* flags
+    signal_t<std::shared_ptr<finder_t>, find_action_t> activate;
   };
   std::unique_ptr<implementation_t> impl;
 
@@ -57,13 +58,14 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
   virtual void set_replace(bool _replace);
   virtual void set_state(int _state);
 
-  T3_WIDGET_SIGNAL(activate, std::shared_ptr<finder_t>, find_action_t);
+  connection_t connect_activate(std::function<void(std::shared_ptr<finder_t>, find_action_t)> cb);
 };
 
 class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
  private:
   struct implementation_t {
     button_t *find_button, *replace_button;
+    signal_t<find_action_t> activate;
   };
   std::unique_ptr<implementation_t> impl;
 
@@ -71,7 +73,7 @@ class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
   replace_buttons_dialog_t();
   virtual void reshow(find_action_t button);
 
-  T3_WIDGET_SIGNAL(activate, find_action_t);
+  connection_t connect_activate(std::function<void(find_action_t)> cb);
 };
 
 }  // namespace
