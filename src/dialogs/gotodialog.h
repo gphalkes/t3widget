@@ -21,16 +21,18 @@ namespace t3_widget {
 
 class T3_WIDGET_API goto_dialog_t : public dialog_t {
  private:
-  text_field_t *number_line;
+  struct T3_WIDGET_LOCAL implementation_t;
+  std::unique_ptr<implementation_t> impl;
 
   void ok_activate();
 
  public:
   goto_dialog_t();
+  ~goto_dialog_t() override;
   bool set_size(optint height, optint width) override;
   void reset();
 
-  T3_WIDGET_SIGNAL(activate, int);
+  connection_t connect_activate(std::function<void(int)> cb);
 };
 
 }  // namespace

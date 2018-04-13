@@ -22,6 +22,18 @@
 
 namespace t3_widget {
 
+struct attribute_picker_dialog_t::implementation_t {
+  checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
+  attribute_test_line_t *test_line;
+  color_picker_base_t *fg_picker, *bg_picker;
+  std::unique_ptr<expander_group_t> expander_group;
+  expander_t *fg_expander, *bg_expander;
+  t3_attr_t base_attributes;
+  signal_t<t3_attr_t> attribute_selected;
+  signal_t<> default_selected;
+  implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
+};
+
 attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool with_default)
     : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH, _title),
       impl(new implementation_t()) {
@@ -206,6 +218,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool wi
   push_back(cancel_button);
 }
 
+attribute_picker_dialog_t::~attribute_picker_dialog_t() {}
+
 void attribute_picker_dialog_t::attribute_changed() {
   impl->test_line->set_attribute(t3_term_combine_attrs(get_attribute(), impl->base_attributes));
 }
@@ -286,7 +300,13 @@ connection_t attribute_picker_dialog_t::connect_default_selected(std::function<v
 }
 
 //================================================================================
-attribute_test_line_t::attribute_test_line_t() : widget_t(1, 4, false), attr(0) {}
+struct attribute_test_line_t::implementation_t {
+  t3_attr_t attr = 0;
+};
+
+attribute_test_line_t::attribute_test_line_t()
+    : widget_t(1, 4, false), impl(new implementation_t) {}
+attribute_test_line_t::~attribute_test_line_t() {}
 
 bool attribute_test_line_t::process_key(key_t key) {
   (void)key;
@@ -303,7 +323,7 @@ void attribute_test_line_t::update_contents() {
   if (!redraw) {
     return;
   }
-  window.set_default_attrs(attr);
+  window.set_default_attrs(impl->attr);
   window.set_paint(0, 0);
   window.clrtoeol();
   window.set_paint(0, 0);
@@ -312,9 +332,9 @@ void attribute_test_line_t::update_contents() {
 
 bool attribute_test_line_t::accepts_focus() { return false; }
 
-void attribute_test_line_t::set_attribute(t3_attr_t _attr) {
+void attribute_test_line_t::set_attribute(t3_attr_t attr) {
   redraw = true;
-  attr = _attr;
+  impl->attr = attr;
 }
 
 }  // namespace

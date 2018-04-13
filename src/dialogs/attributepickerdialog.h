@@ -29,17 +29,7 @@ class T3_WIDGET_API attribute_test_line_t;
 
 class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
-    attribute_test_line_t *test_line;
-    color_picker_base_t *fg_picker, *bg_picker;
-    std::unique_ptr<expander_group_t> expander_group;
-    expander_t *fg_expander, *bg_expander;
-    t3_attr_t base_attributes;
-    signal_t<t3_attr_t> attribute_selected;
-    signal_t<> default_selected;
-    implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
-  };
+  struct T3_WIDGET_LOCAL implementation_t;
   std::unique_ptr<implementation_t> impl;
 
   void attribute_changed();
@@ -50,6 +40,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 
  public:
   attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
+  ~attribute_picker_dialog_t() override;
   void show() override;
 
   void set_attribute(t3_attr_t attr);
@@ -68,16 +59,18 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 
 class T3_WIDGET_API attribute_test_line_t : public widget_t {
  private:
-  t3_attr_t attr;
+  struct T3_WIDGET_LOCAL implementation_t;
+  std::unique_ptr<implementation_t> impl;
 
  public:
   attribute_test_line_t();
+  ~attribute_test_line_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;
   bool accepts_focus() override;
 
-  void set_attribute(t3_attr_t _attr);
+  void set_attribute(t3_attr_t attr);
 };
 
 }  // namespace
