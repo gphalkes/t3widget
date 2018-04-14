@@ -11,8 +11,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dialogbase.h"
+#include <algorithm>
+
 #include "colorscheme.h"
+#include "dialogbase.h"
 #include "dialogs/dialog.h"
 #include "dialogs/mainwindow.h"
 #include "internal.h"
@@ -212,6 +214,38 @@ void dialog_base_t::set_child_focus(window_component_t *target) {
       }
     }
   }
+}
+
+void dialog_base_t::set_redraw(bool _redraw) { redraw = _redraw; }
+bool dialog_base_t::get_redraw() const { return redraw; }
+
+void dialog_base_t::set_depth(int depth) {
+  window.set_depth(depth);
+  if (shadow_window != nullptr) {
+    shadow_window.set_depth(depth + 1);
+  }
+}
+
+widget_t *dialog_base_t::get_current_widget() { return *current_widget; }
+
+void dialog_base_t::focus_widget(size_t idx) {
+  (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+  idx = std::min(widgets.size() - 1, idx);
+  current_widget = widgets.begin() + idx;
+  (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+}
+
+bool dialog_base_t::focus_hotkey_widget(key_t key) {
+  for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+    if ((*iter)->accepts_focus() && (*iter)->is_hotkey(key)) {
+      (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+      current_widget = iter;
+      (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+      (*current_widget)->process_key(EKEY_HOTKEY);
+      return true;
+    }
+  }
+  return false;
 }
 
 bool dialog_base_t::is_child(window_component_t *widget) {

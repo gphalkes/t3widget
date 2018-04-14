@@ -23,14 +23,23 @@ dialogs_t dialog_t::active_dialogs;
 popup_t *dialog_t::active_popup;
 int dialog_t::dialog_depth;
 
-dialog_t::dialog_t(int height, int width, const char *_title)
-    : dialog_base_t(height, width, true), active(false), title(_title) {}
+struct dialog_t::implementation_t {
+  bool active =
+      false; /**< Boolean indicating whether this dialog is currently being shown on screen. */
+  signal_t<> closed;           /**< Signal emitted when the dialog is closed by calling #close. */
+  optional<std::string> title; /**< The title of this dialog. */
+
+  implementation_t(optional<std::string> title) : title(std::move(title)) {}
+};
+
+dialog_t::dialog_t(int height, int width, optional<std::string> title)
+    : dialog_base_t(height, width, true), impl(new implementation_t(std::move(title))) {}
 
 /** Create a new ::dialog_t.
 
     This constructor should only be called by ::main_window_base_t.
 */
-dialog_t::dialog_t() : active(false), title(nullptr) {}
+dialog_t::dialog_t() : impl(new implementation_t(nullopt)) {}
 
 void dialog_t::activate_dialog() {
   if (!active_dialogs.empty()) {
@@ -39,12 +48,12 @@ void dialog_t::activate_dialog() {
     }
 
     active_dialogs.back()->set_focus(window_component_t::FOCUS_OUT);
-    if (active) {
+    if (impl->active) {
       remove_element(active_dialogs, this);
     }
   }
 
-  active = true;
+  impl->active = true;
   set_focus(window_component_t::FOCUS_SET);
   dialog_depth -= 2;
   window.set_depth(dialog_depth);
@@ -58,7 +67,7 @@ void dialog_t::activate_dialog() {
 }
 
 void dialog_t::deactivate_dialog() {
-  this->active = false;
+  impl->active = false;
 
   if (active_popup != nullptr) {
     active_popup->hide();
@@ -74,6 +83,8 @@ void dialog_t::deactivate_dialog() {
 
   remove_element(active_dialogs, this);
 }
+
+dialog_t::~dialog_t() {}
 
 bool dialog_t::process_key(key_t key) {
   if (active_popup != nullptr) {
@@ -139,10 +150,10 @@ void dialog_t::update_contents() {
 
   dialog_base_t::update_contents();
 
-  if (redraw_title && title != nullptr) {
+  if (redraw_title && impl->title.is_valid()) {
     window.set_paint(0, 3);
     window.addstr(" ", 0);
-    window.addstr(title, 0);
+    window.addstr(impl->title.value().c_str(), 0);
     window.addstr(" ", 0);
   }
 }
@@ -159,7 +170,7 @@ void dialog_t::hide() {
 
 void dialog_t::close() {
   hide();
-  closed();
+  impl->closed();
 }
 
 bool dialog_t::is_child(window_component_t *widget) {
@@ -176,6 +187,8 @@ void dialog_t::set_child_focus(window_component_t *target) {
   }
   dialog_base_t::set_child_focus(target);
 }
+
+void dialog_t::set_title(std::string title) { impl->title = std::move(title); }
 
 void dialog_t::set_active_popup(popup_t *popup) {
   if (popup == active_popup) {
@@ -196,5 +209,7 @@ void dialog_t::update_dialogs() {
     active_popup->update_contents();
   }
 }
+
+connection_t dialog_t::connect_closed(std::function<void()> cb) { return impl->closed.connect(cb); }
 
 }  // namespace

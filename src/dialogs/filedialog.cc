@@ -28,8 +28,8 @@ static key_t nul = 0;
         - path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
         - optimize the case where filter is "*"
 */
-file_dialog_t::file_dialog_t(int height, int width, const char *_title)
-    : dialog_t(height, width, _title), impl(new implementation_t()) {
+file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title)
+    : dialog_t(height, width, std::move(_title)), impl(new implementation_t()) {
   smart_label_t *name_label;
 
   name_label = new smart_label_t("_Name", true);

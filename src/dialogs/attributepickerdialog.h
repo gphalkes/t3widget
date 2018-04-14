@@ -39,7 +39,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
   t3_attr_t get_attribute();
 
  public:
-  attribute_picker_dialog_t(const char *_title = "Attribute", bool with_default = true);
+  attribute_picker_dialog_t(optional<std::string> _title = "Attribute", bool with_default = true);
   ~attribute_picker_dialog_t() override;
   void show() override;
 

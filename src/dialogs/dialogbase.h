@@ -41,13 +41,14 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   /** Default constructor, made private to avoid use. */
   dialog_base_t();
 
+  bool redraw;                       /**< Boolean indicating whether redrawing is necessary. */
+  t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+
  protected:
-  /** List of widgets on this dialog. This list should only be filled using #push_back. */
-  widgets_t widgets;
   widgets_t::iterator
       current_widget; /**< Iterator indicating the widget that has the input focus. */
-  bool redraw;        /**< Boolean indicating whether redrawing is necessary. */
-  t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+  /** List of widgets on this dialog. This list should only be filled using #push_back. */
+  widgets_t widgets;
 
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
   dialog_base_t(int height, int width, bool has_shadow);
@@ -62,6 +63,12 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
 
   bool is_child(window_component_t *widget) override;
   void set_child_focus(window_component_t *target) override;
+  void set_redraw(bool _redraw);
+  bool get_redraw() const;
+  void set_depth(int depth);
+  widget_t *get_current_widget();
+  void focus_widget(size_t idx);
+  bool focus_hotkey_widget(key_t key);
 
  public:
   /** Destroy this dialog.

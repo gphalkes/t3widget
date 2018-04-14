@@ -27,7 +27,7 @@ namespace t3_widget {
 #define INSERT_CHAR_DIALOG_HEIGHT 4
 
 insert_char_dialog_t::insert_char_dialog_t()
-    : dialog_t(INSERT_CHAR_DIALOG_HEIGHT, INSERT_CHAR_DIALOG_WIDTH, "Insert Character") {
+    : dialog_t(INSERT_CHAR_DIALOG_HEIGHT, INSERT_CHAR_DIALOG_WIDTH, _("Insert Character")) {
   smart_label_t *description_label;
   button_t *ok_button, *cancel_button;
 

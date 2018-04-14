@@ -12,6 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+#include <limits>
 
 #include "dialogs/menupanel.h"
 #include "log.h"
@@ -22,7 +23,7 @@
 namespace t3_widget {
 
 menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar)
-    : dialog_t(3, 5, nullptr), impl(new implementation_t(name)) {
+    : dialog_t(3, 5, nullopt), impl(new implementation_t(name)) {
   impl->width = 5;
   impl->label_width = 1;
   impl->hotkey_width = 0;
@@ -50,15 +51,10 @@ bool menu_panel_t::process_key(key_t key) {
       focus_next();
       break;
     case EKEY_HOME:
-      (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-      current_widget = widgets.begin();
-      (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+      focus_widget(0);
       break;
     case EKEY_END:
-      (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-      current_widget = widgets.end();
-      current_widget--;
-      (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+      focus_widget(std::numeric_limits<size_t>::max());
       break;
     case '\t':
     case EKEY_SHIFT | '\t':
@@ -68,19 +64,10 @@ bool menu_panel_t::process_key(key_t key) {
       break;
     case EKEY_NL:
     case ' ':
-      (*current_widget)->process_key(key);
+      get_current_widget()->process_key(key);
       break;
     default:
-      for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-        if ((*iter)->accepts_focus() && (*iter)->is_hotkey(key)) {
-          (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-          current_widget = iter;
-          (*current_widget)->set_focus(window_component_t::FOCUS_SET);
-          (*current_widget)->process_key(EKEY_HOTKEY);
-          return true;
-        }
-      }
-      return false;
+      return focus_hotkey_widget(key);
   }
   return true;
 }
@@ -114,13 +101,11 @@ bool menu_panel_t::process_mouse_event(mouse_event_t event) {
       event.y > window.get_height() - 2) {
     return true;
   }
-  (*current_widget)->set_focus(FOCUS_OUT);
-  current_widget = widgets.begin() + (event.y - 1);
+  focus_widget(event.y - 1);
   event.type &= ~EMOUSE_OUTSIDE_GRAB;
   event.y = 0;
   event.x--;
-  (*current_widget)->set_focus(FOCUS_SET);
-  static_cast<menu_item_base_t *>(*current_widget)->process_mouse_event_from_menu(event);
+  static_cast<menu_item_base_t *>(get_current_widget())->process_mouse_event_from_menu(event);
   return true;
 }
 
@@ -190,6 +175,7 @@ menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, menu_it
       if (new_item == nullptr) {
         widgets.erase(iter);
       } else {
+        set_widget_parent(new_item);
         *iter = new_item;
       }
       goto resize_panel;

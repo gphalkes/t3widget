@@ -47,7 +47,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   std::unique_ptr<implementation_t> impl;
 
  protected:
-  file_dialog_t(int height, int width, const char *_title);
+  file_dialog_t(int height, int width, optional<std::string> _title);
 
   widget_t *get_anchor_widget();
   void insert_extras(widget_t *widget);

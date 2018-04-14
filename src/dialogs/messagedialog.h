@@ -38,7 +38,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
   T3_WIDGET_SIGNAL(activate_internal);
 
  public:
-  message_dialog_t(int width, const char *_title, ...);
+  message_dialog_t(int width, optional<std::string> _title, ...);
   ~message_dialog_t() override;
   void set_message(string_view message);
   void set_max_text_height(int max);

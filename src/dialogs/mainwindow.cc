@@ -44,7 +44,7 @@ void main_window_base_t::set_position(optint top, optint left) {
 }
 
 void main_window_base_t::update_contents() {
-  redraw = false;
+  set_redraw(false);
   dialog_t::update_contents();
 }
 

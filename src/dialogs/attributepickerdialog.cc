@@ -34,8 +34,10 @@ struct attribute_picker_dialog_t::implementation_t {
   implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
 };
 
-attribute_picker_dialog_t::attribute_picker_dialog_t(const char *_title, bool with_default)
-    : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH, _title),
+attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _title,
+                                                     bool with_default)
+    : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH,
+               std::move(_title)),
       impl(new implementation_t()) {
   smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
   frame_t *test_line_frame;

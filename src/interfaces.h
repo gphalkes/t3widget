@@ -189,5 +189,63 @@ class T3_WIDGET_API bad_draw_recheck_t {
   virtual void bad_draw_recheck() = 0;
 };
 
+/* Class which allows allocating all implementation objects in a single malloc call. Essentially,
+   it is a memory pool which is allocated with just enough space to hold all the implementation
+   objects. */
+class T3_WIDGET_API impl_allocator_t {
+ public:
+  impl_allocator_t(size_t size) {
+    fprintf(stderr, "Allocator called with %zd\n", size);
+    if (size > 0) {
+      space_.reset(reinterpret_cast<char *>(std::malloc(size)));
+      uint16_t remaining_space = size;
+      std::memcpy(space_.get(), &remaining_space, sizeof(remaining_space));
+    }
+  }
+
+  /** Returns a new T object allocated in the pool, with the arguments forwarded to the constructor.
+      The returned pointer should have its destructor called, but should never be deleted. The
+      destruction of the impl_allocator_t will free the memory. Hence, it is also important that the
+      destructors of all allocated objects are called before this object is destroyed. Typically,
+      this is used in combination with pimpl_t to hold the pointer. */
+  template <typename T, typename... Args>
+  T *new_impl(Args &&... args) {
+    const size_t align = alignof(T);
+    const size_t size = sizeof(T);
+    if (size == 0) {
+      return nullptr;
+    }
+
+    uint16_t remaining_space;
+    std::memcpy(&remaining_space, space_.get(), sizeof(remaining_space));
+
+    /* Using this computation can cause shifts of allocated memory compared to the intended
+       locations, if the value can be put in multiple locations. For example, when allocating a
+       4-byte int in a space that is 8 bytes large due to alignment requirements of the following
+       value, the int will be allocated immediately before the 8 byte value, rather than keeping a 4
+       byte padding. The padding will be inserted when allocating the next value. */
+    remaining_space = ((remaining_space - size) / align) * align;
+    if (remaining_space < 0) {
+      return nullptr;
+    }
+
+    char *result = space_.get() + remaining_space;
+    std::memcpy(space_.get(), &remaining_space, sizeof(remaining_space));
+    new (result) T(std::forward<Args>(args)...);
+    return reinterpret_cast<T *>(result);
+  }
+
+  /** Returns size of the malloc request needed to allocate T after an allocation of size @p req. */
+  template <typename T>
+  static size_t impl_alloc(size_t req) {
+    const size_t align = alignof(T);
+    const size_t size = sizeof(T);
+    return req > 0 ? ((req - 1) / align + 1) * align + size : size;
+  }
+
+ private:
+  std::unique_ptr<char, free_deleter> space_;
+};
+
 }  // namespace
 #endif

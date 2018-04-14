@@ -1840,7 +1840,7 @@ void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left
   }
 
   window.move(top, left);
-  redraw = true;
+  set_redraw(true);
 }
 
 bool edit_window_t::autocomplete_panel_t::set_size(optint height, optint width) {

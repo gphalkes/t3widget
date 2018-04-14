@@ -666,7 +666,7 @@ bool text_field_t::drop_down_list_t::set_size(optint height, optint width) {
 }
 
 void text_field_t::drop_down_list_t::update_contents() {
-  bool saved_redraw = redraw;
+  bool saved_redraw = get_redraw();
   int i, width;
 
   popup_t::update_contents();

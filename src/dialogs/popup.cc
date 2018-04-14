@@ -19,14 +19,11 @@ namespace t3_widget {
 /** Base class for dialogs. */
 popup_t::popup_t(int height, int width, bool shadow, bool _draw)
     : dialog_base_t(height, width, shadow), draw(_draw), shown(false) {
-  window.set_depth(INT_MIN);
-  if (shadow) {
-    shadow_window.set_depth(INT_MIN + 1);
-  }
+  set_depth(INT_MIN);
 }
 
 bool popup_t::process_key(key_t key) {
-  if ((*current_widget)->process_key(key)) {
+  if (get_current_widget()->process_key(key)) {
     return true;
   }
 
@@ -39,7 +36,7 @@ bool popup_t::process_key(key_t key) {
 
 void popup_t::update_contents() {
   if (!draw) {
-    redraw = false;
+    set_redraw(false);
   }
   dialog_base_t::update_contents();
 }
@@ -57,7 +54,7 @@ void popup_t::show() {
   dialog_t::set_active_popup(this);
   grab_mouse();
   set_focus(FOCUS_SET);
-  redraw = true;
+  set_redraw(true);
 }
 
 bool popup_t::process_mouse_event(mouse_event_t event) {

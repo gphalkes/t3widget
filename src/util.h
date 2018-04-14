@@ -208,6 +208,53 @@ using optint = optional<int>;
 /** Standard uninitialized @ref optint value. */
 T3_WIDGET_API extern const optint None;
 
+/* Wrapper class which prevents accessing members in the pointed-to object when the object itself
+   is const. This simulates the behavior of const pointers for objects like std::unique. Should be
+   compatible with the std::experimental::propagate_const class from library fundamentals TSv2,
+   although more limited in scope. */
+template <typename T>
+class propagate_const {
+ public:
+  using element_type = typename std::remove_reference<decltype(*std::declval<T &>())>::type;
+
+  propagate_const() = default;
+  propagate_const(propagate_const &&) = default;
+  template <typename U>
+  propagate_const(U &&u) : t_(std::forward<U>(u)) {}
+  propagate_const(const propagate_const &) = delete;
+
+  element_type *get() { t_.get(); }
+  const element_type *get() const { t_.get(); }
+  explicit operator bool() const { return static_cast<bool>(t_); }
+
+  element_type &operator*() { return *t_.get(); }
+  const element_type &operator*() const { return *t_.get(); }
+  element_type *operator->() { return t_.get(); }
+  const element_type *operator->() const { return t_.get(); }
+
+  operator element_type *() { return t_.get(); }
+  operator const element_type *() const { return t_.get(); }
+
+ private:
+  T t_;
+};
+
+/** Class to be used with unique_ptr etc. when only the destructor should be called, but no
+    deallocation should be performed. This is used by the single-alloc multi-pimpl design in this
+    library, where the implementations are allocated in a pool which is deallocated separately. */
+struct no_dealloc_deleter {
+  template <typename T>
+  void operator()(T *t) {
+    t->~T();
+  }
+};
+
+/** Template for holding a pointer to an implementation object. This is intended for use with the
+    impl_allocator_t, and only calls the destructor on the object it holds, but does not delete the
+    object. */
+template <typename T>
+using pimpl_t = propagate_const<const std::unique_ptr<T, no_dealloc_deleter>>;
+
 struct T3_WIDGET_API text_coordinate_t {
   text_coordinate_t() {}
   text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}

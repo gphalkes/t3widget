@@ -25,7 +25,7 @@ namespace t3_widget {
 // FIXME: keep (limited) history
 
 find_dialog_t::find_dialog_t(int _state)
-    : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIALOG_WIDTH, "Find"), impl(new implementation_t()) {
+    : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIALOG_WIDTH, _("Find")), impl(new implementation_t()) {
   smart_label_t *find_label, *whole_word_label, *match_case_label, *regex_label, *wrap_label,
       *transform_backslash_label, *reverse_direction_label;
   button_t *find_button, *cancel_button;
@@ -248,7 +248,7 @@ void find_dialog_t::set_replace(bool replace) {
   }
 
   if (replace) {
-    title = _("Replace");
+    set_title(_("Replace"));
     dialog_t::set_size(FIND_DIALOG_HEIGHT + 2, None);  // Also forces redraw
     impl->replace_label->show();
     impl->replace_line->show();
@@ -257,7 +257,7 @@ void find_dialog_t::set_replace(bool replace) {
     impl->in_selection_button->show();
     impl->find_button_up_connection.unblock();
   } else {
-    title = _("Find");
+    set_title(_("Find"));
     dialog_t::set_size(FIND_DIALOG_HEIGHT, None);  // Also forces redraw
     impl->replace_label->hide();
     impl->replace_line->hide();

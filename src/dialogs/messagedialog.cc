@@ -24,8 +24,8 @@ namespace t3_widget {
 
 message_dialog_t::implementation_t::implementation_t() : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
 
-message_dialog_t::message_dialog_t(int width, const char *_title, ...)
-    : dialog_t(5, width, _title), impl(new implementation_t()) {
+message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
+    : dialog_t(5, width, std::move(_title)), impl(new implementation_t()) {
   va_list ap;
   button_t *button;
   const char *button_name;
