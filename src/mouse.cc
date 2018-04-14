@@ -361,6 +361,9 @@ static bool process_gpm_event() {
     if (gpm_event.buttons & GPM_B_MIDDLE) {
       mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_MIDDLE;
     }
+  } else if (gpm_event.wdy != 0) {
+    mouse_event.type = EMOUSE_BUTTON_PRESS;
+    mouse_event.button_state |= gpm_event.wdy < 0 ? EMOUSE_SCROLL_DOWN : EMOUSE_SCROLL_UP;
   } else if (gpm_event.type & GPM_DRAG) {
     mouse_event.type = EMOUSE_MOTION;
   }
@@ -392,8 +395,8 @@ void init_mouse_reporting(bool xterm_mouse) {
 #if defined(HAS_GPM)
   {
     Gpm_Connect connect;
-    connect.eventMask = GPM_DOWN | GPM_UP | GPM_DRAG;
-    connect.defaultMask = GPM_MOVE;
+    connect.eventMask = GPM_DOWN | GPM_UP | GPM_DRAG | GPM_MOVE;
+    connect.defaultMask = GPM_HARD | GPM_MOVE;
     connect.minMod = 0;
     connect.maxMod = ~0;
 
