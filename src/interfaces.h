@@ -195,7 +195,6 @@ class T3_WIDGET_API bad_draw_recheck_t {
 class T3_WIDGET_API impl_allocator_t {
  public:
   impl_allocator_t(size_t size) {
-    fprintf(stderr, "Allocator called with %zd\n", size);
     if (size > 0) {
       space_.reset(reinterpret_cast<char *>(std::malloc(size)));
       uint16_t remaining_space = size;

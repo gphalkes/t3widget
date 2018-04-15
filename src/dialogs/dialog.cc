@@ -32,8 +32,9 @@ struct dialog_t::implementation_t {
   implementation_t(optional<std::string> title) : title(std::move(title)) {}
 };
 
-dialog_t::dialog_t(int height, int width, optional<std::string> title)
-    : dialog_base_t(height, width, true), impl(new implementation_t(std::move(title))) {}
+dialog_t::dialog_t(int height, int width, optional<std::string> title, size_t impl_size)
+    : dialog_base_t(height, width, true, impl_alloc<implementation_t>(impl_size)),
+      impl(new_impl<implementation_t>(std::move(title))) {}
 
 /** Create a new ::dialog_t.
 

@@ -40,7 +40,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   static void update_dialogs();
 
   struct T3_WIDGET_LOCAL implementation_t;
-  propagate_const<const std::unique_ptr<implementation_t>> impl;
+  pimpl_t<implementation_t> impl;
 
   void activate_dialog(); /**< Move this dialog up to the top of the dialog and window stack. Called
                              from #show. */
@@ -51,7 +51,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
 
  protected:
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
-  dialog_t(int height, int width, optional<std::string> title);
+  dialog_t(int height, int width, optional<std::string> title, size_t impl_size = 0);
   /** Close the dialog.
       This function should be called when the dialog is closed by some
       event originating from this dialog. */
