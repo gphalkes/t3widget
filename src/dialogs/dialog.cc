@@ -57,8 +57,8 @@ void dialog_t::activate_dialog() {
   set_focus(window_component_t::FOCUS_SET);
   dialog_depth -= 2;
   window.set_depth(dialog_depth);
-  if (shadow_window != nullptr) {
-    shadow_window.set_depth(dialog_depth + 1);
+  if (shadow_window() != nullptr) {
+    shadow_window().set_depth(dialog_depth + 1);
   }
   active_dialogs.push_back(this);
   if (active_popup != nullptr) {
@@ -94,38 +94,12 @@ bool dialog_t::process_key(key_t key) {
   }
 
   if ((key & EKEY_META) || key == EKEY_F10) {
-    for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-      widget_container_t *widget_container;
-      widget_t *hotkey_target;
-
-      if (!(*iter)->is_enabled() || !(*iter)->is_shown()) {
-        continue;
-      }
-
-      if ((*iter)->is_hotkey(key & ~EKEY_META)) {
-        if ((*iter)->accepts_focus()) {
-          (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-          current_widget = iter;
-          (*current_widget)->set_focus(window_component_t::FOCUS_SET);
-        }
-        if ((*iter)->process_key(EKEY_HOTKEY)) {
-          return true;
-        }
-      } else if ((widget_container = dynamic_cast<widget_container_t *>(*iter)) != nullptr &&
-                 (hotkey_target = widget_container->is_child_hotkey(key)) != nullptr) {
-        if (hotkey_target->accepts_focus()) {
-          (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-          current_widget = iter;
-          widget_container->set_child_focus(hotkey_target);
-        }
-        if ((*iter)->process_key(EKEY_HOTKEY)) {
-          return true;
-        }
-      }
+    if (focus_hotkey_widget(key)) {
+      return true;
     }
   }
 
-  if ((*current_widget)->process_key(key)) {
+  if (get_current_widget()->process_key(key)) {
     return true;
   }
 
@@ -146,7 +120,7 @@ bool dialog_t::process_key(key_t key) {
 }
 
 void dialog_t::update_contents() {
-  bool redraw_title = redraw;
+  bool redraw_title = get_redraw();
 
   dialog_base_t::update_contents();
 

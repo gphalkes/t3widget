@@ -81,7 +81,7 @@ bool menu_panel_t::set_size(optint height, optint _width) {
   bool result;
   int i;
   (void)_width;
-  for (iter = widgets.begin(), i = 0; iter != widgets.end(); iter++, i++) {
+  for (iter = widgets().begin(), i = 0; iter != widgets().end(); iter++, i++) {
     (*iter)->set_size(None, impl->width - 2);
   }
 
@@ -138,21 +138,21 @@ menu_item_base_t *menu_panel_t::add_item(const char *_label, const char *hotkey,
 
 menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
   push_back(item);
-  item->set_position(widgets.size(), None);
+  item->set_position(widgets().size(), None);
 
   impl->hotkey_width = std::max(impl->hotkey_width, item->get_hotkey_width());
   impl->label_width = std::max(impl->label_width, item->get_label_width());
   if (impl->hotkey_width + impl->label_width > impl->width - 2) {
     impl->width = impl->hotkey_width + impl->label_width + 2;
   }
-  set_size(widgets.size() + 2, impl->width);
+  set_size(widgets().size() + 2, impl->width);
   return item;
 }
 
 menu_item_base_t *menu_panel_t::add_separator() {
   menu_separator_t *sep = new menu_separator_t(this);
   push_back(sep);
-  sep->set_position(widgets.size(), None);
+  sep->set_position(widgets().size(), None);
   return sep;
 }
 
@@ -169,11 +169,11 @@ menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, menu_it
   menu_item_t *label_item;
   int i;
 
-  for (iter = widgets.begin(); iter != widgets.end(); iter++) {
+  for (iter = widgets().begin(); iter != widgets().end(); iter++) {
     if ((*iter) == old_item) {
       unset_widget_parent(old_item);
       if (new_item == nullptr) {
-        widgets.erase(iter);
+        widgets().erase(iter);
       } else {
         set_widget_parent(new_item);
         *iter = new_item;
@@ -188,7 +188,7 @@ resize_panel:
   impl->width = 5;
   impl->label_width = 1;
   impl->hotkey_width = 0;
-  for (iter = widgets.begin(), i = 1; iter != widgets.end(); iter++, i++) {
+  for (iter = widgets().begin(), i = 1; iter != widgets().end(); iter++, i++) {
     (*iter)->set_position(i, None);
     label_item = dynamic_cast<menu_item_t *>(*iter);
     if (label_item != nullptr) {
@@ -199,7 +199,7 @@ resize_panel:
       impl->width = impl->hotkey_width + impl->label_width + 2;
     }
   }
-  set_size(widgets.size() + 2, impl->width);
+  set_size(widgets().size() + 2, impl->width);
   return new_item;
 }
 

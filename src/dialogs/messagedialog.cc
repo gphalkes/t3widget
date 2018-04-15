@@ -42,6 +42,7 @@ message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
   push_back(impl->text_window);
 
   va_start(ap, _title);
+  auto &widgets = dialog_t::widgets();
   while ((button_name = va_arg(ap, const char *)) != nullptr) {
     if (widgets.size() == 1) {
       button = new button_t(button_name, true);
@@ -115,13 +116,13 @@ bool message_dialog_t::process_key(key_t key) {
 }
 
 connection_t message_dialog_t::connect_activate(std::function<void()> _slot, size_t idx) {
-  if (idx > widgets.size() - 1) {
+  if (idx > widgets().size() - 1) {
     return connection_t();
   }
   if (idx == 0) {
     return activate_internal.connect(_slot);
   }
-  return static_cast<button_t *>(widgets[idx + 1])->connect_activate(_slot);
+  return static_cast<button_t *>(widgets()[idx + 1])->connect_activate(_slot);
 }
 
 void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = max; }

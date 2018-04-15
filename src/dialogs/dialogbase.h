@@ -26,7 +26,9 @@ class dialog_base_t;
 typedef std::list<dialog_base_t *> dialog_base_list_t;
 class dialog_t;
 
-class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public container_t {
+class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
+                                    public container_t,
+                                    public impl_allocator_t {
  private:
   friend class dialog_t;
 
@@ -38,20 +40,17 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   /** Dummy value to allow static connection_t of the @c on_init signal to #init. */
   static connection_t init_connected;
 
-  /** Default constructor, made private to avoid use. */
-  dialog_base_t();
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
-  bool redraw;                       /**< Boolean indicating whether redrawing is necessary. */
-  t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+  /** Default constructor, made private to avoid use. */
+  dialog_base_t(size_t impl_size = 0);
+
+  t3_window::window_t &shadow_window();
 
  protected:
-  widgets_t::iterator
-      current_widget; /**< Iterator indicating the widget that has the input focus. */
-  /** List of widgets on this dialog. This list should only be filled using #push_back. */
-  widgets_t widgets;
-
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
-  dialog_base_t(int height, int width, bool has_shadow);
+  dialog_base_t(int height, int width, bool has_shadow, size_t impl_size = 0);
   /** Focus the previous widget, wrapping around if necessary. */
   void focus_next();
   /** Focus the next widget, wrapping around if necessary. */
@@ -69,6 +68,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t, public co
   widget_t *get_current_widget();
   void focus_widget(size_t idx);
   bool focus_hotkey_widget(key_t key);
+  widgets_t &widgets();
 
  public:
   /** Destroy this dialog.

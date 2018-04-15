@@ -101,7 +101,9 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
 
 widget_t *file_dialog_t::get_anchor_widget() { return impl->show_hidden_label; }
 
-void file_dialog_t::insert_extras(widget_t *widget) { widgets.insert(widgets.end() - 2, widget); }
+void file_dialog_t::insert_extras(widget_t *widget) {
+  widgets().insert(widgets().end() - 2, widget);
+}
 
 void file_dialog_t::set_options_widget(widget_t *options) {
   focus_widget_t *focus_widget;
@@ -127,7 +129,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
   impl->ok_button_up_connection.disconnect();
   impl->ok_button->connect_move_focus_up([this] { focus_previous(); });
   impl->show_hidden_box->connect_move_focus_down([this] { set_child_focus(impl->ok_button); });
-  dynamic_cast<focus_widget_t *>(*(widgets.end() - 4))->connect_move_focus_down([this] {
+  dynamic_cast<focus_widget_t *>(*(widgets().end() - 4))->connect_move_focus_down([this] {
     set_child_focus(impl->ok_button);
   });
 
