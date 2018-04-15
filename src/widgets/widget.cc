@@ -23,7 +23,7 @@ namespace t3_widget {
 */
 t3_window::window_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
 
-bool widget_t::is_hotkey(key_t key) {
+bool widget_t::is_hotkey(key_t key) const {
   (void)key;
   return false;
 }

@@ -131,7 +131,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
       function will report the result of smart_label_t::is_hotkey.
   */
   void set_label(smart_label_t *_label);
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
 
   void bad_draw_recheck() override;
   bool process_mouse_event(mouse_event_t event) override;

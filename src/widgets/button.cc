@@ -110,6 +110,6 @@ bool button_t::process_mouse_event(mouse_event_t event) {
 
 int button_t::get_width() { return window.get_width(); }
 
-bool button_t::is_hotkey(key_t key) { return text->is_hotkey(key); }
+bool button_t::is_hotkey(key_t key) const { return text->is_hotkey(key); }
 
 }  // namespace

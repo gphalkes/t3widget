@@ -86,7 +86,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   void set_focus(focus_t focus) override;
   void show() override;
   void hide() override;
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
   bool accepts_focus() override;
   bool process_mouse_event(mouse_event_t event) override;
   /** Add a menu to the menu bar.

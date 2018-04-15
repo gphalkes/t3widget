@@ -18,6 +18,7 @@
 
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/interfaces.h>
+#include <t3widget/util.h>
 #include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/colorpicker.h>
 #include <t3widget/widgets/expander.h>
@@ -30,7 +31,7 @@ class T3_WIDGET_API attribute_test_line_t;
 class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  std::unique_ptr<implementation_t> impl;
+  pimpl_t<implementation_t> impl;
 
   void attribute_changed();
   void ok_activate();

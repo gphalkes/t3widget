@@ -29,6 +29,8 @@ namespace t3_widget {
 */
 class T3_WIDGET_API main_window_base_t : public dialog_t {
  private:
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
   /** Resize the main_window_base_t.
       Called from the @c resize signal.
   */
@@ -40,6 +42,7 @@ class T3_WIDGET_API main_window_base_t : public dialog_t {
   void close() override;
 
  public:
+  ~main_window_base_t() override;
   void update_contents() override;
   bool set_size(optint height, optint width) override;
   void set_position(optint top, optint left) override;

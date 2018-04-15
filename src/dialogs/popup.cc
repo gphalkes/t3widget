@@ -16,11 +16,21 @@
 
 namespace t3_widget {
 
+struct popup_t::implementation_t {
+  bool draw;
+  bool shown = false;
+
+  implementation_t(bool _draw) : draw(_draw) {}
+};
+
 /** Base class for dialogs. */
 popup_t::popup_t(int height, int width, bool shadow, bool _draw)
-    : dialog_base_t(height, width, shadow), draw(_draw), shown(false) {
+    : dialog_base_t(height, width, shadow, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(_draw)) {
   set_depth(INT_MIN);
 }
+
+popup_t::~popup_t() {}
 
 bool popup_t::process_key(key_t key) {
   if (get_current_widget()->process_key(key)) {
@@ -35,21 +45,21 @@ bool popup_t::process_key(key_t key) {
 }
 
 void popup_t::update_contents() {
-  if (!draw) {
+  if (!impl->draw) {
     set_redraw(false);
   }
   dialog_base_t::update_contents();
 }
 
 void popup_t::hide() {
-  shown = false;
+  impl->shown = false;
   dialog_base_t::hide();
   dialog_t::set_active_popup(nullptr);
   release_mouse_grab();
 }
 
 void popup_t::show() {
-  shown = true;
+  impl->shown = true;
   dialog_base_t::show();
   dialog_t::set_active_popup(this);
   grab_mouse();
@@ -65,6 +75,6 @@ bool popup_t::process_mouse_event(mouse_event_t event) {
   return true;
 }
 
-bool popup_t::is_shown() { return shown; }
+bool popup_t::is_shown() { return impl->shown; }
 
 }  // namespace

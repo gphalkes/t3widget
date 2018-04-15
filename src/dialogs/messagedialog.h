@@ -25,13 +25,8 @@ class text_line_t;
 
 class T3_WIDGET_API message_dialog_t : public dialog_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    text_window_t *text_window;
-    int height, max_text_height;
-
-    implementation_t();
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   bool process_key(key_t key) override;
 

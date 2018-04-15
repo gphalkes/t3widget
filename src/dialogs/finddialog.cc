@@ -22,6 +22,17 @@ namespace t3_widget {
 #define FIND_DIALOG_WIDTH 50
 #define FIND_DIALOG_HEIGHT 10
 
+struct find_dialog_t::implementation_t {
+  smart_label_t *replace_label;
+  text_field_t *find_line, *replace_line;
+  checkbox_t *whole_word_checkbox, *match_case_checkbox, *regex_checkbox, *wrap_checkbox,
+      *transform_backslash_checkbox, *reverse_direction_checkbox;
+  button_t *in_selection_button, *replace_all_button;
+  connection_t find_button_up_connection;
+  int state;  // State of all the checkboxes converted to FIND_* flags
+  signal_t<std::shared_ptr<finder_t>, find_action_t> activate;
+};
+
 // FIXME: keep (limited) history
 
 find_dialog_t::find_dialog_t(int _state)
@@ -197,6 +208,8 @@ find_dialog_t::find_dialog_t(int _state)
 
   find_dialog_t::set_state(_state);
 }
+
+find_dialog_t::~find_dialog_t() {}
 
 bool find_dialog_t::set_size(optint height, optint width) {
   (void)height;

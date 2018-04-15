@@ -90,7 +90,9 @@ void checkbox_t::set_label(smart_label_t *_label) {
   register_mouse_target(label->get_base_window());
 }
 
-bool checkbox_t::is_hotkey(key_t key) { return label == nullptr ? false : label->is_hotkey(key); }
+bool checkbox_t::is_hotkey(key_t key) const {
+  return label == nullptr ? false : label->is_hotkey(key);
+}
 
 void checkbox_t::set_enabled(bool enable) {
   enabled = enable;

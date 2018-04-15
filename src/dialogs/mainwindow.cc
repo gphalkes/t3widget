@@ -16,6 +16,11 @@
 
 namespace t3_widget {
 
+/* The implementation struct currently is empty, so we don't even allocated it. But the pointer to
+   it has been reserved in the class, such that if a new member is needed we can allocate it in the
+   implementation without changing anything about the interface. */
+struct main_window_base_t::implementation_t {};
+
 main_window_base_t::main_window_base_t() : dialog_t() {
   int height, width;
   t3_term_get_size(&height, &width);
@@ -31,6 +36,8 @@ main_window_base_t::main_window_base_t() : dialog_t() {
   window.show();
   connect_resize(bind_front(&main_window_base_t::set_size_real, this));
 }
+
+main_window_base_t::~main_window_base_t() {}
 
 bool main_window_base_t::set_size(optint height, optint width) {
   (void)height;

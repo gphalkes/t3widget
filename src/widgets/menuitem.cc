@@ -83,7 +83,7 @@ void menu_item_t::set_focus(focus_t focus) {
 void menu_item_t::show() {}
 void menu_item_t::hide() {}
 
-bool menu_item_t::is_hotkey(key_t key) { return label->is_hotkey(key); }
+bool menu_item_t::is_hotkey(key_t key) const { return label->is_hotkey(key); }
 
 void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
   if (event.type == EMOUSE_BUTTON_RELEASE &&

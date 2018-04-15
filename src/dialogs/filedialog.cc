@@ -24,12 +24,32 @@ namespace t3_widget {
 
 static key_t nul = 0;
 
+struct file_dialog_t::implementation_t {
+  file_name_list_t names;
+  filtered_file_list_t view;
+  std::string current_dir, lang_codeset_filter;
+
+  int name_offset;
+
+  file_pane_t *file_pane;
+  frame_t *file_pane_frame;
+  text_field_t *file_line;
+  button_t *cancel_button, *ok_button;
+  checkbox_t *show_hidden_box;
+  smart_label_t *show_hidden_label;
+  bool option_widget_set;
+  connection_t cancel_button_up_connection, ok_button_up_connection;
+  signal_t<const std::string &> file_selected;
+
+  implementation_t() : view(&names), option_widget_set(false) {}
+};
 /* FIXME: TODO:
         - path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
         - optimize the case where filter is "*"
 */
 file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title)
-    : dialog_t(height, width, std::move(_title)), impl(new implementation_t()) {
+    : dialog_t(height, width, std::move(_title), impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   smart_label_t *name_label;
 
   name_label = new smart_label_t("_Name", true);
@@ -305,6 +325,8 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
   insert_extras(impl->filter_label);
   insert_extras(impl->filter_line);
 }
+
+file_dialog_t::~file_dialog_t() {}
 
 const std::string &open_file_dialog_t::get_filter() { return *impl->filter_line->get_text(); }
 

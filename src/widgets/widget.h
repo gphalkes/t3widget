@@ -50,7 +50,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
 
  public:
   /** Query whether key is a hotkey for this widget. */
-  virtual bool is_hotkey(key_t key);
+  virtual bool is_hotkey(key_t key) const;
   /** Query whether this widget accepts focus. */
   virtual bool accepts_focus();
   void set_position(optint top, optint left) override;

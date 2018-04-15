@@ -171,7 +171,7 @@ void menu_bar_t::hide() {
   widget_t::hide();
 }
 
-bool menu_bar_t::is_hotkey(key_t key) {
+bool menu_bar_t::is_hotkey(key_t key) const {
   if (key == EKEY_F10 || key == '0') {
     impl->old_menu = impl->current_menu = 0;
     return true;

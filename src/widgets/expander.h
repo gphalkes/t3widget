@@ -67,7 +67,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   void update_contents() override;
   void set_focus(focus_t _focus) override;
   bool set_size(optint height, optint width) override;
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
   void set_enabled(bool enable) override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;

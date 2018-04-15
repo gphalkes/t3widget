@@ -27,18 +27,12 @@ namespace t3_widget {
 
 class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    std::unique_ptr<text_buffer_t> text;
-    frame_t *text_frame, *label_frame;
-    text_window_t *text_window;
-    label_t *key_label;
-    checkbox_t *enable_simulate_box, *disable_timeout_box;
-    int old_timeout;
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   input_selection_dialog_t(int height, int width, text_buffer_t *_text = nullptr);
+  ~input_selection_dialog_t() override;
   bool set_size(optint height, optint width) override;
   bool process_key(key_t key) override;
   void show() override;

@@ -22,10 +22,16 @@
 
 namespace t3_widget {
 
-message_dialog_t::implementation_t::implementation_t() : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
+struct message_dialog_t::implementation_t {
+  text_window_t *text_window;
+  int height, max_text_height;
+
+  implementation_t() : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
+};
 
 message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
-    : dialog_t(5, width, std::move(_title)), impl(new implementation_t()) {
+    : dialog_t(5, width, std::move(_title), impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   va_list ap;
   button_t *button;
   const char *button_name;

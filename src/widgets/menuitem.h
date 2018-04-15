@@ -52,7 +52,7 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
   void set_focus(focus_t focus) override;
   void show() override;
   void hide() override;
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
   int get_label_width();
   int get_hotkey_width();
 };

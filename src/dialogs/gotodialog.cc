@@ -29,7 +29,8 @@ struct goto_dialog_t::implementation_t {
 };
 
 goto_dialog_t::goto_dialog_t()
-    : dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, "Goto Line"), impl(new implementation_t) {
+    : dialog_t(GOTO_DIALOG_HEIGHT, GOTO_DIALOG_WIDTH, "Goto Line", impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   smart_label_t *number_label;
   button_t *ok_button, *cancel_button;
 

@@ -25,26 +25,8 @@ namespace t3_widget {
 
 class T3_WIDGET_API file_dialog_t : public dialog_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    file_name_list_t names;
-    filtered_file_list_t view;
-    std::string current_dir, lang_codeset_filter;
-
-    int name_offset;
-
-    file_pane_t *file_pane;
-    frame_t *file_pane_frame;
-    text_field_t *file_line;
-    button_t *cancel_button, *ok_button;
-    checkbox_t *show_hidden_box;
-    smart_label_t *show_hidden_label;
-    bool option_widget_set;
-    connection_t cancel_button_up_connection, ok_button_up_connection;
-    signal_t<const std::string &> file_selected;
-
-    implementation_t() : view(&names), option_widget_set(false) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  protected:
   file_dialog_t(int height, int width, optional<std::string> _title);
@@ -56,6 +38,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   virtual const std::string &get_filter() = 0;
 
  public:
+  ~file_dialog_t() override;
   bool set_size(optint height, optint width) override;
   void change_dir(const std::string &dir);
   virtual int set_file(const char *file);

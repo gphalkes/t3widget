@@ -22,11 +22,13 @@ namespace t3_widget {
 
 class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
  private:
-  text_field_t *description_line;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
   key_t interpret_key(const std::string &descr);
 
  public:
   insert_char_dialog_t();
+  ~insert_char_dialog_t() override;
   bool set_size(optint height, optint width) override;
   void reset();
 

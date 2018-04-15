@@ -50,7 +50,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
   bool set_size(optint height, optint width) override;
   void update_contents() override;
   void set_focus(focus_t focus) override;
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
 
   bool process_mouse_event(mouse_event_t event) override;
   /** Retrieve this button_t's width. */

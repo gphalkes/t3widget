@@ -58,7 +58,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   void set_focus(focus_t focus) override;
   bool set_size(optint height, optint width) override;
   bool accepts_focus() override;
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
   void set_enabled(bool enable) override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;

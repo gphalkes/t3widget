@@ -23,13 +23,14 @@ class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
  private:
   friend class dialog_t;
 
-  bool draw;
-  bool shown;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  protected:
   popup_t(int height, int width, bool shadow = true, bool _draw = true);
 
  public:
+  ~popup_t() override;
   bool process_key(key_t key) override;
   void update_contents() override;
   void show() override;

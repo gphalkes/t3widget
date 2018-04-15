@@ -36,9 +36,9 @@ struct attribute_picker_dialog_t::implementation_t {
 
 attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _title,
                                                      bool with_default)
-    : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH,
-               std::move(_title)),
-      impl(new implementation_t()) {
+    : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH, std::move(_title),
+               impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
   frame_t *test_line_frame;
   button_t *ok_button, *cancel_button, *default_button = nullptr;

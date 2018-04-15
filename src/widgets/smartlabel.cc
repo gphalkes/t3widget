@@ -73,11 +73,11 @@ void smart_label_text_t::draw(t3_window::window_t *window, t3_attr_t attr, bool 
   }
 }
 
-int smart_label_text_t::get_width() {
+int smart_label_text_t::get_width() const {
   return t3_term_strnwidth(text.data(), text.size()) + (add_colon ? 1 : 0);
 }
 
-bool smart_label_text_t::is_hotkey(key_t key) {
+bool smart_label_text_t::is_hotkey(key_t key) const {
   if (hotkey == 0) {
     return false;
   }
@@ -114,7 +114,7 @@ void smart_label_t::update_contents() {
 
 void smart_label_t::set_focus(focus_t focus) { (void)focus; }
 
-bool smart_label_t::is_hotkey(key_t key) { return smart_label_text_t::is_hotkey(key); }
+bool smart_label_t::is_hotkey(key_t key) const { return smart_label_text_t::is_hotkey(key); }
 
 bool smart_label_t::accepts_focus() { return false; }
 

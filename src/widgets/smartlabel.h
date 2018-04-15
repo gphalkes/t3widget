@@ -31,8 +31,8 @@ class T3_WIDGET_API smart_label_text_t {
   smart_label_text_t(const char *spec, bool _addColon = false);
   virtual ~smart_label_text_t();
   void draw(t3_window::window_t *win, t3_attr_t attr, bool selected = false);
-  int get_width();
-  bool is_hotkey(key_t key);
+  int get_width() const;
+  bool is_hotkey(key_t key) const;
 };
 
 class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
@@ -43,7 +43,7 @@ class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
   void update_contents() override;
   void set_focus(focus_t focus) override;
 
-  bool is_hotkey(key_t key) override;
+  bool is_hotkey(key_t key) const override;
   bool accepts_focus() override;
 };
 

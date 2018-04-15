@@ -27,18 +27,12 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   friend class menu_item_t;
 
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    int width, label_width, hotkey_width;
-    smart_label_text_t label;
-    menu_bar_t *menu_bar;
-
-    implementation_t(const char *name) : label(name), menu_bar(nullptr) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   void close() override;
   void set_menu_bar(menu_bar_t *_menu_bar);
-  void draw_label(t3_window::window_t *draw_window, t3_attr_t attr, bool selected) const;
+  void draw_label(t3_window::window_t *draw_window, t3_attr_t attr, bool selected);
   int get_label_width() const;
   bool is_hotkey(key_t key) const;
 
@@ -53,6 +47,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
  public:
   menu_panel_t(const char *name, menu_bar_t *_menu_bar = nullptr);
+  ~menu_panel_t() override;
   bool process_key(key_t key) override;
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;

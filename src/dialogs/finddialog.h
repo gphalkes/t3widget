@@ -30,17 +30,8 @@ class finder_t;
 
 class T3_WIDGET_API find_dialog_t : public dialog_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    smart_label_t *replace_label;
-    text_field_t *find_line, *replace_line;
-    checkbox_t *whole_word_checkbox, *match_case_checkbox, *regex_checkbox, *wrap_checkbox,
-        *transform_backslash_checkbox, *reverse_direction_checkbox;
-    button_t *in_selection_button, *replace_all_button;
-    connection_t find_button_up_connection;
-    int state;  // State of all the checkboxes converted to FIND_* flags
-    signal_t<std::shared_ptr<finder_t>, find_action_t> activate;
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   void backward_toggled();
   void icase_toggled();
@@ -52,6 +43,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
   void find_activated(find_action_t);
 
  public:
+  ~find_dialog_t() override;
   find_dialog_t(int _state = find_flags_t::ICASE | find_flags_t::WRAP);
   bool set_size(optint height, optint width) override;
   virtual void set_text(string_view str);

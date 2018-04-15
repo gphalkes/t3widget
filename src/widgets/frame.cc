@@ -94,7 +94,9 @@ bool frame_t::set_size(optint height, optint width) {
 }
 
 bool frame_t::accepts_focus() { return child != nullptr ? child->accepts_focus() : false; }
-bool frame_t::is_hotkey(key_t key) { return child != nullptr ? child->is_hotkey(key) : false; }
+bool frame_t::is_hotkey(key_t key) const {
+  return child != nullptr ? child->is_hotkey(key) : false;
+}
 void frame_t::set_enabled(bool enable) {
   if (child != nullptr) {
     child->set_enabled(enable);

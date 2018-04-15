@@ -22,8 +22,17 @@
 
 namespace t3_widget {
 
+struct menu_panel_t::implementation_t {
+  int width, label_width, hotkey_width;
+  smart_label_text_t label;
+  menu_bar_t *menu_bar;
+
+  implementation_t(const char *name) : label(name), menu_bar(nullptr) {}
+};
+
 menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar)
-    : dialog_t(3, 5, nullopt), impl(new implementation_t(name)) {
+    : dialog_t(3, 5, nullopt, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(name)) {
   impl->width = 5;
   impl->label_width = 1;
   impl->hotkey_width = 0;
@@ -31,6 +40,8 @@ menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar)
     _menu_bar->add_menu(this);
   }
 }
+
+menu_panel_t::~menu_panel_t() {}
 
 bool menu_panel_t::process_key(key_t key) {
   switch (key) {
@@ -220,8 +231,7 @@ void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
   }
 }
 
-void menu_panel_t::draw_label(t3_window::window_t *draw_window, t3_attr_t attr,
-                              bool selected) const {
+void menu_panel_t::draw_label(t3_window::window_t *draw_window, t3_attr_t attr, bool selected) {
   impl->label.draw(draw_window, attr, selected);
 }
 

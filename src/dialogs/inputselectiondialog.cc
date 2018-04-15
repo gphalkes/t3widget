@@ -19,8 +19,18 @@
 
 namespace t3_widget {
 
+struct input_selection_dialog_t::implementation_t {
+  std::unique_ptr<text_buffer_t> text;
+  frame_t *text_frame, *label_frame;
+  text_window_t *text_window;
+  label_t *key_label;
+  checkbox_t *enable_simulate_box, *disable_timeout_box;
+  int old_timeout;
+};
+
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text)
-    : dialog_t(height, width, _("Input Handling")), impl(new implementation_t()) {
+    : dialog_t(height, width, _("Input Handling"), impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   button_t *ok_button, *cancel_button;
   smart_label_t *enable_simulate_label, *disable_timeout_label, *close_remark_label;
 
@@ -99,6 +109,8 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
   push_back(ok_button);
   push_back(cancel_button);
 }
+
+input_selection_dialog_t::~input_selection_dialog_t() {}
 
 bool input_selection_dialog_t::set_size(optint height, optint width) {
   bool result;

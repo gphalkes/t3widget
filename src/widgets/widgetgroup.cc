@@ -203,7 +203,7 @@ bool widget_group_t::is_child(window_component_t *component) {
   return false;
 }
 
-bool widget_group_t::is_hotkey(key_t key) {
+bool widget_group_t::is_hotkey(key_t key) const {
   widget_container_t *widget_container;
   for (widget_t *iter : impl->children) {
     if (!iter->is_enabled() || !iter->is_shown()) {

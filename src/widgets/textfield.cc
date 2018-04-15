@@ -495,7 +495,7 @@ void text_field_t::set_autocomplete(string_list_base_t *completions) {
 
 void text_field_t::set_label(smart_label_t *_label) { impl->label = _label; }
 
-bool text_field_t::is_hotkey(key_t key) {
+bool text_field_t::is_hotkey(key_t key) const {
   return impl->label == nullptr ? false : impl->label->is_hotkey(key);
 }
 

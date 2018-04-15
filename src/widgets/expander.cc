@@ -200,7 +200,7 @@ bool expander_t::set_size(optint height, optint width) {
   return result;
 }
 
-bool expander_t::is_hotkey(key_t key) { return impl->label.is_hotkey(key); }
+bool expander_t::is_hotkey(key_t key) const { return impl->label.is_hotkey(key); }
 
 void expander_t::set_enabled(bool enable) {
   enabled = enable;
