@@ -1095,7 +1095,7 @@ void edit_window_t::update_contents() {
      - cursor-only movements mostly don't require entire redraws [well, that depends:
         for matching brace/parenthesis it may require more than a single line update]
   */
-  if (!impl->focus && !redraw) {
+  if (!impl->focus && !reset_redraw()) {
     return;
   }
 
@@ -1110,7 +1110,6 @@ void edit_window_t::update_contents() {
     }
   }
 
-  redraw = false;
   repaint_screen();
 
   impl->indicator_window.set_default_attrs(attributes.menubar);
@@ -1348,7 +1347,6 @@ void edit_window_t::set_use_local_finder(bool _use_local_finder) {
 }
 
 void edit_window_t::force_redraw() {
-  widget_t::force_redraw();
   update_repaint_lines(0, INT_MAX);
   draw_info_window();
   ensure_cursor_on_screen();
@@ -1684,7 +1682,7 @@ void edit_window_t::update_repaint_lines(int start, int end) {
   if (end > impl->repaint_max) {
     impl->repaint_max = end;
   }
-  redraw = true;
+  widget_t::force_redraw();
 }
 
 void edit_window_t::delete_line() {
@@ -1840,7 +1838,7 @@ void edit_window_t::autocomplete_panel_t::set_position(optint _top, optint _left
   }
 
   window.move(top, left);
-  set_redraw(true);
+  force_redraw();
 }
 
 bool edit_window_t::autocomplete_panel_t::set_size(optint height, optint width) {

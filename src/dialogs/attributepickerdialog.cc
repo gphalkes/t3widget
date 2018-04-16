@@ -322,7 +322,7 @@ bool attribute_test_line_t::set_size(optint height, optint width) {
 }
 
 void attribute_test_line_t::update_contents() {
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
   window.set_default_attrs(impl->attr);
@@ -335,7 +335,7 @@ void attribute_test_line_t::update_contents() {
 bool attribute_test_line_t::accepts_focus() { return false; }
 
 void attribute_test_line_t::set_attribute(t3_attr_t attr) {
-  redraw = true;
+  force_redraw();
   impl->attr = attr;
 }
 

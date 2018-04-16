@@ -104,10 +104,9 @@ bool smart_label_t::set_size(optint height, optint width) {
 }
 
 void smart_label_t::update_contents() {
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
   window.set_paint(0, 0);
   draw(&window, attributes.dialog);
 }

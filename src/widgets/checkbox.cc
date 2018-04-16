@@ -24,7 +24,7 @@ bool checkbox_t::process_key(key_t key) {
     case ' ':
     case EKEY_HOTKEY:
       state ^= true;
-      redraw = true;
+      force_redraw();
       toggled();
       update_contents();
       break;
@@ -56,20 +56,19 @@ bool checkbox_t::set_size(optint height, optint width) {
 }
 
 void checkbox_t::update_contents() {
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
   window.set_default_attrs(attributes.dialog);
   window.set_paint(0, 0);
   window.addch('[', 0);
-  window.addch(enabled ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);
+  window.addch(is_enabled() ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);
   window.addch(']', 0);
 }
 
 void checkbox_t::set_focus(focus_t focus) {
   if (has_focus != focus) {
-    redraw = true;
+    force_redraw();
   }
 
   has_focus = focus;
@@ -79,7 +78,7 @@ bool checkbox_t::get_state() { return state; }
 
 void checkbox_t::set_state(bool _state) {
   state = !!_state;
-  redraw = true;
+  force_redraw();
 }
 
 void checkbox_t::set_label(smart_label_t *_label) {
@@ -95,14 +94,14 @@ bool checkbox_t::is_hotkey(key_t key) const {
 }
 
 void checkbox_t::set_enabled(bool enable) {
-  enabled = enable;
-  redraw = true;
+  widget_t::set_enabled(enable);
+  force_redraw();
 }
 
 bool checkbox_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
     state ^= true;
-    redraw = true;
+    force_redraw();
     toggled();
     update_contents();
   }

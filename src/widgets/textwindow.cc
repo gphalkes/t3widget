@@ -55,7 +55,7 @@ void text_window_t::set_text(text_buffer_t *_text) {
   impl->wrap_info->set_text_buffer(impl->text);
   impl->top.line = 0;
   impl->top.pos = 0;
-  redraw = true;
+  force_redraw();
 }
 
 bool text_window_t::set_size(optint height, optint width) {
@@ -69,7 +69,7 @@ bool text_window_t::set_size(optint height, optint width) {
   }
 
   if (width.value() != window.get_width() || height.value() > window.get_height()) {
-    redraw = true;
+    force_redraw();
   }
 
   result &= window.resize(height.value(), width.value());
@@ -97,7 +97,7 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
     impl->scrollbar = nullptr;
     impl->wrap_info->set_wrap_width(window.get_width() + 1);
   }
-  redraw = true;
+  force_redraw();
 }
 
 void text_window_t::scroll_down(int lines) {
@@ -107,11 +107,11 @@ void text_window_t::scroll_down(int lines) {
     impl->wrap_info->sub_lines(new_top, window.get_height() - 1);
     if (impl->top != new_top) {
       impl->top = new_top;
-      redraw = true;
+      force_redraw();
     }
   } else {
     impl->wrap_info->add_lines(impl->top, lines);
-    redraw = true;
+    force_redraw();
   }
 }
 
@@ -121,7 +121,7 @@ void text_window_t::scroll_up(int lines) {
   }
 
   impl->wrap_info->sub_lines(impl->top, lines);
-  redraw = true;
+  force_redraw();
 }
 
 bool text_window_t::process_key(key_t key) {
@@ -147,7 +147,7 @@ bool text_window_t::process_key(key_t key) {
       if (impl->top.line != 0 || impl->top.pos != 0) {
         impl->top.line = 0;
         impl->top.pos = 0;
-        redraw = true;
+        force_redraw();
       }
       break;
     case EKEY_END | EKEY_CTRL:
@@ -155,7 +155,7 @@ bool text_window_t::process_key(key_t key) {
       text_coordinate_t new_top = impl->wrap_info->get_end();
       impl->wrap_info->sub_lines(new_top, window.get_height());
       if (new_top != impl->top) {
-        redraw = true;
+        force_redraw();
       }
       break;
     }
@@ -170,11 +170,10 @@ void text_window_t::update_contents() {
   text_line_t::paint_info_t info;
   int i, count = 0;
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
 
-  redraw = false;
   window.set_default_attrs(attributes.dialog);
 
   info.size = window.get_width();
@@ -226,7 +225,7 @@ void text_window_t::update_contents() {
 
 void text_window_t::set_focus(focus_t _focus) {
   if (impl->focus != _focus) {
-    redraw = true;
+    force_redraw();
   }
   impl->focus = _focus;
 }
@@ -302,7 +301,7 @@ void text_window_t::scrollbar_dragged(int start) {
     return;
   }
   impl->top = new_top_left;
-  redraw = true;
+  force_redraw();
 }
 
 }  // namespace

@@ -23,25 +23,28 @@
 namespace t3_widget {
 
 /** Base class for widgets. */
-class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_target_t {
+class T3_WIDGET_API widget_t : public virtual window_component_t,
+                               public mouse_target_t,
+                               public impl_allocator_t {
  private:
   friend class container_t;
 
   /** Default parent for widgets, making them invisible. */
   static t3_window::window_t default_parent;
 
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
+
  protected:
-  bool redraw, /**< Widget requires redrawing on next #update_contents call. */
-      enabled, /**< Widget is enabled. */
-      shown;   /**< Widget is shown. */
+  bool reset_redraw();
 
   /** Constructor which creates a default @c t3_window_t with @p height and @p width. */
-  widget_t(int height, int width, bool register_as_mouse_target = true);
+  widget_t(int height, int width, bool register_as_mouse_target = true, size_t impl_size = 0);
   /** Constructor which does not create a default t3_window_t.
       This constructor should only rarely be necessary. Widgets using this
       constructor should call either #init_window, or #init_unbacked_window.
   */
-  widget_t();
+  widget_t(size_t impl_size = 0);
 
   /** Initialize the #window with a @c t3_window_t with @p height and @p width. */
   void init_window(int height, int width, bool register_as_mouse_target = true);
@@ -49,6 +52,8 @@ class T3_WIDGET_API widget_t : public virtual window_component_t, public mouse_t
   void init_unbacked_window(int height, int width, bool register_as_mouse_target = false);
 
  public:
+  ~widget_t() override;
+
   /** Query whether key is a hotkey for this widget. */
   virtual bool is_hotkey(key_t key) const;
   /** Query whether this widget accepts focus. */

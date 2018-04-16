@@ -69,6 +69,7 @@ bool color_picker_base_t::process_key(key_t key) {
       return false;
   }
   if (current_color != start_color) {
+    force_redraw();
     selection_changed();
   }
   return true;
@@ -94,7 +95,7 @@ bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
     }
 
     current_color = new_color;
-    redraw = true;
+    force_redraw();
     selection_changed();
     if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
       activated();
@@ -105,7 +106,7 @@ bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
 
 void color_picker_base_t::set_focus(focus_t focus) {
   has_focus = focus != window_component_t::FOCUS_OUT;
-  redraw = true;
+  force_redraw();
 }
 
 void color_picker_base_t::set_undefined_colors(t3_attr_t attr) {
@@ -134,12 +135,13 @@ void color_picker_base_t::set_color(t3_attr_t attr) {
   } else {
     current_color = color - 1;
   }
+  force_redraw();
 }
 
 void color_picker_base_t::update_contents() {
   int i, old_y, x, y;
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
 

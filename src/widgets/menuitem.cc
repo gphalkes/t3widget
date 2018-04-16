@@ -29,7 +29,7 @@ bool menu_item_base_t::set_size(optint height, optint width) {
   if (!width.is_valid()) {
     return true;
   }
-  redraw = true;
+  force_redraw();
   return window.resize(1, width.value());
 }
 
@@ -55,10 +55,9 @@ bool menu_item_t::process_key(key_t key) {
 }
 
 void menu_item_t::update_contents() {
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
 
   window.set_paint(0, 0);
   window.clrtoeol();
@@ -75,7 +74,7 @@ void menu_item_t::update_contents() {
 void menu_item_t::set_focus(focus_t focus) {
   menu_item_base_t::set_focus(focus);
   if (focus != has_focus) {
-    redraw = true;
+    force_redraw();
   }
   has_focus = focus;
 }
@@ -108,10 +107,9 @@ bool menu_separator_t::process_key(key_t key) {
 }
 
 void menu_separator_t::update_contents() {
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
   window.set_paint(0, 0);
   window.addchrep(T3_ACS_HLINE, T3_ATTR_ACS | attributes.dialog, window.get_width());
 }

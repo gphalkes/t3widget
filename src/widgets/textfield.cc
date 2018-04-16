@@ -44,7 +44,7 @@ void text_field_t::reset_selection() {
   impl->selection_start_pos = -1;
   impl->selection_end_pos = -1;
   impl->selection_mode = selection_mode_t::NONE;
-  redraw = true;
+  force_redraw();
 }
 
 void text_field_t::set_selection(key_t key) {
@@ -91,7 +91,7 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
   impl->pos = start;
   ensure_cursor_on_screen();
   reset_selection();
-  redraw = true;
+  force_redraw();
   impl->edited = true;
 }
 
@@ -106,7 +106,7 @@ bool text_field_t::process_key(key_t key) {
         impl->drop_down_list->show();
         impl->drop_down_list->set_focus(window_component_t::FOCUS_SET);
         reset_selection();
-        redraw = true;
+        force_redraw();
       } else {
         move_focus_down();
       }
@@ -122,7 +122,7 @@ bool text_field_t::process_key(key_t key) {
         impl->line->backspace_char(impl->pos, nullptr);
         impl->pos = newpos;
         ensure_cursor_on_screen();
-        redraw = true;
+        force_redraw();
         impl->edited = true;
       }
       break;
@@ -131,14 +131,14 @@ bool text_field_t::process_key(key_t key) {
         delete_selection(false);
       } else if (impl->pos < impl->line->get_length()) {
         impl->line->delete_char(impl->pos, nullptr);
-        redraw = true;
+        force_redraw();
         impl->edited = true;
       }
       break;
     case EKEY_LEFT:
     case EKEY_LEFT | EKEY_SHIFT:
       if (impl->pos > 0) {
-        redraw = true;
+        force_redraw();
         impl->pos = impl->line->adjust_position(impl->pos, -1);
         ensure_cursor_on_screen();
       }
@@ -146,7 +146,7 @@ bool text_field_t::process_key(key_t key) {
     case EKEY_RIGHT:
     case EKEY_RIGHT | EKEY_SHIFT:
       if (impl->pos < impl->line->get_length()) {
-        redraw = true;
+        force_redraw();
         impl->pos = impl->line->adjust_position(impl->pos, 1);
         ensure_cursor_on_screen();
       }
@@ -154,7 +154,7 @@ bool text_field_t::process_key(key_t key) {
     case EKEY_RIGHT | EKEY_CTRL:
     case EKEY_RIGHT | EKEY_CTRL | EKEY_SHIFT:
       if (impl->pos < impl->line->get_length()) {
-        redraw = true;
+        force_redraw();
         impl->pos = impl->line->get_next_word(impl->pos);
         if (impl->pos < 0) {
           impl->pos = impl->line->get_length();
@@ -165,7 +165,7 @@ bool text_field_t::process_key(key_t key) {
     case EKEY_LEFT | EKEY_CTRL:
     case EKEY_LEFT | EKEY_CTRL | EKEY_SHIFT:
       if (impl->pos > 0) {
-        redraw = true;
+        force_redraw();
         impl->pos = impl->line->get_previous_word(impl->pos);
         if (impl->pos < 0) {
           impl->pos = 0;
@@ -175,13 +175,13 @@ bool text_field_t::process_key(key_t key) {
       break;
     case EKEY_HOME:
     case EKEY_HOME | EKEY_SHIFT:
-      redraw = true;
+      force_redraw();
       impl->pos = 0;
       ensure_cursor_on_screen();
       break;
     case EKEY_END:
     case EKEY_END | EKEY_SHIFT:
-      redraw = true;
+      force_redraw();
       impl->pos = impl->line->get_length();
       ensure_cursor_on_screen();
       break;
@@ -255,7 +255,7 @@ bool text_field_t::process_key(key_t key) {
               impl->line->insert(&insert_line, impl->pos);
               impl->pos += insert_line.get_length();
               ensure_cursor_on_screen();
-              redraw = true;
+              force_redraw();
               impl->edited = true;
             }
             return true;
@@ -291,7 +291,7 @@ bool text_field_t::process_key(key_t key) {
             impl->selection_start_pos = 0;
             impl->selection_end_pos = impl->line->get_length();
             impl->pos = impl->selection_end_pos;
-            redraw = true;
+            force_redraw();
             return true;
 
           default:
@@ -325,7 +325,7 @@ bool text_field_t::process_key(key_t key) {
       }
       impl->pos = impl->line->adjust_position(impl->pos, 1);
       ensure_cursor_on_screen();
-      redraw = true;
+      force_redraw();
       impl->edited = true;
     }
   }
@@ -344,7 +344,7 @@ bool text_field_t::set_size(optint height, optint width) {
 
   ensure_cursor_on_screen();
 
-  redraw = true;
+  force_redraw();
   // FIXME: use return values from different parts as return value!
   return true;
 }
@@ -363,12 +363,11 @@ void text_field_t::update_contents() {
     impl->drop_down_list->update_contents();
   }
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
 
   impl->edited = false;
-  redraw = false;
 
   if (impl->selection_mode != selection_mode_t::NONE) {
     if (impl->selection_mode == selection_mode_t::SHIFT && impl->selection_start_pos == impl->pos) {
@@ -414,7 +413,7 @@ void text_field_t::update_contents() {
 void text_field_t::set_focus(focus_t _focus) {
   lprintf("set focus %d\n", _focus);
   impl->focus = _focus;
-  redraw = true;
+  force_redraw();
   if (impl->focus) {
     if (!impl->dont_select_on_focus) {
       impl->selection_start_pos = 0;
@@ -460,13 +459,13 @@ void text_field_t::ensure_cursor_on_screen() {
 
   if (impl->screen_pos < impl->leftcol) {
     impl->leftcol = impl->screen_pos;
-    redraw = true;
+    force_redraw();
   }
 
   width = window.get_width();
   if (impl->screen_pos + char_width > impl->leftcol + width - 2) {
     impl->leftcol = impl->screen_pos - (width - 2) + char_width;
-    redraw = true;
+    force_redraw();
   }
 }
 
@@ -475,7 +474,7 @@ void text_field_t::set_text(string_view text) {
   impl->pos = impl->line->get_length();
   impl->leftcol = 0;
   ensure_cursor_on_screen();
-  redraw = true;
+  force_redraw();
 }
 
 void text_field_t::set_key_filter(key_t *keys, size_t nr_of_keys, bool accept) {
@@ -499,7 +498,7 @@ bool text_field_t::is_hotkey(key_t key) const {
   return impl->label == nullptr ? false : impl->label->is_hotkey(key);
 }
 
-void text_field_t::bad_draw_recheck() { redraw = true; }
+void text_field_t::bad_draw_recheck() { force_redraw(); }
 
 bool text_field_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_TRIPLE_CLICKED_LEFT) {
@@ -508,14 +507,14 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
     impl->pos = impl->line->get_length();
     set_selection_end(true);
     ensure_cursor_on_screen();
-    redraw = true;
+    force_redraw();
   } else if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
     impl->selection_mode = selection_mode_t::SHIFT;
     impl->selection_start_pos = impl->line->get_previous_word_boundary(impl->pos);
     impl->pos = impl->line->get_next_word_boundary(impl->pos);
     set_selection_end(true);
     ensure_cursor_on_screen();
-    redraw = true;
+    force_redraw();
   } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_LEFT) &&
              event.previous_button_state == 0) {
     if ((event.modifier_state & EMOUSE_SHIFT) == 0) {
@@ -561,7 +560,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       set_selection_end(event.type == EMOUSE_BUTTON_RELEASE);
     }
     ensure_cursor_on_screen();
-    redraw = true;
+    force_redraw();
   }
   impl->dont_select_on_focus = true;
   return true;
@@ -627,7 +626,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
       if (list_pane->get_current() == 0) {
         list_pane->set_focus(FOCUS_OUT);
         field->impl->in_drop_down_list = false;
-        field->redraw = true;
+        field->force_redraw();
       }
       break;
     case EKEY_DOWN:
@@ -644,7 +643,7 @@ bool text_field_t::drop_down_list_t::process_key(key_t key) {
       if (key >= 32 && key < EKEY_FIRST_SPECIAL) {
         list_pane->set_focus(FOCUS_OUT);
         // Make sure that the cursor will be visible, by forcing a redraw of the field
-        field->redraw = true;
+        field->force_redraw();
         field->impl->in_drop_down_list = false;
         return false;
       }
@@ -697,7 +696,7 @@ void text_field_t::drop_down_list_t::set_focus(focus_t focus) {
 
 void text_field_t::drop_down_list_t::hide() {
   field->impl->in_drop_down_list = false;
-  field->redraw = true;
+  field->force_redraw();
   popup_t::hide();
 }
 

@@ -69,10 +69,9 @@ void button_t::update_contents() {
   t3_attr_t attr;
   int width;
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
 
   attr = has_focus ? attributes.button_selected : 0;
 
@@ -95,7 +94,7 @@ void button_t::update_contents() {
 
 void button_t::set_focus(focus_t focus) {
   if (focus != has_focus) {
-    redraw = true;
+    force_redraw();
   }
 
   has_focus = focus;

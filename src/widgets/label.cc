@@ -40,7 +40,7 @@ bool label_t::set_size(optint height, optint width) {
   (void)height;
   if (width.is_valid() && window.get_width() != width.value()) {
     result = window.resize(1, width.value());
-    redraw = true;
+    force_redraw();
   }
   return result;
 }
@@ -48,10 +48,9 @@ bool label_t::set_size(optint height, optint width) {
 void label_t::update_contents() {
   int width;
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
 
   width = window.get_width();
   text_line_t line(text);
@@ -98,7 +97,7 @@ void label_t::update_contents() {
 }
 
 void label_t::set_focus(focus_t _focus) {
-  redraw = true;
+  force_redraw();
   focus = _focus;
 }
 
@@ -107,7 +106,7 @@ void label_t::set_align(label_t::align_t _align) { align = _align; }
 void label_t::set_text(const char *_text) {
   text = _text;
   text_width = t3_term_strwidth(text.c_str());
-  redraw = true;
+  force_redraw();
 }
 
 int label_t::get_text_width() const { return text_width; }

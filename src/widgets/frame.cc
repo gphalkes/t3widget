@@ -41,10 +41,9 @@ void frame_t::update_contents() {
   if (child != nullptr) {
     child->update_contents();
   }
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
   window.set_default_attrs(attributes.dialog);
 
   window.set_paint(0, 0);
@@ -70,7 +69,7 @@ bool frame_t::set_size(optint height, optint width) {
   }
 
   result = window.resize(height.value(), width.value());
-  redraw = true;
+  force_redraw();
 
   if (child != nullptr) {
     child_height = window.get_height();

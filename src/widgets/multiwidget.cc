@@ -56,7 +56,7 @@ void multi_widget_t::set_focus(focus_t focus) {
 }
 
 bool multi_widget_t::accepts_focus() {
-  if (!enabled) {
+  if (!is_enabled()) {
     return false;
   }
   for (const item_t &widget : widgets) {
@@ -167,7 +167,7 @@ void multi_widget_t::resize_widgets() {
 }
 
 void multi_widget_t::set_enabled(bool enable) {
-  enabled = enable;
+  widget_t::set_enabled(enable);
   for (const item_t &widget : widgets) {
     widget.widget->set_enabled(enable);
   }

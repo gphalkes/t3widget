@@ -52,7 +52,7 @@ bool scrollbar_t::set_size(optint height, optint width) {
       result = window.resize(1, impl->length);
     }
   }
-  redraw = true;
+  force_redraw();
   return result;
 }
 
@@ -60,10 +60,9 @@ void scrollbar_t::update_contents() {
   int i;
   double blocks_per_line;
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
 
   blocks_per_line = static_cast<double>(impl->length - 2) / impl->range;
   impl->slider_size = static_cast<int>(blocks_per_line * impl->used);
@@ -177,7 +176,7 @@ void scrollbar_t::set_parameters(int _range, int _start, int _used) {
     return;
   }
 
-  redraw = true;
+  force_redraw();
   impl->range = _range;
   impl->start = _start;
   impl->used = _used;

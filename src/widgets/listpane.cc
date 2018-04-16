@@ -405,7 +405,7 @@ void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
 void list_pane_t::scrollbar_dragged(int start) {
   if (start >= 0 && static_cast<size_t>(start) <= impl->widgets.size()) {
     impl->top_idx = start;
-    redraw = true;
+    force_redraw();
   }
 }
 
@@ -423,10 +423,9 @@ bool list_pane_t::indicator_widget_t::process_key(key_t key) {
 }
 
 void list_pane_t::indicator_widget_t::update_contents() {
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
   window.set_default_attrs(attributes.dialog);
   window.set_paint(0, 0);
   window.addch(T3_ACS_RARROW,
@@ -438,7 +437,7 @@ void list_pane_t::indicator_widget_t::update_contents() {
 
 void list_pane_t::indicator_widget_t::set_focus(focus_t focus) {
   has_focus = focus;
-  redraw = true;
+  force_redraw();
 }
 
 bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
@@ -447,7 +446,7 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
   if (!width.is_valid()) {
     return true;
   }
-  redraw = true;
+  force_redraw();
   return window.resize(1, width.value());
 }
 

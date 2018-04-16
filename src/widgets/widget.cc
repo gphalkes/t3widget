@@ -18,24 +18,41 @@
 
 namespace t3_widget {
 
+struct widget_t::implementation_t {
+  bool redraw = true, /**< Widget requires redrawing on next #update_contents call. */
+      enabled = true, /**< Widget is enabled. */
+      shown = true;   /**< Widget is shown. */
+};
+
 /* The default_parent must exist before any widgets are created. Thus using the
    #on_init method won't work. Instead we use a cleanup_t3_window.
 */
 t3_window::window_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
+
+bool widget_t::reset_redraw() {
+  bool result = impl->redraw;
+  impl->redraw = false;
+  return result;
+}
 
 bool widget_t::is_hotkey(key_t key) const {
   (void)key;
   return false;
 }
 
-bool widget_t::accepts_focus() { return enabled && shown; }
+bool widget_t::accepts_focus() { return impl->enabled && impl->shown; }
 
-widget_t::widget_t(int height, int width, bool register_as_mouse_target)
-    : redraw(true), enabled(true), shown(true) {
+widget_t::widget_t(int height, int width, bool register_as_mouse_target, size_t impl_size)
+    : impl_allocator_t(impl_alloc<implementation_t>(impl_size)),
+      impl(new_impl<implementation_t>()) {
   init_window(height, width, register_as_mouse_target);
 }
 
-widget_t::widget_t() : redraw(true), enabled(true), shown(true) {}
+widget_t::widget_t(size_t impl_size)
+    : impl_allocator_t(impl_alloc<implementation_t>(impl_size)),
+      impl(new_impl<implementation_t>()) {}
+
+widget_t::~widget_t() {}
 
 void widget_t::init_window(int height, int width, bool register_as_mouse_target) {
   window.alloc(&default_parent, height, width, 0, 0, 0);
@@ -70,21 +87,21 @@ void widget_t::set_position(optint top, optint left) {
 
 void widget_t::show() {
   window.show();
-  shown = true;
+  impl->shown = true;
 }
 
 void widget_t::hide() {
   window.hide();
-  shown = false;
+  impl->shown = false;
 }
 
-void widget_t::force_redraw() { redraw = true; }
+void widget_t::force_redraw() { impl->redraw = true; }
 
-void widget_t::set_enabled(bool enable) { enabled = enable; }
+void widget_t::set_enabled(bool enable) { impl->enabled = enable; }
 
-bool widget_t::is_enabled() { return enabled; }
+bool widget_t::is_enabled() { return impl->enabled; }
 
-bool widget_t::is_shown() { return shown; }
+bool widget_t::is_shown() { return impl->shown; }
 
 void widget_t::set_focus(focus_t focus) {
   (void)focus;

@@ -51,7 +51,7 @@ void menu_bar_t::add_menu(menu_panel_t *menu) {
   menu->set_position(None, impl->start_col);
   impl->start_col += menu->get_label_width() + 2;
   menu->connect_activate(activate.get_trigger());
-  redraw = true;
+  force_redraw();
 }
 
 void menu_bar_t::remove_menu(menu_panel_t *menu) {
@@ -79,7 +79,7 @@ void menu_bar_t::remove_menu(menu_panel_t *menu) {
         (*iter)->set_position(None, impl->start_col);
         impl->start_col += (*iter)->get_label_width() + 2;
       }
-      redraw = true;
+      force_redraw();
       return;
     }
   }
@@ -124,12 +124,12 @@ bool menu_bar_t::set_size(optint height, optint width) {
   if (!width.is_valid()) {
     return true;
   }
-  redraw = true;
+  force_redraw();
   return window.resize(1, width.value()) == 0;
 }
 
 void menu_bar_t::update_contents() {
-  if (redraw) {
+  if (reset_redraw()) {
     draw();
     if (impl->has_focus) {
       draw_menu_name(impl->menus[impl->current_menu], true);
@@ -158,7 +158,7 @@ void menu_bar_t::set_focus(focus_t focus) { (void)focus; }
 void menu_bar_t::show() {
   if (!impl->has_focus) {
     impl->has_focus = true;
-    redraw = true;
+    force_redraw();
     window.show();
     draw_menu_name(impl->menus[impl->current_menu], true);
     impl->menus[impl->current_menu]->show();
@@ -250,7 +250,7 @@ int menu_bar_t::coord_to_menu_idx(int x) {
 }
 
 void menu_bar_t::draw() {
-  redraw = false;
+  reset_redraw();
   window.set_paint(0, 0);
   window.addchrep(' ', attributes.menubar, window.get_width());
   for (menu_panel_t *menu : impl->menus) {

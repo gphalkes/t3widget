@@ -72,14 +72,14 @@ bool file_pane_t::process_key(key_t key) {
         return true;
       }
       impl->current++;
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_UP:
       if (impl->current == 0) {
         return true;
       }
       impl->current--;
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_RIGHT:
       height = window.get_height() - 1;
@@ -91,7 +91,7 @@ bool file_pane_t::process_key(key_t key) {
       } else {
         impl->current += height;
       }
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_LEFT:
       height = window.get_height() - 1;
@@ -100,15 +100,15 @@ bool file_pane_t::process_key(key_t key) {
       } else {
         impl->current -= height;
       }
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_END:
       impl->current = impl->file_list->size() - 1;
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_HOME:
       impl->current = 0;
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_PGDN:
       height = window.get_height() - 1;
@@ -118,7 +118,7 @@ bool file_pane_t::process_key(key_t key) {
         impl->current += 2 * height;
         impl->top_idx += 2 * height;
       }
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_PGUP:
       height = window.get_height() - 1;
@@ -132,7 +132,7 @@ bool file_pane_t::process_key(key_t key) {
           impl->top_idx -= 2 * height;
         }
       }
-      redraw = true;
+      force_redraw();
       break;
     case EKEY_NL:
       impl->activate(impl->file_list->get_fs_name(impl->current));
@@ -172,7 +172,7 @@ bool file_pane_t::set_size(optint height, optint width) {
         ((impl->file_list->size() + height.value() - 1) / height.value()) * height.value();
     ensure_cursor_on_screen();
   }
-  redraw = true;
+  force_redraw();
   return result;
 }
 
@@ -217,10 +217,9 @@ void file_pane_t::update_contents() {
 
   impl->search_panel->update_contents();
 
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
-  redraw = false;
 
   window.set_default_attrs(attributes.dialog);
 
@@ -286,7 +285,7 @@ bool file_pane_t::process_mouse_event(mouse_event_t event) {
       if (impl->field != nullptr) {
         impl->field->set_text((*impl->file_list)[impl->current]);
       }
-      redraw = true;
+      force_redraw();
       return true;
     }
   }
@@ -308,7 +307,7 @@ void file_pane_t::set_file_list(file_list_t *_file_list) {
       impl->file_list->connect_content_changed([this] { content_changed(); });
   impl->top_idx = 0;
   content_changed();
-  redraw = true;
+  force_redraw();
 }
 
 void file_pane_t::set_file(const std::string *name) {
@@ -383,7 +382,7 @@ void file_pane_t::content_changed() {
   impl->top_idx = 0;
   update_column_widths();
   impl->scrollbar_range = ((impl->file_list->size() + height - 1) / height) * height;
-  redraw = true;
+  force_redraw();
 }
 
 void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
@@ -438,7 +437,7 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
   } else if (impl->current >= impl->top_idx + impl->columns_visible * height) {
     impl->current = impl->top_idx + impl->columns_visible * height - 1;
   }
-  redraw = true;
+  force_redraw();
 
   if (impl->file_list->size() != 0 && impl->field != nullptr) {
     impl->field->set_text((*impl->file_list)[impl->current]);
@@ -450,7 +449,7 @@ void file_pane_t::scrollbar_dragged(int start) {
   size_t new_top_idx = (start / height) * height;
   if (start >= 0 && new_top_idx < impl->file_list->size() && new_top_idx != impl->top_idx) {
     impl->top_idx = new_top_idx;
-    redraw = true;
+    force_redraw();
   }
 }
 
@@ -477,7 +476,7 @@ void file_pane_t::search(const std::string *text) {
   }
   if (longest_match > 0 && impl->current != longest_match_idx) {
     impl->current = longest_match_idx;
-    redraw = true;
+    force_redraw();
     ensure_cursor_on_screen();
   }
 }

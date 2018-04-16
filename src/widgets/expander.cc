@@ -30,7 +30,7 @@ void expander_t::focus_up_from_child() {
   }
   impl->child->set_focus(window_component_t::FOCUS_OUT);
   impl->focus = FOCUS_SELF;
-  redraw = true;
+  force_redraw();
 }
 
 void expander_t::set_child(widget_t *_child) {
@@ -48,7 +48,7 @@ void expander_t::set_child(widget_t *_child) {
     if (impl->is_expanded) {
       window.resize(1, window.get_width());
       impl->is_expanded = false;
-      redraw = true;
+      force_redraw();
       expanded(false);
     }
     impl->child.reset(_child);
@@ -79,16 +79,18 @@ void expander_t::set_expanded(bool expand) {
       impl->child->set_focus(window_component_t::FOCUS_OUT);
       impl->focus = FOCUS_SELF;
     }
-    impl->child->hide();
+	if (impl->child != nullptr) {
+      impl->child->hide();
+	}
     impl->is_expanded = false;
     window.resize(1, window.get_width());
-    redraw = true;
+    force_redraw();
     expanded(false);
   } else if (expand && !impl->is_expanded && impl->child != nullptr) {
     impl->child->show();
     impl->is_expanded = true;
     window.resize(impl->full_height, window.get_width());
-    redraw = true;
+    force_redraw();
     expanded(true);
   }
 }
@@ -101,6 +103,7 @@ bool expander_t::process_key(key_t key) {
         impl->focus = FOCUS_CHILD;
         impl->child->set_focus(window_component_t::FOCUS_IN_FWD);
       }
+	  force_redraw();
       return true;
     } else if (key == EKEY_DOWN && !impl->is_expanded) {
       move_focus_down();
@@ -114,7 +117,7 @@ bool expander_t::process_key(key_t key) {
       if (!impl->is_expanded && impl->child != nullptr) {
         window.resize(impl->full_height, window.get_width());
         impl->is_expanded = true;
-        redraw = true;
+        force_redraw();
         impl->child->show();
         if (impl->child->accepts_focus()) {
           impl->focus = FOCUS_CHILD;
@@ -127,7 +130,7 @@ bool expander_t::process_key(key_t key) {
         }
         window.resize(1, window.get_width());
         impl->is_expanded = false;
-        redraw = true;
+        force_redraw();
         expanded(false);
       }
       return true;
@@ -138,6 +141,7 @@ bool expander_t::process_key(key_t key) {
       impl->focus = FOCUS_SELF;
       result = true;
       impl->child->set_focus(window_component_t::FOCUS_OUT);
+	  force_redraw();
     }
     return result;
   }
@@ -148,7 +152,7 @@ void expander_t::update_contents() {
   if (impl->is_expanded && impl->child != nullptr) {
     impl->child->update_contents();
   }
-  if (!redraw) {
+  if (!reset_redraw()) {
     return;
   }
 
@@ -176,7 +180,7 @@ void expander_t::set_focus(focus_t _focus) {
     impl->focus = FOCUS_CHILD;
     impl->child->set_focus(_focus);
   }
-  redraw = true;
+  force_redraw();
 }
 
 bool expander_t::set_size(optint height, optint width) {
@@ -197,19 +201,22 @@ bool expander_t::set_size(optint height, optint width) {
   } else {
     result &= window.resize(1, width.value());
   }
+  force_redraw();
   return result;
 }
 
 bool expander_t::is_hotkey(key_t key) const { return impl->label.is_hotkey(key); }
 
 void expander_t::set_enabled(bool enable) {
-  enabled = enable;
+  widget_t::set_enabled(enable);
   if (impl->child != nullptr) {
     impl->child->set_enabled(enable);
   }
+  force_redraw();
 }
 
 void expander_t::force_redraw() {
+  widget_t::force_redraw();
   if (impl->child != nullptr) {
     impl->child->force_redraw();
   }
@@ -257,7 +264,7 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
     if (!impl->is_expanded && impl->child != nullptr) {
       window.resize(impl->full_height, window.get_width());
       impl->is_expanded = true;
-      redraw = true;
+      force_redraw();
       impl->child->show();
       expanded(true);
       if (impl->focus == FOCUS_SELF) {
@@ -272,7 +279,7 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
       }
       window.resize(1, window.get_width());
       impl->is_expanded = false;
-      redraw = true;
+      force_redraw();
       expanded(false);
     }
   }
