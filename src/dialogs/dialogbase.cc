@@ -28,7 +28,7 @@ dummy_widget_t *dialog_base_t::dummy;
 connection_t dialog_base_t::init_connected = connect_on_init(dialog_base_t::init);
 
 struct dialog_base_t::implementation_t {
-  bool redraw = false;               /**< Boolean indicating whether redrawing is necessary. */
+  bool redraw = true;                /**< Boolean indicating whether redrawing is necessary. */
   t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
   widgets_t::iterator
       current_widget; /**< Iterator indicating the widget that has the input focus. */
