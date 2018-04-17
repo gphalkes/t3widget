@@ -20,10 +20,8 @@ namespace t3_widget {
 
 class T3_WIDGET_API color_picker_base_t : public widget_t {
  protected:
-  int max_color, current_color;
-  bool fg, has_focus;
-  t3_attr_t undefined_colors;
-  const char *color_str;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   color_picker_base_t(bool _fg);
   virtual int xy_to_color(int x, int y) = 0;
@@ -32,6 +30,7 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
   virtual void paint_color_name(int color);
 
  public:
+  ~color_picker_base_t() override;
   bool process_key(key_t key) override;
   void update_contents() override;
   bool set_size(optint height, optint width) override;

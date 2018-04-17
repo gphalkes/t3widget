@@ -27,29 +27,8 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   friend class menu_panel_t;
 
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    int current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
-        old_menu;     /**< Previously active window. */
-    int start_col;    /**< Column where the next menu will start. */
-    bool hidden,      /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
-        /** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input
-           focus.
-                See the comments at #set_focus for details.
-        */
-        has_focus;
-
-    std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
-    int button_down_idx; /** Index of menu on which the left button was pressed down. */
-
-    implementation_t(bool _hidden)
-        : current_menu(0),
-          old_menu(0),
-          start_col(0),
-          hidden(_hidden),
-          has_focus(false),
-          button_down_idx(-1) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   /** Draw the name of a single menu in the menu bar. */
   void draw_menu_name(menu_panel_t *menu, bool selected);

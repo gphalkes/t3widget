@@ -17,12 +17,32 @@
 
 namespace t3_widget {
 
-expander_t::expander_t(const char *text) : impl(new implementation_t(text)) {
+struct expander_t::implementation_t {
+  expander_focus_t focus, last_focus;
+  bool is_expanded;
+  smart_label_text_t label;
+  t3_window::window_t symbol_window;
+  std::unique_ptr<widget_t> child; /**< The widget to enclose. */
+  int full_height;
+  connection_t move_up_connection, move_down_connection, move_right_connection,
+      move_left_connection;
+  implementation_t(const char *text)
+      : focus(FOCUS_NONE),
+        last_focus(FOCUS_NONE),
+        is_expanded(false),
+        label(text),
+        full_height(2) {}
+};
+
+expander_t::expander_t(const char *text)
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>(text)) {
   init_unbacked_window(1, impl->label.get_width() + 2);
   impl->symbol_window.alloc(&window, 1, 2 + impl->label.get_width(), 0, 0, 0);
   impl->symbol_window.show();
   register_mouse_target(&impl->symbol_window);
 }
+
+expander_t::~expander_t() {}
 
 void expander_t::focus_up_from_child() {
   if (impl->focus != FOCUS_CHILD || impl->child == nullptr) {
@@ -79,9 +99,9 @@ void expander_t::set_expanded(bool expand) {
       impl->child->set_focus(window_component_t::FOCUS_OUT);
       impl->focus = FOCUS_SELF;
     }
-	if (impl->child != nullptr) {
+    if (impl->child != nullptr) {
       impl->child->hide();
-	}
+    }
     impl->is_expanded = false;
     window.resize(1, window.get_width());
     force_redraw();
@@ -103,7 +123,7 @@ bool expander_t::process_key(key_t key) {
         impl->focus = FOCUS_CHILD;
         impl->child->set_focus(window_component_t::FOCUS_IN_FWD);
       }
-	  force_redraw();
+      force_redraw();
       return true;
     } else if (key == EKEY_DOWN && !impl->is_expanded) {
       move_focus_down();
@@ -141,7 +161,7 @@ bool expander_t::process_key(key_t key) {
       impl->focus = FOCUS_SELF;
       result = true;
       impl->child->set_focus(window_component_t::FOCUS_OUT);
-	  force_redraw();
+      force_redraw();
     }
     return result;
   }

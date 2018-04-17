@@ -16,7 +16,12 @@
 
 namespace t3_widget {
 
-expander_group_t::expander_group_t() : expanded_widget(nullptr), height(0) {}
+struct expander_group_t::implementation_t {
+  expander_t *expanded_widget = nullptr;
+  int height = 0, expanded_height;
+};
+
+expander_group_t::expander_group_t() : impl(new implementation_t) {}
 expander_group_t::~expander_group_t() {}
 
 void expander_group_t::add_expander(expander_t *expander) {
@@ -26,35 +31,35 @@ void expander_group_t::add_expander(expander_t *expander) {
   expander->connect_expanded(
       [this, expander](bool is_expanded) { widget_expanded(is_expanded, expander); });
   expander->set_expanded(false);
-  height++;
+  impl->height++;
 }
 
 void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
   if (is_expanded) {
-    if (expanded_widget != nullptr) {
-      expanded_widget->set_expanded(false);
+    if (impl->expanded_widget != nullptr) {
+      impl->expanded_widget->set_expanded(false);
       /* This will generate another signal which will reduce the height. */
     }
-    expanded_height = source->get_base_window()->get_height() - 1;
-    height += expanded_height;
-    expanded_widget = source;
+    impl->expanded_height = source->get_base_window()->get_height() - 1;
+    impl->height += impl->expanded_height;
+    impl->expanded_widget = source;
   } else {
-    if (source == expanded_widget) {
-      expanded_widget = nullptr;
-      height -= expanded_height;
+    if (source == impl->expanded_widget) {
+      impl->expanded_widget = nullptr;
+      impl->height -= impl->expanded_height;
     }
   }
   expanded(is_expanded);
 }
 
 void expander_group_t::collapse() {
-  if (expanded_widget != nullptr) {
-    expanded_widget->set_expanded(false);
-    expanded_widget = nullptr;
+  if (impl->expanded_widget != nullptr) {
+    impl->expanded_widget->set_expanded(false);
+    impl->expanded_widget = nullptr;
     expanded(false);
   }
 }
 
-int expander_group_t::get_group_height() { return height; }
+int expander_group_t::get_group_height() { return impl->height; }
 
 }  // namespace

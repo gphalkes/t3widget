@@ -23,7 +23,35 @@
 
 namespace t3_widget {
 
-menu_bar_t::menu_bar_t(bool _hidden) : widget_t(1, 80), impl(new implementation_t(_hidden)) {
+struct menu_bar_t::implementation_t {
+  // FIXME: the mutable keyword here is a hack to allow the hotkey operation to work. We should find
+  // some way to get rid of this.
+  mutable int
+      current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
+      old_menu;     /**< Previously active window. */
+  int start_col;    /**< Column where the next menu will start. */
+  bool hidden,      /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
+      /** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input
+         focus.
+              See the comments at #set_focus for details.
+      */
+      has_focus;
+
+  std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
+  int button_down_idx;               /** Index of menu on which the left button was pressed down. */
+
+  implementation_t(bool _hidden)
+      : current_menu(0),
+        old_menu(0),
+        start_col(0),
+        hidden(_hidden),
+        has_focus(false),
+        button_down_idx(-1) {}
+};
+
+menu_bar_t::menu_bar_t(bool _hidden)
+    : widget_t(1, 80, true, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(_hidden)) {
   // Menu bar should be above normal widgets
   window.set_depth(-1);
   if (impl->hidden) {

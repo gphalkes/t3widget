@@ -18,12 +18,32 @@
 
 namespace t3_widget {
 
+struct button_t::implementation_t {
+  /** Text to display on the button. */
+  std::unique_ptr<smart_label_text_t> text;
+
+  /** Width of the text. */
+  int text_width;
+  /** Boolean indicating whether this button should be drawn as the default button.
+      The default button is the button that displays the action taken when
+      the enter key is pressed inside another widget on the same dialog.
+      It is drawn differently from other buttons, and there should be only
+      one such button on each dialog. */
+  bool is_default,
+      has_focus = false; /**< Boolean indicating whether this button has the input focus. */
+  implementation_t(const char *_text, bool _is_default)
+      : text(new smart_label_t(_text)), is_default(_is_default) {
+    text_width = text->get_width();
+  }
+};
+
 button_t::button_t(const char *_text, bool _is_default)
-    : text(new smart_label_t(_text)), is_default(_is_default) {
-  text_width = text->get_width();
-  init_window(1, text_width + 4);
-  has_focus = false;
+    : widget_t(impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(_text, _is_default)) {
+  init_window(1, impl->text_width + 4);
 }
+
+button_t::~button_t() {}
 
 bool button_t::process_key(key_t key) {
   switch (key) {
@@ -55,10 +75,10 @@ bool button_t::set_size(optint height, optint width) {
 
   if (width.is_valid()) {
     if (width.value() <= 0) {
-      if (text_width + 4 == window.get_width()) {
+      if (impl->text_width + 4 == window.get_width()) {
         return true;
       }
-      width = text_width + 4;
+      width = impl->text_width + 4;
     }
     return window.resize(1, width.value());
   }
@@ -73,31 +93,31 @@ void button_t::update_contents() {
     return;
   }
 
-  attr = has_focus ? attributes.button_selected : 0;
+  attr = impl->has_focus ? attributes.button_selected : 0;
 
   width = window.get_width();
 
   window.set_default_attrs(attributes.dialog);
   window.set_paint(0, 0);
-  window.addstr(is_default ? "[<" : "[ ", attr);
-  if (width > text_width + 4) {
-    window.addchrep(' ', attr, (width - 4 - text_width) / 2);
+  window.addstr(impl->is_default ? "[<" : "[ ", attr);
+  if (width > impl->text_width + 4) {
+    window.addchrep(' ', attr, (width - 4 - impl->text_width) / 2);
   }
-  text->draw(&window, attr, has_focus);
-  if (width > text_width + 4) {
-    window.addchrep(' ', attr, (width - 4 - text_width + 1) / 2);
+  impl->text->draw(&window, attr, impl->has_focus);
+  if (width > impl->text_width + 4) {
+    window.addchrep(' ', attr, (width - 4 - impl->text_width + 1) / 2);
   } else if (width > 0) {
     window.set_paint(0, width - 2);
   }
-  window.addstr(is_default ? ">]" : " ]", attr);
+  window.addstr(impl->is_default ? ">]" : " ]", attr);
 }
 
 void button_t::set_focus(focus_t focus) {
-  if (focus != has_focus) {
+  if (focus != impl->has_focus) {
     force_redraw();
   }
 
-  has_focus = focus;
+  impl->has_focus = focus;
 }
 
 bool button_t::process_mouse_event(mouse_event_t event) {
@@ -109,6 +129,6 @@ bool button_t::process_mouse_event(mouse_event_t event) {
 
 int button_t::get_width() { return window.get_width(); }
 
-bool button_t::is_hotkey(key_t key) const { return text->is_hotkey(key); }
+bool button_t::is_hotkey(key_t key) const { return impl->text->is_hotkey(key); }
 
 }  // namespace

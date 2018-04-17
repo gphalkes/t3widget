@@ -22,17 +22,8 @@ namespace t3_widget {
 /** Button widget. */
 class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
  private:
-  /** Text to display on the button. */
-  std::unique_ptr<smart_label_text_t> text;
-
-  /** Width of the text. */
-  int text_width;
-  /** Boolean indicating whether this button should be drawn as the default button.
-      The default button is the button that displays the action taken when
-      the enter key is pressed inside another widget on the same dialog.
-      It is drawn differently from other buttons, and there should be only
-      one such button on each dialog. */
-  bool is_default, has_focus; /**< Boolean indicating whether this button has the input focus. */
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   /** Create a button_t.
@@ -43,6 +34,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
       The @p _text is used to initialize a smart_label_text_t, therefore the
       character following the underscore will be highlighted. */
   button_t(const char *_text, bool _is_default = false);
+  ~button_t() override;
   bool process_key(key_t key) override;
   /** Set the size of this button_t.
       The @p height parameter is ignored. If width is negative, the natural size

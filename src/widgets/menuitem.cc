@@ -35,10 +35,20 @@ bool menu_item_base_t::set_size(optint height, optint width) {
 
 void menu_item_base_t::process_mouse_event_from_menu(mouse_event_t event) { (void)event; }
 
+struct menu_item_t::implementation_t {
+  std::unique_ptr<smart_label_text_t> label;
+  const char *hotkey;
+  int id;
+  bool has_focus = false;
+  implementation_t(const char *_label, const char *_hotkey, int _id)
+      : label(new smart_label_t(_label)), hotkey(_hotkey), id(_id) {}
+};
+
 menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id)
-    : menu_item_base_t(_parent), label(new smart_label_t(_label)), hotkey(_hotkey), id(_id) {
-  has_focus = false;
-}
+    : menu_item_base_t(_parent, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(_label, _hotkey, _id)) {}
+
+menu_item_t::~menu_item_t() {}
 
 bool menu_item_t::process_key(key_t key) {
   switch (key) {
@@ -46,7 +56,7 @@ bool menu_item_t::process_key(key_t key) {
     case ' ':
     case EKEY_HOTKEY:
       parent->close();
-      parent->activate(id);
+      parent->activate(impl->id);
       break;
     default:
       return false;
@@ -62,41 +72,41 @@ void menu_item_t::update_contents() {
   window.set_paint(0, 0);
   window.clrtoeol();
   window.set_paint(0, 1);
-  window.set_default_attrs(has_focus ? attributes.dialog_selected : attributes.dialog);
-  label->draw(&window, 0, has_focus);
+  window.set_default_attrs(impl->has_focus ? attributes.dialog_selected : attributes.dialog);
+  impl->label->draw(&window, 0, impl->has_focus);
 
-  if (hotkey != nullptr) {
-    window.set_paint(0, window.get_width() - t3_term_strwidth(hotkey) - 1);
-    window.addstr(hotkey, 0);
+  if (impl->hotkey != nullptr) {
+    window.set_paint(0, window.get_width() - t3_term_strwidth(impl->hotkey) - 1);
+    window.addstr(impl->hotkey, 0);
   }
 }
 
 void menu_item_t::set_focus(focus_t focus) {
   menu_item_base_t::set_focus(focus);
-  if (focus != has_focus) {
+  if (focus != impl->has_focus) {
     force_redraw();
   }
-  has_focus = focus;
+  impl->has_focus = focus;
 }
 
 void menu_item_t::show() {}
 void menu_item_t::hide() {}
 
-bool menu_item_t::is_hotkey(key_t key) const { return label->is_hotkey(key); }
+bool menu_item_t::is_hotkey(key_t key) const { return impl->label->is_hotkey(key); }
 
 void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
   if (event.type == EMOUSE_BUTTON_RELEASE &&
       (event.previous_button_state & (EMOUSE_BUTTON_LEFT | EMOUSE_BUTTON_RIGHT))) {
-    parent->activate(id);
+    parent->activate(impl->id);
     parent->close();
   }
   return;
 }
 
-int menu_item_t::get_label_width() { return label->get_width() + 2; }
+int menu_item_t::get_label_width() { return impl->label->get_width() + 2; }
 
 int menu_item_t::get_hotkey_width() {
-  return hotkey == nullptr ? 0 : (t3_term_strwidth(hotkey) + 2);
+  return impl->hotkey == nullptr ? 0 : (t3_term_strwidth(impl->hotkey) + 2);
 }
 
 menu_separator_t::menu_separator_t(menu_panel_t *_parent) : menu_item_base_t(_parent) {}

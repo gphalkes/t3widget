@@ -27,16 +27,15 @@ namespace t3_widget {
 */
 class T3_WIDGET_API bullet_t : public widget_t {
  private:
-  /** Callback to determine required display state. */
-  std::function<bool()> source;
-  /** Boolean indicating whether this widget should be drawn as focuessed. */
-  bool has_focus;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   /** Create a new bullet_t.
       @param _source Callback to determine required display state.
   */
   bullet_t(std::function<bool()> _source);
+  ~bullet_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

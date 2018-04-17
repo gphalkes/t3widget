@@ -30,23 +30,8 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
     FOCUS_CHILD,
   };
 
-  struct implementation_t {
-    expander_focus_t focus, last_focus;
-    bool is_expanded;
-    smart_label_text_t label;
-    t3_window::window_t symbol_window;
-    std::unique_ptr<widget_t> child; /**< The widget to enclose. */
-    int full_height;
-    connection_t move_up_connection, move_down_connection, move_right_connection,
-        move_left_connection;
-    implementation_t(const char *text)
-        : focus(FOCUS_NONE),
-          last_focus(FOCUS_NONE),
-          is_expanded(false),
-          label(text),
-          full_height(2) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   void focus_up_from_child();
 
@@ -55,6 +40,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
       @param _text The text for the smart_label_t shown next to the expander symbol.
   */
   expander_t(const char *text);
+  ~expander_t() override;
   /** Set the child widget.
 
       @note This also automatically sets the size of the expander_t to wrap

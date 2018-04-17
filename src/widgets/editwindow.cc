@@ -51,6 +51,47 @@ const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = {&text_buffer_t::insert_char,
                                                               &text_buffer_t::overwrite_char};
 
+struct edit_window_t::implementation_t {
+  t3_window::window_t edit_window, /**< Window containing the text. */
+      indicator_window; /**< Window holding the line, column, modified, etc. information line at
+                           the bottom. */
+  std::unique_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
+  int screen_pos = 0;                     /**< Cached position of cursor in screen coordinates. */
+  int tabsize = 8;                        /**< Width of a tab, in cells. */
+  bool focus = false; /**< Boolean indicating whether this edit_window_t has the input focus. */
+  bool tab_spaces = false; /**< Boolean indicating whether to use spaces for tab. */
+  /** Associated find dialog.
+      By default this is the shared dialog, but can be set to a different one. */
+  find_dialog_t *find_dialog = nullptr;
+  bool use_local_finder = false;
+  std::shared_ptr<finder_t> finder;          /**< Object used for find actions in the text. */
+  wrap_type_t wrap_type = wrap_type_t::NONE; /**< The wrap_type_t used for display. */
+  wrap_info_t *wrap_info =
+      nullptr; /**< Required information for wrapped display, or @c nullptr if not in use. */
+  /** The top-left coordinate in the text.
+          This is either a proper text_coordinate_t when wrapping is disabled, or
+          a line and sub-line (pos @c member) coordinate when wrapping is enabled.
+  */
+  text_coordinate_t top_left;
+  int ins_mode = 0,     /**< Current insert/overwrite mode. */
+      last_set_pos = 0; /**< Last horiziontal position set by user action. */
+  bool auto_indent =
+      true; /**< Boolean indicating whether automatic indentation should be enabled. */
+  /** Boolean indicating whether the current text is part of a paste operation.
+      Set automatically as a response to bracketed paste. Disables auto-indent. */
+  bool pasting_text = false;
+  /** Boolean indicating whether home key should handle indentation specially. */
+  bool indent_aware_home = true;
+  bool show_tabs = false; /**< Boolean indicating whether to explicitly show tabs. */
+
+  std::unique_ptr<autocompleter_t> autocompleter; /**< Object used for autocompletion. */
+  std::unique_ptr<autocomplete_panel_t>
+      autocomplete_panel; /**< Panel for showing autocomplete options. */
+
+  int repaint_min = 0,       /**< First line to repaint. */
+      repaint_max = INT_MAX; /**< Last line to repaint. */
+};
+
 void edit_window_t::init(bool _init) {
   if (_init) {
     /* Construct these from t3_widget::init, such that the locale is set correctly and

@@ -17,7 +17,27 @@
 
 namespace t3_widget {
 
-list_pane_t::list_pane_t(bool _indicator) : impl(new implementation_t(_indicator)) {
+struct list_pane_t::implementation_t {
+  size_t top_idx, current;
+  t3_window::window_t widgets_window;
+  widgets_t widgets;
+  bool has_focus;
+  scrollbar_t scrollbar;
+  bool indicator;
+  bool single_click_activate;
+  std::unique_ptr<indicator_widget_t> indicator_widget;
+
+  implementation_t(bool _indicator)
+      : top_idx(0),
+        current(0),
+        has_focus(false),
+        scrollbar(true),
+        indicator(_indicator),
+        single_click_activate(false) {}
+};
+
+list_pane_t::list_pane_t(bool _indicator)
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>(_indicator)) {
   init_unbacked_window(1, 4);
 
   impl->widgets_window.alloc_unbacked(&window, 1, 3, 0, 0, 0);

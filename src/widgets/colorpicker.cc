@@ -16,13 +16,26 @@
 #include <cstdio>
 
 namespace t3_widget {
+struct color_picker_base_t::implementation_t {
+  int max_color, current_color = -2;
+  bool fg, has_focus = false;
+  t3_attr_t undefined_colors = 0;
+  const char *color_str;
+  implementation_t(bool _fg) : fg(_fg) {}
+};
+
 // FIXME: handle terminals which only do color pairs, although maybe it is better to make a separate
 // widget for that
 #define COLORS_PER_LINE 36
 color_picker_base_t::color_picker_base_t(bool _fg)
-    : current_color(-2), fg(_fg), has_focus(false), undefined_colors(0) {}
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>(_fg)) {}
+
+color_picker_base_t::~color_picker_base_t() {}
 
 bool color_picker_base_t::process_key(key_t key) {
+  int &current_color = impl->current_color;
+  const int max_color = impl->max_color;
+
   int start_color = current_color;
   int x, y;
   switch (key) {
@@ -94,7 +107,7 @@ bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
       return true;
     }
 
-    current_color = new_color;
+    impl->current_color = new_color;
     force_redraw();
     selection_changed();
     if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
@@ -105,29 +118,31 @@ bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
 }
 
 void color_picker_base_t::set_focus(focus_t focus) {
-  has_focus = focus != window_component_t::FOCUS_OUT;
+  impl->has_focus = focus != window_component_t::FOCUS_OUT;
   force_redraw();
 }
 
 void color_picker_base_t::set_undefined_colors(t3_attr_t attr) {
-  undefined_colors = attr & (T3_ATTR_FG_MASK | T3_ATTR_BG_MASK);
+  impl->undefined_colors = attr & (T3_ATTR_FG_MASK | T3_ATTR_BG_MASK);
 }
 
 t3_attr_t color_picker_base_t::get_color() {
-  return fg ? (current_color >= 0 ? T3_ATTR_FG(current_color)
-                                  : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0))
-            : (current_color >= 0 ? T3_ATTR_BG(current_color)
-                                  : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
+  const int current_color = impl->current_color;
+  return impl->fg ? (current_color >= 0 ? T3_ATTR_FG(current_color)
+                                        : (current_color == -1 ? T3_ATTR_FG_DEFAULT : 0))
+                  : (current_color >= 0 ? T3_ATTR_BG(current_color)
+                                        : (current_color == -1 ? T3_ATTR_BG_DEFAULT : 0));
 }
 
 void color_picker_base_t::set_color(t3_attr_t attr) {
   int color;
-  if (fg) {
+  if (impl->fg) {
     color = (attr & T3_ATTR_FG_MASK) >> T3_ATTR_COLOR_SHIFT;
   } else {
     color = (attr & T3_ATTR_BG_MASK) >> (T3_ATTR_COLOR_SHIFT + 9);
   }
 
+  int &current_color = impl->current_color;
   if (color == 0) {
     current_color = -2;
   } else if (color == 257) {
@@ -151,7 +166,7 @@ void color_picker_base_t::update_contents() {
   window.box(0, 0, window.get_height(), window.get_width(), 0);
   window.set_paint(1, 1);
 
-  for (i = -2, old_y = 1; i <= max_color; i++) {
+  for (i = -2, old_y = 1; i <= impl->max_color; i++) {
     color_to_xy(i, x, y);
     if (y != old_y) {
       window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
@@ -162,31 +177,31 @@ void color_picker_base_t::update_contents() {
   }
   window.addch(T3_ACS_VLINE, T3_ATTR_ACS);
 
-  if (has_focus) {
-    color_to_xy(current_color, x, y);
+  if (impl->has_focus) {
+    color_to_xy(impl->current_color, x, y);
     window.set_paint(0, x);
     window.addch(T3_ACS_DARROW, T3_ATTR_ACS);
     window.set_paint(y, 0);
     window.addch(T3_ACS_RARROW, T3_ATTR_ACS);
     window.set_paint(y, x);
-    window.addch(T3_ACS_DIAMOND, T3_ATTR_ACS | get_paint_attr(current_color));
+    window.addch(T3_ACS_DIAMOND, T3_ATTR_ACS | get_paint_attr(impl->current_color));
   }
 
   window.set_paint(window.get_height() - 1, 1);
-  window.addstr(color_str, 0);
-  paint_color_name(current_color);
+  window.addstr(impl->color_str, 0);
+  paint_color_name(impl->current_color);
   window.addch(' ', 0);
 }
 
 void color_picker_base_t::paint_color_name(int color) {
   if (color == -2) {
-    if ((fg && (undefined_colors & T3_ATTR_FG_MASK)) ||
-        (!fg && (undefined_colors & T3_ATTR_BG_MASK))) {
+    if ((impl->fg && (impl->undefined_colors & T3_ATTR_FG_MASK)) ||
+        (!impl->fg && (impl->undefined_colors & T3_ATTR_BG_MASK))) {
       window.addstr("Base", 0);
     } else {
       window.addstr("Undefined", 0);
     }
-  } else if (current_color == -1) {
+  } else if (impl->current_color == -1) {
     window.addstr("Terminal default", 0);
   } else {
     char color_number[20];
@@ -200,8 +215,9 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
   int x, y;
   t3_term_caps_t terminal_capabilities;
   t3_term_get_caps(&terminal_capabilities);
-  color_str = " Color: ";
+  impl->color_str = " Color: ";
 
+  int &max_color = impl->max_color;
   max_color = terminal_capabilities.colors - 1;
   if (max_color > 255) {
     max_color = 255;
@@ -214,12 +230,12 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
 t3_attr_t color_picker_t::get_paint_attr(int color) {
   switch (color) {
     case -2:
-      return fg
+      return impl->fg
                  ? (attributes.dialog & T3_ATTR_FG_MASK) |
-                       ((undefined_colors & T3_ATTR_FG_MASK) << 9)
-                 : (undefined_colors & T3_ATTR_BG_MASK);
+                       ((impl->undefined_colors & T3_ATTR_FG_MASK) << 9)
+                 : (impl->undefined_colors & T3_ATTR_BG_MASK);
     case -1:
-      return fg
+      return impl->fg
                  ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT |
                        ((attributes.dialog & T3_ATTR_FG_MASK) << 9)
                  : T3_ATTR_BG_DEFAULT;
@@ -247,12 +263,12 @@ int color_picker_t::xy_to_color(int x, int y) {
   }
   if (y == 1) {
     color = x - 3;
-    if (color > 16 || color > max_color || current_color == color) {
+    if (color > 16 || color > impl->max_color || impl->current_color == color) {
       return INT_MIN;
     }
   } else {
     color = 16 + (y - 2) * COLORS_PER_LINE + x - 1;
-    if (color > max_color) {
+    if (color > impl->max_color) {
       return INT_MIN;
     }
   }
@@ -277,8 +293,9 @@ color_pair_picker_t::color_pair_picker_t() : color_picker_base_t(true) {
   int x, y;
   t3_term_caps_t terminal_capabilities;
   t3_term_get_caps(&terminal_capabilities);
-  color_str = " Color pair: ";
+  impl->color_str = " Color pair: ";
 
+  int &max_color = impl->max_color;
   max_color = terminal_capabilities.pairs - 1;
   if (max_color > 255) {
     max_color = 255;
@@ -297,7 +314,7 @@ int color_pair_picker_t::xy_to_color(int x, int y) {
   color = (x - 1) + (y - 1) * COLORS_PER_LINE;
   /* Take undefined and default color into account. */
   color -= 2;
-  if (color > max_color) {
+  if (color > impl->max_color) {
     return INT_MIN;
   }
   return color;
@@ -313,7 +330,7 @@ void color_pair_picker_t::color_to_xy(int color, int &x, int &y) {
 t3_attr_t color_pair_picker_t::get_paint_attr(int color) {
   switch (color) {
     case -2:
-      return undefined_colors & T3_ATTR_FG_MASK;
+      return impl->undefined_colors & T3_ATTR_FG_MASK;
     case -1:
       return T3_ATTR_FG_DEFAULT;
     default:

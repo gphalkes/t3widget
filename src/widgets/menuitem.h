@@ -29,17 +29,16 @@ class T3_WIDGET_API menu_item_base_t : public widget_t {
   virtual void process_mouse_event_from_menu(mouse_event_t event);
 
  public:
-  menu_item_base_t(menu_panel_t *_parent) : widget_t(1, 4), parent(_parent) {}
+  menu_item_base_t(menu_panel_t *_parent, size_t impl_size = 0)
+      : widget_t(1, 4, true, impl_size), parent(_parent) {}
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;
 };
 
 class T3_WIDGET_API menu_item_t : public menu_item_base_t {
  private:
-  std::unique_ptr<smart_label_text_t> label;
-  const char *hotkey;
-  int id;
-  bool has_focus;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   /* Menu items get their events from the menu_t (via the menu_panel_t),
      because that grabs the mouse as soon as it is activated. */
@@ -47,6 +46,7 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
 
  public:
   menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
+  ~menu_item_t() override;
   bool process_key(key_t key) override;
   void update_contents() override;
   void set_focus(focus_t focus) override;

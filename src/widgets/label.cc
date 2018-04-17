@@ -19,15 +19,28 @@
 namespace t3_widget {
 
 // FIXME: maybe we should allow scrolling with the left and right keys
+struct label_t::implementation_t {
+  std::string text;           /**< Text currently displayed. */
+  int text_width;             /**< Width of the text if displayed in full. */
+  align_t align = ALIGN_LEFT; /**< Text alignment. Default is #ALIGN_LEFT. */
+  /** Boolean indicating whether this label_t has the input focus. */
+  bool focus = false;
+  /** Boolean indicating whether this label_t will accept the input focus. Default is @c true. */
+  bool can_focus = false;
+  implementation_t(string_view _text) : text(_text) {}
+};
 
 label_t::label_t(string_view _text)
-    : text(_text), align(ALIGN_LEFT), focus(false), can_focus(true) {
-  int width = text_width = t3_term_strwidth(text.c_str());
+    : widget_t(impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(std::move(_text))) {
+  int width = impl->text_width = t3_term_strwidth(impl->text.c_str());
   if (width == 0) {
     width = 1;
   }
   init_window(1, width, false);
 }
+
+label_t::~label_t() {}
 
 bool label_t::process_key(key_t key) {
   (void)key;
@@ -53,15 +66,18 @@ void label_t::update_contents() {
   }
 
   width = window.get_width();
-  text_line_t line(text);
+  text_line_t line(impl->text);
   text_line_t::paint_info_t paint_info;
 
-  window.set_default_attrs(focus ? attributes.dialog_selected : attributes.dialog);
+  window.set_default_attrs(impl->focus ? attributes.dialog_selected : attributes.dialog);
   window.set_paint(0, 0);
   window.clrtoeol();
+
+  int &text_width = impl->text_width;
+
   int x = 0;
   if (width > text_width) {
-    switch (align) {
+    switch (impl->align) {
       default:
         break;
       case ALIGN_RIGHT:
@@ -76,7 +92,8 @@ void label_t::update_contents() {
   window.set_paint(0, x);
 
   paint_info.start = 0;
-  if (width < text_width && (align == ALIGN_LEFT_UNDERFLOW || align == ALIGN_RIGHT_UNDERFLOW)) {
+  if (width < text_width &&
+      (impl->align == ALIGN_LEFT_UNDERFLOW || impl->align == ALIGN_RIGHT_UNDERFLOW)) {
     paint_info.leftcol = text_width - width + 2;
     paint_info.size = width - 2;
     window.addstr("..", 0);
@@ -98,20 +115,20 @@ void label_t::update_contents() {
 
 void label_t::set_focus(focus_t _focus) {
   force_redraw();
-  focus = _focus;
+  impl->focus = _focus;
 }
 
-void label_t::set_align(label_t::align_t _align) { align = _align; }
+void label_t::set_align(label_t::align_t _align) { impl->align = _align; }
 
 void label_t::set_text(const char *_text) {
-  text = _text;
-  text_width = t3_term_strwidth(text.c_str());
+  impl->text = _text;
+  impl->text_width = t3_term_strwidth(impl->text.c_str());
   force_redraw();
 }
 
-int label_t::get_text_width() const { return text_width; }
+int label_t::get_text_width() const { return impl->text_width; }
 
-void label_t::set_accepts_focus(bool _can_focus) { can_focus = _can_focus; }
-bool label_t::accepts_focus() { return can_focus && widget_t::accepts_focus(); }
+void label_t::set_accepts_focus(bool _can_focus) { impl->can_focus = _can_focus; }
+bool label_t::accepts_focus() { return impl->can_focus && widget_t::accepts_focus(); }
 
 }  // namespace

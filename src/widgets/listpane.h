@@ -37,25 +37,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
     bool accepts_focus() override;
   };
 
-  struct T3_WIDGET_LOCAL implementation_t {
-    size_t top_idx, current;
-    t3_window::window_t widgets_window;
-    widgets_t widgets;
-    bool has_focus;
-    scrollbar_t scrollbar;
-    bool indicator;
-    bool single_click_activate;
-    std::unique_ptr<indicator_widget_t> indicator_widget;
-
-    implementation_t(bool _indicator)
-        : top_idx(0),
-          current(0),
-          has_focus(false),
-          scrollbar(true),
-          indicator(_indicator),
-          single_click_activate(false) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   void ensure_cursor_on_screen();
   void scroll(int change);

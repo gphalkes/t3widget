@@ -22,16 +22,15 @@ namespace t3_widget {
 /** Class implementing a checkbox. */
 class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
  private:
-  bool state,    /**< Current state (true if checked). */
-      has_focus; /**< Boolean indicating whether this widget should be drawn as focuessed. */
-  smart_label_t
-      *label; /**< Label associated with this checkbox_t. Used for determining the hotkey. */
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   /** Create a new checkbox_t.
       @param _state The initial state of the checkbox_t.
   */
   checkbox_t(bool _state = false);
+  ~checkbox_t() override;
   bool process_key(key_t key) override;
   /** Set the size of this checkbox_t (ignored).
       A checkbox_t has a fixed size, so both @p height and @p width are ignored. */

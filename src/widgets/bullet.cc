@@ -16,8 +16,19 @@
 
 namespace t3_widget {
 
+struct bullet_t::implementation_t {
+  /** Callback to determine required display state. */
+  std::function<bool()> source;
+  /** Boolean indicating whether this widget should be drawn as focuessed. */
+  bool has_focus = false;
+  implementation_t(std::function<bool()> _source) : source(_source) {}
+};
+
 bullet_t::bullet_t(std::function<bool()> _source)
-    : widget_t(1, 1, false), source(_source), has_focus(false) {}
+    : widget_t(1, 1, false, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(_source)) {}
+
+bullet_t::~bullet_t() {}
 
 bool bullet_t::set_size(optint height, optint width) {
   (void)height;
@@ -33,13 +44,13 @@ bool bullet_t::process_key(key_t key) {
 void bullet_t::update_contents() {
   window.set_default_attrs(attributes.dialog);
   window.set_paint(0, 0);
-  if (source()) {
-    window.addch(T3_ACS_DIAMOND, T3_ATTR_ACS | (has_focus ? T3_ATTR_REVERSE : 0));
+  if (impl->source()) {
+    window.addch(T3_ACS_DIAMOND, T3_ATTR_ACS | (impl->has_focus ? T3_ATTR_REVERSE : 0));
   } else {
-    window.addch(' ', has_focus ? T3_ATTR_REVERSE : 0);
+    window.addch(' ', impl->has_focus ? T3_ATTR_REVERSE : 0);
   }
 }
 
-void bullet_t::set_focus(focus_t focus) { has_focus = focus; }
+void bullet_t::set_focus(focus_t focus) { impl->has_focus = focus; }
 
 }  // namespace

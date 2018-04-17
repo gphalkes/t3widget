@@ -16,14 +16,27 @@
 
 namespace t3_widget {
 
+struct checkbox_t::implementation_t {
+  /** Current state (true if checked). */
+  bool state;
+  /** Boolean indicating whether this widget should be drawn as focuessed. */
+  bool has_focus = false;
+  /** Label associated with this checkbox_t. Used for determining the hotkey. */
+  smart_label_t *label = nullptr;
+  implementation_t(bool _state) : state(_state) {}
+};
+
 checkbox_t::checkbox_t(bool _state)
-    : widget_t(1, 3), state(_state), has_focus(false), label(nullptr) {}
+    : widget_t(1, 3, true, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(_state)) {}
+
+checkbox_t::~checkbox_t() {}
 
 bool checkbox_t::process_key(key_t key) {
   switch (key) {
     case ' ':
     case EKEY_HOTKEY:
-      state ^= true;
+      impl->state ^= true;
       force_redraw();
       toggled();
       update_contents();
@@ -62,35 +75,36 @@ void checkbox_t::update_contents() {
   window.set_default_attrs(attributes.dialog);
   window.set_paint(0, 0);
   window.addch('[', 0);
-  window.addch(is_enabled() ? (state ? 'X' : ' ') : '-', has_focus ? T3_ATTR_REVERSE : 0);
+  window.addch(is_enabled() ? (impl->state ? 'X' : ' ') : '-',
+               impl->has_focus ? T3_ATTR_REVERSE : 0);
   window.addch(']', 0);
 }
 
 void checkbox_t::set_focus(focus_t focus) {
-  if (has_focus != focus) {
+  if (impl->has_focus != focus) {
     force_redraw();
   }
 
-  has_focus = focus;
+  impl->has_focus = focus;
 }
 
-bool checkbox_t::get_state() { return state; }
+bool checkbox_t::get_state() { return impl->state; }
 
 void checkbox_t::set_state(bool _state) {
-  state = !!_state;
+  impl->state = !!_state;
   force_redraw();
 }
 
 void checkbox_t::set_label(smart_label_t *_label) {
-  if (label != nullptr) {
-    unregister_mouse_target(label->get_base_window());
+  if (impl->label != nullptr) {
+    unregister_mouse_target(impl->label->get_base_window());
   }
-  label = _label;
-  register_mouse_target(label->get_base_window());
+  impl->label = _label;
+  register_mouse_target(impl->label->get_base_window());
 }
 
 bool checkbox_t::is_hotkey(key_t key) const {
-  return label == nullptr ? false : label->is_hotkey(key);
+  return impl->label == nullptr ? false : impl->label->is_hotkey(key);
 }
 
 void checkbox_t::set_enabled(bool enable) {
@@ -100,7 +114,7 @@ void checkbox_t::set_enabled(bool enable) {
 
 bool checkbox_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
-    state ^= true;
+    impl->state ^= true;
     force_redraw();
     toggled();
     update_contents();
