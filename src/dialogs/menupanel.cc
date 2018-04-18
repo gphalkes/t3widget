@@ -89,12 +89,12 @@ void menu_panel_t::set_position(optint top, optint left) {
 }
 
 bool menu_panel_t::set_size(optint height, optint _width) {
-  widgets_t::iterator iter;
-  bool result;
-  int i;
   (void)_width;
-  for (iter = widgets().begin(), i = 0; iter != widgets().end(); iter++, i++) {
-    (*iter)->set_size(None, impl->width - 2);
+  bool result;
+  int i = 0;
+  for (widget_t *widget : widgets()) {
+    widget->set_size(None, impl->width - 2);
+    ++i;
   }
 
   result = dialog_t::set_size(height, impl->width);

@@ -64,9 +64,9 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   void reset();
   void update_positions();
 
-  void push_back(widget_t *widget);
-  void push_front(widget_t *widget);
-  void pop_back();
+  void push_back(std::unique_ptr<widget_t> widget);
+  void push_front(std::unique_ptr<widget_t> widget);
+  std::unique_ptr<widget_t> pop_back();
   void pop_front();
   widget_t *back();
   widget_t *operator[](int idx);

@@ -22,23 +22,30 @@ namespace t3_widget {
 #define _T3_ACTION_TYPE split_t
 #include "key_binding_def.h"
 
-split_t::split_t(widget_t *widget) : horizontal(true), focus(false) {
+struct split_t::implementation_t {
+  owned_widgets_t widgets;           /**< The list of widgets contained by this split_t. */
+  owned_widgets_t::iterator current; /**< The currently active widget. */
+  /** Boolean indicating whether to divide the space horizontally or vertically. */
+  bool horizontal = true;
+  /** Boolean indicating whether this split_t (or rather, one of its children) has the input focus.
+   */
+  bool focus = false;
+};
+
+split_t::split_t(std::unique_ptr<widget_t> widget)
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
   init_unbacked_window(3, 3);
-  set_widget_parent(widget);
+  set_widget_parent(widget.get());
   widget->set_anchor(this, 0);
   widget->show();
-  widgets.push_back(widget);
-  current = widgets.begin();
+  impl->widgets.push_back(std::move(widget));
+  impl->current = impl->widgets.begin();
 }
 
-split_t::~split_t() {
-  for (widget_t *widget : widgets) {
-    delete widget;
-  }
-}
+split_t::~split_t() {}
 
 bool split_t::process_key(key_t key) {
-  if (widgets.empty()) {
+  if (impl->widgets.empty()) {
     return false;
   }
 
@@ -55,7 +62,7 @@ bool split_t::process_key(key_t key) {
         break;
     }
   } else {
-    return (*current)->process_key(key);
+    return (*impl->current)->process_key(key);
   }
   return true;
 }
@@ -72,50 +79,52 @@ bool split_t::set_size(optint height, optint width) {
 
   result = window.resize(height.value(), width.value());
 
-  if (horizontal) {
-    int idx;
-    int step = height.value() / widgets.size();
-    int left_over = height.value() % widgets.size();
-    widgets_t::iterator iter;
+  if (impl->horizontal) {
+    int idx = 0;
+    int step = height.value() / impl->widgets.size();
+    int left_over = height.value() % impl->widgets.size();
 
-    for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
-      result &= (*iter)->set_size(step + (idx < left_over), width);
-      (*iter)->set_position(idx * step + std::min(idx, left_over), 0);
+    for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
+      result &= widget->set_size(step + (idx < left_over), width);
+      widget->set_position(idx * step + std::min(idx, left_over), 0);
+      ++idx;
     }
   } else {
-    int idx;
-    int step = width.value() / widgets.size();
-    int left_over = width.value() % widgets.size();
-    widgets_t::iterator iter;
+    int idx = 0;
+    int step = width.value() / impl->widgets.size();
+    int left_over = width.value() % impl->widgets.size();
 
-    for (iter = widgets.begin(), idx = 0; iter != widgets.end(); iter++, idx++) {
-      result &= (*iter)->set_size(height, step + (idx < left_over));
-      (*iter)->set_position(0, idx * step + std::min(idx, left_over));
+    for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
+      result &= widget->set_size(height, step + (idx < left_over));
+      widget->set_position(0, idx * step + std::min(idx, left_over));
+      ++idx;
     }
   }
   return result;
 }
 
 void split_t::update_contents() {
-  for (widget_t *widget : widgets) {
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
     widget->update_contents();
   }
 }
 
 void split_t::set_focus(focus_t _focus) {
-  focus = _focus;
-  (*current)->set_focus(_focus);
+  impl->focus = _focus;
+  (*impl->current)->set_focus(_focus);
 }
 
 void split_t::force_redraw() {
-  for (widget_t *widget : widgets) {
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
     widget->force_redraw();
   }
 }
 
 void split_t::set_child_focus(window_component_t *target) {
-  for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-    if (*iter == target) {
+  owned_widgets_t::iterator &current = impl->current;
+  for (owned_widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end();
+       iter++) {
+    if (iter->get() == target) {
       if (*current != *iter) {
         (*current)->set_focus(window_component_t::FOCUS_OUT);
         current = iter;
@@ -123,7 +132,7 @@ void split_t::set_child_focus(window_component_t *target) {
       }
       return;
     } else {
-      container_t *container = dynamic_cast<container_t *>(*iter);
+      container_t *container = dynamic_cast<container_t *>(iter->get());
       if (container != nullptr && container->is_child(target)) {
         if (*current != *iter) {
           (*current)->set_focus(window_component_t::FOCUS_OUT);
@@ -137,11 +146,11 @@ void split_t::set_child_focus(window_component_t *target) {
 }
 
 bool split_t::is_child(window_component_t *widget) {
-  for (widget_t *iter : widgets) {
-    if (iter == widget) {
+  for (const std::unique_ptr<widget_t> &iter : impl->widgets) {
+    if (iter.get() == widget) {
       return true;
     } else {
-      container_t *container = dynamic_cast<container_t *>(iter);
+      container_t *container = dynamic_cast<container_t *>(iter.get());
       if (container != nullptr && container->is_child(widget)) {
         return true;
       }
@@ -150,75 +159,77 @@ bool split_t::is_child(window_component_t *widget) {
   return false;
 }
 
-void split_t::split(widget_t *widget, bool _horizontal) {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+void split_t::split(std::unique_ptr<widget_t> widget, bool _horizontal) {
+  owned_widgets_t::iterator &current = impl->current;
+  split_t *current_window = dynamic_cast<split_t *>(current->get());
 
   if (current_window != nullptr) {
-    current_window->split(widget, _horizontal);
-  } else if (widgets.size() == 1 || _horizontal == horizontal) {
-    horizontal = _horizontal;
-    container_t::set_widget_parent(widget);
+    current_window->split(std::move(widget), _horizontal);
+  } else if (impl->widgets.size() == 1 || _horizontal == impl->horizontal) {
+    impl->horizontal = _horizontal;
+    container_t::set_widget_parent(widget.get());
     widget->set_anchor(this, 0);
     widget->show();
-    if (focus) {
+    if (impl->focus) {
       (*current)->set_focus(window_component_t::FOCUS_OUT);
     }
     current++;
-    current = widgets.insert(current, widget);
+    current = impl->widgets.insert(current, std::move(widget));
     set_size(None, None);
-    if (focus) {
+    if (impl->focus) {
       (*current)->set_focus(window_component_t::FOCUS_SET);
     }
   } else {
     /* Create a new split_t with the current widget as its contents. Then
        add split that split_t to splice in the requested widget. */
     (*current)->set_focus(window_component_t::FOCUS_OUT);
-    current_window = new split_t(*current);
+    current_window = new split_t(std::move(*current));
     container_t::set_widget_parent(current_window);
     current_window->set_focus(window_component_t::FOCUS_SET);
-    current_window->split(widget, _horizontal);
-    *current = current_window;
+    current_window->split(std::move(widget), _horizontal);
+    current->reset(current_window);
     set_size(None, None);
   }
 }
 
-bool split_t::unsplit(widget_t **widget) {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+bool split_t::unsplit(std::unique_ptr<widget_t> *widget) {
+  owned_widgets_t::iterator &current = impl->current;
+  split_t *current_window = dynamic_cast<split_t *>(current->get());
 
   if (current_window == nullptr) {
     /* This should not happen for previously split windows. However, for
        the first split_t instance this may be the case, so we have to
        handle it. */
-    if (widgets.size() == 1) {
+    if (impl->widgets.size() == 1) {
       return true;
     }
-    *widget = *current;
-    current = widgets.erase(current);
-    if (current == widgets.end()) {
+    *widget = std::move(*current);
+    current = impl->widgets.erase(current);
+    if (current == impl->widgets.end()) {
       current--;
-      if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+      if ((current_window = dynamic_cast<split_t *>(current->get())) != nullptr) {
         current_window->set_to_end();
       }
     } else {
-      if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+      if ((current_window = dynamic_cast<split_t *>(current->get())) != nullptr) {
         current_window->set_to_begin();
       }
     }
-    if (focus) {
+    if (impl->focus) {
       (*current)->set_focus(window_component_t::FOCUS_SET);
     }
     set_size(None, None);
-    if (widgets.size() == 1) {
+    if (impl->widgets.size() == 1) {
       return true;
     }
   } else {
     if (current_window->unsplit(widget)) {
-      *current = current_window->widgets.front();
-      set_widget_parent(*current);
+      *current = std::move(current_window->impl->widgets.front());
+      set_widget_parent(current->get());
       (*current)->set_anchor(this, 0);
-      current_window->widgets.clear();
+      current_window->impl->widgets.clear();
       delete current_window;
-      if (focus) {
+      if (impl->focus) {
         (*current)->set_focus(window_component_t::FOCUS_SET);
       }
       set_size(None, None);
@@ -227,22 +238,23 @@ bool split_t::unsplit(widget_t **widget) {
   return false;
 }
 
-widget_t *split_t::unsplit() {
-  widget_t *result = nullptr;
+std::unique_ptr<widget_t> split_t::unsplit() {
+  std::unique_ptr<widget_t> result;
   unsplit(&result);
   return result;
 }
 
 bool split_t::next_recurse() {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+  owned_widgets_t::iterator &current = impl->current;
+  split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->next_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
     current++;
-    if (current != widgets.end()) {
-      if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+    if (current != impl->widgets.end()) {
+      if ((current_window = dynamic_cast<split_t *>(current->get())) != nullptr) {
         current_window->set_to_begin();
       }
-      if (focus) {
+      if (impl->focus) {
         (*current)->set_focus(window_component_t::FOCUS_IN_FWD);
       }
       return true;
@@ -255,15 +267,16 @@ bool split_t::next_recurse() {
 }
 
 bool split_t::previous_recurse() {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+  owned_widgets_t::iterator &current = impl->current;
+  split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->previous_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
-    if (current == widgets.begin()) {
+    if (current == impl->widgets.begin()) {
       return false;
     }
     current--;
 
-    if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+    if ((current_window = dynamic_cast<split_t *>(current->get())) != nullptr) {
       current_window->set_to_end();
     }
     (*current)->set_focus(window_component_t::FOCUS_IN_BCK);
@@ -272,45 +285,47 @@ bool split_t::previous_recurse() {
 }
 
 void split_t::next() {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+  owned_widgets_t::iterator &current = impl->current;
+  split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->next_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
     current++;
-    if (current == widgets.end()) {
-      current = widgets.begin();
+    if (current == impl->widgets.end()) {
+      current = impl->widgets.begin();
     }
 
-    if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+    if ((current_window = dynamic_cast<split_t *>(current->get())) != nullptr) {
       current_window->set_to_begin();
     }
-    if (focus) {
+    if (impl->focus) {
       (*current)->set_focus(window_component_t::FOCUS_IN_FWD);
     }
   }
 }
 
 void split_t::previous() {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+  owned_widgets_t::iterator &current = impl->current;
+  split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->previous_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
-    if (current == widgets.begin()) {
-      current = widgets.end();
+    if (current == impl->widgets.begin()) {
+      current = impl->widgets.end();
     }
     current--;
 
-    if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+    if ((current_window = dynamic_cast<split_t *>(current->get())) != nullptr) {
       current_window->set_to_end();
     }
-    if (focus) {
+    if (impl->focus) {
       (*current)->set_focus(window_component_t::FOCUS_IN_BCK);
     }
   }
 }
 
 widget_t *split_t::get_current() {
-  split_t *current_window = dynamic_cast<split_t *>(*current);
+  split_t *current_window = dynamic_cast<split_t *>(impl->current->get());
   if (current_window == nullptr) {
-    return *current;
+    return impl->current->get();
   } else {
     return current_window->get_current();
   }
@@ -319,8 +334,8 @@ widget_t *split_t::get_current() {
 void split_t::set_to_begin() {
   split_t *current_window;
 
-  current = widgets.begin();
-  if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+  impl->current = impl->widgets.begin();
+  if ((current_window = dynamic_cast<split_t *>(impl->current->get())) != nullptr) {
     current_window->set_to_begin();
   }
 }
@@ -328,9 +343,9 @@ void split_t::set_to_begin() {
 void split_t::set_to_end() {
   split_t *current_window;
 
-  current = widgets.end();
-  current--;
-  if ((current_window = dynamic_cast<split_t *>(*current)) != nullptr) {
+  impl->current = impl->widgets.end();
+  impl->current--;
+  if ((current_window = dynamic_cast<split_t *>(impl->current->get())) != nullptr) {
     current_window->set_to_end();
   }
 }

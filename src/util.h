@@ -352,6 +352,11 @@ typename std::enable_if<!std::is_array<T>::value, std::unique_ptr<T>>::type make
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
+template <typename T>
+typename std::enable_if<!std::is_array<T>::value, std::unique_ptr<T>>::type wrap_unique(T *t) {
+  return std::unique_ptr<T>(t);
+}
+
 T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 

@@ -1894,17 +1894,15 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
   int new_height;
 
   while (!list_pane->empty()) {
-    widget_t *widget = list_pane->back();
     list_pane->pop_back();
-    delete widget;
   }
 
   for (size_t i = 0; i < completions->size(); i++) {
-    label_t *label = new label_t((*completions)[i]);
-    list_pane->push_back(label);
+    std::unique_ptr<label_t> label(new label_t((*completions)[i]));
     if (label->get_text_width() > new_width) {
       new_width = label->get_text_width();
     }
+    list_pane->push_back(std::move(label));
   }
 
   new_height = list_pane->size() + 2;

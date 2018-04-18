@@ -33,12 +33,8 @@ namespace t3_widget {
 */
 class T3_WIDGET_API split_t : public widget_t, public container_t {
  protected:
-  widgets_t widgets;           /**< The list of widgets contained by this split_t. */
-  widgets_t::iterator current; /**< The currently active widget. */
-  bool
-      horizontal, /**< Boolean indicating whether to divide the space horizontally or vertically. */
-      focus; /**< Boolean indicating whether this split_t (or rather, one of its children) has the
-                input focus. */
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   /** Make the next widget the current widget (internal).
       Because split_t widgets may be nested, calling #next on this widget
@@ -63,11 +59,11 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
       a single widget in the nested split_t, this funciton will return
       @c true and the remaining widget in the nested split_t will replace
       the nested split_t in this widget. */
-  bool unsplit(widget_t **widget);
+  bool unsplit(std::unique_ptr<widget_t> *widget);
 
  public:
   /** Create a new split_t. */
-  split_t(widget_t *widget);
+  split_t(std::unique_ptr<widget_t> widget);
   /** Destroy a split_t.
       Deletes all contained widgets as well.
   */
@@ -89,11 +85,11 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
       Note that if the current split_t is already a nested split_t, it may
       nest even further.
   */
-  void split(widget_t *widget, bool _horizontal);
+  void split(std::unique_ptr<widget_t> widget, bool _horizontal);
   /** Remove the current widget from the split_t (or a nested split_t).
       @return The widget that was removed.
   */
-  widget_t *unsplit();
+  std::unique_ptr<widget_t> unsplit();
   /** Make the next widget the active widget. */
   void next();
   /** Make the previous widget the active widget. */

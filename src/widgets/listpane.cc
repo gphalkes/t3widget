@@ -20,7 +20,7 @@ namespace t3_widget {
 struct list_pane_t::implementation_t {
   size_t top_idx, current;
   t3_window::window_t widgets_window;
-  widgets_t widgets;
+  owned_widgets_t widgets;
   bool has_focus;
   scrollbar_t scrollbar;
   bool indicator;
@@ -60,11 +60,7 @@ list_pane_t::list_pane_t(bool _indicator)
   }
 }
 
-list_pane_t::~list_pane_t() {
-  for (widget_t *widget : impl->widgets) {
-    delete widget;
-  }
-}
+list_pane_t::~list_pane_t() {}
 
 bool list_pane_t::set_widget_parent(window_component_t *widget) {
   return widget->get_base_window()->set_parent(&impl->widgets_window);
@@ -181,7 +177,7 @@ bool list_pane_t::set_size(optint height, optint width) {
 
   widget_width = impl->indicator ? width.value() - 3 : width.value() - 1;
 
-  for (widget_t *widget : impl->widgets) {
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
     result &= widget->set_size(None, widget_width);
   }
 
@@ -200,7 +196,7 @@ void list_pane_t::update_contents() {
   impl->widgets_window.move(-impl->top_idx, 0);
   impl->scrollbar.set_parameters(impl->widgets.size(), impl->top_idx, window.get_height());
   impl->scrollbar.update_contents();
-  for (widget_t *widget : impl->widgets) {
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
     widget->update_contents();
   }
 }
@@ -243,12 +239,12 @@ void list_pane_t::reset() {
 }
 
 void list_pane_t::update_positions() {
-  widgets_t::iterator iter;
-  size_t idx;
+  size_t idx = 0;
 
   impl->widgets_window.resize(impl->widgets.size(), impl->widgets_window.get_width());
-  for (iter = impl->widgets.begin(), idx = 0; iter != impl->widgets.end(); iter++, idx++) {
-    (*iter)->set_position(idx, impl->indicator ? 1 : 0);
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
+    widget->set_position(idx, impl->indicator ? 1 : 0);
+    ++idx;
   }
 }
 
@@ -257,7 +253,7 @@ void list_pane_t::set_anchor(window_component_t *anchor, int relation) {
 }
 
 void list_pane_t::force_redraw() {
-  for (widget_t *widget : impl->widgets) {
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
     widget->force_redraw();
   }
   if (impl->indicator) {
@@ -266,8 +262,6 @@ void list_pane_t::force_redraw() {
 }
 
 void list_pane_t::set_child_focus(window_component_t *target) {
-  widgets_t::iterator iter;
-  size_t idx;
   size_t old_current = impl->current;
 
   if (target == &impl->scrollbar || target == impl->indicator_widget.get()) {
@@ -275,15 +269,17 @@ void list_pane_t::set_child_focus(window_component_t *target) {
     return;
   }
 
-  for (iter = impl->widgets.begin(), idx = 0; iter != impl->widgets.end(); iter++, idx++) {
-    if (*iter == target) {
+  size_t idx = 0;
+  for (const std::unique_ptr<widget_t> &widget : impl->widgets) {
+    if (widget.get() == target) {
       break;
     } else {
-      container_t *container = dynamic_cast<container_t *>(*iter);
+      container_t *container = dynamic_cast<container_t *>(widget.get());
       if (container != nullptr && container->is_child(target)) {
         break;
       }
     }
+    ++idx;
   }
   if (idx < impl->widgets.size()) {
     impl->current = idx;
@@ -304,11 +300,11 @@ bool list_pane_t::is_child(window_component_t *widget) {
     return true;
   }
 
-  for (widget_t *iter : impl->widgets) {
-    if (iter == widget) {
+  for (const std::unique_ptr<widget_t> &iter : impl->widgets) {
+    if (iter.get() == widget) {
       return true;
     } else {
-      container_t *container = dynamic_cast<container_t *>(iter);
+      container_t *container = dynamic_cast<container_t *>(iter.get());
       if (container != nullptr && container->is_child(widget)) {
         return true;
       }
@@ -317,25 +313,25 @@ bool list_pane_t::is_child(window_component_t *widget) {
   return false;
 }
 
-void list_pane_t::push_back(widget_t *widget) {
+void list_pane_t::push_back(std::unique_ptr<widget_t> widget) {
   widget->set_size(1, impl->widgets_window.get_width() - (impl->indicator ? 2 : 0));
   widget->set_position(impl->widgets.size(), impl->indicator ? 1 : 0);
-  set_widget_parent(widget);
-  impl->widgets.push_back(widget);
+  set_widget_parent(widget.get());
+  impl->widgets.push_back(std::move(widget));
   impl->widgets_window.resize(impl->widgets.size(), impl->widgets_window.get_width());
 }
 
-void list_pane_t::push_front(widget_t *widget) {
+void list_pane_t::push_front(std::unique_ptr<widget_t> widget) {
   widget->set_size(1, impl->widgets_window.get_width() - (impl->indicator ? 2 : 0));
-  set_widget_parent(widget);
-  impl->widgets.push_front(widget);
+  set_widget_parent(widget.get());
+  impl->widgets.push_front(std::move(widget));
   if (impl->current + 1 < impl->widgets.size()) {
     impl->current++;
   }
   update_positions();
 }
 
-void list_pane_t::pop_back() {
+std::unique_ptr<widget_t> list_pane_t::pop_back() {
   if (impl->current + 1 == impl->widgets.size()) {
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
     if (impl->current > 0) {
@@ -345,9 +341,11 @@ void list_pane_t::pop_back() {
       }
     }
   }
-  unset_widget_parent(impl->widgets.back());
+  unset_widget_parent(impl->widgets.back().get());
+  std::unique_ptr<widget_t> result(std::move(impl->widgets.back()));
   impl->widgets.pop_back();
   impl->widgets_window.resize(impl->widgets.size(), impl->widgets_window.get_width());
+  return result;
 }
 
 void list_pane_t::pop_front() {
@@ -359,14 +357,14 @@ void list_pane_t::pop_front() {
   } else {
     impl->current--;
   }
-  unset_widget_parent(impl->widgets.front());
+  unset_widget_parent(impl->widgets.front().get());
   impl->widgets.pop_front();
   update_positions();
 }
 
-widget_t *list_pane_t::back() { return impl->widgets.back(); }
+widget_t *list_pane_t::back() { return impl->widgets.back().get(); }
 
-widget_t *list_pane_t::operator[](int idx) { return impl->widgets[idx]; }
+widget_t *list_pane_t::operator[](int idx) { return impl->widgets[idx].get(); }
 
 size_t list_pane_t::size() { return impl->widgets.size(); }
 
@@ -378,7 +376,7 @@ list_pane_t::iterator list_pane_t::erase(list_pane_t::iterator position) {
       impl->current--;
     }
   }
-  unset_widget_parent(impl->widgets[position]);
+  unset_widget_parent(impl->widgets[position].get());
   impl->widgets.erase(impl->widgets.begin() + position);
   update_positions();
   return position;

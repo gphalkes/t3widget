@@ -741,14 +741,11 @@ bool text_field_t::drop_down_list_t::process_mouse_event(mouse_event_t event) {
 
 void text_field_t::drop_down_list_t::update_list_pane() {
   while (!list_pane->empty()) {
-    widget_t *widget = list_pane->back();
     list_pane->pop_back();
-    delete widget;
   }
 
   for (size_t i = 0; i < completions->size(); i++) {
-    label_t *label = new label_t((*completions)[i]);
-    list_pane->push_back(label);
+    list_pane->push_back(make_unique<label_t>((*completions)[i]));
   }
 }
 
