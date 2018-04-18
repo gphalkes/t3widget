@@ -239,7 +239,7 @@ class T3_WIDGET_API impl_allocator_t {
   static size_t impl_alloc(size_t req) {
     const size_t align = alignof(T);
     const size_t size = sizeof(T);
-    return req > 0 ? ((req - 1) / align + 1) * align + size : size;
+    return req > 0 ? ((req - 1) / align + 1) * align + size : std::max(size, sizeof(uint16_t));
   }
 
  private:
