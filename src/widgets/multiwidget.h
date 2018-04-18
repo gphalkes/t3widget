@@ -20,15 +20,8 @@ namespace t3_widget {
 
 class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, public container_t {
  private:
-  struct T3_WIDGET_LOCAL item_t {
-    widget_t *widget;
-    int width;
-    int calculated_width;
-    bool takes_focus;
-  };
-  std::list<item_t> widgets;
-  int fixed_sum, proportion_sum;
-  widget_t *send_key_widget;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   multi_widget_t();

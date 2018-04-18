@@ -40,26 +40,54 @@ static uint32_t casefold_single(uint32_t c) {
              : result[0];
 }
 
-smart_label_text_t::smart_label_text_t(const char *spec, bool _add_colon)
-    : add_colon(_add_colon), text(spec), underlined(false), hotkey(0) {
-  if ((underline_start = text.find('_')) != std::string::npos) {
-    size_t src_size;
+struct smart_label_text_t::implementation_t {
+  bool add_colon;
+  std::string text;
+  size_t underline_start, underline_length;
+  bool underlined;
+  key_t hotkey;
+  bool must_delete;
 
-    underlined = true;
-    text.erase(underline_start, 1);
+  implementation_t(const char *spec, bool _add_colon, bool _must_delete)
+      : add_colon(_add_colon), text(spec), underlined(false), hotkey(0), must_delete(_must_delete) {
+    if ((underline_start = text.find('_')) != std::string::npos) {
+      size_t src_size;
 
-    src_size = text.size() - underline_start;
-    hotkey = casefold_single(t3_utf8_get(text.data() + underline_start, &src_size));
+      underlined = true;
+      text.erase(underline_start, 1);
 
-    text_line_t line(text);
-    underline_length = line.adjust_position(underline_start, 1) - underline_start;
+      src_size = text.size() - underline_start;
+      hotkey = casefold_single(t3_utf8_get(text.data() + underline_start, &src_size));
+
+      text_line_t line(text);
+      underline_length = line.adjust_position(underline_start, 1) - underline_start;
+    }
+  }
+};
+
+smart_label_text_t::smart_label_text_t(const char *spec, bool add_colon,
+                                       impl_allocator_t *allocator) {
+  if (allocator) {
+    impl = allocator->new_impl<implementation_t>(spec, add_colon, false);
+  } else {
+    impl = new implementation_t(spec, add_colon, true);
   }
 }
 
-smart_label_text_t::~smart_label_text_t() {}
+smart_label_text_t::~smart_label_text_t() {
+  if (impl->must_delete) {
+    delete impl;
+  } else {
+    impl->~implementation_t();
+  }
+}
 
 void smart_label_text_t::draw(t3_window::window_t *window, t3_attr_t attr, bool selected) {
-  if (!underlined) {
+  const std::string &text = impl->text;
+  size_t underline_start = impl->underline_start;
+  size_t underline_length = impl->underline_length;
+
+  if (!impl->underlined) {
     window->addnstr(text.data(), text.size(), attr);
   } else {
     window->addnstr(text.data(), underline_start, attr);
@@ -68,26 +96,32 @@ void smart_label_text_t::draw(t3_window::window_t *window, t3_attr_t attr, bool 
     window->addnstr(text.data() + underline_start + underline_length,
                     text.size() - underline_start - underline_length, attr);
   }
-  if (add_colon) {
+  if (impl->add_colon) {
     window->addch(':', attr);
   }
 }
 
 int smart_label_text_t::get_width() const {
-  return t3_term_strnwidth(text.data(), text.size()) + (add_colon ? 1 : 0);
+  return t3_term_strnwidth(impl->text.data(), impl->text.size()) + (impl->add_colon ? 1 : 0);
 }
 
 bool smart_label_text_t::is_hotkey(key_t key) const {
-  if (hotkey == 0) {
+  if (impl->hotkey == 0) {
     return false;
   }
 
-  return static_cast<key_t>(casefold_single(key & 0x1fffffl)) == hotkey;
+  return static_cast<key_t>(casefold_single(key & 0x1fffffl)) == impl->hotkey;
+}
+
+size_t smart_label_text_t::impl_alloc(size_t impl_size) {
+  return impl_allocator_t::impl_alloc<implementation_t>(impl_size);
 }
 
 //======= smart_label_t =======
 smart_label_t::smart_label_t(const char *spec, bool _add_colon)
-    : smart_label_text_t(spec, _add_colon), widget_t(1, get_width(), false) {}
+    : widget_t(smart_label_text_t::impl_alloc(0)), smart_label_text_t(spec, _add_colon, this) {
+  init_window(1, get_width(), false);
+}
 
 bool smart_label_t::process_key(key_t key) {
   (void)key;

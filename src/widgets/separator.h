@@ -20,10 +20,12 @@ namespace t3_widget {
 
 class T3_WIDGET_API separator_t : public widget_t {
  private:
-  bool horizontal;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
-  separator_t(bool _horizontal = true);
+  separator_t(bool horizontal = true);
+  ~separator_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

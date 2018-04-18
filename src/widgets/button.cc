@@ -20,7 +20,7 @@ namespace t3_widget {
 
 struct button_t::implementation_t {
   /** Text to display on the button. */
-  std::unique_ptr<smart_label_text_t> text;
+  smart_label_text_t text;
 
   /** Width of the text. */
   int text_width;
@@ -31,9 +31,8 @@ struct button_t::implementation_t {
       one such button on each dialog. */
   bool is_default,
       has_focus = false; /**< Boolean indicating whether this button has the input focus. */
-  implementation_t(const char *_text, bool _is_default)
-      : text(new smart_label_t(_text)), is_default(_is_default) {
-    text_width = text->get_width();
+  implementation_t(const char *_text, bool _is_default) : text(_text), is_default(_is_default) {
+    text_width = text.get_width();
   }
 };
 
@@ -103,7 +102,7 @@ void button_t::update_contents() {
   if (width > impl->text_width + 4) {
     window.addchrep(' ', attr, (width - 4 - impl->text_width) / 2);
   }
-  impl->text->draw(&window, attr, impl->has_focus);
+  impl->text.draw(&window, attr, impl->has_focus);
   if (width > impl->text_width + 4) {
     window.addchrep(' ', attr, (width - 4 - impl->text_width + 1) / 2);
   } else if (width > 0) {
@@ -129,6 +128,6 @@ bool button_t::process_mouse_event(mouse_event_t event) {
 
 int button_t::get_width() { return window.get_width(); }
 
-bool button_t::is_hotkey(key_t key) const { return impl->text->is_hotkey(key); }
+bool button_t::is_hotkey(key_t key) const { return impl->text.is_hotkey(key); }
 
 }  // namespace

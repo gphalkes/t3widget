@@ -21,21 +21,21 @@ namespace t3_widget {
 
 class T3_WIDGET_API smart_label_text_t {
  protected:
-  bool add_colon;
-  std::string text;
-  size_t underline_start, underline_length;
-  bool underlined;
-  key_t hotkey;
+  struct T3_WIDGET_LOCAL implementation_t;
+  implementation_t *impl;
 
  public:
-  smart_label_text_t(const char *spec, bool _addColon = false);
+  smart_label_text_t(const char *spec, bool add_colon = false,
+                     impl_allocator_t *allocator = nullptr);
   virtual ~smart_label_text_t();
   void draw(t3_window::window_t *win, t3_attr_t attr, bool selected = false);
   int get_width() const;
   bool is_hotkey(key_t key) const;
+
+  static size_t impl_alloc(size_t impl_size);
 };
 
-class T3_WIDGET_API smart_label_t : public smart_label_text_t, public widget_t {
+class T3_WIDGET_API smart_label_t : public widget_t, public smart_label_text_t {
  public:
   smart_label_t(const char *spec, bool _addColon = false);
   bool process_key(key_t key) override;

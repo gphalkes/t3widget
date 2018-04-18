@@ -20,7 +20,27 @@
 
 namespace t3_widget {
 
-scrollbar_t::scrollbar_t(bool _vertical) : impl(new implementation_t(_vertical)) {
+struct scrollbar_t::implementation_t {
+  int length;
+  int range, start, used;
+  int before, slider_size;
+  int button_down_pos;
+  bool vertical;
+  bool dragging;
+  implementation_t(bool _vertical)
+      : length(3),
+        range(1),
+        start(0),
+        used(1),
+        before(0),
+        slider_size(length - 2),
+        button_down_pos(0),
+        vertical(_vertical),
+        dragging(false) {}
+};
+
+scrollbar_t::scrollbar_t(bool _vertical)
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>(_vertical)) {
   int width, height;
 
   if (impl->vertical) {
@@ -33,6 +53,8 @@ scrollbar_t::scrollbar_t(bool _vertical) : impl(new implementation_t(_vertical))
 
   init_window(height, width);
 }
+
+scrollbar_t::~scrollbar_t() {}
 
 bool scrollbar_t::process_key(key_t key) {
   (void)key;

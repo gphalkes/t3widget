@@ -20,28 +20,12 @@ namespace t3_widget {
 
 class T3_WIDGET_API scrollbar_t : public widget_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    int length;
-    int range, start, used;
-    int before, slider_size;
-    int button_down_pos;
-    bool vertical;
-    bool dragging;
-    implementation_t(bool _vertical)
-        : length(3),
-          range(1),
-          start(0),
-          used(1),
-          before(0),
-          slider_size(length - 2),
-          button_down_pos(0),
-          vertical(_vertical),
-          dragging(false) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   scrollbar_t(bool _vertical);
+  ~scrollbar_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

@@ -16,11 +16,20 @@
 
 namespace t3_widget {
 
-separator_t::separator_t(bool _horizontal) : widget_t(1, 1, false), horizontal(_horizontal) {}
+struct separator_t::implementation_t {
+  bool horizontal;
+  implementation_t(bool _horizontal) : horizontal(_horizontal) {}
+};
+
+separator_t::separator_t(bool horizontal)
+    : widget_t(1, 1, false, impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>(horizontal)) {}
+
+separator_t::~separator_t() {}
 
 bool separator_t::set_size(optint height, optint width) {
   bool result = true;
-  if (horizontal) {
+  if (impl->horizontal) {
     if (width.is_valid()) {
       result = window.resize(1, width.value());
     }
@@ -40,7 +49,7 @@ bool separator_t::process_key(key_t key) {
 
 void separator_t::update_contents() {
   window.set_default_attrs(attributes.dialog);
-  if (horizontal) {
+  if (impl->horizontal) {
     window.set_paint(0, 0);
     window.addchrep(T3_ACS_HLINE, T3_ATTR_ACS, window.get_width());
   } else {
