@@ -27,12 +27,13 @@ struct menu_panel_t::implementation_t {
   smart_label_text_t label;
   menu_bar_t *menu_bar;
 
-  implementation_t(const char *name) : label(name), menu_bar(nullptr) {}
+  implementation_t(const char *name, impl_allocator_t *allocator)
+      : label(name, false, allocator), menu_bar(nullptr) {}
 };
 
 menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar)
-    : dialog_t(3, 5, nullopt, impl_alloc<implementation_t>(0)),
-      impl(new_impl<implementation_t>(name)) {
+    : dialog_t(3, 5, nullopt, impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
+      impl(new_impl<implementation_t>(name, this)) {
   impl->width = 5;
   impl->label_width = 1;
   impl->hotkey_width = 0;

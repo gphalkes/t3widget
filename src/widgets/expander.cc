@@ -26,16 +26,17 @@ struct expander_t::implementation_t {
   int full_height;
   connection_t move_up_connection, move_down_connection, move_right_connection,
       move_left_connection;
-  implementation_t(const char *text)
+  implementation_t(const char *text, impl_allocator_t *allocator)
       : focus(FOCUS_NONE),
         last_focus(FOCUS_NONE),
         is_expanded(false),
-        label(text),
+        label(text, false, allocator),
         full_height(2) {}
 };
 
 expander_t::expander_t(const char *text)
-    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>(text)) {
+    : widget_t(impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
+      impl(new_impl<implementation_t>(text, this)) {
   init_unbacked_window(1, impl->label.get_width() + 2);
   impl->symbol_window.alloc(&window, 1, 2 + impl->label.get_width(), 0, 0, 0);
   impl->symbol_window.show();

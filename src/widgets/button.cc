@@ -31,14 +31,15 @@ struct button_t::implementation_t {
       one such button on each dialog. */
   bool is_default,
       has_focus = false; /**< Boolean indicating whether this button has the input focus. */
-  implementation_t(const char *_text, bool _is_default) : text(_text), is_default(_is_default) {
+  implementation_t(const char *_text, bool _is_default, impl_allocator_t *allocator)
+      : text(_text, false, allocator), is_default(_is_default) {
     text_width = text.get_width();
   }
 };
 
 button_t::button_t(const char *_text, bool _is_default)
-    : widget_t(impl_alloc<implementation_t>(0)),
-      impl(new_impl<implementation_t>(_text, _is_default)) {
+    : widget_t(impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
+      impl(new_impl<implementation_t>(_text, _is_default, this)) {
   init_window(1, impl->text_width + 4);
 }
 
