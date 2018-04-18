@@ -16,7 +16,17 @@
 
 namespace t3_widget {
 
-widget_group_t::widget_group_t() : impl(new implementation_t()) { init_unbacked_window(1, 1); }
+struct widget_group_t::implementation_t {
+  owned_widgets_t children;
+  int current_child;
+  bool has_focus;
+  implementation_t() : current_child(-1), has_focus(false) {}
+};
+
+widget_group_t::widget_group_t()
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
+  init_unbacked_window(1, 1);
+}
 
 bool widget_group_t::focus_next_int() {
   int next;
@@ -66,20 +76,16 @@ void widget_group_t::focus_previous() {
   }
 }
 
-void widget_group_t::add_child(widget_t *child) {
-  set_widget_parent(child);
+void widget_group_t::add_child(std::unique_ptr<widget_t> child) {
+  set_widget_parent(child.get());
 
-  impl->children.push_back(child);
+  impl->children.push_back(std::move(child));
   if (impl->children.size() == 1) {
     impl->current_child = 0;
   }
 }
 
-widget_group_t::~widget_group_t() {
-  for (widget_t *iter : impl->children) {
-    delete iter;
-  }
-}
+widget_group_t::~widget_group_t() {}
 
 bool widget_group_t::process_key(key_t key) {
   if (impl->children.size() == 0) {
@@ -103,8 +109,8 @@ bool widget_group_t::process_key(key_t key) {
 }
 
 void widget_group_t::update_contents() {
-  for (widget_t *iter : impl->children) {
-    iter->update_contents();
+  for (const std::unique_ptr<widget_t> &widget : impl->children) {
+    widget->update_contents();
   }
 }
 
@@ -154,8 +160,8 @@ bool widget_group_t::set_size(optint height, optint width) {
 }
 
 bool widget_group_t::accepts_focus() {
-  for (widget_t *iter : impl->children) {
-    if (iter->accepts_focus()) {
+  for (const std::unique_ptr<widget_t> &widget : impl->children) {
+    if (widget->accepts_focus()) {
       return true;
     }
   }
@@ -163,8 +169,8 @@ bool widget_group_t::accepts_focus() {
 }
 
 void widget_group_t::force_redraw() {
-  for (widget_t *iter : impl->children) {
-    iter->force_redraw();
+  for (const std::unique_ptr<widget_t> &widget : impl->children) {
+    widget->force_redraw();
   }
 }
 
@@ -174,15 +180,15 @@ void widget_group_t::set_child_focus(window_component_t *target) {
   for (int i = 0; i < static_cast<int>(impl->children.size()); i++) {
     container_t *container = nullptr;
 
-    if (impl->children[i] == target ||
-        ((container = dynamic_cast<container_t *>(impl->children[i])) != nullptr &&
+    if (impl->children[i].get() == target ||
+        ((container = dynamic_cast<container_t *>(impl->children[i].get())) != nullptr &&
          container->is_child(target))) {
       if (had_focus && i != impl->current_child) {
         impl->children[impl->current_child]->set_focus(window_component_t::FOCUS_OUT);
       }
       impl->current_child = i;
 
-      if (impl->children[i] == target) {
+      if (impl->children[i].get() == target) {
         impl->children[i]->set_focus(window_component_t::FOCUS_SET);
       } else {
         container->set_child_focus(target);
@@ -193,10 +199,11 @@ void widget_group_t::set_child_focus(window_component_t *target) {
 }
 
 bool widget_group_t::is_child(window_component_t *component) {
-  for (widget_t *iter : impl->children) {
+  for (const std::unique_ptr<widget_t> &widget : impl->children) {
     container_t *container;
-    if (iter == component || ((container = dynamic_cast<container_t *>(iter)) != nullptr &&
-                              container->is_child(component))) {
+    if (widget.get() == component ||
+        ((container = dynamic_cast<container_t *>(widget.get())) != nullptr &&
+         container->is_child(component))) {
       return true;
     }
   }
@@ -205,16 +212,16 @@ bool widget_group_t::is_child(window_component_t *component) {
 
 bool widget_group_t::is_hotkey(key_t key) const {
   widget_container_t *widget_container;
-  for (widget_t *iter : impl->children) {
-    if (!iter->is_enabled() || !iter->is_shown()) {
+  for (const std::unique_ptr<widget_t> &widget : impl->children) {
+    if (!widget->is_enabled() || !widget->is_shown()) {
       continue;
     }
 
-    if (iter->is_hotkey(key)) {
+    if (widget->is_hotkey(key)) {
       return true;
     }
 
-    widget_container = dynamic_cast<widget_container_t *>(iter);
+    widget_container = dynamic_cast<widget_container_t *>(widget.get());
     if (widget_container != nullptr && widget_container->is_child_hotkey(key) != nullptr) {
       return true;
     }

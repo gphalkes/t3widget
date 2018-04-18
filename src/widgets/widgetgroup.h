@@ -25,13 +25,8 @@ namespace t3_widget {
 */
 class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public focus_widget_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    widgets_t children;
-    int current_child;
-    bool has_focus;
-    implementation_t() : current_child(-1), has_focus(false) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   bool focus_next_int();
   bool focus_previous_int();
@@ -51,7 +46,7 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
   bool is_hotkey(key_t key) const override;
 
   /** Add a child widget. */
-  virtual void add_child(widget_t *child);
+  virtual void add_child(std::unique_ptr<widget_t> child);
 
   void focus_next();
   void focus_previous();

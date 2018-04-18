@@ -24,19 +24,7 @@ namespace t3_widget {
 
 class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
  private:
-  class T3_WIDGET_LOCAL indicator_widget_t : public widget_t {
-   private:
-    bool has_focus;
-
-   public:
-    indicator_widget_t();
-    bool process_key(key_t key) override;
-    void update_contents() override;
-    void set_focus(focus_t focus) override;
-    bool set_size(optint height, optint width) override;
-    bool accepts_focus() override;
-  };
-
+  class T3_WIDGET_LOCAL indicator_widget_t;
   struct T3_WIDGET_LOCAL implementation_t;
   pimpl_t<implementation_t> impl;
 

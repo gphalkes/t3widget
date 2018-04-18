@@ -17,6 +17,19 @@
 
 namespace t3_widget {
 
+class list_pane_t::indicator_widget_t : public widget_t {
+ private:
+  bool has_focus;
+
+ public:
+  indicator_widget_t();
+  bool process_key(key_t key) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
+  bool set_size(optint height, optint width) override;
+  bool accepts_focus() override;
+};
+
 struct list_pane_t::implementation_t {
   size_t top_idx, current;
   t3_window::window_t widgets_window;

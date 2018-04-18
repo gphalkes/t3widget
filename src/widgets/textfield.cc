@@ -38,7 +38,60 @@ namespace t3_widget {
 #define _T3_ACTION_TYPE text_field_t
 #include "key_binding_def.h"
 
-text_field_t::text_field_t() : widget_t(1, 4), impl(new implementation_t()) { reset_selection(); }
+struct text_field_t::implementation_t {
+  int pos,                 /**< Cursor position in bytes. */
+      screen_pos,          /**< Cursor position in screen cells. */
+      leftcol,             /**< The first (left-most) shown column in screen cells. */
+      selection_start_pos, /**< Selection start postion, or -1 if not applicable. */
+      selection_end_pos;   /**< Selection end postion, or -1 if not applicable. */
+
+  selection_mode_t selection_mode; /**< Selection mode. */
+  bool focus,            /**< Boolean indicating whether this text_field_t has the input focus. */
+      in_drop_down_list, /**< Boolean indicating whether the "cursor" is in the drop-down list. */
+      /** Boolean indicating whether not to select the whole text on regaining focus.
+              This boolean exists mostly to facilitate the "Insert Character" dialog. When
+              the text_field_t regains focus after the dialog closes, it should not select
+              the whole contents like it normally does on regaining focus.
+      */
+      dont_select_on_focus,
+      /** Boolean indicating whether the contents has changed since the last redraw.
+              Used only for optimization purposes.
+      */
+      edited;
+
+  std::unique_ptr<text_line_t> line; /**< Variable containing the current text. */
+  const key_t *filter_keys;          /**< List of keys to accept or reject. */
+  size_t filter_keys_size;           /**< Size of #filter_keys. */
+  bool filter_keys_accept; /**< Boolean indicating whether the keys in #filter_keys should be
+                              accepted or rejected. */
+
+  smart_label_t *label; /**< Label associated with this text_field_t. */
+
+  std::unique_ptr<drop_down_list_t> drop_down_list;
+
+  implementation_t()
+      : pos(0),
+        screen_pos(0),
+        leftcol(0),
+        selection_start_pos(-1),
+        selection_end_pos(-1),
+        focus(false),
+        in_drop_down_list(false),
+        dont_select_on_focus(false),
+        edited(false),
+        line(new text_line_t()),
+        filter_keys(nullptr),
+        filter_keys_size(0),
+        filter_keys_accept(true),
+        label(nullptr) {}
+};
+
+text_field_t::text_field_t()
+    : widget_t(1, 4, false, impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
+  reset_selection();
+}
+
+text_field_t::~text_field_t() {}
 
 void text_field_t::reset_selection() {
   impl->selection_start_pos = -1;

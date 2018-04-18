@@ -26,16 +26,8 @@ namespace t3_widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    std::unique_ptr<scrollbar_t> scrollbar;
-    text_buffer_t *text;
-    std::unique_ptr<wrap_info_t> wrap_info;
-    text_coordinate_t top;
-    bool focus;
-
-    implementation_t() : top(0, 0), focus(false) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   void scroll_up(int lines);
   void scroll_down(int lines);
@@ -44,6 +36,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
 
  public:
   text_window_t(text_buffer_t *_text = nullptr, bool with_scrollbar = true);
+  ~text_window_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

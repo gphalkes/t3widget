@@ -21,8 +21,18 @@
 
 namespace t3_widget {
 
+struct text_window_t::implementation_t {
+  std::unique_ptr<scrollbar_t> scrollbar;
+  text_buffer_t *text;
+  std::unique_ptr<wrap_info_t> wrap_info;
+  text_coordinate_t top;
+  bool focus;
+
+  implementation_t() : top(0, 0), focus(false) {}
+};
+
 text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
-    : widget_t(11, 11), impl(new implementation_t()) {
+    : widget_t(11, 11, false, impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
   /* Note: we use a dirty trick here: the last position of the window is obscured by
      the impl->scrollbar-> However, the last position will only contain the wrap character
      anyway, so we don't care. If the impl->scrollbar is disabled, we set the wrap width
@@ -45,6 +55,8 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
   impl->wrap_info.reset(new wrap_info_t(impl->scrollbar != nullptr ? 11 : 12));
   impl->wrap_info->set_text_buffer(impl->text);
 }
+
+text_window_t::~text_window_t() {}
 
 void text_window_t::set_text(text_buffer_t *_text) {
   if (impl->text == _text) {

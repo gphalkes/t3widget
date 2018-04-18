@@ -37,54 +37,8 @@ class T3_WIDGET_API text_field_t : public widget_t,
  private:
   class T3_WIDGET_LOCAL drop_down_list_t;
 
-  struct T3_WIDGET_LOCAL implementation_t {
-    int pos,                 /**< Cursor position in bytes. */
-        screen_pos,          /**< Cursor position in screen cells. */
-        leftcol,             /**< The first (left-most) shown column in screen cells. */
-        selection_start_pos, /**< Selection start postion, or -1 if not applicable. */
-        selection_end_pos;   /**< Selection end postion, or -1 if not applicable. */
-
-    selection_mode_t selection_mode; /**< Selection mode. */
-    bool focus,            /**< Boolean indicating whether this text_field_t has the input focus. */
-        in_drop_down_list, /**< Boolean indicating whether the "cursor" is in the drop-down list. */
-        /** Boolean indicating whether not to select the whole text on regaining focus.
-                This boolean exists mostly to facilitate the "Insert Character" dialog. When
-                the text_field_t regains focus after the dialog closes, it should not select
-                the whole contents like it normally does on regaining focus.
-        */
-        dont_select_on_focus,
-        /** Boolean indicating whether the contents has changed since the last redraw.
-                Used only for optimization purposes.
-        */
-        edited;
-
-    std::unique_ptr<text_line_t> line; /**< Variable containing the current text. */
-    const key_t *filter_keys;          /**< List of keys to accept or reject. */
-    size_t filter_keys_size;           /**< Size of #filter_keys. */
-    bool filter_keys_accept; /**< Boolean indicating whether the keys in #filter_keys should be
-                                accepted or rejected. */
-
-    smart_label_t *label; /**< Label associated with this text_field_t. */
-
-    std::unique_ptr<drop_down_list_t> drop_down_list;
-
-    implementation_t()
-        : pos(0),
-          screen_pos(0),
-          leftcol(0),
-          selection_start_pos(-1),
-          selection_end_pos(-1),
-          focus(false),
-          in_drop_down_list(false),
-          dont_select_on_focus(false),
-          edited(false),
-          line(new text_line_t()),
-          filter_keys(nullptr),
-          filter_keys_size(0),
-          filter_keys_accept(true),
-          label(nullptr) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
   /** Function to initialize the shared dialogs and data. */
   static void init(bool _init);
@@ -107,6 +61,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
 
  public:
   text_field_t();
+  ~text_field_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;
