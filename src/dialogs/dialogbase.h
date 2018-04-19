@@ -41,7 +41,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   static connection_t init_connected;
 
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   /** Default constructor, made private to avoid use. */
   dialog_base_t(size_t impl_size = 0);

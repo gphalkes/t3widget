@@ -22,7 +22,7 @@ namespace t3_widget {
 class T3_WIDGET_API goto_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   void ok_activate();
 

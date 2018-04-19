@@ -297,9 +297,14 @@ connection_t find_dialog_t::connect_activate(
 }
 
 //============= replace_buttons_dialog_t ===============
+struct replace_buttons_dialog_t::implementation_t {
+  button_t *find_button, *replace_button;
+  signal_t<find_action_t> activate;
+};
 
 replace_buttons_dialog_t::replace_buttons_dialog_t()
-    : dialog_t(3, 60, "Replace"), impl(new implementation_t()) {
+    : dialog_t(3, 60, "Replace", impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   button_t *cancel_button, *replace_all_button;
   int dialog_width;
 
@@ -346,6 +351,8 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
                  impl->find_button->get_width() + cancel_button->get_width() + 10;
   dialog_t::set_size(None, dialog_width);
 }
+
+replace_buttons_dialog_t::~replace_buttons_dialog_t() {}
 
 void replace_buttons_dialog_t::reshow(find_action_t button) {
   show();

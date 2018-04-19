@@ -28,7 +28,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   /** Draw the name of a single menu in the menu bar. */
   void draw_menu_name(menu_panel_t *menu, bool selected);

@@ -14,6 +14,10 @@
 #ifndef T3_WIDGET_WRAPINFO_H
 #define T3_WIDGET_WRAPINFO_H
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 #include <vector>
 
 #include <t3widget/textbuffer.h>

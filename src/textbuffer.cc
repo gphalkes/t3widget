@@ -21,6 +21,7 @@
 #include "findcontext.h"
 #include "internal.h"
 #include "textbuffer.h"
+#include "textbuffer_impl.h"
 #include "textline.h"
 #include "undo.h"
 #include "util.h"

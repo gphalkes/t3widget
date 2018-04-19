@@ -20,14 +20,13 @@
 #include <t3widget/textbuffer.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
-#include <t3widget/wrapinfo.h>
 
 namespace t3_widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   void scroll_up(int lines);
   void scroll_down(int lines);

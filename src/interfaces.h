@@ -206,7 +206,7 @@ class T3_WIDGET_API impl_allocator_t {
       The returned pointer should have its destructor called, but should never be deleted. The
       destruction of the impl_allocator_t will free the memory. Hence, it is also important that the
       destructors of all allocated objects are called before this object is destroyed. Typically,
-      this is used in combination with pimpl_t to hold the pointer. */
+      this is used in combination with single_alloc_pimpl_t to hold the pointer. */
   template <typename T, typename... Args>
   T *new_impl(Args &&... args) {
     const size_t align = alignof(T);

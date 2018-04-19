@@ -15,6 +15,7 @@
 #include "wrapinfo.h"
 #include "internal.h"
 #include "log.h"
+#include "textbuffer_impl.h"
 
 namespace t3_widget {
 

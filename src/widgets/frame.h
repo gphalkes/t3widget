@@ -67,7 +67,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 };
 
 }  // namespace

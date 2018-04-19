@@ -47,8 +47,8 @@ struct file_dialog_t::implementation_t {
         - path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
         - optimize the case where filter is "*"
 */
-file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title)
-    : dialog_t(height, width, std::move(_title), impl_alloc<implementation_t>(0)),
+file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title, size_t impl_size)
+    : dialog_t(height, width, std::move(_title), impl_alloc<implementation_t>(impl_size)),
       impl(new_impl<implementation_t>()) {
   smart_label_t *name_label;
 
@@ -118,6 +118,8 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   push_back(impl->ok_button);
   push_back(impl->cancel_button);
 }
+
+file_dialog_t::~file_dialog_t() {}
 
 widget_t *file_dialog_t::get_anchor_widget() { return impl->show_hidden_label; }
 
@@ -290,6 +292,15 @@ void file_dialog_t::refresh_view() {
 }
 
 //=========================== open_file_dialog_t ============================
+class open_file_dialog_t::filter_text_field_t : public text_field_t {
+ public:
+  void set_focus(focus_t _focus) override;
+  connection_t connect_lose_focus(std::function<void()> cb);
+
+ private:
+  signal_t<> lose_focus_;
+};
+
 void open_file_dialog_t::filter_text_field_t::set_focus(focus_t _focus) {
   bool old_focus = has_focus();
   text_field_t::set_focus(_focus);
@@ -298,8 +309,19 @@ void open_file_dialog_t::filter_text_field_t::set_focus(focus_t _focus) {
   }
 }
 
+connection_t open_file_dialog_t::filter_text_field_t::connect_lose_focus(std::function<void()> cb) {
+  return lose_focus_.connect(cb);
+}
+
+struct open_file_dialog_t::implementation_t {
+  int filter_offset, filter_width;
+  filter_text_field_t *filter_line;
+  smart_label_t *filter_label;
+};
+
 open_file_dialog_t::open_file_dialog_t(int height, int width)
-    : file_dialog_t(height, width, "Open File"), impl(new implementation_t()) {
+    : file_dialog_t(height, width, "Open File", impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   impl->filter_label = new smart_label_t("_Filter", true);
   container_t::set_widget_parent(impl->filter_label);
   impl->filter_label->set_anchor(get_anchor_widget(),
@@ -326,7 +348,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
   insert_extras(impl->filter_line);
 }
 
-file_dialog_t::~file_dialog_t() {}
+open_file_dialog_t::~open_file_dialog_t() {}
 
 const std::string &open_file_dialog_t::get_filter() { return *impl->filter_line->get_text(); }
 
@@ -347,8 +369,13 @@ void open_file_dialog_t::reset() {
 //=========================== save_as_dialog_t ============================
 std::string save_as_dialog_t::empty_filter("*");
 
+struct save_as_dialog_t::implementation_t {
+  button_t *create_button;
+};
+
 save_as_dialog_t::save_as_dialog_t(int height, int width)
-    : file_dialog_t(height, width, "Save File As"), impl(new implementation_t()) {
+    : file_dialog_t(height, width, "Save File As", impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   impl->create_button = new button_t("Create Folder");
   container_t::set_widget_parent(impl->create_button);
   impl->create_button->set_anchor(get_anchor_widget(),
@@ -357,6 +384,8 @@ save_as_dialog_t::save_as_dialog_t(int height, int width)
   impl->create_button->connect_activate([this] { create_folder(); });
   insert_extras(impl->create_button);
 }
+
+save_as_dialog_t::~save_as_dialog_t() {}
 
 void save_as_dialog_t::create_folder() {
   message_dialog->center_over(this);

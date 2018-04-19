@@ -38,7 +38,7 @@ class T3_WIDGET_API menu_item_base_t : public widget_t {
 class T3_WIDGET_API menu_item_t : public menu_item_base_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   /* Menu items get their events from the menu_t (via the menu_panel_t),
      because that grabs the mouse as soon as it is activated. */

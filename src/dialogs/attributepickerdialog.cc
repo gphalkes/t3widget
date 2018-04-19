@@ -307,7 +307,7 @@ struct attribute_test_line_t::implementation_t {
 };
 
 attribute_test_line_t::attribute_test_line_t()
-    : widget_t(1, 4, false), impl(new implementation_t) {}
+    : widget_t(1, 4, false, impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {}
 attribute_test_line_t::~attribute_test_line_t() {}
 
 bool attribute_test_line_t::process_key(key_t key) {

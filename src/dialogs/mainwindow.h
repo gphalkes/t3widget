@@ -30,7 +30,7 @@ namespace t3_widget {
 class T3_WIDGET_API main_window_base_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
   /** Resize the main_window_base_t.
       Called from the @c resize signal.
   */

@@ -31,7 +31,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   };
 
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   void focus_up_from_child();
 

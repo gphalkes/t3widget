@@ -23,7 +23,7 @@ namespace t3_widget {
 class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
   key_t interpret_key(const std::string &descr);
 
  public:

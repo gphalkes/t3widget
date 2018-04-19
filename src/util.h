@@ -253,7 +253,10 @@ struct no_dealloc_deleter {
     impl_allocator_t, and only calls the destructor on the object it holds, but does not delete the
     object. */
 template <typename T>
-using pimpl_t = propagate_const<const std::unique_ptr<T, no_dealloc_deleter>>;
+using single_alloc_pimpl_t = propagate_const<const std::unique_ptr<T, no_dealloc_deleter>>;
+
+template <typename T>
+using pimpl_t = propagate_const<const std::unique_ptr<T>>;
 
 struct T3_WIDGET_API text_coordinate_t {
   text_coordinate_t() {}

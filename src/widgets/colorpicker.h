@@ -21,7 +21,7 @@ namespace t3_widget {
 class T3_WIDGET_API color_picker_base_t : public widget_t {
  protected:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   color_picker_base_t(bool _fg);
   virtual int xy_to_color(int x, int y) = 0;

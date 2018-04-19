@@ -23,7 +23,7 @@ namespace t3_widget {
 class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
  public:
   /** Create a button_t.

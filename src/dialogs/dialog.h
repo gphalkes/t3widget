@@ -21,7 +21,6 @@ namespace t3_widget {
 
 class dialog_t;
 typedef std::list<dialog_t *> dialogs_t;
-class complex_error_t;
 
 /** Base class for dialogs. */
 class T3_WIDGET_API dialog_t : public dialog_base_t {
@@ -40,7 +39,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   static void update_dialogs();
 
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   void activate_dialog(); /**< Move this dialog up to the top of the dialog and window stack. Called
                              from #show. */

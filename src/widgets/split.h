@@ -34,7 +34,7 @@ namespace t3_widget {
 class T3_WIDGET_API split_t : public widget_t, public container_t {
  protected:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   /** Make the next widget the current widget (internal).
       Because split_t widgets may be nested, calling #next on this widget

@@ -38,7 +38,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
   class T3_WIDGET_LOCAL drop_down_list_t;
 
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   /** Function to initialize the shared dialogs and data. */
   static void init(bool _init);

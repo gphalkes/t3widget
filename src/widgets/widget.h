@@ -33,7 +33,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t,
   static t3_window::window_t default_parent;
 
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
  protected:
   bool reset_redraw();

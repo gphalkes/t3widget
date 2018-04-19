@@ -36,28 +36,8 @@ class T3_WIDGET_API text_buffer_t {
   friend class wrap_info_t;
 
  private:
-  struct T3_WIDGET_LOCAL implementation_t {
-    lines_t lines;
-    text_coordinate_t selection_start;
-    text_coordinate_t selection_end;
-    selection_mode_t selection_mode;
-
-    undo_list_t undo_list;
-    text_coordinate_t last_undo_position;
-    undo_type_t last_undo_type;
-    undo_t *last_undo;
-
-    text_line_factory_t *line_factory;
-
-    implementation_t(text_line_factory_t *_line_factory)
-        : selection_start(-1, 0),
-          selection_end(-1, 0),
-          selection_mode(selection_mode_t::NONE),
-          last_undo_type(UNDO_NONE),
-          last_undo(nullptr),
-          line_factory(_line_factory == nullptr ? &default_text_line_factory : _line_factory) {}
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  protected:
   undo_t *get_undo(undo_type_t type);

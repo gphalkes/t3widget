@@ -26,10 +26,10 @@ namespace t3_widget {
 class T3_WIDGET_API file_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
  protected:
-  file_dialog_t(int height, int width, optional<std::string> _title);
+  file_dialog_t(int height, int width, optional<std::string> _title, size_t impl_size = 0);
 
   widget_t *get_anchor_widget();
   void insert_extras(widget_t *widget);
@@ -51,26 +51,16 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
 
 class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
  private:
-  class T3_WIDGET_API filter_text_field_t : public text_field_t {
-   public:
-    void set_focus(focus_t _focus) override;
-    connection_t connect_lose_focus(std::function<void()> cb) { return lose_focus_.connect(cb); }
+  class T3_WIDGET_LOCAL filter_text_field_t;
 
-   private:
-    signal_t<> lose_focus_;
-  };
-
-  struct implementation_t {
-    int filter_offset, filter_width;
-    filter_text_field_t *filter_line;
-    smart_label_t *filter_label;
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   const std::string &get_filter() override;
 
  public:
   open_file_dialog_t(int height, int width);
+  ~open_file_dialog_t() override;
   bool set_size(optint height, optint width) override;
   void reset() override;
 };
@@ -79,16 +69,15 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
  private:
   static std::string empty_filter;
 
-  struct implementation_t {
-    button_t *create_button;
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  single_alloc_pimpl_t<implementation_t> impl;
 
  protected:
   const std::string &get_filter() override { return empty_filter; }
 
  public:
   save_as_dialog_t(int height, int width);
+  ~save_as_dialog_t() override;
   void create_folder();
 };
 

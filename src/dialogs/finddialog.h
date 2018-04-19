@@ -31,7 +31,7 @@ class finder_t;
 class T3_WIDGET_API find_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   void backward_toggled();
   void icase_toggled();
@@ -55,14 +55,12 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
 
 class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
  private:
-  struct implementation_t {
-    button_t *find_button, *replace_button;
-    signal_t<find_action_t> activate;
-  };
-  std::unique_ptr<implementation_t> impl;
+  struct T3_WIDGET_LOCAL implementation_t;
+  single_alloc_pimpl_t<implementation_t> impl;
 
  public:
   replace_buttons_dialog_t();
+  ~replace_buttons_dialog_t() override;
   virtual void reshow(find_action_t button);
 
   connection_t connect_activate(std::function<void(find_action_t)> cb);

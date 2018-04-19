@@ -26,6 +26,7 @@ struct menu_panel_t::implementation_t {
   int width, label_width, hotkey_width;
   smart_label_text_t label;
   menu_bar_t *menu_bar;
+  signal_t<int> activate;
 
   implementation_t(const char *name, impl_allocator_t *allocator)
       : label(name, false, allocator), menu_bar(nullptr) {}
@@ -241,5 +242,11 @@ int menu_panel_t::get_label_width() const { return impl->label.get_width(); }
 bool menu_panel_t::is_hotkey(key_t key) const { return impl->label.is_hotkey(key); }
 
 bool menu_panel_t::is_child(window_component_t *widget) { return dialog_t::is_child(widget); }
+
+void menu_panel_t::activate(int idx) { impl->activate(idx); }
+
+connection_t menu_panel_t::connect_activate(std::function<void(int)> cb) {
+  return impl->activate.connect(cb);
+}
 
 }  // namespace

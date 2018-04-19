@@ -32,7 +32,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   class search_panel_t;
 
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   /** Ensure that the updated value of #current does not put the highlighted entry outside the
    * visible range. */

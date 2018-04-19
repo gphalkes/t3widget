@@ -28,13 +28,14 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
   void close() override;
   void set_menu_bar(menu_bar_t *_menu_bar);
   void draw_label(t3_window::window_t *draw_window, t3_attr_t attr, bool selected);
   int get_label_width() const;
   bool is_hotkey(key_t key) const;
+  void activate(int idx);
 
  protected:
   bool is_child(window_component_t *widget) override;
@@ -61,7 +62,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
   void show() override;
 
-  T3_WIDGET_SIGNAL(activate, int);
+  connection_t connect_activate(std::function<void(int)> cb);
 };
 
 }  // namespace

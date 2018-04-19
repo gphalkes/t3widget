@@ -23,7 +23,7 @@ namespace t3_widget {
 class T3_WIDGET_API expander_group_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  propagate_const<const std::unique_ptr<implementation_t>> impl;
+  pimpl_t<implementation_t> impl;
 
   void widget_expanded(bool is_expanded, expander_t *source);
 

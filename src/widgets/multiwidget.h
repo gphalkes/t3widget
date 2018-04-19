@@ -21,7 +21,7 @@ namespace t3_widget {
 class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, public container_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  single_alloc_pimpl_t<implementation_t> impl;
 
  public:
   multi_widget_t();
