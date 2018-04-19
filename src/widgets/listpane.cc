@@ -35,18 +35,20 @@ struct list_pane_t::implementation_t {
   t3_window::window_t widgets_window;
   owned_widgets_t widgets;
   bool has_focus;
-  scrollbar_t scrollbar;
   bool indicator;
   bool single_click_activate;
+  scrollbar_t scrollbar;
   std::unique_ptr<indicator_widget_t> indicator_widget;
+  signal_t<> activate;
+  signal_t<> selection_changed;
 
   implementation_t(bool _indicator)
       : top_idx(0),
         current(0),
         has_focus(false),
-        scrollbar(true),
         indicator(_indicator),
-        single_click_activate(false) {}
+        single_click_activate(false),
+        scrollbar(true) {}
 };
 
 list_pane_t::list_pane_t(bool _indicator)
@@ -142,7 +144,7 @@ bool list_pane_t::process_key(key_t key) {
       break;
     case EKEY_NL:
       if (impl->widgets.size() > 0) {
-        activate();
+        impl->activate();
       }
       return true;
     default:
@@ -155,7 +157,7 @@ bool list_pane_t::process_key(key_t key) {
     impl->widgets[old_current]->set_focus(window_component_t::FOCUS_OUT);
     impl->widgets[impl->current]->set_focus(impl->has_focus ? focus_type
                                                             : window_component_t::FOCUS_OUT);
-    selection_changed();
+    impl->selection_changed();
   }
   ensure_cursor_on_screen();
   return true;
@@ -228,16 +230,16 @@ bool list_pane_t::process_mouse_event(mouse_event_t event) {
   if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) &&
       event.window != impl->widgets_window) {
     if (!impl->single_click_activate) {
-      activate();
+      impl->activate();
     }
   } else if (event.type == EMOUSE_BUTTON_RELEASE && (event.button_state & EMOUSE_CLICKED_LEFT) &&
              event.window != impl->widgets_window) {
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_OUT);
     impl->current = event.y;
     impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
-    selection_changed();
+    impl->selection_changed();
     if (impl->single_click_activate) {
-      activate();
+      impl->activate();
     }
   } else if (event.type == EMOUSE_BUTTON_PRESS &&
              (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
@@ -300,7 +302,7 @@ void list_pane_t::set_child_focus(window_component_t *target) {
       if (impl->current != old_current) {
         impl->widgets[old_current]->set_focus(window_component_t::FOCUS_OUT);
         impl->widgets[impl->current]->set_focus(window_component_t::FOCUS_SET);
-        selection_changed();
+        impl->selection_changed();
       }
     } else {
       set_focus(window_component_t::FOCUS_SET);
@@ -441,6 +443,14 @@ void list_pane_t::scrollbar_dragged(int start) {
 }
 
 void list_pane_t::set_single_click_activate(bool sca) { impl->single_click_activate = sca; }
+
+connection_t list_pane_t::connect_activate(std::function<void()> cb) {
+  return impl->activate.connect(cb);
+}
+
+connection_t list_pane_t::connect_selection_changed(std::function<void()> cb) {
+  return impl->selection_changed.connect(cb);
+}
 
 //=========== Indicator widget ================
 

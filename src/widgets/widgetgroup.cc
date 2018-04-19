@@ -24,7 +24,9 @@ struct widget_group_t::implementation_t {
 };
 
 widget_group_t::widget_group_t()
-    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
+    : widget_t(focus_widget_t::impl_alloc(impl_alloc<implementation_t>(0))),
+      focus_widget_t(this),
+      impl(new_impl<implementation_t>()) {
   init_unbacked_window(1, 1);
 }
 

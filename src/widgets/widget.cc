@@ -113,4 +113,70 @@ bool widget_t::process_mouse_event(mouse_event_t event) {
   return accepts_focus() && (event.button_state & EMOUSE_CLICK_BUTTONS);
 }
 
+struct focus_widget_t::implementation_t {
+  signal_t<> move_focus_left;
+  signal_t<> move_focus_right;
+  signal_t<> move_focus_up;
+  signal_t<> move_focus_down;
+  bool must_delete;
+  implementation_t(bool _must_delete) : must_delete(_must_delete) {}
+};
+
+focus_widget_t::focus_widget_t(t3_widget::impl_allocator_t *allocator) {
+  if (allocator) {
+    impl = allocator->new_impl<implementation_t>(false);
+  } else {
+    impl = new implementation_t(true);
+  }
+}
+
+focus_widget_t::~focus_widget_t() {
+  if (impl->must_delete) {
+    delete impl;
+  } else {
+    impl->~implementation_t();
+  }
+}
+
+size_t focus_widget_t::impl_alloc(size_t impl_size) {
+  return impl_allocator_t::impl_alloc<implementation_t>(impl_size);
+}
+
+void focus_widget_t::move_focus_left() { impl->move_focus_left(); }
+void focus_widget_t::move_focus_right() { impl->move_focus_right(); }
+void focus_widget_t::move_focus_up() { impl->move_focus_up(); }
+void focus_widget_t::move_focus_down() { impl->move_focus_down(); }
+
+connection_t focus_widget_t::connect_move_focus_left(std::function<void()> cb) {
+  return impl->move_focus_left.connect(cb);
+}
+
+connection_t focus_widget_t::connect_move_focus_right(std::function<void()> cb) {
+  return impl->move_focus_right.connect(cb);
+}
+
+connection_t focus_widget_t::connect_move_focus_up(std::function<void()> cb) {
+  return impl->move_focus_up.connect(cb);
+}
+
+connection_t focus_widget_t::connect_move_focus_down(std::function<void()> cb) {
+  return impl->move_focus_down.connect(cb);
+}
+
+std::function<void()> focus_widget_t::get_move_focus_left_trigger() {
+  return impl->move_focus_left.get_trigger();
+}
+
+std::function<void()> focus_widget_t::get_move_focus_right_trigger() {
+  return impl->move_focus_right.get_trigger();
+}
+
+std::function<void()> focus_widget_t::get_move_focus_up_trigger() {
+  return impl->move_focus_up.get_trigger();
+}
+
+std::function<void()> focus_widget_t::get_move_focus_down_trigger() {
+  return impl->move_focus_down.get_trigger();
+}
+
 }  // namespace

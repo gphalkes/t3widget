@@ -29,7 +29,9 @@ struct multi_widget_t::implementation_t {
 };
 
 multi_widget_t::multi_widget_t()
-    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
+    : widget_t(focus_widget_t::impl_alloc(impl_alloc<implementation_t>(0))),
+      focus_widget_t(this),
+      impl(new_impl<implementation_t>()) {
   init_unbacked_window(1, 1, true);
 }
 
@@ -100,10 +102,10 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
          this widget. The destructor for multi_widget_t destroys all the widgets
          it contains, and there is no way to remove a widget from a multi_widget_t.
       */
-      focus_widget->connect_move_focus_left(move_focus_left.get_trigger());
-      focus_widget->connect_move_focus_right(move_focus_right.get_trigger());
-      focus_widget->connect_move_focus_up(move_focus_up.get_trigger());
-      focus_widget->connect_move_focus_down(move_focus_down.get_trigger());
+      focus_widget->connect_move_focus_left(get_move_focus_left_trigger());
+      focus_widget->connect_move_focus_right(get_move_focus_right_trigger());
+      focus_widget->connect_move_focus_up(get_move_focus_up_trigger());
+      focus_widget->connect_move_focus_down(get_move_focus_down_trigger());
     }
   }
 

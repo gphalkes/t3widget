@@ -35,7 +35,9 @@ struct expander_t::implementation_t {
 };
 
 expander_t::expander_t(const char *text)
-    : widget_t(impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
+    : widget_t(focus_widget_t::impl_alloc(
+          impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0)))),
+      focus_widget_t(this),
       impl(new_impl<implementation_t>(text, this)) {
   init_unbacked_window(1, impl->label.get_width() + 2);
   impl->symbol_window.alloc(&window, 1, 2 + impl->label.get_width(), 0, 0, 0);
@@ -85,11 +87,11 @@ void expander_t::set_child(widget_t *_child) {
     impl->move_up_connection =
         focus_child->connect_move_focus_up([this] { focus_up_from_child(); });
     impl->move_down_connection =
-        focus_child->connect_move_focus_down(move_focus_down.get_trigger());
+        focus_child->connect_move_focus_down(get_move_focus_down_trigger());
     impl->move_right_connection =
-        focus_child->connect_move_focus_right(move_focus_right.get_trigger());
+        focus_child->connect_move_focus_right(get_move_focus_right_trigger());
     impl->move_left_connection =
-        focus_child->connect_move_focus_left(move_focus_left.get_trigger());
+        focus_child->connect_move_focus_left(get_move_focus_left_trigger());
   }
   set_size(None, impl->child->get_base_window()->get_width());
 }

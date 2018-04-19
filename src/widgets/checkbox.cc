@@ -27,7 +27,8 @@ struct checkbox_t::implementation_t {
 };
 
 checkbox_t::checkbox_t(bool _state)
-    : widget_t(1, 3, true, impl_alloc<implementation_t>(0)),
+    : widget_t(1, 3, true, focus_widget_t::impl_alloc(impl_alloc<implementation_t>(0))),
+      focus_widget_t(this),
       impl(new_impl<implementation_t>(_state)) {}
 
 checkbox_t::~checkbox_t() {}

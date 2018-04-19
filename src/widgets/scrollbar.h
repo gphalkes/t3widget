@@ -44,8 +44,8 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
     BACK_PAGE    /**< Mouse click on space between arrow and indicator. */
   };
 
-  T3_WIDGET_SIGNAL(clicked, step_t);
-  T3_WIDGET_SIGNAL(dragged, int);
+  connection_t connect_clicked(std::function<void(step_t)> cb);
+  connection_t connect_dragged(std::function<void(int)> cb);
 };
 
 }  // namespace

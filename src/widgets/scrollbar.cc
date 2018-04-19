@@ -27,6 +27,9 @@ struct scrollbar_t::implementation_t {
   int button_down_pos;
   bool vertical;
   bool dragging;
+  signal_t<step_t> clicked;
+  signal_t<int> dragged;
+
   implementation_t(bool _vertical)
       : length(3),
         range(1),
@@ -155,13 +158,13 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
       /* Do nothing */
     }
     if (location == 0) {
-      dragged(0);
+      impl->dragged(0);
     } else if (location >= impl->length - 2 - impl->slider_size) {
-      dragged(impl->range - impl->used);
+      impl->dragged(impl->range - impl->used);
     } else {
       double lines_per_block = static_cast<double>(impl->range - impl->used + 1) /
                                (impl->length - 2 - impl->slider_size);
-      dragged(floor(location * lines_per_block));
+      impl->dragged(floor(location * lines_per_block));
     }
   } else if (event.type == EMOUSE_BUTTON_PRESS && event.button_state & EMOUSE_BUTTON_LEFT) {
     int location = (impl->vertical ? event.y : event.x) - 1;
@@ -175,19 +178,19 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
     pos = impl->vertical ? event.y : event.x;
 
     if (pos == 0) {
-      clicked(BACK_SMALL);
+      impl->clicked(BACK_SMALL);
     } else if (pos == impl->length - 1) {
-      clicked(FWD_SMALL);
+      impl->clicked(FWD_SMALL);
     } else if (pos <= impl->before) {
-      clicked(BACK_PAGE);
+      impl->clicked(BACK_PAGE);
     } else if (pos > impl->before + impl->slider_size) {
-      clicked(FWD_PAGE);
+      impl->clicked(FWD_PAGE);
     }
   } else if (event.type == EMOUSE_BUTTON_RELEASE && impl->dragging) {
     impl->dragging = false;
   } else if (event.type == EMOUSE_BUTTON_PRESS &&
              (event.button_state & (EMOUSE_SCROLL_UP | EMOUSE_SCROLL_DOWN))) {
-    clicked((event.button_state & EMOUSE_SCROLL_UP) ? BACK_MEDIUM : FWD_MEDIUM);
+    impl->clicked((event.button_state & EMOUSE_SCROLL_UP) ? BACK_MEDIUM : FWD_MEDIUM);
   }
   /* We don't take focus, so return false. */
   return false;
@@ -202,6 +205,14 @@ void scrollbar_t::set_parameters(int _range, int _start, int _used) {
   impl->range = _range;
   impl->start = _start;
   impl->used = _used;
+}
+
+connection_t scrollbar_t::connect_clicked(std::function<void(step_t)> cb) {
+  return impl->clicked.connect(cb);
+}
+
+connection_t scrollbar_t::connect_dragged(std::function<void(int)> cb) {
+  return impl->dragged.connect(cb);
 }
 
 }  // namespace

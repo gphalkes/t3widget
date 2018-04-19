@@ -87,7 +87,9 @@ struct text_field_t::implementation_t {
 };
 
 text_field_t::text_field_t()
-    : widget_t(1, 4, false, impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()) {
+    : widget_t(1, 4, false, focus_widget_t::impl_alloc(impl_alloc<implementation_t>(0))),
+      focus_widget_t(this),
+      impl(new_impl<implementation_t>()) {
   reset_selection();
 }
 

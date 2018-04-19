@@ -72,8 +72,8 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
 
   void set_single_click_activate(bool sca);
 
-  T3_WIDGET_SIGNAL(activate);
-  T3_WIDGET_SIGNAL(selection_changed);
+  connection_t connect_activate(std::function<void()> cb);
+  connection_t connect_selection_changed(std::function<void()> cb);
 };
 
 }  // namespace
