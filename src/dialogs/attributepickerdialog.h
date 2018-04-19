@@ -54,8 +54,8 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
   */
   void set_base_attributes(t3_attr_t attr);
 
-  connection_t connect_attribute_selected(std::function<void(t3_attr_t)> cb);
-  connection_t connect_default_selected(std::function<void()> cb);
+  T3_WIDGET_DECLARE_SIGNAL(attribute_selected, t3_attr_t);
+  T3_WIDGET_DECLARE_SIGNAL(default_selected);
 };
 
 class T3_WIDGET_API attribute_test_line_t : public widget_t {

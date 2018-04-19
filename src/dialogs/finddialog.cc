@@ -291,10 +291,7 @@ void find_dialog_t::set_state(int _state) {
   impl->reverse_direction_checkbox->set_state(impl->state & find_flags_t::BACKWARD);
 }
 
-connection_t find_dialog_t::connect_activate(
-    std::function<void(std::shared_ptr<finder_t>, find_action_t)> cb) {
-  return impl->activate.connect(cb);
-}
+_T3_WIDGET_IMPL_SIGNAL(find_dialog_t, activate, std::shared_ptr<finder_t>, find_action_t)
 
 //============= replace_buttons_dialog_t ===============
 struct replace_buttons_dialog_t::implementation_t {
@@ -368,8 +365,6 @@ void replace_buttons_dialog_t::reshow(find_action_t button) {
   }
 }
 
-connection_t replace_buttons_dialog_t::connect_activate(std::function<void(find_action_t)> cb) {
-  return impl->activate.connect(cb);
-}
+_T3_WIDGET_IMPL_SIGNAL(replace_buttons_dialog_t, activate, find_action_t)
 
 }  // namespace

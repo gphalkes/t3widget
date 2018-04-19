@@ -68,7 +68,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   void hide() override;
 
   /** Connect a callback to the #closed signal. */
-  connection_t connect_closed(std::function<void()> cb);
+  T3_WIDGET_DECLARE_SIGNAL(closed);
 };
 
 }  // namespace

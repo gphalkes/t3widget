@@ -292,6 +292,10 @@ struct T3_WIDGET_API text_coordinate_t {
     return _name.connect(_slot);                                         \
   }
 
+#define T3_WIDGET_DECLARE_SIGNAL(_name, ...)                         \
+  connection_t connect_##_name(std::function<void(__VA_ARGS__)> cb); \
+  std::function<void(__VA_ARGS__)> get_##_name##_trigger()
+
 enum class selection_mode_t { NONE, SHIFT, MARK, ALL };
 
 /* This uses a namespace like a type, to ensure that the flags don't end up in the default

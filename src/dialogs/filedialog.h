@@ -46,7 +46,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   void set_options_widget(widget_t *options);
   virtual void reset();
 
-  connection_t connect_file_selected(std::function<void(const std::string &)> cb);
+  T3_WIDGET_DECLARE_SIGNAL(file_selected, const std::string &);
 };
 
 class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {

@@ -50,7 +50,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
   virtual void set_replace(bool _replace);
   virtual void set_state(int _state);
 
-  connection_t connect_activate(std::function<void(std::shared_ptr<finder_t>, find_action_t)> cb);
+  T3_WIDGET_DECLARE_SIGNAL(activate, std::shared_ptr<finder_t>, find_action_t);
 };
 
 class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
@@ -63,7 +63,7 @@ class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
   ~replace_buttons_dialog_t() override;
   virtual void reshow(find_action_t button);
 
-  connection_t connect_activate(std::function<void(find_action_t)> cb);
+  T3_WIDGET_DECLARE_SIGNAL(activate, find_action_t);
 };
 
 }  // namespace

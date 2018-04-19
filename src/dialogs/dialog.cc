@@ -185,6 +185,6 @@ void dialog_t::update_dialogs() {
   }
 }
 
-connection_t dialog_t::connect_closed(std::function<void()> cb) { return impl->closed.connect(cb); }
+_T3_WIDGET_IMPL_SIGNAL(dialog_t, closed)
 
 }  // namespace

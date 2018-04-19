@@ -40,6 +40,14 @@
 
 namespace t3_widget {
 
+#define _T3_WIDGET_IMPL_SIGNAL(_class, _name, ...)                            \
+  connection_t _class::connect_##_name(std::function<void(__VA_ARGS__)> cb) { \
+    return impl->_name.connect(cb);                                           \
+  }                                                                           \
+  std::function<void(__VA_ARGS__)> _class::get_##_name##_trigger() {          \
+    return impl->_name.get_trigger();                                         \
+  }
+
 T3_WIDGET_LOCAL extern init_parameters_t *init_params;
 T3_WIDGET_LOCAL extern bool disable_primary_selection;
 

@@ -204,9 +204,7 @@ void file_dialog_t::reset() {
   impl->file_pane->reset();
 }
 
-connection_t file_dialog_t::connect_file_selected(std::function<void(const std::string &)> cb) {
-  return impl->file_selected.connect(cb);
-}
+_T3_WIDGET_IMPL_SIGNAL(file_dialog_t, file_selected, const std::string &)
 
 void file_dialog_t::ok_callback() {
   std::string pass_result = convert_lang_codeset(*impl->file_line->get_text(), false);
@@ -294,24 +292,18 @@ void file_dialog_t::refresh_view() {
 //=========================== open_file_dialog_t ============================
 class open_file_dialog_t::filter_text_field_t : public text_field_t {
  public:
-  void set_focus(focus_t _focus) override;
-  connection_t connect_lose_focus(std::function<void()> cb);
+  void set_focus(focus_t _focus) override {
+    bool old_focus = has_focus();
+    text_field_t::set_focus(_focus);
+    if (old_focus && !has_focus()) {
+      lose_focus_();
+    }
+  }
+  connection_t connect_lose_focus(std::function<void()> cb) { return lose_focus_.connect(cb); }
 
  private:
   signal_t<> lose_focus_;
 };
-
-void open_file_dialog_t::filter_text_field_t::set_focus(focus_t _focus) {
-  bool old_focus = has_focus();
-  text_field_t::set_focus(_focus);
-  if (old_focus && !has_focus()) {
-    lose_focus_();
-  }
-}
-
-connection_t open_file_dialog_t::filter_text_field_t::connect_lose_focus(std::function<void()> cb) {
-  return lose_focus_.connect(cb);
-}
 
 struct open_file_dialog_t::implementation_t {
   int filter_offset, filter_width;

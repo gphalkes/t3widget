@@ -81,35 +81,33 @@ class T3_WIDGET_API widget_t : public virtual window_component_t,
 
 /** Base class for widgets that take focus. */
 class T3_WIDGET_API focus_widget_t {
- private:
-  struct T3_WIDGET_LOCAL implementation_t;
-  implementation_t *impl;
  public:
-
   focus_widget_t(impl_allocator_t *allocator = nullptr);
   ~focus_widget_t();
   static size_t impl_alloc(size_t impl_size);
 
   /** Connect a callback to be called on emission of the move_focus_left_signal. */
-  connection_t connect_move_focus_left(std::function<void()> cb);
+  T3_WIDGET_DECLARE_SIGNAL(move_focus_left);
+  /** Connect a callback to be called on emission of the move_focus_right_signal. */
+  T3_WIDGET_DECLARE_SIGNAL(move_focus_right);
+  /** Connect a callback to be called on emission of the move_focus_up_signal. */
+  T3_WIDGET_DECLARE_SIGNAL(move_focus_up);
+  /** Connect a callback to be called on emission of the move_focus_down_signal. */
+  T3_WIDGET_DECLARE_SIGNAL(move_focus_down);
+
+ protected:
   /** Emit signal when the user pressed the left arrow key and focus should move. */
   void move_focus_left();
-  std::function<void()> get_move_focus_left_trigger();
-  /** Connect a callback to be called on emission of the move_focus_right_signal. */
-  connection_t connect_move_focus_right(std::function<void()> cb);
   /** Emit signal when the user pressed the right arrow key and focus should move. */
   void move_focus_right();
-  std::function<void()> get_move_focus_right_trigger();
-  /** Connect a callback to be called on emission of the move_focus_up_signal. */
-  connection_t connect_move_focus_up(std::function<void()> cb);
   /** Emit signal when the user pressed the up arrow key and focus should move. */
   void move_focus_up();
-  std::function<void()> get_move_focus_up_trigger();
-  /** Connect a callback to be called on emission of the move_focus_down_signal. */
-  connection_t connect_move_focus_down(std::function<void()> cb);
   /** Emit signal when the user pressed the down arrow key and focus should move. */
   void move_focus_down();
-  std::function<void()> get_move_focus_down_trigger();
+
+ private:
+  struct T3_WIDGET_LOCAL implementation_t;
+  implementation_t *impl;
 };
 
 class T3_WIDGET_API widget_container_t : public container_t {

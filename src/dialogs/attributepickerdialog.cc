@@ -13,6 +13,7 @@
 */
 #include "dialogs/attributepickerdialog.h"
 #include "colorscheme.h"
+#include "internal.h"
 #include "widgets/button.h"
 #include "widgets/expander.h"
 #include "widgets/frame.h"
@@ -292,14 +293,8 @@ void attribute_picker_dialog_t::show() {
   dialog_t::show();
 }
 
-connection_t attribute_picker_dialog_t::connect_attribute_selected(
-    std::function<void(t3_attr_t)> cb) {
-  return impl->attribute_selected.connect(cb);
-}
-
-connection_t attribute_picker_dialog_t::connect_default_selected(std::function<void()> cb) {
-  return impl->default_selected.connect(cb);
-}
+_T3_WIDGET_IMPL_SIGNAL(attribute_picker_dialog_t, attribute_selected, t3_attr_t);
+_T3_WIDGET_IMPL_SIGNAL(attribute_picker_dialog_t, default_selected);
 
 //================================================================================
 struct attribute_test_line_t::implementation_t {
