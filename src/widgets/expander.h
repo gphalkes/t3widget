@@ -61,7 +61,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   widget_t *is_child_hotkey(key_t key) override;
   bool process_mouse_event(mouse_event_t event) override;
 
-  T3_WIDGET_SIGNAL(expanded, bool);
+  T3_WIDGET_DECLARE_SIGNAL(expanded, bool);
 };
 
 }  // namespace

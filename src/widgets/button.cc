@@ -14,6 +14,7 @@
 #include <cstring>
 
 #include "colorscheme.h"
+#include "internal.h"
 #include "widgets/button.h"
 
 namespace t3_widget {
@@ -31,6 +32,8 @@ struct button_t::implementation_t {
       one such button on each dialog. */
   bool is_default,
       has_focus = false; /**< Boolean indicating whether this button has the input focus. */
+  signal_t<> activate;
+
   implementation_t(const char *_text, bool _is_default, impl_allocator_t *allocator)
       : text(_text, false, allocator), is_default(_is_default) {
     text_width = text.get_width();
@@ -52,7 +55,7 @@ bool button_t::process_key(key_t key) {
     case EKEY_HOTKEY:
     case EKEY_NL:
     case ' ':
-      activate();
+      impl->activate();
       break;
     case EKEY_LEFT:
       move_focus_left();
@@ -124,7 +127,7 @@ void button_t::set_focus(focus_t focus) {
 
 bool button_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
-    activate();
+    impl->activate();
   }
   return true;
 }
@@ -132,5 +135,7 @@ bool button_t::process_mouse_event(mouse_event_t event) {
 int button_t::get_width() { return window.get_width(); }
 
 bool button_t::is_hotkey(key_t key) const { return impl->text.is_hotkey(key); }
+
+_T3_WIDGET_IMPL_SIGNAL(button_t, activate)
 
 }  // namespace

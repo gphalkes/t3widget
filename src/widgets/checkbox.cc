@@ -13,6 +13,7 @@
 */
 #include "widgets/checkbox.h"
 #include "colorscheme.h"
+#include "internal.h"
 
 namespace t3_widget {
 
@@ -23,6 +24,9 @@ struct checkbox_t::implementation_t {
   bool has_focus = false;
   /** Label associated with this checkbox_t. Used for determining the hotkey. */
   smart_label_t *label = nullptr;
+  signal_t<> activate;
+  signal_t<> toggled;
+
   implementation_t(bool _state) : state(_state) {}
 };
 
@@ -39,11 +43,11 @@ bool checkbox_t::process_key(key_t key) {
     case EKEY_HOTKEY:
       impl->state ^= true;
       force_redraw();
-      toggled();
+      impl->toggled();
       update_contents();
       break;
     case EKEY_NL:
-      activate();
+      impl->activate();
       break;
     case EKEY_LEFT:
       move_focus_left();
@@ -117,10 +121,13 @@ bool checkbox_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
     impl->state ^= true;
     force_redraw();
-    toggled();
+    impl->toggled();
     update_contents();
   }
   return true;
 }
+
+_T3_WIDGET_IMPL_SIGNAL(checkbox_t, activate)
+_T3_WIDGET_IMPL_SIGNAL(checkbox_t, toggled)
 
 }  // namespace

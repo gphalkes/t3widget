@@ -65,7 +65,7 @@ bool text_buffer_t::insert_char(key_t c) {
     return false;
   }
 
-  rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 
   cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 1);
   impl->last_undo_position = cursor;
@@ -78,7 +78,7 @@ bool text_buffer_t::overwrite_char(key_t c) {
     return false;
   }
   cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
-  rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 
   cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 1);
   impl->last_undo_position = cursor;
@@ -91,7 +91,7 @@ bool text_buffer_t::delete_char() {
     return false;
   }
   cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
-  rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
   return true;
 }
 
@@ -105,7 +105,7 @@ bool text_buffer_t::backspace_char() {
   cursor.pos = newpos;
   cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 
-  rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
 
   impl->last_undo_position = cursor;
   return true;
@@ -118,8 +118,8 @@ bool text_buffer_t::merge_internal(int line) {
   cursor.pos = impl->lines[line]->get_length();
   impl->lines[line]->merge(impl->lines[line + 1]);
   impl->lines.erase(impl->lines.begin() + line + 1);
-  rewrap_required(rewrap_type_t::DELETE_LINES, line + 1, line + 2);
-  rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
+  impl->rewrap_required(rewrap_type_t::DELETE_LINES, line + 1, line + 2);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
   return true;
 }
 
@@ -150,8 +150,8 @@ bool text_buffer_t::break_line_internal(const std::string *indent) {
 
   insert = impl->lines[cursor.line]->break_line(cursor.pos);
   impl->lines.insert(impl->lines.begin() + cursor.line + 1, insert);
-  rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
-  rewrap_required(rewrap_type_t::INSERT_LINES, cursor.line + 1, cursor.line + 2);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
+  impl->rewrap_required(rewrap_type_t::INSERT_LINES, cursor.line + 1, cursor.line + 2);
   cursor.line++;
   if (indent == nullptr) {
     cursor.pos = 0;
@@ -293,7 +293,7 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
     }
     delete selected_text;
     cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
-    rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
+    impl->rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, start.pos);
     return;
   }
 
@@ -378,10 +378,10 @@ void text_buffer_t::delete_block_internal(text_coordinate_t start, text_coordina
   impl->lines.erase(impl->lines.begin() + start.line, impl->lines.begin() + end.line);
   cursor.pos = impl->lines[cursor.line]->adjust_position(cursor.pos, 0);
 
-  rewrap_required(rewrap_type_t::DELETE_LINES, start.line, end.line);
-  rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
+  impl->rewrap_required(rewrap_type_t::DELETE_LINES, start.line, end.line);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE, start.line - 1, start.pos);
   if (static_cast<size_t>(start.line) < impl->lines.size()) {
-    rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, 0);
+    impl->rewrap_required(rewrap_type_t::REWRAP_LINE, start.line, 0);
   }
 }
 
@@ -405,20 +405,20 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
   next_line = block->break_on_nl(&next_start);
 
   impl->lines[insert_at.line]->merge(next_line);
-  rewrap_required(rewrap_type_t::REWRAP_LINE, insert_at.line, insert_at.pos);
+  impl->rewrap_required(rewrap_type_t::REWRAP_LINE, insert_at.line, insert_at.pos);
 
   while (next_start > 0) {
     insert_at.line++;
     next_line = block->break_on_nl(&next_start);
     impl->lines.insert(impl->lines.begin() + insert_at.line, next_line);
-    rewrap_required(rewrap_type_t::INSERT_LINES, insert_at.line, insert_at.line + 1);
+    impl->rewrap_required(rewrap_type_t::INSERT_LINES, insert_at.line, insert_at.line + 1);
   }
 
   cursor.pos = impl->lines[insert_at.line]->get_length();
 
   if (second_half != nullptr) {
     impl->lines[insert_at.line]->merge(second_half);
-    rewrap_required(rewrap_type_t::REWRAP_LINE, insert_at.line, cursor.pos);
+    impl->rewrap_required(rewrap_type_t::REWRAP_LINE, insert_at.line, cursor.pos);
   }
 
   cursor.line = insert_at.line;
@@ -1130,5 +1130,7 @@ void text_buffer_t::goto_pos(int line, int pos) {
     cursor.pos = calculate_line_pos(cursor.line, screen_pos, 1);
   }
 }
+
+_T3_WIDGET_IMPL_SIGNAL(text_buffer_t, rewrap_required, rewrap_type_t, int, int)
 
 }  // namespace

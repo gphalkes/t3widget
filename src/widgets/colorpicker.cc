@@ -11,9 +11,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/colorpicker.h"
-#include "colorscheme.h"
 #include <cstdio>
+
+#include "colorscheme.h"
+#include "internal.h"
+#include "widgets/colorpicker.h"
 
 namespace t3_widget {
 struct color_picker_base_t::implementation_t {
@@ -21,6 +23,9 @@ struct color_picker_base_t::implementation_t {
   bool fg, has_focus = false;
   t3_attr_t undefined_colors = 0;
   const char *color_str;
+  signal_t<> activated;
+  signal_t<> selection_changed;
+
   implementation_t(bool _fg) : fg(_fg) {}
 };
 
@@ -76,14 +81,14 @@ bool color_picker_base_t::process_key(key_t key) {
       current_color = max_color;
       break;
     case EKEY_NL:
-      activated();
+      impl->activated();
       break;
     default:
       return false;
   }
   if (current_color != start_color) {
     force_redraw();
-    selection_changed();
+    impl->selection_changed();
   }
   return true;
 }
@@ -109,9 +114,9 @@ bool color_picker_base_t::process_mouse_event(mouse_event_t event) {
 
     impl->current_color = new_color;
     force_redraw();
-    selection_changed();
+    impl->selection_changed();
     if (event.button_state & EMOUSE_DOUBLE_CLICKED_LEFT) {
-      activated();
+      impl->activated();
     }
   }
   return true;
@@ -209,6 +214,9 @@ void color_picker_base_t::paint_color_name(int color) {
     window.addstr(color_number, 0);
   }
 }
+
+_T3_WIDGET_IMPL_SIGNAL(color_picker_base_t, activated)
+_T3_WIDGET_IMPL_SIGNAL(color_picker_base_t, selection_changed)
 
 //=================================================================
 color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {

@@ -30,7 +30,7 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
 
   bool process_key(key_t key) override;
 
-  T3_WIDGET_SIGNAL(activate_internal);
+  T3_WIDGET_DECLARE_SIGNAL(activate_internal);
 
  public:
   message_dialog_t(int width, optional<std::string> _title, ...);

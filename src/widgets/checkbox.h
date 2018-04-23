@@ -55,12 +55,12 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
       Connect a callback to the #activate signal.
   */
   /** Signal emitted when the button is pressed. */
-  T3_WIDGET_SIGNAL(activate);
+  T3_WIDGET_DECLARE_SIGNAL(activate);
   /** @fn connection_t connect_toggled(std::function<void()> func)
       Connect a callback to the #toggled signal.
   */
   /** Signal emitted when the state of the checkbox_t is toggled. */
-  T3_WIDGET_SIGNAL(toggled);
+  T3_WIDGET_DECLARE_SIGNAL(toggled);
 };
 
 }  // namespace

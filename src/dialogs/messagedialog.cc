@@ -11,12 +11,14 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dialogs/messagedialog.h"
-#include "main.h"
-#include "textline.h"
 #include <climits>
 #include <cstdarg>
 #include <cstring>
+
+#include "dialogs/messagedialog.h"
+#include "internal.h"
+#include "main.h"
+#include "textline.h"
 
 #define MESSAGEDIALOG_MAX_LINES 10
 
@@ -25,6 +27,7 @@ namespace t3_widget {
 struct message_dialog_t::implementation_t {
   text_window_t *text_window;
   int height, max_text_height;
+  signal_t<> activate_internal;
 
   implementation_t() : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
 };
@@ -41,7 +44,7 @@ message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
   impl->text_window->set_size(1, width - 2);
   impl->text_window->set_position(1, 1);
   impl->text_window->connect_activate([this] { hide(); });
-  impl->text_window->connect_activate(activate_internal.get_trigger());
+  impl->text_window->connect_activate(impl->activate_internal.get_trigger());
   impl->text_window->set_tabsize(0);
   impl->text_window->set_enabled(false);
 
@@ -53,7 +56,7 @@ message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
     if (widgets.size() == 1) {
       button = new button_t(button_name, true);
       button->connect_activate([this] { hide(); });
-      button->connect_activate(activate_internal.get_trigger());
+      button->connect_activate(impl->activate_internal.get_trigger());
       button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
     } else {
       button = new button_t(button_name);
@@ -126,11 +129,13 @@ connection_t message_dialog_t::connect_activate(std::function<void()> _slot, siz
     return connection_t();
   }
   if (idx == 0) {
-    return activate_internal.connect(_slot);
+    return impl->activate_internal.connect(_slot);
   }
   return static_cast<button_t *>(widgets()[idx + 1])->connect_activate(_slot);
 }
 
 void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = max; }
+
+_T3_WIDGET_IMPL_SIGNAL(message_dialog_t, activate_internal)
 
 }  // namespace

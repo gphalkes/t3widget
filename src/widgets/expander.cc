@@ -13,6 +13,7 @@
 */
 #include "widgets/expander.h"
 #include "colorscheme.h"
+#include "internal.h"
 #include "log.h"
 
 namespace t3_widget {
@@ -26,6 +27,7 @@ struct expander_t::implementation_t {
   int full_height;
   connection_t move_up_connection, move_down_connection, move_right_connection,
       move_left_connection;
+  signal_t<bool> expanded;
   implementation_t(const char *text, impl_allocator_t *allocator)
       : focus(FOCUS_NONE),
         last_focus(FOCUS_NONE),
@@ -72,7 +74,7 @@ void expander_t::set_child(widget_t *_child) {
       window.resize(1, window.get_width());
       impl->is_expanded = false;
       force_redraw();
-      expanded(false);
+      impl->expanded(false);
     }
     impl->child.reset(_child);
     return;
@@ -108,13 +110,13 @@ void expander_t::set_expanded(bool expand) {
     impl->is_expanded = false;
     window.resize(1, window.get_width());
     force_redraw();
-    expanded(false);
+    impl->expanded(false);
   } else if (expand && !impl->is_expanded && impl->child != nullptr) {
     impl->child->show();
     impl->is_expanded = true;
     window.resize(impl->full_height, window.get_width());
     force_redraw();
-    expanded(true);
+    impl->expanded(true);
   }
 }
 
@@ -146,7 +148,7 @@ bool expander_t::process_key(key_t key) {
           impl->focus = FOCUS_CHILD;
           impl->child->set_focus(window_component_t::FOCUS_SET);
         }
-        expanded(true);
+        impl->expanded(true);
       } else if (impl->is_expanded) {
         if (impl->child != nullptr) {
           impl->child->hide();
@@ -154,7 +156,7 @@ bool expander_t::process_key(key_t key) {
         window.resize(1, window.get_width());
         impl->is_expanded = false;
         force_redraw();
-        expanded(false);
+        impl->expanded(false);
       }
       return true;
     }
@@ -289,7 +291,7 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
       impl->is_expanded = true;
       force_redraw();
       impl->child->show();
-      expanded(true);
+      impl->expanded(true);
       if (impl->focus == FOCUS_SELF) {
         impl->focus = FOCUS_CHILD;
         impl->child->set_focus(window_component_t::FOCUS_SET);
@@ -303,10 +305,12 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
       window.resize(1, window.get_width());
       impl->is_expanded = false;
       force_redraw();
-      expanded(false);
+      impl->expanded(false);
     }
   }
   return true;
 }
+
+_T3_WIDGET_IMPL_SIGNAL(expander_t, expanded, bool)
 
 }  // namespace

@@ -11,11 +11,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <cstring>
+#include <t3window/utf8.h>
+
 #include "dialogs/inputselectiondialog.h"
 #include "internal.h"
 #include "widgets/button.h"
-#include <cstring>
-#include <t3window/utf8.h>
 
 namespace t3_widget {
 
@@ -26,6 +27,7 @@ struct input_selection_dialog_t::implementation_t {
   label_t *key_label;
   checkbox_t *enable_simulate_box, *disable_timeout_box;
   int old_timeout;
+  signal_t<> activate;
 };
 
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text)
@@ -235,11 +237,13 @@ void input_selection_dialog_t::ok_activated() {
   set_key_timeout(impl->enable_simulate_box->get_state()
                       ? (impl->disable_timeout_box->get_state() ? 0 : -1000)
                       : 100);
-  activate();
+  impl->activate();
 }
 
 void input_selection_dialog_t::check_state() {
   impl->disable_timeout_box->set_enabled(impl->enable_simulate_box->get_state());
 }
+
+_T3_WIDGET_IMPL_SIGNAL(input_selection_dialog_t, activate)
 
 }  // namespace

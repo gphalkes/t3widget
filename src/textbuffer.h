@@ -141,7 +141,7 @@ class T3_WIDGET_API text_buffer_t {
   // FIXME: make these members private again
   text_coordinate_t cursor;
 
-  T3_WIDGET_SIGNAL(rewrap_required, rewrap_type_t, int, int);
+  T3_WIDGET_DECLARE_SIGNAL(rewrap_required, rewrap_type_t, int, int);
 };
 
 }  // namespace

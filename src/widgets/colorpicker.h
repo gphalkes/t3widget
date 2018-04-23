@@ -50,8 +50,8 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
   t3_attr_t get_color();
   void set_color(t3_attr_t attr);
 
-  T3_WIDGET_SIGNAL(activated);
-  T3_WIDGET_SIGNAL(selection_changed);
+  T3_WIDGET_DECLARE_SIGNAL(activated);
+  T3_WIDGET_DECLARE_SIGNAL(selection_changed);
 };
 
 class T3_WIDGET_API color_picker_t : public color_picker_base_t {

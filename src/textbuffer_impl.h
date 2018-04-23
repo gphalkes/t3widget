@@ -21,6 +21,7 @@ struct text_buffer_t::implementation_t {
   undo_t *last_undo;
 
   text_line_factory_t *line_factory;
+  signal_t<rewrap_type_t, int, int> rewrap_required;
 
   implementation_t(text_line_factory_t *_line_factory)
       : selection_start(-1, 0),
