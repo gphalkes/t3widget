@@ -29,7 +29,7 @@ struct dialog_t::implementation_t {
   signal_t<> closed;           /**< Signal emitted when the dialog is closed by calling #close. */
   optional<std::string> title; /**< The title of this dialog. */
 
-  implementation_t(optional<std::string> title) : title(std::move(title)) {}
+  implementation_t(optional<std::string> _title) : title(std::move(_title)) {}
 };
 
 dialog_t::dialog_t(int height, int width, optional<std::string> title, size_t impl_size)

@@ -84,7 +84,6 @@ class T3_WIDGET_API focus_widget_t {
  public:
   focus_widget_t(impl_allocator_t *allocator = nullptr);
   ~focus_widget_t();
-  static size_t impl_alloc(size_t impl_size);
 
   /** Connect a callback to be called on emission of the move_focus_left_signal. */
   T3_WIDGET_DECLARE_SIGNAL(move_focus_left);
@@ -105,10 +104,14 @@ class T3_WIDGET_API focus_widget_t {
   /** Emit signal when the user pressed the down arrow key and focus should move. */
   void move_focus_down();
 
- private:
   struct T3_WIDGET_LOCAL implementation_t;
   implementation_t *impl;
+
+  friend class impl_allocator_t;
 };
+
+template <>
+size_t impl_allocator_t::impl_alloc<focus_widget_t::implementation_t>(size_t req);
 
 class T3_WIDGET_API widget_container_t : public container_t {
  public:

@@ -242,6 +242,7 @@ class T3_WIDGET_API impl_allocator_t {
     return req > 0 ? ((req - 1) / align + 1) * align + size : std::max(size, sizeof(uint16_t));
   }
 
+
  private:
   std::unique_ptr<char, free_deleter> space_;
 };

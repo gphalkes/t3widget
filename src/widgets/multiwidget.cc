@@ -29,7 +29,7 @@ struct multi_widget_t::implementation_t {
 };
 
 multi_widget_t::multi_widget_t()
-    : widget_t(focus_widget_t::impl_alloc(impl_alloc<implementation_t>(0))),
+    : widget_t(impl_alloc<focus_widget_t::implementation_t>(impl_alloc<implementation_t>(0))),
       focus_widget_t(this),
       impl(new_impl<implementation_t>()) {
   init_unbacked_window(1, 1, true);

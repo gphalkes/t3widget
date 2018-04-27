@@ -37,7 +37,7 @@ struct expander_t::implementation_t {
 };
 
 expander_t::expander_t(const char *text)
-    : widget_t(focus_widget_t::impl_alloc(
+    : widget_t(impl_alloc<focus_widget_t::implementation_t>(
           impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0)))),
       focus_widget_t(this),
       impl(new_impl<implementation_t>(text, this)) {
