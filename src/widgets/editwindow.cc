@@ -208,7 +208,7 @@ void edit_window_t::ensure_cursor_on_screen() {
   }
 
   if (impl->wrap_type == wrap_type_t::NONE) {
-    impl->screen_pos = text->calculate_screen_pos(nullptr, impl->tabsize);
+    impl->screen_pos = text->calculate_screen_pos(impl->tabsize);
 
     if (text->cursor.line < impl->top_left.line) {
       impl->top_left.line = text->cursor.line;
@@ -569,7 +569,6 @@ void edit_window_t::pgup() {
 }
 
 void edit_window_t::home_key() {
-  const text_line_t *line;
   int pos;
 
   if (!impl->indent_aware_home) {
@@ -591,9 +590,9 @@ void edit_window_t::home_key() {
       return;
     }
   }
-  line = text->get_line_data(text->cursor.line);
-  for (pos = 0; pos < line->get_length() && line->is_space(pos);
-       pos = line->adjust_position(pos, 1)) {
+  const text_line_t &line = text->get_line_data(text->cursor.line);
+  for (pos = 0; pos < line.get_length() && line.is_space(pos);
+       pos = line.adjust_position(pos, 1)) {
   }
 
   text->cursor.pos = text->cursor.pos != pos ? pos : 0;
@@ -701,7 +700,7 @@ void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_actio
         goto not_found;
       }
 
-      text->set_selection_from_find(&result);
+      text->set_selection_from_find(result);
       update_repaint_lines(result.start.line, result.end.line);
       ensure_cursor_on_screen();
       if (local_finder->get_flags() & find_flags_t::REPLACEMENT_VALID) {
@@ -715,7 +714,7 @@ void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_actio
     case find_action_t::REPLACE:
       result.start = text->get_selection_start();
       result.end = text->get_selection_end();
-      text->replace(local_finder, &result);
+      text->replace(*local_finder, result);
       update_repaint_lines(
           result.start.line < result.end.line ? result.start.line : result.end.line, INT_MAX);
       /* FALLTHROUGH */
@@ -729,7 +728,7 @@ void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_actio
         goto not_found;
       }
 
-      text->set_selection_from_find(&result);
+      text->set_selection_from_find(result);
       update_repaint_lines(result.start.line, result.end.line);
       ensure_cursor_on_screen();
       replace_buttons->reshow(action);
@@ -744,7 +743,7 @@ void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_actio
         if (replacements == 0) {
           text->start_undo_block();
         }
-        text->replace(local_finder, &result);
+        text->replace(*local_finder, result);
         start = text->cursor;
       }
 
@@ -783,7 +782,7 @@ void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_actio
         if (replacements == 0) {
           text->start_undo_block();
         }
-        text->replace(local_finder, &result);
+        text->replace(*local_finder, result);
         start = text->cursor;
         end.pos -= end_line_length - text->get_line_max(end.line);
         end_line_length = text->get_line_max(end.line);
@@ -927,7 +926,7 @@ bool edit_window_t::process_key(key_t key) {
 
       update_repaint_lines(text->cursor.line, INT_MAX);
       if (impl->auto_indent && !impl->pasting_text) {
-        current_line = text->get_line_data(text->cursor.line)->get_data();
+        current_line = text->get_line_data(text->cursor.line).get_data();
         for (i = 0, indent = 0, tabs = 0; i < text->cursor.pos; i++) {
           if ((*current_line)[i] == '\t') {
             indent = 0;
@@ -1015,7 +1014,7 @@ bool edit_window_t::process_key(key_t key) {
         } else {
           space.append(1, '\t');
         }
-        text->insert_block(&space);
+        text->insert_block(space);
         ensure_cursor_on_screen();
         impl->last_set_pos = impl->screen_pos;
       }
@@ -1175,7 +1174,7 @@ void edit_window_t::update_contents() {
   impl->scrollbar->update_contents();
 
   logical_cursor_pos = text->cursor;
-  logical_cursor_pos.pos = text->calculate_screen_pos(nullptr, impl->tabsize);
+  logical_cursor_pos.pos = text->calculate_screen_pos(impl->tabsize);
 
   snprintf(info, 29, "L: %-4d C: %-4d %c %s", logical_cursor_pos.line + 1,
            logical_cursor_pos.pos + 1, text->is_modified() ? '*' : ' ', ins_string[impl->ins_mode]);
@@ -1244,7 +1243,7 @@ void edit_window_t::paste(bool clipboard) {
     if (copy_buffer != nullptr) {
       if (text->get_selection_mode() == selection_mode_t::NONE) {
         update_repaint_lines(text->cursor.line, INT_MAX);
-        text->insert_block(copy_buffer.get());
+        text->insert_block(*copy_buffer);
       } else {
         text_coordinate_t current_start;
         text_coordinate_t current_end;
@@ -1252,7 +1251,7 @@ void edit_window_t::paste(bool clipboard) {
         current_end = text->get_selection_end();
         update_repaint_lines(
             current_start.line < current_end.line ? current_start.line : current_end.line, INT_MAX);
-        text->replace_block(current_start, current_end, copy_buffer.get());
+        text->replace_block(current_start, current_end, *copy_buffer);
         reset_selection();
       }
       ensure_cursor_on_screen();
@@ -1371,7 +1370,7 @@ void edit_window_t::find_next(bool backward) {
       message_dialog->center_over(center_window);
       message_dialog->show();
     } else {
-      text->set_selection_from_find(&result);
+      text->set_selection_from_find(result);
       ensure_cursor_on_screen();
     }
   }
@@ -1446,7 +1445,7 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
       {
         ensure_clipboard_lock_t lock;
         std::shared_ptr<std::string> primary = get_primary();
-        if (primary != nullptr) text->insert_block(primary.get());
+        if (primary != nullptr) text->insert_block(*primary);
       }
       ensure_cursor_on_screen();
       impl->last_set_pos = impl->screen_pos;
@@ -1564,12 +1563,12 @@ void edit_window_t::activate_autocomplete(bool autocomplete_single) {
 
     impl->autocomplete_panel->set_completions(autocomplete_list);
     if (impl->wrap_type == wrap_type_t::NONE) {
-      int position = text->calculate_screen_pos(&anchor, impl->tabsize);
+      int position = text->calculate_screen_pos(anchor, impl->tabsize);
       impl->autocomplete_panel->set_position(text->cursor.line - impl->top_left.line + 1,
                                              position - impl->top_left.pos - 1);
     } else {
       int sub_line = impl->wrap_info->find_line(text->cursor);
-      int position = impl->wrap_info->calculate_screen_pos(&anchor);
+      int position = impl->wrap_info->calculate_screen_pos(anchor);
       int line;
 
       if (text->cursor.line == impl->top_left.line) {
@@ -1742,7 +1741,7 @@ void edit_window_t::delete_line() {
     }
   }
   reset_selection();
-  int saved_pos = text->calculate_screen_pos(nullptr, 0);
+  int saved_pos = text->calculate_screen_pos(0);
   start.pos = 0;
   if (end.line + 1 >= text->size()) {
     end.pos = text->get_line_max(end.line);

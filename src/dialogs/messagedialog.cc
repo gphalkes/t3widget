@@ -105,7 +105,7 @@ void message_dialog_t::set_message(string_view message) {
   } else if (text_height == 1) {
     text_coordinate_t coord(0, INT_MAX);
     impl->height = 5;
-    impl->text_window->set_size(1, text->calculate_screen_pos(&coord, 0));
+    impl->text_window->set_size(1, text->calculate_screen_pos(coord, 0));
     impl->text_window->set_anchor(this,
                                   T3_PARENT(T3_ANCHOR_TOPCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
     impl->text_window->set_position(1, 0);

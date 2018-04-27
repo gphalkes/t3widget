@@ -53,10 +53,8 @@ text_buffer_t::~text_buffer_t() {
 
 int text_buffer_t::size() const { return impl->lines.size(); }
 
-const text_line_t *text_buffer_t::get_line_data(int idx) const { return impl->lines[idx]; }
+const text_line_t &text_buffer_t::get_line_data(int idx) const { return *impl->lines[idx]; }
 text_line_t *text_buffer_t::get_mutable_line_data(int idx) { return impl->lines[idx]; }
-
-text_line_t *text_buffer_t::get_line_data_nonconst(int idx) { return impl->lines[idx]; }
 
 text_line_factory_t *text_buffer_t::get_line_factory() { return impl->line_factory; }
 
@@ -175,11 +173,12 @@ bool text_buffer_t::break_line(const std::string *indent) {
   return break_line_internal(indent);
 }
 
-int text_buffer_t::calculate_screen_pos(const text_coordinate_t *where, int tabsize) const {
-  if (where == nullptr) {
-    where = &cursor;
-  }
-  return impl->lines[where->line]->calculate_screen_width(0, where->pos, tabsize);
+int text_buffer_t::calculate_screen_pos(int tabsize) const {
+  return calculate_screen_pos(cursor, tabsize);
+}
+
+int text_buffer_t::calculate_screen_pos(const text_coordinate_t &where, int tabsize) const {
+  return impl->lines[where.line]->calculate_screen_width(0, where.pos, tabsize);
 }
 
 int text_buffer_t::calculate_line_pos(int line, int pos, int tabsize) const {
@@ -427,9 +426,9 @@ bool text_buffer_t::insert_block_internal(text_coordinate_t insert_at, text_line
   return true;
 }
 
-bool text_buffer_t::insert_block(const std::string *block) {
+bool text_buffer_t::insert_block(const std::string &block) {
   text_coordinate_t cursor_at_start = cursor;
-  text_line_t *converted_block = impl->line_factory->new_text_line_t(*block);
+  text_line_t *converted_block = impl->line_factory->new_text_line_t(block);
   std::string sanitized_block(*converted_block->get_data());
   undo_t *undo;
 
@@ -445,7 +444,7 @@ bool text_buffer_t::insert_block(const std::string *block) {
 }
 
 bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end,
-                                  const std::string *block) {
+                                  const std::string &block) {
   undo_double_text_triple_coord_t *undo;
   text_line_t *converted_block;
   std::string sanitized_block;
@@ -466,7 +465,7 @@ bool text_buffer_t::replace_block(text_coordinate_t start, text_coordinate_t end
     start = end;
   }
 
-  converted_block = impl->line_factory->new_text_line_t(*block);
+  converted_block = impl->line_factory->new_text_line_t(block);
   sanitized_block = *converted_block->get_data();
   // FIXME: insert_block_internal may fail!!!
   insert_block_internal(start, converted_block);
@@ -753,10 +752,10 @@ int text_buffer_t::apply_redo() {
   return 0;
 }
 
-void text_buffer_t::set_selection_from_find(find_result_t *result) {
-  impl->selection_start = result->start;
+void text_buffer_t::set_selection_from_find(const find_result_t &result) {
+  impl->selection_start = result.start;
 
-  impl->selection_end = result->end;
+  impl->selection_end = result.end;
 
   cursor = get_selection_end();
   impl->selection_mode = selection_mode_t::SHIFT;
@@ -858,16 +857,16 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
   return false;
 }
 
-void text_buffer_t::replace(finder_t *finder, find_result_t *result) {
+void text_buffer_t::replace(const finder_t &finder, const find_result_t &result) {
   std::string replacement_str;
 
-  if (result->start == result->end) {
+  if (result.start == result.end) {
     return;
   }
 
-  replacement_str = finder->get_replacement(*impl->lines[result->start.line]->get_data());
+  replacement_str = finder.get_replacement(*impl->lines[result.start.line]->get_data());
 
-  replace_block(result->start, result->end, &replacement_str);
+  replace_block(result.start, result.end, replacement_str);
 }
 
 void text_buffer_t::set_selection_mode(selection_mode_t mode) {

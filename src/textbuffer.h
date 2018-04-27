@@ -54,7 +54,6 @@ class T3_WIDGET_API text_buffer_t {
 
   bool undo_indent_selection(undo_t *undo, undo_type_t type);
 
-  text_line_t *get_line_data_nonconst(int idx);
   text_line_factory_t *get_line_factory();
   text_line_t *get_mutable_line_data(int idx);
 
@@ -65,7 +64,7 @@ class T3_WIDGET_API text_buffer_t {
   virtual ~text_buffer_t();
 
   int size() const;
-  const text_line_t *get_line_data(int idx) const;
+  const text_line_t &get_line_data(int idx) const;
 
   bool insert_char(key_t c);
   bool overwrite_char(key_t c);
@@ -73,7 +72,7 @@ class T3_WIDGET_API text_buffer_t {
   bool backspace_char();
   bool merge(bool backspace);
   bool break_line(const std::string *indent = nullptr);
-  bool insert_block(const std::string *block);
+  bool insert_block(const std::string &block);
 
   bool append_text(string_view text);
 
@@ -85,7 +84,8 @@ class T3_WIDGET_API text_buffer_t {
   void goto_next_word();
   void goto_previous_word();
 
-  int calculate_screen_pos(const text_coordinate_t *where, int tabsize) const;
+  int calculate_screen_pos(int tabsize) const;
+  int calculate_screen_pos(const text_coordinate_t &where, int tabsize) const;
   int calculate_line_pos(int line, int pos, int tabsize) const;
 
   text_coordinate_t get_selection_start() const;
@@ -95,13 +95,13 @@ class T3_WIDGET_API text_buffer_t {
   selection_mode_t get_selection_mode() const;
   bool selection_empty() const;
   void delete_block(text_coordinate_t start, text_coordinate_t end);
-  bool replace_block(text_coordinate_t start, text_coordinate_t end, const std::string *block);
+  bool replace_block(text_coordinate_t start, text_coordinate_t end, const std::string &block);
   bool indent_selection(int tabsize, bool tab_spaces);
   bool indent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize, bool tab_spaces);
   bool unindent_selection(int tabsize);
   bool unindent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize);
   bool unindent_line(int tabsize);
-  void set_selection_from_find(find_result_t *result);
+  void set_selection_from_find(const find_result_t &result);
 
   /** Find a substring in the text.
       @param finder The ::finder_t used to locate the substring.
@@ -116,7 +116,7 @@ class T3_WIDGET_API text_buffer_t {
   bool find(finder_t *finder, find_result_t *result, bool reverse = false) const;
   bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end,
                     find_result_t *result) const;
-  void replace(finder_t *finder, find_result_t *result);
+  void replace(const finder_t &finder, const find_result_t &result);
 
   bool is_modified() const;
   std::unique_ptr<std::string> convert_block(text_coordinate_t start, text_coordinate_t end);

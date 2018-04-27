@@ -52,10 +52,10 @@ class T3_WIDGET_API finder_t {
       @param needle The string to search for.
       @param flags A logical or of flags from find_flags_t.
       @param replacement The optional replacement string.
-      @returns A new finder_t subclass instance or @c nullptr on failure.
+      @return A new finder_t subclass instance or @c nullptr on failure.
 
-      For regular expression searches, the replacement string may contain references of the form \0
-      .. \9. */
+      For regular expression searches, the replacement string may contain references of the form \\0
+      .. \\9. */
   static std::unique_ptr<finder_t> create(const std::string &needle, int flags,
                                           std::string *error_message,
                                           const std::string *replacement = nullptr);
