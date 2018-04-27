@@ -26,6 +26,7 @@ struct text_window_t::implementation_t {
   text_buffer_t *text;
   std::unique_ptr<wrap_info_t> wrap_info;
   text_coordinate_t top;
+  signal_t<> activate;
   bool focus;
 
   implementation_t() : top(0, 0), focus(false) {}
@@ -139,7 +140,7 @@ void text_window_t::scroll_up(int lines) {
 bool text_window_t::process_key(key_t key) {
   switch (key) {
     case EKEY_NL:
-      activate();
+      impl->activate();
       break;
     case EKEY_DOWN:
       scroll_down(1);
@@ -315,5 +316,7 @@ void text_window_t::scrollbar_dragged(int start) {
   impl->top = new_top_left;
   force_redraw();
 }
+
+_T3_WIDGET_IMPL_SIGNAL(text_window_t, activate)
 
 }  // namespace

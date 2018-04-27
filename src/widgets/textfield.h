@@ -91,7 +91,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
   void bad_draw_recheck() override;
   bool process_mouse_event(mouse_event_t event) override;
 
-  T3_WIDGET_SIGNAL(activate);
+  T3_WIDGET_DECLARE_SIGNAL(activate);
 
 #define _T3_ACTION_FILE <t3widget/widgets/textfield.actions.h>
 #include <t3widget/key_binding_decl.h>

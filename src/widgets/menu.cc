@@ -16,6 +16,7 @@
 
 #include "colorscheme.h"
 #include "dialogs/menupanel.h"
+#include "internal.h"
 #include "key.h"
 #include "log.h"
 #include "main.h"
@@ -39,6 +40,7 @@ struct menu_bar_t::implementation_t {
 
   std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
   int button_down_idx;               /** Index of menu on which the left button was pressed down. */
+  signal_t<int> activate;
 
   implementation_t(bool _hidden)
       : current_menu(0),
@@ -78,7 +80,7 @@ void menu_bar_t::add_menu(menu_panel_t *menu) {
   menu->set_menu_bar(this);
   menu->set_position(None, impl->start_col);
   impl->start_col += menu->get_label_width() + 2;
-  menu->connect_activate(activate.get_trigger());
+  menu->connect_activate(impl->activate.get_trigger());
   force_redraw();
 }
 
@@ -294,5 +296,7 @@ void menu_bar_t::set_hidden(bool _hidden) {
     window.show();
   }
 }
+
+_T3_WIDGET_IMPL_SIGNAL(menu_bar_t, activate, int)
 
 }  // namespace

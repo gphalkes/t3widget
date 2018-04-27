@@ -68,6 +68,7 @@ struct text_field_t::implementation_t {
   smart_label_t *label; /**< Label associated with this text_field_t. */
 
   std::unique_ptr<drop_down_list_t> drop_down_list;
+  signal_t<> activate;
 
   implementation_t()
       : pos(0),
@@ -87,7 +88,8 @@ struct text_field_t::implementation_t {
 };
 
 text_field_t::text_field_t()
-    : widget_t(1, 4, false, impl_alloc<focus_widget_t::implementation_t>(impl_alloc<implementation_t>(0))),
+    : widget_t(1, 4, false,
+               impl_alloc<focus_widget_t::implementation_t>(impl_alloc<implementation_t>(0))),
       focus_widget_t(this),
       impl(new_impl<implementation_t>()) {
   reset_selection();
@@ -246,7 +248,7 @@ bool text_field_t::process_key(key_t key) {
         impl->drop_down_list->hide();
         impl->in_drop_down_list = false;
       }
-      activate();
+      impl->activate();
       break;
 
     case EKEY_HOTKEY:
@@ -643,6 +645,8 @@ void text_field_t::set_selection_end(bool update_primary) {
 }
 
 bool text_field_t::has_focus() const { return impl->focus; }
+
+_T3_WIDGET_IMPL_SIGNAL(text_field_t, activate)
 
 /*======================
   == drop_down_list_t ==
