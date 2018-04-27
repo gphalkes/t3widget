@@ -237,13 +237,21 @@ class T3_WIDGET_API impl_allocator_t {
   /** Returns size of the malloc request needed to allocate T after an allocation of size @p req. */
   template <typename T>
   static size_t impl_alloc(size_t req) {
+  	return impl_alloc_internal<T>(req);
+  }
+
+ private:
+  /** Returns size of the malloc request needed to allocate T after an allocation of size @p req.
+      This is the actual implementation. This is separate from the public interface to allow
+	  explicit instantation to be used for some types like focus_widget_t::implementation_t. */
+  template <typename T>
+  static size_t impl_alloc_internal(size_t req) {
     const size_t align = alignof(T);
     const size_t size = sizeof(T);
     return req > 0 ? ((req - 1) / align + 1) * align + size : std::max(size, sizeof(uint16_t));
   }
 
 
- private:
   std::unique_ptr<char, free_deleter> space_;
 };
 

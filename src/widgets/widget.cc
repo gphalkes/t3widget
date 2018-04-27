@@ -141,7 +141,7 @@ focus_widget_t::~focus_widget_t() {
 
 template <>
 size_t impl_allocator_t::impl_alloc<focus_widget_t::implementation_t>(size_t impl_size) {
-  return impl_allocator_t::impl_alloc<focus_widget_t::implementation_t>(impl_size);
+  return impl_allocator_t::impl_alloc_internal<focus_widget_t::implementation_t>(impl_size);
 }
 
 _T3_WIDGET_IMPL_SIGNAL(focus_widget_t, move_focus_left)
