@@ -12,8 +12,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef T3_WIDGET_SIGNAL_H
-#define T3_WIDGET_SIGNAL_H
+#ifndef DEFINE_SIGNAL_H
+#define DEFINE_SIGNAL_H
 
 #include <functional>
 #include <list>

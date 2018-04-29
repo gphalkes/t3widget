@@ -18,11 +18,11 @@
 namespace t3_widget {
 
 struct file_pane_t::implementation_t {
-  scrollbar_t scrollbar;  /**< Scrollbar displayed at the bottom. */
-  size_t top_idx,         /**< Index of the first item displayed. */
-      current;            /**< Index of the currently highlighted item. */
-  file_list_t *file_list; /**< List of files to display. */
-  bool focus;             /**< Boolean indicating whether this file_pane_t has the input focus. */
+  scrollbar_t scrollbar;       /**< Scrollbar displayed at the bottom. */
+  size_t top_idx,              /**< Index of the first item displayed. */
+      current;                 /**< Index of the currently highlighted item. */
+  file_list_base_t *file_list; /**< List of files to display. */
+  bool focus; /**< Boolean indicating whether this file_pane_t has the input focus. */
   text_field_t
       *field; /**< The text_field_t which is the alternative input method for providing a file
                  name. */
@@ -327,7 +327,7 @@ void file_pane_t::reset() {
   impl->current = 0;
 }
 
-void file_pane_t::set_file_list(file_list_t *_file_list) {
+void file_pane_t::set_file_list(file_list_base_t *_file_list) {
   if (impl->file_list != nullptr) {
     impl->content_changed_connection.disconnect();
   }

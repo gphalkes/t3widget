@@ -20,38 +20,61 @@
 #include <fnmatch.h>
 
 #include "contentlist.h"
+#include "internal.h"
 #include "main.h"
 #include "util.h"
 
 namespace t3_widget {
 
-size_t string_list_t::size() const { return strings.size(); }
+//===================================== string_list_t ==============================================
+struct string_list_t::implementation_t {
+  std::vector<std::string> strings;
+  signal_t<> content_changed;
+};
 
-const std::string &string_list_t::operator[](size_t idx) const { return strings[idx]; }
+string_list_t::string_list_t() : impl(new implementation_t) {}
+string_list_t::~string_list_t() {}
 
-void string_list_t::push_back(std::string str) { strings.push_back(str); }
+size_t string_list_t::size() const { return impl->strings.size(); }
 
-file_name_list_t::file_name_entry_t::file_name_entry_t() : is_dir(false) {
-  display_name = &file_name_entry_t::name;
+const std::string &string_list_t::operator[](size_t idx) const { return impl->strings[idx]; }
+
+void string_list_t::push_back(std::string str) {
+  impl->strings.push_back(str);
+  impl->content_changed();
 }
 
-file_name_list_t::file_name_entry_t::file_name_entry_t(std::string _name, std::string _utf8_name,
-                                                       bool _is_dir)
-    : name(_name), utf8_name(_utf8_name), is_dir(_is_dir) {
-  display_name = utf8_name.size() == 0 ? &file_name_entry_t::name : &file_name_entry_t::utf8_name;
-}
+_T3_WIDGET_IMPL_SIGNAL(string_list_t, content_changed)
 
-/* We need to supply a copy constructor, or else we risk a memory leak from the
-   fact that a simple bit copy may destroy a reference to memory allocated by a
-   std::string. */
-file_name_list_t::file_name_entry_t::file_name_entry_t(const file_name_entry_t &other) {
-  name = other.name;
-  utf8_name = other.utf8_name;
-  is_dir = other.is_dir;
-  display_name = other.display_name;
-}
+//===================================== file_name_entry_t ==========================================
+/** Class representing a single file. */
+class T3_WIDGET_LOCAL file_name_entry_t {
+ public:
+  std::string name, /**< The name of the file as written on disk. */
+      utf8_name,    /**< The name of the file converted to UTF-8 (or empty if the same as #name). */
+      /** Pointer to member to the name to use for dispay purposes. */
+      file_name_entry_t::*display_name;
+  bool is_dir; /**< Boolean indicating whether this name represents a directory. */
+  /** Make a new file_name_entry_t. Implemented specifically to allow use in
+      std::vector<file_name_entry_t>. */
+  file_name_entry_t() : is_dir(false) { display_name = &file_name_entry_t::name; }
 
-bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_t second) {
+  /** Make a new file_name_entry_t. */
+  file_name_entry_t(std::string _name, std::string _utf8_name, bool _is_dir)
+      : name(_name), utf8_name(_utf8_name), is_dir(_is_dir) {
+    display_name = utf8_name.size() == 0 ? &file_name_entry_t::name : &file_name_entry_t::utf8_name;
+  }
+
+  /** Construct a copy of an existing file_name_entry_t. */
+  file_name_entry_t(const file_name_entry_t &other) {
+    name = other.name;
+    utf8_name = other.utf8_name;
+    is_dir = other.is_dir;
+    display_name = other.display_name;
+  }
+};
+
+static bool compare_entries(file_name_entry_t first, file_name_entry_t second) {
   if (first.is_dir && !second.is_dir) {
     return true;
   }
@@ -81,27 +104,38 @@ bool file_name_list_t::compare_entries(file_name_entry_t first, file_name_entry_
   return strcoll(first.name.c_str(), second.name.c_str()) < 0;
 }
 
-size_t file_name_list_t::size() const { return files.size(); }
+//===================================== file_list_t ===========================================
 
-const std::string &file_name_list_t::operator[](size_t idx) const {
-  return files[idx].*(files[idx].display_name);
+struct file_list_t::implementation_t {
+  /** Vector holding a list of all the files in a directory. */
+  std::vector<file_name_entry_t> files;
+  signal_t<> content_changed;
+};
+
+file_list_t::file_list_t() : impl(new implementation_t) {}
+file_list_t::~file_list_t() {}
+
+size_t file_list_t::size() const { return impl->files.size(); }
+
+const std::string &file_list_t::operator[](size_t idx) const {
+  return impl->files[idx].*(impl->files[idx].display_name);
 }
 
-const std::string &file_name_list_t::get_fs_name(size_t idx) const { return files[idx].name; }
+const std::string &file_list_t::get_fs_name(size_t idx) const { return impl->files[idx].name; }
 
-bool file_name_list_t::is_dir(size_t idx) const { return files[idx].is_dir; }
+bool file_list_t::is_dir(size_t idx) const { return impl->files[idx].is_dir; }
 
-int file_name_list_t::load_directory(const std::string &dir_name) {
+int file_list_t::load_directory(const std::string &dir_name) {
   struct dirent *entry;
   DIR *dir;
+  call_on_return_t cleanup([&] { impl->content_changed(); });
 
-  files.clear();
+  impl->files.clear();
   if (dir_name.compare("/") != 0) {
-    files.push_back(file_name_entry_t("..", "..", true));
+    impl->files.push_back(file_name_entry_t("..", "..", true));
   }
 
   if ((dir = opendir(dir_name.c_str())) == nullptr) {
-    content_changed();
     return errno;
   }
 
@@ -116,37 +150,140 @@ int file_name_list_t::load_directory(const std::string &dir_name) {
     if (strcmp(entry->d_name, utf8_name.c_str()) == 0) {
       utf8_name.clear();
     }
-    files.push_back(
+    impl->files.push_back(
         file_name_entry_t(entry->d_name, utf8_name, t3_widget::is_dir(dir_name, entry->d_name)));
 
     // Make sure errno is clear on EOF
     errno = 0;
   }
 
-  sort(files.begin(), files.end(), compare_entries);
+  sort(impl->files.begin(), impl->files.end(), compare_entries);
 
   if (errno != 0) {
     int error = errno;
     closedir(dir);
-    content_changed();
     return error;
   }
   closedir(dir);
 
-  content_changed();
   return 0;
 }
 
-file_name_list_t &file_name_list_t::operator=(const file_name_list_t &other) {
+file_list_t &file_list_t::operator=(const file_list_t &other) {
   if (&other == this) {
     return *this;
   }
 
-  files.resize(other.files.size());
-  copy(other.files.begin(), other.files.end(), files.begin());
-  content_changed();
+  impl->files.resize(other.impl->files.size());
+  copy(other.impl->files.begin(), other.impl->files.end(), impl->files.begin());
+  impl->content_changed();
   return *this;
 }
+
+_T3_WIDGET_IMPL_SIGNAL(file_list_t, content_changed)
+
+//===================================== filtered_list_internal_t ===================================
+
+/** Partial implementation of the filtered list. */
+template <typename L, typename B>
+class T3_WIDGET_API filtered_list_internal_t : public B {
+ protected:
+  /** Vector holding the indices in the base list of the items included in the filtered list. */
+  std::vector<size_t> items;
+  /** Base list of which this is a filtered view. Not owned. */
+  L *base;
+  /** Filter function. */
+  optional<std::function<bool(const string_list_base_t &, size_t)>> test;
+  /** Connection to base list's content_changed signal. */
+  connection_t base_content_changed_connection;
+  signal_t<> content_changed;
+
+  /** Update the filtered list.
+          Called automatically when the base list changes, through the use of the
+      @c content_changed signal.
+  */
+  void update_list() {
+    if (!test.is_valid()) {
+      return;
+    }
+
+    items.clear();
+
+    for (size_t i = 0; i < base->size(); i++) {
+      if (test.value()(*base, i)) {
+        items.push_back(i);
+      }
+    }
+    items.reserve(items.size());
+    content_changed();
+  }
+
+ public:
+  /** Make a new filtered_list_internal_t, wrapping an existing list.
+      The filtered_list_internal_t does not take ownership of the list_t. */
+  filtered_list_internal_t(L *list)
+      : base(list), test([](const string_list_base_t &, size_t) { return false; }) {
+    base_content_changed_connection = base->connect_content_changed([this] { update_list(); });
+  }
+  ~filtered_list_internal_t() override { base_content_changed_connection.disconnect(); }
+  void set_filter(std::function<bool(const string_list_base_t &, size_t)> _test) override {
+    test = _test;
+    update_list();
+  }
+  void reset_filter() override {
+    items.clear();
+    test.reset();
+    content_changed();
+  }
+  size_t size() const override { return test.is_valid() ? items.size() : base->size(); }
+  const std::string &operator[](size_t idx) const override {
+    return (*base)[test.is_valid() ? items[idx] : idx];
+  }
+
+  connection_t connect_content_changed(std::function<void()> cb) override {
+    return content_changed.connect(cb);
+  }
+  std::function<void()> get_content_changed_trigger() override {
+    return content_changed.get_trigger();
+  }
+};
+
+//===================================== filtered_list_* implementations ============================
+
+/** Specialized filtered list template for string_list_base_t.
+
+    A typedef named #filtered_string_list_t is provided for convenience.
+*/
+class filtered_string_list_t
+    : public filtered_list_internal_t<string_list_base_t, filtered_string_list_base_t> {
+ public:
+  filtered_string_list_t(string_list_base_t *list)
+      : filtered_list_internal_t<string_list_base_t, filtered_string_list_base_t>(list) {}
+};
+
+/** Filted file list implementation. */
+class filtered_file_list_t
+    : public filtered_list_internal_t<file_list_base_t, filtered_file_list_base_t> {
+ public:
+  filtered_file_list_t(file_list_base_t *list)
+      : filtered_list_internal_t<file_list_base_t, filtered_file_list_base_t>(list) {}
+  const std::string &get_fs_name(size_t idx) const override {
+    return base->get_fs_name(test.is_valid() ? items[idx] : idx);
+  }
+  bool is_dir(size_t idx) const override {
+    return base->is_dir(test.is_valid() ? items[idx] : idx);
+  }
+};
+
+std::unique_ptr<filtered_string_list_base_t> new_filtered_string_list(string_list_base_t *list) {
+  return make_unique<filtered_string_list_t>(list);
+}
+
+std::unique_ptr<filtered_file_list_base_t> new_filtered_file_list(file_list_base_t *list) {
+  return make_unique<filtered_file_list_t>(list);
+}
+
+//===================================== filters ====================================================
 
 bool string_compare_filter(const std::string *str, const string_list_base_t &list, size_t idx) {
   return list[idx].compare(0, str->size(), *str, 0, str->size()) == 0;
@@ -154,7 +291,7 @@ bool string_compare_filter(const std::string *str, const string_list_base_t &lis
 
 bool glob_filter(const std::string *str, bool show_hidden, const string_list_base_t &list,
                  size_t idx) {
-  const file_list_t *file_list = dynamic_cast<const file_list_t *>(&list);
+  const file_list_base_t *file_list = dynamic_cast<const file_list_base_t *>(&list);
   const std::string &item_name = list[idx];
 
   if (item_name.compare("..") == 0) {

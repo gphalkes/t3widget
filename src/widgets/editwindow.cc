@@ -591,8 +591,7 @@ void edit_window_t::home_key() {
     }
   }
   const text_line_t &line = text->get_line_data(text->cursor.line);
-  for (pos = 0; pos < line.get_length() && line.is_space(pos);
-       pos = line.adjust_position(pos, 1)) {
+  for (pos = 0; pos < line.get_length() && line.is_space(pos); pos = line.adjust_position(pos, 1)) {
   }
 
   text->cursor.pos = text->cursor.pos != pos ? pos : 0;

@@ -25,8 +25,8 @@ namespace t3_widget {
 static key_t nul = 0;
 
 struct file_dialog_t::implementation_t {
-  file_name_list_t names;
-  filtered_file_list_t view;
+  file_list_t names;
+  std::unique_ptr<filtered_file_list_base_t> view;
   std::string current_dir, lang_codeset_filter;
 
   int name_offset;
@@ -41,7 +41,7 @@ struct file_dialog_t::implementation_t {
   connection_t cancel_button_up_connection, ok_button_up_connection;
   signal_t<const std::string &> file_selected;
 
-  implementation_t() : view(&names), option_widget_set(false) {}
+  implementation_t() : view(new_filtered_file_list(&names)), option_widget_set(false) {}
 };
 /* FIXME: TODO:
         - path-name cleansing ( /foo/../bar -> /bar, ////usr -> /usr etc.)
@@ -64,13 +64,13 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   impl->file_line->connect_activate([this] { ok_callback(); });
   impl->file_line->set_label(name_label);
   impl->file_line->set_key_filter(&nul, 1, false);
-  impl->file_line->set_autocomplete(&impl->view);
+  impl->file_line->set_autocomplete(impl->view.get());
 
   impl->file_pane = new file_pane_t();
   impl->file_pane->set_file_list(&impl->names);
   impl->file_pane->set_text_field(impl->file_line);
   impl->file_pane->connect_activate([this](const std::string &file) { ok_callback(file); });
-  impl->file_pane->set_file_list(&impl->view);
+  impl->file_pane->set_file_list(impl->view.get());
 
   impl->file_pane_frame = new frame_t(frame_t::COVER_BOTTOM);
   impl->file_pane_frame->set_size(height - 4, width - 4);
@@ -232,7 +232,7 @@ void file_dialog_t::ok_callback(const std::string &file) {
 }
 
 void file_dialog_t::change_dir(const std::string &dir) {
-  file_name_list_t new_names;
+  file_list_t new_names;
   std::string new_dir, file_string;
   int error;
 
@@ -274,7 +274,8 @@ void file_dialog_t::change_dir(const std::string &dir) {
 
   impl->names = new_names;
   impl->current_dir = new_dir;
-  impl->view.set_filter(bind_front(glob_filter, &get_filter(), impl->show_hidden_box->get_state()));
+  impl->view->set_filter(
+      bind_front(glob_filter, &get_filter(), impl->show_hidden_box->get_state()));
   impl->file_pane->reset();
 }
 
@@ -283,7 +284,7 @@ void file_dialog_t::refresh_view() {
   if (impl->lang_codeset_filter.size() == 0) {
     impl->lang_codeset_filter = "*";
   }
-  impl->view.set_filter(
+  impl->view->set_filter(
       bind_front(glob_filter, &impl->lang_codeset_filter, impl->show_hidden_box->get_state()));
 
   impl->file_pane->set_file(impl->file_line->get_text());

@@ -283,15 +283,6 @@ struct T3_WIDGET_API text_coordinate_t {
   int pos;
 };
 
-#define T3_WIDGET_SIGNAL(_name, ...)                                     \
- protected:                                                              \
-  signal_t<__VA_ARGS__> _name;                                           \
-                                                                         \
- public:                                                                 \
-  connection_t connect_##_name(std::function<void(__VA_ARGS__)> _slot) { \
-    return _name.connect(_slot);                                         \
-  }
-
 #define T3_WIDGET_DECLARE_SIGNAL(_name, ...)                         \
   connection_t connect_##_name(std::function<void(__VA_ARGS__)> cb); \
   std::function<void(__VA_ARGS__)> get_##_name##_trigger()
@@ -483,6 +474,20 @@ std::function<R(Args...)> bind_front(R (T::*func)(A, B, C, D, Args...),
                                      typename internal::identity<D>::type d) {
   return [=](Args... args) { return (instance->*func)(a, b, c, d, args...); };
 }
+
+class call_on_return_t {
+ public:
+  call_on_return_t(std::function<void()> cb) : cb_(std::move(cb)) {}
+  ~call_on_return_t() {
+    if (cb_) {
+      cb_();
+    }
+  }
+  std::function<void()> release() { return std::move(cb_); }
+
+ private:
+  std::function<void()> cb_;
+};
 
 }  // namespace
 #endif

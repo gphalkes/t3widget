@@ -103,7 +103,7 @@ class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
  private:
   text_field_t *field; /**< text_field_t this drop-down list is created for. */
 
-  std::unique_ptr<filtered_list_base_t> completions; /**< List of possible selections. */
+  std::unique_ptr<filtered_string_list_base_t> completions; /**< List of possible selections. */
   list_pane_t *list_pane;
 
   void update_list_pane();

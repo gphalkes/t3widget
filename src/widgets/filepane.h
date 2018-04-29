@@ -71,8 +71,8 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
 
   /** Set the list to its initial position, i.e. the selected item is the first item. */
   void reset();
-  /** Set the file_list_t that this file_pane_t displays. */
-  void set_file_list(file_list_t *_file_list);
+  /** Set the file_list_base_t that this file_pane_t displays. */
+  void set_file_list(file_list_base_t *_file_list);
   /** Set the current selected item to the named item. */
   void set_file(const std::string *name);
 

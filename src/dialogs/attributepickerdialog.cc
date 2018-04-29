@@ -293,8 +293,8 @@ void attribute_picker_dialog_t::show() {
   dialog_t::show();
 }
 
-_T3_WIDGET_IMPL_SIGNAL(attribute_picker_dialog_t, attribute_selected, t3_attr_t);
-_T3_WIDGET_IMPL_SIGNAL(attribute_picker_dialog_t, default_selected);
+_T3_WIDGET_IMPL_SIGNAL(attribute_picker_dialog_t, attribute_selected, t3_attr_t)
+_T3_WIDGET_IMPL_SIGNAL(attribute_picker_dialog_t, default_selected)
 
 //================================================================================
 struct attribute_test_line_t::implementation_t {
