@@ -177,7 +177,7 @@ int text_buffer_t::calculate_line_pos(int line, int pos, int tabsize) const {
 }
 
 void text_buffer_t::paint_line(t3_window::window_t *win, int line,
-                               const text_line_t::paint_info_t *info) {
+                               const text_line_t::paint_info_t &info) {
   prepare_paint_line(line);
   impl->lines[line]->paint_line(win, info);
 }

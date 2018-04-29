@@ -110,7 +110,7 @@ void label_t::update_contents() {
   paint_info.normal_attr = 0;
   paint_info.selected_attr = 0;
 
-  line.paint_line(&window, &paint_info);
+  line.paint_line(&window, paint_info);
 }
 
 void label_t::set_focus(focus_t _focus) {

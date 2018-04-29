@@ -264,20 +264,20 @@ void text_line_t::paint_part(t3_window::window_t *win, const char *paint_buffer,
   }
 }
 
-t3_attr_t text_line_t::get_base_attr(int i, const text_line_t::paint_info_t *info) {
+t3_attr_t text_line_t::get_base_attr(int i, const text_line_t::paint_info_t &info) {
   (void)i;
-  return info->normal_attr;
+  return info.normal_attr;
 }
 
-t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *info) {
+t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t &info) {
   t3_attr_t retval = get_base_attr(i, info);
 
-  if (i >= info->selection_start && i < info->selection_end) {
-    retval = i == info->cursor ? t3_term_combine_attrs(attributes.text_selection_cursor2, retval)
-                               : info->selected_attr;
-  } else if (i == info->cursor) {
+  if (i >= info.selection_start && i < info.selection_end) {
+    retval = i == info.cursor ? t3_term_combine_attrs(attributes.text_selection_cursor2, retval)
+                              : info.selected_attr;
+  } else if (i == info.cursor) {
     retval = t3_term_combine_attrs(
-        i == info->selection_end ? attributes.text_selection_cursor : attributes.text_cursor,
+        i == info.selection_end ? attributes.text_selection_cursor : attributes.text_cursor,
         retval);
   }
 
@@ -288,17 +288,17 @@ t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t *in
   return retval;
 }
 
-void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_info_t *info) {
+void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_info_t &info) {
   int i, j, total = 0, print_from, tabspaces, accumulated = 0, endchars = 0;
   bool _is_print, new_is_print;
   t3_attr_t selection_attr = 0, new_selection_attr;
-  int flags = info->flags, size = info->size;
+  int flags = info.flags, size = info.size;
 
-  if (info->tabsize == 0) {
+  if (info.tabsize == 0) {
     flags |= text_line_t::TAB_AS_CONTROL;
   }
 
-  size += info->leftcol;
+  size += info.leftcol;
   if (flags & text_line_t::BREAK) {
     size--;
   }
@@ -307,45 +307,45 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
     return;
   }
 
-  if (starts_with_combining && info->leftcol > 0 && info->start == 0) {
+  if (starts_with_combining && info.leftcol > 0 && info.start == 0) {
     total++;
   }
 
-  for (i = info->start;
-       static_cast<size_t>(i) < buffer.size() && i < info->max && total < info->leftcol;
+  for (i = info.start;
+       static_cast<size_t>(i) < buffer.size() && i < info.max && total < info.leftcol;
        i += byte_width_from_first(i)) {
     if (width_at(i) != 0) {
       selection_attr = get_draw_attrs(i, info);
     }
 
     if (buffer[i] == '\t' && !(flags & text_line_t::TAB_AS_CONTROL)) {
-      tabspaces = info->tabsize - (total % info->tabsize);
+      tabspaces = info.tabsize - (total % info.tabsize);
       total += tabspaces;
       if (total >= size) {
         total = size;
       }
-      if (total > info->leftcol) {
+      if (total > info.leftcol) {
         if (flags & text_line_t::SHOW_TABS) {
           selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
-          if (total - info->leftcol > 1) {
-            win->addnstr(dashes, total - info->leftcol - 1, selection_attr);
+          if (total - info.leftcol > 1) {
+            win->addnstr(dashes, total - info.leftcol - 1, selection_attr);
           }
           win->addch('>', selection_attr);
         } else {
-          win->addnstr(spaces, total - info->leftcol, selection_attr);
+          win->addnstr(spaces, total - info.leftcol, selection_attr);
         }
       }
     } else if (static_cast<unsigned char>(buffer[i]) < 32) {
       total += 2;
-      // If total > info->leftcol than only the right side character is visible
-      if (total > info->leftcol) {
+      // If total > info.leftcol than only the right side character is visible
+      if (total > info.leftcol) {
         win->addch(control_map[static_cast<int>(buffer[i])],
                    t3_term_combine_attrs(attributes.non_print, selection_attr));
       }
     } else if (width_at(i) > 1) {
       total += width_at(i);
-      if (total > info->leftcol) {
-        for (j = info->leftcol; j < total; j++) {
+      if (total > info.leftcol) {
+        for (j = info.leftcol; j < total; j++) {
           win->addch('<', t3_term_combine_attrs(attributes.non_print, selection_attr));
         }
       }
@@ -354,14 +354,14 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
     }
   }
 
-  if (starts_with_combining && info->leftcol == 0 && info->start == 0) {
+  if (starts_with_combining && info.leftcol == 0 && info.start == 0) {
     selection_attr = get_draw_attrs(0, info);
     paint_part(win, " ", true, 1, t3_term_combine_attrs(attributes.non_print, selection_attr));
 
     print_from = i;
 
     /* Find the first non-zero-width char, and paint all zero-width chars now. */
-    while (static_cast<size_t>(i) < buffer.size() && i < info->max && width_at(i) == 0) {
+    while (static_cast<size_t>(i) < buffer.size() && i < info.max && width_at(i) == 0) {
       i += byte_width_from_first(i);
     }
 
@@ -372,7 +372,7 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
     total++;
   } else {
     /* Skip to first non-zero-width char */
-    while (static_cast<size_t>(i) < buffer.size() && i < info->max && width_at(i) == 0) {
+    while (static_cast<size_t>(i) < buffer.size() && i < info.max && width_at(i) == 0) {
       i += byte_width_from_first(i);
     }
   }
@@ -380,7 +380,7 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
   _is_print = is_print(i);
   print_from = i;
   new_selection_attr = selection_attr;
-  for (; static_cast<size_t>(i) < buffer.size() && i < info->max && total + accumulated < size;
+  for (; static_cast<size_t>(i) < buffer.size() && i < info.max && total + accumulated < size;
        i += byte_width_from_first(i)) {
     if (width_at(i) != 0) {
       new_selection_attr = get_draw_attrs(i, info);
@@ -404,22 +404,22 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
                  _is_print ? i - print_from : accumulated, selection_attr);
       total += accumulated;
       accumulated = 0;
-      tabspaces = info->tabsize - (total % info->tabsize);
+      tabspaces = info.tabsize - (total % info.tabsize);
       /*if (total + tabspaces >= size)
               tabspaces = size - total;*/
-      if (i == info->cursor) {
+      if (i == info.cursor) {
         char cursor_char = (flags & text_line_t::SHOW_TABS) ? (tabspaces > 1 ? '<' : '>') : ' ';
         win->addch(cursor_char, selection_attr);
         tabspaces--;
         total++;
-        selection_attr = i >= info->selection_start && i < info->selection_end ? info->selected_attr
-                                                                               : info->normal_attr;
+        selection_attr = i >= info.selection_start && i < info.selection_end ? info.selected_attr
+                                                                             : info.normal_attr;
       }
       if (tabspaces > 0) {
         if (flags & text_line_t::SHOW_TABS) {
           selection_attr = t3_term_combine_attrs(selection_attr, attributes.meta_text);
           if (tabspaces > 1) {
-            win->addch(i == info->cursor ? '-' : '<', selection_attr);
+            win->addch(i == info.cursor ? '-' : '<', selection_attr);
           }
           if (tabspaces > 2) {
             win->addnstr(dashes, tabspaces - 2, selection_attr);
@@ -462,7 +462,7 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
     }
     _is_print = new_is_print;
   }
-  while (static_cast<size_t>(i) < buffer.size() && i < info->max && width_at(i) == 0) {
+  while (static_cast<size_t>(i) < buffer.size() && i < info.max && width_at(i) == 0) {
     i += byte_width_from_first(i);
   }
 
@@ -470,7 +470,7 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
              selection_attr);
   total += accumulated;
 
-  if ((flags & text_line_t::PARTIAL_CHAR) && i >= info->max) {
+  if ((flags & text_line_t::PARTIAL_CHAR) && i >= info.max) {
     endchars = 1;
   }
 
@@ -482,7 +482,7 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
   /* Add a selected space when the selection crosses the end of this line
      and this line is not merely a part of a broken line */
   if (total < size && !(flags & text_line_t::BREAK)) {
-    if (i <= info->selection_end || i == info->cursor) {
+    if (i <= info.selection_end || i == info.cursor) {
       win->addch(' ', get_draw_attrs(i, info));
       total++;
     }
@@ -490,17 +490,16 @@ void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_
 
   if (flags & text_line_t::BREAK) {
     for (; total < size; total++) {
-      win->addch(' ', info->normal_attr);
+      win->addch(' ', info.normal_attr);
     }
-    win->addstr(wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info->normal_attr));
+    win->addstr(wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info.normal_attr));
   } else if (flags & text_line_t::SPACECLEAR) {
     for (; total + sizeof(spaces) < static_cast<size_t>(size); total += sizeof(spaces)) {
-      win->addnstr(
-          spaces, sizeof(spaces),
-          (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
+      win->addnstr(spaces, sizeof(spaces),
+                   (flags & text_line_t::EXTEND_SELECTION) ? info.selected_attr : info.normal_attr);
     }
     win->addnstr(spaces, size - total,
-                 (flags & text_line_t::EXTEND_SELECTION) ? info->selected_attr : info->normal_attr);
+                 (flags & text_line_t::EXTEND_SELECTION) ? info.selected_attr : info.normal_attr);
   } else {
     win->clrtoeol();
   }

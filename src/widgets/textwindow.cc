@@ -214,7 +214,7 @@ void text_window_t::update_contents() {
     }
     window.set_paint(i, 0);
     window.clrtoeol();
-    impl->wrap_info->paint_line(&window, draw_line, &info);
+    impl->wrap_info->paint_line(&window, draw_line, info);
 
     if (draw_line.line == end.line && draw_line.pos == end.pos) {
       break;

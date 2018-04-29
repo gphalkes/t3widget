@@ -457,7 +457,7 @@ void text_field_t::update_contents() {
   info.normal_attr = attributes.dialog;
   info.selected_attr = attributes.dialog_selected;
 
-  impl->line->paint_line(&window, &info);
+  impl->line->paint_line(&window, info);
   window.addch(
       impl->line->calculate_screen_width(impl->leftcol, INT_MAX, 0) > window.get_width() - 2 ? ')'
                                                                                              : ']',

@@ -235,21 +235,21 @@ int wrap_info_t::calculate_line_pos(int line, int pos, int sub_line) const {
 }
 
 void wrap_info_t::paint_line(t3_window::window_t *win, text_coordinate_t line,
-                             text_line_t::paint_info_t *info) const {
-  info->start = (*wrap_data[line.line])[line.pos];
-  info->flags &= ~text_line_t::BREAK;
+                             text_line_t::paint_info_t &info) const {
+  info.start = (*wrap_data[line.line])[line.pos];
+  info.flags &= ~text_line_t::BREAK;
   if (line.pos + 1 < static_cast<int>(wrap_data[line.line]->size())) {
-    info->max = (*wrap_data[line.line])[line.pos + 1];
-    info->flags |= text_line_t::BREAK;
+    info.max = (*wrap_data[line.line])[line.pos + 1];
+    info.flags |= text_line_t::BREAK;
   } else {
-    info->max = INT_MAX;
+    info.max = INT_MAX;
   }
   if (tabsize <= 0) {
-    info->flags |= text_line_t::TAB_AS_CONTROL;
+    info.flags |= text_line_t::TAB_AS_CONTROL;
   } else {
-    info->flags &= ~text_line_t::TAB_AS_CONTROL;
+    info.flags &= ~text_line_t::TAB_AS_CONTROL;
   }
-  info->tabsize = tabsize;
+  info.tabsize = tabsize;
   text->paint_line(win, line.line, info);
 }
 

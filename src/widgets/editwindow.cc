@@ -311,7 +311,7 @@ void edit_window_t::repaint_screen() {
           impl->focus && impl->top_left.line + i == text->cursor.line ? text->cursor.pos : -1;
       impl->edit_window.set_paint(i, 0);
       impl->edit_window.clrtoeol();
-      text->paint_line(&impl->edit_window, impl->top_left.line + i, &info);
+      text->paint_line(&impl->edit_window, impl->top_left.line + i, info);
     }
   } else {
     text_coordinate_t end_coord = impl->wrap_info->get_end();
@@ -338,7 +338,7 @@ void edit_window_t::repaint_screen() {
       info.cursor = impl->focus && draw_line.line == text->cursor.line ? text->cursor.pos : -1;
       impl->edit_window.set_paint(i, 0);
       impl->edit_window.clrtoeol();
-      impl->wrap_info->paint_line(&impl->edit_window, draw_line, &info);
+      impl->wrap_info->paint_line(&impl->edit_window, draw_line, info);
 
       if (draw_line.line == end_coord.line && draw_line.pos == end_coord.pos) {
         /* Increase i, to make sure this line is not erased. */

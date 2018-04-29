@@ -238,7 +238,7 @@ void file_pane_t::draw_line(int idx, bool selected) {
   info.normal_attr = attributes.dialog;
   info.selected_attr = attributes.dialog_selected;
 
-  line.paint_line(&window, &info);
+  line.paint_line(&window, info);
 }
 
 void file_pane_t::update_contents() {
@@ -586,7 +586,7 @@ void file_pane_t::search_panel_t::update_contents() {
   paint_info.selected_attr = 0;
 
   window.set_paint(1, 1);
-  text.paint_line(&window, &paint_info);
+  text.paint_line(&window, paint_info);
 }
 
 void file_pane_t::search_panel_t::show() {
