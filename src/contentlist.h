@@ -37,7 +37,7 @@ class T3_WIDGET_API string_list_base_t {
   virtual const std::string &operator[](size_t idx) const = 0;
 
   virtual connection_t connect_content_changed(std::function<void()> cb) = 0;
-  virtual std::function<void()> get_content_changed_trigger() = 0;
+  virtual std::function<void()> get_content_changed_trigger() const = 0;
 };
 
 /** Abstract base class for file lists. */
@@ -80,7 +80,7 @@ class T3_WIDGET_API string_list_t : public string_list_base_t {
   const std::string &operator[](size_t idx) const override;
 
   connection_t connect_content_changed(std::function<void()> cb) override;
-  std::function<void()> get_content_changed_trigger() override;
+  std::function<void()> get_content_changed_trigger() const override;
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
@@ -102,7 +102,7 @@ class T3_WIDGET_API file_list_t : public file_list_base_t {
   file_list_t &operator=(const file_list_t &other);
 
   connection_t connect_content_changed(std::function<void()> cb) override;
-  std::function<void()> get_content_changed_trigger() override;
+  std::function<void()> get_content_changed_trigger() const override;
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;

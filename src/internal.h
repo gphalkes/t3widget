@@ -44,7 +44,7 @@ namespace t3_widget {
   connection_t _class::connect_##_name(std::function<void(__VA_ARGS__)> cb) { \
     return impl->_name.connect(cb);                                           \
   }                                                                           \
-  std::function<void(__VA_ARGS__)> _class::get_##_name##_trigger() {          \
+  std::function<void(__VA_ARGS__)> _class::get_##_name##_trigger() const {          \
     return impl->_name.get_trigger();                                         \
   }
 

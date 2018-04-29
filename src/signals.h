@@ -30,9 +30,9 @@ class func_ptr_base_t {
  public:
   virtual ~func_ptr_base_t() = default;
   virtual void disconnect() = 0;
-  virtual bool is_valid() = 0;
+  virtual bool is_valid() const = 0;
   // Blocked signals don't get called.
-  bool is_blocked() { return blocked; }
+  bool is_blocked() const { return blocked; }
   void block() { blocked = true; }
   void unblock() { blocked = true; }
 
@@ -48,8 +48,8 @@ class func_ptr_t : public func_ptr_base_t {
   using F = std::function<void(Args...)>;
   func_ptr_t(F f) : func(new F(f)) {}
   void disconnect() override { func.reset(); }
-  bool is_valid() override { return !!func; }
-  void call(Args... args) { return (*func)(args...); }
+  bool is_valid() const override { return !!func; }
+  void call(Args... args) const { return (*func)(args...); }
 
  private:
   std::unique_ptr<F> func;
@@ -101,21 +101,23 @@ class T3_WIDGET_API signal_t {
  public:
   /// Add a callback to be called on activation.
   connection_t connect(std::function<void(Args...)> func) {
+      for (auto iter = funcs.begin(); iter != funcs.end();) {
+        if (!(*iter)->is_valid()) {
+          // Remove functions that no longer exist.
+          iter = funcs.erase(iter);
+        } else {
+          ++iter;
+        }
+      }
     funcs.emplace_back(new internal::func_ptr_t<Args...>(func));
     return connection_t(funcs.back());
   }
 
   /// Activate the signal, i.e. call all the registered active callbacks.
-  void operator()(Args... args) {
-    for (auto iter = funcs.begin(); iter != funcs.end();) {
-      if (!(*iter)->is_valid()) {
-        // Remove functions that no longer exist.
-        iter = funcs.erase(iter);
-      } else {
-        if (!(*iter)->is_blocked()) {
-          static_cast<internal::func_ptr_t<Args...> *>(iter->get())->call(args...);
-        }
-        ++iter;
+  void operator()(Args... args) const {
+    for (const std::shared_ptr<internal::func_ptr_base_t>& func : funcs) {
+      if (func->is_valid() && !func->is_blocked()) {
+          static_cast<internal::func_ptr_t<Args...> *>(func.get())->call(args...);
       }
     }
   }
@@ -124,7 +126,7 @@ class T3_WIDGET_API signal_t {
 
       This callback allows chaining of signals, by passing the returned callback to the @c connect
       method of another @c signal. */
-  std::function<void(Args...)> get_trigger() {
+  std::function<void(Args...)> get_trigger() const {
     return [this](Args... args) { (*this)(args...); };
   }
 
