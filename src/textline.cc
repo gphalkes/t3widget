@@ -769,14 +769,12 @@ bool text_line_t::backspace_char(int pos, undo_t *undo) {
 }
 
 /** Adjust the line position @a adjust non-zero-width characters.
-        @param pos The starting position.
-        @param adjust How many characters to adjust.
+    @param pos The starting position.
+    @param adjust How many characters to adjust.
 
-        This function finds the next (previous) point in the line at which the
-    cursor could be. This means skipping all zero-width characters between the
-        current position and the next non-zero-width character, and repeating for
-        @a adjust times.
-*/
+    This function finds the next (previous) point in the line at which the cursor could be. This
+    means skipping all zero-width characters between the current position and the next
+    non-zero-width character, and repeating for @a adjust times. */
 int text_line_t::adjust_position(int pos, int adjust) const {
   if (adjust > 0) {
     for (; adjust > 0 && static_cast<size_t>(pos) < buffer.size();

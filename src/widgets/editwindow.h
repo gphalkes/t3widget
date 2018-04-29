@@ -131,8 +131,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
       @param autocomplete_single Should the autocomplete be automatic if
           there is only one option.
 
-      The autocomplete panel activate, only if there is a possible autocompletion.
-  */
+      The autocomplete panel activate, only if there is a possible autocompletion. */
   void activate_autocomplete(bool autocomplete_single);
 
   /** Convert coordinates relative to the edit window to a text_coordinate_t. */
@@ -141,9 +140,13 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void ensure_cursor_on_screen();
   /** Change the lines to start and end repainting.
 
-      It is acceptable to pass @p start and @p end in reverse order.
-  */
+      It is acceptable to pass @p start and @p end in reverse order. */
   void update_repaint_lines(int start, int end);
+
+  /** Change the lines to start and end repainting.
+
+      Calls the two parameter version of this function with @p line repeated. */
+  void update_repaint_lines(int line);
 
  public:
   class T3_WIDGET_API view_parameters_t;

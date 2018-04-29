@@ -37,7 +37,9 @@ class T3_WIDGET_API text_buffer_t {
   struct T3_WIDGET_LOCAL implementation_t;
   pimpl_t<implementation_t> impl;
 
+  text_coordinate_t cursor;
  protected:
+
   undo_t *get_undo(undo_type_t type);
   undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
   undo_t *get_undo(undo_type_t type, text_coordinate_t start, text_coordinate_t end);
@@ -136,8 +138,9 @@ class T3_WIDGET_API text_buffer_t {
   */
   void goto_pos(int line, int pos);
 
-  // FIXME: make these members private again
-  text_coordinate_t cursor;
+  text_coordinate_t get_cursor() const;
+  void set_cursor(text_coordinate_t _cursor);
+  void set_cursor_pos(int pos);
 
   T3_WIDGET_DECLARE_SIGNAL(rewrap_required, rewrap_type_t, int, int);
 };

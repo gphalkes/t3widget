@@ -1100,6 +1100,18 @@ void text_buffer_t::goto_pos(int line, int pos) {
   }
 }
 
+text_coordinate_t text_buffer_t::get_cursor() const {
+  return cursor;
+}
+
+void text_buffer_t::set_cursor(text_coordinate_t _cursor) {
+  cursor = _cursor;
+}
+
+void text_buffer_t::set_cursor_pos(int pos) {
+  cursor.pos = pos;
+}
+
 _T3_WIDGET_IMPL_SIGNAL(text_buffer_t, rewrap_required, rewrap_type_t, int, int)
 
 }  // namespace
