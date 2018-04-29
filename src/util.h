@@ -284,8 +284,7 @@ struct T3_WIDGET_API text_coordinate_t {
 };
 
 #define T3_WIDGET_DECLARE_SIGNAL(_name, ...)                         \
-  connection_t connect_##_name(std::function<void(__VA_ARGS__)> cb); \
-  std::function<void(__VA_ARGS__)> get_##_name##_trigger() const
+  connection_t connect_##_name(std::function<void(__VA_ARGS__)> cb);
 
 enum class selection_mode_t { NONE, SHIFT, MARK, ALL };
 

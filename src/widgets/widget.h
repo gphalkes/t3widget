@@ -96,13 +96,18 @@ class T3_WIDGET_API focus_widget_t {
 
  protected:
   /** Emit signal when the user pressed the left arrow key and focus should move. */
-  void move_focus_left();
+  void move_focus_left() const;
   /** Emit signal when the user pressed the right arrow key and focus should move. */
-  void move_focus_right();
+  void move_focus_right() const;
   /** Emit signal when the user pressed the up arrow key and focus should move. */
-  void move_focus_up();
+  void move_focus_up() const;
   /** Emit signal when the user pressed the down arrow key and focus should move. */
-  void move_focus_down();
+  void move_focus_down() const;
+
+  std::function<void()> get_move_focus_left_trigger() const;
+  std::function<void()> get_move_focus_right_trigger() const;
+  std::function<void()> get_move_focus_up_trigger() const;
+  std::function<void()> get_move_focus_down_trigger() const;
 
   struct T3_WIDGET_LOCAL implementation_t;
   implementation_t *impl;

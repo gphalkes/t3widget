@@ -243,9 +243,6 @@ class T3_WIDGET_API filtered_list_internal_t : public B {
   connection_t connect_content_changed(std::function<void()> cb) override {
     return content_changed.connect(cb);
   }
-  std::function<void()> get_content_changed_trigger() const override {
-    return content_changed.get_trigger();
-  }
 };
 
 //===================================== filtered_list_* implementations ============================
