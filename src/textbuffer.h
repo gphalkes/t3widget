@@ -26,8 +26,6 @@
 
 namespace t3_widget {
 
-typedef std::vector<text_line_t *> lines_t;
-
 struct find_result_t;
 class finder_t;
 class wrap_info_t;
@@ -47,7 +45,7 @@ class T3_WIDGET_API text_buffer_t {
   void set_undo_mark();
 
   void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
-  bool insert_block_internal(text_coordinate_t insert_at, text_line_t *block);
+  bool insert_block_internal(text_coordinate_t insert_at, std::unique_ptr<text_line_t> block);
   int apply_undo_redo(undo_type_t type, undo_t *current);
   bool merge_internal(int line);
   bool break_line_internal(const std::string *indent = nullptr);

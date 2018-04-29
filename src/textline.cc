@@ -92,7 +92,7 @@ void text_line_t::set_text(string_view _buffer) {
 }
 
 /* Merge line2 into line1, freeing line2 */
-void text_line_t::merge(text_line_t *other) {
+void text_line_t::merge(std::unique_ptr<text_line_t> other) {
   int buffer_len = buffer.size();
 
   if (buffer_len == 0 && other->starts_with_combining) {
@@ -102,14 +102,13 @@ void text_line_t::merge(text_line_t *other) {
   reserve(buffer.size() + other->buffer.size());
 
   buffer += other->buffer;
-  delete other;
 }
 
 /* Break up 'line' at position 'pos'. This means that the character at 'pos'
    is the first character in the new line. The right part of the line is
    returned the left part remains in 'line' */
-text_line_t *text_line_t::break_line(int pos) {
-  text_line_t *newline;
+std::unique_ptr<text_line_t> text_line_t::break_line(int pos) {
+  std::unique_ptr<text_line_t> newline;
 
   // FIXME: cut_line and break_line are very similar. Maybe we should combine them!
   if (static_cast<size_t>(pos) == buffer.size()) {
@@ -128,8 +127,8 @@ text_line_t *text_line_t::break_line(int pos) {
   return newline;
 }
 
-text_line_t *text_line_t::cut_line(int start, int end) {
-  text_line_t *retval;
+std::unique_ptr<text_line_t> text_line_t::cut_line(int start, int end) {
+  std::unique_ptr<text_line_t> retval;
 
   ASSERT((size_t)end == buffer.size() ||
          t3_utf8_wcwidth(t3_utf8_get(buffer.data() + end, nullptr)) != 0);
@@ -144,9 +143,7 @@ text_line_t *text_line_t::cut_line(int start, int end) {
   return retval;
 }
 
-text_line_t *text_line_t::clone(int start, int end) {
-  text_line_t *retval;
-
+std::unique_ptr<text_line_t> text_line_t::clone(int start, int end) {
   if (end == -1) {
     end = buffer.size();
   }
@@ -159,7 +156,7 @@ text_line_t *text_line_t::clone(int start, int end) {
     return factory->new_text_line_t(0);
   }
 
-  retval = factory->new_text_line_t(end - start);
+  std::unique_ptr<text_line_t> retval = factory->new_text_line_t(end - start);
 
   retval->buffer.assign(buffer.data() + start, end - start);
   retval->starts_with_combining = width_at(start) == 0;
@@ -167,8 +164,7 @@ text_line_t *text_line_t::clone(int start, int end) {
   return retval;
 }
 
-text_line_t *text_line_t::break_on_nl(int *startFrom) {
-  text_line_t *retval;
+std::unique_ptr<text_line_t> text_line_t::break_on_nl(int *startFrom) {
   int i;
 
   for (i = *startFrom; static_cast<size_t>(i) < buffer.size(); i++) {
@@ -177,13 +173,13 @@ text_line_t *text_line_t::break_on_nl(int *startFrom) {
     }
   }
 
-  retval = clone(*startFrom, i);
+  std::unique_ptr<text_line_t> retval = clone(*startFrom, i);
 
   *startFrom = static_cast<size_t>(i) == buffer.size() ? -1 : i + 1;
   return retval;
 }
 
-void text_line_t::insert(text_line_t *other, int pos) {
+void text_line_t::insert(std::unique_ptr<text_line_t> other, int pos) {
   ASSERT(pos >= 0 && (size_t)pos <= buffer.size());
 
   reserve(buffer.size() + other->buffer.size());
@@ -868,7 +864,7 @@ bool text_line_t::is_bad_draw(int pos) const {
   return !t3_term_can_draw(buffer.data() + pos, adjust_position(pos, 1) - pos);
 }
 
-const std::string *text_line_t::get_data() const { return &buffer; }
+const std::string &text_line_t::get_data() const { return buffer; }
 
 void text_line_t::init() {
   memset(spaces, ' ', sizeof(spaces));
@@ -892,11 +888,11 @@ bool text_line_t::check_boundaries(int match_start, int match_end) const {
 
 text_line_factory_t::text_line_factory_t() {}
 text_line_factory_t::~text_line_factory_t() {}
-text_line_t *text_line_factory_t::new_text_line_t(int buffersize) {
-  return new text_line_t(buffersize, this);
+std::unique_ptr<text_line_t> text_line_factory_t::new_text_line_t(int buffersize) {
+  return make_unique<text_line_t>(buffersize, this);
 }
-text_line_t *text_line_factory_t::new_text_line_t(string_view _buffer) {
-  return new text_line_t(_buffer, this);
+std::unique_ptr<text_line_t> text_line_factory_t::new_text_line_t(string_view _buffer) {
+  return make_unique<text_line_t>(_buffer, this);
 }
 
 }  // namespace

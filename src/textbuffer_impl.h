@@ -10,7 +10,7 @@
 namespace t3_widget {
 
 struct text_buffer_t::implementation_t {
-  lines_t lines;
+  std::vector<std::unique_ptr<text_line_t>> lines;
   text_coordinate_t selection_start;
   text_coordinate_t selection_end;
   selection_mode_t selection_mode;

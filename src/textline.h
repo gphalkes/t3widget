@@ -103,12 +103,12 @@ class T3_WIDGET_API text_line_t {
 
   void set_text(string_view _buffer);
 
-  void merge(text_line_t *other);
-  text_line_t *break_line(int pos);
-  text_line_t *cut_line(int start, int end);
-  text_line_t *clone(int start, int end);
-  text_line_t *break_on_nl(int *start_from);
-  void insert(text_line_t *other, int pos);
+  void merge(std::unique_ptr<text_line_t> other);
+  std::unique_ptr<text_line_t> break_line(int pos);
+  std::unique_ptr<text_line_t> cut_line(int start, int end);
+  std::unique_ptr<text_line_t> clone(int start, int end);
+  std::unique_ptr<text_line_t> break_on_nl(int *start_from);
+  void insert(std::unique_ptr<text_line_t> other, int pos);
 
   void minimize();
 
@@ -136,7 +136,7 @@ class T3_WIDGET_API text_line_t {
   bool is_alnum(int pos) const;
   bool is_bad_draw(int pos) const;
 
-  const std::string *get_data() const;
+  const std::string &get_data() const;
 
   int get_next_word_boundary(int start) const;
   int get_previous_word_boundary(int start) const;
@@ -151,8 +151,8 @@ class T3_WIDGET_API text_line_factory_t {
  public:
   text_line_factory_t();
   virtual ~text_line_factory_t();
-  virtual text_line_t *new_text_line_t(int buffersize = BUFFERSIZE);
-  virtual text_line_t *new_text_line_t(string_view _buffer);
+  virtual std::unique_ptr<text_line_t> new_text_line_t(int buffersize = BUFFERSIZE);
+  virtual std::unique_ptr<text_line_t> new_text_line_t(string_view _buffer);
 };
 
 T3_WIDGET_API extern text_line_factory_t default_text_line_factory;

@@ -83,7 +83,7 @@ void goto_dialog_t::reset() { impl->number_line->set_text(""); }
 
 void goto_dialog_t::ok_activate() {
   hide();
-  impl->activate(atoi(impl->number_line->get_text()->c_str()));
+  impl->activate(atoi(impl->number_line->get_text().c_str()));
 }
 
 connection_t goto_dialog_t::connect_activate(std::function<void(int)> cb) {

@@ -207,7 +207,7 @@ void file_dialog_t::reset() {
 _T3_WIDGET_IMPL_SIGNAL(file_dialog_t, file_selected, const std::string &)
 
 void file_dialog_t::ok_callback() {
-  std::string pass_result = convert_lang_codeset(*impl->file_line->get_text(), false);
+  std::string pass_result = convert_lang_codeset(impl->file_line->get_text(), false);
   ok_callback(pass_result);
 }
 
@@ -343,7 +343,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
 
 open_file_dialog_t::~open_file_dialog_t() {}
 
-const std::string &open_file_dialog_t::get_filter() { return *impl->filter_line->get_text(); }
+const std::string &open_file_dialog_t::get_filter() { return impl->filter_line->get_text(); }
 
 bool open_file_dialog_t::set_size(optint height, optint width) {
   bool result = file_dialog_t::set_size(height, width);

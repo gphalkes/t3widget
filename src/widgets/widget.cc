@@ -153,10 +153,17 @@ void focus_widget_t::move_focus_right() const { impl->move_focus_right(); }
 void focus_widget_t::move_focus_up() const { impl->move_focus_up(); }
 void focus_widget_t::move_focus_down() const { impl->move_focus_down(); }
 
-std::function<void()> focus_widget_t::get_move_focus_left_trigger() const { return impl->move_focus_left.get_trigger(); }
-std::function<void()> focus_widget_t::get_move_focus_right_trigger() const { return impl->move_focus_right.get_trigger(); }
-std::function<void()> focus_widget_t::get_move_focus_up_trigger() const { return impl->move_focus_up.get_trigger(); }
-std::function<void()> focus_widget_t::get_move_focus_down_trigger() const { return impl->move_focus_down.get_trigger(); }
-
+std::function<void()> focus_widget_t::get_move_focus_left_trigger() const {
+  return impl->move_focus_left.get_trigger();
+}
+std::function<void()> focus_widget_t::get_move_focus_right_trigger() const {
+  return impl->move_focus_right.get_trigger();
+}
+std::function<void()> focus_widget_t::get_move_focus_up_trigger() const {
+  return impl->move_focus_up.get_trigger();
+}
+std::function<void()> focus_widget_t::get_move_focus_down_trigger() const {
+  return impl->move_focus_down.get_trigger();
+}
 
 }  // namespace

@@ -101,23 +101,23 @@ class T3_WIDGET_API signal_t {
  public:
   /// Add a callback to be called on activation.
   connection_t connect(std::function<void(Args...)> func) {
-      for (auto iter = funcs.begin(); iter != funcs.end();) {
-        if (!(*iter)->is_valid()) {
-          // Remove functions that no longer exist.
-          iter = funcs.erase(iter);
-        } else {
-          ++iter;
-        }
+    for (auto iter = funcs.begin(); iter != funcs.end();) {
+      if (!(*iter)->is_valid()) {
+        // Remove functions that no longer exist.
+        iter = funcs.erase(iter);
+      } else {
+        ++iter;
       }
+    }
     funcs.emplace_back(new internal::func_ptr_t<Args...>(func));
     return connection_t(funcs.back());
   }
 
   /// Activate the signal, i.e. call all the registered active callbacks.
   void operator()(Args... args) const {
-    for (const std::shared_ptr<internal::func_ptr_base_t>& func : funcs) {
+    for (const std::shared_ptr<internal::func_ptr_base_t> &func : funcs) {
       if (func->is_valid() && !func->is_blocked()) {
-          static_cast<internal::func_ptr_t<Args...> *>(func.get())->call(args...);
+        static_cast<internal::func_ptr_t<Args...> *>(func.get())->call(args...);
       }
     }
   }

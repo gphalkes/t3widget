@@ -340,9 +340,9 @@ void file_pane_t::set_file_list(file_list_base_t *_file_list) {
   force_redraw();
 }
 
-void file_pane_t::set_file(const std::string *name) {
+void file_pane_t::set_file(const std::string &name) {
   for (impl->current = 0; impl->current < impl->file_list->size(); impl->current++) {
-    if (name->compare((*impl->file_list)[impl->current]) == 0) {
+    if (name.compare((*impl->file_list)[impl->current]) == 0) {
       break;
     }
   }
@@ -483,20 +483,20 @@ void file_pane_t::scrollbar_dragged(int start) {
   }
 }
 
-void file_pane_t::search(const std::string *text) {
+void file_pane_t::search(const std::string &text) {
   size_t i, j;
   size_t longest_match = 0;
   size_t longest_match_idx = 0;
 
   for (i = 0; i < impl->file_list->size(); i++) {
     const std::string &item = (*impl->file_list)[i];
-    for (j = 0; j < item.size() && j < text->size(); j++) {
-      if (item[j] != (*text)[j]) {
+    for (j = 0; j < item.size() && j < text.size(); j++) {
+      if (item[j] != text[j]) {
         break;
       }
     }
     // Adjust match length to start of UTF-8 character.
-    while (j > 0 && ((*text)[j] & 0xC0) == 0x80) {
+    while (j > 0 && (text[j] & 0xC0) == 0x80) {
       j--;
     }
     if (j > longest_match) {

@@ -239,8 +239,8 @@ void find_dialog_t::find_activated(find_action_t action) {
   std::shared_ptr<finder_t> context;
   std::string error_message;
   context.reset(
-      finder_t::create(*impl->find_line->get_text(), impl->state, &error_message,
-                       impl->replace_line->is_shown() ? impl->replace_line->get_text() : nullptr)
+      finder_t::create(impl->find_line->get_text(), impl->state, &error_message,
+                       impl->replace_line->is_shown() ? &impl->replace_line->get_text() : nullptr)
           .release());
   if (context == nullptr) {
     std::string full_message("Error in search expression: ");

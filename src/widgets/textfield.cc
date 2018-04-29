@@ -124,8 +124,6 @@ void text_field_t::set_selection(key_t key) {
 }
 
 void text_field_t::delete_selection(bool save_to_copy_buffer) {
-  text_line_t *result;
-
   int start, end;
   if (impl->selection_start_pos == impl->selection_end_pos) {
     reset_selection();
@@ -138,12 +136,10 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
     end = impl->selection_start_pos;
   }
 
-  result = impl->line->cut_line(start, end);
+  std::unique_ptr<text_line_t> result = impl->line->cut_line(start, end);
   if (save_to_copy_buffer) {
-    set_clipboard(make_unique<std::string>(*result->get_data()));
+    set_clipboard(make_unique<std::string>(result->get_data()));
   }
-
-  delete result;
 
   impl->pos = start;
   ensure_cursor_on_screen();
@@ -277,7 +273,7 @@ bool text_field_t::process_key(key_t key) {
                 end = impl->selection_start_pos;
               }
 
-              set_clipboard(make_unique<std::string>(*impl->line->get_data(), start, end - start));
+              set_clipboard(make_unique<std::string>(impl->line->get_data(), start, end - start));
             }
             return true;
 
@@ -287,17 +283,17 @@ bool text_field_t::process_key(key_t key) {
             std::shared_ptr<std::string> copy_buffer =
                 action.value() == ACTION_PASTE ? get_clipboard() : get_primary();
             if (copy_buffer != nullptr) {
-              text_line_t insert_line(*copy_buffer.get());
+              std::unique_ptr<text_line_t> insert_line(new text_line_t(*copy_buffer));
 
               // Don't allow pasting of values that do not match the filter
               if (impl->filter_keys != nullptr) {
-                const std::string *insert_data = insert_line.get_data();
-                size_t insert_data_length = insert_data->size();
+                const std::string &insert_data = insert_line->get_data();
+                size_t insert_data_length = insert_data.size();
                 size_t bytes_read;
                 do {
                   key_t c;
                   bytes_read = insert_data_length;
-                  c = t3_utf8_get(insert_data->data() + insert_data->size() - insert_data_length,
+                  c = t3_utf8_get(insert_data.data() + insert_data.size() - insert_data_length,
                                   &bytes_read);
                   if ((std::find(impl->filter_keys, impl->filter_keys + impl->filter_keys_size,
                                  c) == impl->filter_keys + impl->filter_keys_size) ==
@@ -309,8 +305,9 @@ bool text_field_t::process_key(key_t key) {
 
               if (impl->selection_mode != selection_mode_t::NONE) delete_selection(false);
 
-              impl->line->insert(&insert_line, impl->pos);
-              impl->pos += insert_line.get_length();
+              int cursor_move = insert_line->get_length();
+              impl->line->insert(std::move(insert_line), impl->pos);
+              impl->pos += cursor_move;
               ensure_cursor_on_screen();
               force_redraw();
               impl->edited = true;
@@ -540,7 +537,7 @@ void text_field_t::set_key_filter(key_t *keys, size_t nr_of_keys, bool accept) {
   impl->filter_keys_accept = accept;
 }
 
-const std::string *text_field_t::get_text() const { return impl->line->get_data(); }
+const std::string &text_field_t::get_text() const { return impl->line->get_data(); }
 
 void text_field_t::set_autocomplete(string_list_base_t *completions) {
   if (impl->drop_down_list == nullptr) {
@@ -593,10 +590,11 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       ensure_clipboard_lock_t lock;
       std::shared_ptr<std::string> primary = get_primary();
       if (primary != nullptr) {
-        text_line_t insert_line(*primary);
+        std::unique_ptr<text_line_t> insert_line(new text_line_t(*primary));
 
-        impl->line->insert(&insert_line, impl->pos);
-        impl->pos += insert_line.get_length();
+        int cursor_move = insert_line->get_length();
+        impl->line->insert(std::move(insert_line), impl->pos);
+        impl->pos += cursor_move;
       }
     }
     ensure_cursor_on_screen();
@@ -640,7 +638,7 @@ void text_field_t::set_selection_end(bool update_primary) {
       start = impl->selection_end_pos;
       length = impl->selection_start_pos - start;
     }
-    set_primary(make_unique<std::string>(*impl->line->get_data(), start, length));
+    set_primary(make_unique<std::string>(impl->line->get_data(), start, length));
   }
 }
 
@@ -771,7 +769,7 @@ void text_field_t::drop_down_list_t::update_view() {
     if (field->impl->line->get_length() == 0) {
       completions->reset_filter();
     } else {
-      completions->set_filter(bind_front(string_compare_filter, field->impl->line->get_data()));
+      completions->set_filter(bind_front(string_compare_filter, &field->impl->line->get_data()));
     }
     update_list_pane();
   }

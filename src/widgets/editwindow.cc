@@ -915,7 +915,6 @@ bool edit_window_t::process_key(key_t key) {
       break;
 
     case EKEY_NL: {
-      const std::string *current_line;
       int i, indent, tabs;
       std::string space;
 
@@ -925,12 +924,12 @@ bool edit_window_t::process_key(key_t key) {
 
       update_repaint_lines(text->cursor.line, INT_MAX);
       if (impl->auto_indent && !impl->pasting_text) {
-        current_line = text->get_line_data(text->cursor.line).get_data();
+        const std::string &current_line = text->get_line_data(text->cursor.line).get_data();
         for (i = 0, indent = 0, tabs = 0; i < text->cursor.pos; i++) {
-          if ((*current_line)[i] == '\t') {
+          if (current_line[i] == '\t') {
             indent = 0;
             tabs++;
-          } else if ((*current_line)[i] == ' ') {
+          } else if (current_line[i] == ' ') {
             indent++;
             if (indent == impl->tabsize) {
               indent = 0;

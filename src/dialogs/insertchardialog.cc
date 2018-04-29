@@ -116,14 +116,14 @@ key_t insert_char_dialog_t::interpret_key(const std::string &descr) {
 }
 
 void insert_char_dialog_t::ok_activate() {
-  key_t key = interpret_key(*impl->description_line->get_text());
+  key_t key = interpret_key(impl->description_line->get_text());
   if (key >= 0) {
     hide();
     lprintf("Inserting key: %d\n", key);
     insert_protected_key(key);
   } else {
     std::string message = _("Invalid character description: '");
-    message += impl->description_line->get_text()->c_str();
+    message += impl->description_line->get_text().c_str();
     message += '\'';
     message_dialog->set_message(message);
     message_dialog->center_over(this);

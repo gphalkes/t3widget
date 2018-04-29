@@ -79,7 +79,7 @@ class T3_WIDGET_API text_field_t : public widget_t,
   */
   void set_key_filter(key_t *keys, size_t nr_of_keys, bool accept);
   /** Retrieve the text shown by the text_field_t. */
-  const std::string *get_text() const;
+  const std::string &get_text() const;
   /** Associate a label with this text_field_t.
       The reason to associate a smart_label_t with a text_field_t is that it
       allows the use of a hotkey to jump to the text_field_t. The #is_hotkey

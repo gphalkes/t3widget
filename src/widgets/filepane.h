@@ -49,7 +49,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   void scrollbar_clicked(scrollbar_t::step_t step);
   void scrollbar_dragged(int start);
 
-  void search(const std::string *text);
+  void search(const std::string &text);
 
  public:
   file_pane_t();
@@ -74,7 +74,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   /** Set the file_list_base_t that this file_pane_t displays. */
   void set_file_list(file_list_base_t *_file_list);
   /** Set the current selected item to the named item. */
-  void set_file(const std::string *name);
+  void set_file(const std::string &name);
 
   connection_t connect_activate(std::function<void(const std::string &)> cb);
 };
