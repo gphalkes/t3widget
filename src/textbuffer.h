@@ -37,24 +37,9 @@ class T3_WIDGET_API text_buffer_t {
   struct T3_WIDGET_LOCAL implementation_t;
   pimpl_t<implementation_t> impl;
 
-  text_coordinate_t cursor;
  protected:
-
-  undo_t *get_undo(undo_type_t type);
-  undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
-  undo_t *get_undo(undo_type_t type, text_coordinate_t start, text_coordinate_t end);
-
-  void set_undo_mark();
-
-  void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
-  bool insert_block_internal(text_coordinate_t insert_at, std::unique_ptr<text_line_t> block);
-  int apply_undo_redo(undo_type_t type, undo_t *current);
-  bool merge_internal(int line);
-  bool break_line_internal(const std::string *indent = nullptr);
-
-  bool undo_indent_selection(undo_t *undo, undo_type_t type);
-
   text_line_factory_t *get_line_factory();
+  void set_undo_mark();
   text_line_t *get_mutable_line_data(int idx);
 
   virtual void prepare_paint_line(int line);

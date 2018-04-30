@@ -216,11 +216,11 @@ int wrap_info_t::find_line(text_coordinate_t coord) const {
   return i - 1;
 }
 
-int wrap_info_t::calculate_screen_pos() const { return calculate_screen_pos(text->cursor); }
+int wrap_info_t::calculate_screen_pos() const { return calculate_screen_pos(text->impl->cursor); }
 
 int wrap_info_t::calculate_screen_pos(const text_coordinate_t &where) const {
   int sub_line;
-  sub_line = find_line(text->cursor);
+  sub_line = find_line(text->impl->cursor);
   return text->impl->lines[where.line]->calculate_screen_width((*wrap_data[where.line])[sub_line],
                                                                where.pos, tabsize);
 }

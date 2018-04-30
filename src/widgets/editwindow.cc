@@ -426,7 +426,7 @@ void edit_window_t::inc_y() {
       }
     } else {
       text->set_cursor_pos(
-           impl->wrap_info->calculate_line_pos(cursor.line, impl->last_set_pos, new_sub_line));
+          impl->wrap_info->calculate_line_pos(cursor.line, impl->last_set_pos, new_sub_line));
       ensure_cursor_on_screen();
     }
   }
@@ -449,7 +449,7 @@ void edit_window_t::dec_y() {
     int sub_line = impl->wrap_info->find_line(cursor);
     if (sub_line > 0) {
       text->set_cursor_pos(
-           impl->wrap_info->calculate_line_pos(cursor.line, impl->last_set_pos, sub_line - 1));
+          impl->wrap_info->calculate_line_pos(cursor.line, impl->last_set_pos, sub_line - 1));
       ensure_cursor_on_screen();
     } else if (cursor.line > 0) {
       text->set_cursor({cursor.line - 1,
@@ -579,18 +579,17 @@ void edit_window_t::home_key() {
   int pos;
 
   if (!impl->indent_aware_home) {
-      text->set_cursor_pos(impl->wrap_type == wrap_type_t::NONE
-                           ? 0
-                           : impl->wrap_info->calculate_line_pos(
-                                 cursor.line, 0, impl->wrap_info->find_line(cursor)));
+    text->set_cursor_pos(impl->wrap_type == wrap_type_t::NONE
+                             ? 0
+                             : impl->wrap_info->calculate_line_pos(
+                                   cursor.line, 0, impl->wrap_info->find_line(cursor)));
     ensure_cursor_on_screen();
     impl->last_set_pos = impl->screen_pos;
     return;
   }
 
   if (impl->wrap_type != wrap_type_t::NONE) {
-    pos = impl->wrap_info->calculate_line_pos(cursor.line, 0,
-                                              impl->wrap_info->find_line(cursor));
+    pos = impl->wrap_info->calculate_line_pos(cursor.line, 0, impl->wrap_info->find_line(cursor));
     if (pos != cursor.pos) {
       text->set_cursor_pos(pos);
       impl->screen_pos = impl->last_set_pos = 0;
@@ -1329,7 +1328,8 @@ void edit_window_t::goto_line(int line) {
 
   reset_selection();
   int cursor_line = (line > text->size() ? text->size() : line) - 1;
-  text->set_cursor({cursor_line, text->calculate_line_pos(cursor_line, impl->screen_pos, impl->tabsize)});
+  text->set_cursor(
+      {cursor_line, text->calculate_line_pos(cursor_line, impl->screen_pos, impl->tabsize)});
   ensure_cursor_on_screen();
   impl->last_set_pos = impl->screen_pos;
 }
@@ -1477,7 +1477,8 @@ bool edit_window_t::process_mouse_event(mouse_event_t event) {
          selection if none has been started yet, move the cursor and move the end
          of the selection to the new cursor location. */
       text_coordinate_t new_cursor = xy_to_text_coordinate(event.x, event.y);
-      if (text->get_selection_mode() == selection_mode_t::NONE && new_cursor != text->get_cursor()) {
+      if (text->get_selection_mode() == selection_mode_t::NONE &&
+          new_cursor != text->get_cursor()) {
         text->set_selection_mode(selection_mode_t::SHIFT);
       }
       text->set_cursor(new_cursor);
@@ -1721,9 +1722,7 @@ void edit_window_t::scrollbar_dragged(int start) {
   }
 }
 
-void edit_window_t::update_repaint_lines(int line) {
-  update_repaint_lines(line, line);
-}
+void edit_window_t::update_repaint_lines(int line) { update_repaint_lines(line, line); }
 
 void edit_window_t::update_repaint_lines(int start, int end) {
   if (start > end) {
