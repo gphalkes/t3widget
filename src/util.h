@@ -477,12 +477,18 @@ std::function<R(Args...)> bind_front(R (T::*func)(A, B, C, D, Args...),
 class call_on_return_t {
  public:
   call_on_return_t(std::function<void()> cb) : cb_(std::move(cb)) {}
+
   ~call_on_return_t() {
     if (cb_) {
       cb_();
     }
   }
-  std::function<void()> release() { return std::move(cb_); }
+
+  std::function<void()> release() {
+    std::function<void()> result = std::move(cb_);
+    cb_ = std::function<void()>();
+    return result;
+  }
 
  private:
   std::function<void()> cb_;

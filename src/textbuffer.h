@@ -40,6 +40,10 @@ class T3_WIDGET_API text_buffer_t {
  protected:
   text_line_factory_t *get_line_factory();
   void set_undo_mark();
+  /** Get a mutable version of the line data.
+
+      Note that this is not meant for changing the data, but to allow down-casting to the actual
+      type of the line data, in which there may be metadata that is allowed to be modified. */
   text_line_t *get_mutable_line_data(int idx);
 
   virtual void prepare_paint_line(int line);
