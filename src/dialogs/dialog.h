@@ -52,8 +52,8 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
   dialog_t(int height, int width, optional<std::string> title, size_t impl_size = 0);
   /** Close the dialog.
-      This function should be called when the dialog is closed by some
-      event originating from this dialog. */
+      This function should be called when the dialog is closed by some event originating from this
+      dialog. */
   virtual void close();
 
   bool is_child(window_component_t *widget) override;

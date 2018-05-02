@@ -14,6 +14,10 @@
 #ifndef T3_WIDGET_STRINGMATCHER_H
 #define T3_WIDGET_STRINGMATCHER_H
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 #include <memory>
 #include <string>
 #include <t3widget/util.h>

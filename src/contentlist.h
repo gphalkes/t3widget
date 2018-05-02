@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_CONTENTLIST_H
 #define T3_WIDGET_CONTENTLIST_H
 
+#include <cstddef>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -27,6 +28,36 @@ struct transcript_t;
 
 namespace t3_widget {
 
+class T3_WIDGET_API const_string_list_iterator_t {
+ public:
+  class T3_WIDGET_LOCAL adapter_base_t;
+
+  using difference_type = std::ptrdiff_t;
+  using value_type = const std::string;
+  using pointer = const std::string *;
+  using reference = const std::string &;
+  using iterator_category = std::forward_iterator_tag;
+
+  const_string_list_iterator_t(std::unique_ptr<adapter_base_t> impl);
+  const_string_list_iterator_t(const const_string_list_iterator_t &other);
+  const_string_list_iterator_t(const_string_list_iterator_t &&other);
+
+  ~const_string_list_iterator_t();
+
+  const_string_list_iterator_t &operator=(const const_string_list_iterator_t &other);
+  const_string_list_iterator_t &operator=(const_string_list_iterator_t &&other);
+
+  const_string_list_iterator_t &operator++();
+  const_string_list_iterator_t operator++(int);
+
+  const std::string &operator*() const;
+  bool operator==(const const_string_list_iterator_t &other) const;
+  bool operator!=(const const_string_list_iterator_t &other) const;
+
+ private:
+  std::unique_ptr<adapter_base_t> impl_;
+};
+
 /** Abstract base class for string and file lists and filtered lists. */
 class T3_WIDGET_API string_list_base_t {
  public:
@@ -37,6 +68,9 @@ class T3_WIDGET_API string_list_base_t {
   virtual const std::string &operator[](size_t idx) const = 0;
 
   virtual connection_t connect_content_changed(std::function<void()> cb) = 0;
+
+  virtual const_string_list_iterator_t begin() const = 0;
+  virtual const_string_list_iterator_t end() const = 0;
 };
 
 /** Abstract base class for file lists. */
@@ -80,9 +114,14 @@ class T3_WIDGET_API string_list_t : public string_list_base_t {
 
   connection_t connect_content_changed(std::function<void()> cb) override;
 
+  const_string_list_iterator_t begin() const override;
+  const_string_list_iterator_t end() const override;
+
  private:
   struct T3_WIDGET_LOCAL implementation_t;
   pimpl_t<implementation_t> impl;
+
+  class T3_WIDGET_LOCAL iterator_adapter_t;
 };
 
 /** Implementation of the file_list_base_t interface. */
@@ -101,9 +140,14 @@ class T3_WIDGET_API file_list_t : public file_list_base_t {
 
   connection_t connect_content_changed(std::function<void()> cb) override;
 
+  const_string_list_iterator_t begin() const override;
+  const_string_list_iterator_t end() const override;
+
  private:
   struct T3_WIDGET_LOCAL implementation_t;
   pimpl_t<implementation_t> impl;
+
+  class T3_WIDGET_LOCAL iterator_adapter_t;
 };
 
 std::unique_ptr<filtered_string_list_base_t> new_filtered_string_list(string_list_base_t *list);

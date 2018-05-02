@@ -20,6 +20,7 @@
 #include "findcontext.h"
 #include "internal.h"
 #include "log.h"
+#include "stringmatcher.h"
 #include "util.h"
 
 namespace t3_widget {

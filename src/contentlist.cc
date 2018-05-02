@@ -26,10 +26,85 @@
 
 namespace t3_widget {
 
+//===================================== string_list_iterator_t =====================================
+
+class const_string_list_iterator_t::adapter_base_t {
+ public:
+  virtual ~adapter_base_t() = default;
+  virtual void operator++() = 0;
+  virtual const std::string &operator*() const = 0;
+  virtual bool operator==(const adapter_base_t &other) const = 0;
+  virtual std::unique_ptr<adapter_base_t> clone() const = 0;
+};
+
+const_string_list_iterator_t::const_string_list_iterator_t(std::unique_ptr<adapter_base_t> impl)
+    : impl_(std::move(impl)) {}
+const_string_list_iterator_t::const_string_list_iterator_t(
+    const const_string_list_iterator_t &other)
+    : impl_(other.impl_->clone()) {}
+const_string_list_iterator_t::const_string_list_iterator_t(const_string_list_iterator_t &&other)
+    : impl_(std::move(other.impl_)) {}
+
+const_string_list_iterator_t::~const_string_list_iterator_t() {}
+
+const_string_list_iterator_t &const_string_list_iterator_t::operator=(
+    const const_string_list_iterator_t &other) {
+  impl_ = other.impl_->clone();
+  return *this;
+}
+
+const_string_list_iterator_t &const_string_list_iterator_t::operator=(
+    const_string_list_iterator_t &&other) {
+  impl_ = std::move(other.impl_);
+  return *this;
+}
+
+const_string_list_iterator_t &const_string_list_iterator_t::operator++() {
+  ++*impl_;
+  return *this;
+}
+
+const_string_list_iterator_t const_string_list_iterator_t::operator++(int) {
+  const_string_list_iterator_t result = *this;
+  ++*impl_;
+  return result;
+}
+
+const std::string &const_string_list_iterator_t::operator*() const { return **impl_; }
+
+bool const_string_list_iterator_t::operator==(const const_string_list_iterator_t &other) const {
+  return *impl_ == *other.impl_;
+}
+
+bool const_string_list_iterator_t::operator!=(const const_string_list_iterator_t &other) const {
+  return !(*impl_ == *other.impl_);
+}
+
 //===================================== string_list_t ==============================================
 struct string_list_t::implementation_t {
   std::vector<std::string> strings;
   signal_t<> content_changed;
+};
+
+class string_list_t::iterator_adapter_t : public const_string_list_iterator_t::adapter_base_t {
+ public:
+  explicit iterator_adapter_t(std::vector<std::string>::const_iterator iter)
+      : iter_(std::move(iter)) {}
+  void operator++() override { ++iter_; }
+  const std::string &operator*() const override { return *iter_; }
+  bool operator==(const adapter_base_t &other) const override {
+    const iterator_adapter_t *other_ptr = dynamic_cast<const iterator_adapter_t *>(&other);
+    if (!other_ptr) {
+      return false;
+    }
+    return iter_ == other_ptr->iter_;
+  }
+  std::unique_ptr<adapter_base_t> clone() const override {
+    return make_unique<iterator_adapter_t>(iter_);
+  }
+
+ private:
+  std::vector<std::string>::const_iterator iter_;
 };
 
 string_list_t::string_list_t() : impl(new implementation_t) {}
@@ -42,6 +117,14 @@ const std::string &string_list_t::operator[](size_t idx) const { return impl->st
 void string_list_t::push_back(std::string str) {
   impl->strings.push_back(str);
   impl->content_changed();
+}
+
+const_string_list_iterator_t string_list_t::begin() const {
+  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->strings.begin()));
+}
+
+const_string_list_iterator_t string_list_t::end() const {
+  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->strings.end()));
 }
 
 _T3_WIDGET_IMPL_SIGNAL(string_list_t, content_changed)
@@ -62,7 +145,7 @@ class T3_WIDGET_LOCAL file_name_entry_t {
   /** Make a new file_name_entry_t. */
   file_name_entry_t(std::string _name, std::string _utf8_name, bool _is_dir)
       : name(_name), utf8_name(_utf8_name), is_dir(_is_dir) {
-    display_name = utf8_name.size() == 0 ? &file_name_entry_t::name : &file_name_entry_t::utf8_name;
+    display_name = utf8_name.empty() ? &file_name_entry_t::name : &file_name_entry_t::utf8_name;
   }
 
   /** Construct a copy of an existing file_name_entry_t. */
@@ -110,6 +193,27 @@ struct file_list_t::implementation_t {
   /** Vector holding a list of all the files in a directory. */
   std::vector<file_name_entry_t> files;
   signal_t<> content_changed;
+};
+
+class file_list_t::iterator_adapter_t : public const_string_list_iterator_t::adapter_base_t {
+ public:
+  explicit iterator_adapter_t(std::vector<file_name_entry_t>::const_iterator iter)
+      : iter_(std::move(iter)) {}
+  void operator++() override { ++iter_; }
+  const std::string &operator*() const override { return (*iter_).*iter_->display_name; }
+  bool operator==(const adapter_base_t &other) const override {
+    const iterator_adapter_t *other_ptr = dynamic_cast<const iterator_adapter_t *>(&other);
+    if (!other_ptr) {
+      return false;
+    }
+    return iter_ == other_ptr->iter_;
+  }
+  std::unique_ptr<adapter_base_t> clone() const override {
+    return make_unique<iterator_adapter_t>(iter_);
+  }
+
+ private:
+  std::vector<file_name_entry_t>::const_iterator iter_;
 };
 
 file_list_t::file_list_t() : impl(new implementation_t) {}
@@ -180,6 +284,13 @@ file_list_t &file_list_t::operator=(const file_list_t &other) {
   return *this;
 }
 
+const_string_list_iterator_t file_list_t::begin() const {
+  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->files.begin()));
+}
+const_string_list_iterator_t file_list_t::end() const {
+  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->files.end()));
+}
+
 _T3_WIDGET_IMPL_SIGNAL(file_list_t, content_changed)
 
 //===================================== filtered_list_internal_t ===================================
@@ -209,7 +320,8 @@ class T3_WIDGET_API filtered_list_internal_t : public B {
 
     items.clear();
 
-    for (size_t i = 0; i < base->size(); i++) {
+    const size_t base_size = base->size();
+    for (size_t i = 0; i < base_size; i++) {
       if (test.value()(*base, i)) {
         items.push_back(i);
       }
@@ -242,6 +354,35 @@ class T3_WIDGET_API filtered_list_internal_t : public B {
 
   connection_t connect_content_changed(std::function<void()> cb) override {
     return content_changed.connect(cb);
+  }
+
+  class iterator_adapter_t : public const_string_list_iterator_t::adapter_base_t {
+   public:
+    iterator_adapter_t(std::vector<size_t>::const_iterator iter, L *base)
+        : iter_(std::move(iter)), base_(base) {}
+    void operator++() override { ++iter_; }
+    const std::string &operator*() const override { return (*base_)[*iter_]; }
+    bool operator==(const adapter_base_t &other) const override {
+      const iterator_adapter_t *other_ptr = dynamic_cast<const iterator_adapter_t *>(&other);
+      if (!other_ptr) {
+        return false;
+      }
+      return iter_ == other_ptr->iter_;
+    }
+    std::unique_ptr<adapter_base_t> clone() const override {
+      return make_unique<iterator_adapter_t>(iter_, base_);
+    }
+
+   private:
+    std::vector<size_t>::const_iterator iter_;
+    L *base_;
+  };
+
+  const_string_list_iterator_t begin() const override {
+    return const_string_list_iterator_t(make_unique<iterator_adapter_t>(items.begin(), base));
+  }
+  const_string_list_iterator_t end() const override {
+    return const_string_list_iterator_t(make_unique<iterator_adapter_t>(items.end(), base));
   }
 };
 

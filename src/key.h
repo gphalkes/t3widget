@@ -105,10 +105,8 @@ enum {
   /** Key symbol indicating the terminal was resized. */
   EKEY_RESIZE = 0x111000,
   /** Key symbol used when a widget has indicated that a pressed key is a hot key.
-      Testing whether a key is a hot key for a widget is performed using the
-          widget_t::is_hotkey function. If that returns @c true, the
-          widget_t::process_key is called with this value.
-  */
+      Testing whether a key is a hot key for a widget is performed using the widget_t::is_hotkey
+      function. If that returns @c true, the widget_t::process_key is called with this value. */
   EKEY_HOTKEY,
   /** Key symbol indicating that the ::signal_update function was called and the @c
      update_notification signal should be emitted. */
@@ -116,11 +114,11 @@ enum {
   /** Key symbol indicating that the @c terminal_settings_changed signal should be emitted. */
   EKEY_UPDATE_TERMINAL,
   /** Key symbol indicating that there is a new #mouse_event_t available in the mouse events queue.
-     */
+  */
   EKEY_MOUSE_EVENT,
-  /** Key symbol indicating that the async_safe_exit_main_loop function was called.
-      The exit code is encoded in the @c key_t value, which means that all values up
-      to EXIT_MAIN_LOOP + 256 cause the program to exit. */
+  /** Key symbol indicating that the async_safe_exit_main_loop function was called. The exit code is
+      encoded in the @c key_t value, which means that all values up to EXIT_MAIN_LOOP + 256 cause
+      the program to exit. */
   EKEY_EXIT_MAIN_LOOP,
   /** Following text was pasted. Text runs until @c EKEY_PASTE_END. */
   EKEY_PASTE_START = EKEY_EXIT_MAIN_LOOP + 256,
@@ -146,16 +144,14 @@ T3_WIDGET_API key_t read_key();
 /** Set the timeout for handling escape sequences.
 
     The value of the @p msec parameter can have the following values:
-    @li 0 to disable the timeout completely. To generate #EKEY_ESC, the user
-        needs to press the escape key twice.
-    @li a positive value to accept the keys within @p msec milliseconds as part
-        of an escape sequence. Pressing escape once and waiting for the timeout
-        to pass will result in #EKEY_ESC.
-    @li a positive value to accept the keys within @p msec milliseconds as part
-        of an escape sequence. Pressing escape once and waiting for the timeout
-        to pass will result in the escape key press being ignored. To generate
-        #EKEY_ESC, the user needs to press the escape key twice.
-*/
+    @li 0 to disable the timeout completely. To generate #EKEY_ESC, the user needs to press the
+        escape key twice.
+    @li a positive value to accept the keys within @p msec milliseconds as part of an escape
+        sequence. Pressing escape once and waiting for the timeout to pass will result in #EKEY_ESC.
+    @li a positive value to accept the keys within @p msec milliseconds as part of an escape
+        sequence. Pressing escape once and waiting for the timeout to pass will result in the escape
+        key press being ignored. To generate #EKEY_ESC, the user needs to press the escape key
+        twice. */
 T3_WIDGET_API void set_key_timeout(int msec);
 
 /** Get the timeout for handling escape sequences.
@@ -166,12 +162,10 @@ T3_WIDGET_API int get_key_timeout();
 
 /** Request the generation of the @c update_notification signal.
 
-    This function is part of the multi-threading support of libt3widget.
-    Updates to widgets are only allowed from the thread running the #main_loop
-    function. The signal_update function can be called from any thread and will
-    cause an @c update_notification signal to be generated on the thread
-    running the #main_loop function.
-*/
+    This function is part of the multi-threading support of libt3widget. Updates to widgets are only
+    allowed from the thread running the #main_loop function. The signal_update function can be
+    called from any thread and will cause an @c update_notification signal to be generated on the
+    thread running the #main_loop function. */
 T3_WIDGET_API void signal_update();
 
 }  // namespace

@@ -19,7 +19,6 @@
 #include <string>
 
 #include <t3widget/string_view.h>
-#include <t3widget/stringmatcher.h>
 #include <t3widget/util.h>
 #include <t3widget/widget_api.h>
 

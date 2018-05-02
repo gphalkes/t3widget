@@ -96,14 +96,11 @@ class T3_WIDGET_API container_t : protected virtual window_component_t {
 
 /** Base class for components which need to center dialogs.
 
-    This base class is specifically made for widgets like edit_window_t which
-    need to show dialogs. In some cases it is better to center those dialogs
-    over the widget itself, but in other cases it is more intuitive to center
-    those dialogs over the containing window_component_t of the widget. The
-        latter may be the case when the widget is itself part of a dialog. To
-    allow both cases, this interface defines a function to set the
-    window_component_t used for centering.
-*/
+    This base class is specifically made for widgets like edit_window_t which need to show dialogs.
+    In some cases it is better to center those dialogs over the widget itself, but in other cases it
+    is more intuitive to center those dialogs over the containing window_component_t of the widget.
+    The latter may be the case when the widget is itself part of a dialog. To allow both cases, this
+    interface defines a function to set the window_component_t used for centering. */
 class T3_WIDGET_API center_component_t : protected virtual window_component_t {
  protected:
   /** The window_component_t to center over. */
@@ -119,9 +116,9 @@ class T3_WIDGET_API center_component_t : protected virtual window_component_t {
 };
 
 class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
-  typedef std::map<const t3_window_t *, mouse_target_t *> mouse_target_map_t;
-
  private:
+  using mouse_target_map_t = std::map<const t3_window_t *, mouse_target_t *>;
+
   static mouse_target_map_t targets;
   static mouse_target_t *grab_target;
   static const t3_window_t *grab_window;
@@ -157,15 +154,13 @@ class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 };
 
 /** Base class for widgets that need handle user text and draw differently based on the
-   t3_win_can_draw function.
+    t3_win_can_draw function.
 
-    The terminal capability detection code in libt3window may indicate that the
-    terminal is or is not capable of drawing some characters that were believed
-    to be (un)drawable based on the setting of @c LANG alone. This means that any
-    attributes based on the t3_win_can_draw function need to be recalculated.
-    Any widgets implementing this interface will be automatically signalled when
-    the terminal capability detection is complete.
-*/
+    The terminal capability detection code in libt3window may indicate that the terminal is or is
+    not capable of drawing some characters that were believed to be (un)drawable based on the
+    setting of @c LANG alone. This means that any attributes based on the t3_win_can_draw function
+    need to be recalculated. Any widgets implementing this interface will be automatically signalled
+    when the terminal capability detection is complete. */
 class T3_WIDGET_API bad_draw_recheck_t {
  private:
   /** List of widgets to signal on completion of the terminal capability detection. */

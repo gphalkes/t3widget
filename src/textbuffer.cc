@@ -912,7 +912,8 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
     }
 
     result->start.pos = 0;
-    for (idx++; idx < lines.size(); idx++) {
+    const size_t lines_size = lines.size();
+    for (idx++; idx < lines_size; idx++) {
       if (finder->match(lines[idx]->get_data(), result, false)) {
         result->start.line = result->end.line = idx;
         return true;

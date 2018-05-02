@@ -802,8 +802,8 @@ void text_field_t::drop_down_list_t::update_list_pane() {
     list_pane->pop_back();
   }
 
-  for (size_t i = 0; i < completions->size(); i++) {
-    list_pane->push_back(make_unique<label_t>((*completions)[i]));
+  for (const std::string &str : *completions) {
+    list_pane->push_back(make_unique<label_t>(str));
   }
 }
 

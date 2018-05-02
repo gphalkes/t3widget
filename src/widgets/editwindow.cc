@@ -1911,8 +1911,8 @@ void edit_window_t::autocomplete_panel_t::set_completions(string_list_base_t *co
     list_pane->pop_back();
   }
 
-  for (size_t i = 0; i < completions->size(); i++) {
-    std::unique_ptr<label_t> label(new label_t((*completions)[i]));
+  for (const std::string &str : *completions) {
+    std::unique_ptr<label_t> label(new label_t(str));
     if (label->get_text_width() > new_width) {
       new_width = label->get_text_width();
     }

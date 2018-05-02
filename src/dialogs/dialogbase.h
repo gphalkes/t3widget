@@ -23,7 +23,7 @@
 namespace t3_widget {
 
 class dialog_base_t;
-typedef std::list<dialog_base_t *> dialog_base_list_t;
+using dialog_base_list_t = std::list<dialog_base_t *>;
 class dialog_t;
 
 class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
@@ -56,8 +56,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   /** Focus the next widget, wrapping around if necessary. */
   void focus_previous();
   /** Add a widget to this dialog.
-      If a widget is not added through #push_back, it will not be
-      displayed, or receive input. */
+      If a widget is not added through #push_back, it will not be displayed, or receive input. */
   void push_back(widget_t *widget);
 
   bool is_child(window_component_t *widget) override;
