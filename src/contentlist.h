@@ -51,6 +51,7 @@ class T3_WIDGET_API const_string_list_iterator_t {
   const_string_list_iterator_t operator++(int);
 
   const std::string &operator*() const;
+  const std::string *operator->() const;
   bool operator==(const const_string_list_iterator_t &other) const;
   bool operator!=(const const_string_list_iterator_t &other) const;
 

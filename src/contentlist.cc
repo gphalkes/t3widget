@@ -71,6 +71,7 @@ const_string_list_iterator_t const_string_list_iterator_t::operator++(int) {
 }
 
 const std::string &const_string_list_iterator_t::operator*() const { return **impl_; }
+const std::string *const_string_list_iterator_t::operator->() const { return &**impl_; }
 
 bool const_string_list_iterator_t::operator==(const const_string_list_iterator_t &other) const {
   return *impl_ == *other.impl_;
