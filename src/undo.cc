@@ -11,107 +11,89 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "undo.h"
-#include "textline.h"
 #include <cstdlib>
 #include <cstring>
 #include <new>
 
+#include "subclasslist.h"
+#include "textline.h"
+#include "undo.h"
+
 namespace t3_widget {
+struct undo_list_t::implementation_t {
+  subclass_list_t<undo_t> list;
+  subclass_list_t<undo_t>::iterator current = list.end(), mark = list.end();
+  bool mark_is_valid = true;
+  bool mark_beyond_current = false;
 
-undo_list_t::~undo_list_t() {
-  current = head;
-  while (current != nullptr) {
-    head = head->next;
-    delete current;
-    current = head;
-  }
-}
-
-void undo_list_t::add(undo_t *undo) {
-  if (head == nullptr) {
-    mark = head = tail = undo;
-    return;
-  }
-
-  if (mark_beyond_current) {
-    mark_is_valid = false;
-  }
-
-  if (current != nullptr) {
-    if (mark_is_valid && current == mark) {
-      mark = undo;
-    }
-
-    /* Free current and everything after. However, if current points to the start of the
-       list, ie all edits have been undone, then we are left with an empty list but with head
-       and tail pointing to something that doesn't exist anymore. Thus we set head to
-       nullptr in this case so we can still see that this happened after we free everything. */
-
-    if (current == head) {
-      head = nullptr;
-    } else {
-      tail = current->previous;
-    }
-
-    while (current != nullptr) {
-      undo_t *to_free = current;
-      current = current->next;
-      delete to_free;
-    }
-
-    if (head == nullptr) {
-      head = tail = undo;
+  void add(undo_t *undo) {
+    if (list.empty()) {
+      mark = list.link_insert(list.end(), undo);
       return;
     }
-  } else if (mark == nullptr && mark_is_valid) {
-    mark = undo;
+
+    // Everything beyond current will be deleted, so mark will be invalid afterwards.
+    if (mark_beyond_current) {
+      mark_is_valid = false;
+    }
+
+    const bool mark_at_current = mark_is_valid && current == mark;
+    if (current != list.end()) {
+      list.erase(current, list.end());
+      current = list.end();
+    }
+    auto iter = list.link_insert(list.end(), undo);
+    if (mark_at_current) {
+      mark = iter;
+    }
   }
 
-  tail->next = undo;
-  undo->previous = tail;
-  tail = undo;
-}
+  undo_t *back() {
+    if (current == list.begin()) {
+      return nullptr;
+    }
 
-undo_t *undo_list_t::back() {
-  if (current == head) {
-    return nullptr;
+    if (mark_is_valid && current == mark) {
+      mark_beyond_current = true;
+    }
+
+    return &*--current;
   }
 
-  if (mark_is_valid && current == mark) {
-    mark_beyond_current = true;
+  undo_t *forward() {
+    if (current == list.end()) {
+      return nullptr;
+    }
+    undo_t *retval = &*current;
+    ++current;
+
+    if (mark_is_valid && mark_beyond_current && current == mark) {
+      mark_beyond_current = false;
+    }
+    return retval;
   }
 
-  if (current == nullptr) {
-    return current = tail;
-  }
-
-  return current = current->previous;
-}
-
-undo_t *undo_list_t::forward() {
-  undo_t *retval = current;
-
-  if (current == nullptr) {
-    return nullptr;
-  }
-
-  current = current->next;
-
-  if (mark_is_valid && mark_beyond_current && current == mark) {
+  void set_mark() {
+    mark_is_valid = true;
     mark_beyond_current = false;
+    mark = current;
   }
 
-  return retval;
-}
+  bool is_at_mark() const { return mark_is_valid && mark == current; }
+};
 
-void undo_list_t::set_mark() {
-  mark_is_valid = true;
-  mark_beyond_current = false;
-  mark = current;
-}
+undo_list_t::undo_list_t() : impl(new implementation_t) {}
+undo_list_t::~undo_list_t() {}
 
-bool undo_list_t::is_at_mark() const { return mark_is_valid && mark == current; }
+void undo_list_t::add(undo_t *undo) { impl->add(undo); }
+
+undo_t *undo_list_t::back() { return impl->back(); }
+
+undo_t *undo_list_t::forward() { return impl->forward(); }
+
+void undo_list_t::set_mark() { impl->set_mark(); }
+
+bool undo_list_t::is_at_mark() const { return impl->is_at_mark(); }
 
 #if 0
 #ifdef DEBUG

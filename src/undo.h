@@ -65,18 +65,11 @@ enum undo_type_t {
 
 class T3_WIDGET_API undo_list_t {
  private:
-  undo_t *head, *tail, *current, *mark;
-  bool mark_is_valid;
-  bool mark_beyond_current;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
-  undo_list_t()
-      : head(nullptr),
-        tail(nullptr),
-        current(nullptr),
-        mark(nullptr),
-        mark_is_valid(true),
-        mark_beyond_current(false) {}
+  undo_list_t();
   ~undo_list_t();
   void add(undo_t *undo);
   undo_t *back();
@@ -96,12 +89,13 @@ class T3_WIDGET_API undo_t {
   undo_type_t type;
   text_coordinate_t start;
 
-  undo_t *previous, *next;
-  friend class undo_list_t;
+  undo_t *previous_ = nullptr, *next_ = nullptr;
+  undo_t *&next() { return next_; }
+  undo_t *&prev() { return previous_; }
+  template <typename T> friend class subclass_list_t;
 
  public:
-  undo_t(undo_type_t _type, text_coordinate_t _start)
-      : type(_type), start(_start), previous(nullptr), next(nullptr) {}
+  undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start) {}
   virtual ~undo_t();
   undo_type_t get_type() const;
   undo_type_t get_redo_type() const;
