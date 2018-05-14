@@ -20,8 +20,6 @@
 
 namespace t3_widget {
 
-#define TEXT_START_SIZE 32
-
 /* FIXME: the undo/redo functionality should be reimplemented, composing operations from:
    DELETE, ADD, ADD_NEWLINE, DELETE_NEWLINE, BLOCK_START, BLOCK_END
    The last two should contain the cursor positions before and after the action, the others
@@ -33,10 +31,8 @@ namespace t3_widget {
 enum undo_type_t {
   UNDO_NONE,
   UNDO_DELETE,
-  UNDO_DELETE_BLOCK,
   UNDO_BACKSPACE,
   UNDO_ADD,
-  UNDO_ADD_BLOCK,
   UNDO_REPLACE_BLOCK,
   UNDO_OVERWRITE,
   UNDO_DELETE_NEWLINE,
@@ -92,7 +88,8 @@ class T3_WIDGET_API undo_t {
   undo_t *previous_ = nullptr, *next_ = nullptr;
   undo_t *&next() { return next_; }
   undo_t *&prev() { return previous_; }
-  template <typename T> friend class subclass_list_t;
+  template <typename T>
+  friend class subclass_list_t;
 
  public:
   undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start) {}

@@ -111,7 +111,9 @@ void text_buffer_t::delete_block(text_coordinate_t start, text_coordinate_t end)
     return;
   }
 
-  impl->delete_block_internal(start, end, impl->get_undo(UNDO_DELETE_BLOCK, start, end));
+  start_undo_block();
+  impl->delete_block_internal(start, end, impl->get_undo(UNDO_DELETE, std::min(start, end)));
+  end_undo_block();
 }
 
 bool text_buffer_t::insert_block(const std::string &block) { return impl->insert_block(block); }
@@ -480,9 +482,10 @@ bool text_buffer_t::implementation_t::insert_block(const std::string &block) {
     return false;
   }
 
-  undo = get_undo(UNDO_ADD_BLOCK, cursor_at_start, cursor);
-  // FIXME: clone may return nullptr!
+  get_undo(UNDO_BLOCK_START, cursor_at_start);
+  undo = get_undo(UNDO_ADD, cursor_at_start);
   undo->get_text()->append(sanitized_block);
+  get_undo(UNDO_BLOCK_END, cursor);
 
   return true;
 }
@@ -652,8 +655,7 @@ undo_t *text_buffer_t::implementation_t::get_undo(undo_type_t type) {
 }
 
 undo_t *text_buffer_t::implementation_t::get_undo(undo_type_t type, text_coordinate_t coord) {
-  ASSERT(type != UNDO_ADD_BLOCK && type != UNDO_DELETE_BLOCK && type != UNDO_INDENT &&
-         type != UNDO_UNINDENT);
+  ASSERT(type != UNDO_INDENT && type != UNDO_UNINDENT);
 
   if (last_undo_type == type && last_undo_position.line == coord.line &&
       last_undo_position.pos == coord.pos && last_undo != nullptr) {
@@ -705,8 +707,7 @@ undo_t *text_buffer_t::implementation_t::get_undo(undo_type_t type, text_coordin
 
 undo_t *text_buffer_t::implementation_t::get_undo(undo_type_t type, text_coordinate_t start,
                                                   text_coordinate_t end) {
-  ASSERT(type == UNDO_ADD_BLOCK || type == UNDO_DELETE_BLOCK || type == UNDO_INDENT ||
-         type == UNDO_UNINDENT);
+  ASSERT(type == UNDO_INDENT || type == UNDO_UNINDENT);
   if (last_undo != nullptr) {
     last_undo->minimize();
   }
@@ -733,11 +734,19 @@ int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *c
 
   set_selection_mode(selection_mode_t::NONE);
   switch (type) {
-    case UNDO_ADD:
+    case UNDO_ADD: {
       end = start = current->get_start();
-      end.pos += current->get_text()->size();
+      size_t newline = current->get_text()->find_last_of('\n');
+      if (newline == std::string::npos) {
+        end.pos += current->get_text()->size();
+      } else {
+        end.pos = current->get_text()->size() - newline - 1;
+        std::string::iterator begin = current->get_text()->begin();
+        end.line += std::count(begin, begin + newline, '\n') + 1;
+      }
       delete_block_internal(start, end, nullptr);
       break;
+    }
     case UNDO_ADD_REDO:
     case UNDO_DELETE:
       start = current->get_start();
@@ -745,20 +754,6 @@ int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *c
       if (type == UNDO_DELETE) {
         cursor = start;
       }
-      break;
-    case UNDO_ADD_BLOCK:
-      start = current->get_start();
-      end = current->get_end();
-      delete_block_internal(start, end, nullptr);
-      break;
-    case UNDO_DELETE_BLOCK:
-      start = current->get_start();
-      end = current->get_end();
-      if (end.line < start.line || (end.line == start.line && end.pos < start.pos)) {
-        start = end;
-      }
-      insert_block_internal(start, line_factory->new_text_line_t(*current->get_text()));
-      cursor = end;
       break;
     case UNDO_BACKSPACE:
       start = current->get_start();

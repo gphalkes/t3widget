@@ -101,10 +101,8 @@ bool undo_list_t::is_at_mark() const { return impl->is_at_mark(); }
 static const char *undo_type_to_string[] = {
 	"UNDO_NONE",
 	"UNDO_DELETE",
-	"UNDO_DELETE_BLOCK",
 	"UNDO_BACKSPACE",
 	"UNDO_ADD",
-	"UNDO_ADD_BLOCK",
 	"UNDO_REPLACE_BLOCK",
 	"UNDO_OVERWRITE",
 	"UNDO_DELETE_NEWLINE",
@@ -147,14 +145,10 @@ void undo_list_t::dump() {
 #endif
 #endif
 
-#define TEXT_START_SIZE 32
-
 undo_type_t undo_t::redo_map[] = {UNDO_NONE,
                                   UNDO_ADD,
-                                  UNDO_ADD_BLOCK,
                                   UNDO_BACKSPACE_REDO,
                                   UNDO_ADD_REDO,
-                                  UNDO_DELETE_BLOCK,
                                   UNDO_REPLACE_BLOCK_REDO,
                                   UNDO_OVERWRITE_REDO,
                                   UNDO_ADD_NEWLINE,
