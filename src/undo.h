@@ -35,12 +35,8 @@ enum undo_type_t {
   UNDO_ADD,
   UNDO_REPLACE_BLOCK,
   UNDO_OVERWRITE,
-  UNDO_DELETE_NEWLINE,
-  UNDO_BACKSPACE_NEWLINE,
-  UNDO_ADD_NEWLINE,
   UNDO_INDENT,
   UNDO_UNINDENT,
-  UNDO_ADD_NEWLINE_INDENT,
   /* Markers for blocks of undo operations. All operations between a UNDO_BLOCK_START and
      UNDO_BLOCK_END
      are to be applied as a single operation. */
@@ -52,7 +48,6 @@ enum undo_type_t {
   UNDO_BACKSPACE_REDO,
   UNDO_REPLACE_BLOCK_REDO,
   UNDO_OVERWRITE_REDO,
-  UNDO_ADD_NEWLINE_INDENT_REDO,
   UNDO_BLOCK_START_REDO,
   UNDO_BLOCK_END_REDO,
 };

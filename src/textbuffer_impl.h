@@ -62,8 +62,8 @@ struct text_buffer_t::implementation_t {
   void set_selection_mode(selection_mode_t mode);
   bool selection_empty() const { return selection_start == selection_end; }
   void set_selection_end(bool update_primary);
-  undo_t *get_undo(undo_type_t type, bool allow_merge = true);
-  undo_t *get_undo(undo_type_t type, text_coordinate_t coord, bool allow_merge = true);
+  undo_t *get_undo(undo_type_t type);
+  undo_t *get_undo(undo_type_t type, text_coordinate_t coord);
   undo_t *get_undo(undo_type_t type, text_coordinate_t start, text_coordinate_t end);
   void set_undo_mark();
   int apply_undo_redo(undo_type_t type, undo_t *current);
