@@ -103,7 +103,6 @@ static const char *undo_type_to_string[] = {
 	"UNDO_DELETE",
 	"UNDO_BACKSPACE",
 	"UNDO_ADD",
-	"UNDO_REPLACE_BLOCK",
 	"UNDO_OVERWRITE",
     "UNDO_INDENT",
     "UNDO_UNINDENT",
@@ -111,7 +110,6 @@ static const char *undo_type_to_string[] = {
 	"UNDO_BLOCK_END",
 	"UNDO_ADD_REDO",
 	"UNDO_BACKSPACE_REDO",
-	"UNDO_REPLACE_BLOCK_REDO",
 	"UNDO_OVERWRITE_REDO",
 	"UNDO_BLOCK_START_REDO",
 	"UNDO_BLOCK_END_REDO"
@@ -144,16 +142,9 @@ void undo_list_t::dump() {
 #endif
 #endif
 
-undo_type_t undo_t::redo_map[] = {UNDO_NONE,
-                                  UNDO_ADD,
-                                  UNDO_BACKSPACE_REDO,
-                                  UNDO_ADD_REDO,
-                                  UNDO_REPLACE_BLOCK_REDO,
-                                  UNDO_OVERWRITE_REDO,
-                                  UNDO_UNINDENT,
-                                  UNDO_INDENT,
-                                  UNDO_BLOCK_START_REDO,
-                                  UNDO_BLOCK_END_REDO};
+undo_type_t undo_t::redo_map[] = {
+    UNDO_NONE,     UNDO_ADD,    UNDO_BACKSPACE_REDO,   UNDO_ADD_REDO,      UNDO_OVERWRITE_REDO,
+    UNDO_UNINDENT, UNDO_INDENT, UNDO_BLOCK_START_REDO, UNDO_BLOCK_END_REDO};
 
 undo_t::~undo_t() {}
 
@@ -164,7 +155,6 @@ text_coordinate_t undo_t::get_start() { return start; }
 std::string *undo_t::get_text() { return nullptr; }
 std::string *undo_t::get_replacement() { return nullptr; }
 text_coordinate_t undo_t::get_end() const { return text_coordinate_t(-1, -1); }
-text_coordinate_t undo_t::get_new_end() const { return text_coordinate_t(-1, -1); }
 
 void undo_single_text_t::add_newline() { text.append(1, '\n'); }
 std::string *undo_single_text_t::get_text() { return &text; }
@@ -176,10 +166,5 @@ void undo_double_text_t::minimize() {
   replacement.reserve(0);
 }
 text_coordinate_t undo_double_text_t::get_end() const { return end; }
-
-void undo_double_text_triple_coord_t::set_new_end(text_coordinate_t _new_end) {
-  new_end = _new_end;
-}
-text_coordinate_t undo_double_text_triple_coord_t::get_new_end() const { return new_end; }
 
 }  // namespace

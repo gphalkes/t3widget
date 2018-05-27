@@ -33,7 +33,6 @@ enum undo_type_t {
   UNDO_DELETE,
   UNDO_BACKSPACE,
   UNDO_ADD,
-  UNDO_REPLACE_BLOCK,
   UNDO_OVERWRITE,
   UNDO_INDENT,
   UNDO_UNINDENT,
@@ -46,7 +45,6 @@ enum undo_type_t {
   // Types only for mapping redo to undo types
   UNDO_ADD_REDO,
   UNDO_BACKSPACE_REDO,
-  UNDO_REPLACE_BLOCK_REDO,
   UNDO_OVERWRITE_REDO,
   UNDO_BLOCK_START_REDO,
   UNDO_BLOCK_END_REDO,
@@ -97,7 +95,6 @@ class T3_WIDGET_API undo_t {
   virtual std::string *get_replacement();
   virtual text_coordinate_t get_end() const;
   virtual void minimize() {}
-  virtual text_coordinate_t get_new_end() const;
 };
 
 class T3_WIDGET_API undo_single_text_t : public undo_t {
@@ -123,19 +120,6 @@ class T3_WIDGET_API undo_double_text_t : public undo_single_text_t {
   std::string *get_replacement() override;
   void minimize() override;
   text_coordinate_t get_end() const override;
-};
-
-class T3_WIDGET_API undo_double_text_triple_coord_t : public undo_double_text_t {
- private:
-  text_coordinate_t new_end;
-
- public:
-  undo_double_text_triple_coord_t(undo_type_t _type, text_coordinate_t _start,
-                                  text_coordinate_t _end)
-      : undo_double_text_t(_type, _start, _end) {}
-
-  void set_new_end(text_coordinate_t _new_end);
-  text_coordinate_t get_new_end() const override;
 };
 
 }  // namespace

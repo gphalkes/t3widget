@@ -492,35 +492,24 @@ bool text_buffer_t::implementation_t::insert_block(const std::string &block) {
 
 bool text_buffer_t::implementation_t::replace_block(text_coordinate_t start, text_coordinate_t end,
                                                     const std::string &block) {
-  undo_double_text_triple_coord_t *undo;
   std::unique_ptr<text_line_t> converted_block;
-  std::string sanitized_block;
 
   // FIXME: check that everything succeeds and return false if it doesn't
   // FIXME: make sure original state is restored on failing sub action
-  /* Simply insert on empty block */
+  // Simply insert on empty block.
   if (start == end) {
     return insert_block(block);
   }
 
-  last_undo = undo = new undo_double_text_triple_coord_t(UNDO_REPLACE_BLOCK, start, end);
-  last_undo_type = UNDO_NONE;
-
-  delete_block_internal(start, end, undo);
-
-  if (end.line < start.line || (end.line == start.line && end.pos < start.pos)) {
-    start = end;
-  }
+  start_undo_block();
+  text_coordinate_t loc = std::min(start, end);
+  delete_block_internal(start, end, get_undo(UNDO_DELETE, loc));
 
   converted_block = line_factory->new_text_line_t(block);
-  sanitized_block = converted_block->get_data();
+  *get_undo(UNDO_ADD, loc)->get_text() = converted_block->get_data();
   // FIXME: insert_block_internal may fail!!!
-  insert_block_internal(start, std::move(converted_block));
-
-  undo->get_replacement()->append(sanitized_block);
-  undo->set_new_end(cursor);
-
-  undo_list.add(undo);
+  insert_block_internal(loc, std::move(converted_block));
+  end_undo_block();
   return true;
 }
 
@@ -759,26 +748,6 @@ int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *c
       end = start = current->get_start();
       end.pos += current->get_text()->size();
       delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, line_factory->new_text_line_t(*current->get_replacement()));
-      break;
-    case UNDO_REPLACE_BLOCK:
-      start = current->get_start();
-      end = current->get_end();
-      if (end.line < start.line || (end.line == start.line && end.pos < start.pos)) {
-        start = end;
-      }
-      end = current->get_new_end();
-      delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, line_factory->new_text_line_t(*current->get_text()));
-      cursor = current->get_end();
-      break;
-    case UNDO_REPLACE_BLOCK_REDO:
-      start = current->get_start();
-      end = current->get_end();
-      delete_block_internal(start, end, nullptr);
-      if (end.line < start.line || (end.line == start.line && end.pos < start.pos)) {
-        start = end;
-      }
       insert_block_internal(start, line_factory->new_text_line_t(*current->get_replacement()));
       break;
     case UNDO_INDENT:
