@@ -170,13 +170,12 @@ void undo_single_text_t::add_newline() { text.append(1, '\n'); }
 std::string *undo_single_text_t::get_text() { return &text; }
 void undo_single_text_t::minimize() { text.reserve(0); }
 
-text_coordinate_t undo_single_text_double_coord_t::get_end() const { return end; }
-
 std::string *undo_double_text_t::get_replacement() { return &replacement; }
 void undo_double_text_t::minimize() {
-  undo_single_text_double_coord_t::minimize();
+  undo_single_text_t::minimize();
   replacement.reserve(0);
 }
+text_coordinate_t undo_double_text_t::get_end() const { return end; }
 
 void undo_double_text_triple_coord_t::set_new_end(text_coordinate_t _new_end) {
   new_end = _new_end;
