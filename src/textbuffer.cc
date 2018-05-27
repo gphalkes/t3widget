@@ -62,7 +62,7 @@ bool text_buffer_t::merge(bool backspace) { return impl->merge(backspace); }
 
 bool text_buffer_t::append_text(string_view text) { return impl->append_text(text); }
 
-bool text_buffer_t::break_line(const std::string *indent) { return impl->break_line(indent); }
+bool text_buffer_t::break_line(const std::string &indent) { return impl->break_line(indent); }
 
 int text_buffer_t::calculate_screen_pos(int tabsize) const {
   return calculate_screen_pos(impl->cursor, tabsize);
@@ -423,19 +423,19 @@ void text_buffer_t::implementation_t::delete_block_internal(text_coordinate_t st
   }
 }
 
-bool text_buffer_t::implementation_t::break_line_internal(const std::string *indent) {
+bool text_buffer_t::implementation_t::break_line_internal(const std::string &indent) {
   std::unique_ptr<text_line_t> insert = lines[cursor.line]->break_line(cursor.pos);
   lines.insert(lines.begin() + cursor.line + 1, std::move(insert));
   rewrap_required(rewrap_type_t::REWRAP_LINE, cursor.line, cursor.pos);
   rewrap_required(rewrap_type_t::INSERT_LINES, cursor.line + 1, cursor.line + 2);
   cursor.line++;
-  if (indent == nullptr) {
+  if (indent.empty()) {
     cursor.pos = 0;
   } else {
-    std::unique_ptr<text_line_t> new_line = line_factory->new_text_line_t(*indent);
+    std::unique_ptr<text_line_t> new_line = line_factory->new_text_line_t(indent);
     new_line->merge(std::move(lines[cursor.line]));
     lines[cursor.line] = std::move(new_line);
-    cursor.pos = indent->size();
+    cursor.pos = indent.size();
   }
   return true;
 }
@@ -460,13 +460,11 @@ bool text_buffer_t::implementation_t::append_text(string_view text) {
   return result;
 }
 
-bool text_buffer_t::implementation_t::break_line(const std::string *indent) {
+bool text_buffer_t::implementation_t::break_line(const std::string &indent) {
   start_undo_block();
   undo_t *undo = get_undo(UNDO_ADD);
   undo->get_text()->append(1, '\n');
-  if (indent != nullptr) {
-    undo->get_text()->append(*indent);
-  }
+  undo->get_text()->append(indent);
   bool result = break_line_internal(indent);
   end_undo_block();
   return result;

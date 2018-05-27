@@ -46,9 +46,9 @@ struct text_buffer_t::implementation_t {
   bool merge_internal(int line);
   bool insert_block_internal(text_coordinate_t insert_at, std::unique_ptr<text_line_t> block);
   void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
-  bool break_line_internal(const std::string *indent = nullptr);
+  bool break_line_internal(const std::string &indent = nullptr);
   bool append_text(string_view text);
-  bool break_line(const std::string *indent);
+  bool break_line(const std::string &indent);
   bool merge(bool backspace);
   bool insert_block(const std::string &block);
   bool replace_block(text_coordinate_t start, text_coordinate_t end, const std::string &block);

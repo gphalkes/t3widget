@@ -959,7 +959,7 @@ bool edit_window_t::process_key(key_t key) {
           space.append(indent, ' ');
         }
 
-        text->break_line(&space);
+        text->break_line(space);
       } else {
         text->break_line();
       }
