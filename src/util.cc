@@ -344,7 +344,7 @@ bool is_dir(string_view current_dir, string_view name) {
   std::string file;
 
   if (name[0] != '/') {
-    file = as_string(current_dir);
+    file = std::string(current_dir);
     file += '/';
   }
   file.append(name.data(), name.size());
@@ -379,7 +379,7 @@ void lang_codeset_init(bool init) {
 
 std::string convert_lang_codeset(string_view str, bool from) {
   if (!from && lang_codeset_is_utf8) {
-    return as_string(str);
+    return std::string(str);
   }
 
   std::string result;

@@ -332,11 +332,6 @@ bool operator>=(basic_string_view<CharT> lhs, const std::basic_string<CharT> &rh
 
 using string_view = basic_string_view<char>;
 
-template <class CharT>
-std::basic_string<CharT> as_string(basic_string_view<CharT> str) {
-  return std::basic_string<CharT>(str.data(), str.size());
-}
-
 }  // namespace t3_widget
 
 #endif
