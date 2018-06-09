@@ -152,13 +152,13 @@ undo_type_t undo_t::get_type() const { return type; }
 undo_type_t undo_t::get_redo_type() const { return redo_map[type]; }
 
 text_coordinate_t undo_t::get_start() { return start; }
-std::string *undo_t::get_text() { return nullptr; }
+tiny_string_t *undo_t::get_text() { return nullptr; }
 std::string *undo_t::get_replacement() { return nullptr; }
 text_coordinate_t undo_t::get_end() const { return text_coordinate_t(-1, -1); }
 
 void undo_single_text_t::add_newline() { text.append(1, '\n'); }
-std::string *undo_single_text_t::get_text() { return &text; }
-void undo_single_text_t::minimize() { text.reserve(0); }
+tiny_string_t *undo_single_text_t::get_text() { return &text; }
+void undo_single_text_t::minimize() { text.shrink_to_fit(); }
 
 std::string *undo_double_text_t::get_replacement() { return &replacement; }
 void undo_double_text_t::minimize() {
@@ -167,4 +167,4 @@ void undo_double_text_t::minimize() {
 }
 text_coordinate_t undo_double_text_t::get_end() const { return end; }
 
-}  // namespace
+}  // namespace t3_widget

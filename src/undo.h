@@ -16,6 +16,7 @@
 
 #include <string>
 #include <t3widget/textline.h>
+#include <t3widget/tinystring.h>
 #include <t3widget/util.h>
 
 namespace t3_widget {
@@ -91,7 +92,7 @@ class T3_WIDGET_API undo_t {
   undo_type_t get_redo_type() const;
   virtual text_coordinate_t get_start();
   virtual void add_newline() {}
-  virtual std::string *get_text();
+  virtual tiny_string_t *get_text();
   virtual std::string *get_replacement();
   virtual text_coordinate_t get_end() const;
   virtual void minimize() {}
@@ -99,12 +100,12 @@ class T3_WIDGET_API undo_t {
 
 class T3_WIDGET_API undo_single_text_t : public undo_t {
  private:
-  std::string text;
+  tiny_string_t text;
 
  public:
   undo_single_text_t(undo_type_t _type, text_coordinate_t _start) : undo_t(_type, _start){};
   void add_newline() override;
-  std::string *get_text() override;
+  tiny_string_t *get_text() override;
   void minimize() override;
 };
 
@@ -122,5 +123,5 @@ class T3_WIDGET_API undo_double_text_t : public undo_single_text_t {
   text_coordinate_t get_end() const override;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

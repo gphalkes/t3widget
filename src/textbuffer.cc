@@ -711,7 +711,7 @@ int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *c
         end.pos += current->get_text()->size();
       } else {
         end.pos = current->get_text()->size() - newline - 1;
-        std::string::iterator begin = current->get_text()->begin();
+        tiny_string_t::iterator begin = current->get_text()->begin();
         end.line += std::count(begin, begin + newline, '\n') + 1;
       }
       delete_block_internal(start, end, nullptr);
@@ -890,7 +890,7 @@ bool text_buffer_t::implementation_t::indent_block(text_coordinate_t &start, tex
                                                    int tabsize, bool tab_spaces) {
   int end_line;
   text_coordinate_t insert_at;
-  std::string str, *undo_text;
+  std::string str;
   undo_t *undo;
 
   start_undo_block();
@@ -916,7 +916,7 @@ bool text_buffer_t::implementation_t::indent_block(text_coordinate_t &start, tex
       end_line--;
     }
   }
-  undo_text = undo->get_text();
+  tiny_string_t *undo_text = undo->get_text();
 
   for (; insert_at.line <= end_line; insert_at.line++) {
     undo_text->append(str);
@@ -947,11 +947,10 @@ bool text_buffer_t::implementation_t::indent_selection(int tabsize, bool tab_spa
 bool text_buffer_t::implementation_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
   int first_line;
   size_t pos = 0, next_pos = 0;
-  std::string *undo_text;
 
   first_line = undo->get_start().line;
 
-  undo_text = undo->get_text();
+  tiny_string_t *undo_text = undo->get_text();
   bool last = false;
   for (; !last; first_line++) {
     next_pos = undo_text->find('X', pos);
@@ -970,9 +969,8 @@ bool text_buffer_t::implementation_t::undo_indent_selection(undo_t *undo, undo_t
     } else {
       text_coordinate_t insert_at(first_line, 0);
       if (next_pos != pos) {
-        insert_block_internal(
-            insert_at,
-            line_factory->new_text_line_t(string_view(undo_text->data() + pos, next_pos - pos)));
+        insert_block_internal(insert_at, line_factory->new_text_line_t(
+                                             string_view(undo_text->data() + pos, next_pos - pos)));
       }
     }
     pos = next_pos + 1;
@@ -1084,7 +1082,7 @@ bool text_buffer_t::implementation_t::unindent_line(int tabsize) {
   }
 
   undo = get_undo(UNDO_UNINDENT, std::min(delete_start, cursor));
-  undo->get_text()->append(data, 0, delete_end.pos);
+  undo->get_text()->append(string_view(data).substr(0, delete_end.pos));
   undo->get_text()->append("X");
 
   /* delete_block_interal sets the cursor position to the position where the
@@ -1115,4 +1113,4 @@ void text_buffer_t::implementation_t::goto_pos(int line, int pos) {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget
