@@ -149,17 +149,16 @@ class basic_string_view {
     return substr(pos1, count1).compare(basic_string_view(s, count2));
   }
 
-  // FIXME: This needs an optimized search routine if possible.
   _T3_WIDGET_TEST_CONSTEXPR size_type find(basic_string_view v, size_type pos = 0) const noexcept {
     if (size_ == 0) {
-      return v.size() + pos == 0 ? 0 : npos;
+      return v.size_ + pos == 0 ? 0 : npos;
     }
-    for (const_iterator it = begin() + pos; it + v.size() <= end(); ++it) {
+    for (const_iterator it = begin() + pos; it + v.size_ <= end(); ++it) {
       const_iterator left = it;
       for (const_iterator right = v.begin(); right != v.end() && Traits::eq(*right, *left);
            ++right, ++left) {
       }
-      if (left == it + v.size()) {
+      if (left == it + v.size_) {
         return it - begin();
       }
     }
@@ -183,18 +182,17 @@ class basic_string_view {
     return find(basic_string_view(s), pos);
   }
 
-  // FIXME: This needs an optimized search routine if possible.
   _T3_WIDGET_TEST_CONSTEXPR size_type rfind(basic_string_view v, size_type pos = npos) const
       noexcept {
     if (size_ == 0) {
-      return v.size() == 0 ? 0 : npos;
+      return v.size_ == 0 ? 0 : npos;
     }
-    for (const_iterator it = begin() + std::min(size_ - v.size(), pos); it >= begin(); --it) {
+    for (const_iterator it = begin() + std::min(size_ - v.size_, pos); it >= begin(); --it) {
       const_iterator left = it;
       for (const_iterator right = v.begin(); right != v.end() && Traits::eq(*right, *left);
            ++right, ++left) {
       }
-      if (left == it + v.size()) {
+      if (left == it + v.size_) {
         return it - begin();
       }
     }
@@ -296,13 +294,24 @@ class basic_string_view {
     return find_last_not_of(basic_string_view(s), pos);
   }
 
-  // FIXME: add the following functions:
-  // constexpr bool starts_with(basic_string_view x) const noexcept;
-  // constexpr bool starts_with(CharT x) const noexcept;
-  // constexpr bool starts_with(const CharT* x) const;
-  // constexpr bool ends_with(basic_string_view x) const noexcept;
-  // constexpr bool ends_with(CharT x) const noexcept;
-  // constexpr bool ends_with(const CharT* x) const;
+  constexpr bool starts_with(basic_string_view v) const noexcept {
+    return size_ >= v.size_ && Traits::compare(data_, v.data_, v.size_) == 0;
+  }
+  constexpr bool starts_with(CharT c) const noexcept {
+    return size_ >= 1 && Traits::eq(*data_, c);
+  }
+  constexpr bool starts_with(const CharT* s) const {
+    return starts_with(basic_string_view(s));
+  }
+  constexpr bool ends_with(basic_string_view v) const noexcept {
+    return size_ >= v.size_ && Traits::compare(data_ + size_ - v.size_, v.data_, v.size_) == 0;
+  }
+  constexpr bool ends_with(CharT c) const noexcept {
+    return size_ >= 1 && Traits::eq(data_[size_ - 1], c);
+  }
+  constexpr bool ends_with(const CharT* s) const {
+    return ends_with(basic_string_view(s));
+  }
 
   static constexpr size_type npos = std::numeric_limits<size_type>::max();
 
