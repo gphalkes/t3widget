@@ -313,4 +313,4 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
 
 _T3_WIDGET_IMPL_SIGNAL(expander_t, expanded, bool)
 
-}  // namespace
+}  // namespace t3_widget

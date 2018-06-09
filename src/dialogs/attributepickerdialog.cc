@@ -334,4 +334,4 @@ void attribute_test_line_t::set_attribute(t3_attr_t attr) {
   impl->attr = attr;
 }
 
-}  // namespace
+}  // namespace t3_widget

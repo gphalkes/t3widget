@@ -56,6 +56,6 @@ T3_WIDGET_LOCAL extern attributes_t attributes;
 /** @internal Initialize the default attributes. */
 T3_WIDGET_LOCAL void init_attributes();
 
-}  // namespace
+}  // namespace t3_widget
 
 #endif

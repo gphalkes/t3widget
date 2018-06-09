@@ -132,4 +132,4 @@ int string_matcher_t::previous_char(const char *c, size_t c_size) {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget

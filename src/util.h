@@ -494,5 +494,5 @@ class call_on_return_t {
   std::function<void()> cb_;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

@@ -138,4 +138,4 @@ void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = ma
 
 _T3_WIDGET_IMPL_SIGNAL(message_dialog_t, activate_internal)
 
-}  // namespace
+}  // namespace t3_widget

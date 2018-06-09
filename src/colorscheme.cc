@@ -222,4 +222,4 @@ t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode) {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget

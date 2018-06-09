@@ -48,5 +48,5 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
   connection_t connect_dragged(std::function<void(int)> cb);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

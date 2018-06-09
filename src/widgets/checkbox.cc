@@ -131,4 +131,4 @@ bool checkbox_t::process_mouse_event(mouse_event_t event) {
 _T3_WIDGET_IMPL_SIGNAL(checkbox_t, activate)
 _T3_WIDGET_IMPL_SIGNAL(checkbox_t, toggled)
 
-}  // namespace
+}  // namespace t3_widget

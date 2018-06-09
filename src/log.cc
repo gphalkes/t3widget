@@ -72,4 +72,4 @@ void logkeyseq(const char *keys) {
 }
 #endif
 
-}  // namespace
+}  // namespace t3_widget

@@ -39,5 +39,5 @@ class T3_WIDGET_API expander_group_t {
   T3_WIDGET_DECLARE_SIGNAL(expanded, bool);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

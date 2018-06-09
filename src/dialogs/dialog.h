@@ -71,5 +71,5 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   T3_WIDGET_DECLARE_SIGNAL(closed);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

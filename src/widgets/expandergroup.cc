@@ -72,4 +72,4 @@ int expander_group_t::get_group_height() { return impl->height; }
 
 _T3_WIDGET_IMPL_SIGNAL(expander_group_t, expanded, bool)
 
-}  // namespace
+}  // namespace t3_widget

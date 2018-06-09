@@ -187,4 +187,4 @@ void dialog_t::update_dialogs() {
 
 _T3_WIDGET_IMPL_SIGNAL(dialog_t, closed)
 
-}  // namespace
+}  // namespace t3_widget

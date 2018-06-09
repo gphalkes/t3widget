@@ -253,4 +253,4 @@ void wrap_info_t::paint_line(t3_window::window_t *win, text_coordinate_t line,
   text->paint_line(win, line.line, info);
 }
 
-}  // namespace
+}  // namespace t3_widget

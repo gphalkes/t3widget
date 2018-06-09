@@ -55,5 +55,5 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

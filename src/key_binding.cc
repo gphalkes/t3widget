@@ -18,4 +18,4 @@ namespace t3_widget {
 
 key_bindings_base_t::~key_bindings_base_t() {}
 
-}  // namespace
+}  // namespace t3_widget

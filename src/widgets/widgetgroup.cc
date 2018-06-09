@@ -231,4 +231,4 @@ bool widget_group_t::is_hotkey(key_t key) const {
   return false;
 }
 
-}  // namespace
+}  // namespace t3_widget

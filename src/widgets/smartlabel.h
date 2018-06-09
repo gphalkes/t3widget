@@ -47,5 +47,5 @@ class T3_WIDGET_API smart_label_t : public widget_t, public smart_label_text_t {
   bool accepts_focus() override;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

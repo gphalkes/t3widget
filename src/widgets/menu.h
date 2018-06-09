@@ -91,5 +91,5 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   T3_WIDGET_DECLARE_SIGNAL(activate, int);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

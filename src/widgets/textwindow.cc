@@ -319,4 +319,4 @@ void text_window_t::scrollbar_dragged(int start) {
 
 _T3_WIDGET_IMPL_SIGNAL(text_window_t, activate)
 
-}  // namespace
+}  // namespace t3_widget

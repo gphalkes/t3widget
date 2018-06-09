@@ -38,5 +38,5 @@ class T3_WIDGET_API ensure_clipboard_lock_t {
   ensure_clipboard_lock_t() { lock_clipboard(); }
   ~ensure_clipboard_lock_t() { unlock_clipboard(); }
 };
-}  // namespace
+}  // namespace t3_widget
 #endif

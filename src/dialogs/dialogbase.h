@@ -89,6 +89,6 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   static void force_redraw_all();
 };
 
-}  // namespace
+}  // namespace t3_widget
 
 #endif  // T3_DIALOG_BASE_H

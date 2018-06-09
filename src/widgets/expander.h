@@ -64,5 +64,5 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   T3_WIDGET_DECLARE_SIGNAL(expanded, bool);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

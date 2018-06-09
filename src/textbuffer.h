@@ -134,5 +134,5 @@ class T3_WIDGET_API text_buffer_t {
   T3_WIDGET_DECLARE_SIGNAL(rewrap_required, rewrap_type_t, int, int);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

@@ -71,5 +71,5 @@ class T3_WIDGET_LOCAL wrap_info_t {
                   text_line_t::paint_info_t &info) const;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

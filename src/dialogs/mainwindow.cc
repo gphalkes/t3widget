@@ -71,4 +71,4 @@ void main_window_base_t::set_size_real(int height, int width) {
   set_size(height, width);
 }
 
-}  // namespace
+}  // namespace t3_widget

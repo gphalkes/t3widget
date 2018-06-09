@@ -157,5 +157,5 @@ class T3_WIDGET_API text_line_factory_t {
 
 T3_WIDGET_API extern text_line_factory_t default_text_line_factory;
 
-}  // namespace
+}  // namespace t3_widget
 #endif

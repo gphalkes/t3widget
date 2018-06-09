@@ -131,4 +131,4 @@ void menu_separator_t::hide() {}
 
 bool menu_separator_t::accepts_focus() { return false; }
 
-}  // namespace
+}  // namespace t3_widget

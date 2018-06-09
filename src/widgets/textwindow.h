@@ -53,5 +53,5 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

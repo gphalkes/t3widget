@@ -47,4 +47,4 @@ bool dummy_widget_t::set_size(optint height, optint width) {
 
 const t3_window::window_t *dummy_widget_t::get_base_window() const { return nullptr; }
 
-}  // namespace
+}  // namespace t3_widget

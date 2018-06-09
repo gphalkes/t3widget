@@ -46,5 +46,5 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

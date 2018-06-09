@@ -22,10 +22,9 @@ struct file_pane_t::implementation_t {
   size_t top_idx,              /**< Index of the first item displayed. */
       current;                 /**< Index of the currently highlighted item. */
   file_list_base_t *file_list; /**< List of files to display. */
-  bool focus; /**< Boolean indicating whether this file_pane_t has the input focus. */
-  text_field_t
-      *field; /**< The text_field_t which is the alternative input method for providing a file
-                 name. */
+  bool focus;          /**< Boolean indicating whether this file_pane_t has the input focus. */
+  text_field_t *field; /**< The text_field_t which is the alternative input method for providing a
+                          file name. */
   int column_widths[_T3_WDIGET_FP_MAX_COLUMNS],    /**< Width in cells of the various columns. */
       column_positions[_T3_WDIGET_FP_MAX_COLUMNS], /**< Left-most position for each column. */
       columns_visible, /**< The number of columns that are visible currently. */
@@ -607,4 +606,4 @@ connection_t file_pane_t::connect_activate(std::function<void(const std::string 
   return impl->activate.connect(cb);
 }
 
-}  // namespace
+}  // namespace t3_widget

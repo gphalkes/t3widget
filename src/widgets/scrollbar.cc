@@ -215,4 +215,4 @@ connection_t scrollbar_t::connect_dragged(std::function<void(int)> cb) {
   return impl->dragged.connect(cb);
 }
 
-}  // namespace
+}  // namespace t3_widget

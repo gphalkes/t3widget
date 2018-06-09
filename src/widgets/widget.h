@@ -126,5 +126,5 @@ class T3_WIDGET_API widget_container_t : public container_t {
 using widgets_t = std::deque<widget_t *>;
 using owned_widgets_t = std::deque<std::unique_ptr<widget_t>>;
 
-}  // namespace
+}  // namespace t3_widget
 #endif

@@ -908,4 +908,4 @@ T3_WIDGET_API extclipboard_interface_t _t3_widget_extclipboard_calls = {EXTCLIPB
                                                                         stop_x11};
 };
 
-}  // namespace
+}  // namespace t3_widget

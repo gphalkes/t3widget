@@ -76,5 +76,5 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   connection_t connect_selection_changed(std::function<void()> cb);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

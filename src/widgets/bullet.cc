@@ -53,4 +53,4 @@ void bullet_t::update_contents() {
 
 void bullet_t::set_focus(focus_t focus) { impl->has_focus = focus; }
 
-}  // namespace
+}  // namespace t3_widget

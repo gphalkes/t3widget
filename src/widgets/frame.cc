@@ -140,4 +140,4 @@ bool frame_t::is_child(window_component_t *component) {
   return container != nullptr && container->is_child(component);
 }
 
-}  // namespace
+}  // namespace t3_widget

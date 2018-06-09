@@ -367,4 +367,4 @@ void replace_buttons_dialog_t::reshow(find_action_t button) {
 
 _T3_WIDGET_IMPL_SIGNAL(replace_buttons_dialog_t, activate, find_action_t)
 
-}  // namespace
+}  // namespace t3_widget

@@ -493,4 +493,4 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
 
 bool list_pane_t::indicator_widget_t::accepts_focus() { return false; }
 
-}  // namespace
+}  // namespace t3_widget

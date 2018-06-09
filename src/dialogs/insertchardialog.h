@@ -35,5 +35,5 @@ class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
   void ok_activate();
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

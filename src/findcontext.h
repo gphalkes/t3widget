@@ -63,5 +63,5 @@ class T3_WIDGET_API finder_t {
   finder_t() = default;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

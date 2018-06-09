@@ -102,5 +102,5 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 #undef _T3_ACTION_FILE
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

@@ -81,5 +81,5 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
   void create_folder();
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

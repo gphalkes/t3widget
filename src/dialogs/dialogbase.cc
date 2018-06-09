@@ -345,4 +345,4 @@ void dialog_base_t::force_redraw_all() {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget

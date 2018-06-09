@@ -66,5 +66,5 @@ class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
   T3_WIDGET_DECLARE_SIGNAL(activate, find_action_t);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

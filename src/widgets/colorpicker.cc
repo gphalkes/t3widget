@@ -238,15 +238,13 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
 t3_attr_t color_picker_t::get_paint_attr(int color) {
   switch (color) {
     case -2:
-      return impl->fg
-                 ? (attributes.dialog & T3_ATTR_FG_MASK) |
-                       ((impl->undefined_colors & T3_ATTR_FG_MASK) << 9)
-                 : (impl->undefined_colors & T3_ATTR_BG_MASK);
+      return impl->fg ? (attributes.dialog & T3_ATTR_FG_MASK) |
+                            ((impl->undefined_colors & T3_ATTR_FG_MASK) << 9)
+                      : (impl->undefined_colors & T3_ATTR_BG_MASK);
     case -1:
-      return impl->fg
-                 ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT |
-                       ((attributes.dialog & T3_ATTR_FG_MASK) << 9)
-                 : T3_ATTR_BG_DEFAULT;
+      return impl->fg ? T3_ATTR_REVERSE | T3_ATTR_FG_DEFAULT |
+                            ((attributes.dialog & T3_ATTR_FG_MASK) << 9)
+                      : T3_ATTR_BG_DEFAULT;
     default:
       return T3_ATTR_BG(color);
   }
@@ -346,4 +344,4 @@ t3_attr_t color_pair_picker_t::get_paint_attr(int color) {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget

@@ -63,5 +63,5 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
   T3_WIDGET_DECLARE_SIGNAL(toggled);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

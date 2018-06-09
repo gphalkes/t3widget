@@ -138,4 +138,4 @@ bool button_t::is_hotkey(key_t key) const { return impl->text.is_hotkey(key); }
 
 _T3_WIDGET_IMPL_SIGNAL(button_t, activate)
 
-}  // namespace
+}  // namespace t3_widget

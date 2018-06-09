@@ -41,5 +41,5 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
   connection_t connect_activate(std::function<void()> _slot, size_t idx);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

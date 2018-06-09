@@ -387,4 +387,4 @@ void save_as_dialog_t::create_folder() {
   // FIXME: create folder here
 }
 
-}  // namespace
+}  // namespace t3_widget

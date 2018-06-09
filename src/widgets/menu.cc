@@ -299,4 +299,4 @@ void menu_bar_t::set_hidden(bool _hidden) {
 
 _T3_WIDGET_IMPL_SIGNAL(menu_bar_t, activate, int)
 
-}  // namespace
+}  // namespace t3_widget

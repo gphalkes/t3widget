@@ -246,4 +246,4 @@ void input_selection_dialog_t::check_state() {
 
 _T3_WIDGET_IMPL_SIGNAL(input_selection_dialog_t, activate)
 
-}  // namespace
+}  // namespace t3_widget

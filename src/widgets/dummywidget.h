@@ -36,5 +36,5 @@ class T3_WIDGET_API dummy_widget_t : public widget_t {
   const t3_window::window_t *get_base_window() const override;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

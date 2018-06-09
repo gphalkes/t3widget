@@ -29,13 +29,12 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
    * widget. */
   enum frame_dimension_t {
     AROUND_ALL = 0, /**< Constant indicating the frame should go around the widget on all sides. */
-    COVER_BOTTOM =
-        1, /**< Bit indicating that the bottom line of the frame should be covered by the child
-              widget. */
-    COVER_RIGHT = 2, /**< Bit indicating that the right line of the frame should be covered by the
-                        child widget. */
-    COVER_LEFT = 4,  /**< Bit indicating that the left line of the frame should be covered by the
-                        child widget. */
+    COVER_BOTTOM = 1, /**< Bit indicating that the bottom line of the frame should be covered by the
+                         child widget. */
+    COVER_RIGHT = 2,  /**< Bit indicating that the right line of the frame should be covered by the
+                         child widget. */
+    COVER_LEFT = 4,   /**< Bit indicating that the left line of the frame should be covered by the
+                         child widget. */
     COVER_TOP = 8 /**< Bit indicating that the top line of the frame should be covered by the child
                      widget. */
   };
@@ -70,5 +69,5 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   single_alloc_pimpl_t<implementation_t> impl;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

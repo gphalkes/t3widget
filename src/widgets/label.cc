@@ -131,4 +131,4 @@ int label_t::get_text_width() const { return impl->text_width; }
 void label_t::set_accepts_focus(bool _can_focus) { impl->can_focus = _can_focus; }
 bool label_t::accepts_focus() { return impl->can_focus && widget_t::accepts_focus(); }
 
-}  // namespace
+}  // namespace t3_widget

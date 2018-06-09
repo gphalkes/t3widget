@@ -200,4 +200,4 @@ bool multi_widget_t::is_child(window_component_t *widget) {
   return false;
 }
 
-}  // namespace
+}  // namespace t3_widget

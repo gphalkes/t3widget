@@ -426,4 +426,4 @@ long get_libt3key_version() { return t3_key_get_version(); }
 
 long get_libt3window_version() { return t3_window_get_version(); }
 
-}  // namespace
+}  // namespace t3_widget

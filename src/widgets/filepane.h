@@ -95,6 +95,6 @@ class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
   bool process_mouse_event(mouse_event_t event) override;
 };
 
-}  // namespace
+}  // namespace t3_widget
 
 #endif

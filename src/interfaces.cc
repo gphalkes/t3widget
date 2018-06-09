@@ -245,4 +245,4 @@ bad_draw_recheck_t::bad_draw_recheck_t() { to_signal.push_back(this); }
 
 bad_draw_recheck_t::~bad_draw_recheck_t() { remove_element(to_signal, this); }
 
-}  // namespace
+}  // namespace t3_widget

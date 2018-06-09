@@ -130,5 +130,5 @@ class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
   bool empty();
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

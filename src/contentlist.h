@@ -165,5 +165,5 @@ T3_WIDGET_API bool string_compare_filter(const std::string *str, const string_li
 T3_WIDGET_API bool glob_filter(const std::string *str, bool show_hidden,
                                const string_list_base_t &list, size_t idx);
 
-}  // namespace
+}  // namespace t3_widget
 #endif

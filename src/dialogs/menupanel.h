@@ -65,5 +65,5 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   connection_t connect_activate(std::function<void(int)> cb);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

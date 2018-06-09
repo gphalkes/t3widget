@@ -134,6 +134,6 @@ class T3_WIDGET_API signal_t {
   std::list<std::shared_ptr<internal::func_ptr_base_t>> funcs;
 };
 
-}  // namesapce t3_widget
+}  // namespace t3_widget
 
 #endif

@@ -427,4 +427,4 @@ std::string regex_finder_t::get_replacement(const std::string &haystack) const {
   return retval;
 }
 
-}  // namespace
+}  // namespace t3_widget

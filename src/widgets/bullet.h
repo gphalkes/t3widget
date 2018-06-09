@@ -42,5 +42,5 @@ class T3_WIDGET_API bullet_t : public widget_t {
   void set_focus(focus_t focus) override;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

@@ -454,4 +454,4 @@ bool glob_filter(const std::string *str, bool show_hidden, const string_list_bas
   return true;
 }
 
-}  // namespace
+}  // namespace t3_widget

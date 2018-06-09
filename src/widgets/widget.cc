@@ -166,4 +166,4 @@ std::function<void()> focus_widget_t::get_move_focus_down_trigger() const {
   return impl->move_focus_down.get_trigger();
 }
 
-}  // namespace
+}  // namespace t3_widget

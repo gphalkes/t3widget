@@ -33,5 +33,5 @@ class T3_WIDGET_API separator_t : public widget_t {
   bool accepts_focus() override;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

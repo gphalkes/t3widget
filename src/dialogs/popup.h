@@ -40,6 +40,6 @@ class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
   bool is_shown();
 };
 
-}  // namespace
+}  // namespace t3_widget
 
 #endif

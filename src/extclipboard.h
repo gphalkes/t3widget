@@ -44,5 +44,5 @@ struct extclipboard_interface_t {
   void (*stop)();
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

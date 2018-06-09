@@ -167,4 +167,4 @@ void stop_clipboard() {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget

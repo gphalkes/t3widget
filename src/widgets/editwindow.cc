@@ -402,9 +402,8 @@ void edit_window_t::inc_y() {
   const text_coordinate_t cursor = text->get_cursor();
   if (impl->wrap_type == wrap_type_t::NONE) {
     if (cursor.line + 1 < text->size()) {
-      text->set_cursor(
-          {cursor.line + 1,
-           text->calculate_line_pos(cursor.line + 1, impl->last_set_pos, impl->tabsize)});
+      text->set_cursor({cursor.line + 1, text->calculate_line_pos(
+                                             cursor.line + 1, impl->last_set_pos, impl->tabsize)});
       ensure_cursor_on_screen();
     } else {
       text->set_cursor_pos(text->get_line_max(cursor.line));
@@ -415,9 +414,8 @@ void edit_window_t::inc_y() {
     int new_sub_line = impl->wrap_info->find_line(cursor) + 1;
     if (impl->wrap_info->get_line_count(cursor.line) == new_sub_line) {
       if (cursor.line + 1 < text->size()) {
-        text->set_cursor(
-            {cursor.line + 1,
-             impl->wrap_info->calculate_line_pos(cursor.line + 1, impl->last_set_pos, 0)});
+        text->set_cursor({cursor.line + 1, impl->wrap_info->calculate_line_pos(
+                                               cursor.line + 1, impl->last_set_pos, 0)});
         ensure_cursor_on_screen();
       } else {
         text->set_cursor_pos(text->get_line_max(cursor.line));
@@ -436,9 +434,8 @@ void edit_window_t::dec_y() {
   const text_coordinate_t cursor = text->get_cursor();
   if (impl->wrap_type == wrap_type_t::NONE) {
     if (cursor.line > 0) {
-      text->set_cursor(
-          {cursor.line - 1,
-           text->calculate_line_pos(cursor.line - 1, impl->last_set_pos, impl->tabsize)});
+      text->set_cursor({cursor.line - 1, text->calculate_line_pos(
+                                             cursor.line - 1, impl->last_set_pos, impl->tabsize)});
       ensure_cursor_on_screen();
     } else {
       impl->last_set_pos = 0;
@@ -452,10 +449,10 @@ void edit_window_t::dec_y() {
           impl->wrap_info->calculate_line_pos(cursor.line, impl->last_set_pos, sub_line - 1));
       ensure_cursor_on_screen();
     } else if (cursor.line > 0) {
-      text->set_cursor({cursor.line - 1,
-                        impl->wrap_info->calculate_line_pos(
-                            cursor.line - 1, impl->last_set_pos,
-                            impl->wrap_info->get_line_count(cursor.line - 1) - 1)});
+      text->set_cursor(
+          {cursor.line - 1, impl->wrap_info->calculate_line_pos(
+                                cursor.line - 1, impl->last_set_pos,
+                                impl->wrap_info->get_line_count(cursor.line - 1) - 1)});
       ensure_cursor_on_screen();
     } else {
       text->set_cursor_pos(0);
@@ -1937,4 +1934,4 @@ void edit_window_t::autocomplete_panel_t::connect_activate(std::function<void()>
   list_pane->connect_activate(func);
 }
 
-}  // namespace
+}  // namespace t3_widget

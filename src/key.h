@@ -114,7 +114,7 @@ enum {
   /** Key symbol indicating that the @c terminal_settings_changed signal should be emitted. */
   EKEY_UPDATE_TERMINAL,
   /** Key symbol indicating that there is a new #mouse_event_t available in the mouse events queue.
-  */
+   */
   EKEY_MOUSE_EVENT,
   /** Key symbol indicating that the async_safe_exit_main_loop function was called. The exit code is
       encoded in the @c key_t value, which means that all values up to EXIT_MAIN_LOOP + 256 cause
@@ -168,5 +168,5 @@ T3_WIDGET_API int get_key_timeout();
     thread running the #main_loop function. */
 T3_WIDGET_API void signal_update();
 
-}  // namespace
+}  // namespace t3_widget
 #endif

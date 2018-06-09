@@ -16,7 +16,7 @@
 
 namespace t3_widget {
 class edit_window_t;
-}  // namespace
+}  // namespace t3_widget
 
 #include <map>
 #include <memory>
@@ -312,5 +312,5 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
   void connect_activate(std::function<void()> func);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

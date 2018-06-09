@@ -249,5 +249,5 @@ class T3_WIDGET_API impl_allocator_t {
   std::unique_ptr<char, free_deleter> space_;
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif

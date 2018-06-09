@@ -350,4 +350,4 @@ void split_t::set_to_end() {
   }
 }
 
-}  // namespace
+}  // namespace t3_widget

@@ -151,4 +151,4 @@ bool smart_label_t::is_hotkey(key_t key) const { return smart_label_text_t::is_h
 
 bool smart_label_t::accepts_focus() { return false; }
 
-}  // namespace
+}  // namespace t3_widget

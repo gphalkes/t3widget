@@ -816,4 +816,4 @@ void text_field_t::drop_down_list_t::selection_changed() {
   field->set_text((*completions)[list_pane->get_current()]);
 }
 
-}  // namespace
+}  // namespace t3_widget

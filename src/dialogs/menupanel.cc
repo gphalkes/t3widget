@@ -249,4 +249,4 @@ connection_t menu_panel_t::connect_activate(std::function<void(int)> cb) {
   return impl->activate.connect(cb);
 }
 
-}  // namespace
+}  // namespace t3_widget

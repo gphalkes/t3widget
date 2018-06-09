@@ -77,4 +77,4 @@ bool popup_t::process_mouse_event(mouse_event_t event) {
 
 bool popup_t::is_shown() { return impl->shown; }
 
-}  // namespace
+}  // namespace t3_widget

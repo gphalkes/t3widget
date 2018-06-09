@@ -44,5 +44,5 @@ class T3_WIDGET_LOCAL string_matcher_t {
   int previous_char(const char *c, size_t c_size);
 };
 
-}  // namespace
+}  // namespace t3_widget
 #endif
