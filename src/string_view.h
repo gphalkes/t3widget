@@ -41,6 +41,8 @@ class basic_string_view {
   using value_type = CharT;
   using pointer = CharT *;
   using const_pointer = const CharT *;
+  using reference = CharT &;
+  using const_reference = const CharT &;
   using const_iterator = const CharT *;
   using iterator = const_iterator;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
@@ -48,11 +50,15 @@ class basic_string_view {
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
+  static_assert(std::is_same<CharT, typename Traits::char_type>::value,
+                "Traits character type must match CharT.");
+  static_assert(std::is_trivial<CharT>::value, "CharT must be trivial.");
+  static_assert(!std::is_array<CharT>::value, "CharT may not be an array.");
+
   constexpr basic_string_view() noexcept : data_(nullptr), size_(0) {}
   constexpr basic_string_view(const CharT *data) : data_(data), size_(Traits::length(data)) {}
   constexpr basic_string_view(const CharT *data, size_type size) : data_(data), size_(size) {}
-  // Extra constructor necessary as std::string doesn't have the operator
-  // version.
+  // Extra constructor necessary as std::string doesn't have the operator version.
   basic_string_view(const std::basic_string<CharT, Traits> &str) noexcept
       : data_(str.data()), size_(str.size()) {}
   constexpr basic_string_view(const basic_string_view &view) noexcept = default;
@@ -63,6 +69,14 @@ class basic_string_view {
   constexpr const_iterator cbegin() const noexcept { return begin(); }
   constexpr const_iterator end() const noexcept { return data_ + size_; }
   constexpr const_iterator cend() const noexcept { return end(); }
+  constexpr const_reverse_iterator rbegin() const noexcept {
+    return std::reverse_iterator<const_iterator>(end());
+  }
+  constexpr const_reverse_iterator rend() const noexcept {
+    return std::reverse_iterator<const_iterator>(begin());
+  }
+  constexpr const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  constexpr const_reverse_iterator crend() const noexcept { return rend(); }
 
   constexpr const CharT &operator[](size_type pos) const { return data_[pos]; }
 
@@ -79,33 +93,37 @@ class basic_string_view {
   constexpr size_type max_size() const noexcept { return npos - 1; }
   constexpr bool empty() const noexcept { return size_ == 0; }
 
-  void clear() {
-    data_ = "";
-    size_ = 0;
-  }
-  void remove_prefix(size_type n) {
+  _T3_WIDGET_TEST_CONSTEXPR void remove_prefix(size_type n) {
     data_ += n;
     size_ -= n;
   }
-  void remove_suffix(size_type n) { size_ -= n; }
-  void swap(basic_string_view &v) noexcept {
-    std::swap(data_, v.data_);
-    std::swap(size_, v.size_);
+  _T3_WIDGET_TEST_CONSTEXPR void remove_suffix(size_type n) { size_ -= n; }
+  _T3_WIDGET_TEST_CONSTEXPR void swap(basic_string_view &v) noexcept {
+    {
+      const CharT *tmp = data_;
+      data_ = v.data_;
+      v.data_ = tmp;
+    }
+    {
+      size_type tmp = size_;
+      size_ = v.size_;
+      v.size_ = tmp;
+    }
   }
 
-  explicit operator std::basic_string<CharT>() const {
-    return std::basic_string<CharT>(data_, size_);
+  explicit operator std::basic_string<CharT, Traits>() const {
+    return std::basic_string<CharT, Traits>(data_, size_);
   }
 
   size_type copy(CharT *dest, size_type count, size_type pos = 0) const {
-    if (pos >= size_) throw std::out_of_range("Index out of range");
+    if (pos > size_) throw std::out_of_range("Index out of range");
     size_type to_copy = std::min(count, size_ - pos);
     Traits::copy(dest, data_ + pos, to_copy);
     return to_copy;
   }
 
-  basic_string_view substr(size_type pos = 0, size_type count = npos) const {
-    if (pos >= size_) throw std::out_of_range("Index out of range");
+  _T3_WIDGET_TEST_CONSTEXPR basic_string_view substr(size_type pos = 0, size_type count = npos) const {
+    if (pos > size_) throw std::out_of_range("Index out of range");
     return basic_string_view(data_ + pos, std::min(count, size_ - pos));
   }
 
@@ -131,14 +149,27 @@ class basic_string_view {
     return substr(pos1, count1).compare(basic_string_view(s, count2));
   }
 
-  // FIXME: this needs reimplementing using Traits
+  // FIXME: This needs an optimized search routine if possible.
   _T3_WIDGET_TEST_CONSTEXPR size_type find(basic_string_view v, size_type pos = 0) const noexcept {
-    const_iterator result = std::search(begin() + std::min(size(), pos), end(), v.begin(), v.end());
-    return result == end() ? npos : result - begin();
+    if (size_ == 0) {
+      return v.size() + pos == 0 ? 0 : npos;
+    }
+    for (const_iterator it = begin() + pos; it + v.size() <= end(); ++it) {
+      const_iterator left = it;
+      for (const_iterator right = v.begin(); right != v.end() && Traits::eq(*right, *left);
+           ++right, ++left) {
+      }
+      if (left == it + v.size()) {
+        return it - begin();
+      }
+    }
+    return npos;
   }
   _T3_WIDGET_TEST_CONSTEXPR size_type find(CharT c, size_type pos = 0) const noexcept {
-    const_iterator stop = end();
-    for (const_iterator ptr = begin() + std::min(pos, size()); ptr != stop; ++ptr) {
+    if (size_ == 0) {
+      return npos;
+    }
+    for (const_iterator ptr = begin() + pos; ptr < end(); ++ptr) {
       if (Traits::eq(*ptr, c)) {
         return ptr - begin();
       }
@@ -152,26 +183,35 @@ class basic_string_view {
     return find(basic_string_view(s), pos);
   }
 
-  // FIXME: this needs reimplementing using Traits
-  _T3_WIDGET_TEST_CONSTEXPR size_type rfind(basic_string_view v, size_type pos = 0) const noexcept {
-    const_iterator end = begin() + std::min(size_, pos);
-    const_iterator result = std::find_end(begin(), end, v.begin(), v.end());
-    return result == end ? npos : result - begin();
-  }
-  _T3_WIDGET_TEST_CONSTEXPR size_type rfind(CharT c, size_type pos = 0) const noexcept {
-    const_iterator stop = begin() + pos;
-    for (const_iterator ptr = end(); ptr != stop;) {
-      --ptr;
-      if (Traits::eq(*ptr, c)) {
-        return ptr - begin();
+  // FIXME: This needs an optimized search routine if possible.
+  _T3_WIDGET_TEST_CONSTEXPR size_type rfind(basic_string_view v, size_type pos = npos) const
+      noexcept {
+    if (size_ == 0) {
+      return v.size() == 0 ? 0 : npos;
+    }
+    for (const_iterator it = begin() + std::min(size_ - v.size(), pos); it >= begin(); --it) {
+      const_iterator left = it;
+      for (const_iterator right = v.begin(); right != v.end() && Traits::eq(*right, *left);
+           ++right, ++left) {
       }
+      if (left == it + v.size()) {
+        return it - begin();
+      }
+    }
+    return npos;
+  }
+  _T3_WIDGET_TEST_CONSTEXPR size_type rfind(CharT c, size_type pos = npos) const noexcept {
+    if (size_ == 0) return npos;
+    for (const_iterator ptr = begin() + std::min(size_ - 1, pos) + 1; ptr != begin();) {
+      --ptr;
+      if (Traits::eq(*ptr, c)) return ptr - begin();
     }
     return npos;
   }
   constexpr size_type rfind(const CharT *s, size_type pos, size_type count) const {
     return rfind(basic_string_view(s, count), pos);
   }
-  constexpr size_type rfind(const CharT *s, size_type pos = 0) const {
+  constexpr size_type rfind(const CharT *s, size_type pos = npos) const {
     return rfind(basic_string_view(s), pos);
   }
 
@@ -194,14 +234,14 @@ class basic_string_view {
 
   _T3_WIDGET_TEST_CONSTEXPR size_type find_first_not_of(basic_string_view v,
                                                         size_type pos = 0) const noexcept {
-    for (size_type x = pos; x < size_; x++) {
-      if (v.find_first_of(data_[x]) == npos) return x;
+    for (const_iterator ptr = begin() + std::min(size_, pos); ptr != end(); ++ptr) {
+      if (v.find_first_of(*ptr) == npos) return ptr - begin();
     }
     return npos;
   }
   _T3_WIDGET_TEST_CONSTEXPR size_type find_first_not_of(CharT c, size_type pos = 0) const noexcept {
-    for (size_type x = pos; x < size_; x++) {
-      if (!Traits::eq(data_[x], c)) return x;
+    for (const_iterator ptr = begin() + std::min(size_, pos); ptr != end(); ++ptr) {
+      if (!Traits::eq(*ptr, c)) return ptr - begin();
     }
     return npos;
   }
@@ -212,46 +252,47 @@ class basic_string_view {
     return find_first_not_of(basic_string_view(s), pos);
   }
 
-  _T3_WIDGET_TEST_CONSTEXPR size_type find_last_of(basic_string_view v, size_type pos = 0) const
+  _T3_WIDGET_TEST_CONSTEXPR size_type find_last_of(basic_string_view v, size_type pos = npos) const
       noexcept {
     if (size_ == 0) return npos;
-    size_type x = size_ - 1;
-    for (; x > pos; x--) {
-      if (v.find_first_of(data_[x]) != npos) return x;
+    for (const_iterator ptr = begin() + std::min(size_ - 1, pos) + 1; ptr != begin();) {
+      --ptr;
+      if (v.find_first_of(*ptr) != npos) return ptr - begin();
     }
-    return x == pos ? (v.find_first_of(data_[x]) != npos ? x : npos) : npos;
+    return npos;
   }
-  constexpr size_type find_last_of(CharT c, size_type pos = 0) const noexcept {
+  constexpr size_type find_last_of(CharT c, size_type pos = npos) const noexcept {
     return rfind(c, pos);
   }
   constexpr size_type find_last_of(const CharT *s, size_type pos, size_type count) const {
     return find_last_of(basic_string_view(s, count), pos);
   }
-  constexpr size_type find_last_of(const CharT *s, size_type pos = 0) const {
+  constexpr size_type find_last_of(const CharT *s, size_type pos = npos) const {
     return find_last_of(basic_string_view(s), pos);
   }
 
-  _T3_WIDGET_TEST_CONSTEXPR size_type find_last_not_of(basic_string_view v, size_type pos = 0) const
+  _T3_WIDGET_TEST_CONSTEXPR size_type find_last_not_of(basic_string_view v,
+                                                       size_type pos = npos) const noexcept {
+    if (size_ == 0) return npos;
+    for (const_iterator ptr = begin() + std::min(size_ - 1, pos) + 1; ptr != begin();) {
+      --ptr;
+      if (v.find_first_of(*ptr) == npos) return ptr - begin();
+    }
+    return npos;
+  }
+  _T3_WIDGET_TEST_CONSTEXPR size_type find_last_not_of(CharT c, size_type pos = npos) const
       noexcept {
     if (size_ == 0) return npos;
-    size_type x = size_ - 1;
-    for (; x > pos; x--) {
-      if (v.find_first_of(data_[x]) == npos) return x;
+    for (const_iterator ptr = begin() + std::min(size_ - 1, pos) + 1; ptr != begin();) {
+      --ptr;
+      if (!Traits::eq(*ptr, c)) return ptr - begin();
     }
-    return x == pos ? (v.find_first_of(data_[x]) == npos ? x : npos) : npos;
-  }
-  _T3_WIDGET_TEST_CONSTEXPR size_type find_last_not_of(CharT c, size_type pos = 0) const noexcept {
-    if (size_ == 0) return npos;
-    size_type x = size_ - 1;
-    for (; x < size_; x--) {
-      if (!Traits::eq(data_[x], c)) return x;
-    }
-    return x == pos && !Traits::eq(data_[x], c) ? x : npos;
+    return npos;
   }
   constexpr size_type find_last_not_of(const CharT *s, size_type pos, size_type count) const {
     return find_last_not_of(basic_string_view(s, count), pos);
   }
-  constexpr size_type find_last_not_of(const CharT *s, size_type pos = 0) const {
+  constexpr size_type find_last_not_of(const CharT *s, size_type pos = npos) const {
     return find_last_not_of(basic_string_view(s), pos);
   }
 
