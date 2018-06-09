@@ -26,6 +26,7 @@ SOURCES.libt3widget.la := \
 	stringmatcher.cc \
 	textbuffer.cc \
 	textline.cc \
+        tinystring.cc \
 	undo.cc \
 	util.cc \
 	wrapinfo.cc \
