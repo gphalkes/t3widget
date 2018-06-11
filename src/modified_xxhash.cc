@@ -84,7 +84,21 @@ uint32_t round32(uint32_t accN, uint32_t laneN) {
   return accN * PRIME32_1;
 }
 
-uint32_t ModifiedXXHash32(const void *data, size_t length, uint32_t seed) {
+uint64_t round64(uint64_t accN, uint64_t laneN) {
+  accN = accN + (laneN * PRIME64_2);
+  accN = rotate_left64(accN, 31);
+  return accN * PRIME64_1;
+}
+
+uint64_t merge_accumulator64(uint64_t acc, uint64_t accN) {
+  acc = acc ^ round64(0, accN);
+  acc = acc * PRIME64_1;
+  return acc + PRIME64_4;
+}
+}
+
+namespace internal {
+T3_WIDGET_LOCAL uint32_t ModifiedXXHash32(const void *data, size_t length, uint32_t seed) {
   const uint8_t *bytes = reinterpret_cast<const uint8_t *>(data);
 
   uint32_t acc;
@@ -122,19 +136,7 @@ uint32_t ModifiedXXHash32(const void *data, size_t length, uint32_t seed) {
   return acc;
 }
 
-uint64_t round64(uint64_t accN, uint64_t laneN) {
-  accN = accN + (laneN * PRIME64_2);
-  accN = rotate_left64(accN, 31);
-  return accN * PRIME64_1;
-}
-
-uint64_t merge_accumulator64(uint64_t acc, uint64_t accN) {
-  acc = acc ^ round64(0, accN);
-  acc = acc * PRIME64_1;
-   return acc + PRIME64_4;
-}
-
-uint64_t ModifiedXXHash64(const void *data, size_t length, uint64_t seed) {
+T3_WIDGET_LOCAL uint64_t ModifiedXXHash64(const void *data, size_t length, uint64_t seed) {
   const uint8_t *bytes = reinterpret_cast<const uint8_t *>(data);
 
   uint64_t acc;
@@ -183,13 +185,13 @@ uint64_t ModifiedXXHash64(const void *data, size_t length, uint64_t seed) {
   return acc;
 }
 
-}  // namespace
+}  // namespace internal
 
 size_t ModifiedXXHash(const void *data, size_t length, size_t seed) {
   if (sizeof(size_t) <= 4) {
-    return ModifiedXXHash32(data, length, seed);
+    return internal::ModifiedXXHash32(data, length, seed);
   } else {
-                return ModifiedXXHash64(data, length, seed);
+    return internal::ModifiedXXHash64(data, length, seed);
   }
 }
 
