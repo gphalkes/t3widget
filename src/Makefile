@@ -22,11 +22,13 @@ SOURCES.libt3widget.la := \
 	key_binding.cc \
 	log.cc \
 	main.cc \
+	modified_xxhash.cc \
 	mouse.cc \
+	string_view.cc \
 	stringmatcher.cc \
 	textbuffer.cc \
 	textline.cc \
-        tinystring.cc \
+	tinystring.cc \
 	undo.cc \
 	util.cc \
 	wrapinfo.cc \

@@ -122,7 +122,8 @@ class basic_string_view {
     return to_copy;
   }
 
-  _T3_WIDGET_TEST_CONSTEXPR basic_string_view substr(size_type pos = 0, size_type count = npos) const {
+  _T3_WIDGET_TEST_CONSTEXPR basic_string_view substr(size_type pos = 0,
+                                                     size_type count = npos) const {
     if (pos > size_) throw std::out_of_range("Index out of range");
     return basic_string_view(data_ + pos, std::min(count, size_ - pos));
   }
@@ -297,21 +298,15 @@ class basic_string_view {
   constexpr bool starts_with(basic_string_view v) const noexcept {
     return size_ >= v.size_ && Traits::compare(data_, v.data_, v.size_) == 0;
   }
-  constexpr bool starts_with(CharT c) const noexcept {
-    return size_ >= 1 && Traits::eq(*data_, c);
-  }
-  constexpr bool starts_with(const CharT* s) const {
-    return starts_with(basic_string_view(s));
-  }
+  constexpr bool starts_with(CharT c) const noexcept { return size_ >= 1 && Traits::eq(*data_, c); }
+  constexpr bool starts_with(const CharT *s) const { return starts_with(basic_string_view(s)); }
   constexpr bool ends_with(basic_string_view v) const noexcept {
     return size_ >= v.size_ && Traits::compare(data_ + size_ - v.size_, v.data_, v.size_) == 0;
   }
   constexpr bool ends_with(CharT c) const noexcept {
     return size_ >= 1 && Traits::eq(data_[size_ - 1], c);
   }
-  constexpr bool ends_with(const CharT* s) const {
-    return ends_with(basic_string_view(s));
-  }
+  constexpr bool ends_with(const CharT *s) const { return ends_with(basic_string_view(s)); }
 
   static constexpr size_type npos = std::numeric_limits<size_type>::max();
 
@@ -493,7 +488,29 @@ constexpr bool operator>=(const std::basic_string<CharT, Traits> &lhs,
 }
 
 using string_view = basic_string_view<char>;
+using wstring_view = basic_string_view<wchar_t>;
+using u16string_view = basic_string_view<char16_t>;
+using u32string_view = basic_string_view<char32_t>;
 
 }  // namespace t3_widget
+
+namespace std {
+template <>
+struct hash<t3_widget::string_view> {
+  size_t operator()(t3_widget::string_view v) const noexcept;
+};
+template <>
+struct hash<t3_widget::wstring_view> {
+  size_t operator()(t3_widget::wstring_view v) const noexcept;
+};
+template <>
+struct hash<t3_widget::u16string_view> {
+  size_t operator()(t3_widget::u16string_view v) const noexcept;
+};
+template <>
+struct hash<t3_widget::u32string_view> {
+  size_t operator()(t3_widget::u32string_view v) const noexcept;
+};
+}  // namespace std
 
 #endif
