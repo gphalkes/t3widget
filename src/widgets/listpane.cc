@@ -205,7 +205,7 @@ bool list_pane_t::set_size(optint height, optint width) {
 void list_pane_t::update_contents() {
   if (impl->indicator) {
     impl->indicator_widget->update_contents();
-    impl->indicator_widget->set_position(impl->current, 0);
+    impl->indicator_widget->set_position(impl->current - impl->top_idx, 0);
   }
 
   impl->widgets_window.move(-impl->top_idx, 0);

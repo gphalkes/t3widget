@@ -34,9 +34,10 @@
 
 namespace t3widget {
 
-// Simple basic_string_view implementation, which should be compatible with the C++17 standard
-// version for most purposes. Once the minimum standard version is increased to C++17, it should
-// be easy enough to replace this basic_string_view with std::basic_string_view.
+/* Simple basic_string_view implementation, which should be compatible with the C++17 standard
+   version for most purposes. Once the minimum standard version is increased to C++17, it should
+   be easy enough to replace this basic_string_view with std::basic_string_view. Caveat: this also
+   implements the starts_with_* and ends_with_* methods from the C++20 standard. */
 template <class CharT, class Traits = std::char_traits<CharT>>
 class T3_WIDGET_API basic_string_view {
  public:

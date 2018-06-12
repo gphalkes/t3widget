@@ -25,12 +25,12 @@
 
 namespace t3widget {
 
-// A string class with a tiny footprint. The size of the class itself is the size of a pointer. For
-// very small strings, the data is stored in the bytes where the pointer is normally stored. In this
-// case the lower bit of the pointer value is set. This also means this class only works if pointers
-// of allocated data are at least even (which they are on pretty much all platforms).
-// Contrary to the normal std::string class, this class does not maintain a nul byte at the end of
-// the allocated data, and does not provide the c_str method.
+/* A string class with a tiny footprint. The size of the class itself is the size of a pointer. For
+   very small strings, the data is stored in the bytes where the pointer is normally stored. In this
+   case the lower bit of the pointer value is set. This also means this class only works if pointers
+   of allocated data are at least even (which they are on pretty much all platforms).
+   Contrary to the normal std::string class, this class does not maintain a nul byte at the end of
+   the allocated data, and does not provide the c_str method. */
 class T3_WIDGET_API tiny_string_t {
  public:
   using value_type = char;
@@ -65,6 +65,7 @@ class T3_WIDGET_API tiny_string_t {
   char &at(size_t idx);
   char at(size_t idx) const;
 
+  // FIXME: add functions based on const_iterator positions.
   tiny_string_t &insert(size_t index, size_t count, char ch);
   tiny_string_t &insert(size_t index, string_view str);
 
@@ -131,7 +132,7 @@ class T3_WIDGET_API tiny_string_t {
 
   // FIXME: implement the following functions:
   // front, back, max_size, capacity, erase, push_back, pop_back, starts_with, ends_with,
-  // substr, copy, compare, resize, swap, comparison operators, operator>>, operator<<, hash
+  // substr, copy, resize, swap, comparison operators, operator>>, operator<<
 
   static constexpr size_t npos = std::numeric_limits<size_t>::max();
 
