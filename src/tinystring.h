@@ -31,7 +31,7 @@ namespace t3_widget {
 // of allocated data are at least even (which they are on pretty much all platforms).
 // Contrary to the normal std::string class, this class does not maintain a nul byte at the end of
 // the allocated data, and does not provide the c_str method.
-class tiny_string_t {
+class T3_WIDGET_API tiny_string_t {
  public:
   using value_type = char;
   using size_type = size_t;
@@ -169,7 +169,24 @@ class tiny_string_t {
   };
 };
 
-inline bool operator==(const tiny_string_t &a, string_view b) { return string_view(a) == b; }
+T3_WIDGET_API inline bool operator==(const tiny_string_t &a, string_view b) {
+  return string_view(a) == b;
+}
+T3_WIDGET_API inline bool operator!=(const tiny_string_t &a, string_view b) {
+  return string_view(a) != b;
+}
+T3_WIDGET_API inline bool operator>(const tiny_string_t &a, string_view b) {
+  return string_view(a) > b;
+}
+T3_WIDGET_API inline bool operator>=(const tiny_string_t &a, string_view b) {
+  return string_view(a) >= b;
+}
+T3_WIDGET_API inline bool operator<(const tiny_string_t &a, string_view b) {
+  return string_view(a) < b;
+}
+T3_WIDGET_API inline bool operator<=(const tiny_string_t &a, string_view b) {
+  return string_view(a) <= b;
+}
 
 }  // namespace t3_widget
 #endif
