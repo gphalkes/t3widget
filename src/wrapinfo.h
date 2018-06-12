@@ -67,7 +67,7 @@ class T3_WIDGET_LOCAL wrap_info_t {
   int calculate_screen_pos() const;
   int calculate_screen_pos(const text_coordinate_t &where) const;
   int calculate_line_pos(int line, int pos, int subline) const;
-  void paint_line(t3_window::window_t *win, text_coordinate_t line,
+  void paint_line(t3window::window_t *win, text_coordinate_t line,
                   text_line_t::paint_info_t &info) const;
 };
 

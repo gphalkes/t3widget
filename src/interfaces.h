@@ -28,7 +28,7 @@ namespace t3widget {
 class T3_WIDGET_API window_component_t {
  protected:
   /** The t3_window_t used for presenting this item on screen (see libt3window). */
-  t3_window::window_t window;
+  t3window::window_t window;
 
  public:
   enum focus_t { FOCUS_OUT = 0, FOCUS_SET, FOCUS_IN_FWD, FOCUS_IN_BCK, FOCUS_REVERT };
@@ -43,7 +43,7 @@ class T3_WIDGET_API window_component_t {
       The returned pointer should be used only for setting anchor
       positions of other window_component_t's and similar operations.
   */
-  virtual const t3_window::window_t *get_base_window() const;
+  virtual const t3window::window_t *get_base_window() const;
   /** Handle a key press by the user.
       @return A boolean indicating whether this window_component_t handled the
           key press.
@@ -128,10 +128,10 @@ class T3_WIDGET_API mouse_target_t : protected virtual window_component_t {
 
  public:
   /** Register a window to receive mouse events. */
-  void register_mouse_target(const t3_window::window_t *target);
+  void register_mouse_target(const t3window::window_t *target);
 
   /** Unregister a window to receive mouse events. */
-  void unregister_mouse_target(const t3_window::window_t *target);
+  void unregister_mouse_target(const t3window::window_t *target);
 
   /** Process a mouse event.
       @return A boolean indicating whether this mouse_target_t handled the

@@ -28,8 +28,8 @@ dummy_widget_t *dialog_base_t::dummy;
 connection_t dialog_base_t::init_connected = connect_on_init(dialog_base_t::init);
 
 struct dialog_base_t::implementation_t {
-  bool redraw = true;                /**< Boolean indicating whether redrawing is necessary. */
-  t3_window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
+  bool redraw = true;               /**< Boolean indicating whether redrawing is necessary. */
+  t3window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
   widgets_t::iterator
       current_widget; /**< Iterator indicating the widget that has the input focus. */
   /** List of widgets on this dialog. This list should only be filled using #push_back. */
@@ -299,7 +299,7 @@ bool dialog_base_t::focus_hotkey_widget(key_t key) {
 
 widgets_t &dialog_base_t::widgets() { return impl->widgets; }
 
-t3_window::window_t &dialog_base_t::shadow_window() { return impl->shadow_window; }
+t3window::window_t &dialog_base_t::shadow_window() { return impl->shadow_window; }
 
 bool dialog_base_t::is_child(window_component_t *widget) {
   for (widget_t *iter : impl->widgets) {

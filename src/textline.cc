@@ -247,7 +247,7 @@ int text_line_t::calculate_line_pos(int start, int max, int pos, int tabsize) co
   return std::min(max, get_length());
 }
 
-void text_line_t::paint_part(t3_window::window_t *win, const char *paint_buffer, bool is_print,
+void text_line_t::paint_part(t3window::window_t *win, const char *paint_buffer, bool is_print,
                              int todo, t3_attr_t selection_attr) {
   if (todo <= 0) {
     return;
@@ -288,7 +288,7 @@ t3_attr_t text_line_t::get_draw_attrs(int i, const text_line_t::paint_info_t &in
   return retval;
 }
 
-void text_line_t::paint_line(t3_window::window_t *win, const text_line_t::paint_info_t &info) {
+void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_info_t &info) {
   int i, j, total = 0, print_from, tabspaces, accumulated = 0, endchars = 0;
   bool _is_print, new_is_print;
   t3_attr_t selection_attr = 0, new_selection_attr;

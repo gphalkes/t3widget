@@ -46,7 +46,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   /** Default constructor, made private to avoid use. */
   dialog_base_t(size_t impl_size = 0);
 
-  t3_window::window_t &shadow_window();
+  t3window::window_t &shadow_window();
 
  protected:
   /** Create a new dialog with @p height and @p width, and with title @p _title. */

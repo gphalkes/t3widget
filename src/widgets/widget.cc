@@ -27,7 +27,7 @@ struct widget_t::implementation_t {
 
 /* The default_parent must exist before any widgets are created. Thus using the #on_init method
    won't work. */
-t3_window::window_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
+t3window::window_t widget_t::default_parent(nullptr, 1, 1, 0, 0, 0, false);
 
 bool widget_t::reset_redraw() {
   bool result = impl->redraw;

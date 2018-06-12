@@ -117,8 +117,8 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void right_click_menu_activated(int action);
 
  protected:
-  text_buffer_t *text;             /**< Buffer holding the text currently displayed. */
-  t3_window::window_t info_window; /**< Window for other information, such as buffer name. */
+  text_buffer_t *text;            /**< Buffer holding the text currently displayed. */
+  t3window::window_t info_window; /**< Window for other information, such as buffer name. */
 
   /** Draw the information in the #info_window.
 

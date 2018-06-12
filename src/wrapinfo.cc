@@ -234,7 +234,7 @@ int wrap_info_t::calculate_line_pos(int line, int pos, int sub_line) const {
       pos, tabsize);
 }
 
-void wrap_info_t::paint_line(t3_window::window_t *win, text_coordinate_t line,
+void wrap_info_t::paint_line(t3window::window_t *win, text_coordinate_t line,
                              text_line_t::paint_info_t &info) const {
   info.start = (*wrap_data[line.line])[line.pos];
   info.flags &= ~text_line_t::BREAK;

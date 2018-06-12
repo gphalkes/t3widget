@@ -47,10 +47,10 @@ int main(int, char **) {
     uint64_t seed = std::rand();
     for (size_t i = 0; i < sizeof(data); ++i) {
       for (size_t j = 1; j + i <= sizeof(data); ++j) {
-        check(XXH64(data + i, j, seed), t3widget::internal::ModifiedXXHash64(data + i, j, seed),
-              64, i, j, seed);
-        check(XXH32(data + i, j, seed), t3widget::internal::ModifiedXXHash32(data + i, j, seed),
-              32, i, j, seed);
+        check(XXH64(data + i, j, seed), t3widget::internal::ModifiedXXHash64(data + i, j, seed), 64,
+              i, j, seed);
+        check(XXH32(data + i, j, seed), t3widget::internal::ModifiedXXHash32(data + i, j, seed), 32,
+              i, j, seed);
       }
     }
   }

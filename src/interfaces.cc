@@ -23,7 +23,7 @@ namespace t3widget {
 
 window_component_t::window_component_t() {}
 window_component_t::~window_component_t() {}
-const t3_window::window_t *window_component_t::get_base_window() const { return &window; }
+const t3window::window_t *window_component_t::get_base_window() const { return &window; }
 
 bool container_t::set_widget_parent(window_component_t *widget) {
   return widget->get_base_window()->set_parent(&window);
@@ -48,7 +48,7 @@ mouse_target_t::mouse_target_t(bool use_window) {
   }
 }
 
-void mouse_target_t::register_mouse_target(const t3_window::window_t *target) {
+void mouse_target_t::register_mouse_target(const t3window::window_t *target) {
   if (target == nullptr) {
     lprintf("Registering mouse target for nullptr window in %s\n", typeid(*this).name());
   } else {
@@ -56,7 +56,7 @@ void mouse_target_t::register_mouse_target(const t3_window::window_t *target) {
   }
 }
 
-void mouse_target_t::unregister_mouse_target(const t3_window::window_t *target) {
+void mouse_target_t::unregister_mouse_target(const t3window::window_t *target) {
   targets.erase(target->get());
 }
 

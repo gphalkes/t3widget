@@ -30,7 +30,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t,
   friend class container_t;
 
   /** Default parent for widgets, making them invisible. */
-  static t3_window::window_t default_parent;
+  static t3window::window_t default_parent;
 
   struct T3_WIDGET_LOCAL implementation_t;
   single_alloc_pimpl_t<implementation_t> impl;

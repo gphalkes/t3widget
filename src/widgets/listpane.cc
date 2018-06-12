@@ -32,7 +32,7 @@ class list_pane_t::indicator_widget_t : public widget_t {
 
 struct list_pane_t::implementation_t {
   size_t top_idx, current;
-  t3_window::window_t widgets_window;
+  t3window::window_t widgets_window;
   owned_widgets_t widgets;
   bool has_focus;
   bool indicator;

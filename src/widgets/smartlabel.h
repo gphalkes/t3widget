@@ -28,7 +28,7 @@ class T3_WIDGET_API smart_label_text_t {
   smart_label_text_t(const char *spec, bool add_colon = false,
                      impl_allocator_t *allocator = nullptr);
   virtual ~smart_label_text_t();
-  void draw(t3_window::window_t *win, t3_attr_t attr, bool selected = false);
+  void draw(t3window::window_t *win, t3_attr_t attr, bool selected = false);
   int get_width() const;
   bool is_hotkey(key_t key) const;
 

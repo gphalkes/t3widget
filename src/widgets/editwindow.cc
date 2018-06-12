@@ -52,7 +52,7 @@ bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = {&text_buffer_t::in
                                                               &text_buffer_t::overwrite_char};
 
 struct edit_window_t::implementation_t {
-  t3_window::window_t edit_window, /**< Window containing the text. */
+  t3window::window_t edit_window, /**< Window containing the text. */
       indicator_window; /**< Window holding the line, column, modified, etc. information line at
                            the bottom. */
   std::unique_ptr<scrollbar_t> scrollbar; /**< Scrollbar on the right of the text. */
