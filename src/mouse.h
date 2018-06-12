@@ -17,7 +17,7 @@
 #include <t3widget/widget_api.h>
 #include <t3window/window.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Structure holding the relevant elements of a mouse event. */
 struct mouse_event_t {
@@ -64,5 +64,5 @@ enum {
 
 /** Retrieve a mouse event from the input queue. */
 T3_WIDGET_API mouse_event_t read_mouse_event();
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

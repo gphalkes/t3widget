@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget that does not actually show anything on screen.
 
@@ -36,5 +36,5 @@ class T3_WIDGET_API dummy_widget_t : public widget_t {
   const t3_window::window_t *get_base_window() const override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

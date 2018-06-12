@@ -17,7 +17,7 @@
 #include <t3widget/keybuffer.h>
 #include <t3widget/mouse.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 static const char *disable_mouse = "\033[?1006l\033[?1015l\033[?1005l\033[?1002l\033[?1000l";
 static const char *enable_mouse = "\033[?1000h\033[?1002h\033[?1005h\033[?1015h\033[?1006h";
@@ -457,4 +457,4 @@ bool check_mouse_fd(fd_set *readset) {
   return false;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

@@ -17,7 +17,7 @@
 #include <t3widget/dialogs/dialogbase.h>
 #include <t3widget/dialogs/popup.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class dialog_t;
 typedef std::list<dialog_t *> dialogs_t;
@@ -71,5 +71,5 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   T3_WIDGET_DECLARE_SIGNAL(closed);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

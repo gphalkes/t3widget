@@ -26,7 +26,7 @@
 #include "widgets/smartlabel.h"
 #include "widgets/widget.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 static uint32_t casefold_single(uint32_t c) {
   uint32_t result[8];
@@ -151,4 +151,4 @@ bool smart_label_t::is_hotkey(key_t key) const { return smart_label_text_t::is_h
 
 bool smart_label_t::accepts_focus() { return false; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

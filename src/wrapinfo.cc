@@ -17,7 +17,7 @@
 #include "log.h"
 #include "textbuffer_impl.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 wrap_info_t::wrap_info_t(int width, int _tabsize)
     : text(nullptr), size(0), tabsize(_tabsize), wrap_width(width) {}
@@ -253,4 +253,4 @@ void wrap_info_t::paint_line(t3_window::window_t *win, text_coordinate_t line,
   text->paint_line(win, line.line, info);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

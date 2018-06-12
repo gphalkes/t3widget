@@ -29,7 +29,7 @@
 
 /* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
 
-namespace t3_widget {
+namespace t3widget {
 
 goto_dialog_t *edit_window_t::goto_dialog;
 connection_t edit_window_t::goto_connection;
@@ -94,7 +94,7 @@ struct edit_window_t::implementation_t {
 
 void edit_window_t::init(bool _init) {
   if (_init) {
-    /* Construct these from t3_widget::init, such that the locale is set correctly and
+    /* Construct these from t3widget::init, such that the locale is set correctly and
        gettext therefore returns the correctly localized strings. */
     goto_dialog = new goto_dialog_t();
     global_find_dialog = new find_dialog_t();
@@ -1934,4 +1934,4 @@ void edit_window_t::autocomplete_panel_t::connect_activate(std::function<void()>
   list_pane->connect_activate(func);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

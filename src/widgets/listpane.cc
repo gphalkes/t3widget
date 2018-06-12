@@ -15,7 +15,7 @@
 #include "colorscheme.h"
 #include "log.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 class list_pane_t::indicator_widget_t : public widget_t {
  private:
@@ -493,4 +493,4 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
 
 bool list_pane_t::indicator_widget_t::accepts_focus() { return false; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

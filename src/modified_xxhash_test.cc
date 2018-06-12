@@ -24,13 +24,13 @@
 #include "widget_api.h"
 #include "xxhash.h"
 
-namespace t3_widget {
+namespace t3widget {
 namespace internal {
 
 T3_WIDGET_LOCAL uint32_t ModifiedXXHash32(const void *data, size_t length, uint32_t seed);
 T3_WIDGET_LOCAL uint64_t ModifiedXXHash64(const void *data, size_t length, uint64_t seed);
 }  // namespace internal
-}  // namespace t3_widget
+}  // namespace t3widget
 
 void check(uint64_t orig, uint64_t own, int bits, size_t i, size_t j, uint64_t seed) {
   if (orig != own) {
@@ -47,9 +47,9 @@ int main(int, char **) {
     uint64_t seed = std::rand();
     for (size_t i = 0; i < sizeof(data); ++i) {
       for (size_t j = 1; j + i <= sizeof(data); ++j) {
-        check(XXH64(data + i, j, seed), t3_widget::internal::ModifiedXXHash64(data + i, j, seed),
+        check(XXH64(data + i, j, seed), t3widget::internal::ModifiedXXHash64(data + i, j, seed),
               64, i, j, seed);
-        check(XXH32(data + i, j, seed), t3_widget::internal::ModifiedXXHash32(data + i, j, seed),
+        check(XXH32(data + i, j, seed), t3widget::internal::ModifiedXXHash32(data + i, j, seed),
               32, i, j, seed);
       }
     }

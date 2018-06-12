@@ -24,7 +24,7 @@
 #include <t3widget/widgets/expander.h>
 #include <t3widget/widgets/expandergroup.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API attribute_test_line_t;
 
@@ -74,5 +74,5 @@ class T3_WIDGET_API attribute_test_line_t : public widget_t {
   void set_attribute(t3_attr_t attr);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

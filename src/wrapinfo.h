@@ -23,7 +23,7 @@
 #include <t3widget/textbuffer.h>
 #include <t3widget/util.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 typedef std::vector<int> wrap_points_t;
 typedef std::vector<wrap_points_t *> wrap_data_t;
@@ -71,5 +71,5 @@ class T3_WIDGET_LOCAL wrap_info_t {
                   text_line_t::paint_info_t &info) const;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

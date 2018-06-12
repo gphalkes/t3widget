@@ -15,7 +15,7 @@
 #include "colorscheme.h"
 #include "main.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct file_pane_t::implementation_t {
   scrollbar_t scrollbar;       /**< Scrollbar displayed at the bottom. */
@@ -606,4 +606,4 @@ connection_t file_pane_t::connect_activate(std::function<void(const std::string 
   return impl->activate.connect(cb);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

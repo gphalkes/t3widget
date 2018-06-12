@@ -16,7 +16,7 @@
 #include "internal.h"
 #include "log.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct expander_t::implementation_t {
   expander_focus_t focus, last_focus;
@@ -313,4 +313,4 @@ bool expander_t::process_mouse_event(mouse_event_t event) {
 
 _T3_WIDGET_IMPL_SIGNAL(expander_t, expanded, bool)
 
-}  // namespace t3_widget
+}  // namespace t3widget

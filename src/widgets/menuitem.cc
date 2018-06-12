@@ -14,7 +14,7 @@
 #include "widgets/menuitem.h"
 #include "colorscheme.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 void menu_item_base_t::set_position(optint top, optint left) {
   (void)left;
@@ -131,4 +131,4 @@ void menu_separator_t::hide() {}
 
 bool menu_separator_t::accepts_focus() { return false; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

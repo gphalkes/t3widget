@@ -14,7 +14,7 @@
 #include "widgets/widgetgroup.h"
 #include "log.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct widget_group_t::implementation_t {
   owned_widgets_t children;
@@ -231,4 +231,4 @@ bool widget_group_t::is_hotkey(key_t key) const {
   return false;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

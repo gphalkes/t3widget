@@ -17,7 +17,7 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Class implementing a checkbox. */
 class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
@@ -63,5 +63,5 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
   T3_WIDGET_DECLARE_SIGNAL(toggled);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

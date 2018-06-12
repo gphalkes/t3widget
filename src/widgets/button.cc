@@ -17,7 +17,7 @@
 #include "internal.h"
 #include "widgets/button.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct button_t::implementation_t {
   /** Text to display on the button. */
@@ -138,4 +138,4 @@ bool button_t::is_hotkey(key_t key) const { return impl->text.is_hotkey(key); }
 
 _T3_WIDGET_IMPL_SIGNAL(button_t, activate)
 
-}  // namespace t3_widget
+}  // namespace t3widget

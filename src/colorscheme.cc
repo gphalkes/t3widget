@@ -17,7 +17,7 @@
 #include <cstring>
 #include <t3window/window.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 attributes_t attributes;
 
@@ -222,4 +222,4 @@ t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode) {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

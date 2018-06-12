@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget aggregating several widgets into a single widget.
 
@@ -52,5 +52,5 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
   void focus_previous();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

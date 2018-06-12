@@ -15,7 +15,7 @@
 #include "colorscheme.h"
 #include "internal.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct checkbox_t::implementation_t {
   /** Current state (true if checked). */
@@ -131,4 +131,4 @@ bool checkbox_t::process_mouse_event(mouse_event_t event) {
 _T3_WIDGET_IMPL_SIGNAL(checkbox_t, activate)
 _T3_WIDGET_IMPL_SIGNAL(checkbox_t, toggled)
 
-}  // namespace t3_widget
+}  // namespace t3widget

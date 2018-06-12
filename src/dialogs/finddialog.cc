@@ -17,7 +17,7 @@
 #include "log.h"
 #include "main.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 #define FIND_DIALOG_WIDTH 50
 #define FIND_DIALOG_HEIGHT 10
@@ -367,4 +367,4 @@ void replace_buttons_dialog_t::reshow(find_action_t button) {
 
 _T3_WIDGET_IMPL_SIGNAL(replace_buttons_dialog_t, activate, find_action_t)
 
-}  // namespace t3_widget
+}  // namespace t3widget

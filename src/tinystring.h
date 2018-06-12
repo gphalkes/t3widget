@@ -23,7 +23,7 @@
 
 #include <t3widget/string_view.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 // A string class with a tiny footprint. The size of the class itself is the size of a pointer. For
 // very small strings, the data is stored in the bytes where the pointer is normally stored. In this
@@ -188,5 +188,5 @@ T3_WIDGET_API inline bool operator<=(const tiny_string_t &a, string_view b) {
   return string_view(a) <= b;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

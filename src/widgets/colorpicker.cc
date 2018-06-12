@@ -17,7 +17,7 @@
 #include "internal.h"
 #include "widgets/colorpicker.h"
 
-namespace t3_widget {
+namespace t3widget {
 struct color_picker_base_t::implementation_t {
   int max_color, current_color = -2;
   bool fg, has_focus = false;
@@ -344,4 +344,4 @@ t3_attr_t color_pair_picker_t::get_paint_attr(int color) {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

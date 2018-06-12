@@ -17,7 +17,7 @@
 #include <t3widget/string_view.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget displaying a text.
 
@@ -71,5 +71,5 @@ class T3_WIDGET_API label_t : public widget_t {
   int get_text_width() const;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

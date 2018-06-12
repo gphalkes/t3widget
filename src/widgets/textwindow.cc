@@ -19,7 +19,7 @@
 #include "util.h"
 #include "wrapinfo.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct text_window_t::implementation_t {
   std::unique_ptr<scrollbar_t> scrollbar;
@@ -319,4 +319,4 @@ void text_window_t::scrollbar_dragged(int start) {
 
 _T3_WIDGET_IMPL_SIGNAL(text_window_t, activate)
 
-}  // namespace t3_widget
+}  // namespace t3widget

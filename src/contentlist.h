@@ -26,7 +26,7 @@
 
 struct transcript_t;
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API const_string_list_iterator_t {
  public:
@@ -165,5 +165,5 @@ T3_WIDGET_API bool string_compare_filter(const std::string *str, const string_li
 T3_WIDGET_API bool glob_filter(const std::string *str, bool show_hidden,
                                const string_list_base_t &list, size_t idx);
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

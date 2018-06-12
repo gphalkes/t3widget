@@ -33,7 +33,7 @@ using lt_dlhandle = void *;
 #include "internal.h"
 #include "log.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 std::shared_ptr<std::string> clipboard_data;
 std::shared_ptr<std::string> primary_data;
@@ -167,4 +167,4 @@ void stop_clipboard() {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

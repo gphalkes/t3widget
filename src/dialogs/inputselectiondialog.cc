@@ -18,7 +18,7 @@
 #include "internal.h"
 #include "widgets/button.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct input_selection_dialog_t::implementation_t {
   std::unique_ptr<text_buffer_t> text;
@@ -246,4 +246,4 @@ void input_selection_dialog_t::check_state() {
 
 _T3_WIDGET_IMPL_SIGNAL(input_selection_dialog_t, activate)
 
-}  // namespace t3_widget
+}  // namespace t3widget

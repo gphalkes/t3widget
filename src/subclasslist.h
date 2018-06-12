@@ -24,7 +24,7 @@
 #error This header file is for internal use _only_!!
 #endif
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A list where items are potentially instances of subclasses of T, rather than instances of T
    itself. Due to the way the list is built, there can be no object slicing. Type T must provide the
@@ -363,6 +363,6 @@ class subclass_list_t {
   size_t size_;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif  // SUBCLASSLIST_H

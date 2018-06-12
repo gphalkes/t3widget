@@ -24,7 +24,7 @@
 #include <t3widget/widget_api.h>
 #include <vector>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_LOCAL string_matcher_t {
  private:
@@ -44,5 +44,5 @@ class T3_WIDGET_LOCAL string_matcher_t {
   int previous_char(const char *c, size_t c_size);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

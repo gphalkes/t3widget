@@ -14,8 +14,8 @@
 
 #include "key_binding.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 key_bindings_base_t::~key_bindings_base_t() {}
 
-}  // namespace t3_widget
+}  // namespace t3widget

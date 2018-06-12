@@ -17,7 +17,7 @@
 #include "log.h"
 #include "main.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct widget_t::implementation_t {
   bool redraw = true, /**< Widget requires redrawing on next #update_contents call. */
@@ -122,7 +122,7 @@ struct focus_widget_t::implementation_t {
   implementation_t(bool _must_delete) : must_delete(_must_delete) {}
 };
 
-focus_widget_t::focus_widget_t(t3_widget::impl_allocator_t *allocator) {
+focus_widget_t::focus_widget_t(t3widget::impl_allocator_t *allocator) {
   if (allocator) {
     impl = allocator->new_impl<implementation_t>(false);
   } else {
@@ -166,4 +166,4 @@ std::function<void()> focus_widget_t::get_move_focus_down_trigger() const {
   return impl->move_focus_down.get_trigger();
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

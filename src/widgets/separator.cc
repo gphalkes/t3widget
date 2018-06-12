@@ -14,7 +14,7 @@
 #include "widgets/separator.h"
 #include "colorscheme.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct separator_t::implementation_t {
   bool horizontal;
@@ -64,4 +64,4 @@ void separator_t::update_contents() {
 void separator_t::set_focus(focus_t focus) { (void)focus; }
 bool separator_t::accepts_focus() { return false; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

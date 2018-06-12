@@ -19,7 +19,7 @@
 #include "textline.h"
 #include "undo.h"
 
-namespace t3_widget {
+namespace t3widget {
 struct undo_list_t::implementation_t {
   subclass_list_t<undo_t> list;
   subclass_list_t<undo_t>::iterator current = list.end(), mark = list.end();
@@ -167,4 +167,4 @@ void undo_double_text_t::minimize() {
 }
 text_coordinate_t undo_double_text_t::get_end() const { return end; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

@@ -18,7 +18,7 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <vector>
 
-namespace t3_widget {
+namespace t3widget {
 
 class menu_panel_t;
 
@@ -91,5 +91,5 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   T3_WIDGET_DECLARE_SIGNAL(activate, int);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

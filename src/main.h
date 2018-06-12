@@ -19,7 +19,7 @@
 #include <t3widget/dialogs/messagedialog.h>
 #include <t3widget/util.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** The version of libt3widget encoded as a single integer.
 
@@ -215,6 +215,6 @@ T3_WIDGET_API void get_screen_size(int *height, int *width);
 
     This option does _not_ disable pasting the primary selection. */
 T3_WIDGET_API void set_primary_selection_mode(bool on);
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

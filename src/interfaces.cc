@@ -19,7 +19,7 @@
 #include "main.h"
 #include "widgets/widget.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 window_component_t::window_component_t() {}
 window_component_t::~window_component_t() {}
@@ -245,4 +245,4 @@ bad_draw_recheck_t::bad_draw_recheck_t() { to_signal.push_back(this); }
 
 bad_draw_recheck_t::~bad_draw_recheck_t() { remove_element(to_signal, this); }
 
-}  // namespace t3_widget
+}  // namespace t3widget

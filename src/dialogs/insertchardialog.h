@@ -18,7 +18,7 @@
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/textfield.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
  private:
@@ -35,5 +35,5 @@ class T3_WIDGET_API insert_char_dialog_t : public dialog_t {
   void ok_activate();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

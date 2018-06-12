@@ -22,7 +22,7 @@
 #include <t3widget/util.h>
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A struct holding the result of a find operation.
     In the current situation, find operations work on a single line. Therefore
@@ -63,5 +63,5 @@ class T3_WIDGET_API finder_t {
   finder_t() = default;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

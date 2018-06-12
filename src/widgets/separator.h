@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API separator_t : public widget_t {
  private:
@@ -33,5 +33,5 @@ class T3_WIDGET_API separator_t : public widget_t {
   bool accepts_focus() override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

@@ -20,7 +20,7 @@
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
  private:
@@ -76,5 +76,5 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   connection_t connect_selection_changed(std::function<void()> cb);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

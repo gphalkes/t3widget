@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, public container_t {
  private:
@@ -41,5 +41,5 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
   void resize_widgets();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

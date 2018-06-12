@@ -18,7 +18,7 @@
 #include "log.h"
 #include "widgets/scrollbar.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct scrollbar_t::implementation_t {
   int length;
@@ -215,4 +215,4 @@ connection_t scrollbar_t::connect_dragged(std::function<void(int)> cb) {
   return impl->dragged.connect(cb);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

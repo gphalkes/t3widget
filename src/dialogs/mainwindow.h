@@ -17,7 +17,7 @@
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/interfaces.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Base class for the application's main window.
 
@@ -49,5 +49,5 @@ class T3_WIDGET_API main_window_base_t : public dialog_t {
   void show() override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

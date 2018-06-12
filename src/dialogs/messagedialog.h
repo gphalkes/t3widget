@@ -19,7 +19,7 @@
 #include <t3widget/widgets/button.h>
 #include <t3widget/widgets/textwindow.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class text_line_t;
 
@@ -41,5 +41,5 @@ class T3_WIDGET_API message_dialog_t : public dialog_t {
   connection_t connect_activate(std::function<void()> _slot, size_t idx);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

@@ -21,7 +21,7 @@
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, public container_t {
  private:
@@ -53,5 +53,5 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

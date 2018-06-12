@@ -17,7 +17,7 @@
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/widgets/menu.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class menu_item_base_t;
 class menu_item_t;
@@ -65,5 +65,5 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   connection_t connect_activate(std::function<void(int)> cb);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

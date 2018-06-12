@@ -19,7 +19,7 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget showing an expander, which allows hiding another widget. */
 class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, public focus_widget_t {
@@ -64,5 +64,5 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   T3_WIDGET_DECLARE_SIGNAL(expanded, bool);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

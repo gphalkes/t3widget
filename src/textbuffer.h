@@ -24,7 +24,7 @@
 #include <t3widget/textline.h>
 #include <t3widget/undo.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 struct find_result_t;
 class finder_t;
@@ -134,5 +134,5 @@ class T3_WIDGET_API text_buffer_t {
   T3_WIDGET_DECLARE_SIGNAL(rewrap_required, rewrap_type_t, int, int);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

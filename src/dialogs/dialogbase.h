@@ -20,7 +20,7 @@
 #include <t3widget/widgets/dummywidget.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class dialog_base_t;
 using dialog_base_list_t = std::list<dialog_base_t *>;
@@ -89,6 +89,6 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   static void force_redraw_all();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif  // T3_DIALOG_BASE_H

@@ -26,7 +26,7 @@
 #include <t3widget/string_view.h>
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 #define T3_WIDGET_DISALLOW_COPY(c)  \
   c(const c &) = delete;            \
@@ -494,5 +494,5 @@ class call_on_return_t {
   std::function<void()> cb_;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

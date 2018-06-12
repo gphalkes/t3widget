@@ -15,7 +15,7 @@
 #include "internal.h"
 #include "log.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct expander_group_t::implementation_t {
   expander_t *expanded_widget = nullptr;
@@ -72,4 +72,4 @@ int expander_group_t::get_group_height() { return impl->height; }
 
 _T3_WIDGET_IMPL_SIGNAL(expander_group_t, expanded, bool)
 
-}  // namespace t3_widget
+}  // namespace t3widget

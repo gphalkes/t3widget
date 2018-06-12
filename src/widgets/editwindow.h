@@ -14,9 +14,9 @@
 #ifndef T3_WIDGET_EDITWINDOW_H
 #define T3_WIDGET_EDITWINDOW_H
 
-namespace t3_widget {
+namespace t3widget {
 class edit_window_t;
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #include <map>
 #include <memory>
@@ -35,7 +35,7 @@ class edit_window_t;
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class finder_t;
 class wrap_info_t;
@@ -312,5 +312,5 @@ class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
   void connect_activate(std::function<void()> func);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

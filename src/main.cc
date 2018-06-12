@@ -33,7 +33,7 @@
 #include "main.h"
 #include "textline.h"
 
-namespace t3_widget {
+namespace t3widget {
 #define MESSAGE_DIALOG_WIDTH 50
 #define MIN_LINES 16
 #define MIN_COLUMNS 60
@@ -426,4 +426,4 @@ long get_libt3key_version() { return t3_key_get_version(); }
 
 long get_libt3window_version() { return t3_window_get_version(); }
 
-}  // namespace t3_widget
+}  // namespace t3widget

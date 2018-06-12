@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API scrollbar_t : public widget_t {
  private:
@@ -48,5 +48,5 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
   connection_t connect_dragged(std::function<void(int)> cb);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

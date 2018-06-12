@@ -7,7 +7,7 @@
 
 #include <t3widget/textbuffer.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 struct text_buffer_t::implementation_t {
   std::vector<std::unique_ptr<text_line_t>> lines;
@@ -81,6 +81,6 @@ struct text_buffer_t::implementation_t {
   void goto_pos(int line, int pos);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

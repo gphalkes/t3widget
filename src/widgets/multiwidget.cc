@@ -13,7 +13,7 @@
 */
 #include "widgets/multiwidget.h"
 #include "log.h"
-namespace t3_widget {
+namespace t3widget {
 
 struct T3_WIDGET_LOCAL item_t {
   std::unique_ptr<widget_t> widget;
@@ -200,4 +200,4 @@ bool multi_widget_t::is_child(window_component_t *widget) {
   return false;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

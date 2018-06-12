@@ -20,7 +20,7 @@
 #include "util.h"
 #include "widgets/menuitem.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct menu_panel_t::implementation_t {
   int width, label_width, hotkey_width;
@@ -249,4 +249,4 @@ connection_t menu_panel_t::connect_activate(std::function<void(int)> cb) {
   return impl->activate.connect(cb);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

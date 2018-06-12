@@ -27,7 +27,7 @@
 #include <t3widget/string_view.h>
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class undo_t;
 
@@ -157,5 +157,5 @@ class T3_WIDGET_API text_line_factory_t {
 
 T3_WIDGET_API extern text_line_factory_t default_text_line_factory;
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

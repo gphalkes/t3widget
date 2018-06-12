@@ -27,7 +27,7 @@
 #include "util.h"
 #include "wrapinfo.h"
 
-namespace t3_widget {
+namespace t3widget {
 /*FIXME-REFACTOR: adjust_position in line is often called with same argument as
   where the return value is stored. Check whether this is always the case. If
   so, refactor to pass pointer to first arg.
@@ -1113,4 +1113,4 @@ void text_buffer_t::implementation_t::goto_pos(int line, int pos) {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

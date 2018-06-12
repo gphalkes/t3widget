@@ -20,7 +20,7 @@
 #include "main.h"
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 static key_t nul = 0;
 
@@ -387,4 +387,4 @@ void save_as_dialog_t::create_folder() {
   // FIXME: create folder here
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

@@ -20,7 +20,7 @@
 
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API key_bindings_base_t {
  public:
@@ -99,6 +99,6 @@ class T3_WIDGET_API key_bindings_t : public key_bindings_base_t {
   std::map<key_t, T> key_bindings;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

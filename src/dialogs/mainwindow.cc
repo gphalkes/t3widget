@@ -14,7 +14,7 @@
 #include "mainwindow.h"
 #include "main.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 /* The implementation struct currently is empty, so we don't even allocated it. But the pointer to
    it has been reserved in the class, such that if a new member is needed we can allocate it in the
@@ -71,4 +71,4 @@ void main_window_base_t::set_size_real(int height, int width) {
   set_size(height, width);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

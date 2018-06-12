@@ -22,7 +22,7 @@
 #include "main.h"
 #include "widgets/menu.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct menu_bar_t::implementation_t {
   // FIXME: the mutable keyword here is a hack to allow the hotkey operation to work. We should find
@@ -299,4 +299,4 @@ void menu_bar_t::set_hidden(bool _hidden) {
 
 _T3_WIDGET_IMPL_SIGNAL(menu_bar_t, activate, int)
 
-}  // namespace t3_widget
+}  // namespace t3widget

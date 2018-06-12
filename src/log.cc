@@ -16,7 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace t3_widget {
+namespace t3widget {
 
 #ifdef _T3_WIDGET_DEBUG
 static FILE *log_file;
@@ -72,4 +72,4 @@ void logkeyseq(const char *keys) {
 }
 #endif
 
-}  // namespace t3_widget
+}  // namespace t3widget

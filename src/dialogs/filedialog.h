@@ -21,7 +21,7 @@
 #include <t3widget/widgets/filepane.h>
 #include <t3widget/widgets/frame.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API file_dialog_t : public dialog_t {
  private:
@@ -81,5 +81,5 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
   void create_folder();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

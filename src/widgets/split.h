@@ -21,7 +21,7 @@
 #include <t3widget/key_binding.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget that can contain multiple other widgets.
 
@@ -102,5 +102,5 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
 #undef _T3_ACTION_FILE
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

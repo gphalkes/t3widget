@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace t3_widget {
+namespace t3widget {
 namespace {
 
 // This will be optimized to a constant by most compilers.
@@ -400,4 +400,4 @@ void tiny_string_t::realloc_ptr(size_t size) {
 
 size_t tiny_string_t::max_short_size() { return sizeof(allocated_string_t *) - 1; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

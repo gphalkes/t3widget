@@ -17,7 +17,7 @@
 #include "internal.h"
 #include "main.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 dialogs_t dialog_t::active_dialogs;
 popup_t *dialog_t::active_popup;
@@ -187,4 +187,4 @@ void dialog_t::update_dialogs() {
 
 _T3_WIDGET_IMPL_SIGNAL(dialog_t, closed)
 
-}  // namespace t3_widget
+}  // namespace t3widget

@@ -22,7 +22,7 @@
 #include <t3widget/mouse.h>
 #include <t3widget/util.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Abstract base class for all items displayed on screen. */
 class T3_WIDGET_API window_component_t {
@@ -249,5 +249,5 @@ class T3_WIDGET_API impl_allocator_t {
   std::unique_ptr<char, free_deleter> space_;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

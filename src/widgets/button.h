@@ -17,7 +17,7 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Button widget. */
 class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
@@ -55,5 +55,5 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

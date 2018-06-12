@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace t3_widget {
+namespace t3widget {
 namespace {
 
 constexpr uint32_t PRIME32_1 = UINT32_C(2654435761);
@@ -195,4 +195,4 @@ size_t ModifiedXXHash(const void *data, size_t length, size_t seed) {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

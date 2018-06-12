@@ -23,7 +23,7 @@
 #include "widgets/label.h"
 #include "widgets/textfield.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 /*FIXME:
 - auto-completion
@@ -816,4 +816,4 @@ void text_field_t::drop_down_list_t::selection_changed() {
   field->set_text((*completions)[list_pane->get_current()]);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

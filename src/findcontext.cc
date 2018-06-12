@@ -23,7 +23,7 @@
 #include "stringmatcher.h"
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_LOCAL finder_base_t : public finder_t {
  public:
@@ -427,4 +427,4 @@ std::string regex_finder_t::get_replacement(const std::string &haystack) const {
   return retval;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

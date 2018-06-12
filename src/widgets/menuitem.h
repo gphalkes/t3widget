@@ -17,7 +17,7 @@
 #include <t3widget/dialogs/menupanel.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API menu_item_base_t : public widget_t {
  protected:
@@ -68,5 +68,5 @@ class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
   bool accepts_focus() override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

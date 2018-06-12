@@ -25,7 +25,7 @@
 #include "undo.h"
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 char text_line_t::spaces[_T3_MAX_TAB];
 char text_line_t::dashes[_T3_MAX_TAB];
@@ -891,4 +891,4 @@ std::unique_ptr<text_line_t> text_line_factory_t::new_text_line_t(string_view _b
   return make_unique<text_line_t>(_buffer, this);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

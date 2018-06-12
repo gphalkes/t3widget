@@ -20,7 +20,7 @@
 
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 T3_WIDGET_API std::shared_ptr<std::string> get_clipboard();
 T3_WIDGET_API std::shared_ptr<std::string> get_primary();
@@ -38,5 +38,5 @@ class T3_WIDGET_API ensure_clipboard_lock_t {
   ensure_clipboard_lock_t() { lock_clipboard(); }
   ~ensure_clipboard_lock_t() { unlock_clipboard(); }
 };
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

@@ -26,7 +26,7 @@
 
 #include "widget_api.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 T3_WIDGET_API extern std::shared_ptr<std::string> clipboard_data;
 T3_WIDGET_API extern std::shared_ptr<std::string> primary_data;
@@ -44,5 +44,5 @@ struct extclipboard_interface_t {
   void (*stop)();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

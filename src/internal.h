@@ -38,7 +38,7 @@
 #include "util.h"
 #include "widget_api.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 #define _T3_WIDGET_IMPL_SIGNAL(_class, _name, ...)                            \
   connection_t _class::connect_##_name(std::function<void(__VA_ARGS__)> cb) { \
@@ -104,7 +104,7 @@ T3_WIDGET_LOCAL void deinit_keys();
 T3_WIDGET_LOCAL void reinit_keys();
 /** Insert a key to the queue, marked to ensure it is not interpreted by any widget except text
  * widgets. */
-T3_WIDGET_LOCAL void insert_protected_key(t3_widget::key_t key);
+T3_WIDGET_LOCAL void insert_protected_key(t3widget::key_t key);
 /** Read chars into buffer for processing. */
 T3_WIDGET_LOCAL bool read_keychar(int timeout);
 
@@ -183,5 +183,5 @@ reverse_view(T &t) {
 
 T3_WIDGET_LOCAL bool starts_with(const std::string &str, const std::string &with);
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

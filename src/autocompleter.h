@@ -17,7 +17,7 @@
 #include <t3widget/contentlist.h>
 #include <t3widget/textbuffer.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Interface class for autocompleters. */
 class T3_WIDGET_API autocompleter_t {
@@ -40,6 +40,6 @@ class T3_WIDGET_API autocompleter_t {
   virtual void autocomplete(text_buffer_t *text, size_t idx) = 0;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

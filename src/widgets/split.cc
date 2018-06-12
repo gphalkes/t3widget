@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <cstring>
 
-namespace t3_widget {
+namespace t3widget {
 
 #define _T3_ACTION_FILE "widgets/split.actions.h"
 #define _T3_ACTION_TYPE split_t
@@ -350,4 +350,4 @@ void split_t::set_to_end() {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

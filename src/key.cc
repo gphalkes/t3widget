@@ -28,7 +28,7 @@
 #include <t3widget/main.h>
 #include <t3widget/util.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 #define MAX_SEQUENCE 100
 
@@ -776,4 +776,4 @@ void async_safe_exit_main_loop(int exit_code) {
   errno = saved_errno;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

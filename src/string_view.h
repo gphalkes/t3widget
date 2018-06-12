@@ -32,7 +32,7 @@
 #define _T3_WIDGET_TEST_CONSTEXPR
 #endif
 
-namespace t3_widget {
+namespace t3widget {
 
 // Simple basic_string_view implementation, which should be compatible with the C++17 standard
 // version for most purposes. Once the minimum standard version is increased to C++17, it should
@@ -513,24 +513,24 @@ using wstring_view = basic_string_view<wchar_t>;
 using u16string_view = basic_string_view<char16_t>;
 using u32string_view = basic_string_view<char32_t>;
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 namespace std {
 template <>
-struct T3_WIDGET_API hash<t3_widget::string_view> {
-  size_t operator()(t3_widget::string_view v) const noexcept;
+struct T3_WIDGET_API hash<t3widget::string_view> {
+  size_t operator()(t3widget::string_view v) const noexcept;
 };
 template <>
-struct T3_WIDGET_API hash<t3_widget::wstring_view> {
-  size_t operator()(t3_widget::wstring_view v) const noexcept;
+struct T3_WIDGET_API hash<t3widget::wstring_view> {
+  size_t operator()(t3widget::wstring_view v) const noexcept;
 };
 template <>
-struct T3_WIDGET_API hash<t3_widget::u16string_view> {
-  size_t operator()(t3_widget::u16string_view v) const noexcept;
+struct T3_WIDGET_API hash<t3widget::u16string_view> {
+  size_t operator()(t3widget::u16string_view v) const noexcept;
 };
 template <>
-struct T3_WIDGET_API hash<t3_widget::u32string_view> {
-  size_t operator()(t3_widget::u32string_view v) const noexcept;
+struct T3_WIDGET_API hash<t3widget::u32string_view> {
+  size_t operator()(t3widget::u32string_view v) const noexcept;
 };
 }  // namespace std
 

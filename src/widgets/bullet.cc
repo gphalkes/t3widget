@@ -14,7 +14,7 @@
 #include "widgets/bullet.h"
 #include "colorscheme.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct bullet_t::implementation_t {
   /** Callback to determine required display state. */
@@ -53,4 +53,4 @@ void bullet_t::update_contents() {
 
 void bullet_t::set_focus(focus_t focus) { impl->has_focus = focus; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

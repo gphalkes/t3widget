@@ -17,7 +17,7 @@
 #include <climits>
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 #if INT_MAX < 2147483647L
 /** Integer type holding a single key symbol. */
@@ -168,5 +168,5 @@ T3_WIDGET_API int get_key_timeout();
     thread running the #main_loop function. */
 T3_WIDGET_API void signal_update();
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

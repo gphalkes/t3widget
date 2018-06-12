@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget showing a frame.
 
@@ -69,5 +69,5 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   single_alloc_pimpl_t<implementation_t> impl;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

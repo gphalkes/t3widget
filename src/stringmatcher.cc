@@ -16,7 +16,7 @@
 
 #include "stringmatcher.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 /* Adaptation of the Knuth-Morris-Pratt string searching algorithm, to work
    with UTF-8 and allow tracking of the start of the match in number of
@@ -132,4 +132,4 @@ int string_matcher_t::previous_char(const char *c, size_t c_size) {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

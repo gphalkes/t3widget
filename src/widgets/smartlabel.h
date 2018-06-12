@@ -17,7 +17,7 @@
 #include <t3widget/key.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API smart_label_text_t {
  protected:
@@ -47,5 +47,5 @@ class T3_WIDGET_API smart_label_t : public widget_t, public smart_label_text_t {
   bool accepts_focus() override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

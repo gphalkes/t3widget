@@ -20,7 +20,7 @@
 #include "internal.h"
 #include "main.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 dialog_base_list_t dialog_base_t::dialog_base_list;
 
@@ -345,4 +345,4 @@ void dialog_base_t::force_redraw_all() {
   }
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

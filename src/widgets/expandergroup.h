@@ -17,7 +17,7 @@
 #include <deque>
 #include <t3widget/widgets/expander.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A class to group a set of expander widgets such that at most one is expanded at a time. */
 class T3_WIDGET_API expander_group_t {
@@ -39,5 +39,5 @@ class T3_WIDGET_API expander_group_t {
   T3_WIDGET_DECLARE_SIGNAL(expanded, bool);
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

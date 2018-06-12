@@ -28,7 +28,7 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API text_field_t : public widget_t,
                                    public center_component_t,
@@ -130,5 +130,5 @@ class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
   bool empty();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

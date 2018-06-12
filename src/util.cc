@@ -27,7 +27,7 @@
 #include "main.h"
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 static void lang_codeset_init(bool init);
 
@@ -424,4 +424,4 @@ bool starts_with(const std::string &str, const std::string &with) {
   return str.size() >= with.size() && memcmp(str.data(), with.data(), with.size()) == 0;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

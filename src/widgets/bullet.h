@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Class implementing a bullet driven by a boolean valued callback.
 
@@ -42,5 +42,5 @@ class T3_WIDGET_API bullet_t : public widget_t {
   void set_focus(focus_t focus) override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

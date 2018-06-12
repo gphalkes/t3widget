@@ -16,7 +16,7 @@
 
 #include <t3widget/widgets/widget.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 class T3_WIDGET_API color_picker_base_t : public widget_t {
  protected:
@@ -75,5 +75,5 @@ class T3_WIDGET_API color_pair_picker_t : public color_picker_base_t {
   color_pair_picker_t();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

@@ -15,8 +15,8 @@
 #include "textbuffer.h"
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 autocompleter_t::~autocompleter_t() {}
 
-}  // namespace t3_widget
+}  // namespace t3widget

@@ -21,7 +21,7 @@
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 8
 #define ATTRIBUTE_PICKER_DIALOG_WIDTH 43
 
-namespace t3_widget {
+namespace t3widget {
 
 struct attribute_picker_dialog_t::implementation_t {
   checkbox_t *bold_box, *reverse_box, *blink_box, *underline_box, *dim_box;
@@ -334,4 +334,4 @@ void attribute_test_line_t::set_attribute(t3_attr_t attr) {
   impl->attr = attr;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

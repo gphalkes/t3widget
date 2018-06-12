@@ -14,7 +14,7 @@
 #include "popup.h"
 #include "dialog.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct popup_t::implementation_t {
   bool draw;
@@ -77,4 +77,4 @@ bool popup_t::process_mouse_event(mouse_event_t event) {
 
 bool popup_t::is_shown() { return impl->shown; }
 
-}  // namespace t3_widget
+}  // namespace t3widget

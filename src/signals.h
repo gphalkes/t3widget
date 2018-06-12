@@ -20,7 +20,7 @@
 #include <memory>
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 namespace internal {
 /* Base class for function wrappers. This provides the part of the functionality that is not
@@ -134,6 +134,6 @@ class T3_WIDGET_API signal_t {
   std::list<std::shared_ptr<internal::func_ptr_base_t>> funcs;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

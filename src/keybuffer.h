@@ -29,7 +29,7 @@
 #include <t3widget/key.h>
 #include <t3widget/mouse.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Class implmementing a mutex-protected queue of items. */
 template <class T>
@@ -90,5 +90,5 @@ class T3_WIDGET_LOCAL key_buffer_t : public item_buffer_t<key_t> {
 
 typedef item_buffer_t<mouse_event_t> mouse_event_buffer_t;
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

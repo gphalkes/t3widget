@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include "widget_api.h"
-namespace t3_widget {
+namespace t3widget {
 
 #ifdef _T3_WIDGET_DEBUG
 
@@ -46,5 +46,5 @@ T3_WIDGET_API void logkeyseq(const char *keys);
 #define logkeyseq(keys)
 #endif
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

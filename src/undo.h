@@ -19,7 +19,7 @@
 #include <t3widget/tinystring.h>
 #include <t3widget/util.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /* FIXME: the undo/redo functionality should be reimplemented, composing operations from:
    DELETE, ADD, ADD_NEWLINE, DELETE_NEWLINE, BLOCK_START, BLOCK_END
@@ -123,5 +123,5 @@ class T3_WIDGET_API undo_double_text_t : public undo_single_text_t {
   text_coordinate_t get_end() const override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

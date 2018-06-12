@@ -24,7 +24,7 @@
 
 #define _T3_WDIGET_FP_MAX_COLUMNS 8
 
-namespace t3_widget {
+namespace t3widget {
 
 /** A widget displaying the contents of a directory. */
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
@@ -95,6 +95,6 @@ class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
   bool process_mouse_event(mouse_event_t event) override;
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

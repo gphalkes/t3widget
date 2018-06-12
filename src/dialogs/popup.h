@@ -16,7 +16,7 @@
 
 #include <t3widget/dialogs/dialogbase.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Base class for dialogs. */
 class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
@@ -40,6 +40,6 @@ class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
   bool is_shown();
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

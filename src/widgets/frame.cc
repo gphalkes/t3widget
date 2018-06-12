@@ -14,7 +14,7 @@
 #include "widgets/frame.h"
 #include "colorscheme.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 struct frame_t::implementation_t {
   frame_dimension_t dimension;     /**< Requested overlaps. */
@@ -140,4 +140,4 @@ bool frame_t::is_child(window_component_t *component) {
   return container != nullptr && container->is_child(component);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

@@ -22,7 +22,7 @@
 
 #define MESSAGEDIALOG_MAX_LINES 10
 
-namespace t3_widget {
+namespace t3widget {
 
 struct message_dialog_t::implementation_t {
   text_window_t *text_window;
@@ -138,4 +138,4 @@ void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = ma
 
 _T3_WIDGET_IMPL_SIGNAL(message_dialog_t, activate_internal)
 
-}  // namespace t3_widget
+}  // namespace t3widget

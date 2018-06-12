@@ -20,7 +20,7 @@
 
 #include <t3widget/interfaces.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** Base class for widgets. */
 class T3_WIDGET_API widget_t : public virtual window_component_t,
@@ -126,5 +126,5 @@ class T3_WIDGET_API widget_container_t : public container_t {
 using widgets_t = std::deque<widget_t *>;
 using owned_widgets_t = std::deque<std::unique_ptr<widget_t>>;
 
-}  // namespace t3_widget
+}  // namespace t3widget
 #endif

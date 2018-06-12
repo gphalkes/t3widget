@@ -11,20 +11,20 @@
 
 namespace std {
 
-size_t hash<t3_widget::string_view>::operator()(t3_widget::string_view v) const noexcept {
-  return t3_widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
+size_t hash<t3widget::string_view>::operator()(t3widget::string_view v) const noexcept {
+  return t3widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
 }
 
-size_t hash<t3_widget::wstring_view>::operator()(t3_widget::wstring_view v) const noexcept {
-  return t3_widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
+size_t hash<t3widget::wstring_view>::operator()(t3widget::wstring_view v) const noexcept {
+  return t3widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
 }
 
-size_t hash<t3_widget::u16string_view>::operator()(t3_widget::u16string_view v) const noexcept {
-  return t3_widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
+size_t hash<t3widget::u16string_view>::operator()(t3widget::u16string_view v) const noexcept {
+  return t3widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
 }
 
-size_t hash<t3_widget::u32string_view>::operator()(t3_widget::u32string_view v) const noexcept {
-  return t3_widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
+size_t hash<t3widget::u32string_view>::operator()(t3widget::u32string_view v) const noexcept {
+  return t3widget::ModifiedXXHash(v.data(), v.size() * sizeof(decltype(v)::value_type), SEED);
 }
 
 }  // namespace std

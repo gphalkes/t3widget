@@ -23,7 +23,7 @@
 #include <t3widget/util.h>
 #include <t3widget/widget_api.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 /** @internal A struct containing all the attribute settings for the different display elements. */
 struct attributes_t {
@@ -56,6 +56,6 @@ T3_WIDGET_LOCAL extern attributes_t attributes;
 /** @internal Initialize the default attributes. */
 T3_WIDGET_LOCAL void init_attributes();
 
-}  // namespace t3_widget
+}  // namespace t3widget
 
 #endif

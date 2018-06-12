@@ -19,7 +19,7 @@
 #define GOTO_DIALOG_WIDTH 30
 #define GOTO_DIALOG_HEIGHT 4
 
-namespace t3_widget {
+namespace t3widget {
 
 static key_t accepted_keys[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
 
@@ -90,4 +90,4 @@ connection_t goto_dialog_t::connect_activate(std::function<void(int)> cb) {
   return impl->activate.connect(cb);
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

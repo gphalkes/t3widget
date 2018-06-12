@@ -24,7 +24,7 @@
 #include "main.h"
 #include "util.h"
 
-namespace t3_widget {
+namespace t3widget {
 
 //===================================== string_list_iterator_t =====================================
 
@@ -256,7 +256,7 @@ int file_list_t::load_directory(const std::string &dir_name) {
       utf8_name.clear();
     }
     impl->files.push_back(
-        file_name_entry_t(entry->d_name, utf8_name, t3_widget::is_dir(dir_name, entry->d_name)));
+        file_name_entry_t(entry->d_name, utf8_name, t3widget::is_dir(dir_name, entry->d_name)));
 
     // Make sure errno is clear on EOF
     errno = 0;
@@ -454,4 +454,4 @@ bool glob_filter(const std::string *str, bool show_hidden, const string_list_bas
   return true;
 }
 
-}  // namespace t3_widget
+}  // namespace t3widget

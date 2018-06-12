@@ -37,7 +37,7 @@
    multiple implementations. This should be cleaned up at some point. */
 #include <xcb/xcb.h>
 
-namespace t3_widget {
+namespace t3widget {
 
 using timeout_t = std::chrono::time_point<std::chrono::system_clock>;
 static timeout_t timeout_time(int microseconds) {
@@ -908,4 +908,4 @@ T3_WIDGET_API extclipboard_interface_t _t3_widget_extclipboard_calls = {EXTCLIPB
                                                                         stop_x11};
 };
 
-}  // namespace t3_widget
+}  // namespace t3widget
