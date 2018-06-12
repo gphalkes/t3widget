@@ -169,6 +169,16 @@ tiny_string_t &tiny_string_t::replace(tiny_string_t::const_iterator first,
   return replace(first - cbegin(), last - first, str);
 }
 
+tiny_string_t tiny_string_t::substr(size_t pos, size_t count) const {
+  return tiny_string_t(string_view(*this).substr(pos, count));
+}
+
+int tiny_string_t::compare(const tiny_string_t &other) const {
+  return string_view(*this).compare(other);
+}
+
+int tiny_string_t::compare(string_view other) const { return string_view(*this).compare(other); }
+
 size_t tiny_string_t::find(char c, size_t pos) const {
   static_assert(npos == string_view::npos, "tiny_string_t::npos must match string_view::npos");
   return string_view(*this).find(c, pos);
@@ -401,3 +411,7 @@ void tiny_string_t::realloc_ptr(size_t size) {
 size_t tiny_string_t::max_short_size() { return sizeof(allocated_string_t *) - 1; }
 
 }  // namespace t3widget
+
+size_t std::hash<t3widget::tiny_string_t>::operator()(t3widget::tiny_string_t str) const noexcept {
+  return std::hash<t3widget::string_view>()(str);
+}

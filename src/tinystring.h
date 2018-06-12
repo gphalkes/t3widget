@@ -80,6 +80,11 @@ class T3_WIDGET_API tiny_string_t {
   tiny_string_t &replace(size_t pos, size_t count, string_view str);
   tiny_string_t &replace(const_iterator first, const_iterator last, string_view str);
 
+  tiny_string_t substr(size_t pos, size_t count = npos) const;
+
+  int compare(const tiny_string_t &other) const;
+  int compare(string_view other) const;
+
   size_t find(char c, size_t pos = 0) const;
   size_t find(string_view str, size_t pos = 0) const;
 
@@ -189,4 +194,11 @@ T3_WIDGET_API inline bool operator<=(const tiny_string_t &a, string_view b) {
 }
 
 }  // namespace t3widget
+
+namespace std {
+template <>
+struct T3_WIDGET_API hash<t3widget::tiny_string_t> {
+  size_t operator()(t3widget::tiny_string_t str) const noexcept;
+};
+}  // namespace std
 #endif
