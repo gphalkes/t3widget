@@ -19,9 +19,12 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
+#include <ostream>
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
+
+#include <t3widget/widget_api.h>
 
 #if defined(_T3_WIDGET_TEST) && __cplusplus >= 201703L
 #define _T3_WIDGET_TEST_CONSTEXPR constexpr
@@ -35,7 +38,7 @@ namespace t3_widget {
 // version for most purposes. Once the minimum standard version is increased to C++17, it should
 // be easy enough to replace this basic_string_view with std::basic_string_view.
 template <class CharT, class Traits = std::char_traits<CharT>>
-class basic_string_view {
+class T3_WIDGET_API basic_string_view {
  public:
   using traits_type = Traits;
   using value_type = CharT;
@@ -316,175 +319,193 @@ class basic_string_view {
 };
 
 template <class CharT, class Traits>
-constexpr
+T3_WIDGET_API constexpr
     typename basic_string_view<CharT, Traits>::size_type basic_string_view<CharT, Traits>::npos;
 
 template <class CharT, class Traits>
-constexpr bool operator==(basic_string_view<CharT, Traits> lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator==(basic_string_view<CharT, Traits> lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) == 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator!=(basic_string_view<CharT, Traits> lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator!=(basic_string_view<CharT, Traits> lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) != 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<(basic_string_view<CharT, Traits> lhs,
-                         basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<(basic_string_view<CharT, Traits> lhs,
+                                       basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) < 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<=(basic_string_view<CharT, Traits> lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<=(basic_string_view<CharT, Traits> lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) <= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>(basic_string_view<CharT, Traits> lhs,
-                         basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>(basic_string_view<CharT, Traits> lhs,
+                                       basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) > 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>=(basic_string_view<CharT, Traits> lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>=(basic_string_view<CharT, Traits> lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) >= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator==(basic_string_view<CharT, Traits> lhs, const CharT *rhs) noexcept {
+T3_WIDGET_API constexpr bool operator==(basic_string_view<CharT, Traits> lhs,
+                                        const CharT *rhs) noexcept {
   return lhs.compare(rhs) == 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator!=(basic_string_view<CharT, Traits> lhs, const CharT *rhs) noexcept {
+T3_WIDGET_API constexpr bool operator!=(basic_string_view<CharT, Traits> lhs,
+                                        const CharT *rhs) noexcept {
   return lhs.compare(rhs) != 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<(basic_string_view<CharT, Traits> lhs, const CharT *rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<(basic_string_view<CharT, Traits> lhs,
+                                       const CharT *rhs) noexcept {
   return lhs.compare(rhs) < 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<=(basic_string_view<CharT, Traits> lhs, const CharT *rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<=(basic_string_view<CharT, Traits> lhs,
+                                        const CharT *rhs) noexcept {
   return lhs.compare(rhs) <= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>(basic_string_view<CharT, Traits> lhs, const CharT *rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>(basic_string_view<CharT, Traits> lhs,
+                                       const CharT *rhs) noexcept {
   return lhs.compare(rhs) > 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>=(basic_string_view<CharT, Traits> lhs, const CharT *rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>=(basic_string_view<CharT, Traits> lhs,
+                                        const CharT *rhs) noexcept {
   return lhs.compare(rhs) >= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator==(const CharT *lhs, basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator==(const CharT *lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) == 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator!=(const CharT *lhs, basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator!=(const CharT *lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) != 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<(const CharT *lhs, basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<(const CharT *lhs,
+                                       basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) > 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<=(const CharT *lhs, basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<=(const CharT *lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) >= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>(const CharT *lhs, basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>(const CharT *lhs,
+                                       basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) < 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>=(const CharT *lhs, basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>=(const CharT *lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) <= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator==(basic_string_view<CharT, Traits> lhs,
-                          const std::basic_string<CharT, Traits> &rhs) noexcept {
+T3_WIDGET_API constexpr bool operator==(basic_string_view<CharT, Traits> lhs,
+                                        const std::basic_string<CharT, Traits> &rhs) noexcept {
   return lhs.compare(rhs) == 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator!=(basic_string_view<CharT, Traits> lhs,
-                          const std::basic_string<CharT, Traits> &rhs) noexcept {
+T3_WIDGET_API constexpr bool operator!=(basic_string_view<CharT, Traits> lhs,
+                                        const std::basic_string<CharT, Traits> &rhs) noexcept {
   return lhs.compare(rhs) != 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<(basic_string_view<CharT, Traits> lhs,
-                         const std::basic_string<CharT, Traits> &rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<(basic_string_view<CharT, Traits> lhs,
+                                       const std::basic_string<CharT, Traits> &rhs) noexcept {
   return lhs.compare(rhs) < 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<=(basic_string_view<CharT, Traits> lhs,
-                          const std::basic_string<CharT, Traits> &rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<=(basic_string_view<CharT, Traits> lhs,
+                                        const std::basic_string<CharT, Traits> &rhs) noexcept {
   return lhs.compare(rhs) <= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>(basic_string_view<CharT, Traits> lhs,
-                         const std::basic_string<CharT, Traits> &rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>(basic_string_view<CharT, Traits> lhs,
+                                       const std::basic_string<CharT, Traits> &rhs) noexcept {
   return lhs.compare(rhs) > 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>=(basic_string_view<CharT, Traits> lhs,
-                          const std::basic_string<CharT, Traits> &rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>=(basic_string_view<CharT, Traits> lhs,
+                                        const std::basic_string<CharT, Traits> &rhs) noexcept {
   return lhs.compare(rhs) >= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator==(const std::basic_string<CharT, Traits> &lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator==(const std::basic_string<CharT, Traits> &lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) == 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator!=(const std::basic_string<CharT, Traits> &lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator!=(const std::basic_string<CharT, Traits> &lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) != 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<(const std::basic_string<CharT, Traits> &lhs,
-                         basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<(const std::basic_string<CharT, Traits> &lhs,
+                                       basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) > 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator<=(const std::basic_string<CharT, Traits> &lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator<=(const std::basic_string<CharT, Traits> &lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) >= 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>(const std::basic_string<CharT, Traits> &lhs,
-                         basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>(const std::basic_string<CharT, Traits> &lhs,
+                                       basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) < 0;
 }
 
 template <class CharT, class Traits>
-constexpr bool operator>=(const std::basic_string<CharT, Traits> &lhs,
-                          basic_string_view<CharT, Traits> rhs) noexcept {
+T3_WIDGET_API constexpr bool operator>=(const std::basic_string<CharT, Traits> &lhs,
+                                        basic_string_view<CharT, Traits> rhs) noexcept {
   return rhs.compare(lhs) <= 0;
+}
+
+template <class CharT, class Traits>
+T3_WIDGET_API std::basic_ostream<CharT, Traits> &operator<<(std::basic_ostream<CharT, Traits> &os,
+                                                            basic_string_view<CharT, Traits> v) {
+  return os.write(v.data(), v.size());
 }
 
 using string_view = basic_string_view<char>;
@@ -496,19 +517,19 @@ using u32string_view = basic_string_view<char32_t>;
 
 namespace std {
 template <>
-struct hash<t3_widget::string_view> {
+struct T3_WIDGET_API hash<t3_widget::string_view> {
   size_t operator()(t3_widget::string_view v) const noexcept;
 };
 template <>
-struct hash<t3_widget::wstring_view> {
+struct T3_WIDGET_API hash<t3_widget::wstring_view> {
   size_t operator()(t3_widget::wstring_view v) const noexcept;
 };
 template <>
-struct hash<t3_widget::u16string_view> {
+struct T3_WIDGET_API hash<t3_widget::u16string_view> {
   size_t operator()(t3_widget::u16string_view v) const noexcept;
 };
 template <>
-struct hash<t3_widget::u32string_view> {
+struct T3_WIDGET_API hash<t3_widget::u32string_view> {
   size_t operator()(t3_widget::u32string_view v) const noexcept;
 };
 }  // namespace std

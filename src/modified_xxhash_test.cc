@@ -29,8 +29,8 @@ namespace internal {
 
 T3_WIDGET_LOCAL uint32_t ModifiedXXHash32(const void *data, size_t length, uint32_t seed);
 T3_WIDGET_LOCAL uint64_t ModifiedXXHash64(const void *data, size_t length, uint64_t seed);
-}
-}
+}  // namespace internal
+}  // namespace t3_widget
 
 void check(uint64_t orig, uint64_t own, int bits, size_t i, size_t j, uint64_t seed) {
   if (orig != own) {

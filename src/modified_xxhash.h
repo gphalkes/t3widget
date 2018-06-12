@@ -28,6 +28,6 @@ namespace t3_widget {
    a single run of the program. We also use the 32-bit version on 32-bit computers, which means that
    there will be differences in outcome between different platforms. */
 T3_WIDGET_LOCAL size_t ModifiedXXHash(const void *data, size_t length, size_t seed);
-}
+}  // namespace t3_widget
 
 #endif

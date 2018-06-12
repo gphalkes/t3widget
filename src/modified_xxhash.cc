@@ -95,7 +95,7 @@ uint64_t merge_accumulator64(uint64_t acc, uint64_t accN) {
   acc = acc * PRIME64_1;
   return acc + PRIME64_4;
 }
-}
+}  // namespace
 
 namespace internal {
 T3_WIDGET_LOCAL uint32_t ModifiedXXHash32(const void *data, size_t length, uint32_t seed) {
