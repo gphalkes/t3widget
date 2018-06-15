@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/split.h"
-#include "internal.h"
+#include "t3widget/widgets/split.h"
+#include "t3widget/internal.h"
 #include <algorithm>
 #include <cstring>
 
@@ -20,7 +20,7 @@ namespace t3_widget {
 
 #define _T3_ACTION_FILE "widgets/split.actions.h"
 #define _T3_ACTION_TYPE split_t
-#include "key_binding_def.h"
+#include "t3widget/key_binding_def.h"
 
 split_t::split_t(widget_t *widget) : horizontal(true), focus(false) {
   init_unbacked_window(3, 3);

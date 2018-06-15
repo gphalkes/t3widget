@@ -13,10 +13,10 @@
 */
 #include <cstring>
 
-#include "dialogs/menupanel.h"
-#include "main.h"
-#include "util.h"
-#include "widgets/menuitem.h"
+#include "t3widget/dialogs/menupanel.h"
+#include "t3widget/main.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/menuitem.h"
 
 namespace t3_widget {
 

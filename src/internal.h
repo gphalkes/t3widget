@@ -30,11 +30,11 @@
 #include <unistd.h>
 #endif
 
-#include "log.h"
-#include "main.h"
-#include "signals.h"
-#include "util.h"
-#include "widget_api.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/signals.h"
+#include "t3widget/util.h"
+#include "t3widget/widget_api.h"
 
 #ifdef HAS_STRDUP
 #define _t3_widget_strdup strdup

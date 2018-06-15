@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 
-#include "widget_api.h"
+#include "t3widget/widget_api.h"
 namespace t3_widget {
 
 #ifdef _T3_WIDGET_DEBUG

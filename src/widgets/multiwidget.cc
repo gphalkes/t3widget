@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/multiwidget.h"
-#include "log.h"
+#include "t3widget/widgets/multiwidget.h"
+#include "t3widget/log.h"
 namespace t3_widget {
 
 multi_widget_t::multi_widget_t() : fixed_sum(0), proportion_sum(0), send_key_widget(nullptr) {

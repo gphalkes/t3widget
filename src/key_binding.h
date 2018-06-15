@@ -18,7 +18,7 @@
 #include <map>
 #include <vector>
 
-#include "util.h"
+#include "t3widget/util.h"
 
 namespace t3_widget {
 

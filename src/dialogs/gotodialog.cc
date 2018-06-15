@@ -11,10 +11,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dialogs/gotodialog.h"
-#include "main.h"
-#include "widgets/button.h"
-#include "widgets/smartlabel.h"
+#include "t3widget/dialogs/gotodialog.h"
+#include "t3widget/main.h"
+#include "t3widget/widgets/button.h"
+#include "t3widget/widgets/smartlabel.h"
 
 #define GOTO_DIALOG_WIDTH 30
 #define GOTO_DIALOG_HEIGHT 4

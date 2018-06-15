@@ -11,7 +11,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "internal.h"
+#include "t3widget/internal.h"
 #include <cstring>
 #include <t3widget/key.h>
 #include <t3widget/keybuffer.h>

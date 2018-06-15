@@ -11,9 +11,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dialogs/inputselectiondialog.h"
-#include "internal.h"
-#include "widgets/button.h"
+#include "t3widget/dialogs/inputselectiondialog.h"
+#include "t3widget/internal.h"
+#include "t3widget/widgets/button.h"
 #include <cstring>
 #include <t3window/utf8.h>
 

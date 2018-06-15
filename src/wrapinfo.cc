@@ -12,9 +12,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "wrapinfo.h"
-#include "internal.h"
-#include "log.h"
+#include "t3widget/wrapinfo.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
 
 namespace t3_widget {
 

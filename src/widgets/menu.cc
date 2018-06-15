@@ -14,12 +14,12 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "colorscheme.h"
-#include "dialogs/menupanel.h"
-#include "key.h"
-#include "log.h"
-#include "main.h"
-#include "widgets/menu.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/dialogs/menupanel.h"
+#include "t3widget/key.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/widgets/menu.h"
 
 namespace t3_widget {
 

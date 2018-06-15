@@ -17,13 +17,13 @@
 #include <cstring>
 #include <t3window/utf8.h>
 
-#include "colorscheme.h"
-#include "findcontext.h"
-#include "internal.h"
-#include "stringmatcher.h"
-#include "textline.h"
-#include "undo.h"
-#include "util.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/findcontext.h"
+#include "t3widget/internal.h"
+#include "t3widget/stringmatcher.h"
+#include "t3widget/textline.h"
+#include "t3widget/undo.h"
+#include "t3widget/util.h"
 
 namespace t3_widget {
 

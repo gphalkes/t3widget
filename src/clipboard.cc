@@ -25,14 +25,14 @@ using lt_dlhandle = void *;
 #endif
 #endif
 
-#include "clipboard.h"
-#include "extclipboard.h"
-#include "ptr.h"
+#include "t3widget/clipboard.h"
+#include "t3widget/extclipboard.h"
+#include "t3widget/ptr.h"
 
 /* Ensure that functions with internal linkage as defined in internal.h actually
    get compiled with internal linkage. */
-#include "internal.h"
-#include "log.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
 
 namespace t3_widget {
 

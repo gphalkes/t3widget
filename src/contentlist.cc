@@ -19,9 +19,9 @@
 #include <dirent.h>
 #include <fnmatch.h>
 
-#include "contentlist.h"
-#include "main.h"
-#include "util.h"
+#include "t3widget/contentlist.h"
+#include "t3widget/main.h"
+#include "t3widget/util.h"
 
 namespace t3_widget {
 

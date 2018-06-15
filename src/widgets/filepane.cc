@@ -11,9 +11,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/filepane.h"
-#include "colorscheme.h"
-#include "main.h"
+#include "t3widget/widgets/filepane.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/main.h"
 
 namespace t3_widget {
 

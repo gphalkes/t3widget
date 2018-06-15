@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "undo.h"
-#include "textline.h"
+#include "t3widget/undo.h"
+#include "t3widget/textline.h"
 #include <cstdlib>
 #include <cstring>
 #include <new>
@@ -115,7 +115,7 @@ bool undo_list_t::is_at_mark() const { return mark_is_valid && mark == current; 
 
 #if 0
 #ifdef DEBUG
-#include "log.h"
+#include "t3widget/log.h"
 static const char *undo_type_to_string[] = {
 	"UNDO_NONE",
 	"UNDO_DELETE",

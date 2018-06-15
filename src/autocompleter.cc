@@ -11,9 +11,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "autocompleter.h"
-#include "textbuffer.h"
-#include "util.h"
+#include "t3widget/autocompleter.h"
+#include "t3widget/textbuffer.h"
+#include "t3widget/util.h"
 
 namespace t3_widget {
 

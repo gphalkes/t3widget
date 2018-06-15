@@ -11,8 +11,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/colorpicker.h"
-#include "colorscheme.h"
+#include "t3widget/widgets/colorpicker.h"
+#include "t3widget/colorscheme.h"
 #include <cstdio>
 
 namespace t3_widget {

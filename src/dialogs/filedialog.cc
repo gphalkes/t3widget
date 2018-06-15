@@ -17,10 +17,10 @@
 
 #include <t3window/window.h>
 
-#include "dialogs/filedialog.h"
-#include "internal.h"
-#include "main.h"
-#include "util.h"
+#include "t3widget/dialogs/filedialog.h"
+#include "t3widget/internal.h"
+#include "t3widget/main.h"
+#include "t3widget/util.h"
 
 namespace t3_widget {
 

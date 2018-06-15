@@ -25,13 +25,13 @@
 #include <sys/ioctl.h>
 #endif
 
-#include "clipboard.h"
-#include "colorscheme.h"
-#include "dialogs/dialog.h"
-#include "internal.h"
-#include "log.h"
-#include "main.h"
-#include "textline.h"
+#include "t3widget/clipboard.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/dialogs/dialog.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/textline.h"
 
 namespace t3_widget {
 #define MESSAGE_DIALOG_WIDTH 50

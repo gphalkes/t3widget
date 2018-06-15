@@ -13,15 +13,15 @@
 */
 #include <algorithm>
 #include <cstring>
+#include <t3window/utf8.h>
 
-#include "clipboard.h"
-#include "colorscheme.h"
-#include "internal.h"
-#include "log.h"
-#include "main.h"
-#include "t3window/utf8.h"
-#include "widgets/label.h"
-#include "widgets/textfield.h"
+#include "t3widget/clipboard.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/widgets/label.h"
+#include "t3widget/widgets/textfield.h"
 
 namespace t3_widget {
 
@@ -36,7 +36,7 @@ namespace t3_widget {
 */
 #define _T3_ACTION_FILE "widgets/textfield.actions.h"
 #define _T3_ACTION_TYPE text_field_t
-#include "key_binding_def.h"
+#include "t3widget/key_binding_def.h"
 
 text_field_t::text_field_t() : widget_t(1, 4), impl(new implementation_t()) { reset_selection(); }
 

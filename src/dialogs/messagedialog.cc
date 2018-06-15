@@ -11,9 +11,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dialogs/messagedialog.h"
-#include "main.h"
-#include "textline.h"
+#include "t3widget/dialogs/messagedialog.h"
+#include "t3widget/main.h"
+#include "t3widget/textline.h"
 #include <climits>
 #include <cstdarg>
 #include <cstring>
