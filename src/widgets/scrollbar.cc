@@ -14,9 +14,9 @@
 #include <cmath>
 #include <cstring>
 
-#include "colorscheme.h"
-#include "log.h"
-#include "widgets/scrollbar.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/log.h"
+#include "t3widget/widgets/scrollbar.h"
 
 namespace t3widget {
 

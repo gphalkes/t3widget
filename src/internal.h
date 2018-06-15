@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <memory>
 #include <string>
-#include <t3widget/key.h>
 
 #ifdef HAS_SELECT_H
 #include <sys/select.h>
@@ -31,12 +30,13 @@
 #include <unistd.h>
 #endif
 
-#include "log.h"
-#include "main.h"
-#include "signals.h"
-#include "string_view.h"
-#include "util.h"
-#include "widget_api.h"
+#include <t3widget/key.h>
+#include <t3widget/log.h>
+#include <t3widget/main.h>
+#include <t3widget/signals.h>
+#include <t3widget/string_view.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 

@@ -11,10 +11,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/expander.h"
-#include "colorscheme.h"
-#include "internal.h"
-#include "log.h"
+#include "t3widget/widgets/expander.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
 
 namespace t3widget {
 

@@ -13,12 +13,12 @@
 */
 #include <algorithm>
 
-#include "colorscheme.h"
-#include "dialogbase.h"
-#include "dialogs/dialog.h"
-#include "dialogs/mainwindow.h"
-#include "internal.h"
-#include "main.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/dialogs/dialog.h"
+#include "t3widget/dialogs/dialogbase.h"
+#include "t3widget/dialogs/mainwindow.h"
+#include "t3widget/internal.h"
+#include "t3widget/main.h"
 
 namespace t3widget {
 

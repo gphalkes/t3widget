@@ -13,9 +13,9 @@
 */
 #include <cstring>
 
-#include "colorscheme.h"
-#include "internal.h"
-#include "widgets/button.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/widgets/button.h"
 
 namespace t3widget {
 

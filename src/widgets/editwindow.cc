@@ -13,19 +13,18 @@
 */
 #include <cstring>
 
-#include "widgets/label.h"
-
-#include "clipboard.h"
-#include "colorscheme.h"
-#include "dialogs/finddialog.h"
-#include "dialogs/gotodialog.h"
-#include "findcontext.h"
-#include "internal.h"
-#include "log.h"
-#include "main.h"
-#include "util.h"
-#include "widgets/editwindow.h"
-#include "wrapinfo.h"
+#include "t3widget/clipboard.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/dialogs/finddialog.h"
+#include "t3widget/dialogs/gotodialog.h"
+#include "t3widget/findcontext.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/editwindow.h"
+#include "t3widget/widgets/label.h"
+#include "t3widget/wrapinfo.h"
 
 /* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
 
@@ -43,9 +42,9 @@ connection_t edit_window_t::right_click_menu_connection;
 
 connection_t edit_window_t::init_connected = connect_on_init(edit_window_t::init);
 
-#define _T3_ACTION_FILE "widgets/editwindow.actions.h"
+#define _T3_ACTION_FILE "t3widget/widgets/editwindow.actions.h"
 #define _T3_ACTION_TYPE edit_window_t
-#include "key_binding_def.h"
+#include "t3widget/key_binding_def.h"
 
 const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = {&text_buffer_t::insert_char,

@@ -13,11 +13,11 @@
 */
 #include <sys/time.h>
 
-#include "interfaces.h"
-#include "internal.h"
-#include "log.h"
-#include "main.h"
-#include "widgets/widget.h"
+#include "t3widget/interfaces.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/widgets/widget.h"
 
 namespace t3widget {
 

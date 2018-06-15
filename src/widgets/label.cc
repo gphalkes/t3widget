@@ -11,10 +11,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/label.h"
-#include "colorscheme.h"
-#include "log.h"
-#include "textline.h"
+#include "t3widget/widgets/label.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/log.h"
+#include "t3widget/textline.h"
 
 namespace t3widget {
 

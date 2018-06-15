@@ -13,9 +13,9 @@
 */
 #include <cstdio>
 
-#include "colorscheme.h"
-#include "internal.h"
-#include "widgets/colorpicker.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/widgets/colorpicker.h"
 
 namespace t3widget {
 struct color_picker_base_t::implementation_t {

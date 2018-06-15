@@ -11,16 +11,17 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/split.h"
-#include "internal.h"
 #include <algorithm>
 #include <cstring>
 
+#include "t3widget/internal.h"
+#include "t3widget/widgets/split.h"
+
 namespace t3widget {
 
-#define _T3_ACTION_FILE "widgets/split.actions.h"
+#define _T3_ACTION_FILE "t3widget/widgets/split.actions.h"
 #define _T3_ACTION_TYPE split_t
-#include "key_binding_def.h"
+#include "t3widget/key_binding_def.h"
 
 struct split_t::implementation_t {
   owned_widgets_t widgets;           /**< The list of widgets contained by this split_t. */

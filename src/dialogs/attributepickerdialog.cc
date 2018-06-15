@@ -11,12 +11,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "dialogs/attributepickerdialog.h"
-#include "colorscheme.h"
-#include "internal.h"
-#include "widgets/button.h"
-#include "widgets/expander.h"
-#include "widgets/frame.h"
+#include "t3widget/dialogs/attributepickerdialog.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/widgets/button.h"
+#include "t3widget/widgets/expander.h"
+#include "t3widget/widgets/frame.h"
 
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 8
 #define ATTRIBUTE_PICKER_DIALOG_WIDTH 43

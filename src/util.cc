@@ -22,10 +22,10 @@
 #include <unictype.h>
 #include <unistd.h>
 
-#include "internal.h"
-#include "log.h"
-#include "main.h"
-#include "util.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/util.h"
 
 namespace t3widget {
 

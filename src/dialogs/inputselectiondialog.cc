@@ -14,9 +14,9 @@
 #include <cstring>
 #include <t3window/utf8.h>
 
-#include "dialogs/inputselectiondialog.h"
-#include "internal.h"
-#include "widgets/button.h"
+#include "t3widget/dialogs/inputselectiondialog.h"
+#include "t3widget/internal.h"
+#include "t3widget/widgets/button.h"
 
 namespace t3widget {
 

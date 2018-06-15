@@ -11,9 +11,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "widgets/checkbox.h"
-#include "colorscheme.h"
-#include "internal.h"
+#include "t3widget/widgets/checkbox.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
 
 namespace t3widget {
 

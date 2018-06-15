@@ -19,12 +19,12 @@
 #include <unicase.h>
 #include <vector>
 
-#include "colorscheme.h"
-#include "internal.h"
-#include "textline.h"
-#include "util.h"
-#include "widgets/smartlabel.h"
-#include "widgets/widget.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/textline.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/smartlabel.h"
+#include "t3widget/widgets/widget.h"
 
 namespace t3widget {
 

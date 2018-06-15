@@ -11,11 +11,13 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "colorscheme.h"
-#include "dialogs/dialog.h"
-#include "main.h"
+
 #include <cstring>
 #include <t3window/window.h>
+
+#include "t3widget/colorscheme.h"
+#include "t3widget/dialogs/dialog.h"
+#include "t3widget/main.h"
 
 namespace t3widget {
 

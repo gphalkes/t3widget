@@ -15,9 +15,9 @@
 #include <cstring>
 #include <new>
 
-#include "subclasslist.h"
-#include "textline.h"
-#include "undo.h"
+#include "t3widget/subclasslist.h"
+#include "t3widget/textline.h"
+#include "t3widget/undo.h"
 
 namespace t3widget {
 struct undo_list_t::implementation_t {

@@ -11,10 +11,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "log.h"
 #include <cstdarg>
 #include <cstdlib>
 #include <cstring>
+
+#include "t3widget/log.h"
 
 namespace t3widget {
 

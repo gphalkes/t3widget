@@ -15,10 +15,10 @@
 #include <cstdarg>
 #include <cstring>
 
-#include "dialogs/messagedialog.h"
-#include "internal.h"
-#include "main.h"
-#include "textline.h"
+#include "t3widget/dialogs/messagedialog.h"
+#include "t3widget/internal.h"
+#include "t3widget/main.h"
+#include "t3widget/textline.h"
 
 #define MESSAGEDIALOG_MAX_LINES 10
 

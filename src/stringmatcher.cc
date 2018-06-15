@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "stringmatcher.h"
+#include "t3widget/stringmatcher.h"
 
 namespace t3widget {
 

@@ -17,11 +17,11 @@
 #include <t3window/utf8.h>
 #include <unicase.h>
 
-#include "findcontext.h"
-#include "internal.h"
-#include "log.h"
-#include "stringmatcher.h"
-#include "util.h"
+#include "t3widget/findcontext.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/stringmatcher.h"
+#include "t3widget/util.h"
 
 namespace t3widget {
 

@@ -16,16 +16,16 @@
 #include <new>
 #include <t3window/window.h>
 
-#include "clipboard.h"
-#include "colorscheme.h"
-#include "findcontext.h"
-#include "internal.h"
-#include "textbuffer.h"
-#include "textbuffer_impl.h"
-#include "textline.h"
-#include "undo.h"
-#include "util.h"
-#include "wrapinfo.h"
+#include "t3widget/clipboard.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/findcontext.h"
+#include "t3widget/internal.h"
+#include "t3widget/textbuffer.h"
+#include "t3widget/textbuffer_impl.h"
+#include "t3widget/textline.h"
+#include "t3widget/undo.h"
+#include "t3widget/util.h"
+#include "t3widget/wrapinfo.h"
 
 namespace t3widget {
 /*FIXME-REFACTOR: adjust_position in line is often called with same argument as

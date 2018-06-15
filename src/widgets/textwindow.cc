@@ -13,11 +13,11 @@
 */
 #include <cstring>
 
-#include "colorscheme.h"
-#include "internal.h"
-#include "textwindow.h"
-#include "util.h"
-#include "wrapinfo.h"
+#include "t3widget/colorscheme.h"
+#include "t3widget/internal.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/textwindow.h"
+#include "t3widget/wrapinfo.h"
 
 namespace t3widget {
 

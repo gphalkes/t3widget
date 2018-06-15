@@ -13,12 +13,12 @@
 */
 #include <cstring>
 
-#include "dialogs/insertchardialog.h"
-#include "internal.h"
-#include "log.h"
-#include "main.h"
-#include "util.h"
-#include "widgets/button.h"
+#include "t3widget/dialogs/insertchardialog.h"
+#include "t3widget/internal.h"
+#include "t3widget/log.h"
+#include "t3widget/main.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/button.h"
 
 // FIXME: auto-complete list from previous entries
 namespace t3widget {

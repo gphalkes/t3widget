@@ -12,7 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "key_binding.h"
+#include "t3widget/key_binding.h"
 
 namespace t3widget {
 
