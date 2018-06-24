@@ -652,25 +652,10 @@ undo_t *text_buffer_t::implementation_t::get_undo(undo_type_t type, text_coordin
     last_undo->minimize();
   }
 
-  switch (type) {
-    case UNDO_BLOCK_START:
-    case UNDO_BLOCK_END:
-      last_undo = new undo_t(type, coord);
-      break;
-    case UNDO_DELETE:
-    case UNDO_ADD:
-    case UNDO_BACKSPACE:
-    case UNDO_INDENT:
-    case UNDO_UNINDENT:
-    case UNDO_OVERWRITE:
-      last_undo = new undo_single_text_t(type, coord);
-      break;
-    default:
-      ASSERT(false);
-  }
+  ASSERT(type != UNDO_NONE && type <= UNDO_BLOCK_END);
   last_undo_position = coord;
 
-  undo_list.add(last_undo);
+  last_undo = undo_list.add(type, coord);
   switch (type) {
     case UNDO_BLOCK_START:
     case UNDO_BLOCK_END:

@@ -61,7 +61,7 @@ class T3_WIDGET_API undo_list_t {
  public:
   undo_list_t();
   ~undo_list_t();
-  void add(undo_t *undo);
+  undo_t *add(undo_type_t type, text_coordinate_t coord);
   undo_t *back();
   undo_t *forward();
   void set_mark();
@@ -78,35 +78,16 @@ class T3_WIDGET_API undo_t {
 
   undo_type_t type;
   text_coordinate_t start;
-
-  undo_t *previous_ = nullptr, *next_ = nullptr;
-  undo_t *&next() { return next_; }
-  undo_t *&prev() { return previous_; }
-  template <typename T>
-  friend class subclass_list_t;
-
- public:
-  undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start) {}
-  virtual ~undo_t();
-  undo_type_t get_type() const;
-  undo_type_t get_redo_type() const;
-  virtual text_coordinate_t get_start();
-  virtual void add_newline() {}
-  virtual tiny_string_t *get_text();
-  virtual std::string *get_replacement();
-  virtual text_coordinate_t get_end() const;
-  virtual void minimize() {}
-};
-
-class T3_WIDGET_API undo_single_text_t : public undo_t {
- private:
   tiny_string_t text;
 
  public:
-  undo_single_text_t(undo_type_t _type, text_coordinate_t _start) : undo_t(_type, _start){};
-  void add_newline() override;
-  tiny_string_t *get_text() override;
-  void minimize() override;
+  undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start) {}
+  undo_type_t get_type() const;
+  undo_type_t get_redo_type() const;
+  text_coordinate_t get_start();
+  void add_newline();
+  tiny_string_t *get_text();
+  void minimize();
 };
 
 }  // namespace t3widget

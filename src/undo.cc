@@ -13,23 +13,24 @@
 */
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <new>
 
-#include "t3widget/subclasslist.h"
 #include "t3widget/textline.h"
 #include "t3widget/undo.h"
 
 namespace t3widget {
 struct undo_list_t::implementation_t {
-  subclass_list_t<undo_t> list;
-  subclass_list_t<undo_t>::iterator current = list.end(), mark = list.end();
+  std::deque<undo_t> list;
+  std::deque<undo_t>::iterator current = list.end(), mark = list.end();
   bool mark_is_valid = true;
   bool mark_beyond_current = false;
 
-  void add(undo_t *undo) {
+  undo_t *add(undo_type_t type, text_coordinate_t coord) {
     if (list.empty()) {
-      mark = list.link_insert(list.end(), undo);
-      return;
+      mark = list.emplace(list.end(), type, coord);
+      current = list.end();
+      return &*mark;
     }
 
     // Everything beyond current will be deleted, so mark will be invalid afterwards.
@@ -40,12 +41,13 @@ struct undo_list_t::implementation_t {
     const bool mark_at_current = mark_is_valid && current == mark;
     if (current != list.end()) {
       list.erase(current, list.end());
-      current = list.end();
     }
-    auto iter = list.link_insert(list.end(), undo);
+    auto iter = list.emplace(list.end(), type, coord);
+    current = list.end();
     if (mark_at_current) {
       mark = iter;
     }
+    return &*iter;
   }
 
   undo_t *back() {
@@ -85,7 +87,9 @@ struct undo_list_t::implementation_t {
 undo_list_t::undo_list_t() : impl(new implementation_t) {}
 undo_list_t::~undo_list_t() {}
 
-void undo_list_t::add(undo_t *undo) { impl->add(undo); }
+undo_t *undo_list_t::add(undo_type_t type, text_coordinate_t coord) {
+  return impl->add(type, coord);
+}
 
 undo_t *undo_list_t::back() { return impl->back(); }
 
@@ -146,18 +150,11 @@ undo_type_t undo_t::redo_map[] = {
     UNDO_NONE,     UNDO_ADD,    UNDO_BACKSPACE_REDO,   UNDO_ADD_REDO,      UNDO_OVERWRITE_REDO,
     UNDO_UNINDENT, UNDO_INDENT, UNDO_BLOCK_START_REDO, UNDO_BLOCK_END_REDO};
 
-undo_t::~undo_t() {}
-
 undo_type_t undo_t::get_type() const { return type; }
 undo_type_t undo_t::get_redo_type() const { return redo_map[type]; }
-
 text_coordinate_t undo_t::get_start() { return start; }
-tiny_string_t *undo_t::get_text() { return nullptr; }
-std::string *undo_t::get_replacement() { return nullptr; }
-text_coordinate_t undo_t::get_end() const { return text_coordinate_t(-1, -1); }
-
-void undo_single_text_t::add_newline() { text.append(1, '\n'); }
-tiny_string_t *undo_single_text_t::get_text() { return &text; }
-void undo_single_text_t::minimize() { text.shrink_to_fit(); }
+void undo_t::add_newline() { text.append(1, '\n'); }
+tiny_string_t *undo_t::get_text() { return &text; }
+void undo_t::minimize() { text.shrink_to_fit(); }
 
 }  // namespace t3widget
