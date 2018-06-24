@@ -295,12 +295,13 @@ void tiny_string_t::reserve(size_t reserved_size) {
 
 void tiny_string_t::shrink_to_fit() {
   if (!is_short()) {
-    if (ptr->size > max_short_size()) {
+    if (ptr->size <= max_short_size()) {
       size_t original_size = ptr->size;
       char data[sizeof(allocated_string_t *)];
       memcpy(data, &ptr->data, sizeof(allocated_string_t *));
       std::free(ptr);
-      memcpy(mutable_data(), data + static_cast<size_t>(is_little_endian()), original_size);
+      mutable_signal_byte() = original_size * 2 + 1;
+      memcpy(mutable_data(), data, original_size);
     } else {
       realloc_ptr(ptr->size);
     }

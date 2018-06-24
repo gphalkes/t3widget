@@ -160,11 +160,4 @@ void undo_single_text_t::add_newline() { text.append(1, '\n'); }
 tiny_string_t *undo_single_text_t::get_text() { return &text; }
 void undo_single_text_t::minimize() { text.shrink_to_fit(); }
 
-std::string *undo_double_text_t::get_replacement() { return &replacement; }
-void undo_double_text_t::minimize() {
-  undo_single_text_t::minimize();
-  replacement.reserve(0);
-}
-text_coordinate_t undo_double_text_t::get_end() const { return end; }
-
 }  // namespace t3widget

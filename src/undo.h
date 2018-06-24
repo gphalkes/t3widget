@@ -109,19 +109,5 @@ class T3_WIDGET_API undo_single_text_t : public undo_t {
   void minimize() override;
 };
 
-class T3_WIDGET_API undo_double_text_t : public undo_single_text_t {
- private:
-  std::string replacement;
-  text_coordinate_t end;
-
- public:
-  undo_double_text_t(undo_type_t _type, text_coordinate_t _start, text_coordinate_t _end)
-      : undo_single_text_t(_type, _start), end(_end) {}
-
-  std::string *get_replacement() override;
-  void minimize() override;
-  text_coordinate_t get_end() const override;
-};
-
 }  // namespace t3widget
 #endif

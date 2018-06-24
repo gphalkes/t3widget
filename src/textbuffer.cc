@@ -18,6 +18,7 @@
 
 #include "t3widget/clipboard.h"
 #include "t3widget/colorscheme.h"
+#include "t3widget/double_string_adapter.h"
 #include "t3widget/findcontext.h"
 #include "t3widget/internal.h"
 #include "t3widget/textbuffer.h"
@@ -661,12 +662,8 @@ undo_t *text_buffer_t::implementation_t::get_undo(undo_type_t type, text_coordin
     case UNDO_BACKSPACE:
     case UNDO_INDENT:
     case UNDO_UNINDENT:
-      last_undo = new undo_single_text_t(type, coord);
-      break;
     case UNDO_OVERWRITE:
-      // FIXME: what to do with the last arguments?
-      last_undo = new undo_double_text_t(type, coord, text_coordinate_t(-1, -1));
-      break;
+      last_undo = new undo_single_text_t(type, coord);
       break;
     default:
       ASSERT(false);
@@ -735,19 +732,23 @@ int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *c
       start.pos -= current->get_text()->size();
       delete_block_internal(start, end, nullptr);
       break;
-    case UNDO_OVERWRITE:
+    case UNDO_OVERWRITE: {
+      double_string_adapter_t undo_adapter(current->get_text());
       end = start = current->get_start();
-      end.pos += current->get_replacement()->size();
+      end.pos += undo_adapter.second().size();
       delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, line_factory->new_text_line_t(*current->get_text()));
+      insert_block_internal(start, line_factory->new_text_line_t(undo_adapter.first()));
       cursor = start;
       break;
-    case UNDO_OVERWRITE_REDO:
+    }
+    case UNDO_OVERWRITE_REDO: {
+      double_string_adapter_t undo_adapter(current->get_text());
       end = start = current->get_start();
-      end.pos += current->get_text()->size();
+      end.pos += undo_adapter.first().size();
       delete_block_internal(start, end, nullptr);
-      insert_block_internal(start, line_factory->new_text_line_t(*current->get_replacement()));
+      insert_block_internal(start, line_factory->new_text_line_t(undo_adapter.second()));
       break;
+    }
     case UNDO_INDENT:
     case UNDO_UNINDENT:
       undo_indent_selection(current, type);

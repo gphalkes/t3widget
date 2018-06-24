@@ -18,6 +18,7 @@
 #include <t3window/utf8.h>
 
 #include "t3widget/colorscheme.h"
+#include "t3widget/double_string_adapter.h"
 #include "t3widget/findcontext.h"
 #include "t3widget/internal.h"
 #include "t3widget/stringmatcher.h"
@@ -698,9 +699,8 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 
     if (undo != nullptr) {
       ASSERT(undo->get_type() == UNDO_OVERWRITE);
-      std::string *replacement_text = undo->get_replacement();
-      replacement_text->reserve(replacement_text->size() + conversion_length);
-      replacement_text->append(conversion_buffer, conversion_length);
+      double_string_adapter_t undo_adapter(undo->get_text());
+      undo_adapter.append_second(string_view(conversion_buffer, conversion_length));
     }
     return insert_char(pos, c, nullptr);
   }
@@ -716,13 +716,9 @@ bool text_line_t::overwrite_char(int pos, key_t c, undo_t *undo) {
 
   if (undo != nullptr) {
     ASSERT(undo->get_type() == UNDO_OVERWRITE);
-    tiny_string_t *undo_text = undo->get_text();
-    undo_text->reserve(undo_text->size() + oldspace);
-    std::string *replacement_text = undo->get_replacement();
-    replacement_text->reserve(replacement_text->size() + conversion_length);
-
-    undo_text->append(string_view(buffer.data() + pos, oldspace));
-    replacement_text->append(conversion_buffer, conversion_length);
+    double_string_adapter_t undo_adapter(undo->get_text());
+    undo_adapter.append_first(string_view(buffer.data() + pos, oldspace));
+    undo_adapter.append_second(string_view(conversion_buffer, conversion_length));
   }
 
   buffer.replace(pos, oldspace, conversion_buffer, conversion_length);
