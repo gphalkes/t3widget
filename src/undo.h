@@ -19,6 +19,10 @@
 #include <t3widget/tinystring.h>
 #include <t3widget/util.h>
 
+#ifndef _T3_WIDGET_INTERNAL
+#error This header file is for internal use _only_!!
+#endif
+
 namespace t3widget {
 
 /* FIXME: the undo/redo functionality should be reimplemented, composing operations from:
@@ -76,12 +80,12 @@ class T3_WIDGET_API undo_t {
  private:
   static undo_type_t redo_map[];
 
-  undo_type_t type;
-  text_coordinate_t start;
   tiny_string_t text;
+  text_coordinate_t start;
+  undo_type_t type;
 
  public:
-  undo_t(undo_type_t _type, text_coordinate_t _start) : type(_type), start(_start) {}
+  undo_t(undo_type_t _type, text_coordinate_t _start) : start(_start), type(_type) {}
   undo_type_t get_type() const;
   undo_type_t get_redo_type() const;
   text_coordinate_t get_start();
