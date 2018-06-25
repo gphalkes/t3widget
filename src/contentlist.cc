@@ -13,7 +13,6 @@
 */
 #include <algorithm>
 #include <cerrno>
-#include <cstdarg>
 #include <cstdint>
 #include <cstring>
 #include <dirent.h>

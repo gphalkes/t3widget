@@ -24,10 +24,7 @@ namespace t3widget {
    case-insensitive matching in UTF-8 to match the fully case-folded
    version. */
 
-string_matcher_t::string_matcher_t(const std::string &_needle) : needle(_needle) { init(); }
-
-string_matcher_t::string_matcher_t(char *_needle, size_t _needle_size)
-    : needle(_needle, _needle_size) {
+string_matcher_t::string_matcher_t(string_view _needle) : needle(_needle.data(), _needle.size()) {
   init();
 }
 

@@ -25,14 +25,6 @@
 
 namespace t3widget {
 
-/* FIXME: the undo/redo functionality should be reimplemented, composing operations from:
-   DELETE, ADD, ADD_NEWLINE, DELETE_NEWLINE, BLOCK_START, BLOCK_END
-   The last two should contain the cursor positions before and after the action, the others
-   should only encode the minimal location information to execute the operation at the
-   correct point. If the location information does not leave the cursor at the correct
-   point, it should be enclosed by the BLOCK_START/BLOCK_END combination.
-*/
-
 enum undo_type_t {
   UNDO_NONE,
   UNDO_DELETE,
@@ -54,8 +46,6 @@ enum undo_type_t {
   UNDO_BLOCK_START_REDO,
   UNDO_BLOCK_END_REDO,
 };
-
-// FIXME: reimplement using std::list
 
 class T3_WIDGET_API undo_list_t {
  private:

@@ -34,13 +34,13 @@ struct button_t::implementation_t {
       has_focus = false; /**< Boolean indicating whether this button has the input focus. */
   signal_t<> activate;
 
-  implementation_t(const char *_text, bool _is_default, impl_allocator_t *allocator)
+  implementation_t(string_view _text, bool _is_default, impl_allocator_t *allocator)
       : text(_text, false, allocator), is_default(_is_default) {
     text_width = text.get_width();
   }
 };
 
-button_t::button_t(const char *_text, bool _is_default)
+button_t::button_t(string_view _text, bool _is_default)
     : widget_t(impl_alloc<focus_widget_t::implementation_t>(
           impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0)))),
       focus_widget_t(this),

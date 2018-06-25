@@ -48,7 +48,7 @@ struct smart_label_text_t::implementation_t {
   key_t hotkey;
   bool must_delete;
 
-  implementation_t(const char *spec, bool _add_colon, bool _must_delete)
+  implementation_t(string_view spec, bool _add_colon, bool _must_delete)
       : add_colon(_add_colon), text(spec), underlined(false), hotkey(0), must_delete(_must_delete) {
     if ((underline_start = text.find('_')) != std::string::npos) {
       size_t src_size;
@@ -65,7 +65,7 @@ struct smart_label_text_t::implementation_t {
   }
 };
 
-smart_label_text_t::smart_label_text_t(const char *spec, bool add_colon,
+smart_label_text_t::smart_label_text_t(string_view spec, bool add_colon,
                                        impl_allocator_t *allocator) {
   if (allocator) {
     impl = allocator->new_impl<implementation_t>(spec, add_colon, false);
@@ -118,7 +118,7 @@ size_t smart_label_text_t::impl_alloc(size_t impl_size) {
 }
 
 //======= smart_label_t =======
-smart_label_t::smart_label_t(const char *spec, bool _add_colon)
+smart_label_t::smart_label_t(string_view spec, bool _add_colon)
     : widget_t(smart_label_text_t::impl_alloc(0)), smart_label_text_t(spec, _add_colon, this) {
   init_window(1, get_width(), false);
 }

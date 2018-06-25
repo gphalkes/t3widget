@@ -33,7 +33,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 
       The @p _text is used to initialize a smart_label_text_t, therefore the
       character following the underscore will be highlighted. */
-  button_t(const char *_text, bool _is_default = false);
+  button_t(string_view _text, bool _is_default = false);
   ~button_t() override;
   bool process_key(key_t key) override;
   /** Set the size of this button_t.

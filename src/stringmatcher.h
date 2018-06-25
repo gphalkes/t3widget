@@ -34,8 +34,7 @@ class T3_WIDGET_LOCAL string_matcher_t {
   void init();
 
  public:
-  string_matcher_t(const std::string &_needle);
-  string_matcher_t(char *_needle, size_t _needle_size);
+  string_matcher_t(string_view _needle);
   virtual ~string_matcher_t();
   void reset();
   int next_char(const std::string *c);

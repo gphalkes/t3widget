@@ -40,11 +40,12 @@ struct menu_item_t::implementation_t {
   const char *hotkey;
   int id;
   bool has_focus = false;
-  implementation_t(const char *_label, const char *_hotkey, int _id, impl_allocator_t *allocator)
+  implementation_t(string_view _label, const char *_hotkey, int _id, impl_allocator_t *allocator)
       : label(_label, false, allocator), hotkey(_hotkey), id(_id) {}
 };
 
-menu_item_t::menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id)
+menu_item_t::menu_item_t(menu_panel_t *_parent, t3widget::string_view _label, const char *_hotkey,
+                         int _id)
     : menu_item_base_t(_parent, impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
       impl(new_impl<implementation_t>(_label, _hotkey, _id, this)) {}
 

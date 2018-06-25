@@ -12,7 +12,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <climits>
-#include <cstdarg>
 #include <cstring>
 
 #include "t3widget/dialogs/messagedialog.h"
@@ -32,12 +31,11 @@ struct message_dialog_t::implementation_t {
   implementation_t() : max_text_height(MESSAGEDIALOG_MAX_LINES) {}
 };
 
-message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
+message_dialog_t::message_dialog_t(int width, optional<std::string> _title,
+                                   std::initializer_list<string_view> buttons)
     : dialog_t(5, width, std::move(_title), impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  va_list ap;
   button_t *button;
-  const char *button_name;
   int total_width = 0;
 
   impl->text_window = new text_window_t(nullptr, false);
@@ -50,9 +48,8 @@ message_dialog_t::message_dialog_t(int width, optional<std::string> _title, ...)
 
   push_back(impl->text_window);
 
-  va_start(ap, _title);
   auto &widgets = dialog_t::widgets();
-  while ((button_name = va_arg(ap, const char *)) != nullptr) {
+  for (string_view button_name : buttons) {
     if (widgets.size() == 1) {
       button = new button_t(button_name, true);
       button->connect_activate([this] { hide(); });

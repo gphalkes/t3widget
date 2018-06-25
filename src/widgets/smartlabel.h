@@ -25,7 +25,7 @@ class T3_WIDGET_API smart_label_text_t {
   implementation_t *impl;
 
  public:
-  smart_label_text_t(const char *spec, bool add_colon = false,
+  smart_label_text_t(string_view spec, bool add_colon = false,
                      impl_allocator_t *allocator = nullptr);
   virtual ~smart_label_text_t();
   void draw(t3window::window_t *win, t3_attr_t attr, bool selected = false);
@@ -37,7 +37,7 @@ class T3_WIDGET_API smart_label_text_t {
 
 class T3_WIDGET_API smart_label_t : public widget_t, public smart_label_text_t {
  public:
-  smart_label_t(const char *spec, bool _addColon = false);
+  smart_label_t(string_view spec, bool _addColon = false);
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;

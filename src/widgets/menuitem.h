@@ -45,7 +45,7 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
   void process_mouse_event_from_menu(mouse_event_t event) override;
 
  public:
-  menu_item_t(menu_panel_t *_parent, const char *_label, const char *_hotkey, int _id);
+  menu_item_t(menu_panel_t *_parent, string_view _label, const char *_hotkey, int _id);
   ~menu_item_t() override;
   bool process_key(key_t key) override;
   void update_contents() override;

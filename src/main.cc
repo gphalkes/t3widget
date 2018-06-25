@@ -323,8 +323,7 @@ complex_error_t init(const init_parameters_t *params) {
     /* Construct these here, such that the locale is set correctly and
        gettext therefore returns the correctly localized strings. */
     if (message_dialog == nullptr) {
-      message_dialog =
-          new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), _("Close"), nullptr);
+      message_dialog = new message_dialog_t(MESSAGE_DIALOG_WIDTH, _("Message"), {_("Close")});
     }
     if (insert_char_dialog == nullptr) {
       insert_char_dialog = new insert_char_dialog_t();

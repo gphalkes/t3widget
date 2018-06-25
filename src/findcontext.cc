@@ -153,9 +153,7 @@ bool plain_finder_t::set_needle(const std::string &needle, std::string *error_me
     folded_needle.reset(reinterpret_cast<char *>(
         u8_casefold(reinterpret_cast<const uint8_t *>(search_for.data()), search_for.size(),
                     nullptr, nullptr, nullptr, &folded_needle_size)));
-    /* When passing a const char * to string_matcher_t, it takes responsibility for
-       de-allocation. */
-    matcher.reset(new string_matcher_t(folded_needle.get(), folded_needle_size));
+    matcher.reset(new string_matcher_t(string_view(folded_needle.get(), folded_needle_size)));
   } else {
     matcher.reset(new string_matcher_t(search_for));
   }
