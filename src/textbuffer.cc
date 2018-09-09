@@ -992,7 +992,7 @@ bool text_buffer_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
     }
     pos = next_pos + 1;
   }
-  cursor = undo->get_end();
+  cursor = type == UNDO_UNINDENT ? undo->get_end() : undo->get_start();
   return true;
 }
 
@@ -1133,4 +1133,4 @@ void text_buffer_t::goto_pos(int line, int pos) {
   }
 }
 
-};  // namespace
+};  // namespace t3_widget
