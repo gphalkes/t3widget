@@ -358,7 +358,7 @@ T3_WIDGET_API ssize_t nosig_write(int fd, const char *buffer, size_t bytes);
 T3_WIDGET_API ssize_t nosig_read(int fd, char *buffer, size_t bytes);
 
 T3_WIDGET_API std::string get_working_directory();
-T3_WIDGET_API std::string get_directory(const char *directory);
+T3_WIDGET_API std::string get_directory(string_view directory);
 T3_WIDGET_API void sanitize_dir(std::string *directory);
 T3_WIDGET_API bool is_dir(string_view current_dir, string_view name);
 

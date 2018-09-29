@@ -172,29 +172,22 @@ bool file_dialog_t::set_size(optint height, optint width) {
   return result;
 }
 
-int file_dialog_t::set_file(const char *file) {
+int file_dialog_t::set_file(string_view file) {
   size_t idx;
-  std::string file_string;
   int result;
 
   impl->current_dir = get_directory(file);
   sanitize_dir(&impl->current_dir);
 
-  if (file == nullptr) {
-    file_string.clear();
-  } else {
-    file_string = file;
-  }
-
   result = impl->names.load_directory(impl->current_dir);
 
-  idx = file_string.rfind('/');
-  if (idx != std::string::npos) {
-    file_string.erase(0, idx + 1);
+  idx = file.rfind('/');
+  if (idx != string_view::npos) {
+    file.remove_prefix(idx + 1);
   }
 
   impl->file_line->set_autocomplete(&impl->names);
-  impl->file_line->set_text(file_string);
+  impl->file_line->set_text(file);
   refresh_view();
   return result;
 }

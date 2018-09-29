@@ -306,15 +306,13 @@ std::string get_working_directory() {
   return retval;
 }
 
-std::string get_directory(const char *directory) {
-  std::string dirstring;
-
-  if (directory == nullptr) {
-    dirstring = get_working_directory();
+std::string get_directory(string_view directory) {
+  if (directory.empty()) {
+    return get_working_directory();
   } else {
+    std::string dirstring(directory);
     struct stat dir_info;
-    dirstring = directory;
-    if (stat(directory, &dir_info) < 0 || !S_ISDIR(dir_info.st_mode)) {
+    if (stat(dirstring.c_str(), &dir_info) < 0 || !S_ISDIR(dir_info.st_mode)) {
       size_t idx = dirstring.rfind('/');
       if (idx == std::string::npos) {
         dirstring = get_working_directory();
@@ -325,8 +323,8 @@ std::string get_directory(const char *directory) {
         }
       }
     }
+    return dirstring;
   }
-  return dirstring;
 }
 
 void sanitize_dir(std::string *directory) {
