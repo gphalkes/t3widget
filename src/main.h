@@ -57,7 +57,7 @@ class T3_WIDGET_API complex_error_t {
   bool get_success();
   source_t get_source();
   int get_error();
-  const char *get_string();
+  std::string get_string();
 };
 
 /** Structure holding the parameters for initialization for libt3widget.

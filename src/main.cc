@@ -75,8 +75,8 @@ bool complex_error_t::get_success() { return success; }
 complex_error_t::source_t complex_error_t::get_source() { return source; }
 int complex_error_t::get_error() { return error; }
 
-const char *complex_error_t::get_string() {
-  static std::string error_str;
+std::string complex_error_t::get_string() {
+  std::string error_str;
 
   switch (source) {
     case SRC_ERRNO:
@@ -85,8 +85,6 @@ const char *complex_error_t::get_string() {
         error_str = file_name;
         sprintf(number_buffer, ":%d: ", line_number);
         error_str.append(number_buffer);
-      } else {
-        error_str = "tilde: ";
       }
       error_str.append(strerror(error));
       break;
@@ -105,7 +103,7 @@ const char *complex_error_t::get_string() {
     default:
       return strerror(0);
   }
-  return error_str.c_str();
+  return error_str;
 }
 
 init_parameters_t *init_parameters_t::create() { return new init_parameters_t(); }
