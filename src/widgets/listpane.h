@@ -47,7 +47,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   void set_anchor(window_component_t *anchor, int relation) override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;
-  bool is_child(window_component_t *widget) override;
+  bool is_child(const window_component_t *widget) const override;
   bool process_mouse_event(mouse_event_t event) override;
   void reset();
   void update_positions();

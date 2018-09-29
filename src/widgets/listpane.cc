@@ -310,7 +310,7 @@ void list_pane_t::set_child_focus(window_component_t *target) {
   }
 }
 
-bool list_pane_t::is_child(window_component_t *widget) {
+bool list_pane_t::is_child(const window_component_t *widget) const {
   if (widget == &impl->scrollbar || widget == impl->indicator_widget.get()) {
     return true;
   }

@@ -283,7 +283,9 @@ void file_pane_t::set_child_focus(window_component_t *target) {
   set_focus(window_component_t::FOCUS_SET);
 }
 
-bool file_pane_t::is_child(window_component_t *widget) { return widget == &impl->scrollbar; }
+bool file_pane_t::is_child(const window_component_t *widget) const {
+  return widget == &impl->scrollbar;
+}
 
 bool file_pane_t::process_mouse_event(mouse_event_t event) {
   if (event.window != window) {

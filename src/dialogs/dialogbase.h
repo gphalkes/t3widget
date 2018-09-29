@@ -59,9 +59,11 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
       If a widget is not added through #push_back, it will not be displayed, or receive input. */
   void push_back(widget_t *widget);
 
-  bool is_child(window_component_t *widget) override;
+  bool is_child(const window_component_t *widget) const override;
   void set_child_focus(window_component_t *target) override;
+  /** Request that the dialog itself (not its children) is redrawn. */
   void set_redraw(bool _redraw);
+  /** Get the current request state for redrawing the dialog itself. */
   bool get_redraw() const;
   void set_depth(int depth);
   widget_t *get_current_widget();
@@ -80,9 +82,10 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   void set_focus(focus_t focus) override;
   void show() override;
   void hide() override;
+  /** Force a redraw of the dialog and its children. */
   void force_redraw() override;
   /** Set the position and anchoring for this dialog such that it is centered over a
-   * window_component_t. */
+      window_component_t. */
   virtual void center_over(const window_component_t *center);
 
   /** Call #force_redraw on all dialogs. */

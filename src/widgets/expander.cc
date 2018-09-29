@@ -260,7 +260,7 @@ void expander_t::set_child_focus(window_component_t *target) {
   }
 }
 
-bool expander_t::is_child(window_component_t *component) {
+bool expander_t::is_child(const window_component_t *component) const {
   container_t *container;
   if (component == impl->child.get()) {
     return true;

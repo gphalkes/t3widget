@@ -165,7 +165,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void bad_draw_recheck() override;
 
   void set_child_focus(window_component_t *target) override;
-  bool is_child(window_component_t *widget) override;
+  bool is_child(const window_component_t *widget) const override;
   bool process_mouse_event(mouse_event_t event) override;
 
   /** Set the text to display.

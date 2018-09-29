@@ -38,7 +38,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   void activate(int idx);
 
  protected:
-  bool is_child(window_component_t *widget) override;
+  bool is_child(const window_component_t *widget) const override;
 
   /* Process the mouse event. If this menu_panel_t is associated with a menu_bar_t, the events will
      be preprocessed by the menu_bar_t, and EMOUSE_OUTSIDE_GRAB will never be included. */
@@ -47,7 +47,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   void hide() override;
 
  public:
-  menu_panel_t(const char *name, menu_bar_t *_menu_bar = nullptr);
+  menu_panel_t(string_view name, menu_bar_t *_menu_bar = nullptr);
   ~menu_panel_t() override;
   bool process_key(key_t key) override;
   void set_position(optint top, optint left) override;

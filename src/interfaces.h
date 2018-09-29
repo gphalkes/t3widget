@@ -91,7 +91,7 @@ class T3_WIDGET_API container_t : protected virtual window_component_t {
   /** Set the focus to a specific window component. */
   virtual void set_child_focus(window_component_t *target) = 0;
   /** Determine whether a window_compnent_t is a child of the container_t. */
-  virtual bool is_child(window_component_t *component) = 0;
+  virtual bool is_child(const window_component_t *component) const = 0;
 };
 
 /** Base class for components which need to center dialogs.

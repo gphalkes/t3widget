@@ -148,7 +148,7 @@ void dialog_t::close() {
   impl->closed();
 }
 
-bool dialog_t::is_child(window_component_t *widget) {
+bool dialog_t::is_child(const t3widget::window_component_t *widget) const {
   if (active_popup != nullptr && active_popup->is_child(widget)) {
     return true;
   }

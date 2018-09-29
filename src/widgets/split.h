@@ -74,7 +74,7 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
   void set_focus(focus_t focus) override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;
-  bool is_child(window_component_t *component) override;
+  bool is_child(const window_component_t *component) const override;
 
   /** Divide the available screen space over one more widget.
       @param widget The widget to add.

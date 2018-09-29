@@ -200,7 +200,7 @@ void widget_group_t::set_child_focus(window_component_t *target) {
   }
 }
 
-bool widget_group_t::is_child(window_component_t *component) {
+bool widget_group_t::is_child(const window_component_t *component) const {
   for (const std::unique_ptr<widget_t> &widget : impl->children) {
     container_t *container;
     if (widget.get() == component ||

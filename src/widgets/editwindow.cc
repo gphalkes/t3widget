@@ -1417,7 +1417,9 @@ void edit_window_t::set_child_focus(window_component_t *target) {
   set_focus(window_component_t::FOCUS_SET);
 }
 
-bool edit_window_t::is_child(window_component_t *widget) { return widget == impl->scrollbar.get(); }
+bool edit_window_t::is_child(const window_component_t *widget) const {
+  return widget == impl->scrollbar.get();
+}
 
 bool edit_window_t::process_mouse_event(mouse_event_t event) {
   if (event.window == impl->edit_window) {

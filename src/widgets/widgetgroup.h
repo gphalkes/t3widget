@@ -42,7 +42,7 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
   bool accepts_focus() override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;
-  bool is_child(window_component_t *component) override;
+  bool is_child(const window_component_t *component) const override;
   bool is_hotkey(key_t key) const override;
 
   /** Add a child widget. */

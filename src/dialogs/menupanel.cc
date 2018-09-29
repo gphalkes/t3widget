@@ -28,11 +28,11 @@ struct menu_panel_t::implementation_t {
   menu_bar_t *menu_bar;
   signal_t<int> activate;
 
-  implementation_t(const char *name, impl_allocator_t *allocator)
+  implementation_t(string_view name, impl_allocator_t *allocator)
       : label(name, false, allocator), menu_bar(nullptr) {}
 };
 
-menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar)
+menu_panel_t::menu_panel_t(string_view name, menu_bar_t *_menu_bar)
     : dialog_t(3, 5, nullopt, impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
       impl(new_impl<implementation_t>(name, this)) {
   impl->width = 5;
@@ -242,7 +242,9 @@ int menu_panel_t::get_label_width() const { return impl->label.get_width(); }
 
 bool menu_panel_t::is_hotkey(key_t key) const { return impl->label.is_hotkey(key); }
 
-bool menu_panel_t::is_child(window_component_t *widget) { return dialog_t::is_child(widget); }
+bool menu_panel_t::is_child(const window_component_t *widget) const {
+  return dialog_t::is_child(widget);
+}
 
 void menu_panel_t::activate(int idx) { impl->activate(idx); }
 

@@ -56,7 +56,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
       dialog. */
   virtual void close();
 
-  bool is_child(window_component_t *widget) override;
+  bool is_child(const window_component_t *widget) const override;
   void set_child_focus(window_component_t *target) override;
   void set_title(std::string title);
 

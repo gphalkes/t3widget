@@ -65,7 +65,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   void set_focus(focus_t _focus) override;
 
   void set_child_focus(window_component_t *target) override;
-  bool is_child(window_component_t *component) override;
+  bool is_child(const window_component_t *component) const override;
 
   bool process_mouse_event(mouse_event_t event) override;
 

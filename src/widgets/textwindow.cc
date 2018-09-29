@@ -248,7 +248,7 @@ void text_window_t::set_child_focus(window_component_t *target) {
   set_focus(window_component_t::FOCUS_SET);
 }
 
-bool text_window_t::is_child(window_component_t *component) {
+bool text_window_t::is_child(const window_component_t *component) const {
   return component == impl->scrollbar.get();
 }
 

@@ -301,7 +301,7 @@ widgets_t &dialog_base_t::widgets() { return impl->widgets; }
 
 t3window::window_t &dialog_base_t::shadow_window() { return impl->shadow_window; }
 
-bool dialog_base_t::is_child(window_component_t *widget) {
+bool dialog_base_t::is_child(const window_component_t *widget) const {
   for (widget_t *iter : impl->widgets) {
     if (iter == widget) {
       return true;

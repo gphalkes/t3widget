@@ -146,7 +146,7 @@ void split_t::set_child_focus(window_component_t *target) {
   }
 }
 
-bool split_t::is_child(window_component_t *widget) {
+bool split_t::is_child(const window_component_t *widget) const {
   for (const std::unique_ptr<widget_t> &iter : impl->widgets) {
     if (iter.get() == widget) {
       return true;

@@ -186,7 +186,7 @@ void multi_widget_t::set_child_focus(window_component_t *target) {
   set_focus(window_component_t::FOCUS_SET);
 }
 
-bool multi_widget_t::is_child(window_component_t *widget) {
+bool multi_widget_t::is_child(const window_component_t *widget) const {
   for (const item_t &item : impl->widgets) {
     if (item.widget.get() == widget) {
       return true;

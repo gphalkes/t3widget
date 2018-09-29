@@ -62,7 +62,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   void set_enabled(bool enable) override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;
-  bool is_child(window_component_t *component) override;
+  bool is_child(const window_component_t *component) const override;
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
