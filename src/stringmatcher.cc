@@ -79,16 +79,11 @@ void string_matcher_t::reset() {
   index_table[0] = 0;
 }
 
-int string_matcher_t::next_char(const std::string *c) { return next_char(c->data(), c->size()); }
-int string_matcher_t::previous_char(const std::string *c) {
-  return previous_char(c->data(), c->size());
-}
-
-int string_matcher_t::next_char(const char *c, size_t c_size) {
+int string_matcher_t::next_char(string_view c) {
   while (true) {
-    if (i + c_size <= needle.size() && memcmp(needle.c_str() + i, c, c_size) == 0) {
-      index_table[i + c_size] = index_table[i] + 1;
-      i += c_size;
+    if (i + c.size() <= needle.size() && memcmp(needle.c_str() + i, c.data(), c.size()) == 0) {
+      index_table[i + c.size()] = index_table[i] + 1;
+      i += c.size();
       if (static_cast<size_t>(i) == needle.size()) {
         return index_table[0];
       }
@@ -106,12 +101,12 @@ int string_matcher_t::next_char(const char *c, size_t c_size) {
   }
 }
 
-int string_matcher_t::previous_char(const char *c, size_t c_size) {
+int string_matcher_t::previous_char(string_view c) {
   while (true) {
-    if (i + c_size <= needle.size() &&
-        memcmp(needle.c_str() + needle.size() - i - c_size, c, c_size) == 0) {
-      index_table[i + c_size] = index_table[i] + 1;
-      i += c_size;
+    if (i + c.size() <= needle.size() &&
+        memcmp(needle.c_str() + needle.size() - i - c.size(), c.data(), c.size()) == 0) {
+      index_table[i + c.size()] = index_table[i] + 1;
+      i += c.size();
       if (static_cast<size_t>(i) == needle.size()) {
         return index_table[0];
       }

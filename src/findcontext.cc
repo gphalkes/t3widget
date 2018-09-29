@@ -178,7 +178,6 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
     return false;
   }
 
-  std::string substr;
   int curr_char, next_char;
   size_t c_size;
   const char *c;
@@ -203,8 +202,7 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
         return false;
       }
 
-      substr.clear();
-      substr = haystack.substr(next_char, curr_char - next_char);
+      string_view substr = string_view(haystack).substr(next_char, curr_char - next_char);
       if (flags_ & find_flags_t::ICASE) {
         c_size = folded_size_;
         char *c_data = reinterpret_cast<char *>(
@@ -216,11 +214,9 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
           folded_.reset(c_data);
           folded_size_ = c_size;
         }
-      } else {
-        c = substr.data();
-        c_size = substr.size();
+        substr = string_view(c_data, c_size);
       }
-      match_result = matcher->previous_char(c, c_size);
+      match_result = matcher->previous_char(substr);
       if (match_result >= 0 &&
           (!(flags_ & find_flags_t::WHOLE_WORD) ||
            check_boundaries(haystack, next_char,
@@ -241,24 +237,20 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
         return false;
       }
 
-      substr.clear();
-      substr = haystack.substr(curr_char, next_char - curr_char);
+      string_view substr = string_view(haystack).substr(curr_char, next_char - curr_char);
       if (flags_ & find_flags_t::ICASE) {
         c_size = folded_size_;
         char *c_data = reinterpret_cast<char *>(
             u8_casefold(reinterpret_cast<const uint8_t *>(substr.data()), substr.size(), nullptr,
                         nullptr, reinterpret_cast<uint8_t *>(folded_.get()), &c_size));
-        c = c_data;
         if (c_data != folded_.get()) {
           // Previous value of folded will be automatically deleted.
           folded_.reset(c_data);
           folded_size_ = c_size;
         }
-      } else {
-        c = substr.data();
-        c_size = substr.size();
+        substr = string_view(c_data, c_size);
       }
-      match_result = matcher->next_char(c, c_size);
+      match_result = matcher->next_char(substr);
       if (match_result >= 0 &&
           (!(flags_ & find_flags_t::WHOLE_WORD) ||
            check_boundaries(haystack, adjust_position(haystack, start, match_result), next_char))) {

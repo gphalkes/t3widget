@@ -37,10 +37,8 @@ class T3_WIDGET_LOCAL string_matcher_t {
   string_matcher_t(string_view _needle);
   virtual ~string_matcher_t();
   void reset();
-  int next_char(const std::string *c);
-  int previous_char(const std::string *c);
-  int next_char(const char *c, size_t c_size);
-  int previous_char(const char *c, size_t c_size);
+  int next_char(string_view c);
+  int previous_char(string_view c);
 };
 
 }  // namespace t3widget

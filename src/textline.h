@@ -69,18 +69,14 @@ class T3_WIDGET_API text_line_t {
   };
 
  private:
-  std::string buffer;
-  bool starts_with_combining;
-
- protected:
-  text_line_factory_t *factory;
-
- private:
   static char spaces[_T3_MAX_TAB];
   static char dashes[_T3_MAX_TAB];
   static char dots[16];
   static const char *control_map;
   static const char *wrap_symbol;
+
+  std::string buffer;
+  bool starts_with_combining;
 
   static void paint_part(t3window::window_t *win, const char *paint_buffer, bool is_print, int todo,
                          t3_attr_t selection_attr);
@@ -95,6 +91,9 @@ class T3_WIDGET_API text_line_t {
 
   void reserve(int size);
   int byte_width_from_first(int pos) const;
+
+ protected:
+  text_line_factory_t *factory;
 
  public:
   text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = nullptr);
