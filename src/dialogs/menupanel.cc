@@ -23,7 +23,7 @@
 namespace t3widget {
 
 struct menu_panel_t::implementation_t {
-  int width, label_width, hotkey_width;
+  int width, label_width, shortcut_key_width;
   smart_label_text_t label;
   menu_bar_t *menu_bar;
   signal_t<int> activate;
@@ -37,7 +37,7 @@ menu_panel_t::menu_panel_t(const char *name, menu_bar_t *_menu_bar)
       impl(new_impl<implementation_t>(name, this)) {
   impl->width = 5;
   impl->label_width = 1;
-  impl->hotkey_width = 0;
+  impl->shortcut_key_width = 0;
   if (_menu_bar != nullptr) {
     _menu_bar->add_menu(this);
   }
@@ -144,8 +144,8 @@ void menu_panel_t::close() {
   }
 }
 
-menu_item_base_t *menu_panel_t::add_item(const char *_label, const char *hotkey, int id) {
-  menu_item_t *item = new menu_item_t(this, _label, hotkey, id);
+menu_item_base_t *menu_panel_t::add_item(string_view _label, string_view shortcut_key, int id) {
+  menu_item_t *item = new menu_item_t(this, _label, shortcut_key, id);
   return add_item(item);
 }
 
@@ -153,10 +153,10 @@ menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
   push_back(item);
   item->set_position(widgets().size(), None);
 
-  impl->hotkey_width = std::max(impl->hotkey_width, item->get_hotkey_width());
+  impl->shortcut_key_width = std::max(impl->shortcut_key_width, item->get_shortcut_key_width());
   impl->label_width = std::max(impl->label_width, item->get_label_width());
-  if (impl->hotkey_width + impl->label_width > impl->width - 2) {
-    impl->width = impl->hotkey_width + impl->label_width + 2;
+  if (impl->shortcut_key_width + impl->label_width > impl->width - 2) {
+    impl->width = impl->shortcut_key_width + impl->label_width + 2;
   }
   set_size(widgets().size() + 2, impl->width);
   return item;
@@ -172,8 +172,8 @@ menu_item_base_t *menu_panel_t::add_separator() {
 void menu_panel_t::remove_item(menu_item_base_t *item) { replace_item(item, nullptr); }
 
 menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, const char *_label,
-                                             const char *hotkey, int id) {
-  menu_item_t *new_item = new menu_item_t(this, _label, hotkey, id);
+                                             const char *shortcut_key, int id) {
+  menu_item_t *new_item = new menu_item_t(this, _label, shortcut_key, id);
   return replace_item(old_item, new_item);
 }
 
@@ -200,16 +200,17 @@ menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, menu_it
 resize_panel:
   impl->width = 5;
   impl->label_width = 1;
-  impl->hotkey_width = 0;
+  impl->shortcut_key_width = 0;
   for (iter = widgets().begin(), i = 1; iter != widgets().end(); iter++, i++) {
     (*iter)->set_position(i, None);
     label_item = dynamic_cast<menu_item_t *>(*iter);
     if (label_item != nullptr) {
-      impl->hotkey_width = std::max(impl->hotkey_width, label_item->get_hotkey_width());
+      impl->shortcut_key_width =
+          std::max(impl->shortcut_key_width, label_item->get_shortcut_key_width());
       impl->label_width = std::max(impl->label_width, label_item->get_label_width());
     }
-    if (impl->hotkey_width + impl->label_width > impl->width - 2) {
-      impl->width = impl->hotkey_width + impl->label_width + 2;
+    if (impl->shortcut_key_width + impl->label_width > impl->width - 2) {
+      impl->width = impl->shortcut_key_width + impl->label_width + 2;
     }
   }
   set_size(widgets().size() + 2, impl->width);

@@ -37,17 +37,18 @@ void menu_item_base_t::process_mouse_event_from_menu(mouse_event_t event) { (voi
 
 struct menu_item_t::implementation_t {
   smart_label_text_t label;
-  const char *hotkey;
+  std::string shortcut_key;
   int id;
   bool has_focus = false;
-  implementation_t(string_view _label, const char *_hotkey, int _id, impl_allocator_t *allocator)
-      : label(_label, false, allocator), hotkey(_hotkey), id(_id) {}
+  implementation_t(string_view _label, string_view _shortcut_key, int _id,
+                   impl_allocator_t *allocator)
+      : label(_label, false, allocator), shortcut_key(_shortcut_key), id(_id) {}
 };
 
-menu_item_t::menu_item_t(menu_panel_t *_parent, t3widget::string_view _label, const char *_hotkey,
+menu_item_t::menu_item_t(menu_panel_t *_parent, string_view _label, string_view _shortcut_key,
                          int _id)
     : menu_item_base_t(_parent, impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
-      impl(new_impl<implementation_t>(_label, _hotkey, _id, this)) {}
+      impl(new_impl<implementation_t>(_label, _shortcut_key, _id, this)) {}
 
 menu_item_t::~menu_item_t() {}
 
@@ -76,9 +77,11 @@ void menu_item_t::update_contents() {
   window.set_default_attrs(impl->has_focus ? attributes.dialog_selected : attributes.dialog);
   impl->label.draw(&window, 0, impl->has_focus);
 
-  if (impl->hotkey != nullptr) {
-    window.set_paint(0, window.get_width() - t3_term_strwidth(impl->hotkey) - 1);
-    window.addstr(impl->hotkey, 0);
+  if (!impl->shortcut_key.empty()) {
+    window.set_paint(
+        0, window.get_width() -
+               t3_term_strnwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) - 1);
+    window.addnstr(impl->shortcut_key.data(), impl->shortcut_key.size(), 0);
   }
 }
 
@@ -106,8 +109,10 @@ void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
 
 int menu_item_t::get_label_width() { return impl->label.get_width() + 2; }
 
-int menu_item_t::get_hotkey_width() {
-  return impl->hotkey == nullptr ? 0 : (t3_term_strwidth(impl->hotkey) + 2);
+int menu_item_t::get_shortcut_key_width() {
+  return impl->shortcut_key.empty()
+             ? 0
+             : (t3_term_strnwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) + 2);
 }
 
 menu_separator_t::menu_separator_t(menu_panel_t *_parent) : menu_item_base_t(_parent) {}

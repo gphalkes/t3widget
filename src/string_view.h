@@ -116,7 +116,8 @@ class T3_WIDGET_API basic_string_view {
   }
 
   explicit operator std::basic_string<CharT, Traits>() const {
-    return std::basic_string<CharT, Traits>(data_, size_);
+    return data_ ? std::basic_string<CharT, Traits>(data_, size_)
+                 : std::basic_string<CharT, Traits>();
   }
 
   size_type copy(CharT *dest, size_type count, size_type pos = 0) const {

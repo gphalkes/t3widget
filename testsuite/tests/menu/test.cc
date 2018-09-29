@@ -17,14 +17,14 @@ class main_window_t : public main_window_base_t {
     panel->add_item("_Close", "C-w", 1);
 
     empty_panel = new menu_panel_t("E_mpty", menu);
-    empty_panel->add_item("Remove", nullptr, 7);
+    empty_panel->add_item("Remove", "", 7);
 
     panel = new menu_panel_t("_Edit", menu);
 
     panel->add_item("_Copy", "C-c", 2);
     panel->add_separator();
     remove = panel->add_item("_Paste", "C-v", 3);
-    panel->add_item("_Foo", nullptr, REMOVE_MENU_ID);
+    panel->add_item("_Foo", "", REMOVE_MENU_ID);
   }
 
   void menu_activated(int id) {

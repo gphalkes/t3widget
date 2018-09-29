@@ -99,10 +99,10 @@ void edit_window_t::init(bool _init) {
     global_find_dialog = new find_dialog_t();
     replace_buttons = new replace_buttons_dialog_t();
     right_click_menu = new menu_panel_t("");
-    right_click_menu->add_item(_("Cu_t"), nullptr, ACTION_CUT);
-    right_click_menu->add_item(_("_Copy"), nullptr, ACTION_COPY);
-    right_click_menu->add_item(_("_Paste"), nullptr, ACTION_PASTE);
-    right_click_menu->add_item(_("Paste _Selection"), nullptr, ACTION_PASTE_SELECTION);
+    right_click_menu->add_item(_("Cu_t"), "", ACTION_CUT);
+    right_click_menu->add_item(_("_Copy"), "", ACTION_COPY);
+    right_click_menu->add_item(_("_Paste"), "", ACTION_PASTE);
+    right_click_menu->add_item(_("Paste _Selection"), "", ACTION_PASTE_SELECTION);
   } else {
     delete goto_dialog;
     goto_dialog = nullptr;
