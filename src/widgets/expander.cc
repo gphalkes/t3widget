@@ -28,7 +28,7 @@ struct expander_t::implementation_t {
   connection_t move_up_connection, move_down_connection, move_right_connection,
       move_left_connection;
   signal_t<bool> expanded;
-  implementation_t(const char *text, impl_allocator_t *allocator)
+  implementation_t(string_view text, impl_allocator_t *allocator)
       : focus(FOCUS_NONE),
         last_focus(FOCUS_NONE),
         is_expanded(false),
@@ -36,7 +36,7 @@ struct expander_t::implementation_t {
         full_height(2) {}
 };
 
-expander_t::expander_t(const char *text)
+expander_t::expander_t(string_view text)
     : widget_t(impl_alloc<focus_widget_t::implementation_t>(
           impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0)))),
       focus_widget_t(this),

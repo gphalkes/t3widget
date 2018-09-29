@@ -62,7 +62,7 @@ class T3_WIDGET_API label_t : public widget_t {
   /** Set the alignment. */
   void set_align(align_t _align);
   /** Set the text. */
-  void set_text(const char *_text);
+  void set_text(string_view _text);
 
   /** Set whether this label_t accepts the input focus. */
   void set_accepts_focus(bool _can_focus);

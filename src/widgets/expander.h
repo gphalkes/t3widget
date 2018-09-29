@@ -39,7 +39,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   /** Create a new expander_t.
       @param _text The text for the smart_label_t shown next to the expander symbol.
   */
-  expander_t(const char *text);
+  expander_t(string_view text);
   ~expander_t() override;
   /** Set the child widget.
 

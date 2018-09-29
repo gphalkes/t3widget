@@ -120,9 +120,9 @@ void label_t::set_focus(focus_t _focus) {
 
 void label_t::set_align(label_t::align_t _align) { impl->align = _align; }
 
-void label_t::set_text(const char *_text) {
-  impl->text = _text;
-  impl->text_width = t3_term_strwidth(impl->text.c_str());
+void label_t::set_text(t3widget::string_view _text) {
+  impl->text = std::string(_text);
+  impl->text_width = t3_term_strnwidth(impl->text.data(), impl->text.size());
   force_redraw();
 }
 
