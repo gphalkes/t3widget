@@ -39,7 +39,7 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
   void update_contents() override;
   void set_focus(focus_t _focus) override;
   bool set_size(optint height, optint width) override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;
   bool is_child(const window_component_t *component) const override;

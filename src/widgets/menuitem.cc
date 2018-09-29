@@ -135,6 +135,6 @@ void menu_separator_t::set_focus(focus_t focus) { (void)focus; }
 void menu_separator_t::show() {}
 void menu_separator_t::hide() {}
 
-bool menu_separator_t::accepts_focus() { return false; }
+bool menu_separator_t::accepts_focus() const { return false; }
 
 }  // namespace t3widget

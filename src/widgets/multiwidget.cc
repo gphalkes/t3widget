@@ -67,7 +67,7 @@ void multi_widget_t::set_focus(focus_t focus) {
   }
 }
 
-bool multi_widget_t::accepts_focus() {
+bool multi_widget_t::accepts_focus() const {
   if (!is_enabled()) {
     return false;
   }

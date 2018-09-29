@@ -147,7 +147,7 @@ void scrollbar_t::update_contents() {
   window.addch(impl->vertical ? T3_ACS_DARROW : T3_ACS_RARROW, T3_ATTR_ACS | attributes.scrollbar);
 }
 
-bool scrollbar_t::accepts_focus() { return false; }
+bool scrollbar_t::accepts_focus() const { return false; }
 void scrollbar_t::set_focus(focus_t focus) { (void)focus; }
 
 bool scrollbar_t::process_mouse_event(mouse_event_t event) {

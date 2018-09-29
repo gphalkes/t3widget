@@ -65,7 +65,7 @@ class T3_WIDGET_API menu_separator_t : public menu_item_base_t {
   void set_focus(focus_t focus) override;
   void show() override;
   void hide() override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
 };
 
 }  // namespace t3widget

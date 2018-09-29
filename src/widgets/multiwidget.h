@@ -30,7 +30,7 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
   bool set_size(optint height, optint width) override;
   void update_contents() override;
   void set_focus(focus_t focus) override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
   void force_redraw() override;
   void set_enabled(bool enable) override;
   void set_child_focus(window_component_t *target) override;

@@ -44,7 +44,7 @@ class T3_WIDGET_API smart_label_t : public widget_t, public smart_label_text_t {
   void set_focus(focus_t focus) override;
 
   bool is_hotkey(key_t key) const override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
 };
 
 }  // namespace t3widget

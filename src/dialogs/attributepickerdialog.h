@@ -69,7 +69,7 @@ class T3_WIDGET_API attribute_test_line_t : public widget_t {
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
 
   void set_attribute(t3_attr_t attr);
 };

@@ -327,7 +327,7 @@ void attribute_test_line_t::update_contents() {
   window.addstr("Abcd", 0);
 }
 
-bool attribute_test_line_t::accepts_focus() { return false; }
+bool attribute_test_line_t::accepts_focus() const { return false; }
 
 void attribute_test_line_t::set_attribute(t3_attr_t attr) {
   force_redraw();

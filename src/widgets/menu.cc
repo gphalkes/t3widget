@@ -216,7 +216,7 @@ bool menu_bar_t::is_hotkey(key_t key) const {
   return false;
 }
 
-bool menu_bar_t::accepts_focus() { return false; }
+bool menu_bar_t::accepts_focus() const { return false; }
 
 bool menu_bar_t::process_mouse_event(mouse_event_t event) {
   bool outside_area, on_bar;

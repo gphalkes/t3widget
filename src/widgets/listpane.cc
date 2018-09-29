@@ -27,7 +27,7 @@ class list_pane_t::indicator_widget_t : public widget_t {
   void update_contents() override;
   void set_focus(focus_t focus) override;
   bool set_size(optint height, optint width) override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
 };
 
 struct list_pane_t::implementation_t {
@@ -491,6 +491,6 @@ bool list_pane_t::indicator_widget_t::set_size(optint _height, optint width) {
   return window.resize(1, width.value());
 }
 
-bool list_pane_t::indicator_widget_t::accepts_focus() { return false; }
+bool list_pane_t::indicator_widget_t::accepts_focus() const { return false; }
 
 }  // namespace t3widget

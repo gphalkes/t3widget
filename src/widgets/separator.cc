@@ -62,6 +62,6 @@ void separator_t::update_contents() {
 }
 
 void separator_t::set_focus(focus_t focus) { (void)focus; }
-bool separator_t::accepts_focus() { return false; }
+bool separator_t::accepts_focus() const { return false; }
 
 }  // namespace t3widget

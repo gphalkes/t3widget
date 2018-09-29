@@ -103,7 +103,7 @@ bool frame_t::set_size(optint height, optint width) {
   return result;
 }
 
-bool frame_t::accepts_focus() {
+bool frame_t::accepts_focus() const {
   return impl->child != nullptr ? impl->child->accepts_focus() : false;
 }
 bool frame_t::is_hotkey(key_t key) const {

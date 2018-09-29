@@ -30,7 +30,7 @@ class T3_WIDGET_API separator_t : public widget_t {
   bool set_size(optint height, optint width) override;
   void update_contents() override;
   void set_focus(focus_t focus) override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
 };
 
 }  // namespace t3widget

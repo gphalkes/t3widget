@@ -161,7 +161,7 @@ bool widget_group_t::set_size(optint height, optint width) {
   return true;
 }
 
-bool widget_group_t::accepts_focus() {
+bool widget_group_t::accepts_focus() const {
   for (const std::unique_ptr<widget_t> &widget : impl->children) {
     if (widget->accepts_focus()) {
       return true;

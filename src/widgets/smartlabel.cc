@@ -149,6 +149,6 @@ void smart_label_t::set_focus(focus_t focus) { (void)focus; }
 
 bool smart_label_t::is_hotkey(key_t key) const { return smart_label_text_t::is_hotkey(key); }
 
-bool smart_label_t::accepts_focus() { return false; }
+bool smart_label_t::accepts_focus() const { return false; }
 
 }  // namespace t3widget

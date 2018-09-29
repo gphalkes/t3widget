@@ -57,7 +57,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t,
   /** Query whether key is a hotkey for this widget. */
   virtual bool is_hotkey(key_t key) const;
   /** Query whether this widget accepts focus. */
-  virtual bool accepts_focus();
+  virtual bool accepts_focus() const;
   void set_position(optint top, optint left) override;
   void show() override;
   void hide() override;
@@ -72,9 +72,9 @@ class T3_WIDGET_API widget_t : public virtual window_component_t,
   */
   virtual void set_enabled(bool enable);
   /** Query the enabled status of this widget. */
-  virtual bool is_enabled();
+  virtual bool is_enabled() const;
   /** Query the visibility status of this widget. */
-  virtual bool is_shown();
+  virtual bool is_shown() const;
   void set_focus(focus_t focus) override;
   bool process_mouse_event(mouse_event_t event) override;
 };
@@ -120,7 +120,7 @@ size_t impl_allocator_t::impl_alloc<focus_widget_t::implementation_t>(size_t req
 
 class T3_WIDGET_API widget_container_t : public container_t {
  public:
-  virtual widget_t *is_child_hotkey(key_t key) = 0;
+  virtual widget_t *is_child_hotkey(key_t key) const = 0;
 };
 
 using widgets_t = std::deque<widget_t *>;

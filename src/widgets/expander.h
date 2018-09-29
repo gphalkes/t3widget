@@ -58,7 +58,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   void force_redraw() override;
   void set_child_focus(window_component_t *target) override;
   bool is_child(const window_component_t *component) const override;
-  widget_t *is_child_hotkey(key_t key) override;
+  widget_t *is_child_hotkey(key_t key) const override;
   bool process_mouse_event(mouse_event_t event) override;
 
   T3_WIDGET_DECLARE_SIGNAL(expanded, bool);

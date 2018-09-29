@@ -269,7 +269,7 @@ bool expander_t::is_child(const window_component_t *component) const {
   return container != nullptr && container->is_child(component);
 }
 
-widget_t *expander_t::is_child_hotkey(key_t key) {
+widget_t *expander_t::is_child_hotkey(key_t key) const {
   widget_container_t *widget_container;
 
   if (!impl->is_expanded || impl->child == nullptr || !impl->child->is_shown() ||

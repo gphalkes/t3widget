@@ -29,7 +29,7 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
   void update_contents() override;
-  bool accepts_focus() override;
+  bool accepts_focus() const override;
   void set_focus(focus_t focus) override;
   bool process_mouse_event(mouse_event_t event) override;
 

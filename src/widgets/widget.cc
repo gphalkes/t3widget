@@ -40,7 +40,7 @@ bool widget_t::is_hotkey(key_t key) const {
   return false;
 }
 
-bool widget_t::accepts_focus() { return impl->enabled && impl->shown; }
+bool widget_t::accepts_focus() const { return impl->enabled && impl->shown; }
 
 widget_t::widget_t(int height, int width, bool register_as_mouse_target, size_t impl_size)
     : impl_allocator_t(impl_alloc<implementation_t>(impl_size)),
@@ -99,9 +99,9 @@ void widget_t::force_redraw() { impl->redraw = true; }
 
 void widget_t::set_enabled(bool enable) { impl->enabled = enable; }
 
-bool widget_t::is_enabled() { return impl->enabled; }
+bool widget_t::is_enabled() const { return impl->enabled; }
 
-bool widget_t::is_shown() { return impl->shown; }
+bool widget_t::is_shown() const { return impl->shown; }
 
 void widget_t::set_focus(focus_t focus) {
   (void)focus;
