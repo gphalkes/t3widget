@@ -309,6 +309,9 @@ static void read_keys() {
           // \r\n as line endings this will double the number of newlines. As this is the same when
           // not using bracketed paste, this is a acceptable strategy.
           key_buffer.push_back(c == '\n' || c == '\r' ? EKEY_NL : EKEY_PROTECT | c);
+        } else if (c == EKEY_PASTE_START) {
+          in_bracketed_paste = true;
+          key_buffer.push_back(EKEY_PASTE_START);
         } else {
           key_buffer.push_back(c);
         }
@@ -379,12 +382,11 @@ static key_t decode_sequence(bool outer) {
           if (!outer) {
             /* If this is not the outer decode_sequence call, push everything
                back onto the character list, and do nothing. A next call to
-               decode_sequence will take care of the mouse handling. */
+               decode_sequence will take care of the paste handling. */
             unget_key_sequence(sequence);
             return -1;
           }
           if (sequence[4] == '0') {
-            in_bracketed_paste = true;
             return EKEY_PASTE_START;
           }
           return -1;

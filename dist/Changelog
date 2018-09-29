@@ -1,3 +1,15 @@
+Version 0.6.4:
+  Bug fixes:
+  - Bracketed paste mode was not handled correctly due to inadvertent setting of
+    the EKEY_PROTECT bit.
+
+Version 0.6.3:
+	Bug fixes:
+	- The indicator in list panes would disappear of screen when scrolling
+	  beyond the first page.
+	- The cursor position after undoing an unindent operation was set
+	  incorrectly.
+
 Version 0.6.2:
 	Bug fixes:
 	- Bracketed-paste mode would hang indefinitely and did not properly
