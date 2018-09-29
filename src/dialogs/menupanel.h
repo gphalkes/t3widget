@@ -56,8 +56,8 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   menu_item_base_t *add_item(menu_item_t *item);
   menu_item_base_t *add_separator();
   void remove_item(menu_item_base_t *item);
-  menu_item_base_t *replace_item(menu_item_base_t *old_item, const char *label,
-                                 const char *shortcut_key, int id);
+  menu_item_base_t *replace_item(menu_item_base_t *old_item, string_view label,
+                                 string_view shortcut_key, int id);
   menu_item_base_t *replace_item(menu_item_base_t *old_item, menu_item_t *new_item);
 
   void show() override;

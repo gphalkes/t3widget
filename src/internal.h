@@ -124,7 +124,7 @@ T3_WIDGET_LOCAL void stop_mouse_reporting();
 /** Decode an xterm mouse event. */
 T3_WIDGET_LOCAL bool decode_xterm_mouse();
 /** Decode an xterm mouse event using the SGR or URXVT protocols. */
-T3_WIDGET_LOCAL bool decode_xterm_mouse_sgr_urxvt(const char *data, size_t len);
+T3_WIDGET_LOCAL bool decode_xterm_mouse_sgr_urxvt(string_view data);
 /** Report whether XTerm mouse reporting is active. */
 T3_WIDGET_LOCAL bool use_xterm_mouse_reporting();
 /** Set bit(s) for mouse event fd. */

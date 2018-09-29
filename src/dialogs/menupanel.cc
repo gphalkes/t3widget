@@ -171,8 +171,8 @@ menu_item_base_t *menu_panel_t::add_separator() {
 
 void menu_panel_t::remove_item(menu_item_base_t *item) { replace_item(item, nullptr); }
 
-menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, const char *_label,
-                                             const char *shortcut_key, int id) {
+menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, string_view _label,
+                                             string_view shortcut_key, int id) {
   menu_item_t *new_item = new menu_item_t(this, _label, shortcut_key, id);
   return replace_item(old_item, new_item);
 }

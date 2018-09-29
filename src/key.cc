@@ -373,8 +373,7 @@ static key_t decode_sequence(bool outer) {
             unget_key_sequence(sequence);
             return -1;
           }
-          return decode_xterm_mouse_sgr_urxvt(sequence.data(), sequence.size()) ? EKEY_MOUSE_EVENT
-                                                                                : -1;
+          return decode_xterm_mouse_sgr_urxvt(sequence) ? EKEY_MOUSE_EVENT : -1;
         } else if (c == '~') {
           if (sequence.size() != 6 || sequence[2] != '2' || sequence[3] != '0') {
             return -1;
