@@ -28,11 +28,10 @@ frame_t::frame_t(frame_dimension_t _dimension)
 
 frame_t::~frame_t() {}
 
-#warning FIXME _child should be std::unique_ptr
-void frame_t::set_child(widget_t *_child) {
+void frame_t::set_child(std::unique_ptr<widget_t> _child) {
   int child_top = 1, child_left = 1;
 
-  impl->child.reset(_child);
+  impl->child = std::move(_child);
 
   if (impl->dimension & COVER_TOP) {
     child_top = 0;

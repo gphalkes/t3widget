@@ -31,7 +31,7 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
   single_alloc_pimpl_t<implementation_t> impl;
 
  public:
-  input_selection_dialog_t(int height, int width, text_buffer_t *_text = nullptr);
+  input_selection_dialog_t(int height, int width, std::unique_ptr<text_buffer_t> _text = nullptr);
   ~input_selection_dialog_t() override;
   bool set_size(optint height, optint width) override;
   bool process_key(key_t key) override;
@@ -41,7 +41,7 @@ class T3_WIDGET_API input_selection_dialog_t : public dialog_t {
   void ok_activated();
   void check_state();
 
-  static text_buffer_t *get_default_text();
+  static std::unique_ptr<text_buffer_t> get_default_text();
 
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };

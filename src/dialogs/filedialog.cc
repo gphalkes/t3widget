@@ -64,16 +64,15 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   impl->file_line->set_key_filter(&nul, 1, false);
   impl->file_line->set_autocomplete(impl->view.get());
 
-  impl->file_pane = new file_pane_t();
+  impl->file_pane_frame = emplace_back<frame_t>(frame_t::COVER_BOTTOM);
+  impl->file_pane_frame->set_size(height - 4, width - 4);
+  impl->file_pane_frame->set_position(2, 2);
+
+  impl->file_pane = impl->file_pane_frame->emplace_child<file_pane_t>();
   impl->file_pane->set_file_list(&impl->names);
   impl->file_pane->set_text_field(impl->file_line);
   impl->file_pane->connect_activate([this](const std::string &file) { ok_callback(file); });
   impl->file_pane->set_file_list(impl->view.get());
-
-  impl->file_pane_frame = emplace_back<frame_t>(frame_t::COVER_BOTTOM);
-  impl->file_pane_frame->set_size(height - 4, width - 4);
-  impl->file_pane_frame->set_position(2, 2);
-  impl->file_pane_frame->set_child(impl->file_pane);
 
   impl->show_hidden_box = emplace_back<checkbox_t>(false);
   impl->show_hidden_box->set_anchor(impl->file_pane_frame,

@@ -52,7 +52,16 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
   frame_t(frame_dimension_t _dimension = AROUND_ALL);
   ~frame_t() override;
   /** Set the child widget. */
-  void set_child(widget_t *_child);
+  void set_child(std::unique_ptr<widget_t> _child);
+
+  /** Create a child widget and return the pointer to it. */
+  template <typename T, typename... Args>
+  T *emplace_child(Args &&... args) {
+    T *result = new T(std::forward<Args>(args)...);
+    set_child(std::unique_ptr<widget_t>(result));
+    return result;
+  }
+
   bool process_key(key_t key) override;
   void update_contents() override;
   void set_focus(focus_t focus) override;

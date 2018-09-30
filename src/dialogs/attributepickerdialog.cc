@@ -152,9 +152,8 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   test_line_frame = emplace_back<frame_t>();
   test_line_frame->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   test_line_frame->set_position(1, -2);
-  impl->test_line = new attribute_test_line_t();
   test_line_frame->set_size(3, 6);
-  test_line_frame->set_child(impl->test_line);
+  impl->test_line = test_line_frame->emplace_child<attribute_test_line_t>();
 
   button_t *ok_button = emplace_back<button_t>("_OK", true);
   button_t *default_button = with_default ? emplace_back<button_t>("_Default") : nullptr;

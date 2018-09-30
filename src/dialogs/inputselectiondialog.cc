@@ -30,17 +30,20 @@ struct input_selection_dialog_t::implementation_t {
   signal_t<> activate;
 };
 
-#warning FIXME _text should be std::unique_ptr
-input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text)
+input_selection_dialog_t::input_selection_dialog_t(int height, int width,
+                                                   std::unique_ptr<text_buffer_t> _text)
     : dialog_t(height, width, _("Input Handling"), impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  impl->text.reset(_text == nullptr ? get_default_text() : _text);
+  impl->text = std::move(_text);
+  if (!impl->text) {
+    impl->text = get_default_text();
+  }
 
-  impl->text_window = new text_window_t(impl->text.get());
   impl->text_frame = emplace_back<frame_t>(frame_t::COVER_RIGHT);
-  impl->text_frame->set_child(impl->text_window);
   impl->text_frame->set_size(height - 9, width - 2);
   impl->text_frame->set_position(1, 1);
+
+  impl->text_window = impl->text_frame->emplace_child<text_window_t>(impl->text.get());
 
   impl->label_frame = emplace_back<frame_t>();
   impl->label_frame->set_anchor(impl->text_frame,
@@ -48,10 +51,9 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
   impl->label_frame->set_position(0, 0);
   impl->label_frame->set_size(3, 18);
 
-  impl->key_label = new label_t("");
+  impl->key_label = impl->label_frame->emplace_child<label_t>("");
   impl->key_label->set_accepts_focus(false);
   impl->key_label->set_align(label_t::ALIGN_CENTER);
-  impl->label_frame->set_child(impl->key_label);
 
   impl->enable_simulate_box = new checkbox_t();
   impl->enable_simulate_box->set_anchor(
@@ -165,8 +167,8 @@ void input_selection_dialog_t::show() {
   dialog_t::show();
 }
 
-text_buffer_t *input_selection_dialog_t::get_default_text() {
-  text_buffer_t *default_text = new text_buffer_t();
+std::unique_ptr<text_buffer_t> input_selection_dialog_t::get_default_text() {
+  std::unique_ptr<text_buffer_t> default_text = make_unique<text_buffer_t>();
   const char *intl_text =
       _("%s provides an intuitive interface for people accustomed "
         "to GUI applications. For example, it allows you to use Meta+<letter> combinations to open "
