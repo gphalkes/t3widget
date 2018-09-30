@@ -40,16 +40,14 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
     : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH, std::move(_title),
                impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  smart_label_t *underline_label, *bold_label, *dim_label, *reverse_label, *blink_label;
   frame_t *test_line_frame;
-  button_t *ok_button, *cancel_button, *default_button = nullptr;
   t3_term_caps_t capabilities;
 
   t3_term_get_caps(&capabilities);
 
-  impl->underline_box = new checkbox_t(false);
+  impl->underline_box = emplace_back<checkbox_t>(false);
   impl->underline_box->set_position(1, 2);
-  underline_label = new smart_label_t("_Underline");
+  smart_label_t *underline_label = emplace_back<smart_label_t>("_Underline");
   underline_label->set_anchor(impl->underline_box,
                               T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   underline_label->set_position(0, 1);
@@ -59,11 +57,11 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->underline_box->connect_toggled([this] { attribute_changed(); });
   impl->underline_box->connect_activate([this] { ok_activate(); });
 
-  impl->bold_box = new checkbox_t(false);
+  impl->bold_box = emplace_back<checkbox_t>(false);
   impl->bold_box->set_anchor(impl->underline_box,
                              T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->bold_box->set_position(1, 0);
-  bold_label = new smart_label_t("_Bold");
+  smart_label_t *bold_label = emplace_back<smart_label_t>("_Bold");
   bold_label->set_anchor(impl->bold_box,
                          T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   bold_label->set_position(0, 1);
@@ -73,11 +71,11 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->bold_box->connect_toggled([this] { attribute_changed(); });
   impl->bold_box->connect_activate([this] { ok_activate(); });
 
-  impl->dim_box = new checkbox_t(false);
+  impl->dim_box = emplace_back<checkbox_t>(false);
   impl->dim_box->set_anchor(impl->bold_box,
                             T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->dim_box->set_position(1, 0);
-  dim_label = new smart_label_t("Di_m");
+  smart_label_t *dim_label = emplace_back<smart_label_t>("Di_m");
   dim_label->set_anchor(impl->dim_box, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   dim_label->set_position(0, 1);
   impl->dim_box->set_label(dim_label);
@@ -86,11 +84,11 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->dim_box->connect_toggled([this] { attribute_changed(); });
   impl->dim_box->connect_activate([this] { ok_activate(); });
 
-  impl->reverse_box = new checkbox_t(false);
+  impl->reverse_box = emplace_back<checkbox_t>(false);
   impl->reverse_box->set_anchor(impl->dim_box,
                                 T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->reverse_box->set_position(1, 0);
-  reverse_label = new smart_label_t("_Reverse video");
+  smart_label_t *reverse_label = emplace_back<smart_label_t>("_Reverse video");
   reverse_label->set_anchor(impl->reverse_box,
                             T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   reverse_label->set_position(0, 1);
@@ -100,11 +98,11 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->reverse_box->connect_toggled([this] { attribute_changed(); });
   impl->reverse_box->connect_activate([this] { ok_activate(); });
 
-  impl->blink_box = new checkbox_t(false);
+  impl->blink_box = emplace_back<checkbox_t>(false);
   impl->blink_box->set_anchor(impl->reverse_box,
                               T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->blink_box->set_position(1, 0);
-  blink_label = new smart_label_t("Bl_ink");
+  smart_label_t *blink_label = emplace_back<smart_label_t>("Bl_ink");
   blink_label->set_anchor(impl->blink_box,
                           T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   blink_label->set_position(0, 1);
@@ -114,22 +112,15 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->blink_box->connect_toggled([this] { attribute_changed(); });
   impl->blink_box->connect_activate([this] { ok_activate(); });
 
-  test_line_frame = new frame_t();
-  test_line_frame->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-  test_line_frame->set_position(1, -2);
-  impl->test_line = new attribute_test_line_t();
-  test_line_frame->set_size(3, 6);
-  test_line_frame->set_child(impl->test_line);
-
   if (capabilities.cap_flags & (T3_TERM_CAP_FG | T3_TERM_CAP_CP)) {
     impl->expander_group.reset(new expander_group_t());
 
     if (capabilities.cap_flags & T3_TERM_CAP_FG) {
       impl->fg_picker = new color_picker_t(true);
-      impl->fg_expander = new expander_t("_Foreground color");
+      impl->fg_expander = emplace_back<expander_t>("_Foreground color");
     } else {
       impl->fg_picker = new color_pair_picker_t();
-      impl->fg_expander = new expander_t("Color _pair");
+      impl->fg_expander = emplace_back<expander_t>("Color _pair");
     }
     impl->fg_picker->connect_activated([this] { ok_activate(); });
     impl->fg_picker->connect_selection_changed([this] { attribute_changed(); });
@@ -145,7 +136,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
       impl->bg_picker = new color_picker_t(false);
       impl->bg_picker->connect_activated([this] { ok_activate(); });
       impl->bg_picker->connect_selection_changed(([this] { attribute_changed(); }));
-      impl->bg_expander = new expander_t("B_ackground color");
+      impl->bg_expander = emplace_back<expander_t>("B_ackground color");
       impl->bg_expander->set_child(impl->bg_picker);
       impl->bg_expander->set_anchor(impl->fg_expander,
                                     T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -158,7 +149,17 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
     impl->expander_group->connect_expanded([this](bool expanded) { group_expanded(expanded); });
   }
 
-  cancel_button = new button_t("_Cancel", false);
+  test_line_frame = emplace_back<frame_t>();
+  test_line_frame->set_anchor(this, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+  test_line_frame->set_position(1, -2);
+  impl->test_line = new attribute_test_line_t();
+  test_line_frame->set_size(3, 6);
+  test_line_frame->set_child(impl->test_line);
+
+  button_t *ok_button = emplace_back<button_t>("_OK", true);
+  button_t *default_button = with_default ? emplace_back<button_t>("_Default") : nullptr;
+  button_t *cancel_button = emplace_back<button_t>("_Cancel", false);
+
   cancel_button->set_anchor(this,
                             T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   cancel_button->set_position(-1, -2);
@@ -173,7 +174,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   cancel_button->connect_move_focus_down([this] { focus_next(); });
 
   if (with_default) {
-    default_button = new button_t("_Default");
+    default_button = emplace<button_t>(cancel_button, "_Default");
     default_button->set_anchor(cancel_button,
                                T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     default_button->set_position(0, -2);
@@ -186,7 +187,6 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
     default_button->connect_move_focus_down([this] { focus_next(); });
   }
 
-  ok_button = new button_t("_OK", true);
   ok_button->set_anchor(with_default ? default_button : cancel_button,
                         T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   ok_button->set_position(0, -2);
@@ -196,29 +196,6 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   ok_button->connect_move_focus_down([this] { focus_next(); });
   ok_button->connect_move_focus_down([this] { focus_next(); });
   ok_button->connect_move_focus_down([this] { focus_next(); });
-
-  push_back(impl->underline_box);
-  push_back(underline_label);
-  push_back(impl->bold_box);
-  push_back(bold_label);
-  push_back(impl->dim_box);
-  push_back(dim_label);
-  push_back(impl->reverse_box);
-  push_back(reverse_label);
-  push_back(impl->blink_box);
-  push_back(blink_label);
-  if (capabilities.cap_flags & (T3_TERM_CAP_FG | T3_TERM_CAP_CP)) {
-    push_back(impl->fg_expander);
-    if (capabilities.cap_flags & T3_TERM_CAP_BG) {
-      push_back(impl->bg_expander);
-    }
-  }
-  push_back(test_line_frame);
-  push_back(ok_button);
-  if (with_default) {
-    push_back(default_button);
-  }
-  push_back(cancel_button);
 }
 
 attribute_picker_dialog_t::~attribute_picker_dialog_t() {}

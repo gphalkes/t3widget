@@ -32,7 +32,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   file_dialog_t(int height, int width, optional<std::string> _title, size_t impl_size = 0);
 
   widget_t *get_anchor_widget();
-  void insert_extras(widget_t *widget);
+  const widget_t *get_insertion_widget() const;
   void ok_callback();
   void ok_callback(const std::string &file);
   virtual const std::string &get_filter() = 0;
@@ -43,7 +43,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   void change_dir(const std::string &dir);
   virtual int set_file(string_view file);
   void refresh_view();
-  void set_options_widget(widget_t *options);
+  void set_options_widget(std::unique_ptr<widget_t> options);
   virtual void reset();
 
   T3_WIDGET_DECLARE_SIGNAL(file_selected, const std::string &);

@@ -50,13 +50,11 @@ struct file_dialog_t::implementation_t {
 file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title, size_t impl_size)
     : dialog_t(height, width, std::move(_title), impl_alloc<implementation_t>(impl_size)),
       impl(new_impl<implementation_t>()) {
-  smart_label_t *name_label;
-
-  name_label = new smart_label_t("_Name", true);
+  smart_label_t *name_label = emplace_back<smart_label_t>("_Name", true);
   name_label->set_position(1, 2);
   impl->name_offset =
       name_label->get_width() + 2 + 1;  // 2 for offset of "Name", 1 for space in ": ["
-  impl->file_line = new text_field_t();
+  impl->file_line = emplace_back<text_field_t>();
   impl->file_line->set_anchor(name_label,
                               T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->file_line->set_position(0, 1);
@@ -72,12 +70,12 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   impl->file_pane->connect_activate([this](const std::string &file) { ok_callback(file); });
   impl->file_pane->set_file_list(impl->view.get());
 
-  impl->file_pane_frame = new frame_t(frame_t::COVER_BOTTOM);
+  impl->file_pane_frame = emplace_back<frame_t>(frame_t::COVER_BOTTOM);
   impl->file_pane_frame->set_size(height - 4, width - 4);
   impl->file_pane_frame->set_position(2, 2);
   impl->file_pane_frame->set_child(impl->file_pane);
 
-  impl->show_hidden_box = new checkbox_t(false);
+  impl->show_hidden_box = emplace_back<checkbox_t>(false);
   impl->show_hidden_box->set_anchor(impl->file_pane_frame,
                                     T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->show_hidden_box->set_position(0, 0);
@@ -86,13 +84,15 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   impl->show_hidden_box->connect_move_focus_up([this] { focus_previous(); });
   impl->show_hidden_box->connect_move_focus_right([this] { focus_next(); });
 
-  impl->show_hidden_label = new smart_label_t("_Show hidden");
+  impl->show_hidden_label = emplace_back<smart_label_t>("_Show hidden");
   impl->show_hidden_label->set_anchor(impl->show_hidden_box,
                                       T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->show_hidden_label->set_position(0, 1);
   impl->show_hidden_box->set_label(impl->show_hidden_label);
 
-  impl->cancel_button = new button_t("_Cancel");
+  impl->ok_button = emplace_back<button_t>("_OK", true);
+  impl->cancel_button = emplace_back<button_t>("_Cancel");
+
   impl->cancel_button->set_anchor(
       this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   impl->cancel_button->set_position(-1, -2);
@@ -100,7 +100,7 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   impl->cancel_button->connect_move_focus_left([this] { focus_previous(); });
   impl->cancel_button_up_connection = impl->cancel_button->connect_move_focus_up(
       [this] { set_child_focus(impl->file_pane_frame); });
-  impl->ok_button = new button_t("_OK", true);
+
   impl->ok_button->set_anchor(impl->cancel_button,
                               T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   impl->ok_button->set_position(0, -2);
@@ -109,40 +109,29 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
   impl->ok_button->connect_move_focus_right([this] { focus_next(); });
   impl->ok_button_up_connection =
       impl->ok_button->connect_move_focus_up([this] { set_child_focus(impl->file_pane_frame); });
-
-  push_back(name_label);
-  push_back(impl->file_line);
-  push_back(impl->file_pane_frame);
-  push_back(impl->show_hidden_box);
-  push_back(impl->show_hidden_label);
-  push_back(impl->ok_button);
-  push_back(impl->cancel_button);
 }
 
 file_dialog_t::~file_dialog_t() {}
 
 widget_t *file_dialog_t::get_anchor_widget() { return impl->show_hidden_label; }
+const widget_t *file_dialog_t::get_insertion_widget() const { return impl->ok_button; }
 
-void file_dialog_t::insert_extras(widget_t *widget) {
-  widgets().insert(widgets().end() - 2, widget);
-}
-
-void file_dialog_t::set_options_widget(widget_t *options) {
+void file_dialog_t::set_options_widget(std::unique_ptr<widget_t> options) {
   focus_widget_t *focus_widget;
 
   if (impl->option_widget_set) {
     return;
   }
 
-  set_widget_parent(options);
   /* Make the file pane one line less high. */
   impl->file_pane_frame->set_size(window.get_height() - 5, None);
 
   impl->option_widget_set = true;
-  insert_extras(options);
-  options->set_anchor(impl->file_pane_frame,
-                      T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
-  options->set_position(0, 0);
+  widget_t *options_ptr = options.get();
+  insert(get_insertion_widget(), std::move(options));
+  options_ptr->set_anchor(impl->file_pane_frame,
+                          T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
+  options_ptr->set_position(0, 0);
 
   impl->cancel_button_up_connection.disconnect();
   impl->cancel_button->connect_move_focus_up([this] { focus_previous(); });
@@ -155,7 +144,7 @@ void file_dialog_t::set_options_widget(widget_t *options) {
     set_child_focus(impl->ok_button);
   });
 
-  if ((focus_widget = dynamic_cast<focus_widget_t *>(options)) != nullptr) {
+  if ((focus_widget = dynamic_cast<focus_widget_t *>(options_ptr)) != nullptr) {
     focus_widget->connect_move_focus_up([this] { set_child_focus(impl->file_pane_frame); });
     focus_widget->connect_move_focus_left([this] { focus_previous(); });
     focus_widget->connect_move_focus_down([this] { focus_next(); });
@@ -308,14 +297,14 @@ struct open_file_dialog_t::implementation_t {
 open_file_dialog_t::open_file_dialog_t(int height, int width)
     : file_dialog_t(height, width, "Open File", impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  impl->filter_label = new smart_label_t("_Filter", true);
+  impl->filter_label = emplace<smart_label_t>(get_insertion_widget(), "_Filter", true);
   container_t::set_widget_parent(impl->filter_label);
   impl->filter_label->set_anchor(get_anchor_widget(),
                                  T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->filter_label->set_position(0, 2);
   impl->filter_offset = impl->filter_label->get_width() + 1;
   impl->filter_width = std::min(std::max(10, width - 60), 25);
-  impl->filter_line = new filter_text_field_t();
+  impl->filter_line = emplace<filter_text_field_t>(get_insertion_widget());
   container_t::set_widget_parent(impl->filter_line);
   impl->filter_line->set_anchor(impl->filter_label,
                                 T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -329,9 +318,6 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
 
   impl->filter_line->set_label(impl->filter_label);
   impl->filter_line->set_key_filter(&nul, 1, false);
-
-  insert_extras(impl->filter_label);
-  insert_extras(impl->filter_line);
 }
 
 open_file_dialog_t::~open_file_dialog_t() {}
@@ -362,13 +348,12 @@ struct save_as_dialog_t::implementation_t {
 save_as_dialog_t::save_as_dialog_t(int height, int width)
     : file_dialog_t(height, width, "Save File As", impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  impl->create_button = new button_t("Create Folder");
+  impl->create_button = emplace<button_t>(get_insertion_widget(), "Create Folder");
   container_t::set_widget_parent(impl->create_button);
   impl->create_button->set_anchor(get_anchor_widget(),
                                   T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->create_button->set_position(0, 2);
   impl->create_button->connect_activate([this] { create_folder(); });
-  insert_extras(impl->create_button);
 }
 
 save_as_dialog_t::~save_as_dialog_t() {}

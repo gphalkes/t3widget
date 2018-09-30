@@ -326,6 +326,20 @@ void dialog_base_t::push_back(widget_t *widget) {
   widgets.push_back(widget);
 }
 
+void dialog_base_t::insert(const widget_t *before, std::unique_ptr<widget_t> widget) {
+  if (!set_widget_parent(widget.get())) {
+    return;
+  }
+  auto &widgets = impl->widgets;
+  for (auto iter = widgets.begin(); iter != widgets.end(); ++iter) {
+    if (*iter == before) {
+      widgets.insert(iter, widget.release());
+      return;
+    }
+  }
+  widgets.insert(widgets.begin(), widget.release());
+}
+
 void dialog_base_t::force_redraw() {
   impl->redraw = true;
   for (widget_t *widget : impl->widgets) {
