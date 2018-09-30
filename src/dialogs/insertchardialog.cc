@@ -34,12 +34,9 @@ insert_char_dialog_t::insert_char_dialog_t()
     : dialog_t(INSERT_CHAR_DIALOG_HEIGHT, INSERT_CHAR_DIALOG_WIDTH, _("Insert Character"),
                impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  smart_label_t *description_label;
-  button_t *ok_button, *cancel_button;
-
-  description_label = new smart_label_t("C_haracter", true);
+  smart_label_t *description_label = emplace_back<smart_label_t>("C_haracter", true);
   description_label->set_position(1, 2);
-  impl->description_line = new text_field_t();
+  impl->description_line = emplace_back<text_field_t>();
   impl->description_line->set_anchor(description_label,
                                      T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->description_line->set_position(0, 1);
@@ -48,7 +45,9 @@ insert_char_dialog_t::insert_char_dialog_t()
   impl->description_line->set_label(description_label);
   impl->description_line->connect_activate([this] { ok_activate(); });
 
-  cancel_button = new button_t("_Cancel", false);
+  button_t *ok_button = emplace_back<button_t>("_OK", true);
+  button_t *cancel_button = emplace_back<button_t>("_Cancel", false);
+
   cancel_button->set_anchor(this,
                             T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   cancel_button->set_position(-1, -2);
@@ -58,17 +57,12 @@ insert_char_dialog_t::insert_char_dialog_t()
      focus_previous twice here to emulate moving up, because the ok_button is in the way. */
   cancel_button->connect_move_focus_up([this] { focus_previous(); });
   cancel_button->connect_move_focus_up([this] { focus_previous(); });
-  ok_button = new button_t("_OK", true);
+
   ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   ok_button->set_position(0, -2);
   ok_button->connect_activate([this] { ok_activate(); });
   ok_button->connect_move_focus_up([this] { focus_previous(); });
   ok_button->connect_move_focus_right([this] { focus_next(); });
-
-  push_back(description_label);
-  push_back(impl->description_line);
-  push_back(ok_button);
-  push_back(cancel_button);
 }
 
 insert_char_dialog_t::~insert_char_dialog_t() {}

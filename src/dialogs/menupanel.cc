@@ -145,26 +145,28 @@ void menu_panel_t::close() {
 }
 
 menu_item_base_t *menu_panel_t::add_item(string_view _label, string_view shortcut_key, int id) {
-  menu_item_t *item = new menu_item_t(this, _label, shortcut_key, id);
-  return add_item(item);
+  std::unique_ptr<menu_item_t> item =
+      t3widget::make_unique<menu_item_t>(this, _label, shortcut_key, id);
+  return add_item(std::move(item));
 }
 
-menu_item_base_t *menu_panel_t::add_item(menu_item_t *item) {
-  push_back(item);
-  item->set_position(widgets().size(), None);
+menu_item_base_t *menu_panel_t::add_item(std::unique_ptr<menu_item_t> item) {
+  menu_item_t *item_ptr = item.get();
+  push_back(std::move(item));
+  item_ptr->set_position(widgets().size(), None);
 
-  impl->shortcut_key_width = std::max(impl->shortcut_key_width, item->get_shortcut_key_width());
-  impl->label_width = std::max(impl->label_width, item->get_label_width());
+  impl->shortcut_key_width = std::max(impl->shortcut_key_width, item_ptr->get_shortcut_key_width());
+  impl->label_width = std::max(impl->label_width, item_ptr->get_label_width());
   if (impl->shortcut_key_width + impl->label_width > impl->width - 2) {
     impl->width = impl->shortcut_key_width + impl->label_width + 2;
   }
   set_size(widgets().size() + 2, impl->width);
-  return item;
+  return item_ptr;
 }
 
 menu_item_base_t *menu_panel_t::add_separator() {
   menu_separator_t *sep = new menu_separator_t(this);
-  push_back(sep);
+  push_back(std::unique_ptr<widget_t>(sep));
   sep->set_position(widgets().size(), None);
   return sep;
 }
@@ -173,37 +175,35 @@ void menu_panel_t::remove_item(menu_item_base_t *item) { replace_item(item, null
 
 menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, string_view _label,
                                              string_view shortcut_key, int id) {
-  menu_item_t *new_item = new menu_item_t(this, _label, shortcut_key, id);
-  return replace_item(old_item, new_item);
+  std::unique_ptr<menu_item_t> new_item = make_unique<menu_item_t>(this, _label, shortcut_key, id);
+  return replace_item(old_item, std::move(new_item));
 }
 
-menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, menu_item_t *new_item) {
-  widgets_t::iterator iter;
-  menu_item_t *label_item;
-  int i;
-
-  for (iter = widgets().begin(); iter != widgets().end(); iter++) {
+menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item,
+                                             std::unique_ptr<menu_item_t> new_item) {
+  menu_item_base_t *result = new_item.get();
+  for (auto iter = widgets().begin(); iter != widgets().end(); iter++) {
     if ((*iter) == old_item) {
       unset_widget_parent(old_item);
       if (new_item == nullptr) {
         widgets().erase(iter);
       } else {
-        set_widget_parent(new_item);
-        *iter = new_item;
+        set_widget_parent(new_item.get());
+        *iter = new_item.release();
       }
       goto resize_panel;
     }
   }
-  delete new_item;
   return nullptr;
 
 resize_panel:
   impl->width = 5;
   impl->label_width = 1;
   impl->shortcut_key_width = 0;
-  for (iter = widgets().begin(), i = 1; iter != widgets().end(); iter++, i++) {
+  int i = 1;
+  for (auto iter = widgets().begin(); iter != widgets().end(); iter++, i++) {
     (*iter)->set_position(i, None);
-    label_item = dynamic_cast<menu_item_t *>(*iter);
+    menu_item_t *label_item = dynamic_cast<menu_item_t *>(*iter);
     if (label_item != nullptr) {
       impl->shortcut_key_width =
           std::max(impl->shortcut_key_width, label_item->get_shortcut_key_width());
@@ -214,7 +214,7 @@ resize_panel:
     }
   }
   set_size(widgets().size() + 2, impl->width);
-  return new_item;
+  return result;
 }
 
 void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {

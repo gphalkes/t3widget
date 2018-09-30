@@ -1850,13 +1850,11 @@ edit_window_t::autocomplete_panel_t::autocomplete_panel_t(edit_window_t *parent)
     : popup_t(7, 7), list_pane(nullptr) {
   window.set_anchor(parent->get_base_window(), 0);
 
-  list_pane = new list_pane_t(false);
+  list_pane = emplace_back<list_pane_t>(false);
   list_pane->set_size(5, 6);
   list_pane->set_position(1, 1);
   list_pane->set_focus(window_component_t::FOCUS_SET);
   list_pane->set_single_click_activate(true);
-
-  push_back(list_pane);
 }
 
 bool edit_window_t::autocomplete_panel_t::process_key(key_t key) {

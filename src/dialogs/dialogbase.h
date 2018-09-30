@@ -48,6 +48,8 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
 
   t3window::window_t &shadow_window();
 
+  void push_back(widget_t *widget);
+
  protected:
   /** Create a new dialog with @p height and @p width, and with title @p _title. */
   dialog_base_t(int height, int width, bool has_shadow, size_t impl_size = 0);
@@ -58,7 +60,8 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   /** Add a widget to this dialog.
       If a widget is not added through #push_back or #insert, it will not be displayed, or receive
       input. */
-  void push_back(widget_t *widget);
+  void push_back(std::unique_ptr<widget_t> widget);
+
   /** Add a widget to this dialog, before the given widget.
       If a widget is not added through #push_back or #insert, it will not be displayed, or receive
       input. */
@@ -67,7 +70,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   template <typename T, typename... Args>
   T *emplace_back(Args &&... args) {
     T *result = new T(std::forward<Args>(args)...);
-    push_back(result);
+    push_back(std::unique_ptr<widget_t>(result));
     return result;
   }
 

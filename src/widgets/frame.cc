@@ -28,6 +28,7 @@ frame_t::frame_t(frame_dimension_t _dimension)
 
 frame_t::~frame_t() {}
 
+#warning FIXME _child should be std::unique_ptr
 void frame_t::set_child(widget_t *_child) {
   int child_top = 1, child_left = 1;
 

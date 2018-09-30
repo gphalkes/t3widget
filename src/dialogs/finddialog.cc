@@ -37,13 +37,9 @@ struct find_dialog_t::implementation_t {
 
 find_dialog_t::find_dialog_t(int _state)
     : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIALOG_WIDTH, _("Find")), impl(new implementation_t()) {
-  smart_label_t *find_label, *whole_word_label, *match_case_label, *regex_label, *wrap_label,
-      *transform_backslash_label, *reverse_direction_label;
-  button_t *find_button, *cancel_button;
-
-  find_label = new smart_label_t("Fi_nd", true);
+  smart_label_t *find_label = emplace_back<smart_label_t>("Fi_nd", true);
   find_label->set_position(1, 2);
-  impl->find_line = new text_field_t();
+  impl->find_line = emplace_back<text_field_t>();
   impl->find_line->set_anchor(find_label,
                               T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->find_line->set_size(None, FIND_DIALOG_WIDTH - find_label->get_width() - 5);
@@ -51,9 +47,9 @@ find_dialog_t::find_dialog_t(int _state)
   impl->find_line->set_label(find_label);
   impl->find_line->connect_activate([this] { find_activated(); });
 
-  impl->replace_label = new smart_label_t("Re_place with", true);
+  impl->replace_label = emplace_back<smart_label_t>("Re_place with", true);
   impl->replace_label->set_position(2, 2);
-  impl->replace_line = new text_field_t();
+  impl->replace_line = emplace_back<text_field_t>();
   impl->replace_line->set_anchor(impl->replace_label,
                                  T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->replace_line->set_size(None, FIND_DIALOG_WIDTH - impl->replace_label->get_width() - 5);
@@ -63,9 +59,9 @@ find_dialog_t::find_dialog_t(int _state)
   impl->replace_label->hide();
   impl->replace_line->hide();
 
-  impl->whole_word_checkbox = new checkbox_t();
+  impl->whole_word_checkbox = emplace_back<checkbox_t>();
   impl->whole_word_checkbox->set_position(2, 2);
-  whole_word_label = new smart_label_t("Match _whole word only");
+  smart_label_t *whole_word_label = emplace_back<smart_label_t>("Match _whole word only");
   whole_word_label->set_anchor(impl->whole_word_checkbox,
                                T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   whole_word_label->set_position(0, 1);
@@ -74,11 +70,11 @@ find_dialog_t::find_dialog_t(int _state)
   impl->whole_word_checkbox->connect_move_focus_up([this] { focus_previous(); });
   impl->whole_word_checkbox->connect_move_focus_down([this] { focus_next(); });
   impl->whole_word_checkbox->connect_activate([this] { find_activated(); });
-  impl->match_case_checkbox = new checkbox_t();
+  impl->match_case_checkbox = emplace_back<checkbox_t>();
   impl->match_case_checkbox->set_anchor(
       impl->whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->match_case_checkbox->set_position(0, 0);
-  match_case_label = new smart_label_t("Case sensiti_ve");
+  smart_label_t *match_case_label = emplace_back<smart_label_t>("Case sensiti_ve");
   match_case_label->set_anchor(impl->match_case_checkbox,
                                T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   match_case_label->set_position(0, 1);
@@ -87,11 +83,11 @@ find_dialog_t::find_dialog_t(int _state)
   impl->match_case_checkbox->connect_move_focus_up([this] { focus_previous(); });
   impl->match_case_checkbox->connect_move_focus_down([this] { focus_next(); });
   impl->match_case_checkbox->connect_activate([this] { find_activated(); });
-  impl->regex_checkbox = new checkbox_t();
+  impl->regex_checkbox = emplace_back<checkbox_t>();
   impl->regex_checkbox->set_anchor(impl->whole_word_checkbox,
                                    T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->regex_checkbox->set_position(1, 0);
-  regex_label = new smart_label_t("Regular _expression");
+  smart_label_t *regex_label = emplace_back<smart_label_t>("Regular _expression");
   regex_label->set_anchor(impl->regex_checkbox,
                           T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   regex_label->set_position(0, 1);
@@ -100,11 +96,11 @@ find_dialog_t::find_dialog_t(int _state)
   impl->regex_checkbox->connect_move_focus_up([this] { focus_previous(); });
   impl->regex_checkbox->connect_move_focus_down([this] { focus_next(); });
   impl->regex_checkbox->connect_activate([this] { find_activated(); });
-  impl->wrap_checkbox = new checkbox_t();
+  impl->wrap_checkbox = emplace_back<checkbox_t>();
   impl->wrap_checkbox->set_anchor(impl->whole_word_checkbox,
                                   T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->wrap_checkbox->set_position(2, 0);
-  wrap_label = new smart_label_t("Wrap ar_ound");
+  smart_label_t *wrap_label = emplace_back<smart_label_t>("Wrap ar_ound");
   wrap_label->set_anchor(impl->wrap_checkbox,
                          T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   wrap_label->set_position(0, 1);
@@ -113,11 +109,12 @@ find_dialog_t::find_dialog_t(int _state)
   impl->wrap_checkbox->connect_move_focus_up([this] { focus_previous(); });
   impl->wrap_checkbox->connect_move_focus_down([this] { focus_next(); });
   impl->wrap_checkbox->connect_activate([this] { find_activated(); });
-  impl->transform_backslash_checkbox = new checkbox_t();
+  impl->transform_backslash_checkbox = emplace_back<checkbox_t>();
   impl->transform_backslash_checkbox->set_anchor(
       impl->whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->transform_backslash_checkbox->set_position(3, 0);
-  transform_backslash_label = new smart_label_t("Transform _backslash expressions");
+  smart_label_t *transform_backslash_label =
+      emplace_back<smart_label_t>("Transform _backslash expressions");
   transform_backslash_label->set_anchor(
       impl->transform_backslash_checkbox,
       T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -127,11 +124,11 @@ find_dialog_t::find_dialog_t(int _state)
   impl->transform_backslash_checkbox->connect_move_focus_up([this] { focus_previous(); });
   impl->transform_backslash_checkbox->connect_move_focus_down([this] { focus_next(); });
   impl->transform_backslash_checkbox->connect_activate([this] { find_activated(); });
-  impl->reverse_direction_checkbox = new checkbox_t();
+  impl->reverse_direction_checkbox = emplace_back<checkbox_t>();
   impl->reverse_direction_checkbox->set_anchor(
       impl->whole_word_checkbox, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->reverse_direction_checkbox->set_position(4, 0);
-  reverse_direction_label = new smart_label_t("_Up");
+  smart_label_t *reverse_direction_label = emplace_back<smart_label_t>("_Up");
   reverse_direction_label->set_anchor(impl->reverse_direction_checkbox,
                                       T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   reverse_direction_label->set_position(0, 1);
@@ -141,7 +138,11 @@ find_dialog_t::find_dialog_t(int _state)
   impl->reverse_direction_checkbox->connect_move_focus_down([this] { focus_next(); });
   impl->reverse_direction_checkbox->connect_activate([this] { find_activated(); });
 
-  cancel_button = new button_t("_Cancel");
+  impl->in_selection_button = emplace_back<button_t>("In _Selection");
+  impl->replace_all_button = emplace_back<button_t>("_All");
+  button_t *find_button = emplace_back<button_t>("_Find", true);
+  button_t *cancel_button = emplace_back<button_t>("_Cancel");
+
   cancel_button->set_anchor(this,
                             T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   cancel_button->set_position(-1, -2);
@@ -149,7 +150,6 @@ find_dialog_t::find_dialog_t(int _state)
   cancel_button->connect_move_focus_up([this] { focus_previous(); });
   cancel_button->connect_move_focus_up([this] { focus_previous(); });
   cancel_button->connect_move_focus_left([this] { focus_previous(); });
-  find_button = new button_t("_Find", true);
   find_button->set_anchor(cancel_button,
                           T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   find_button->set_position(0, -2);
@@ -160,7 +160,6 @@ find_dialog_t::find_dialog_t(int _state)
       find_button->connect_move_focus_up([this] { focus_previous(); });
   impl->find_button_up_connection.block();
 
-  impl->replace_all_button = new button_t("_All");
   impl->replace_all_button->set_anchor(
       this, T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   impl->replace_all_button->set_position(-2, -2);
@@ -173,7 +172,6 @@ find_dialog_t::find_dialog_t(int _state)
   impl->replace_all_button->connect_move_focus_left([this] { focus_previous(); });
   impl->replace_all_button->hide();
 
-  impl->in_selection_button = new button_t("In _Selection");
   impl->in_selection_button->set_anchor(
       impl->replace_all_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   impl->in_selection_button->set_position(0, -1);
@@ -184,27 +182,6 @@ find_dialog_t::find_dialog_t(int _state)
   impl->in_selection_button->connect_move_focus_down([this] { focus_next(); });
   impl->in_selection_button->connect_move_focus_right([this] { focus_next(); });
   impl->in_selection_button->hide();
-
-  push_back(find_label);
-  push_back(impl->find_line);
-  push_back(impl->replace_label);
-  push_back(impl->replace_line);
-  push_back(impl->whole_word_checkbox);
-  push_back(whole_word_label);
-  push_back(match_case_label);
-  push_back(impl->match_case_checkbox);
-  push_back(regex_label);
-  push_back(impl->regex_checkbox);
-  push_back(wrap_label);
-  push_back(impl->wrap_checkbox);
-  push_back(transform_backslash_label);
-  push_back(impl->transform_backslash_checkbox);
-  push_back(reverse_direction_label);
-  push_back(impl->reverse_direction_checkbox);
-  push_back(impl->in_selection_button);
-  push_back(impl->replace_all_button);
-  push_back(find_button);
-  push_back(cancel_button);
 
   find_dialog_t::set_state(_state);
 }
@@ -302,17 +279,16 @@ struct replace_buttons_dialog_t::implementation_t {
 replace_buttons_dialog_t::replace_buttons_dialog_t()
     : dialog_t(3, 60, "Replace", impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  button_t *cancel_button, *replace_all_button;
   int dialog_width;
 
-  replace_all_button = new button_t("_All");
+  button_t *replace_all_button = emplace_back<button_t>("_All");
   replace_all_button->set_position(1, 2);
   replace_all_button->connect_activate([this] { hide(); });
   replace_all_button->connect_activate(
       bind_front(impl->activate.get_trigger(), find_action_t::REPLACE_ALL));
   replace_all_button->connect_move_focus_right([this] { focus_next(); });
 
-  impl->replace_button = new button_t("_Replace");
+  impl->replace_button = emplace_back<button_t>("_Replace");
   impl->replace_button->set_anchor(replace_all_button,
                                    T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->replace_button->set_position(0, 2);
@@ -322,7 +298,7 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
   impl->replace_button->connect_move_focus_left([this] { focus_previous(); });
   impl->replace_button->connect_move_focus_right([this] { focus_next(); });
 
-  impl->find_button = new button_t("_Find");
+  impl->find_button = emplace_back<button_t>("_Find");
   impl->find_button->set_anchor(impl->replace_button,
                                 T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->find_button->set_position(0, 2);
@@ -332,17 +308,12 @@ replace_buttons_dialog_t::replace_buttons_dialog_t()
   impl->find_button->connect_move_focus_left([this] { focus_previous(); });
   impl->find_button->connect_move_focus_right([this] { focus_next(); });
 
-  cancel_button = new button_t("_Cancel");
+  button_t *cancel_button = emplace_back<button_t>("_Cancel");
   cancel_button->set_anchor(impl->find_button,
                             T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   cancel_button->set_position(0, 2);
   cancel_button->connect_activate([this] { close(); });
   cancel_button->connect_move_focus_left([this] { focus_previous(); });
-
-  push_back(replace_all_button);
-  push_back(impl->replace_button);
-  push_back(impl->find_button);
-  push_back(cancel_button);
 
   dialog_width = replace_all_button->get_width() + impl->replace_button->get_width() +
                  impl->find_button->get_width() + cancel_button->get_width() + 10;

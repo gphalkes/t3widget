@@ -30,21 +30,19 @@ struct input_selection_dialog_t::implementation_t {
   signal_t<> activate;
 };
 
+#warning FIXME _text should be std::unique_ptr
 input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_buffer_t *_text)
     : dialog_t(height, width, _("Input Handling"), impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  button_t *ok_button, *cancel_button;
-  smart_label_t *enable_simulate_label, *disable_timeout_label, *close_remark_label;
-
   impl->text.reset(_text == nullptr ? get_default_text() : _text);
 
   impl->text_window = new text_window_t(impl->text.get());
-  impl->text_frame = new frame_t(frame_t::COVER_RIGHT);
+  impl->text_frame = emplace_back<frame_t>(frame_t::COVER_RIGHT);
   impl->text_frame->set_child(impl->text_window);
   impl->text_frame->set_size(height - 9, width - 2);
   impl->text_frame->set_position(1, 1);
 
-  impl->label_frame = new frame_t();
+  impl->label_frame = emplace_back<frame_t>();
   impl->label_frame->set_anchor(impl->text_frame,
                                 T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_TOPCENTER));
   impl->label_frame->set_position(0, 0);
@@ -64,28 +62,32 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
   impl->enable_simulate_box->connect_move_focus_up([this] { focus_previous(); });
   impl->enable_simulate_box->connect_move_focus_down([this] { focus_next(); });
 
-  enable_simulate_label = new smart_label_t("'Esc <letter>' simulates Meta+<letter>");
+  smart_label_t *enable_simulate_label =
+      emplace_back<smart_label_t>("'Esc <letter>' simulates Meta+<letter>");
   enable_simulate_label->set_anchor(impl->enable_simulate_box,
                                     T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   enable_simulate_label->set_position(0, 1);
 
-  close_remark_label = new smart_label_t("(Requires 'Esc Esc' to close menu or dialog)");
+  smart_label_t *close_remark_label =
+      emplace_back<smart_label_t>("(Requires 'Esc Esc' to close menu or dialog)");
   close_remark_label->set_anchor(enable_simulate_label, 0);
   close_remark_label->set_position(1, 0);
 
-  impl->disable_timeout_box = new checkbox_t();
+  impl->disable_timeout_box = emplace_back<checkbox_t>();
   impl->disable_timeout_box->set_anchor(impl->enable_simulate_box, 0);
   impl->disable_timeout_box->set_position(2, 0);
   impl->disable_timeout_box->connect_activate([this] { ok_activated(); });
   impl->disable_timeout_box->connect_move_focus_up([this] { focus_previous(); });
   impl->disable_timeout_box->connect_move_focus_down([this] { focus_next(); });
 
-  disable_timeout_label = new smart_label_t("Disable timeout on Esc");
+  smart_label_t *disable_timeout_label = emplace_back<smart_label_t>("Disable timeout on Esc");
   disable_timeout_label->set_anchor(impl->disable_timeout_box,
                                     T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   disable_timeout_label->set_position(0, 1);
 
-  cancel_button = new button_t(_("Cancel"));
+  button_t *ok_button = emplace_back<button_t>(_("Ok"), true);
+  button_t *cancel_button = emplace_back<button_t>(_("Cancel"));
+
   cancel_button->set_anchor(this,
                             T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_BOTTOMRIGHT));
   cancel_button->set_position(-1, -2);
@@ -94,22 +96,11 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width, text_b
   cancel_button->connect_move_focus_up([this] { focus_previous(); });
   cancel_button->connect_move_focus_up([this] { focus_previous(); });
 
-  ok_button = new button_t(_("Ok"), true);
   ok_button->set_anchor(cancel_button, T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   ok_button->set_position(0, -2);
   ok_button->connect_activate([this] { ok_activated(); });
   ok_button->connect_move_focus_right([this] { focus_next(); });
   ok_button->connect_move_focus_up([this] { focus_previous(); });
-
-  push_back(impl->text_frame);
-  push_back(impl->label_frame);
-  push_back(impl->enable_simulate_box);
-  push_back(enable_simulate_label);
-  push_back(close_remark_label);
-  push_back(impl->disable_timeout_box);
-  push_back(disable_timeout_label);
-  push_back(ok_button);
-  push_back(cancel_button);
 }
 
 input_selection_dialog_t::~input_selection_dialog_t() {}

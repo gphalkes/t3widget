@@ -659,14 +659,12 @@ text_field_t::drop_down_list_t::drop_down_list_t(text_field_t *_field)
                     T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   window.move(1, 0);
 
-  list_pane = new list_pane_t(false);
+  list_pane = emplace_back<list_pane_t>(false);
   list_pane->set_size(DDL_HEIGHT - 1, window.get_width() - 1);
   list_pane->set_position(0, 1);
   list_pane->connect_activate([this] { item_activated(); });
   list_pane->connect_selection_changed([this] { selection_changed(); });
   list_pane->set_single_click_activate(true);
-
-  push_back(list_pane);
 }
 
 bool text_field_t::drop_down_list_t::process_key(key_t key) {
