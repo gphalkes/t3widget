@@ -1,7 +1,7 @@
 Version 0.6.4:
-  Bug fixes:
-  - Bracketed paste mode was not handled correctly due to inadvertent setting of
-    the EKEY_PROTECT bit.
+	Bug fixes:
+	- Bracketed paste mode was not handled correctly due to inadvertent setting
+	  of the EKEY_PROTECT bit.
 
 Version 0.6.3:
 	Bug fixes:
