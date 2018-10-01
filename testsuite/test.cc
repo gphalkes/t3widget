@@ -7,7 +7,7 @@
 
 #include "widget.h"
 
-using namespace t3_widget;
+using namespace t3widget;
 
 static bool option_test_mode;
 static FILE *log_file;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 	complex_error_t result;
 	init_parameters_t *params = init_parameters_t::create();
 	if (!(result = init(params)).get_success()) {
-		fprintf(stderr, "Error: %s\n", result.get_string());
+		fprintf(stderr, "Error: %s\n", result.get_string().c_str());
 		fprintf(stderr, "init failed\n");
 		exit(EXIT_FAILURE);
 	}

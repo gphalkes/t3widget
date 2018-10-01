@@ -7,8 +7,7 @@ class main_window_t : public main_window_base_t {
 
  public:
   main_window_t(void) {
-    menu = new menu_bar_t();
-    push_back(menu);
+    menu = emplace_back<menu_bar_t>();
     menu->connect_activate([this](int id) { menu_activated(id); });
 
     panel = new menu_panel_t("_File", menu);

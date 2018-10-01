@@ -8,11 +8,10 @@ class main_window_t : public main_window_base_t {
 
  public:
   main_window_t(void) {
-    expander = new expander_t("_Test");
+    expander = emplace_back<expander_t>("_Test");
     button_t *button = new button_t("T_est");
     button->connect_activate(button_activated);
     expander->set_child(button);
     expander->set_size(None, 10);
-    push_back(expander);
   }
 };
