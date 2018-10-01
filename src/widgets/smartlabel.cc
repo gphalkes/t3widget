@@ -82,7 +82,7 @@ smart_label_text_t::~smart_label_text_t() {
   }
 }
 
-void smart_label_text_t::draw(t3window::window_t *window, t3_attr_t attr, bool selected) {
+void smart_label_text_t::draw(t3window::window_t *window, t3_attr_t attr, bool selected) const {
   const std::string &text = impl->text;
   size_t underline_start = impl->underline_start;
   size_t underline_length = impl->underline_length;

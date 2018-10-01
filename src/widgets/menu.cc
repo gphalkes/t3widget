@@ -37,9 +37,9 @@ struct menu_bar_t::implementation_t {
               See the comments at #set_focus for details.
       */
       has_focus;
-#warning FIXME the menu should own the panels
-  std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
-  int button_down_idx;               /** Index of menu on which the left button was pressed down. */
+  std::vector<std::unique_ptr<menu_panel_t>>
+      menus;           /**< Vector of menus used for this menu_bar_t. */
+  int button_down_idx; /** Index of menu on which the left button was pressed down. */
   signal_t<int> activate;
 
   implementation_t(bool _hidden)
@@ -61,58 +61,64 @@ menu_bar_t::menu_bar_t(bool _hidden)
   }
 }
 
-menu_bar_t::~menu_bar_t() {
-  for (menu_panel_t *menu : impl->menus) {
-    delete menu;
-  }
-}
+menu_bar_t::~menu_bar_t() {}
 
-void menu_bar_t::draw_menu_name(menu_panel_t *menu, bool selected) {
+void menu_bar_t::draw_menu_name(const menu_panel_t &menu, bool selected) {
   int attr = selected ? attributes.menubar_selected : attributes.menubar;
-  window.set_paint(0, menu->get_base_window()->get_x() + 1);
+  window.set_paint(0, menu.get_base_window()->get_x() + 1);
   window.addch(' ', attr);
-  menu->draw_label(&window, attr, selected);
+  menu.draw_label(&window, attr, selected);
   window.addch(' ', attr);
 }
 
-void menu_bar_t::add_menu(menu_panel_t *menu) {
-  impl->menus.push_back(menu);
+void menu_bar_t::add_menu(std::unique_ptr<t3widget::menu_panel_t> menu) {
   menu->set_menu_bar(this);
   menu->set_position(None, impl->start_col);
   impl->start_col += menu->get_label_width() + 2;
   menu->connect_activate(impl->activate.get_trigger());
+  impl->menus.push_back(std::move(menu));
   force_redraw();
 }
 
-void menu_bar_t::remove_menu(menu_panel_t *menu) {
+menu_panel_t *menu_bar_t::add_menu(string_view name) {
+  menu_panel_t *result = new menu_panel_t(name);
+  add_menu(wrap_unique(result));
+  return result;
+}
+
+std::unique_ptr<menu_panel_t> menu_bar_t::remove_menu(menu_panel_t *menu) {
   int idx = 0;
-  for (std::vector<menu_panel_t *>::iterator iter = impl->menus.begin(); iter != impl->menus.end();
-       iter++, idx++) {
-    if (*iter == menu) {
-      menu->set_menu_bar(nullptr);
-
-      if (impl->current_menu == idx) {
-        if (impl->has_focus) {
-          (*iter)->hide();
-          next_menu();
-          impl->menus[impl->current_menu]->show();
-        }
-      } else if (impl->current_menu > idx) {
-        impl->current_menu--;
-      }
-      impl->old_menu = 0;  // Make sure impl->old_menu isn't out of bounds
-
-      impl->start_col = (*iter)->get_base_window()->get_x();
-      iter = impl->menus.erase(iter);
-      /* Move all the remaining impl->menus to their new position. */
-      for (; iter != impl->menus.end(); iter++) {
-        (*iter)->set_position(None, impl->start_col);
-        impl->start_col += (*iter)->get_label_width() + 2;
-      }
-      force_redraw();
-      return;
+  for (auto iter = impl->menus.begin(); iter != impl->menus.end(); iter++, idx++) {
+    if (iter->get() != menu) {
+      continue;
     }
+
+    menu->set_menu_bar(nullptr);
+
+    if (impl->current_menu == idx) {
+      if (impl->has_focus) {
+        (*iter)->hide();
+        next_menu();
+        impl->menus[impl->current_menu]->show();
+      }
+    } else if (impl->current_menu > idx) {
+      impl->current_menu--;
+    }
+    impl->old_menu = 0;  // Make sure impl->old_menu isn't out of bounds
+
+    impl->start_col = (*iter)->get_base_window()->get_x();
+    std::unique_ptr<menu_panel_t> result = std::move(*iter);
+
+    iter = impl->menus.erase(iter);
+    /* Move all the remaining impl->menus to their new position. */
+    for (; iter != impl->menus.end(); iter++) {
+      (*iter)->set_position(None, impl->start_col);
+      impl->start_col += (*iter)->get_label_width() + 2;
+    }
+    force_redraw();
+    return result;
   }
+  return std::unique_ptr<menu_panel_t>();
 }
 
 void menu_bar_t::close() {
@@ -120,7 +126,7 @@ void menu_bar_t::close() {
   if (impl->hidden) {
     window.hide();
   }
-  draw_menu_name(impl->menus[impl->current_menu], false);
+  draw_menu_name(*impl->menus[impl->current_menu], false);
   impl->menus[impl->current_menu]->hide();
   release_mouse_grab();
 }
@@ -162,7 +168,7 @@ void menu_bar_t::update_contents() {
   if (reset_redraw()) {
     draw();
     if (impl->has_focus) {
-      draw_menu_name(impl->menus[impl->current_menu], true);
+      draw_menu_name(*impl->menus[impl->current_menu], true);
     }
     impl->old_menu = impl->current_menu;
   }
@@ -177,8 +183,8 @@ void menu_bar_t::update_contents() {
   }
   impl->menus[impl->old_menu]->hide();
   impl->menus[impl->current_menu]->show();
-  draw_menu_name(impl->menus[impl->old_menu], false);
-  draw_menu_name(impl->menus[impl->current_menu], true);
+  draw_menu_name(*impl->menus[impl->old_menu], false);
+  draw_menu_name(*impl->menus[impl->current_menu], true);
   impl->old_menu = impl->current_menu;
   impl->menus[impl->current_menu]->update_contents();
 }
@@ -190,7 +196,7 @@ void menu_bar_t::show() {
     impl->has_focus = true;
     force_redraw();
     window.show();
-    draw_menu_name(impl->menus[impl->current_menu], true);
+    draw_menu_name(*impl->menus[impl->current_menu], true);
     impl->menus[impl->current_menu]->show();
     grab_mouse();
   }
@@ -263,12 +269,9 @@ bool menu_bar_t::process_mouse_event(mouse_event_t event) {
 }
 
 int menu_bar_t::coord_to_menu_idx(int x) {
-  std::vector<menu_panel_t *>::iterator iter;
-  int idx;
-  int menu_start;
-
-  for (iter = impl->menus.begin(), idx = 0; iter != impl->menus.end(); iter++, idx++) {
-    menu_start = (*iter)->get_base_window()->get_x() + 2;
+  int idx = 0;
+  for (auto iter = impl->menus.begin(); iter != impl->menus.end(); iter++, idx++) {
+    int menu_start = (*iter)->get_base_window()->get_x() + 2;
     if (x < menu_start) {
       return -1;
     }
@@ -283,8 +286,8 @@ void menu_bar_t::draw() {
   reset_redraw();
   window.set_paint(0, 0);
   window.addchrep(' ', attributes.menubar, window.get_width());
-  for (menu_panel_t *menu : impl->menus) {
-    draw_menu_name(menu, false);
+  for (const std::unique_ptr<menu_panel_t> &menu : impl->menus) {
+    draw_menu_name(*menu, false);
   }
 }
 

@@ -31,7 +31,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   single_alloc_pimpl_t<implementation_t> impl;
 
   /** Draw the name of a single menu in the menu bar. */
-  void draw_menu_name(menu_panel_t *menu, bool selected);
+  void draw_menu_name(const menu_panel_t &menu, bool selected);
   /** Draw all the names of the menus in the menu bar (unselected). */
   void draw();
 
@@ -55,8 +55,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
       bar's existance. */
   menu_bar_t(bool _hidden = false);
   /** Destroy the menu_bar_t.
-      Note that this does destroys the menus contained by this menu_bar_t.
-  */
+      Note that this does destroys the menus contained by this menu_bar_t. */
   ~menu_bar_t() override;
 
   bool process_key(key_t key) override;
@@ -68,17 +67,22 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   bool is_hotkey(key_t key) const override;
   bool accepts_focus() const override;
   bool process_mouse_event(mouse_event_t event) override;
-  /** Add a menu to the menu bar.
-      Note that this will be called automatically if the menu_bar_t is passed to the
-      menu_panel_t constructor. */
-  void add_menu(menu_panel_t *menu);
+  /** Add a menu to the menu bar. */
+  void add_menu(std::unique_ptr<menu_panel_t> menu);
+
+  /** Add a menu with the given name to the menu bar. */
+  menu_panel_t *add_menu(string_view name);
+
   /** Remove a menu from the menu bar.
-      This does @b not destroy the menu.
-  */
-  void remove_menu(menu_panel_t *menu);
+      @param menu The menu to remove.
+      @returns a unique_ptr to the removed menu, or @c nullptr if the menu was not found.
+
+      Note: if this is called while the activate handler of the panel is running, then the returned
+      objects must be saved until the handler is finished. */
+  std::unique_ptr<menu_panel_t> remove_menu(menu_panel_t *menu);
+
   /** Set the "hidden" display property.
-      See #memu_bar_t for details.
-  */
+      See #memu_bar_t for details. */
   void set_hidden(bool _hidden);
 
   /** @fn connection_t connect_activate(std::function<void(int)> &_slot)
@@ -86,8 +90,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   */
   /** Signal emitted when a menu item is selected.
       The integer passed as the first argument is determined when creating the
-      menu item through menu_panel_t::add_item.
-  */
+      menu item through menu_panel_t::add_item. */
   T3_WIDGET_DECLARE_SIGNAL(activate, int);
 };
 

@@ -32,15 +32,12 @@ struct menu_panel_t::implementation_t {
       : label(name, false, allocator), menu_bar(nullptr) {}
 };
 
-menu_panel_t::menu_panel_t(string_view name, menu_bar_t *_menu_bar)
+menu_panel_t::menu_panel_t(string_view name)
     : dialog_t(3, 5, nullopt, impl_alloc<implementation_t>(smart_label_text_t::impl_alloc(0))),
       impl(new_impl<implementation_t>(name, this)) {
   impl->width = 5;
   impl->label_width = 1;
   impl->shortcut_key_width = 0;
-  if (_menu_bar != nullptr) {
-    _menu_bar->add_menu(this);
-  }
 }
 
 menu_panel_t::~menu_panel_t() {}
@@ -232,7 +229,8 @@ void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
   }
 }
 
-void menu_panel_t::draw_label(t3window::window_t *draw_window, t3_attr_t attr, bool selected) {
+void menu_panel_t::draw_label(t3window::window_t *draw_window, t3_attr_t attr,
+                              bool selected) const {
   impl->label.draw(draw_window, attr, selected);
 }
 

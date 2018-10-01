@@ -32,7 +32,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
   void close() override;
   void set_menu_bar(menu_bar_t *_menu_bar);
-  void draw_label(t3window::window_t *draw_window, t3_attr_t attr, bool selected);
+  void draw_label(t3window::window_t *draw_window, t3_attr_t attr, bool selected) const;
   int get_label_width() const;
   bool is_hotkey(key_t key) const;
   void activate(int idx);
@@ -48,14 +48,14 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   void hide() override;
 
  public:
-  menu_panel_t(string_view name, menu_bar_t *_menu_bar = nullptr);
+  menu_panel_t(string_view name);
   ~menu_panel_t() override;
   bool process_key(key_t key) override;
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;
 
-  /** Constructs a new ::menu_item_t and adds it to the menu before the specified item.
-      @param label The ::smart_label_t text of the menu item.
+  /** Constructs a new #menu_item_t and adds it to the menu before the specified item.
+      @param label The #smart_label_t text of the menu item.
       @param shortcut_key The text of the shortcut key.
       @param id The id to associate with this menu item, which will be passed in the callback.
       @param before The menu item to insert the new item before, or @c nullptr for append.
@@ -68,7 +68,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
       @returns a non-owning pointer to the added item. */
   menu_item_base_t *insert_item(std::unique_ptr<menu_item_t> item,
                                 const menu_item_base_t *before = nullptr);
-  /** Constructs a new menu_separator_t and adds it to the menu.
+  /** Constructs a new #menu_separator_t and adds it to the menu.
       @param before The menu item to insert the new separator before, or @c nullptr for append.
       @returns a non-owning pointer to the newly constructed separator. */
   menu_item_base_t *insert_separator(const menu_item_base_t *before = nullptr);
