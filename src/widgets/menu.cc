@@ -30,7 +30,6 @@ struct menu_bar_t::implementation_t {
   mutable int
       current_menu, /**< Currently active window, when this menu_bar_t has the input focus. */
       old_menu;     /**< Previously active window. */
-  int start_col;    /**< Column where the next menu will start. */
   bool hidden,      /**< Boolean indicating whether this menu_bar_t has "hidden" display type. */
       /** Boolean indicating whether this menu_bar_t (or rather one of its menus) has the input
          focus.
@@ -43,12 +42,7 @@ struct menu_bar_t::implementation_t {
   signal_t<int> activate;
 
   implementation_t(bool _hidden)
-      : current_menu(0),
-        old_menu(0),
-        start_col(0),
-        hidden(_hidden),
-        has_focus(false),
-        button_down_idx(-1) {}
+      : current_menu(0), old_menu(0), hidden(_hidden), has_focus(false), button_down_idx(-1) {}
 };
 
 menu_bar_t::menu_bar_t(bool _hidden)
@@ -73,8 +67,10 @@ void menu_bar_t::draw_menu_name(const menu_panel_t &menu, bool selected) {
 
 void menu_bar_t::add_menu(std::unique_ptr<t3widget::menu_panel_t> menu) {
   menu->set_menu_bar(this);
-  menu->set_position(None, impl->start_col);
-  impl->start_col += menu->get_label_width() + 2;
+  int start_col = impl->menus.empty() ? 0
+                                      : (impl->menus.back()->get_base_window()->get_x() +
+                                         impl->menus.back()->get_label_width() + 2);
+  menu->set_position(None, start_col);
   menu->connect_activate(impl->activate.get_trigger());
   impl->menus.push_back(std::move(menu));
   force_redraw();
@@ -106,14 +102,14 @@ std::unique_ptr<menu_panel_t> menu_bar_t::remove_menu(menu_panel_t *menu) {
     }
     impl->old_menu = 0;  // Make sure impl->old_menu isn't out of bounds
 
-    impl->start_col = (*iter)->get_base_window()->get_x();
+    int start_col = (*iter)->get_base_window()->get_x();
     std::unique_ptr<menu_panel_t> result = std::move(*iter);
 
     iter = impl->menus.erase(iter);
     /* Move all the remaining impl->menus to their new position. */
     for (; iter != impl->menus.end(); iter++) {
-      (*iter)->set_position(None, impl->start_col);
-      impl->start_col += (*iter)->get_label_width() + 2;
+      (*iter)->set_position(None, start_col);
+      start_col += (*iter)->get_label_width() + 2;
     }
     force_redraw();
     return result;
