@@ -32,7 +32,7 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
   file_dialog_t(int height, int width, optional<std::string> _title, size_t impl_size = 0);
 
   widget_t *get_anchor_widget();
-  const widget_t *get_insertion_widget() const;
+  const widget_t *get_insert_before_widget() const;
   void ok_callback();
   void ok_callback(const std::string &file);
   virtual const std::string &get_filter() = 0;

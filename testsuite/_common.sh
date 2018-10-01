@@ -19,6 +19,15 @@ setup_TEST() {
 	fi
 }
 
+setup_vars() {
+  if [[ "${DIR#.}" !=  "$DIR" ]] ; then
+    TERMINFO="$PWD/"
+  elif [[ "${DIR#~}" != "$DIR" ]] ; then
+  	TERMINFO="$HOME${DIR#~}"
+  fi
+  export TERMINFO="$TERMINFO/terminfo"
+}
+
 build_test() {
 	LINE=`grep -n '@CLASS@' ../test.cc | head -n1  | sed -r 's/^([0-9]+).*/\1+1/' | bc`
 	{

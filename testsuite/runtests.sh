@@ -10,6 +10,9 @@ if [ $# -ne 0 ] && [ $# -ne 1 ] ; then
 fi
 
 DIR="`dirname \"$0\"`"
+. "$DIR"/_common.sh
+
+setup_vars "$DIR"
 
 if [ $# -eq 1 ] ; then
 	[ "${1#/}" = "$1" ] && [ "${1#~}" = "$1" ] && TEST="$PWD/$1"

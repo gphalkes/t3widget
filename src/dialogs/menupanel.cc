@@ -144,15 +144,21 @@ void menu_panel_t::close() {
   }
 }
 
-menu_item_base_t *menu_panel_t::add_item(string_view _label, string_view shortcut_key, int id) {
+menu_item_base_t *menu_panel_t::insert_item(string_view _label, string_view shortcut_key, int id,
+                                            const menu_item_base_t *before) {
   std::unique_ptr<menu_item_t> item =
       t3widget::make_unique<menu_item_t>(this, _label, shortcut_key, id);
-  return add_item(std::move(item));
+  return insert_item(std::move(item), before);
 }
 
-menu_item_base_t *menu_panel_t::add_item(std::unique_ptr<menu_item_t> item) {
+menu_item_base_t *menu_panel_t::insert_item(std::unique_ptr<menu_item_t> item,
+                                            const menu_item_base_t *before) {
   menu_item_t *item_ptr = item.get();
-  push_back(std::move(item));
+  if (before) {
+    insert(before, std::move(item));
+  } else {
+    push_back(std::move(item));
+  }
   item_ptr->set_position(widgets().size(), None);
 
   impl->shortcut_key_width = std::max(impl->shortcut_key_width, item_ptr->get_shortcut_key_width());
@@ -164,39 +170,32 @@ menu_item_base_t *menu_panel_t::add_item(std::unique_ptr<menu_item_t> item) {
   return item_ptr;
 }
 
-menu_item_base_t *menu_panel_t::add_separator() {
+menu_item_base_t *menu_panel_t::insert_separator(const menu_item_base_t *before) {
   menu_separator_t *sep = new menu_separator_t(this);
-  push_back(std::unique_ptr<widget_t>(sep));
+  if (before) {
+    insert(before, std::unique_ptr<widget_t>(sep));
+  } else {
+    push_back(std::unique_ptr<widget_t>(sep));
+  }
   sep->set_position(widgets().size(), None);
   return sep;
 }
 
-void menu_panel_t::remove_item(menu_item_base_t *item) { replace_item(item, nullptr); }
-
-menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item, string_view _label,
-                                             string_view shortcut_key, int id) {
-  std::unique_ptr<menu_item_t> new_item = make_unique<menu_item_t>(this, _label, shortcut_key, id);
-  return replace_item(old_item, std::move(new_item));
-}
-
-menu_item_base_t *menu_panel_t::replace_item(menu_item_base_t *old_item,
-                                             std::unique_ptr<menu_item_t> new_item) {
-  menu_item_base_t *result = new_item.get();
+std::unique_ptr<menu_item_base_t> menu_panel_t::remove_item(menu_item_base_t *item) {
   for (auto iter = widgets().begin(); iter != widgets().end(); iter++) {
-    if ((*iter) == old_item) {
-      unset_widget_parent(old_item);
-      if (new_item == nullptr) {
-        widgets().erase(iter);
-      } else {
-        set_widget_parent(new_item.get());
-        *iter = new_item.release();
-      }
-      goto resize_panel;
+    if ((*iter) == item) {
+      unset_widget_parent(item);
+#warning FIXME: once widgets() contains unique_ptrs, release needs to be called first!
+      // iter->release();
+      widgets().erase(iter);
+      recompute_panel_dimensions();
+      return std::unique_ptr<menu_item_base_t>(item);
     }
   }
   return nullptr;
+}
 
-resize_panel:
+void menu_panel_t::recompute_panel_dimensions() {
   impl->width = 5;
   impl->label_width = 1;
   impl->shortcut_key_width = 0;
@@ -214,7 +213,6 @@ resize_panel:
     }
   }
   set_size(widgets().size() + 2, impl->width);
-  return result;
 }
 
 void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {

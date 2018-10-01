@@ -113,7 +113,7 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
 file_dialog_t::~file_dialog_t() {}
 
 widget_t *file_dialog_t::get_anchor_widget() { return impl->show_hidden_label; }
-const widget_t *file_dialog_t::get_insertion_widget() const { return impl->ok_button; }
+const widget_t *file_dialog_t::get_insert_before_widget() const { return impl->ok_button; }
 
 void file_dialog_t::set_options_widget(std::unique_ptr<widget_t> options) {
   focus_widget_t *focus_widget;
@@ -127,7 +127,7 @@ void file_dialog_t::set_options_widget(std::unique_ptr<widget_t> options) {
 
   impl->option_widget_set = true;
   widget_t *options_ptr = options.get();
-  insert(get_insertion_widget(), std::move(options));
+  insert(get_insert_before_widget(), std::move(options));
   options_ptr->set_anchor(impl->file_pane_frame,
                           T3_PARENT(T3_ANCHOR_BOTTOMRIGHT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
   options_ptr->set_position(0, 0);
@@ -296,14 +296,14 @@ struct open_file_dialog_t::implementation_t {
 open_file_dialog_t::open_file_dialog_t(int height, int width)
     : file_dialog_t(height, width, "Open File", impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  impl->filter_label = emplace<smart_label_t>(get_insertion_widget(), "_Filter", true);
+  impl->filter_label = emplace<smart_label_t>(get_insert_before_widget(), "_Filter", true);
   container_t::set_widget_parent(impl->filter_label);
   impl->filter_label->set_anchor(get_anchor_widget(),
                                  T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->filter_label->set_position(0, 2);
   impl->filter_offset = impl->filter_label->get_width() + 1;
   impl->filter_width = std::min(std::max(10, width - 60), 25);
-  impl->filter_line = emplace<filter_text_field_t>(get_insertion_widget());
+  impl->filter_line = emplace<filter_text_field_t>(get_insert_before_widget());
   container_t::set_widget_parent(impl->filter_line);
   impl->filter_line->set_anchor(impl->filter_label,
                                 T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
@@ -347,7 +347,7 @@ struct save_as_dialog_t::implementation_t {
 save_as_dialog_t::save_as_dialog_t(int height, int width)
     : file_dialog_t(height, width, "Save File As", impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>()) {
-  impl->create_button = emplace<button_t>(get_insertion_widget(), "Create Folder");
+  impl->create_button = emplace<button_t>(get_insert_before_widget(), "Create Folder");
   container_t::set_widget_parent(impl->create_button);
   impl->create_button->set_anchor(get_anchor_widget(),
                                   T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));

@@ -173,7 +173,6 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   cancel_button->connect_move_focus_down([this] { focus_next(); });
 
   if (with_default) {
-    default_button = emplace<button_t>(cancel_button, "_Default");
     default_button->set_anchor(cancel_button,
                                T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPRIGHT));
     default_button->set_position(0, -2);

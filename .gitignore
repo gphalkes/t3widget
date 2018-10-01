@@ -7,6 +7,7 @@
 .libs
 /doc/API
 /tmp/
+/testsuite/terminfo
 /testsuite/work
 /testsuite/testlog*.txt
 /doc/doxygen.conf

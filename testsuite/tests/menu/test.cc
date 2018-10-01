@@ -12,25 +12,24 @@ class main_window_t : public main_window_base_t {
 
     panel = new menu_panel_t("_File", menu);
 
-    panel->add_item("_Open", "C-o", 0);
-    panel->add_item("_Close", "C-w", 1);
+    panel->insert_item("_Open", "C-o", 0);
+    panel->insert_item("_Close", "C-w", 1);
 
     empty_panel = new menu_panel_t("E_mpty", menu);
-    empty_panel->add_item("Remove", "", 7);
+    empty_panel->insert_item("Remove", "", 7);
 
     panel = new menu_panel_t("_Edit", menu);
 
-    panel->add_item("_Copy", "C-c", 2);
-    panel->add_separator();
-    remove = panel->add_item("_Paste", "C-v", 3);
-    panel->add_item("_Foo", "", REMOVE_MENU_ID);
+    panel->insert_item("_Copy", "C-c", 2);
+    panel->insert_separator();
+    remove = panel->insert_item("_Paste", "C-v", 3);
+    panel->insert_item("_Foo", "", REMOVE_MENU_ID);
   }
 
   void menu_activated(int id) {
     if (id == REMOVE_MENU_ID) {
       menu->remove_menu(empty_panel);
       panel->remove_item(remove);
-      delete remove;
     }
   }
 };

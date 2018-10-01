@@ -36,6 +36,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   int get_label_width() const;
   bool is_hotkey(key_t key) const;
   void activate(int idx);
+  void recompute_panel_dimensions();
 
  protected:
   bool is_child(const window_component_t *widget) const override;
@@ -52,13 +53,29 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
   bool process_key(key_t key) override;
   void set_position(optint top, optint left) override;
   bool set_size(optint height, optint width) override;
-  menu_item_base_t *add_item(string_view label, string_view shortcut_key, int id);
-  menu_item_base_t *add_item(std::unique_ptr<menu_item_t> item);
-  menu_item_base_t *add_separator();
-  void remove_item(menu_item_base_t *item);
-  menu_item_base_t *replace_item(menu_item_base_t *old_item, string_view label,
-                                 string_view shortcut_key, int id);
-  menu_item_base_t *replace_item(menu_item_base_t *old_item, std::unique_ptr<menu_item_t> new_item);
+
+  /** Constructs a new ::menu_item_t and adds it to the menu before the specified item.
+      @param label The ::smart_label_t text of the menu item.
+      @param shortcut_key The text of the shortcut key.
+      @param id The id to associate with this menu item, which will be passed in the callback.
+      @param before The menu item to insert the new item before, or @c nullptr for append.
+      @returns a non-owning pointer to the newly created item. */
+  menu_item_base_t *insert_item(string_view label, string_view shortcut_key, int id,
+                                const menu_item_base_t *before = nullptr);
+
+  /** Adds the given item to the menu.
+      @param before The menu item to insert the new item before, or @c nullptr for append.
+      @returns a non-owning pointer to the added item. */
+  menu_item_base_t *insert_item(std::unique_ptr<menu_item_t> item,
+                                const menu_item_base_t *before = nullptr);
+  /** Constructs a new menu_separator_t and adds it to the menu.
+      @param before The menu item to insert the new separator before, or @c nullptr for append.
+      @returns a non-owning pointer to the newly constructed separator. */
+  menu_item_base_t *insert_separator(const menu_item_base_t *before = nullptr);
+
+  /** Removes @p item from the menu, if it is part of the menu.
+      @returns the removed item. */
+  std::unique_ptr<menu_item_base_t> remove_item(menu_item_base_t *item);
 
   void show() override;
 

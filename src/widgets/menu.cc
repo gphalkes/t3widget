@@ -37,7 +37,7 @@ struct menu_bar_t::implementation_t {
               See the comments at #set_focus for details.
       */
       has_focus;
-
+#warning FIXME the menu should own the panels
   std::vector<menu_panel_t *> menus; /**< Vector of menus used for this menu_bar_t. */
   int button_down_idx;               /** Index of menu on which the left button was pressed down. */
   signal_t<int> activate;
