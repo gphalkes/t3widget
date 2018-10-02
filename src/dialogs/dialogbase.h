@@ -17,7 +17,6 @@
 
 #include <list>
 #include <t3widget/interfaces.h>
-#include <t3widget/widgets/dummywidget.h>
 #include <t3widget/widgets/widget.h>
 
 namespace t3widget {
@@ -33,12 +32,6 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   friend class dialog_t;
 
   static dialog_base_list_t dialog_base_list; /**< List of all dialogs in the application. */
-  static dummy_widget_t
-      *dummy; /**< Dummy widget to ensure that a dialog is never empty when shown. */
-
-  static void init(bool _init); /**< Function to initialize the dummy widget. */
-  /** Dummy value to allow static connection_t of the @c on_init signal to #init. */
-  static connection_t init_connected;
 
   struct T3_WIDGET_LOCAL implementation_t;
   single_alloc_pimpl_t<implementation_t> impl;

@@ -24,9 +24,6 @@ namespace t3widget {
 
 dialog_base_list_t dialog_base_t::dialog_base_list;
 
-dummy_widget_t *dialog_base_t::dummy;
-connection_t dialog_base_t::init_connected = connect_on_init(dialog_base_t::init);
-
 struct dialog_base_t::implementation_t {
   bool redraw = true;               /**< Boolean indicating whether redrawing is necessary. */
   t3window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
@@ -35,18 +32,6 @@ struct dialog_base_t::implementation_t {
   /** List of widgets on this dialog. This list should only be filled using #push_back. */
   widgets_t widgets;
 };
-
-void dialog_base_t::init(bool _init) {
-  if (_init) {
-    if (dummy == nullptr) {
-      dummy = new dummy_widget_t();
-    }
-  } else {
-    if (dummy != nullptr) {
-      delete dummy;
-    }
-  }
-}
 
 dialog_base_t::dialog_base_t(int height, int width, bool has_shadow, size_t impl_size)
     : impl_allocator_t(impl_alloc<implementation_t>(impl_size)),
@@ -80,9 +65,7 @@ dialog_base_t::~dialog_base_t() {
     }
   }
   for (widget_t *widget : impl->widgets) {
-    if (widget != dummy) {
-      delete widget;
-    }
+    delete widget;
   }
 }
 
@@ -159,11 +142,6 @@ void dialog_base_t::show() {
        current_widget != widgets.end() && !(*current_widget)->accepts_focus(); current_widget++) {
   }
 
-  if (current_widget == widgets.end()) {
-    widgets.push_front(dummy);
-    current_widget = widgets.begin();
-  }
-
   window.show();
   if (impl->shadow_window != nullptr) {
     impl->shadow_window.show();
@@ -175,39 +153,55 @@ void dialog_base_t::hide() {
   if (impl->shadow_window != nullptr) {
     impl->shadow_window.hide();
   }
-  if (impl->widgets.front() == dummy) {
-    impl->widgets.pop_front();
-  }
 }
 
 void dialog_base_t::focus_next() {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
+
+  if (current_widget == widgets.end()) {
+    return;
+  }
+
   (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+  auto start_widget = current_widget;
   do {
-    current_widget++;
+    ++current_widget;
     if (current_widget == widgets.end()) {
       current_widget = widgets.begin();
     }
-  } while (!(*current_widget)->accepts_focus());
+  } while (!(*current_widget)->accepts_focus() && current_widget != start_widget);
 
-  (*current_widget)->set_focus(window_component_t::FOCUS_IN_FWD);
+  if (current_widget == start_widget && !(*current_widget)->accepts_focus()) {
+    current_widget = widgets.end();
+  } else {
+    (*current_widget)->set_focus(window_component_t::FOCUS_IN_FWD);
+  }
 }
 
 void dialog_base_t::focus_previous() {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
-  (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
 
+  if (current_widget == widgets.end()) {
+    return;
+  }
+
+  (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+  auto start_widget = current_widget;
   do {
     if (current_widget == widgets.begin()) {
       current_widget = widgets.end();
     }
 
-    current_widget--;
-  } while (!(*current_widget)->accepts_focus());
+    --current_widget;
+  } while (!(*current_widget)->accepts_focus() && current_widget != start_widget);
 
-  (*current_widget)->set_focus(window_component_t::FOCUS_IN_BCK);
+  if (current_widget == start_widget && !(*current_widget)->accepts_focus()) {
+    current_widget = widgets.end();
+  } else {
+    (*current_widget)->set_focus(window_component_t::FOCUS_IN_BCK);
+  }
 }
 
 void dialog_base_t::set_child_focus(window_component_t *target) {
@@ -320,9 +314,6 @@ void dialog_base_t::push_back(widget_t *widget) {
     return;
   }
   auto &widgets = impl->widgets;
-  if (widgets.size() > 0 && widgets.front() == dummy) {
-    widgets.pop_front();
-  }
   widgets.push_back(widget);
 }
 

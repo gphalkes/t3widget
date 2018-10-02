@@ -32,7 +32,6 @@
 #include <t3widget/widgets/button.h>
 #include <t3widget/widgets/checkbox.h>
 #include <t3widget/widgets/colorpicker.h>
-#include <t3widget/widgets/dummywidget.h>
 #include <t3widget/widgets/editwindow.h>
 #include <t3widget/widgets/expander.h>
 #include <t3widget/widgets/expandergroup.h>

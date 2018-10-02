@@ -55,7 +55,7 @@ input_selection_dialog_t::input_selection_dialog_t(int height, int width,
   impl->key_label->set_accepts_focus(false);
   impl->key_label->set_align(label_t::ALIGN_CENTER);
 
-  impl->enable_simulate_box = new checkbox_t();
+  impl->enable_simulate_box = emplace_back<checkbox_t>();
   impl->enable_simulate_box->set_anchor(
       this, T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_PARENT(T3_ANCHOR_BOTTOMLEFT));
   impl->enable_simulate_box->set_position(-5, 2);
