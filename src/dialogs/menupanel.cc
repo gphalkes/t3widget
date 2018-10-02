@@ -141,15 +141,15 @@ void menu_panel_t::close() {
   }
 }
 
-menu_item_base_t *menu_panel_t::insert_item(string_view _label, string_view shortcut_key, int id,
-                                            const menu_item_base_t *before) {
+menu_item_base_t *menu_panel_t::insert_item(const menu_item_base_t *before, string_view _label,
+                                            string_view shortcut_key, int id) {
   std::unique_ptr<menu_item_t> item =
       t3widget::make_unique<menu_item_t>(this, _label, shortcut_key, id);
-  return insert_item(std::move(item), before);
+  return insert_item(before, std::move(item));
 }
 
-menu_item_base_t *menu_panel_t::insert_item(std::unique_ptr<menu_item_t> item,
-                                            const menu_item_base_t *before) {
+menu_item_base_t *menu_panel_t::insert_item(const menu_item_base_t *before,
+                                            std::unique_ptr<menu_item_t> item) {
   menu_item_t *item_ptr = item.get();
   if (before) {
     insert(before, std::move(item));

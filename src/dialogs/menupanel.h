@@ -61,14 +61,12 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
       @param id The id to associate with this menu item, which will be passed in the callback.
       @param before The menu item to insert the new item before, or @c nullptr for append.
       @returns a non-owning pointer to the newly created item. */
-  menu_item_base_t *insert_item(string_view label, string_view shortcut_key, int id,
-                                const menu_item_base_t *before = nullptr);
-
+  menu_item_base_t *insert_item(const menu_item_base_t *before, string_view label,
+                                string_view shortcut_key, int id);
   /** Adds the given item to the menu.
       @param before The menu item to insert the new item before, or @c nullptr for append.
       @returns a non-owning pointer to the added item. */
-  menu_item_base_t *insert_item(std::unique_ptr<menu_item_t> item,
-                                const menu_item_base_t *before = nullptr);
+  menu_item_base_t *insert_item(const menu_item_base_t *before, std::unique_ptr<menu_item_t> item);
   /** Constructs a new #menu_separator_t and adds it to the menu.
       @param before The menu item to insert the new separator before, or @c nullptr for append.
       @returns a non-owning pointer to the newly constructed separator. */

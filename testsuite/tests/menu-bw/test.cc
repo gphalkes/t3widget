@@ -12,18 +12,18 @@ class main_window_t : public main_window_base_t {
 
     panel = menu->insert_menu(nullptr, "_File");
 
-    panel->insert_item("_Open", "C-o", 0);
-    panel->insert_item("_Close", "C-w", 1);
+    panel->insert_item(nullptr, "_Open", "C-o", 0);
+    panel->insert_item(nullptr, "_Close", "C-w", 1);
 
     empty_panel = menu->insert_menu(nullptr, "E_mpty");
-    empty_panel->insert_item("Remove", "", 7);
+    empty_panel->insert_item(nullptr, "Remove", "", 7);
 
     panel = menu->insert_menu(nullptr, "_Edit");
 
-    panel->insert_item("_Copy", "C-c", 2);
+    panel->insert_item(nullptr, "_Copy", "C-c", 2);
     panel->insert_separator();
-    remove = panel->insert_item("_Paste", "C-v", 3);
-    panel->insert_item("_Foo", "", REMOVE_MENU_ID);
+    remove = panel->insert_item(nullptr, "_Paste", "C-v", 3);
+    panel->insert_item(nullptr, "_Foo", "", REMOVE_MENU_ID);
   }
 
   void menu_activated(int id) {
