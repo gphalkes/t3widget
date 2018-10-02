@@ -65,20 +65,45 @@ void menu_bar_t::draw_menu_name(const menu_panel_t &menu, bool selected) {
   window.addch(' ', attr);
 }
 
-void menu_bar_t::add_menu(std::unique_ptr<t3widget::menu_panel_t> menu) {
+#warning FIXME: change this to insert_menu instead.
+void menu_bar_t::insert_menu(const menu_panel_t *before, std::unique_ptr<menu_panel_t> menu) {
   menu->set_menu_bar(this);
-  int start_col = impl->menus.empty() ? 0
-                                      : (impl->menus.back()->get_base_window()->get_x() +
-                                         impl->menus.back()->get_label_width() + 2);
+
+  std::vector<std::unique_ptr<menu_panel_t>>::iterator iter = impl->menus.end();
+  if (before && before->get_menu_bar() == this) {
+    for (iter = impl->menus.begin(); iter != impl->menus.end(); ++iter) {
+      if (iter->get() == before) {
+        break;
+      }
+    }
+  }
+  if (iter == impl->menus.end()) {
+    before = nullptr;
+  }
+
+  int start_col;
+  if (impl->menus.empty()) {
+    start_col = 0;
+  } else if (before) {
+    start_col = before->get_base_window()->get_x();
+    int next_start_col = start_col + menu->get_label_width() + 2;
+    for (; iter != impl->menus.end(); ++iter) {
+      (*iter)->set_position(None, next_start_col);
+      next_start_col += (*iter)->get_label_width() + 2;
+    }
+  } else {
+    start_col = (impl->menus.back()->get_base_window()->get_x() +
+                 impl->menus.back()->get_label_width() + 2);
+  }
   menu->set_position(None, start_col);
   menu->connect_activate(impl->activate.get_trigger());
-  impl->menus.push_back(std::move(menu));
+  impl->menus.insert(iter, std::move(menu));
   force_redraw();
 }
 
-menu_panel_t *menu_bar_t::add_menu(string_view name) {
+menu_panel_t *menu_bar_t::insert_menu(const menu_panel_t *before, string_view name) {
   menu_panel_t *result = new menu_panel_t(name);
-  add_menu(wrap_unique(result));
+  insert_menu(before, wrap_unique(result));
   return result;
 }
 

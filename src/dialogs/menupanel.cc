@@ -229,6 +229,8 @@ void menu_panel_t::set_menu_bar(menu_bar_t *_menu_bar) {
   }
 }
 
+const menu_bar_t *menu_panel_t::get_menu_bar() const { return impl->menu_bar; }
+
 void menu_panel_t::draw_label(t3window::window_t *draw_window, t3_attr_t attr,
                               bool selected) const {
   impl->label.draw(draw_window, attr, selected);

@@ -68,10 +68,10 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   bool accepts_focus() const override;
   bool process_mouse_event(mouse_event_t event) override;
   /** Add a menu to the menu bar. */
-  void add_menu(std::unique_ptr<menu_panel_t> menu);
+  void insert_menu(const menu_panel_t *before, std::unique_ptr<menu_panel_t> menu);
 
   /** Add a menu with the given name to the menu bar. */
-  menu_panel_t *add_menu(string_view name);
+  menu_panel_t *insert_menu(const menu_panel_t *before, string_view name);
 
   /** Remove a menu from the menu bar.
       @param menu The menu to remove.

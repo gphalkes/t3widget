@@ -10,15 +10,15 @@ class main_window_t : public main_window_base_t {
     menu = emplace_back<menu_bar_t>();
     menu->connect_activate([this](int id) { menu_activated(id); });
 
-    panel = menu->add_menu("_File");
+    panel = menu->insert_menu(nullptr, "_File");
 
     panel->insert_item("_Open", "C-o", 0);
     panel->insert_item("_Close", "C-w", 1);
 
-    empty_panel = menu->add_menu("E_mpty");
+    empty_panel = menu->insert_menu(nullptr, "E_mpty");
     empty_panel->insert_item("Remove", "", 7);
 
-    panel = menu->add_menu("_Edit");
+    panel = menu->insert_menu(nullptr, "_Edit");
 
     panel->insert_item("_Copy", "C-c", 2);
     panel->insert_separator();

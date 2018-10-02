@@ -32,6 +32,7 @@ class T3_WIDGET_API menu_panel_t : public dialog_t, public mouse_target_t {
 
   void close() override;
   void set_menu_bar(menu_bar_t *_menu_bar);
+  const menu_bar_t *get_menu_bar() const;
   void draw_label(t3window::window_t *draw_window, t3_attr_t attr, bool selected) const;
   int get_label_width() const;
   bool is_hotkey(key_t key) const;
