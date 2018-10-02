@@ -24,8 +24,8 @@ namespace t3widget {
 #include "t3widget/key_binding_def.h"
 
 struct split_t::implementation_t {
-  owned_widgets_t widgets;           /**< The list of widgets contained by this split_t. */
-  owned_widgets_t::iterator current; /**< The currently active widget. */
+  widgets_t widgets;           /**< The list of widgets contained by this split_t. */
+  widgets_t::iterator current; /**< The currently active widget. */
   /** Boolean indicating whether to divide the space horizontally or vertically. */
   bool horizontal = true;
   /** Boolean indicating whether this split_t (or rather, one of its children) has the input focus.
@@ -122,8 +122,8 @@ void split_t::force_redraw() {
 }
 
 void split_t::set_child_focus(window_component_t *target) {
-  owned_widgets_t::iterator &current = impl->current;
-  for (owned_widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end();
+  widgets_t::iterator &current = impl->current;
+  for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end();
        iter++) {
     if (iter->get() == target) {
       if (*current != *iter) {
@@ -161,7 +161,7 @@ bool split_t::is_child(const window_component_t *widget) const {
 }
 
 void split_t::split(std::unique_ptr<widget_t> widget, bool _horizontal) {
-  owned_widgets_t::iterator &current = impl->current;
+  widgets_t::iterator &current = impl->current;
   split_t *current_window = dynamic_cast<split_t *>(current->get());
 
   if (current_window != nullptr) {
@@ -194,7 +194,7 @@ void split_t::split(std::unique_ptr<widget_t> widget, bool _horizontal) {
 }
 
 bool split_t::unsplit(std::unique_ptr<widget_t> *widget) {
-  owned_widgets_t::iterator &current = impl->current;
+  widgets_t::iterator &current = impl->current;
   split_t *current_window = dynamic_cast<split_t *>(current->get());
 
   if (current_window == nullptr) {
@@ -246,7 +246,7 @@ std::unique_ptr<widget_t> split_t::unsplit() {
 }
 
 bool split_t::next_recurse() {
-  owned_widgets_t::iterator &current = impl->current;
+  widgets_t::iterator &current = impl->current;
   split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->next_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
@@ -268,7 +268,7 @@ bool split_t::next_recurse() {
 }
 
 bool split_t::previous_recurse() {
-  owned_widgets_t::iterator &current = impl->current;
+  widgets_t::iterator &current = impl->current;
   split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->previous_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
@@ -286,7 +286,7 @@ bool split_t::previous_recurse() {
 }
 
 void split_t::next() {
-  owned_widgets_t::iterator &current = impl->current;
+  widgets_t::iterator &current = impl->current;
   split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->next_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);
@@ -305,7 +305,7 @@ void split_t::next() {
 }
 
 void split_t::previous() {
-  owned_widgets_t::iterator &current = impl->current;
+  widgets_t::iterator &current = impl->current;
   split_t *current_window = dynamic_cast<split_t *>(current->get());
   if (current_window == nullptr || !current_window->previous_recurse()) {
     (*current)->set_focus(window_component_t::FOCUS_OUT);

@@ -64,9 +64,6 @@ dialog_base_t::~dialog_base_t() {
       break;
     }
   }
-  for (widget_t *widget : impl->widgets) {
-    delete widget;
-  }
 }
 
 void dialog_base_t::set_position(optint top, optint left) {
@@ -124,7 +121,7 @@ void dialog_base_t::update_contents() {
     }
   }
 
-  for (widget_t *widget : impl->widgets) {
+  for (std::unique_ptr<widget_t> &widget : impl->widgets) {
     widget->update_contents();
   }
 }
@@ -213,7 +210,7 @@ void dialog_base_t::set_child_focus(window_component_t *target) {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
   for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-    if (*iter == target) {
+    if (iter->get() == target) {
       if (*current_widget != *iter) {
         (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
         current_widget = iter;
@@ -221,7 +218,7 @@ void dialog_base_t::set_child_focus(window_component_t *target) {
       }
       return;
     } else {
-      container_t *container = dynamic_cast<container_t *>(*iter);
+      container_t *container = dynamic_cast<container_t *>(iter->get());
       if (container != nullptr && container->is_child(target)) {
         if (*current_widget != *iter) {
           (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
@@ -244,7 +241,9 @@ void dialog_base_t::set_depth(int depth) {
   }
 }
 
-widget_t *dialog_base_t::get_current_widget() { return *impl->current_widget; }
+widget_t *dialog_base_t::get_current_widget() {
+  return impl->current_widget == impl->widgets.end() ? nullptr : impl->current_widget->get();
+}
 
 void dialog_base_t::focus_widget(size_t idx) {
   auto &current_widget = impl->current_widget;
@@ -276,7 +275,7 @@ bool dialog_base_t::focus_hotkey_widget(key_t key) {
       if ((*iter)->process_key(EKEY_HOTKEY)) {
         return true;
       }
-    } else if ((widget_container = dynamic_cast<widget_container_t *>(*iter)) != nullptr &&
+    } else if ((widget_container = dynamic_cast<widget_container_t *>(iter->get())) != nullptr &&
                (hotkey_target = widget_container->is_child_hotkey(key)) != nullptr) {
       if (hotkey_target->accepts_focus()) {
         (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
@@ -296,11 +295,11 @@ widgets_t &dialog_base_t::widgets() { return impl->widgets; }
 t3window::window_t &dialog_base_t::shadow_window() { return impl->shadow_window; }
 
 bool dialog_base_t::is_child(const window_component_t *widget) const {
-  for (widget_t *iter : impl->widgets) {
-    if (iter == widget) {
+  for (const std::unique_ptr<widget_t> &iter : impl->widgets) {
+    if (iter.get() == widget) {
       return true;
     } else {
-      container_t *container = dynamic_cast<container_t *>(iter);
+      container_t *container = dynamic_cast<container_t *>(iter.get());
       if (container != nullptr && container->is_child(widget)) {
         return true;
       }
@@ -309,15 +308,12 @@ bool dialog_base_t::is_child(const window_component_t *widget) const {
   return false;
 }
 
-void dialog_base_t::push_back(widget_t *widget) {
-  if (!set_widget_parent(widget)) {
+void dialog_base_t::push_back(std::unique_ptr<widget_t> widget) {
+  if (!set_widget_parent(widget.get())) {
     return;
   }
-  auto &widgets = impl->widgets;
-  widgets.push_back(widget);
+  impl->widgets.push_back(std::move(widget));
 }
-
-void dialog_base_t::push_back(std::unique_ptr<widget_t> widget) { push_back(widget.release()); }
 
 void dialog_base_t::insert(const widget_t *before, std::unique_ptr<widget_t> widget) {
   if (!set_widget_parent(widget.get())) {
@@ -325,17 +321,17 @@ void dialog_base_t::insert(const widget_t *before, std::unique_ptr<widget_t> wid
   }
   auto &widgets = impl->widgets;
   for (auto iter = widgets.begin(); iter != widgets.end(); ++iter) {
-    if (*iter == before) {
-      widgets.insert(iter, widget.release());
+    if (iter->get() == before) {
+      widgets.insert(iter, std::move(widget));
       return;
     }
   }
-  widgets.insert(widgets.begin(), widget.release());
+  widgets.insert(widgets.begin(), std::move(widget));
 }
 
 void dialog_base_t::force_redraw() {
   impl->redraw = true;
-  for (widget_t *widget : impl->widgets) {
+  for (std::unique_ptr<widget_t> &widget : impl->widgets) {
     widget->force_redraw();
   }
 }

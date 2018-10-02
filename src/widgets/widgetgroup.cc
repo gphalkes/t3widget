@@ -17,7 +17,7 @@
 namespace t3widget {
 
 struct widget_group_t::implementation_t {
-  owned_widgets_t children;
+  widgets_t children;
   int current_child;
   bool has_focus;
   implementation_t() : current_child(-1), has_focus(false) {}

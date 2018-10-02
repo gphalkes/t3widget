@@ -65,7 +65,6 @@ void menu_bar_t::draw_menu_name(const menu_panel_t &menu, bool selected) {
   window.addch(' ', attr);
 }
 
-#warning FIXME: change this to insert_menu instead.
 void menu_bar_t::insert_menu(const menu_panel_t *before, std::unique_ptr<menu_panel_t> menu) {
   menu->set_menu_bar(this);
 

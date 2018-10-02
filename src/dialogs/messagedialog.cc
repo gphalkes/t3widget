@@ -55,11 +55,13 @@ message_dialog_t::message_dialog_t(int width, optional<std::string> _title,
       total_width += button->get_width();
     } else {
       button_t *button = emplace_back<button_t>(button_name);
-      button->set_anchor(widgets.back(),
+      button->set_anchor(widgets.back().get(),
                          T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
       button->set_position(0, 2);
 
-      static_cast<button_t *>(widgets.back())->connect_move_focus_right([this] { focus_next(); });
+      static_cast<button_t *>(widgets.back().get())->connect_move_focus_right([this] {
+        focus_next();
+      });
       button->connect_move_focus_left([this] { focus_previous(); });
       button->connect_activate([this] { hide(); });
 
@@ -123,7 +125,7 @@ connection_t message_dialog_t::connect_activate(std::function<void()> _slot, siz
   if (idx == 0) {
     return impl->activate_internal.connect(_slot);
   }
-  return static_cast<button_t *>(widgets()[idx + 1])->connect_activate(_slot);
+  return static_cast<button_t *>(widgets()[idx + 1].get())->connect_activate(_slot);
 }
 
 void message_dialog_t::set_max_text_height(int max) { impl->max_text_height = max; }

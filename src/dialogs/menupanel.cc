@@ -90,7 +90,7 @@ bool menu_panel_t::set_size(optint height, optint _width) {
   (void)_width;
   bool result;
   int i = 0;
-  for (widget_t *widget : widgets()) {
+  for (std::unique_ptr<widget_t> &widget : widgets()) {
     widget->set_size(None, impl->width - 2);
     ++i;
   }
@@ -180,10 +180,9 @@ menu_item_base_t *menu_panel_t::insert_separator(const menu_item_base_t *before)
 
 std::unique_ptr<menu_item_base_t> menu_panel_t::remove_item(menu_item_base_t *item) {
   for (auto iter = widgets().begin(); iter != widgets().end(); iter++) {
-    if ((*iter) == item) {
+    if (iter->get() == item) {
       unset_widget_parent(item);
-#warning FIXME: once widgets() contains unique_ptrs, release needs to be called first!
-      // iter->release();
+      iter->release();
       widgets().erase(iter);
       recompute_panel_dimensions();
       return std::unique_ptr<menu_item_base_t>(item);
@@ -199,7 +198,7 @@ void menu_panel_t::recompute_panel_dimensions() {
   int i = 1;
   for (auto iter = widgets().begin(); iter != widgets().end(); iter++, i++) {
     (*iter)->set_position(i, None);
-    menu_item_t *label_item = dynamic_cast<menu_item_t *>(*iter);
+    menu_item_t *label_item = dynamic_cast<menu_item_t *>(iter->get());
     if (label_item != nullptr) {
       impl->shortcut_key_width =
           std::max(impl->shortcut_key_width, label_item->get_shortcut_key_width());

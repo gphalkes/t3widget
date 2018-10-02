@@ -139,7 +139,7 @@ void file_dialog_t::set_options_widget(std::unique_ptr<widget_t> options) {
   impl->ok_button_up_connection.disconnect();
   impl->ok_button->connect_move_focus_up([this] { focus_previous(); });
   impl->show_hidden_box->connect_move_focus_down([this] { set_child_focus(impl->ok_button); });
-  dynamic_cast<focus_widget_t *>(*(widgets().end() - 4))->connect_move_focus_down([this] {
+  dynamic_cast<focus_widget_t *>((widgets().end() - 4)->get())->connect_move_focus_down([this] {
     set_child_focus(impl->ok_button);
   });
 
