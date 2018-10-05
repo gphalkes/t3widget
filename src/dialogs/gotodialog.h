@@ -15,6 +15,7 @@
 #define T3_WIDGET_GOTODIALOG_H
 
 #include <t3widget/dialogs/dialog.h>
+#include <t3widget/util.h>
 #include <t3widget/widgets/textfield.h>
 
 namespace t3widget {
@@ -32,7 +33,7 @@ class T3_WIDGET_API goto_dialog_t : public dialog_t {
   bool set_size(optint height, optint width) override;
   void reset();
 
-  connection_t connect_activate(std::function<void(int)> cb);
+  connection_t connect_activate(std::function<void(text_pos_t)> cb);
 };
 
 }  // namespace t3widget

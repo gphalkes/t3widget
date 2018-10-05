@@ -33,7 +33,7 @@ struct label_t::implementation_t {
 label_t::label_t(string_view _text)
     : widget_t(impl_alloc<implementation_t>(0)),
       impl(new_impl<implementation_t>(std::move(_text))) {
-  int width = impl->text_width = t3_term_strwidth(impl->text.c_str());
+  int width = impl->text_width = t3_term_strcwidth(impl->text.c_str());
   if (width == 0) {
     width = 1;
   }
@@ -101,7 +101,7 @@ void label_t::update_contents() {
     paint_info.leftcol = 0;
     paint_info.size = width;
   }
-  paint_info.max = INT_MAX;
+  paint_info.max = std::numeric_limits<text_pos_t>::max();
   paint_info.tabsize = 0;
   paint_info.flags = text_line_t::TAB_AS_CONTROL;
   paint_info.selection_start = -1;
@@ -122,7 +122,7 @@ void label_t::set_align(label_t::align_t _align) { impl->align = _align; }
 
 void label_t::set_text(t3widget::string_view _text) {
   impl->text = std::string(_text);
-  impl->text_width = t3_term_strnwidth(impl->text.data(), impl->text.size());
+  impl->text_width = t3_term_strncwidth(impl->text.data(), impl->text.size());
   force_redraw();
 }
 

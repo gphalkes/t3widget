@@ -31,7 +31,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   void ensure_cursor_on_screen();
   void scroll(int change);
   void scrollbar_clicked(scrollbar_t::step_t step);
-  void scrollbar_dragged(int start);
+  void scrollbar_dragged(text_pos_t start);
 
  protected:
   bool set_widget_parent(window_component_t *widget) override;

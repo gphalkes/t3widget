@@ -33,7 +33,7 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
   void set_focus(focus_t focus) override;
   bool process_mouse_event(mouse_event_t event) override;
 
-  void set_parameters(int _range, int _start, int _used);
+  void set_parameters(text_pos_t _range, text_pos_t _start, int _used);
 
   enum step_t {
     FWD_SMALL,   /**< Mouse click on arrow symbol. */
@@ -45,7 +45,7 @@ class T3_WIDGET_API scrollbar_t : public widget_t {
   };
 
   connection_t connect_clicked(std::function<void(step_t)> cb);
-  connection_t connect_dragged(std::function<void(int)> cb);
+  connection_t connect_dragged(std::function<void(text_pos_t)> cb);
 };
 
 }  // namespace t3widget

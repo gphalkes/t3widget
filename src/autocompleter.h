@@ -31,7 +31,8 @@ class T3_WIDGET_API autocompleter_t {
       The request is for the word at the cursor position. The auto-completer decides where the token
       to be completed starts, and returns this in @p position. This is used only for positioning the
       pop-up window with suggestions. */
-  virtual string_list_base_t *build_autocomplete_list(const text_buffer_t *text, int *position) = 0;
+  virtual string_list_base_t *build_autocomplete_list(const text_buffer_t *text,
+                                                      text_pos_t *position) = 0;
 
   /** Called to request the modification of the text buffer, given the selection of suggestion idx.
       @param text The text_buffer_t to modify.

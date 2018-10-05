@@ -47,7 +47,7 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   void content_changed();
 
   void scrollbar_clicked(scrollbar_t::step_t step);
-  void scrollbar_dragged(int start);
+  void scrollbar_dragged(text_pos_t start);
 
   void search(const std::string &text);
 

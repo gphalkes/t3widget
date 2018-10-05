@@ -48,23 +48,26 @@ class T3_WIDGET_API text_line_t {
   };
 
   struct T3_WIDGET_API paint_info_t {
-    int start;    // Byte position of the start of the line (0 unless line wrapping is in effect)
-    int leftcol;  // First cell to draw
+    // Byte position of the start of the line (0 unless line wrapping is in effect)
+    text_pos_t start;
+    text_pos_t leftcol;  // First cell to draw
 
-    int max;   // Last position of the line (INT_MAX unless line wrapping is in effect)
-    int size;  // Maximum number of characters to draw
+    // Last position of the line (std::numeric_limits<text_pos_t>::max()) unless line wrapping is in
+    // effect)
+    text_pos_t max;
+    text_pos_t size;  // Maximum number of characters to draw
 
     int tabsize;                           // Length of a tab, or 0 to force TAB_AS_CONTROL flag
     int flags;                             // See above for valid flags
-    int selection_start;                   // Start of selected text in bytes
-    int selection_end;                     // End of selected text in bytes
-    int cursor;                            // Location of cursor in bytes
+    text_pos_t selection_start;            // Start of selected text in bytes
+    text_pos_t selection_end;              // End of selected text in bytes
+    text_pos_t cursor;                     // Location of cursor in bytes
     t3_attr_t normal_attr, selected_attr;  // Attributes to be used for normal an selected texts
                                            // string highlighting;
   };
 
   struct T3_WIDGET_API break_pos_t {
-    int pos;
+    text_pos_t pos;
     int flags;
   };
 
@@ -78,19 +81,19 @@ class T3_WIDGET_API text_line_t {
   std::string buffer;
   bool starts_with_combining;
 
-  static void paint_part(t3window::window_t *win, const char *paint_buffer, bool is_print, int todo,
-                         t3_attr_t selection_attr);
+  static void paint_part(t3window::window_t *win, const char *paint_buffer, bool is_print,
+                         text_pos_t todo, t3_attr_t selection_attr);
   static int key_width(key_t key);
 
-  t3_attr_t get_draw_attrs(int i, const paint_info_t &info);
+  t3_attr_t get_draw_attrs(text_pos_t i, const paint_info_t &info);
 
   void fill_line(string_view _buffer);
-  bool check_boundaries(int match_start, int match_end) const;
+  bool check_boundaries(text_pos_t match_start, text_pos_t match_end) const;
   void update_meta_buffer(int start_pos = 0);
   char get_char_meta(int pos) const;
 
-  void reserve(int size);
-  int byte_width_from_first(int pos) const;
+  void reserve(text_pos_t size);
+  int byte_width_from_first(text_pos_t pos) const;
 
  protected:
   text_line_factory_t *factory;
@@ -103,47 +106,48 @@ class T3_WIDGET_API text_line_t {
   void set_text(string_view _buffer);
 
   void merge(std::unique_ptr<text_line_t> other);
-  std::unique_ptr<text_line_t> break_line(int pos);
-  std::unique_ptr<text_line_t> cut_line(int start, int end);
-  std::unique_ptr<text_line_t> clone(int start, int end);
-  std::unique_ptr<text_line_t> break_on_nl(int *start_from);
-  void insert(std::unique_ptr<text_line_t> other, int pos);
+  std::unique_ptr<text_line_t> break_line(text_pos_t pos);
+  std::unique_ptr<text_line_t> cut_line(text_pos_t start, text_pos_t end);
+  std::unique_ptr<text_line_t> clone(text_pos_t start, text_pos_t end);
+  std::unique_ptr<text_line_t> break_on_nl(text_pos_t *start_from);
+  void insert(std::unique_ptr<text_line_t> other, text_pos_t pos);
 
   void minimize();
 
-  int calculate_screen_width(int start, int pos, int tabsize) const;
-  int calculate_line_pos(int start, int max, int pos, int tabsize) const;
+  text_pos_t calculate_screen_width(text_pos_t start, text_pos_t pos, int tabsize) const;
+  text_pos_t calculate_line_pos(text_pos_t start, text_pos_t max, text_pos_t pos,
+                                int tabsize) const;
 
   void paint_line(t3window::window_t *win, const paint_info_t &info);
 
-  break_pos_t find_next_break_pos(int start, int length, int tabsize) const;
-  int get_next_word(int start) const;
-  int get_previous_word(int start) const;
+  break_pos_t find_next_break_pos(text_pos_t start, text_pos_t length, int tabsize) const;
+  text_pos_t get_next_word(text_pos_t start) const;
+  text_pos_t get_previous_word(text_pos_t start) const;
 
-  bool insert_char(int pos, key_t c, undo_t *undo);
-  bool overwrite_char(int pos, key_t c, undo_t *undo);
-  bool delete_char(int pos, undo_t *undo);
+  bool insert_char(text_pos_t pos, key_t c, undo_t *undo);
+  bool overwrite_char(text_pos_t pos, key_t c, undo_t *undo);
+  bool delete_char(text_pos_t pos, undo_t *undo);
   bool append_char(key_t c, undo_t *undo);
-  bool backspace_char(int pos, undo_t *undo);
+  bool backspace_char(text_pos_t pos, undo_t *undo);
 
-  int adjust_position(int pos, int adjust) const;
+  text_pos_t adjust_position(text_pos_t pos, int adjust) const;
 
-  int get_length() const;
-  int width_at(int pos) const;
-  bool is_print(int pos) const;
-  bool is_space(int pos) const;
-  bool is_alnum(int pos) const;
-  bool is_bad_draw(int pos) const;
+  text_pos_t get_length() const;
+  int width_at(text_pos_t pos) const;
+  bool is_print(text_pos_t pos) const;
+  bool is_space(text_pos_t pos) const;
+  bool is_alnum(text_pos_t pos) const;
+  bool is_bad_draw(text_pos_t pos) const;
 
   const std::string &get_data() const;
 
-  int get_next_word_boundary(int start) const;
-  int get_previous_word_boundary(int start) const;
+  text_pos_t get_next_word_boundary(text_pos_t start) const;
+  text_pos_t get_previous_word_boundary(text_pos_t start) const;
 
   static void init();
 
  protected:
-  virtual t3_attr_t get_base_attr(int i, const paint_info_t &info);
+  virtual t3_attr_t get_base_attr(text_pos_t i, const paint_info_t &info);
 };
 
 class T3_WIDGET_API text_line_factory_t {

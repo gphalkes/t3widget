@@ -435,9 +435,9 @@ void list_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
                                      : step == scrollbar_t::FWD_PAGE ? window.get_height() : 0);
 }
 
-void list_pane_t::scrollbar_dragged(int start) {
+void list_pane_t::scrollbar_dragged(text_pos_t start) {
   if (start >= 0 && static_cast<size_t>(start) <= impl->widgets.size()) {
-    impl->top_idx = start;
+    impl->top_idx = static_cast<size_t>(start);
     force_redraw();
   }
 }

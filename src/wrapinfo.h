@@ -25,7 +25,7 @@
 
 namespace t3widget {
 
-typedef std::vector<int> wrap_points_t;
+typedef std::vector<text_pos_t> wrap_points_t;
 typedef std::vector<wrap_points_t *> wrap_data_t;
 
 /** Class holding information about wrapping a text_buffer_t.
@@ -40,33 +40,35 @@ class T3_WIDGET_LOCAL wrap_info_t {
  private:
   wrap_data_t wrap_data;
   text_buffer_t *text;
-  int size, tabsize, wrap_width;
+  int tabsize;
+  int wrap_width;
+  text_pos_t size;
   connection_t rewrap_connection;
 
-  void delete_lines(int first, int last);
-  void insert_lines(int first, int last);
-  void rewrap_line(int line, int pos, bool force);
+  void delete_lines(text_pos_t first, text_pos_t last);
+  void insert_lines(text_pos_t first, text_pos_t last);
+  void rewrap_line(text_pos_t line, text_pos_t pos, bool force);
   void rewrap_all();
-  void rewrap(rewrap_type_t type, int a, int b);
+  void rewrap(rewrap_type_t type, text_pos_t a, text_pos_t b);
 
  public:
   wrap_info_t(int width, int tabsize = 8);
   ~wrap_info_t();
-  int get_size() const;
-  int get_text_size() const;
+  text_pos_t get_size() const;
+  text_pos_t get_text_size() const;
 
   void set_wrap_width(int width);
   void set_tabsize(int _tabsize);
   void set_text_buffer(text_buffer_t *_text);
 
-  bool add_lines(text_coordinate_t &coord, int count) const;
-  bool sub_lines(text_coordinate_t &coord, int count) const;
-  int get_line_count(int line) const;
+  bool add_lines(text_coordinate_t &coord, text_pos_t count) const;
+  bool sub_lines(text_coordinate_t &coord, text_pos_t count) const;
+  text_pos_t get_line_count(text_pos_t line) const;
   text_coordinate_t get_end() const;
-  int find_line(text_coordinate_t coord) const;
-  int calculate_screen_pos() const;
-  int calculate_screen_pos(const text_coordinate_t &where) const;
-  int calculate_line_pos(int line, int pos, int subline) const;
+  text_pos_t find_line(text_coordinate_t coord) const;
+  text_pos_t calculate_screen_pos() const;
+  text_pos_t calculate_screen_pos(const text_coordinate_t &where) const;
+  text_pos_t calculate_line_pos(text_pos_t line, text_pos_t pos, text_pos_t subline) const;
   void paint_line(t3window::window_t *win, text_coordinate_t line,
                   text_line_t::paint_info_t &info) const;
 };

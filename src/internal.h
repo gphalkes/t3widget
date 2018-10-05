@@ -136,7 +136,7 @@ T3_WIDGET_LOCAL bool check_mouse_fd(fd_set *readset);
 enum { CLASS_WHITESPACE, CLASS_ALNUM, CLASS_GRAPH, CLASS_OTHER };
 
 /** Get the character class associated with the character at a specific position in a string. */
-T3_WIDGET_LOCAL int get_class(const std::string &str, int pos);
+T3_WIDGET_LOCAL int get_class(const std::string &str, text_pos_t pos);
 
 template <typename C>
 void remove_element(C &container, typename C::value_type value) {

@@ -42,10 +42,10 @@ text_buffer_t::text_buffer_t(text_line_factory_t *_line_factory)
 
 text_buffer_t::~text_buffer_t() {}
 
-int text_buffer_t::size() const { return impl->size(); }
+text_pos_t text_buffer_t::size() const { return impl->size(); }
 
-const text_line_t &text_buffer_t::get_line_data(int idx) const { return *impl->lines[idx]; }
-text_line_t *text_buffer_t::get_mutable_line_data(int idx) { return impl->lines[idx].get(); }
+const text_line_t &text_buffer_t::get_line_data(text_pos_t idx) const { return *impl->lines[idx]; }
+text_line_t *text_buffer_t::get_mutable_line_data(text_pos_t idx) { return impl->lines[idx].get(); }
 
 text_line_factory_t *text_buffer_t::get_line_factory() { return impl->line_factory; }
 
@@ -65,25 +65,25 @@ bool text_buffer_t::append_text(string_view text) { return impl->append_text(tex
 
 bool text_buffer_t::break_line(const std::string &indent) { return impl->break_line(indent); }
 
-int text_buffer_t::calculate_screen_pos(int tabsize) const {
+text_pos_t text_buffer_t::calculate_screen_pos(int tabsize) const {
   return calculate_screen_pos(impl->cursor, tabsize);
 }
 
-int text_buffer_t::calculate_screen_pos(const text_coordinate_t &where, int tabsize) const {
+text_pos_t text_buffer_t::calculate_screen_pos(const text_coordinate_t &where, int tabsize) const {
   return impl->lines[where.line]->calculate_screen_width(0, where.pos, tabsize);
 }
 
-int text_buffer_t::calculate_line_pos(int line, int pos, int tabsize) const {
+text_pos_t text_buffer_t::calculate_line_pos(text_pos_t line, text_pos_t pos, int tabsize) const {
   return impl->calculate_line_pos(line, pos, tabsize);
 }
 
-void text_buffer_t::paint_line(t3window::window_t *win, int line,
+void text_buffer_t::paint_line(t3window::window_t *win, text_pos_t line,
                                const text_line_t::paint_info_t &info) {
   prepare_paint_line(line);
   impl->lines[line]->paint_line(win, info);
 }
 
-int text_buffer_t::get_line_max(int line) const { return impl->get_line_max(line); }
+text_pos_t text_buffer_t::get_line_max(text_pos_t line) const { return impl->get_line_max(line); }
 
 void text_buffer_t::goto_next_word() { impl->goto_next_word(); }
 
@@ -206,26 +206,27 @@ bool text_buffer_t::unindent_block(text_coordinate_t &start, text_coordinate_t &
 
 bool text_buffer_t::unindent_line(int tabsize) { return impl->unindent_line(tabsize); }
 
-void text_buffer_t::prepare_paint_line(int line) { (void)line; }
+void text_buffer_t::prepare_paint_line(text_pos_t line) { (void)line; }
 
 void text_buffer_t::start_undo_block() { impl->start_undo_block(); }
 
 void text_buffer_t::end_undo_block() { impl->end_undo_block(); }
 
-void text_buffer_t::goto_pos(int line, int pos) { impl->goto_pos(line, pos); }
+void text_buffer_t::goto_pos(text_pos_t line, text_pos_t pos) { impl->goto_pos(line, pos); }
 
 text_coordinate_t text_buffer_t::get_cursor() const { return impl->cursor; }
 
 void text_buffer_t::set_cursor(text_coordinate_t _cursor) { impl->cursor = _cursor; }
 
-void text_buffer_t::set_cursor_pos(int pos) { impl->cursor.pos = pos; }
+void text_buffer_t::set_cursor_pos(text_pos_t pos) { impl->cursor.pos = pos; }
 
-_T3_WIDGET_IMPL_SIGNAL(text_buffer_t, rewrap_required, rewrap_type_t, int, int)
+_T3_WIDGET_IMPL_SIGNAL(text_buffer_t, rewrap_required, rewrap_type_t, text_pos_t, text_pos_t)
 
 //==================================== implementation_t ============================================
 
-int text_buffer_t::implementation_t::calculate_line_pos(int line, int pos, int tabsize) const {
-  return lines[line]->calculate_line_pos(0, INT_MAX, pos, tabsize);
+text_pos_t text_buffer_t::implementation_t::calculate_line_pos(text_pos_t line, text_pos_t pos,
+                                                               int tabsize) const {
+  return lines[line]->calculate_line_pos(0, std::numeric_limits<text_pos_t>::max(), pos, tabsize);
 }
 
 bool text_buffer_t::implementation_t::insert_char(key_t c) {
@@ -264,7 +265,7 @@ bool text_buffer_t::implementation_t::delete_char() {
 }
 
 bool text_buffer_t::implementation_t::backspace_char() {
-  int newpos;
+  text_pos_t newpos;
 
   newpos = lines[cursor.line]->adjust_position(cursor.pos, -1);
   if (!lines[cursor.line]->backspace_char(cursor.pos, get_undo(UNDO_BACKSPACE))) {
@@ -279,7 +280,7 @@ bool text_buffer_t::implementation_t::backspace_char() {
   return true;
 }
 
-bool text_buffer_t::implementation_t::merge_internal(int line) {
+bool text_buffer_t::implementation_t::merge_internal(text_pos_t line) {
   cursor.line = line;
   cursor.pos = lines[line]->get_length();
   lines[line]->merge(std::move(lines[line + 1]));
@@ -292,7 +293,7 @@ bool text_buffer_t::implementation_t::merge_internal(int line) {
 bool text_buffer_t::implementation_t::insert_block_internal(text_coordinate_t insert_at,
                                                             std::unique_ptr<text_line_t> block) {
   std::unique_ptr<text_line_t> second_half, next_line;
-  int next_start = 0;
+  text_pos_t next_start = 0;
   // FIXME: check that everything succeeds and return false if it doesn't
   if (insert_at.pos >= 0 && insert_at.pos < lines[insert_at.line]->get_length()) {
     second_half = lines[insert_at.line]->break_line(insert_at.pos);
@@ -323,7 +324,6 @@ void text_buffer_t::implementation_t::delete_block_internal(text_coordinate_t st
                                                             text_coordinate_t end, undo_t *undo) {
   text_line_t *start_part = nullptr;
   std::unique_ptr<text_line_t> end_part;
-  int i;
 
   /* Don't do anything on empty block */
   if (start == end) {
@@ -404,7 +404,7 @@ void text_buffer_t::implementation_t::delete_block_internal(text_coordinate_t st
   if (undo != nullptr) {
     undo->add_newline();
 
-    for (i = start.line; i < end.line; i++) {
+    for (text_pos_t i = start.line; i < end.line; i++) {
       undo->get_text()->append(lines[i]->get_data());
       undo->add_newline();
     }
@@ -443,7 +443,7 @@ bool text_buffer_t::implementation_t::break_line_internal(const std::string &ind
 
 bool text_buffer_t::implementation_t::merge(bool backspace) {
   start_undo_block();
-  int delete_line = backspace ? cursor.line - 1 : cursor.line;
+  text_pos_t delete_line = backspace ? cursor.line - 1 : cursor.line;
   undo_t *undo =
       get_undo(UNDO_DELETE, text_coordinate_t(delete_line, lines[delete_line]->get_length()));
   undo->get_text()->append(1, '\n');
@@ -456,7 +456,7 @@ bool text_buffer_t::implementation_t::merge(bool backspace) {
 
 bool text_buffer_t::implementation_t::append_text(string_view text) {
   bool result;
-  text_coordinate_t at(lines.size() - 1, INT_MAX);
+  text_coordinate_t at(lines.size() - 1, std::numeric_limits<text_pos_t>::max());
   result = insert_block_internal(at, line_factory->new_text_line_t(text));
   return result;
 }
@@ -515,7 +515,6 @@ bool text_buffer_t::implementation_t::replace_block(text_coordinate_t start, tex
 std::unique_ptr<std::string> text_buffer_t::implementation_t::convert_block(text_coordinate_t start,
                                                                             text_coordinate_t end) {
   text_coordinate_t current_start, current_end;
-  int i;
 
   current_start = start;
   current_end = end;
@@ -543,7 +542,7 @@ std::unique_ptr<std::string> text_buffer_t::implementation_t::convert_block(text
       new std::string(lines[current_start.line]->get_data(), current_start.pos));
   retval->append(1, '\n');
 
-  for (i = current_start.line + 1; i < current_end.line; i++) {
+  for (text_pos_t i = current_start.line + 1; i < current_end.line; i++) {
     // FIXME: append may fail!
     retval->append(lines[i]->get_data());
     retval->append(1, '\n');
@@ -619,7 +618,7 @@ void text_buffer_t::implementation_t::set_selection_mode(selection_mode_t mode) 
       break;
     case selection_mode_t::ALL:
       selection_start = text_coordinate_t(0, 0);
-      selection_end = text_coordinate_t((lines.size() - 1), get_line_max(lines.size() - 1));
+      selection_end = text_coordinate_t(lines.size() - 1, get_line_max(lines.size() - 1));
       break;
     default:
       if (selection_mode == selection_mode_t::ALL || selection_mode == selection_mode_t::NONE) {
@@ -681,7 +680,7 @@ void text_buffer_t::implementation_t::set_undo_mark() {
 // FIXME: re-implement the complex block operations in terms of UNDO_BLOCK_START/END and the simple
 // operations.
 
-int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *current) {
+void text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *current) {
   text_coordinate_t start, end;
 
   set_selection_mode(selection_mode_t::NONE);
@@ -761,7 +760,6 @@ int text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *c
       break;
   }
   last_undo_type = UNDO_NONE;
-  return 0;
 }
 
 void text_buffer_t::implementation_t::set_selection_from_find(const find_result_t &result) {
@@ -776,7 +774,7 @@ void text_buffer_t::implementation_t::set_selection_from_find(const find_result_
 
 bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *result,
                                            bool reverse) const {
-  size_t start, idx;
+  text_pos_t start, idx;
 
   /* Note: the value of result->start.line and result->end.line are ignored after the
      search has started. The finder->match function does not take those values into
@@ -792,7 +790,7 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
       return true;
     }
 
-    result->end.pos = INT_MAX;
+    result->end.pos = std::numeric_limits<text_pos_t>::max();
     for (; idx > 0;) {
       idx--;
       if (finder->match(lines[idx]->get_data(), result, true)) {
@@ -815,7 +813,7 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
   } else {
     start = idx = cursor.line;
     result->start = cursor;
-    result->end.pos = INT_MAX;
+    result->end.pos = std::numeric_limits<text_pos_t>::max();
     if (finder->match(lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;
@@ -823,7 +821,7 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
 
     result->start.pos = 0;
     const size_t lines_size = lines.size();
-    for (idx++; idx < lines_size; idx++) {
+    for (idx++; idx < static_cast<text_pos_t>(lines_size); idx++) {
       if (finder->match(lines[idx]->get_data(), result, false)) {
         result->start.line = result->end.line = idx;
         return true;
@@ -848,14 +846,14 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
 bool text_buffer_t::implementation_t::find_limited(finder_t *finder, text_coordinate_t start,
                                                    text_coordinate_t end,
                                                    find_result_t *result) const {
-  size_t idx;
+  text_pos_t idx;
 
   /* Note: the finder->match function does not take value of result->start.line
      and result->end.line into account. */
   result->start = start;
-  result->end.pos = INT_MAX;
+  result->end.pos = std::numeric_limits<text_pos_t>::max();
 
-  for (idx = start.line; idx < lines.size() && idx < static_cast<size_t>(end.line); idx++) {
+  for (idx = start.line; static_cast<size_t>(idx) < lines.size() && idx < end.line; idx++) {
     if (finder->match(lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;
@@ -864,7 +862,8 @@ bool text_buffer_t::implementation_t::find_limited(finder_t *finder, text_coordi
   }
 
   result->end = end;
-  if (idx < lines.size() && finder->match(lines[idx]->get_data(), result, false)) {
+  if (static_cast<size_t>(idx) < lines.size() &&
+      finder->match(lines[idx]->get_data(), result, false)) {
     result->start.line = result->end.line = idx;
     return true;
   }
@@ -874,7 +873,7 @@ bool text_buffer_t::implementation_t::find_limited(finder_t *finder, text_coordi
 
 bool text_buffer_t::implementation_t::indent_block(text_coordinate_t &start, text_coordinate_t &end,
                                                    int tabsize, bool tab_spaces) {
-  int end_line;
+  text_pos_t end_line;
   text_coordinate_t insert_at;
   std::string str;
   undo_t *undo;
@@ -931,7 +930,7 @@ bool text_buffer_t::implementation_t::indent_selection(int tabsize, bool tab_spa
 }
 
 bool text_buffer_t::implementation_t::undo_indent_selection(undo_t *undo, undo_type_t type) {
-  int first_line;
+  text_pos_t first_line;
   size_t pos = 0, next_pos = 0;
 
   first_line = undo->get_start().line;
@@ -974,7 +973,7 @@ bool text_buffer_t::implementation_t::unindent_selection(int tabsize) {
 
 bool text_buffer_t::implementation_t::unindent_block(text_coordinate_t &start,
                                                      text_coordinate_t &end, int tabsize) {
-  int end_line;
+  text_pos_t end_line;
   text_coordinate_t delete_start, delete_end;
   std::string undo_text;
   bool text_changed = false;
@@ -1085,7 +1084,7 @@ bool text_buffer_t::implementation_t::unindent_line(int tabsize) {
   return true;
 }
 
-void text_buffer_t::implementation_t::goto_pos(int line, int pos) {
+void text_buffer_t::implementation_t::goto_pos(text_pos_t line, text_pos_t pos) {
   if (line < 1 && pos < 1) {
     return;
   }
@@ -1094,7 +1093,7 @@ void text_buffer_t::implementation_t::goto_pos(int line, int pos) {
     cursor.line = (line > size() ? size() : line) - 1;
   }
   if (pos >= 1) {
-    int screen_pos = lines[cursor.line]->calculate_screen_width(0, pos - 1, 1);
+    text_pos_t screen_pos = lines[cursor.line]->calculate_screen_width(0, pos - 1, 1);
     cursor.pos = calculate_line_pos(cursor.line, screen_pos, 1);
   }
 }

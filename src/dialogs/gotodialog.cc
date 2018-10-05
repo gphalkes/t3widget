@@ -25,7 +25,7 @@ static key_t accepted_keys[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
 
 struct goto_dialog_t::implementation_t {
   text_field_t *number_line;
-  signal_t<int> activate;
+  signal_t<text_pos_t> activate;
 };
 
 goto_dialog_t::goto_dialog_t()
@@ -77,10 +77,10 @@ void goto_dialog_t::reset() { impl->number_line->set_text(""); }
 
 void goto_dialog_t::ok_activate() {
   hide();
-  impl->activate(atoi(impl->number_line->get_text().c_str()));
+  impl->activate(static_cast<text_pos_t>(std::atoll(impl->number_line->get_text().c_str())));
 }
 
-connection_t goto_dialog_t::connect_activate(std::function<void(int)> cb) {
+connection_t goto_dialog_t::connect_activate(std::function<void(text_pos_t)> cb) {
   return impl->activate.connect(cb);
 }
 

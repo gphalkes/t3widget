@@ -77,7 +77,7 @@ message_dialog_t::~message_dialog_t() { delete impl->text_window->get_text(); }
 void message_dialog_t::set_message(string_view message) {
   text_buffer_t *old_text;
   text_buffer_t *text = new text_buffer_t();
-  int text_height;
+  text_pos_t text_height;
 
   impl->text_window->set_size(None, window.get_width() - 2);
 
@@ -97,7 +97,7 @@ void message_dialog_t::set_message(string_view message) {
     impl->text_window->set_scrollbar(true);
     impl->text_window->set_enabled(true);
   } else if (text_height == 1) {
-    text_coordinate_t coord(0, INT_MAX);
+    text_coordinate_t coord(0, std::numeric_limits<text_pos_t>::max());
     impl->height = 5;
     impl->text_window->set_size(1, text->calculate_screen_pos(coord, 0));
     impl->text_window->set_anchor(this,

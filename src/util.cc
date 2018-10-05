@@ -402,7 +402,7 @@ std::string convert_lang_codeset(string_view str, bool from) {
   }
 }
 
-int get_class(const std::string &str, int pos) {
+int get_class(const std::string &str, text_pos_t pos) {
   size_t data_len = str.size() - pos;
   uint32_t c = t3_utf8_get(str.data() + pos, &data_len);
 

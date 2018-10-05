@@ -22,7 +22,7 @@ struct text_buffer_t::implementation_t {
   undo_t *last_undo;
 
   text_line_factory_t *line_factory;
-  signal_t<rewrap_type_t, int, int> rewrap_required;
+  signal_t<rewrap_type_t, text_pos_t, text_pos_t> rewrap_required;
   text_coordinate_t cursor;
 
   implementation_t(text_line_factory_t *_line_factory)
@@ -37,14 +37,14 @@ struct text_buffer_t::implementation_t {
     lines.push_back(line_factory->new_text_line_t());
   }
 
-  int size() const { return lines.size(); }
-  int get_line_max(int line) const { return lines[line]->get_length(); }
-  int calculate_line_pos(int line, int pos, int tabsize) const;
+  text_pos_t size() const { return lines.size(); }
+  text_pos_t get_line_max(text_pos_t line) const { return lines[line]->get_length(); }
+  text_pos_t calculate_line_pos(text_pos_t line, text_pos_t pos, int tabsize) const;
   bool insert_char(key_t c);
   bool overwrite_char(key_t c);
   bool delete_char();
   bool backspace_char();
-  bool merge_internal(int line);
+  bool merge_internal(text_pos_t line);
   bool insert_block_internal(text_coordinate_t insert_at, std::unique_ptr<text_line_t> block);
   void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
   bool break_line_internal(const std::string &indent = nullptr);
@@ -68,7 +68,7 @@ struct text_buffer_t::implementation_t {
   void start_undo_block() { get_undo(UNDO_BLOCK_START); }
   void end_undo_block() { get_undo(UNDO_BLOCK_END); }
   void set_undo_mark();
-  int apply_undo_redo(undo_type_t type, undo_t *current);
+  void apply_undo_redo(undo_type_t type, undo_t *current);
   void set_selection_from_find(const find_result_t &result);
   bool find(finder_t *finder, find_result_t *result, bool reverse) const;
   bool find_limited(finder_t *finder, text_coordinate_t start, text_coordinate_t end,
@@ -79,7 +79,7 @@ struct text_buffer_t::implementation_t {
   bool unindent_selection(int tabsize);
   bool unindent_block(text_coordinate_t &start, text_coordinate_t &end, int tabsize);
   bool unindent_line(int tabsize);
-  void goto_pos(int line, int pos);
+  void goto_pos(text_pos_t line, text_pos_t pos);
 };
 
 }  // namespace t3widget

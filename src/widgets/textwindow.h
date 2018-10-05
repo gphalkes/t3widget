@@ -28,10 +28,10 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   struct T3_WIDGET_LOCAL implementation_t;
   single_alloc_pimpl_t<implementation_t> impl;
 
-  void scroll_up(int lines);
-  void scroll_down(int lines);
+  void scroll_up(text_pos_t lines);
+  void scroll_down(text_pos_t lines);
   void scrollbar_clicked(scrollbar_t::step_t step);
-  void scrollbar_dragged(int start);
+  void scrollbar_dragged(text_pos_t start);
 
  public:
   text_window_t(text_buffer_t *_text = nullptr, bool with_scrollbar = true);
@@ -48,7 +48,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   void set_text(text_buffer_t *_text);
   text_buffer_t *get_text();
   void set_tabsize(int size);
-  int get_text_height();
+  text_pos_t get_text_height();
 
   T3_WIDGET_DECLARE_SIGNAL(activate);
 };

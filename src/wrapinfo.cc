@@ -20,7 +20,7 @@
 namespace t3widget {
 
 wrap_info_t::wrap_info_t(int width, int _tabsize)
-    : text(nullptr), size(0), tabsize(_tabsize), wrap_width(width) {}
+    : text(nullptr), tabsize(_tabsize), wrap_width(width), size(0) {}
 
 wrap_info_t::~wrap_info_t() {
   rewrap_connection.disconnect();
@@ -29,10 +29,10 @@ wrap_info_t::~wrap_info_t() {
   }
 }
 
-int wrap_info_t::get_size() const { return wrap_data.size(); }
-int wrap_info_t::get_text_size() const { return size; }
+text_pos_t wrap_info_t::get_size() const { return wrap_data.size(); }
+text_pos_t wrap_info_t::get_text_size() const { return size; }
 
-void wrap_info_t::delete_lines(int first, int last) {
+void wrap_info_t::delete_lines(text_pos_t first, text_pos_t last) {
   for (wrap_data_t::iterator iter = wrap_data.begin() + first; iter != wrap_data.begin() + last;
        iter++) {
     size -= (*iter)->size();
@@ -41,8 +41,8 @@ void wrap_info_t::delete_lines(int first, int last) {
   wrap_data.erase(wrap_data.begin() + first, wrap_data.begin() + last);
 }
 
-void wrap_info_t::insert_lines(int first, int last) {
-  int i;
+void wrap_info_t::insert_lines(text_pos_t first, text_pos_t last) {
+  text_pos_t i;
   for (i = first; i < last; i++) {
     wrap_data.insert(wrap_data.begin() + i, new wrap_points_t());
     // Ensure that the list of break positions contains at least the start position.
@@ -52,7 +52,7 @@ void wrap_info_t::insert_lines(int first, int last) {
   }
 }
 
-void wrap_info_t::rewrap_line(int line, int pos, bool local) {
+void wrap_info_t::rewrap_line(text_pos_t line, text_pos_t pos, bool local) {
   text_line_t::break_pos_t break_pos;
   size_t i;
 
@@ -136,7 +136,7 @@ void wrap_info_t::set_text_buffer(text_buffer_t *_text) {
   }
 }
 
-void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
+void wrap_info_t::rewrap(rewrap_type_t type, text_pos_t a, text_pos_t b) {
   switch (type) {
     case rewrap_type_t::REWRAP_ALL:
       rewrap_all();
@@ -158,15 +158,15 @@ void wrap_info_t::rewrap(rewrap_type_t type, int a, int b) {
   }
 }
 
-bool wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
+bool wrap_info_t::add_lines(text_coordinate_t &coord, text_pos_t count) const {
   ASSERT(count > 0);
-  while (coord.line < static_cast<int>(wrap_data.size()) &&
-         static_cast<int>(wrap_data[coord.line]->size()) <= coord.pos + count) {
+  while (static_cast<size_t>(coord.line) < wrap_data.size() &&
+         wrap_data[coord.line]->size() <= static_cast<size_t>(coord.pos + count)) {
     count -= wrap_data[coord.line]->size() - coord.pos;
     coord.line++;
     coord.pos = 0;
   }
-  if (coord.line == static_cast<int>(wrap_data.size())) {
+  if (static_cast<size_t>(coord.line) == wrap_data.size()) {
     coord.line = wrap_data.size() - 1;
     coord.pos = wrap_data[coord.line]->size() - 1;
     return true;
@@ -176,7 +176,7 @@ bool wrap_info_t::add_lines(text_coordinate_t &coord, int count) const {
   }
 }
 
-bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
+bool wrap_info_t::sub_lines(text_coordinate_t &coord, text_pos_t count) const {
   ASSERT(count > 0);
   if (coord.pos > count) {
     coord.pos -= count;
@@ -184,7 +184,7 @@ bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
   }
   count -= coord.pos;
   coord.pos = 0;
-  while (coord.line > 0 && count >= static_cast<int>(wrap_data[coord.line - 1]->size())) {
+  while (coord.line > 0 && static_cast<size_t>(count) >= wrap_data[coord.line - 1]->size()) {
     coord.line--;
     count -= wrap_data[coord.line]->size();
   }
@@ -199,38 +199,40 @@ bool wrap_info_t::sub_lines(text_coordinate_t &coord, int count) const {
   return false;
 }
 
-int wrap_info_t::get_line_count(int line) const {
-  return static_cast<int>(wrap_data[line]->size());
+text_pos_t wrap_info_t::get_line_count(text_pos_t line) const {
+  return static_cast<text_pos_t>(wrap_data[line]->size());
 }
 
 text_coordinate_t wrap_info_t::get_end() const {
-  text_coordinate_t result(static_cast<int>(wrap_data.size()) - 1,
-                           static_cast<int>(wrap_data[wrap_data.size() - 1]->size()) - 1);
+  text_coordinate_t result(static_cast<text_pos_t>(wrap_data.size()) - 1,
+                           static_cast<text_pos_t>(wrap_data[wrap_data.size() - 1]->size()) - 1);
   return result;
 }
 
-int wrap_info_t::find_line(text_coordinate_t coord) const {
+text_pos_t wrap_info_t::find_line(text_coordinate_t coord) const {
   size_t i;
   for (i = 1; i < wrap_data[coord.line]->size() && coord.pos >= (*wrap_data[coord.line])[i]; i++) {
   }
   return i - 1;
 }
 
-int wrap_info_t::calculate_screen_pos() const { return calculate_screen_pos(text->impl->cursor); }
+text_pos_t wrap_info_t::calculate_screen_pos() const {
+  return calculate_screen_pos(text->impl->cursor);
+}
 
-int wrap_info_t::calculate_screen_pos(const text_coordinate_t &where) const {
-  int sub_line;
-  sub_line = find_line(text->impl->cursor);
+text_pos_t wrap_info_t::calculate_screen_pos(const text_coordinate_t &where) const {
+  text_pos_t sub_line = find_line(text->impl->cursor);
   return text->impl->lines[where.line]->calculate_screen_width((*wrap_data[where.line])[sub_line],
                                                                where.pos, tabsize);
 }
 
-int wrap_info_t::calculate_line_pos(int line, int pos, int sub_line) const {
+text_pos_t wrap_info_t::calculate_line_pos(text_pos_t line, text_pos_t pos,
+                                           text_pos_t sub_line) const {
   return text->impl->lines[line]->calculate_line_pos(
       (*wrap_data[line])[sub_line],
-      sub_line + 1 < static_cast<int>(wrap_data[line]->size())
+      static_cast<size_t>(sub_line) + 1 < wrap_data[line]->size()
           ? (*wrap_data[line])[sub_line + 1] - 1
-          : INT_MAX,
+          : std::numeric_limits<text_pos_t>::max(),
       pos, tabsize);
 }
 
@@ -238,11 +240,11 @@ void wrap_info_t::paint_line(t3window::window_t *win, text_coordinate_t line,
                              text_line_t::paint_info_t &info) const {
   info.start = (*wrap_data[line.line])[line.pos];
   info.flags &= ~text_line_t::BREAK;
-  if (line.pos + 1 < static_cast<int>(wrap_data[line.line]->size())) {
-    info.max = (*wrap_data[line.line])[line.pos + 1];
+  if (static_cast<size_t>(line.pos) + 1 < wrap_data[line.line]->size()) {
+    info.max = (*wrap_data[line.line])[(line.pos + 1)];
     info.flags |= text_line_t::BREAK;
   } else {
-    info.max = INT_MAX;
+    info.max = std::numeric_limits<text_pos_t>::max();
   }
   if (tabsize <= 0) {
     info.flags |= text_line_t::TAB_AS_CONTROL;

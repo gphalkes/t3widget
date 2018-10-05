@@ -43,16 +43,16 @@ class T3_WIDGET_API text_buffer_t {
 
       Note that this is not meant for changing the data, but to allow down-casting to the actual
       type of the line data, in which there may be metadata that is allowed to be modified. */
-  text_line_t *get_mutable_line_data(int idx);
+  text_line_t *get_mutable_line_data(text_pos_t idx);
 
-  virtual void prepare_paint_line(int line);
+  virtual void prepare_paint_line(text_pos_t line);
 
  public:
   text_buffer_t(text_line_factory_t *_line_factory = nullptr);
   virtual ~text_buffer_t();
 
-  int size() const;
-  const text_line_t &get_line_data(int idx) const;
+  text_pos_t size() const;
+  const text_line_t &get_line_data(text_pos_t idx) const;
 
   bool insert_char(key_t c);
   bool overwrite_char(key_t c);
@@ -64,17 +64,17 @@ class T3_WIDGET_API text_buffer_t {
 
   bool append_text(string_view text);
 
-  int get_line_max(int line) const;
+  text_pos_t get_line_max(text_pos_t line) const;
   void adjust_position(int adjust);
   int width_at_cursor() const;
 
-  void paint_line(t3window::window_t *win, int line, const text_line_t::paint_info_t &info);
+  void paint_line(t3window::window_t *win, text_pos_t line, const text_line_t::paint_info_t &info);
   void goto_next_word();
   void goto_previous_word();
 
-  int calculate_screen_pos(int tabsize) const;
-  int calculate_screen_pos(const text_coordinate_t &where, int tabsize) const;
-  int calculate_line_pos(int line, int pos, int tabsize) const;
+  text_pos_t calculate_screen_pos(int tabsize) const;
+  text_pos_t calculate_screen_pos(const text_coordinate_t &where, int tabsize) const;
+  text_pos_t calculate_line_pos(text_pos_t line, text_pos_t pos, int tabsize) const;
 
   text_coordinate_t get_selection_start() const;
   text_coordinate_t get_selection_end() const;
@@ -124,13 +124,13 @@ class T3_WIDGET_API text_buffer_t {
       Note that this does not update the @c edit_window_t viewport, so that has to
       be triggered separately.
   */
-  void goto_pos(int line, int pos);
+  void goto_pos(text_pos_t line, text_pos_t pos);
 
   text_coordinate_t get_cursor() const;
   void set_cursor(text_coordinate_t _cursor);
-  void set_cursor_pos(int pos);
+  void set_cursor_pos(text_pos_t pos);
 
-  T3_WIDGET_DECLARE_SIGNAL(rewrap_required, rewrap_type_t, int, int);
+  T3_WIDGET_DECLARE_SIGNAL(rewrap_required, rewrap_type_t, text_pos_t, text_pos_t);
 };
 
 }  // namespace t3widget

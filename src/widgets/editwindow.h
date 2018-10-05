@@ -106,9 +106,9 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   /** Handle setting of the wrap mode. */
   void set_wrap_internal(wrap_type_t wrap);
 
-  void scroll(int lines);
+  void scroll(text_pos_t lines);
   void scrollbar_clicked(scrollbar_t::step_t step);
-  void scrollbar_dragged(int start);
+  void scrollbar_dragged(text_pos_t start);
   void autocomplete_activated();
   void mark_selection();
   /** Pastes either the selection, or the clipboard. */
@@ -141,12 +141,12 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   /** Change the lines to start and end repainting.
 
       It is acceptable to pass @p start and @p end in reverse order. */
-  void update_repaint_lines(int start, int end);
+  void update_repaint_lines(text_pos_t start, text_pos_t end);
 
   /** Change the lines to start and end repainting.
 
       Calls the two parameter version of this function with @p line repeated. */
-  void update_repaint_lines(int line);
+  void update_repaint_lines(text_pos_t line);
 
  public:
   class T3_WIDGET_API view_parameters_t;
@@ -204,7 +204,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   /** Unindent the current selection. */
   void unindent_selection();
   /** Move the cursor to the specified line. */
-  void goto_line(int line);
+  void goto_line(text_pos_t line);
 
   /** Show the Goto Line dialog. */
   void goto_line();
@@ -279,7 +279,8 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
   wrap_type_t wrap_type;
   int tabsize;
   bool tab_spaces;
-  int ins_mode, last_set_pos;
+  int ins_mode;
+  text_pos_t last_set_pos;
   bool auto_indent;
   bool indent_aware_home;
   bool show_tabs;

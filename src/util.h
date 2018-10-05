@@ -14,6 +14,7 @@
 #ifndef T3_WIDGET_UTIL_H
 #define T3_WIDGET_UTIL_H
 #include <cstdlib>
+#include <limits>
 #include <memory>
 #include <new>
 #include <string>
@@ -258,9 +259,11 @@ using single_alloc_pimpl_t = propagate_const<const std::unique_ptr<T, no_dealloc
 template <typename T>
 using pimpl_t = propagate_const<const std::unique_ptr<T>>;
 
+using text_pos_t = std::ptrdiff_t;
+
 struct T3_WIDGET_API text_coordinate_t {
   text_coordinate_t() {}
-  text_coordinate_t(int _line, int _pos) : line(_line), pos(_pos) {}
+  text_coordinate_t(text_pos_t _line, text_pos_t _pos) : line(_line), pos(_pos) {}
   bool operator==(const text_coordinate_t &other) const {
     return line == other.line && pos == other.pos;
   }
@@ -279,8 +282,8 @@ struct T3_WIDGET_API text_coordinate_t {
   bool operator<=(const text_coordinate_t &other) const {
     return line < other.line || (line == other.line && pos <= other.pos);
   }
-  int line;
-  int pos;
+  text_pos_t line;
+  text_pos_t pos;
 };
 
 #define T3_WIDGET_DECLARE_SIGNAL(_name, ...) \
@@ -495,4 +498,5 @@ class call_on_return_t {
 };
 
 }  // namespace t3widget
+
 #endif

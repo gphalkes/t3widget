@@ -113,7 +113,7 @@ void text_window_t::set_scrollbar(bool with_scrollbar) {
   force_redraw();
 }
 
-void text_window_t::scroll_down(int lines) {
+void text_window_t::scroll_down(text_pos_t lines) {
   text_coordinate_t new_top = impl->top;
 
   if (impl->wrap_info->add_lines(new_top, window.get_height() + lines)) {
@@ -128,7 +128,7 @@ void text_window_t::scroll_down(int lines) {
   }
 }
 
-void text_window_t::scroll_up(int lines) {
+void text_window_t::scroll_up(text_pos_t lines) {
   if (impl->top.line == 0 && impl->top.pos == 0) {
     return;
   }
@@ -179,9 +179,7 @@ bool text_window_t::process_key(key_t key) {
 }
 
 void text_window_t::update_contents() {
-  text_coordinate_t current_start, current_end;
   text_line_t::paint_info_t info;
-  int i, count = 0;
 
   if (!reset_redraw()) {
     return;
@@ -204,7 +202,7 @@ void text_window_t::update_contents() {
   text_coordinate_t end = impl->wrap_info->get_end();
   text_coordinate_t draw_line = impl->top;
 
-  for (i = 0; i < window.get_height(); i++, impl->wrap_info->add_lines(draw_line, 1)) {
+  for (int i = 0; i < window.get_height(); i++, impl->wrap_info->add_lines(draw_line, 1)) {
     if (impl->focus) {
       if (i == 0) {
         info.cursor = impl->wrap_info->calculate_line_pos(draw_line.line, 0, draw_line.pos);
@@ -223,7 +221,8 @@ void text_window_t::update_contents() {
 
   window.clrtobot();
 
-  for (i = 0; i < impl->top.line; i++) {
+  text_pos_t count = 0;
+  for (text_pos_t i = 0; i < impl->top.line; i++) {
     count += impl->wrap_info->get_line_count(i);
   }
   count += impl->top.pos;
@@ -256,7 +255,7 @@ text_buffer_t *text_window_t::get_text() { return impl->text; }
 
 void text_window_t::set_tabsize(int size) { impl->wrap_info->set_tabsize(size); }
 
-int text_window_t::get_text_height() { return impl->wrap_info->get_text_size(); }
+text_pos_t text_window_t::get_text_height() { return impl->wrap_info->get_text_size(); }
 
 bool text_window_t::process_mouse_event(mouse_event_t event) {
   if (event.window != window || event.type != EMOUSE_BUTTON_PRESS) {
@@ -291,9 +290,9 @@ void text_window_t::scrollbar_clicked(scrollbar_t::step_t step) {
   }
 }
 
-void text_window_t::scrollbar_dragged(int start) {
+void text_window_t::scrollbar_dragged(text_pos_t start) {
   text_coordinate_t new_top_left(0, 0);
-  int count = 0;
+  text_pos_t count = 0;
 
   if (start < 0 || start + window.get_height() > impl->wrap_info->get_text_size()) {
     return;

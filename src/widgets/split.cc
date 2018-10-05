@@ -123,8 +123,7 @@ void split_t::force_redraw() {
 
 void split_t::set_child_focus(window_component_t *target) {
   widgets_t::iterator &current = impl->current;
-  for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end();
-       iter++) {
+  for (widgets_t::iterator iter = impl->widgets.begin(); iter != impl->widgets.end(); iter++) {
     if (iter->get() == target) {
       if (*current != *iter) {
         (*current)->set_focus(window_component_t::FOCUS_OUT);

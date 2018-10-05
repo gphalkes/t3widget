@@ -39,7 +39,7 @@ namespace t3widget {
 #include "t3widget/key_binding_def.h"
 
 struct text_field_t::implementation_t {
-  int pos,                 /**< Cursor position in bytes. */
+  text_pos_t pos,          /**< Cursor position in bytes. */
       screen_pos,          /**< Cursor position in screen cells. */
       leftcol,             /**< The first (left-most) shown column in screen cells. */
       selection_start_pos, /**< Selection start postion, or -1 if not applicable. */
@@ -124,7 +124,7 @@ void text_field_t::set_selection(key_t key) {
 }
 
 void text_field_t::delete_selection(bool save_to_copy_buffer) {
-  int start, end;
+  text_pos_t start, end;
   if (impl->selection_start_pos == impl->selection_end_pos) {
     reset_selection();
     return;
@@ -171,7 +171,7 @@ bool text_field_t::process_key(key_t key) {
       if (impl->selection_mode != selection_mode_t::NONE) {
         delete_selection(false);
       } else if (impl->pos > 0) {
-        int newpos = impl->line->adjust_position(impl->pos, -1);
+        text_pos_t newpos = impl->line->adjust_position(impl->pos, -1);
         impl->line->backspace_char(impl->pos, nullptr);
         impl->pos = newpos;
         ensure_cursor_on_screen();
@@ -261,7 +261,7 @@ bool text_field_t::process_key(key_t key) {
             return true;
           case ACTION_COPY:
             if (impl->selection_mode != selection_mode_t::NONE) {
-              int start, end;
+              text_pos_t start, end;
               if (impl->selection_start_pos == impl->selection_end_pos) {
                 reset_selection();
                 break;
@@ -273,7 +273,7 @@ bool text_field_t::process_key(key_t key) {
                 end = impl->selection_start_pos;
               }
 
-              set_clipboard(make_unique<std::string>(impl->line->get_data(), start, end - start));
+              set_clipboard(make_unique<std::string>(impl->line->get_data(), start, (end - start)));
             }
             return true;
 
@@ -305,7 +305,7 @@ bool text_field_t::process_key(key_t key) {
 
               if (impl->selection_mode != selection_mode_t::NONE) delete_selection(false);
 
-              int cursor_move = insert_line->get_length();
+              text_pos_t cursor_move = insert_line->get_length();
               impl->line->insert(std::move(insert_line), impl->pos);
               impl->pos += cursor_move;
               ensure_cursor_on_screen();
@@ -439,7 +439,7 @@ void text_field_t::update_contents() {
 
   info.start = 0;
   info.leftcol = impl->leftcol;
-  info.max = INT_MAX;
+  info.max = std::numeric_limits<text_pos_t>::max();
   info.size = window.get_width() - 2;
   info.tabsize = 0;
   info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL;
@@ -459,8 +459,10 @@ void text_field_t::update_contents() {
 
   impl->line->paint_line(&window, info);
   window.addch(
-      impl->line->calculate_screen_width(impl->leftcol, INT_MAX, 0) > window.get_width() - 2 ? ')'
-                                                                                             : ']',
+      impl->line->calculate_screen_width(impl->leftcol, std::numeric_limits<text_pos_t>::max(), 0) >
+              window.get_width() - 2
+          ? ')'
+          : ']',
       0);
 }
 
@@ -577,14 +579,16 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       impl->selection_mode = selection_mode_t::SHIFT;
       impl->selection_start_pos = impl->pos;
     }
-    impl->pos = impl->line->calculate_line_pos(0, INT_MAX, event.x - 1 + impl->leftcol, 0);
+    impl->pos = impl->line->calculate_line_pos(0, std::numeric_limits<text_pos_t>::max(),
+                                               event.x - 1 + impl->leftcol, 0);
     if ((event.modifier_state & EMOUSE_SHIFT) != 0) {
       set_selection_end();
     }
     ensure_cursor_on_screen();
   } else if (event.type == EMOUSE_BUTTON_PRESS && (event.button_state & EMOUSE_BUTTON_MIDDLE)) {
     reset_selection();
-    impl->pos = impl->line->calculate_line_pos(0, INT_MAX, event.x - 1 + impl->leftcol, 0);
+    impl->pos = impl->line->calculate_line_pos(0, std::numeric_limits<text_pos_t>::max(),
+                                               event.x - 1 + impl->leftcol, 0);
 
     {
       ensure_clipboard_lock_t lock;
@@ -592,7 +596,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       if (primary != nullptr) {
         std::unique_ptr<text_line_t> insert_line(new text_line_t(*primary));
 
-        int cursor_move = insert_line->get_length();
+        text_pos_t cursor_move = insert_line->get_length();
         impl->line->insert(std::move(insert_line), impl->pos);
         impl->pos += cursor_move;
       }
@@ -605,7 +609,8 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
        when no text is selected at all. The basic idea however is to start the
        selection if none has been started yet, move the cursor and move the end
        of the selection to the new cursor location. */
-    int newpos = impl->line->calculate_line_pos(0, INT_MAX, event.x - 1 + impl->leftcol, 0);
+    text_pos_t newpos = impl->line->calculate_line_pos(0, std::numeric_limits<text_pos_t>::max(),
+                                                       event.x - 1 + impl->leftcol, 0);
     if (impl->selection_mode == selection_mode_t::NONE && newpos != impl->pos) {
       impl->selection_mode = selection_mode_t::SHIFT;
       impl->selection_start_pos = impl->pos;
@@ -624,7 +629,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
 void text_field_t::set_selection_end(bool update_primary) {
   impl->selection_end_pos = impl->pos;
   if (update_primary) {
-    size_t start, length;
+    text_pos_t start, length;
 
     if (impl->selection_start_pos == impl->selection_end_pos) {
       set_primary(nullptr);

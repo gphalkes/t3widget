@@ -226,13 +226,13 @@ void file_pane_t::draw_line(int idx, bool selected) {
 
   info.start = 0;
   info.leftcol = 0;
-  info.max = INT_MAX;
+  info.max = std::numeric_limits<text_pos_t>::max();
   info.size = impl->column_widths[column];
   info.tabsize = 0;
   info.flags = text_line_t::SPACECLEAR | text_line_t::TAB_AS_CONTROL |
                (selected ? text_line_t::EXTEND_SELECTION : 0);
   info.selection_start = -1;
-  info.selection_end = selected ? INT_MAX : -1;
+  info.selection_end = selected ? std::numeric_limits<text_pos_t>::max() : -1;
   info.cursor = -1;
   info.normal_attr = attributes.dialog;
   info.selected_attr = attributes.dialog_selected;
@@ -475,7 +475,7 @@ void file_pane_t::scrollbar_clicked(scrollbar_t::step_t step) {
   }
 }
 
-void file_pane_t::scrollbar_dragged(int start) {
+void file_pane_t::scrollbar_dragged(text_pos_t start) {
   int height = window.get_height() - 1;
   size_t new_top_idx = (start / height) * height;
   if (start >= 0 && new_top_idx < impl->file_list->size() && new_top_idx != impl->top_idx) {
@@ -571,13 +571,13 @@ void file_pane_t::search_panel_t::update_contents() {
   popup_t::update_contents();
 
   text_line_t::paint_info_t paint_info;
-  int text_width = text.calculate_screen_width(0, INT_MAX, 0);
+  text_pos_t text_width = text.calculate_screen_width(0, std::numeric_limits<text_pos_t>::max(), 0);
 
   paint_info.start = 0;
   paint_info.leftcol =
       SEARCH_PANEL_WIDTH - 2 < text_width ? text_width - SEARCH_PANEL_WIDTH + 2 : 0;
   paint_info.size = SEARCH_PANEL_WIDTH - 2;
-  paint_info.max = INT_MAX;
+  paint_info.max = std::numeric_limits<text_pos_t>::max();
   paint_info.tabsize = 0;
   paint_info.flags = text_line_t::TAB_AS_CONTROL | text_line_t::SPACECLEAR;
   paint_info.selection_start = -1;

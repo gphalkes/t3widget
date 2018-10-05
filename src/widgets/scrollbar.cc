@@ -22,13 +22,14 @@ namespace t3widget {
 
 struct scrollbar_t::implementation_t {
   int length;
-  int range, start, used;
+  text_pos_t range, start;
+  int used;
   int before, slider_size;
   int button_down_pos;
   bool vertical;
   bool dragging;
   signal_t<step_t> clicked;
-  signal_t<int> dragged;
+  signal_t<text_pos_t> dragged;
 
   implementation_t(bool _vertical)
       : length(3),
@@ -196,7 +197,7 @@ bool scrollbar_t::process_mouse_event(mouse_event_t event) {
   return false;
 }
 
-void scrollbar_t::set_parameters(int _range, int _start, int _used) {
+void scrollbar_t::set_parameters(text_pos_t _range, text_pos_t _start, int _used) {
   if (impl->range == _range && impl->start == _start && impl->used == _used) {
     return;
   }
@@ -211,7 +212,7 @@ connection_t scrollbar_t::connect_clicked(std::function<void(step_t)> cb) {
   return impl->clicked.connect(cb);
 }
 
-connection_t scrollbar_t::connect_dragged(std::function<void(int)> cb) {
+connection_t scrollbar_t::connect_dragged(std::function<void(text_pos_t)> cb) {
   return impl->dragged.connect(cb);
 }
 

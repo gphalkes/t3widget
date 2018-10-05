@@ -75,13 +75,13 @@ class T3_WIDGET_LOCAL plain_finder_t : public finder_base_t {
   size_t folded_size_;
 
   /** Get the next position of a UTF-8 character. */
-  static int adjust_position(const std::string &str, int pos, int adjust);
+  static text_pos_t adjust_position(const std::string &str, text_pos_t pos, int adjust);
   /** Check if the start and end of a match are on word boundaries.
       @param str The string to check.
       @param match_start The position of the start of the match in @p str.
       @param match_end The position of the end of the match in @p str.
   */
-  bool check_boundaries(const std::string &str, int match_start, int match_end);
+  bool check_boundaries(const std::string &str, text_pos_t match_start, text_pos_t match_end);
 };
 
 /** Implementation of the finder_t interface for regular expression based searches. */
@@ -172,37 +172,36 @@ bool plain_finder_t::set_needle(const std::string &needle, std::string *error_me
 
 bool plain_finder_t::match(const std::string &haystack, find_result_t *result, bool reverse) {
   int match_result;
-  int start;
 
   if (!(flags_ & find_flags_t::VALID)) {
     return false;
   }
 
-  int curr_char, next_char;
   size_t c_size;
   const char *c;
 
+  text_pos_t start;
   if (reverse) {
     start = result->end.pos >= 0 && static_cast<size_t>(result->end.pos) > haystack.size()
-                ? haystack.size()
-                : static_cast<size_t>(result->end.pos);
+                ? static_cast<text_pos_t>(haystack.size())
+                : result->end.pos;
   } else {
     start = result->start.pos >= 0 && static_cast<size_t>(result->start.pos) > haystack.size()
-                ? haystack.size()
-                : static_cast<size_t>(result->start.pos);
+                ? static_cast<text_pos_t>(haystack.size())
+                : result->start.pos;
   }
-  curr_char = start;
+  text_pos_t curr_char = start;
 
   if (reverse) {
     matcher->reset();
     while (curr_char > 0) {
-      next_char = adjust_position(haystack, curr_char, -1);
+      text_pos_t next_char = adjust_position(haystack, curr_char, -1);
 
       if (next_char < result->start.pos) {
         return false;
       }
 
-      string_view substr = string_view(haystack).substr(next_char, curr_char - next_char);
+      string_view substr = string_view(haystack).substr(next_char, (curr_char - next_char));
       if (flags_ & find_flags_t::ICASE) {
         c_size = folded_size_;
         char *c_data = reinterpret_cast<char *>(
@@ -231,13 +230,13 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
   } else {
     matcher->reset();
     while (static_cast<size_t>(curr_char) < haystack.size()) {
-      next_char = adjust_position(haystack, curr_char, 1);
+      text_pos_t next_char = adjust_position(haystack, curr_char, 1);
 
       if (next_char > result->end.pos) {
         return false;
       }
 
-      string_view substr = string_view(haystack).substr(curr_char, next_char - curr_char);
+      string_view substr = string_view(haystack).substr(curr_char, (next_char - curr_char));
       if (flags_ & find_flags_t::ICASE) {
         c_size = folded_size_;
         char *c_data = reinterpret_cast<char *>(
@@ -266,7 +265,7 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
 
 static inline int is_start_char(int c) { return (c & 0xc0) != 0x80; }
 
-int plain_finder_t::adjust_position(const std::string &str, int pos, int adjust) {
+text_pos_t plain_finder_t::adjust_position(const std::string &str, text_pos_t pos, int adjust) {
   if (adjust > 0) {
     for (; adjust > 0 && static_cast<size_t>(pos) < str.size(); adjust -= is_start_char(str[pos])) {
       pos++;
@@ -282,7 +281,8 @@ int plain_finder_t::adjust_position(const std::string &str, int pos, int adjust)
   return pos;
 }
 
-bool plain_finder_t::check_boundaries(const std::string &str, int match_start, int match_end) {
+bool plain_finder_t::check_boundaries(const std::string &str, text_pos_t match_start,
+                                      text_pos_t match_end) {
   if ((flags_ & find_flags_t::ANCHOR_WORD_LEFT) &&
       !(match_start == 0 ||
         get_class(str, match_start) != get_class(str, adjust_position(str, match_start, -1)))) {
@@ -290,7 +290,7 @@ bool plain_finder_t::check_boundaries(const std::string &str, int match_start, i
   }
 
   if ((flags_ & find_flags_t::ANCHOR_WORD_RIGHT) &&
-      !(match_end == static_cast<int>(str.size()) ||
+      !(static_cast<size_t>(match_end) == str.size() ||
         get_class(str, match_end) != get_class(str, adjust_position(str, match_end, -1)))) {
     return false;
   }
@@ -336,7 +336,6 @@ bool regex_finder_t::set_needle(const std::string &needle, std::string *error_me
 
 bool regex_finder_t::match(const std::string &haystack, find_result_t *result, bool reverse) {
   int match_result;
-  int start, end;
 
   if (!(flags_ & find_flags_t::VALID)) {
     return false;
@@ -352,8 +351,8 @@ bool regex_finder_t::match(const std::string &haystack, find_result_t *result, b
   ovector_[1] = -1;
   found_ = false;
 
-  start = result->start.pos;
-  end = result->end.pos;
+  text_pos_t start = result->start.pos;
+  text_pos_t end = result->end.pos;
 
   if (static_cast<size_t>(end) >= haystack.size()) {
     end = haystack.size();
@@ -361,6 +360,7 @@ bool regex_finder_t::match(const std::string &haystack, find_result_t *result, b
     pcre_flags |= PCRE_NOTEOL;
   }
 
+  // FIXME: pcre_exec uses int arguments; need to handle the overflow gracefully.
   if (reverse) {
     do {
       match_result = pcre_exec(regex_.get(), nullptr, haystack.data(), end, start, pcre_flags,
@@ -369,7 +369,7 @@ bool regex_finder_t::match(const std::string &haystack, find_result_t *result, b
         found_ = true;
         memcpy(ovector_, local_ovector, sizeof(ovector_));
         captures_ = match_result;
-        start = ovector_[1];
+        start = text_pos_t(ovector_[1]);
       }
     } while (match_result >= 0);
   } else {
@@ -381,8 +381,8 @@ bool regex_finder_t::match(const std::string &haystack, find_result_t *result, b
   if (!found_) {
     return false;
   }
-  result->start.pos = ovector_[0];
-  result->end.pos = ovector_[1];
+  result->start.pos = text_pos_t(ovector_[0]);
+  result->end.pos = text_pos_t(ovector_[1]);
   return true;
 }
 
