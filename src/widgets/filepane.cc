@@ -17,6 +17,22 @@
 
 namespace t3widget {
 
+class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
+ private:
+  file_pane_t *parent;
+  bool redraw;
+  text_line_t text;
+
+ public:
+  search_panel_t(file_pane_t *_parent);
+  bool process_key(key_t key) override;
+  void set_position(optint top, optint left) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  void show() override;
+  bool process_mouse_event(mouse_event_t event) override;
+};
+
 struct file_pane_t::implementation_t {
   scrollbar_t scrollbar;       /**< Scrollbar displayed at the bottom. */
   size_t top_idx,              /**< Index of the first item displayed. */

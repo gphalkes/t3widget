@@ -50,6 +50,21 @@ const char *edit_window_t::ins_string[] = {"INS", "OVR"};
 bool (text_buffer_t::*edit_window_t::proces_char[])(key_t) = {&text_buffer_t::insert_char,
                                                               &text_buffer_t::overwrite_char};
 
+class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
+ private:
+  list_pane_t *list_pane;
+
+ public:
+  autocomplete_panel_t(edit_window_t *parent);
+  bool process_key(key_t key) override;
+  void set_position(optint top, optint left) override;
+  bool set_size(optint height, optint width) override;
+
+  void set_completions(string_list_base_t *completions);
+  size_t get_selected_idx() const;
+  void connect_activate(std::function<void()> func);
+};
+
 struct edit_window_t::implementation_t {
   t3window::window_t edit_window, /**< Window containing the text. */
       indicator_window; /**< Window holding the line, column, modified, etc. information line at

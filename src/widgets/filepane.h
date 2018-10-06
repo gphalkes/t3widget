@@ -29,7 +29,7 @@ namespace t3widget {
 /** A widget displaying the contents of a directory. */
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
  private:
-  class search_panel_t;
+  class T3_WIDGET_LOCAL search_panel_t;
 
   struct T3_WIDGET_LOCAL implementation_t;
   single_alloc_pimpl_t<implementation_t> impl;
@@ -77,22 +77,6 @@ class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
   void set_file(const std::string &name);
 
   connection_t connect_activate(std::function<void(const std::string &)> cb);
-};
-
-class T3_WIDGET_LOCAL file_pane_t::search_panel_t : public popup_t {
- private:
-  file_pane_t *parent;
-  bool redraw;
-  text_line_t text;
-
- public:
-  search_panel_t(file_pane_t *_parent);
-  bool process_key(key_t key) override;
-  void set_position(optint top, optint left) override;
-  bool set_size(optint height, optint width) override;
-  void update_contents() override;
-  void show() override;
-  bool process_mouse_event(mouse_event_t event) override;
 };
 
 }  // namespace t3widget

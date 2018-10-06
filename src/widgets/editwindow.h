@@ -298,20 +298,5 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
   void set_show_tabs(bool _show_tabs);
 };
 
-class T3_WIDGET_LOCAL edit_window_t::autocomplete_panel_t : public popup_t {
- private:
-  list_pane_t *list_pane;
-
- public:
-  autocomplete_panel_t(edit_window_t *parent);
-  bool process_key(key_t key) override;
-  void set_position(optint top, optint left) override;
-  bool set_size(optint height, optint width) override;
-
-  void set_completions(string_list_base_t *completions);
-  size_t get_selected_idx() const;
-  void connect_activate(std::function<void()> func);
-};
-
 }  // namespace t3widget
 #endif
