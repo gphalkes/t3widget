@@ -68,7 +68,7 @@ class T3_WIDGET_API label_t : public widget_t {
   void set_accepts_focus(bool _can_focus);
 
   /** Retrieve the natural width of the text. */
-  int get_text_width() const;
+  text_pos_t get_text_width() const;
 };
 
 }  // namespace t3widget

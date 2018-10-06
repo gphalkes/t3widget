@@ -78,29 +78,28 @@ class T3_WIDGET_API text_line_t {
   static const char *control_map;
   static const char *wrap_symbol;
 
-  std::string buffer;
-  bool starts_with_combining;
+  struct implementation_t;
+  pimpl_t<implementation_t> impl;
 
   static void paint_part(t3window::window_t *win, const char *paint_buffer, text_pos_t todo,
                          bool is_print, t3_attr_t selection_attr);
   static int key_width(key_t key);
 
-  t3_attr_t get_draw_attrs(text_pos_t i, const paint_info_t &info);
+  t3_attr_t get_draw_attrs(text_pos_t i, const paint_info_t &info) const;
 
   void fill_line(string_view _buffer);
   bool check_boundaries(text_pos_t match_start, text_pos_t match_end) const;
-  void update_meta_buffer(int start_pos = 0);
-  char get_char_meta(int pos) const;
 
   void reserve(text_pos_t size);
   int byte_width_from_first(text_pos_t pos) const;
 
  protected:
-  text_line_factory_t *factory;
+  text_line_factory_t *get_line_factory() const;
+  virtual t3_attr_t get_base_attr(text_pos_t i, const paint_info_t &info) const;
 
  public:
-  text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *_factory = nullptr);
-  text_line_t(string_view _buffer, text_line_factory_t *_factory = nullptr);
+  text_line_t(int buffersize = BUFFERSIZE, text_line_factory_t *factory = nullptr);
+  text_line_t(string_view buffer, text_line_factory_t *factory = nullptr);
   virtual ~text_line_t();
 
   void set_text(string_view _buffer);
@@ -118,7 +117,7 @@ class T3_WIDGET_API text_line_t {
   text_pos_t calculate_line_pos(text_pos_t start, text_pos_t max, text_pos_t pos,
                                 int tabsize) const;
 
-  void paint_line(t3window::window_t *win, const paint_info_t &info);
+  void paint_line(t3window::window_t *win, const paint_info_t &info) const;
 
   break_pos_t find_next_break_pos(text_pos_t start, text_pos_t length, int tabsize) const;
   text_pos_t get_next_word(text_pos_t start) const;
@@ -145,9 +144,6 @@ class T3_WIDGET_API text_line_t {
   text_pos_t get_previous_word_boundary(text_pos_t start) const;
 
   static void init();
-
- protected:
-  virtual t3_attr_t get_base_attr(text_pos_t i, const paint_info_t &info);
 };
 
 class T3_WIDGET_API text_line_factory_t {

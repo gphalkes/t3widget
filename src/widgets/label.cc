@@ -21,7 +21,7 @@ namespace t3widget {
 // FIXME: maybe we should allow scrolling with the left and right keys
 struct label_t::implementation_t {
   std::string text;           /**< Text currently displayed. */
-  int text_width;             /**< Width of the text if displayed in full. */
+  text_pos_t text_width;      /**< Width of the text if displayed in full. */
   align_t align = ALIGN_LEFT; /**< Text alignment. Default is #ALIGN_LEFT. */
   /** Boolean indicating whether this label_t has the input focus. */
   bool focus = false;
@@ -126,7 +126,7 @@ void label_t::set_text(t3widget::string_view _text) {
   force_redraw();
 }
 
-int label_t::get_text_width() const { return impl->text_width; }
+text_pos_t label_t::get_text_width() const { return impl->text_width; }
 
 void label_t::set_accepts_focus(bool _can_focus) { impl->can_focus = _can_focus; }
 bool label_t::accepts_focus() const { return impl->can_focus && widget_t::accepts_focus(); }

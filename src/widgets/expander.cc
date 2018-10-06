@@ -100,7 +100,8 @@ void expander_t::set_child(std::unique_ptr<t3widget::widget_t> _child) {
 
 void expander_t::set_size_from_child() {
   if (impl->child) {
-    int width = std::max(impl->label.get_width() + 2, impl->child->get_base_window()->get_width());
+    int width =
+        std::max<int>(impl->label.get_width() + 2, impl->child->get_base_window()->get_width());
     impl->full_height = impl->child->get_base_window()->get_height() + 1;
     set_size(impl->is_expanded ? impl->full_height : None, width);
   } else {
