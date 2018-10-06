@@ -78,7 +78,7 @@ void widget_group_t::focus_previous() {
   }
 }
 
-void widget_group_t::add_child(std::unique_ptr<widget_t> child) {
+void widget_group_t::push_back(std::unique_ptr<widget_t> child) {
   set_widget_parent(child.get());
 
   impl->children.push_back(std::move(child));

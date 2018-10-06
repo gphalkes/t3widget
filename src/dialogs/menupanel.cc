@@ -170,9 +170,9 @@ menu_item_base_t *menu_panel_t::insert_item(const menu_item_base_t *before,
 menu_item_base_t *menu_panel_t::insert_separator(const menu_item_base_t *before) {
   menu_separator_t *sep = new menu_separator_t(this);
   if (before) {
-    insert(before, std::unique_ptr<widget_t>(sep));
+    insert(before, wrap_unique(sep));
   } else {
-    push_back(std::unique_ptr<widget_t>(sep));
+    push_back(wrap_unique(sep));
   }
   sep->set_position(widgets().size(), None);
   return sep;
@@ -185,7 +185,7 @@ std::unique_ptr<menu_item_base_t> menu_panel_t::remove_item(menu_item_base_t *it
       iter->release();
       widgets().erase(iter);
       recompute_panel_dimensions();
-      return std::unique_ptr<menu_item_base_t>(item);
+      return wrap_unique(item);
     }
   }
   return nullptr;

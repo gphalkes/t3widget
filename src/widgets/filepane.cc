@@ -360,7 +360,7 @@ void file_pane_t::update_column_width(int column, int start) {
   for (int i = 0; i < height && start + i < static_cast<int>(impl->file_list->size()); i++) {
     const std::string &item = (*impl->file_list)[i + start];
     impl->column_widths[column] =
-        std::max(impl->column_widths[column], t3_term_strnwidth(item.data(), item.size()));
+        std::max<int>(impl->column_widths[column], t3_term_strncwidth(item.data(), item.size()));
   }
 }
 

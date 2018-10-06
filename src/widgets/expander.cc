@@ -58,7 +58,7 @@ void expander_t::focus_up_from_child() {
   force_redraw();
 }
 
-void expander_t::set_child(widget_t *_child) {
+void expander_t::set_child(std::unique_ptr<t3widget::widget_t> _child) {
   focus_widget_t *focus_child;
   /* FIXME: connect to move_focus_XXX events. (requires dynamic_cast'ing to focus_widget_t) */
   if (impl->child != nullptr) {
@@ -71,19 +71,19 @@ void expander_t::set_child(widget_t *_child) {
 
   if (_child == nullptr) {
     if (impl->is_expanded) {
+      impl->full_height = 2;
       window.resize(1, window.get_width());
       impl->is_expanded = false;
       force_redraw();
       impl->expanded(false);
     }
-    impl->child.reset(_child);
+    impl->child.reset();
     return;
   }
-  impl->child.reset(_child);
+  impl->child = std::move(_child);
   set_widget_parent(impl->child.get());
   impl->child->set_anchor(this, 0);
   impl->child->set_position(1, 0);
-  impl->full_height = impl->child->get_base_window()->get_height() + 1;
   focus_child = dynamic_cast<focus_widget_t *>(impl->child.get());
   if (focus_child != nullptr) {
     impl->move_up_connection =
@@ -95,7 +95,19 @@ void expander_t::set_child(widget_t *_child) {
     impl->move_left_connection =
         focus_child->connect_move_focus_left(get_move_focus_left_trigger());
   }
-  set_size(None, impl->child->get_base_window()->get_width());
+  set_size_from_child();
+}
+
+void expander_t::set_size_from_child() {
+  if (impl->child) {
+    int width = std::max(impl->label.get_width() + 2, impl->child->get_base_window()->get_width());
+    impl->full_height = impl->child->get_base_window()->get_height() + 1;
+    set_size(impl->is_expanded ? impl->full_height : None, width);
+  } else {
+    impl->full_height = 2;
+    set_size(None, impl->label.get_width() + 2);
+  }
+  force_redraw();
 }
 
 void expander_t::set_expanded(bool expand) {

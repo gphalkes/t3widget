@@ -363,7 +363,7 @@ std::unique_ptr<widget_t> list_pane_t::pop_back() {
   return result;
 }
 
-void list_pane_t::pop_front() {
+std::unique_ptr<widget_t> list_pane_t::pop_front() {
   if (impl->current == 0) {
     impl->widgets[0]->set_focus(window_component_t::FOCUS_OUT);
     if (impl->widgets.size() > 1 && impl->has_focus) {
@@ -373,8 +373,10 @@ void list_pane_t::pop_front() {
     impl->current--;
   }
   unset_widget_parent(impl->widgets.front().get());
+  std::unique_ptr<widget_t> result = std::move(impl->widgets.front());
   impl->widgets.pop_front();
   update_positions();
+  return result;
 }
 
 widget_t *list_pane_t::back() { return impl->widgets.back().get(); }

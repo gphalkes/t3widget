@@ -1136,7 +1136,7 @@ bool edit_window_t::process_key(key_t key) {
 void edit_window_t::update_contents() {
   text_coordinate_t logical_cursor_pos;
   char info[30];
-  int info_width, name_width;
+  int name_width;
   selection_mode_t selection_mode;
 
   /* TODO: see if we can optimize this somewhat by not redrawing the whole thing
@@ -1188,7 +1188,7 @@ void edit_window_t::update_contents() {
 
   snprintf(info, 29, "L: %-4td C: %-4td %c %s", logical_cursor_pos.line + 1,
            logical_cursor_pos.pos + 1, text->is_modified() ? '*' : ' ', ins_string[impl->ins_mode]);
-  info_width = t3_term_strwidth(info);
+  size_t info_width = t3_term_strcwidth(info);
   impl->indicator_window.resize(1, info_width + 3);
   name_width = window.get_width() - impl->indicator_window.get_width();
 

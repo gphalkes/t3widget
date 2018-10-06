@@ -37,7 +37,7 @@ class T3_WIDGET_API multi_widget_t : public widget_t, public focus_widget_t, pub
   bool is_child(const window_component_t *component) const override;
 
   /* Width is negative for fixed width widgets, positive for proportion */
-  void push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys);
+  void push_back(std::unique_ptr<widget_t> widget, int _width, bool takes_focus, bool send_keys);
   void resize_widgets();
 };
 

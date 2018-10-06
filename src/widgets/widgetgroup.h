@@ -46,7 +46,15 @@ class T3_WIDGET_API widget_group_t : public widget_t, public container_t, public
   bool is_hotkey(key_t key) const override;
 
   /** Add a child widget. */
-  virtual void add_child(std::unique_ptr<widget_t> child);
+  void push_back(std::unique_ptr<widget_t> child);
+
+  /** Create a new child and add it. */
+  template <typename T, typename... Args>
+  T *emplace_back(Args &&... args) {
+    T *result = new T(std::forward<Args>(args)...);
+    push_back(std::unique_ptr<widget_t>(result));
+    return result;
+  }
 
   void focus_next();
   void focus_previous();

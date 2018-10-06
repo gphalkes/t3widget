@@ -73,7 +73,7 @@ void label_t::update_contents() {
   window.set_paint(0, 0);
   window.clrtoeol();
 
-  int &text_width = impl->text_width;
+  const int text_width = impl->text_width;
 
   int x = 0;
   if (width > text_width) {

@@ -15,17 +15,13 @@
 #define T3_WIDGET_KEYS_H
 
 #include <climits>
+#include <cstdint>
 
 #include <t3widget/widget_api.h>
 
 namespace t3widget {
 
-#if INT_MAX < 2147483647L
-/** Integer type holding a single key symbol. */
-typedef long key_t;
-#else
-typedef int key_t;
-#endif
+using key_t = int32_t;
 
 enum {
   EKEY_FIRST_SPECIAL = 0x110000,

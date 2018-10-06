@@ -81,8 +81,8 @@ class T3_WIDGET_API text_line_t {
   std::string buffer;
   bool starts_with_combining;
 
-  static void paint_part(t3window::window_t *win, const char *paint_buffer, bool is_print,
-                         text_pos_t todo, t3_attr_t selection_attr);
+  static void paint_part(t3window::window_t *win, const char *paint_buffer, text_pos_t todo,
+                         bool is_print, t3_attr_t selection_attr);
   static int key_width(key_t key);
 
   t3_attr_t get_draw_attrs(text_pos_t i, const paint_info_t &info);

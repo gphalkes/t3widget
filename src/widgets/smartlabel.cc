@@ -102,7 +102,7 @@ void smart_label_text_t::draw(t3window::window_t *window, t3_attr_t attr, bool s
 }
 
 int smart_label_text_t::get_width() const {
-  return t3_term_strnwidth(impl->text.data(), impl->text.size()) + (impl->add_colon ? 1 : 0);
+  return t3_term_strncwidth(impl->text.data(), impl->text.size()) + (impl->add_colon ? 1 : 0);
 }
 
 bool smart_label_text_t::is_hotkey(key_t key) const {

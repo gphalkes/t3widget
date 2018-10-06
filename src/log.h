@@ -39,11 +39,14 @@ T3_WIDGET_API void lprintf(const char *fmt, ...)
     ;
 T3_WIDGET_API void ldumpstr(const char *str, int length);
 T3_WIDGET_API void logkeyseq(const char *keys);
+
 #else
+
 #define init_log()
 #define lprintf(fmt, ...)
 #define ldumpstr(str, length)
 #define logkeyseq(keys)
+
 #endif
 
 }  // namespace t3widget

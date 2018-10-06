@@ -80,7 +80,7 @@ void menu_item_t::update_contents() {
   if (!impl->shortcut_key.empty()) {
     window.set_paint(
         0, window.get_width() -
-               t3_term_strnwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) - 1);
+               t3_term_strncwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) - 1);
     window.addnstr(impl->shortcut_key.data(), impl->shortcut_key.size(), 0);
   }
 }
@@ -112,7 +112,7 @@ int menu_item_t::get_label_width() { return impl->label.get_width() + 2; }
 int menu_item_t::get_shortcut_key_width() {
   return impl->shortcut_key.empty()
              ? 0
-             : (t3_term_strnwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) + 2);
+             : (t3_term_strncwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) + 2);
 }
 
 menu_separator_t::menu_separator_t(menu_panel_t *_parent) : menu_item_base_t(_parent) {}

@@ -46,7 +46,18 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
       @note This also automatically sets the size of the expander_t to wrap
       the child widget.
   */
-  void set_child(widget_t *_child);
+  void set_child(std::unique_ptr<widget_t> _child);
+
+  /** Create a child widget and return the pointer to it. */
+  template <typename T, typename... Args>
+  T *emplace_child(Args &&... args) {
+    T *result = new T(std::forward<Args>(args)...);
+    set_child(std::unique_ptr<widget_t>(result));
+    return result;
+  }
+
+  /** Set the size of the widget to wrap the child widget. */
+  void set_size_from_child();
   void set_expanded(bool expand);
 
   bool process_key(key_t key) override;

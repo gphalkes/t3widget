@@ -116,15 +116,14 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
     impl->expander_group.reset(new expander_group_t());
 
     if (capabilities.cap_flags & T3_TERM_CAP_FG) {
-      impl->fg_picker = new color_picker_t(true);
       impl->fg_expander = emplace_back<expander_t>("_Foreground color");
+      impl->fg_picker = impl->fg_expander->emplace_child<color_picker_t>(true);
     } else {
-      impl->fg_picker = new color_pair_picker_t();
       impl->fg_expander = emplace_back<expander_t>("Color _pair");
+      impl->fg_picker = impl->fg_expander->emplace_child<color_pair_picker_t>();
     }
     impl->fg_picker->connect_activated([this] { ok_activate(); });
     impl->fg_picker->connect_selection_changed([this] { attribute_changed(); });
-    impl->fg_expander->set_child(impl->fg_picker);
     impl->fg_expander->set_anchor(impl->blink_box,
                                   T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
     impl->fg_expander->set_position(1, 0);
@@ -133,11 +132,10 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
     impl->expander_group->add_expander(impl->fg_expander);
 
     if (capabilities.cap_flags & T3_TERM_CAP_BG) {
-      impl->bg_picker = new color_picker_t(false);
+      impl->bg_expander = emplace_back<expander_t>("B_ackground color");
+      impl->bg_picker = impl->bg_expander->emplace_child<color_picker_t>(false);
       impl->bg_picker->connect_activated([this] { ok_activate(); });
       impl->bg_picker->connect_selection_changed(([this] { attribute_changed(); }));
-      impl->bg_expander = emplace_back<expander_t>("B_ackground color");
-      impl->bg_expander->set_child(impl->bg_picker);
       impl->bg_expander->set_anchor(impl->fg_expander,
                                     T3_PARENT(T3_ANCHOR_BOTTOMLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
       impl->bg_expander->set_position(0, 0);

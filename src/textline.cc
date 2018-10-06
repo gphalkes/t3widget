@@ -250,8 +250,8 @@ text_pos_t text_line_t::calculate_line_pos(text_pos_t start, text_pos_t max, tex
   return std::min(max, get_length());
 }
 
-void text_line_t::paint_part(t3window::window_t *win, const char *paint_buffer, bool is_print,
-                             text_pos_t todo, t3_attr_t selection_attr) {
+void text_line_t::paint_part(t3window::window_t *win, const char *paint_buffer, text_pos_t todo,
+                             bool is_print, t3_attr_t selection_attr) {
   if (todo <= 0) {
     return;
   }
@@ -362,7 +362,7 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
   text_pos_t print_from, accumulated = 0;
   if (starts_with_combining && info.leftcol == 0 && info.start == 0) {
     selection_attr = get_draw_attrs(0, info);
-    paint_part(win, " ", true, 1, t3_term_combine_attrs(attributes.non_print, selection_attr));
+    paint_part(win, " ", 1, true, t3_term_combine_attrs(attributes.non_print, selection_attr));
 
     print_from = i;
 
@@ -373,7 +373,7 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
 
     /* Note that non-printable characters will be discarded by libt3window. Thus
        we don't have to filter for them here. */
-    paint_part(win, buffer.data() + print_from, true, i - print_from,
+    paint_part(win, buffer.data() + print_from, i - print_from, true,
                t3_term_combine_attrs(attributes.non_print, selection_attr));
     total++;
   } else {
@@ -395,8 +395,8 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
     /* If selection changed between this char and the previous, print what
        we had so far. */
     if (new_selection_attr != selection_attr) {
-      paint_part(win, buffer.data() + print_from, _is_print,
-                 _is_print ? i - print_from : accumulated, selection_attr);
+      paint_part(win, buffer.data() + print_from, _is_print ? i - print_from : accumulated,
+                 _is_print, selection_attr);
       total += accumulated;
       accumulated = 0;
       print_from = i;
@@ -406,8 +406,8 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
     new_is_print = is_print(i);
     if (buffer[i] == '\t' && !(flags & text_line_t::TAB_AS_CONTROL)) {
       /* Calculate the correct number of spaces for a tab character. */
-      paint_part(win, buffer.data() + print_from, _is_print,
-                 _is_print ? i - print_from : accumulated, selection_attr);
+      paint_part(win, buffer.data() + print_from, _is_print ? i - print_from : accumulated,
+                 _is_print, selection_attr);
       total += accumulated;
       accumulated = 0;
       tabspaces = info.tabsize - (total % info.tabsize);
@@ -439,8 +439,8 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
       print_from = i + 1;
     } else if (static_cast<unsigned char>(buffer[i]) < 32) {
       /* Print control characters as ^ followed by a letter indicating the control char. */
-      paint_part(win, buffer.data() + print_from, _is_print,
-                 _is_print ? i - print_from : accumulated, selection_attr);
+      paint_part(win, buffer.data() + print_from, _is_print ? i - print_from : accumulated,
+                 _is_print, selection_attr);
       total += accumulated;
       accumulated = 0;
       win->addch('^', t3_term_combine_attrs(attributes.non_print, selection_attr));
@@ -453,8 +453,8 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
     } else if (_is_print != new_is_print) {
       /* Print part of the buffer as either printable or control characters, because
          the next character is in the other category. */
-      paint_part(win, buffer.data() + print_from, _is_print,
-                 _is_print ? i - print_from : accumulated, selection_attr);
+      paint_part(win, buffer.data() + print_from, _is_print ? i - print_from : accumulated,
+                 _is_print, selection_attr);
       total += accumulated;
       accumulated = width_at(i);
       print_from = i;
@@ -472,7 +472,7 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
     i += byte_width_from_first(i);
   }
 
-  paint_part(win, buffer.data() + print_from, _is_print, _is_print ? i - print_from : accumulated,
+  paint_part(win, buffer.data() + print_from, _is_print ? i - print_from : accumulated, _is_print,
              selection_attr);
   total += accumulated;
 
@@ -500,7 +500,7 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
     }
     win->addstr(wrap_symbol, t3_term_combine_attrs(attributes.meta_text, info.normal_attr));
   } else if (flags & text_line_t::SPACECLEAR) {
-    for (; total + sizeof(spaces) < size; total += sizeof(spaces)) {
+    for (; total + sizeof(spaces) < static_cast<size_t>(size); total += sizeof(spaces)) {
       win->addnstr(spaces, sizeof(spaces),
                    (flags & text_line_t::EXTEND_SELECTION) ? info.selected_attr : info.normal_attr);
     }

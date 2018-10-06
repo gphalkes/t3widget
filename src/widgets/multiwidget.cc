@@ -86,7 +86,8 @@ void multi_widget_t::force_redraw() {
 }
 
 /* Width is negative for fixed width widgets, positive for proportion */
-void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, bool send_keys) {
+void multi_widget_t::push_back(std::unique_ptr<t3widget::widget_t> widget, int _width,
+                               bool takes_focus, bool send_keys) {
   if (_width < 0) {
     widget->set_size(None, -_width);
     impl->fixed_sum += -_width;
@@ -96,8 +97,8 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
 
   if (send_keys && impl->send_key_widget == nullptr) {
     focus_widget_t *focus_widget;
-    impl->send_key_widget = widget;
-    if ((focus_widget = dynamic_cast<focus_widget_t *>(widget)) != nullptr) {
+    impl->send_key_widget = widget.get();
+    if ((focus_widget = dynamic_cast<focus_widget_t *>(widget.get())) != nullptr) {
       /* We don't have to save the connections, because the widget will not outlive
          this widget. The destructor for multi_widget_t destroys all the widgets
          it contains, and there is no way to remove a widget from a multi_widget_t.
@@ -109,13 +110,13 @@ void multi_widget_t::push_back(widget_t *widget, int _width, bool takes_focus, b
     }
   }
 
-  set_widget_parent(widget);
+  set_widget_parent(widget.get());
   if (impl->widgets.size() > 0) {
     widget->set_anchor(impl->widgets.back().widget.get(),
                        T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   }
   widget->set_position(0, 0);
-  item_t item{std::unique_ptr<widget_t>(widget), _width, 0, takes_focus};
+  item_t item{std::move(widget), _width, 0, takes_focus};
   impl->widgets.push_back(std::move(item));
   resize_widgets();
 }
