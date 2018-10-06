@@ -322,7 +322,7 @@ void split_t::previous() {
   }
 }
 
-widget_t *split_t::get_current() {
+widget_t *split_t::get_current() const {
   split_t *current_window = dynamic_cast<split_t *>(impl->current->get());
   if (current_window == nullptr) {
     return impl->current->get();

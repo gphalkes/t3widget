@@ -524,7 +524,7 @@ file_pane_t::search_panel_t::search_panel_t(file_pane_t *_parent)
 bool file_pane_t::search_panel_t::process_key(key_t key) {
   switch (key) {
     case EKEY_BS:
-      text.backspace_char(text.get_length(), nullptr);
+      text.backspace_char(text.size(), nullptr);
       redraw = true;
       return true;
     case EKEY_ESC:

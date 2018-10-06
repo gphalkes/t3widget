@@ -383,9 +383,9 @@ widget_t *list_pane_t::back() { return impl->widgets.back().get(); }
 
 widget_t *list_pane_t::operator[](int idx) { return impl->widgets[idx].get(); }
 
-size_t list_pane_t::size() { return impl->widgets.size(); }
+size_t list_pane_t::size() const { return impl->widgets.size(); }
 
-bool list_pane_t::empty() { return impl->widgets.empty(); }
+bool list_pane_t::empty() const { return impl->widgets.empty(); }
 
 list_pane_t::iterator list_pane_t::erase(list_pane_t::iterator position) {
   if (impl->current == position && impl->current + 1 == impl->widgets.size()) {

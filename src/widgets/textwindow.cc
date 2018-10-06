@@ -229,7 +229,7 @@ void text_window_t::update_contents() {
 
   if (impl->scrollbar != nullptr) {
     impl->scrollbar->set_parameters(
-        std::max(impl->wrap_info->get_text_size(), count + window.get_height()), count,
+        std::max(impl->wrap_info->wrapped_size(), count + window.get_height()), count,
         window.get_height());
     impl->scrollbar->update_contents();
   }
@@ -251,11 +251,11 @@ bool text_window_t::is_child(const window_component_t *component) const {
   return component == impl->scrollbar.get();
 }
 
-text_buffer_t *text_window_t::get_text() { return impl->text; }
+text_buffer_t *text_window_t::get_text() const { return impl->text; }
 
 void text_window_t::set_tabsize(int size) { impl->wrap_info->set_tabsize(size); }
 
-text_pos_t text_window_t::get_text_height() { return impl->wrap_info->get_text_size(); }
+text_pos_t text_window_t::get_text_height() const { return impl->wrap_info->wrapped_size(); }
 
 bool text_window_t::process_mouse_event(mouse_event_t event) {
   if (event.window != window || event.type != EMOUSE_BUTTON_PRESS) {
@@ -294,7 +294,7 @@ void text_window_t::scrollbar_dragged(text_pos_t start) {
   text_coordinate_t new_top_left(0, 0);
   text_pos_t count = 0;
 
-  if (start < 0 || start + window.get_height() > impl->wrap_info->get_text_size()) {
+  if (start < 0 || start + window.get_height() > impl->wrap_info->wrapped_size()) {
     return;
   }
 

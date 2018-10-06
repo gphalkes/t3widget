@@ -95,7 +95,7 @@ class T3_WIDGET_API split_t : public widget_t, public container_t {
   /** Make the previous widget the active widget. */
   void previous();
   /** Get the currently active widget. */
-  widget_t *get_current();
+  widget_t *get_current() const;
 
 #define _T3_ACTION_FILE <t3widget/widgets/split.actions.h>
 #include <t3widget/key_binding_decl.h>

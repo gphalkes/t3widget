@@ -29,13 +29,6 @@
 #include "t3widget/wrapinfo.h"
 
 namespace t3widget {
-/*FIXME-REFACTOR: adjust_position in line is often called with same argument as
-  where the return value is stored. Check whether this is always the case. If
-  so, refactor to pass pointer to first arg.
-
-  get_line_max may be refactorable to use the cursor, depending on use outside
-  files.cc
-*/
 
 text_buffer_t::text_buffer_t(text_line_factory_t *_line_factory)
     : impl(new implementation_t(_line_factory)) {}
@@ -83,7 +76,7 @@ void text_buffer_t::paint_line(t3window::window_t *win, text_pos_t line,
   impl->lines[line]->paint_line(win, info);
 }
 
-text_pos_t text_buffer_t::get_line_max(text_pos_t line) const { return impl->get_line_max(line); }
+text_pos_t text_buffer_t::get_line_size(text_pos_t line) const { return impl->get_line_size(line); }
 
 void text_buffer_t::goto_next_word() { impl->goto_next_word(); }
 
@@ -282,7 +275,7 @@ bool text_buffer_t::implementation_t::backspace_char() {
 
 bool text_buffer_t::implementation_t::merge_internal(text_pos_t line) {
   cursor.line = line;
-  cursor.pos = lines[line]->get_length();
+  cursor.pos = lines[line]->size();
   lines[line]->merge(std::move(lines[line + 1]));
   lines.erase(lines.begin() + line + 1);
   rewrap_required(rewrap_type_t::DELETE_LINES, line + 1, line + 2);
@@ -295,7 +288,7 @@ bool text_buffer_t::implementation_t::insert_block_internal(text_coordinate_t in
   std::unique_ptr<text_line_t> second_half, next_line;
   text_pos_t next_start = 0;
   // FIXME: check that everything succeeds and return false if it doesn't
-  if (insert_at.pos >= 0 && insert_at.pos < lines[insert_at.line]->get_length()) {
+  if (insert_at.pos >= 0 && insert_at.pos < lines[insert_at.line]->size()) {
     second_half = lines[insert_at.line]->break_line(insert_at.pos);
   }
 
@@ -308,7 +301,7 @@ bool text_buffer_t::implementation_t::insert_block_internal(text_coordinate_t in
     rewrap_required(rewrap_type_t::INSERT_LINES, insert_at.line, insert_at.line + 1);
   }
 
-  cursor.pos = lines[insert_at.line]->get_length();
+  cursor.pos = lines[insert_at.line]->size();
 
   if (second_half != nullptr) {
     lines[insert_at.line]->merge(std::move(second_half));
@@ -368,7 +361,7 @@ void text_buffer_t::implementation_t::delete_block_internal(text_coordinate_t st
                   then no break is necessary for the last line
   */
 
-  if (start.pos == lines[start.line]->get_length()) {
+  if (start.pos == lines[start.line]->size()) {
     start_part = lines[start.line].get();
   } else if (start.pos != 0) {
     std::unique_ptr<text_line_t> retval = lines[start.line]->break_line(start.pos);
@@ -380,7 +373,7 @@ void text_buffer_t::implementation_t::delete_block_internal(text_coordinate_t st
 
   if (end.pos == 0) {
     end_part = std::move(lines[end.line]);
-  } else if (end.pos < lines[end.line]->get_length()) {
+  } else if (end.pos < lines[end.line]->size()) {
     end_part = lines[end.line]->break_line(end.pos);
   }
 
@@ -444,8 +437,7 @@ bool text_buffer_t::implementation_t::break_line_internal(const std::string &ind
 bool text_buffer_t::implementation_t::merge(bool backspace) {
   start_undo_block();
   text_pos_t delete_line = backspace ? cursor.line - 1 : cursor.line;
-  undo_t *undo =
-      get_undo(UNDO_DELETE, text_coordinate_t(delete_line, lines[delete_line]->get_length()));
+  undo_t *undo = get_undo(UNDO_DELETE, text_coordinate_t(delete_line, lines[delete_line]->size()));
   undo->get_text()->append(1, '\n');
   merge_internal(delete_line);
   cursor.line = delete_line;
@@ -557,7 +549,7 @@ void text_buffer_t::implementation_t::goto_next_word() {
   text_line_t *line = lines[cursor.line].get();
 
   /* Use -1 as an indicator for end of line */
-  if (cursor.pos >= line->get_length()) {
+  if (cursor.pos >= line->size()) {
     cursor.pos = -1;
     /* Keep skipping to next line if no word can be found */
     while (cursor.pos < 0) {
@@ -573,7 +565,7 @@ void text_buffer_t::implementation_t::goto_next_word() {
 
   /* Convert cursor.line and cursor.pos to text coordinate again. */
   if (cursor.pos < 0) {
-    cursor.pos = line->get_length();
+    cursor.pos = line->size();
   }
 }
 
@@ -618,7 +610,7 @@ void text_buffer_t::implementation_t::set_selection_mode(selection_mode_t mode) 
       break;
     case selection_mode_t::ALL:
       selection_start = text_coordinate_t(0, 0);
-      selection_end = text_coordinate_t(lines.size() - 1, get_line_max(lines.size() - 1));
+      selection_end = text_coordinate_t(lines.size() - 1, get_line_size(lines.size() - 1));
       break;
     default:
       if (selection_mode == selection_mode_t::ALL || selection_mode == selection_mode_t::NONE) {

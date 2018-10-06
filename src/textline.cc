@@ -253,7 +253,7 @@ text_pos_t text_line_t::calculate_line_pos(text_pos_t start, text_pos_t max, tex
     }
   }
 
-  return std::min(max, get_length());
+  return std::min(max, size());
 }
 
 void text_line_t::paint_part(t3window::window_t *win, const char *paint_buffer, text_pos_t todo,
@@ -810,7 +810,7 @@ text_pos_t text_line_t::adjust_position(text_pos_t pos, int adjust) const {
   return pos;
 }
 
-text_pos_t text_line_t::get_length() const { return impl->buffer.size(); }
+text_pos_t text_line_t::size() const { return impl->buffer.size(); }
 
 int text_line_t::byte_width_from_first(text_pos_t pos) const {
   switch (impl->buffer[pos] & 0xF0) {
@@ -896,8 +896,8 @@ void text_line_t::reserve(text_pos_t size) { impl->buffer.reserve(size); }
 bool text_line_t::check_boundaries(text_pos_t match_start, text_pos_t match_end) const {
   return (match_start == 0 || get_class(impl->buffer, match_start) !=
                                   get_class(impl->buffer, adjust_position(match_start, -1))) &&
-         (match_end == get_length() || get_class(impl->buffer, match_end) !=
-                                           get_class(impl->buffer, adjust_position(match_end, 1)));
+         (match_end == size() || get_class(impl->buffer, match_end) !=
+                                     get_class(impl->buffer, adjust_position(match_end, 1)));
 }
 
 text_line_factory_t *text_line_t::get_line_factory() const { return impl->factory; }

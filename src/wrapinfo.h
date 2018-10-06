@@ -54,8 +54,9 @@ class T3_WIDGET_LOCAL wrap_info_t {
  public:
   wrap_info_t(int width, int tabsize = 8);
   ~wrap_info_t();
-  text_pos_t get_size() const;
-  text_pos_t get_text_size() const;
+  text_pos_t unwrapped_size() const;
+  text_pos_t wrapped_size() const;
+  text_pos_t get_line_count(text_pos_t line) const;
 
   void set_wrap_width(int width);
   void set_tabsize(int _tabsize);
@@ -63,7 +64,6 @@ class T3_WIDGET_LOCAL wrap_info_t {
 
   bool add_lines(text_coordinate_t &coord, text_pos_t count) const;
   bool sub_lines(text_coordinate_t &coord, text_pos_t count) const;
-  text_pos_t get_line_count(text_pos_t line) const;
   text_coordinate_t get_end() const;
   text_pos_t find_line(text_coordinate_t coord) const;
   text_pos_t calculate_screen_pos() const;

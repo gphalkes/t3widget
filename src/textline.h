@@ -131,7 +131,7 @@ class T3_WIDGET_API text_line_t {
 
   text_pos_t adjust_position(text_pos_t pos, int adjust) const;
 
-  text_pos_t get_length() const;
+  text_pos_t size() const;
   int width_at(text_pos_t pos) const;
   bool is_print(text_pos_t pos) const;
   bool is_space(text_pos_t pos) const;

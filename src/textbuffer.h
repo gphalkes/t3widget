@@ -64,7 +64,7 @@ class T3_WIDGET_API text_buffer_t {
 
   bool append_text(string_view text);
 
-  text_pos_t get_line_max(text_pos_t line) const;
+  text_pos_t get_line_size(text_pos_t line) const;
   void adjust_position(int adjust);
   int width_at_cursor() const;
 

@@ -38,6 +38,38 @@ namespace t3widget {
 #define _T3_ACTION_TYPE text_field_t
 #include "t3widget/key_binding_def.h"
 
+/** Drop-down list implementation for text_field_t. */
+class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
+ private:
+  text_field_t *field; /**< text_field_t this drop-down list is created for. */
+
+  std::unique_ptr<filtered_string_list_base_t> completions; /**< List of possible selections. */
+  list_pane_t *list_pane;
+
+  void update_list_pane();
+  void item_activated();
+  void selection_changed();
+
+ public:
+  drop_down_list_t(text_field_t *_field);
+  bool process_key(key_t key) override;
+  void set_position(optint top, optint left) override;
+  bool set_size(optint height, optint width) override;
+  void update_contents() override;
+  void set_focus(focus_t focus) override;
+  void show() override;
+  void hide() override;
+  bool process_mouse_event(mouse_event_t key) override;
+
+  /** Request that the drop-down is filtered based on the contents of the text_field_t it is
+   * asscociated with. */
+  void update_view();
+  /** Set the list of autocompletion options. */
+  void set_autocomplete(string_list_base_t *completions);
+  /** Return whether the autocompletion list is empty. */
+  bool empty();
+};
+
 struct text_field_t::implementation_t {
   text_pos_t pos,          /**< Cursor position in bytes. */
       screen_pos,          /**< Cursor position in screen cells. */
@@ -154,7 +186,7 @@ bool text_field_t::process_key(key_t key) {
   switch (key) {
     case EKEY_DOWN:
       if (impl->drop_down_list != nullptr && !impl->drop_down_list->empty() &&
-          impl->line->get_length() > 0) {
+          impl->line->size() > 0) {
         impl->in_drop_down_list = true;
         impl->drop_down_list->show();
         impl->drop_down_list->set_focus(window_component_t::FOCUS_SET);
@@ -182,7 +214,7 @@ bool text_field_t::process_key(key_t key) {
     case EKEY_DEL:
       if (impl->selection_mode != selection_mode_t::NONE) {
         delete_selection(false);
-      } else if (impl->pos < impl->line->get_length()) {
+      } else if (impl->pos < impl->line->size()) {
         impl->line->delete_char(impl->pos, nullptr);
         force_redraw();
         impl->edited = true;
@@ -198,7 +230,7 @@ bool text_field_t::process_key(key_t key) {
       break;
     case EKEY_RIGHT:
     case EKEY_RIGHT | EKEY_SHIFT:
-      if (impl->pos < impl->line->get_length()) {
+      if (impl->pos < impl->line->size()) {
         force_redraw();
         impl->pos = impl->line->adjust_position(impl->pos, 1);
         ensure_cursor_on_screen();
@@ -206,11 +238,11 @@ bool text_field_t::process_key(key_t key) {
       break;
     case EKEY_RIGHT | EKEY_CTRL:
     case EKEY_RIGHT | EKEY_CTRL | EKEY_SHIFT:
-      if (impl->pos < impl->line->get_length()) {
+      if (impl->pos < impl->line->size()) {
         force_redraw();
         impl->pos = impl->line->get_next_word(impl->pos);
         if (impl->pos < 0) {
-          impl->pos = impl->line->get_length();
+          impl->pos = impl->line->size();
         }
         ensure_cursor_on_screen();
       }
@@ -235,7 +267,7 @@ bool text_field_t::process_key(key_t key) {
     case EKEY_END:
     case EKEY_END | EKEY_SHIFT:
       force_redraw();
-      impl->pos = impl->line->get_length();
+      impl->pos = impl->line->size();
       ensure_cursor_on_screen();
       break;
 
@@ -305,7 +337,7 @@ bool text_field_t::process_key(key_t key) {
 
               if (impl->selection_mode != selection_mode_t::NONE) delete_selection(false);
 
-              text_pos_t cursor_move = insert_line->get_length();
+              text_pos_t cursor_move = insert_line->size();
               impl->line->insert(std::move(insert_line), impl->pos);
               impl->pos += cursor_move;
               ensure_cursor_on_screen();
@@ -343,7 +375,7 @@ bool text_field_t::process_key(key_t key) {
               impl->selection_mode = selection_mode_t::SHIFT;
             }
             impl->selection_start_pos = 0;
-            impl->selection_end_pos = impl->line->get_length();
+            impl->selection_end_pos = impl->line->size();
             impl->pos = impl->selection_end_pos;
             force_redraw();
             return true;
@@ -372,7 +404,7 @@ bool text_field_t::process_key(key_t key) {
         delete_selection(false);
       }
 
-      if (impl->pos == impl->line->get_length()) {
+      if (impl->pos == impl->line->size()) {
         impl->line->append_char(key, nullptr);
       } else {
         impl->line->insert_char(impl->pos, key, nullptr);
@@ -406,7 +438,7 @@ bool text_field_t::set_size(optint height, optint width) {
 void text_field_t::update_contents() {
   if (impl->drop_down_list != nullptr && impl->edited) {
     impl->drop_down_list->update_view();
-    if (!impl->drop_down_list->empty() && impl->line->get_length() > 0) {
+    if (!impl->drop_down_list->empty() && impl->line->size() > 0) {
       impl->drop_down_list->show();
     } else {
       impl->drop_down_list->hide();
@@ -474,7 +506,7 @@ void text_field_t::set_focus(focus_t _focus) {
     if (!impl->dont_select_on_focus) {
       impl->selection_start_pos = 0;
       impl->selection_mode = selection_mode_t::SHIFT;
-      impl->pos = impl->line->get_length();
+      impl->pos = impl->line->size();
       set_selection_end();
     }
     impl->dont_select_on_focus = false;
@@ -505,7 +537,7 @@ void text_field_t::hide() {
 void text_field_t::ensure_cursor_on_screen() {
   int width, char_width;
 
-  if (impl->pos == impl->line->get_length()) {
+  if (impl->pos == impl->line->size()) {
     char_width = 1;
   } else {
     char_width = impl->line->width_at(impl->pos);
@@ -527,7 +559,7 @@ void text_field_t::ensure_cursor_on_screen() {
 
 void text_field_t::set_text(string_view text) {
   impl->line->set_text(text);
-  impl->pos = impl->line->get_length();
+  impl->pos = impl->line->size();
   impl->leftcol = 0;
   ensure_cursor_on_screen();
   force_redraw();
@@ -560,7 +592,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_TRIPLE_CLICKED_LEFT) {
     impl->selection_mode = selection_mode_t::SHIFT;
     impl->selection_start_pos = 0;
-    impl->pos = impl->line->get_length();
+    impl->pos = impl->line->size();
     set_selection_end(true);
     ensure_cursor_on_screen();
     force_redraw();
@@ -596,7 +628,7 @@ bool text_field_t::process_mouse_event(mouse_event_t event) {
       if (primary != nullptr) {
         std::unique_ptr<text_line_t> insert_line(new text_line_t(*primary));
 
-        text_pos_t cursor_move = insert_line->get_length();
+        text_pos_t cursor_move = insert_line->size();
         impl->line->insert(std::move(insert_line), impl->pos);
         impl->pos += cursor_move;
       }
@@ -769,7 +801,7 @@ void text_field_t::drop_down_list_t::show() {
 
 void text_field_t::drop_down_list_t::update_view() {
   if (completions != nullptr) {
-    if (field->impl->line->get_length() == 0) {
+    if (field->impl->line->size() == 0) {
       completions->reset_filter();
     } else {
       completions->set_filter(bind_front(string_compare_filter, &field->impl->line->get_data()));

@@ -29,8 +29,8 @@ wrap_info_t::~wrap_info_t() {
   }
 }
 
-text_pos_t wrap_info_t::get_size() const { return wrap_data.size(); }
-text_pos_t wrap_info_t::get_text_size() const { return size; }
+text_pos_t wrap_info_t::unwrapped_size() const { return wrap_data.size(); }
+text_pos_t wrap_info_t::wrapped_size() const { return size; }
 
 void wrap_info_t::delete_lines(text_pos_t first, text_pos_t last) {
   for (wrap_data_t::iterator iter = wrap_data.begin() + first; iter != wrap_data.begin() + last;

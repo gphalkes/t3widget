@@ -38,7 +38,7 @@ struct text_buffer_t::implementation_t {
   }
 
   text_pos_t size() const { return lines.size(); }
-  text_pos_t get_line_max(text_pos_t line) const { return lines[line]->get_length(); }
+  text_pos_t get_line_size(text_pos_t line) const { return lines[line]->size(); }
   text_pos_t calculate_line_pos(text_pos_t line, text_pos_t pos, int tabsize) const;
   bool insert_char(key_t c);
   bool overwrite_char(key_t c);

@@ -98,37 +98,5 @@ class T3_WIDGET_API text_field_t : public widget_t,
 #undef _T3_ACTION_FILE
 };
 
-/** Drop-down list implementation for text_field_t. */
-class T3_WIDGET_LOCAL text_field_t::drop_down_list_t : public popup_t {
- private:
-  text_field_t *field; /**< text_field_t this drop-down list is created for. */
-
-  std::unique_ptr<filtered_string_list_base_t> completions; /**< List of possible selections. */
-  list_pane_t *list_pane;
-
-  void update_list_pane();
-  void item_activated();
-  void selection_changed();
-
- public:
-  drop_down_list_t(text_field_t *_field);
-  bool process_key(key_t key) override;
-  void set_position(optint top, optint left) override;
-  bool set_size(optint height, optint width) override;
-  void update_contents() override;
-  void set_focus(focus_t focus) override;
-  void show() override;
-  void hide() override;
-  bool process_mouse_event(mouse_event_t key) override;
-
-  /** Request that the drop-down is filtered based on the contents of the text_field_t it is
-   * asscociated with. */
-  void update_view();
-  /** Set the list of autocompletion options. */
-  void set_autocomplete(string_list_base_t *completions);
-  /** Return whether the autocompletion list is empty. */
-  bool empty();
-};
-
 }  // namespace t3widget
 #endif
