@@ -14,11 +14,18 @@
 #ifndef T3_WIDGET_WIDGETS_H
 #define T3_WIDGET_WIDGETS_H
 
+#include <functional>
+#include <cstddef>
 #include <deque>
 #include <memory>
-#include <string>
-
 #include <t3widget/interfaces.h>
+
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/signals.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
+#include <t3window/window.h>
 
 namespace t3widget {
 
@@ -33,6 +40,7 @@ class T3_WIDGET_API widget_t : public virtual window_component_t,
   static t3window::window_t default_parent;
 
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
  protected:
@@ -110,6 +118,7 @@ class T3_WIDGET_API focus_widget_t {
   std::function<void()> get_move_focus_down_trigger() const;
 
   struct T3_WIDGET_LOCAL implementation_t;
+
   implementation_t *impl;
 
   friend class impl_allocator_t;

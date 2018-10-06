@@ -17,11 +17,10 @@
 #include <cstdio>
 #include <memory>
 #include <string>
-#include <vector>
-
 #include <t3widget/interfaces.h>
 #include <t3widget/key.h>
 #include <t3widget/textline.h>
+#include <vector>
 
 namespace t3widget {
 

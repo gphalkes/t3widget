@@ -11,22 +11,30 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <climits>
+#include <algorithm>
 #include <cstring>
-#include <new>
+#include <ext/alloc_traits.h>
+#include <limits>
+#include <memory>
+#include <string>
 #include <t3window/window.h>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "t3widget/clipboard.h"
-#include "t3widget/colorscheme.h"
 #include "t3widget/double_string_adapter.h"
 #include "t3widget/findcontext.h"
 #include "t3widget/internal.h"
+#include "t3widget/key.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
 #include "t3widget/textbuffer.h"
 #include "t3widget/textbuffer_impl.h"
 #include "t3widget/textline.h"
+#include "t3widget/tinystring.h"
 #include "t3widget/undo.h"
 #include "t3widget/util.h"
-#include "t3widget/wrapinfo.h"
 
 namespace t3widget {
 

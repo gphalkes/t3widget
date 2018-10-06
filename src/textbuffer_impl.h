@@ -5,8 +5,8 @@
 #error This header file is for internal use _only_!!
 #endif
 
-#include "t3widget/textbuffer.h"
-#include "t3widget/undo.h"
+#include <t3widget/textbuffer.h>
+#include <t3widget/undo.h>
 
 namespace t3widget {
 

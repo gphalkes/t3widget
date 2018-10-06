@@ -14,8 +14,16 @@
 #ifndef T3_WIDGET_MENUITEM_H
 #define T3_WIDGET_MENUITEM_H
 
+#include <cstddef>
 #include <t3widget/dialogs/menupanel.h>
 #include <t3widget/widgets/widget.h>
+
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/string_view.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
@@ -38,6 +46,7 @@ class T3_WIDGET_API menu_item_base_t : public widget_t {
 class T3_WIDGET_API menu_item_t : public menu_item_base_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   /* Menu items get their events from the menu_t (via the menu_panel_t),

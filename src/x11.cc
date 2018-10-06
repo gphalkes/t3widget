@@ -11,8 +11,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <algorithm>
 #include <chrono>
 #include <condition_variable>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <list>
@@ -20,22 +22,25 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <utility>
+
+#include "widget_api.h"
 
 #ifdef HAS_SELECT_H
 #include <sys/select.h>
 #else
-#include <sys/types.h>
 #include <unistd.h>
 #endif
 
+#include <sys/select.h>
 #include <t3widget/extclipboard.h>
 #include <t3widget/log.h>
-
 // FIXME: remove incr_sends on long periods of inactivity
 /* This file used to contain both the Xlib and the XCB implementations for connecting to the X11
    clipboard. However, the Xlib version has been removed, but the code is still structured to have
    multiple implementations. This should be cleaned up at some point. */
 #include <xcb/xcb.h>
+#include <xcb/xproto.h>
 
 namespace t3widget {
 

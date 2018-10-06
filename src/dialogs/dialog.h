@@ -14,12 +14,23 @@
 #ifndef T3_WIDGET_DIALOGS_H
 #define T3_WIDGET_DIALOGS_H
 
+#include <cstddef>
+#include <list>
+#include <string>
 #include <t3widget/dialogs/dialogbase.h>
 #include <t3widget/dialogs/popup.h>
+
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/signals.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
 class dialog_t;
+
 typedef std::list<dialog_t *> dialogs_t;
 
 /** Base class for dialogs. */
@@ -39,6 +50,7 @@ class T3_WIDGET_API dialog_t : public dialog_base_t {
   static void update_dialogs();
 
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   void activate_dialog(); /**< Move this dialog up to the top of the dialog and window stack. Called

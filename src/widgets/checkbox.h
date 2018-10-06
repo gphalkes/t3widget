@@ -17,12 +17,20 @@
 #include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
 
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/signals.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
+
 namespace t3widget {
 
 /** Class implementing a checkbox. */
 class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
  public:

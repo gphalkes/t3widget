@@ -14,14 +14,15 @@
 #ifndef T3_WIDGET_TINYSTRING_H_
 #define T3_WIDGET_TINYSTRING_H_
 
-#include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <iterator>
 #include <limits>
 #include <string>
-#include <utility>
-
+#include <system_error>
 #include <t3widget/string_view.h>
+#include <t3widget/widget_api.h>
+#include <utility>
 
 namespace t3widget {
 

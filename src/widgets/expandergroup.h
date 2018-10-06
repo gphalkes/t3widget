@@ -14,8 +14,11 @@
 #ifndef T3_WIDGET_EXPANDERGROUP_H
 #define T3_WIDGET_EXPANDERGROUP_H
 
-#include <deque>
 #include <t3widget/widgets/expander.h>
+
+#include <t3widget/signals.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
@@ -23,6 +26,7 @@ namespace t3widget {
 class T3_WIDGET_API expander_group_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   pimpl_t<implementation_t> impl;
 
   void widget_expanded(bool is_expanded, expander_t *source);

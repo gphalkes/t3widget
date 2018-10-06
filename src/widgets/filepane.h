@@ -14,13 +14,19 @@
 #ifndef T3_WIDGET_FILEPANE_H
 #define T3_WIDGET_FILEPANE_H
 
+#include <functional>
 #include <string>
-
 #include <t3widget/contentlist.h>
-#include <t3widget/dialogs/popup.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/textfield.h>
 #include <t3widget/widgets/widget.h>
+
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/signals.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 #define _T3_WDIGET_FP_MAX_COLUMNS 8
 
@@ -30,8 +36,8 @@ namespace t3widget {
 class T3_WIDGET_API file_pane_t : public widget_t, public container_t {
  private:
   class T3_WIDGET_LOCAL search_panel_t;
-
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   /** Ensure that the updated value of #current does not put the highlighted entry outside the

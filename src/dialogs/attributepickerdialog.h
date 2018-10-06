@@ -14,15 +14,15 @@
 #ifndef T3_WIDGET_ATTRIBUTEPICKERDIALOG_H
 #define T3_WIDGET_ATTRIBUTEPICKERDIALOG_H
 
-#include <memory>
-
+#include <string>
 #include <t3widget/dialogs/dialog.h>
-#include <t3widget/interfaces.h>
 #include <t3widget/util.h>
-#include <t3widget/widgets/checkbox.h>
-#include <t3widget/widgets/colorpicker.h>
-#include <t3widget/widgets/expander.h>
-#include <t3widget/widgets/expandergroup.h>
+
+#include <t3widget/key.h>
+#include <t3widget/signals.h>
+#include <t3widget/widget_api.h>
+#include <t3widget/widgets/widget.h>
+#include <t3window/terminal.h>
 
 namespace t3widget {
 
@@ -31,6 +31,7 @@ class T3_WIDGET_API attribute_test_line_t;
 class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   void attribute_changed();
@@ -61,6 +62,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
 class T3_WIDGET_API attribute_test_line_t : public widget_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
  public:

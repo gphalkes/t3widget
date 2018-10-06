@@ -12,11 +12,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+#include <sys/select.h>
 
 #include "t3widget/internal.h"
-#include "t3widget/key.h"
 #include "t3widget/keybuffer.h"
+#include "t3widget/log.h"
 #include "t3widget/mouse.h"
+#include "t3widget/string_view.h"
+#include "t3window/terminal.h"
 
 namespace t3widget {
 
@@ -37,6 +40,7 @@ static enum {               // Mouse reporting states:
 #ifdef HAS_GPM
 #include <gpm.h>
 #include <linux/keyboard.h>
+
 static bool use_gpm;
 #endif
 

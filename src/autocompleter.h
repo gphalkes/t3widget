@@ -14,8 +14,11 @@
 #ifndef T3_WIDGET_AUTOCOMPLETER_H
 #define T3_WIDGET_AUTOCOMPLETER_H
 
+#include <cstddef>
 #include <t3widget/contentlist.h>
 #include <t3widget/textbuffer.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 

@@ -14,11 +14,14 @@
 #ifndef T3_WIDGET_KEY_BINDING_H
 #define T3_WIDGET_KEY_BINDING_H
 
-#include <algorithm>
+#include <cstddef>
+#include <initializer_list>
+#include <iterator>
 #include <map>
-#include <vector>
-
+#include <string>
+#include <sys/types.h>
 #include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 

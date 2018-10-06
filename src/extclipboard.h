@@ -23,7 +23,6 @@
    dependent on the X11 headers. */
 
 #include <string>
-
 #include <t3widget/widget_api.h>
 
 namespace t3widget {

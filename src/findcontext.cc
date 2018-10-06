@@ -12,16 +12,19 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <climits>
+#include <cstdint>
 #include <cstring>
-#include <t3window/utf8.h>
+#include <memory>
+#include <pcre.h>
+#include <string>
 #include <unicase.h>
 
 #include "t3widget/findcontext.h"
 #include "t3widget/internal.h"
-#include "t3widget/log.h"
+#include "t3widget/string_view.h"
 #include "t3widget/stringmatcher.h"
 #include "t3widget/util.h"
+#include "widget_api.h"
 
 namespace t3widget {
 

@@ -12,7 +12,16 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/dialogs/mainwindow.h"
+
+#include <limits.h>
+#include <utility>
+
+#include "t3widget/dialogs/dialog.h"
+#include "t3widget/dialogs/dialogbase.h"
+#include "t3widget/interfaces.h"
 #include "t3widget/main.h"
+#include "t3window/terminal.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

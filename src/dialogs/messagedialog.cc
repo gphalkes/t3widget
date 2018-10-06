@@ -11,13 +11,27 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <climits>
+#include <functional>
 #include <cstring>
+#include <initializer_list>
+#include <limits>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
 
+#include "t3widget/dialogs/dialog.h"
 #include "t3widget/dialogs/messagedialog.h"
 #include "t3widget/internal.h"
-#include "t3widget/main.h"
-#include "t3widget/textline.h"
+#include "t3widget/key.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
+#include "t3widget/textbuffer.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/button.h"
+#include "t3widget/widgets/textwindow.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
 
 #define MESSAGEDIALOG_MAX_LINES 10
 

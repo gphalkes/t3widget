@@ -12,8 +12,13 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/widgets/expandergroup.h"
+
+#include <type_traits>
+#include <utility>
+
 #include "t3widget/internal.h"
-#include "t3widget/log.h"
+#include "t3widget/widgets/expander.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

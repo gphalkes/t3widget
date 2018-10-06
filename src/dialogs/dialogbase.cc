@@ -12,13 +12,20 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <algorithm>
+#include <cstddef>
+#include <deque>
+#include <list>
+#include <memory>
+#include <type_traits>
+#include <utility>
 
 #include "t3widget/colorscheme.h"
-#include "t3widget/dialogs/dialog.h"
 #include "t3widget/dialogs/dialogbase.h"
-#include "t3widget/dialogs/mainwindow.h"
-#include "t3widget/internal.h"
-#include "t3widget/main.h"
+#include "t3widget/interfaces.h"
+#include "t3widget/key.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

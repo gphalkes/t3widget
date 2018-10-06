@@ -13,18 +13,22 @@
 */
 #include <cerrno>
 #include <climits>
+#include <cstdint>
 #include <cstring>
+#include <ctype.h>
+#include <stdlib.h>
 #include <string>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <t3window/utf8.h>
 #include <transcript/transcript.h>
 #include <unictype.h>
 #include <unistd.h>
+#include <utility>
 
 #include "t3widget/internal.h"
-#include "t3widget/log.h"
 #include "t3widget/main.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
 #include "t3widget/util.h"
 
 namespace t3widget {

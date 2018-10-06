@@ -12,10 +12,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <algorithm>
-#include <cstring>
+#include <deque>
+#include <memory>
+#include <type_traits>
+#include <utility>
 
-#include "t3widget/internal.h"
+#include "t3widget/interfaces.h"
+#include "t3widget/key.h"
+#include "t3widget/key_binding.h"
+#include "t3widget/util.h"
 #include "t3widget/widgets/split.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

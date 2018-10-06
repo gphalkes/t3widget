@@ -14,7 +14,14 @@
 #ifndef T3_WIDGET_FRAME_H
 #define T3_WIDGET_FRAME_H
 
+#include <memory>
 #include <t3widget/widgets/widget.h>
+#include <utility>
+
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
@@ -75,6 +82,7 @@ class T3_WIDGET_API frame_t : public widget_t, public container_t {
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 };
 

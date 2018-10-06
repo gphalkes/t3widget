@@ -12,21 +12,30 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cerrno>
-#include <climits>
 #include <csignal>
 #include <cstdint>
 #include <cstring>
 #include <map>
+#include <memory>
+#include <mutex>
+#include <stdlib.h>
+#include <string>
+#include <sys/select.h>
 #include <t3key/key.h>
-#include <thread>
-#include <transcript/transcript.h>
-
 #include <t3widget/internal.h>
 #include <t3widget/key.h>
 #include <t3widget/keybuffer.h>
 #include <t3widget/log.h>
 #include <t3widget/main.h>
 #include <t3widget/util.h>
+#include <thread>
+#include <transcript/transcript.h>
+#include <type_traits>
+#include <unistd.h>
+#include <utility>
+
+#include "t3key/key_errors.h"
+#include "t3window/terminal.h"
 
 namespace t3widget {
 

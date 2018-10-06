@@ -12,8 +12,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/autocompleter.h"
-#include "t3widget/textbuffer.h"
-#include "t3widget/util.h"
 
 namespace t3widget {
 

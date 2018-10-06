@@ -11,14 +11,35 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <algorithm>
+#include <functional>
 #include <cerrno>
 #include <cstring>
+#include <deque>
+#include <memory>
 #include <string>
+#include <type_traits>
+#include <utility>
 
+#include "t3widget/contentlist.h"
+#include "t3widget/dialogs/dialog.h"
 #include "t3widget/dialogs/filedialog.h"
+#include "t3widget/dialogs/messagedialog.h"
+#include "t3widget/interfaces.h"
 #include "t3widget/internal.h"
+#include "t3widget/key.h"
 #include "t3widget/main.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
 #include "t3widget/util.h"
+#include "t3widget/widgets/button.h"
+#include "t3widget/widgets/checkbox.h"
+#include "t3widget/widgets/filepane.h"
+#include "t3widget/widgets/frame.h"
+#include "t3widget/widgets/smartlabel.h"
+#include "t3widget/widgets/textfield.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

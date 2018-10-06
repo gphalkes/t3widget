@@ -17,12 +17,11 @@
 #include <cstddef>
 #include <iterator>
 #include <string>
-#include <vector>
-
 #include <t3widget/signals.h>
 #include <t3widget/string_view.h>
 #include <t3widget/util.h>
 #include <t3widget/widget_api.h>
+#include <vector>
 
 struct transcript_t;
 

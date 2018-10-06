@@ -25,7 +25,6 @@
 #include <condition_variable>
 #include <deque>
 #include <mutex>
-
 #include <t3widget/key.h>
 #include <t3widget/mouse.h>
 

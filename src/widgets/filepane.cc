@@ -12,8 +12,24 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/widgets/filepane.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <limits>
+#include <memory>
+#include <type_traits>
+#include <utility>
+
 #include "t3widget/colorscheme.h"
-#include "t3widget/main.h"
+#include "t3widget/contentlist.h"
+#include "t3widget/dialogs/popup.h"
+#include "t3widget/string_view.h"
+#include "t3widget/textline.h"
+#include "t3widget/widgets/scrollbar.h"
+#include "t3widget/widgets/textfield.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/terminal.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

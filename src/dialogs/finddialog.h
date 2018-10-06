@@ -14,23 +14,21 @@
 #ifndef T3_WIDGET_FINDDIALOG_H
 #define T3_WIDGET_FINDDIALOG_H
 
-#include <string>
-
+#include <memory>
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/string_view.h>
 #include <t3widget/util.h>
-#include <t3widget/widgets/button.h>
-#include <t3widget/widgets/checkbox.h>
-#include <t3widget/widgets/textfield.h>
+
+#include <t3widget/findcontext.h>
+#include <t3widget/signals.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
-
-class replace_buttons_dialog_t;
-class finder_t;
 
 class T3_WIDGET_API find_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   void backward_toggled();
@@ -56,6 +54,7 @@ class T3_WIDGET_API find_dialog_t : public dialog_t {
 class T3_WIDGET_API replace_buttons_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
  public:

@@ -12,11 +12,22 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/dialogs/attributepickerdialog.h"
-#include "t3widget/colorscheme.h"
+
+#include <memory>
+#include <type_traits>
+#include <utility>
+
+#include "t3widget/dialogs/dialog.h"
 #include "t3widget/internal.h"
+#include "t3widget/util.h"
 #include "t3widget/widgets/button.h"
+#include "t3widget/widgets/checkbox.h"
+#include "t3widget/widgets/colorpicker.h"
 #include "t3widget/widgets/expander.h"
+#include "t3widget/widgets/expandergroup.h"
 #include "t3widget/widgets/frame.h"
+#include "t3widget/widgets/smartlabel.h"
+#include "t3window/window.h"
 
 #define ATTRIBUTE_PICKER_DIALOG_HEIGHT 8
 #define ATTRIBUTE_PICKER_DIALOG_WIDTH 43

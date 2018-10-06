@@ -11,13 +11,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <cstdlib>
-#include <cstring>
 #include <deque>
-#include <new>
+#include <type_traits>
 
-#include "t3widget/textline.h"
+#include "t3widget/tinystring.h"
 #include "t3widget/undo.h"
+#include "t3widget/util.h"
 
 namespace t3widget {
 struct undo_list_t::implementation_t {
@@ -102,6 +101,7 @@ bool undo_list_t::is_at_mark() const { return impl->is_at_mark(); }
 #if 0
 #ifdef DEBUG
 #include "log.h"
+
 static const char *undo_type_to_string[] = {
 	"UNDO_NONE",
 	"UNDO_DELETE",

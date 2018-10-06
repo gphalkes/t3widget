@@ -15,7 +15,9 @@
 #define T3_WIDGET_MAINWINDOW_H
 
 #include <t3widget/dialogs/dialog.h>
-#include <t3widget/interfaces.h>
+
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
@@ -30,6 +32,7 @@ namespace t3widget {
 class T3_WIDGET_API main_window_base_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
   /** Resize the main_window_base_t.
       Called from the @c resize signal.

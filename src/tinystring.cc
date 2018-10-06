@@ -16,8 +16,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <new>
 #include <stdexcept>
-#include <string>
+
+#include "t3widget/string_view.h"
 
 namespace t3widget {
 namespace {

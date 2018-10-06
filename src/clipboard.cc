@@ -14,6 +14,7 @@
 #ifdef WITH_X11
 #ifdef HAS_DLFCN
 #include <dlfcn.h>
+
 using lt_dlhandle = void *;
 #define lt_dlinit() 0
 #define lt_dlexit()
@@ -25,13 +26,18 @@ using lt_dlhandle = void *;
 #endif
 #endif
 
-#include "t3widget/clipboard.h"
-#include "t3widget/extclipboard.h"
+#include <memory>
+#include <string>
+#include <utility>
 
 /* Ensure that functions with internal linkage as defined in internal.h actually
    get compiled with internal linkage. */
 #include "internal.h"
 #include "log.h"
+#include "t3widget/clipboard.h"
+#include "t3widget/extclipboard.h"
+#include "t3widget/main.h"
+#include "t3widget/signals.h"
 
 namespace t3widget {
 

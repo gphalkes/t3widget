@@ -14,13 +14,13 @@
 #ifndef T3_WIDGET_INTERFACES_H
 #define T3_WIDGET_INTERFACES_H
 
+#include <cstring>
 #include <list>
 #include <map>
-#include <t3window/window.h>
-
 #include <t3widget/key.h>
 #include <t3widget/mouse.h>
 #include <t3widget/util.h>
+#include <t3window/window.h>
 
 namespace t3widget {
 

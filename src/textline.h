@@ -20,12 +20,11 @@
 #include <stdio.h>
 #include <string>
 #include <sys/types.h>
-#include <t3window/window.h>
-
 #include <t3widget/interfaces.h>
 #include <t3widget/key.h>
 #include <t3widget/string_view.h>
 #include <t3widget/widget_api.h>
+#include <t3window/window.h>
 
 namespace t3widget {
 

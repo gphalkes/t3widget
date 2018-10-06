@@ -12,10 +12,24 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/dialogs/finddialog.h"
+
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
+
+#include "t3widget/dialogs/dialog.h"
+#include "t3widget/dialogs/messagedialog.h"
 #include "t3widget/findcontext.h"
 #include "t3widget/internal.h"
-#include "t3widget/log.h"
 #include "t3widget/main.h"
+#include "t3widget/string_view.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/button.h"
+#include "t3widget/widgets/checkbox.h"
+#include "t3widget/widgets/smartlabel.h"
+#include "t3widget/widgets/textfield.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

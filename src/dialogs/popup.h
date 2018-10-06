@@ -16,6 +16,12 @@
 
 #include <t3widget/dialogs/dialogbase.h>
 
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
+
 namespace t3widget {
 
 /** Base class for dialogs. */
@@ -24,6 +30,7 @@ class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
   friend class dialog_t;
 
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
  protected:

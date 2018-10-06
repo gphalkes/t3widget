@@ -13,15 +13,22 @@
 */
 #include <algorithm>
 #include <cerrno>
-#include <cstdint>
 #include <cstring>
 #include <dirent.h>
 #include <fnmatch.h>
+#include <functional>
+#include <list>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "t3widget/contentlist.h"
 #include "t3widget/internal.h"
-#include "t3widget/main.h"
+#include "t3widget/signals.h"
 #include "t3widget/util.h"
+#include "widget_api.h"
 
 namespace t3widget {
 

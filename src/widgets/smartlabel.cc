@@ -11,20 +11,22 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <algorithm>
-#include <climits>
+#include <cstdint>
 #include <cstring>
+#include <string>
 #include <t3window/utf8.h>
 #include <t3window/window.h>
 #include <unicase.h>
-#include <vector>
 
 #include "t3widget/colorscheme.h"
-#include "t3widget/internal.h"
+#include "t3widget/interfaces.h"
+#include "t3widget/key.h"
+#include "t3widget/string_view.h"
 #include "t3widget/textline.h"
 #include "t3widget/util.h"
 #include "t3widget/widgets/smartlabel.h"
 #include "t3widget/widgets/widget.h"
+#include "t3window/terminal.h"
 
 namespace t3widget {
 

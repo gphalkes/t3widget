@@ -11,20 +11,48 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <algorithm>
+#include <functional>
 #include <cstring>
+#include <limits>
+#include <memory>
+#include <stdio.h>
+#include <string>
+#include <type_traits>
+#include <utility>
 
+#include "t3widget/autocompleter.h"
 #include "t3widget/clipboard.h"
 #include "t3widget/colorscheme.h"
+#include "t3widget/contentlist.h"
 #include "t3widget/dialogs/finddialog.h"
 #include "t3widget/dialogs/gotodialog.h"
+#include "t3widget/dialogs/insertchardialog.h"
+#include "t3widget/dialogs/menupanel.h"
+#include "t3widget/dialogs/messagedialog.h"
+#include "t3widget/dialogs/popup.h"
 #include "t3widget/findcontext.h"
+#include "t3widget/interfaces.h"
 #include "t3widget/internal.h"
+#include "t3widget/key.h"
+#include "t3widget/key_binding.h"
 #include "t3widget/log.h"
 #include "t3widget/main.h"
+#include "t3widget/mouse.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
+#include "t3widget/textbuffer.h"
+#include "t3widget/textline.h"
 #include "t3widget/util.h"
+#include "t3widget/widget_api.h"
 #include "t3widget/widgets/editwindow.h"
 #include "t3widget/widgets/label.h"
+#include "t3widget/widgets/listpane.h"
+#include "t3widget/widgets/scrollbar.h"
+#include "t3widget/widgets/widget.h"
 #include "t3widget/wrapinfo.h"
+#include "t3window/terminal.h"
+#include "t3window/window.h"
 
 /* FIXME: implement Ctrl-up and Ctrl-down for shifting the window contents without the cursor. */
 

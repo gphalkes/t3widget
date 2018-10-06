@@ -18,14 +18,13 @@
 #include <memory>
 #include <new>
 #include <string>
+#include <t3widget/signals.h>
+#include <t3widget/string_view.h>
+#include <t3widget/widget_api.h>
 #include <t3window/window.h>
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
-
-#include <t3widget/signals.h>
-#include <t3widget/string_view.h>
-#include <t3widget/widget_api.h>
 
 namespace t3widget {
 

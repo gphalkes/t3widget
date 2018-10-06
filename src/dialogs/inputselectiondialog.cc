@@ -12,11 +12,28 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+#include <memory>
+#include <string>
 #include <t3window/utf8.h>
+#include <type_traits>
+#include <utility>
 
+#include "t3widget/dialogs/dialog.h"
 #include "t3widget/dialogs/inputselectiondialog.h"
 #include "t3widget/internal.h"
+#include "t3widget/key.h"
+#include "t3widget/main.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
+#include "t3widget/textbuffer.h"
+#include "t3widget/util.h"
 #include "t3widget/widgets/button.h"
+#include "t3widget/widgets/checkbox.h"
+#include "t3widget/widgets/frame.h"
+#include "t3widget/widgets/label.h"
+#include "t3widget/widgets/smartlabel.h"
+#include "t3widget/widgets/textwindow.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

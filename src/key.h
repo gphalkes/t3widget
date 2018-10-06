@@ -16,7 +16,6 @@
 
 #include <climits>
 #include <cstdint>
-
 #include <t3widget/widget_api.h>
 
 namespace t3widget {

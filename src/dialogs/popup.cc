@@ -12,7 +12,13 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/dialogs/popup.h"
+
+#include <limits.h>
+#include <type_traits>
+
 #include "t3widget/dialogs/dialog.h"
+#include "t3widget/dialogs/dialogbase.h"
+#include "t3widget/widgets/widget.h"
 
 namespace t3widget {
 

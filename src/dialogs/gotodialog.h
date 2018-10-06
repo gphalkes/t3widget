@@ -14,15 +14,19 @@
 #ifndef T3_WIDGET_GOTODIALOG_H
 #define T3_WIDGET_GOTODIALOG_H
 
+#include <functional>
 #include <t3widget/dialogs/dialog.h>
 #include <t3widget/util.h>
-#include <t3widget/widgets/textfield.h>
+
+#include <t3widget/signals.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
 class T3_WIDGET_API goto_dialog_t : public dialog_t {
  private:
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   void ok_activate();

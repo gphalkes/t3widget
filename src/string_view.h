@@ -15,16 +15,14 @@
 #ifndef T3_WIDGET_STRING_VIEW_H
 #define T3_WIDGET_STRING_VIEW_H
 
-#include <algorithm>
-#include <cstring>
 #include <iterator>
 #include <limits>
 #include <ostream>
-#include <stddef.h>
 #include <stdexcept>
 #include <string>
-
+#include <system_error>
 #include <t3widget/widget_api.h>
+#include <type_traits>
 
 #if defined(_T3_WIDGET_TEST) && __cplusplus >= 201703L
 #define _T3_WIDGET_TEST_CONSTEXPR constexpr

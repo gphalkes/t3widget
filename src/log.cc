@@ -14,6 +14,7 @@
 #include <cstdarg>
 #include <cstdlib>
 #include <cstring>
+#include <stdio.h>
 
 #include "t3widget/log.h"
 

@@ -15,9 +15,16 @@
 #define T3_WIDGET_EXPANDER_H
 
 #include <memory>
-
-#include <t3widget/widgets/smartlabel.h>
 #include <t3widget/widgets/widget.h>
+#include <utility>
+
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/signals.h>
+#include <t3widget/string_view.h>
+#include <t3widget/util.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
@@ -31,6 +38,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   };
 
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   void focus_up_from_child();

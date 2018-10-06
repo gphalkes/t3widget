@@ -12,7 +12,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/widgets/multiwidget.h"
-#include "t3widget/log.h"
+
+#include <list>
+#include <type_traits>
+#include <utility>
+
+#include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
+
 namespace t3widget {
 
 struct T3_WIDGET_LOCAL item_t {

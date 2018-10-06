@@ -14,11 +14,18 @@
 #ifndef T3_WIDGET_LISTPANE_H
 #define T3_WIDGET_LISTPANE_H
 
+#include <functional>
+#include <cstddef>
 #include <memory>
-
 #include <t3widget/util.h>
 #include <t3widget/widgets/scrollbar.h>
 #include <t3widget/widgets/widget.h>
+
+#include <t3widget/interfaces.h>
+#include <t3widget/key.h>
+#include <t3widget/mouse.h>
+#include <t3widget/signals.h>
+#include <t3widget/widget_api.h>
 
 namespace t3widget {
 
@@ -26,6 +33,7 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
  private:
   class T3_WIDGET_LOCAL indicator_widget_t;
   struct T3_WIDGET_LOCAL implementation_t;
+
   single_alloc_pimpl_t<implementation_t> impl;
 
   void ensure_cursor_on_screen();

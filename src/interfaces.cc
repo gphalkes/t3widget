@@ -11,13 +11,21 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <list>
+#include <map>
 #include <sys/time.h>
+#include <typeinfo>
+#include <utility>
 
+#include "t3widget/dialogs/dialog.h"
 #include "t3widget/interfaces.h"
 #include "t3widget/internal.h"
 #include "t3widget/log.h"
 #include "t3widget/main.h"
+#include "t3widget/mouse.h"
+#include "t3widget/signals.h"
 #include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

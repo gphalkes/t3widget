@@ -12,8 +12,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/widgets/listpane.h"
+
+#include <deque>
+#include <limits.h>
+#include <type_traits>
+#include <utility>
+
 #include "t3widget/colorscheme.h"
-#include "t3widget/log.h"
+#include "t3widget/util.h"
+#include "t3widget/widgets/scrollbar.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/terminal.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

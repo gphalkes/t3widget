@@ -18,6 +18,8 @@
 #include "t3widget/colorscheme.h"
 #include "t3widget/dialogs/dialog.h"
 #include "t3widget/main.h"
+#include "t3widget/util.h"
+#include "t3window/terminal.h"
 
 namespace t3widget {
 

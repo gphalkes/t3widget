@@ -13,7 +13,10 @@
 */
 #include <cstdlib>
 #include <cstring>
+#include <string>
+#include <vector>
 
+#include "t3widget/string_view.h"
 #include "t3widget/stringmatcher.h"
 
 namespace t3widget {

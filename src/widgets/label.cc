@@ -12,9 +12,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/widgets/label.h"
+
+#include <limits>
+#include <string>
+#include <type_traits>
+#include <utility>
+
 #include "t3widget/colorscheme.h"
-#include "t3widget/log.h"
+#include "t3widget/string_view.h"
 #include "t3widget/textline.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/terminal.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

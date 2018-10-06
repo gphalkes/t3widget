@@ -17,7 +17,6 @@
 #include <memory>
 #include <pcre.h>
 #include <string>
-
 #include <t3widget/string_view.h>
 #include <t3widget/util.h>
 #include <t3widget/widget_api.h>

@@ -11,16 +11,24 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <cstdlib>
-#include <cstring>
+#include <ext/alloc_traits.h>
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "t3widget/colorscheme.h"
 #include "t3widget/dialogs/menupanel.h"
+#include "t3widget/interfaces.h"
 #include "t3widget/internal.h"
 #include "t3widget/key.h"
-#include "t3widget/log.h"
-#include "t3widget/main.h"
+#include "t3widget/mouse.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
+#include "t3widget/util.h"
 #include "t3widget/widgets/menu.h"
+#include "t3widget/widgets/widget.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

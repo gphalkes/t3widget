@@ -12,9 +12,19 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "t3widget/dialogs/gotodialog.h"
-#include "t3widget/main.h"
+
+#include <cstdlib>
+#include <string>
+#include <type_traits>
+#include <utility>
+
+#include "t3widget/dialogs/dialog.h"
+#include "t3widget/key.h"
+#include "t3widget/util.h"
 #include "t3widget/widgets/button.h"
 #include "t3widget/widgets/smartlabel.h"
+#include "t3widget/widgets/textfield.h"
+#include "t3window/window.h"
 
 #define GOTO_DIALOG_WIDTH 30
 #define GOTO_DIALOG_HEIGHT 4

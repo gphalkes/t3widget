@@ -14,17 +14,26 @@
 /* _XOPEN_SOURCE is defined to enable wcswidth. */
 #define _XOPEN_SOURCE
 
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <memory>
+#include <string>
 #include <t3window/utf8.h>
+#include <type_traits>
+#include <unictype.h>
 
 #include "t3widget/colorscheme.h"
 #include "t3widget/double_string_adapter.h"
-#include "t3widget/findcontext.h"
 #include "t3widget/internal.h"
-#include "t3widget/stringmatcher.h"
+#include "t3widget/key.h"
+#include "t3widget/string_view.h"
 #include "t3widget/textline.h"
+#include "t3widget/tinystring.h"
 #include "t3widget/undo.h"
 #include "t3widget/util.h"
+#include "t3window/terminal.h"
+#include "t3window/window.h"
 
 namespace t3widget {
 

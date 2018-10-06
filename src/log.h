@@ -23,8 +23,8 @@
 #endif
 
 #include <stdio.h>
+#include <t3widget/widget_api.h>
 
-#include "widget_api.h"
 namespace t3widget {
 
 #ifdef _T3_WIDGET_DEBUG

@@ -16,22 +16,36 @@
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <memory>
 #include <new>
+#include <stdio.h>
+#include <string>
 #include <t3key/key.h>
 #include <transcript/transcript.h>
+#include <unistd.h>
 #ifdef __linux__
 #include <linux/kd.h>
 #include <sys/ioctl.h>
 #endif
 
+#include "t3key/key_errors.h"
 #include "t3widget/clipboard.h"
 #include "t3widget/colorscheme.h"
 #include "t3widget/dialogs/dialog.h"
+#include "t3widget/dialogs/insertchardialog.h"
+#include "t3widget/dialogs/messagedialog.h"
+#include "t3widget/interfaces.h"
 #include "t3widget/internal.h"
+#include "t3widget/key.h"
 #include "t3widget/log.h"
 #include "t3widget/main.h"
+#include "t3widget/mouse.h"
+#include "t3widget/signals.h"
+#include "t3widget/string_view.h"
 #include "t3widget/textline.h"
+#include "t3widget/util.h"
+#include "t3window/terminal.h"
 
 namespace t3widget {
 #define MESSAGE_DIALOG_WIDTH 50

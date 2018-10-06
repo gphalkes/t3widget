@@ -16,9 +16,8 @@
 
 #include <memory>
 #include <string>
-#include <utility>
-
 #include <t3widget/widget_api.h>
+#include <utility>
 
 namespace t3widget {
 

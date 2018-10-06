@@ -12,13 +12,24 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <type_traits>
+#include <utility>
 
+#include "t3widget/dialogs/dialog.h"
 #include "t3widget/dialogs/insertchardialog.h"
+#include "t3widget/dialogs/messagedialog.h"
 #include "t3widget/internal.h"
+#include "t3widget/key.h"
 #include "t3widget/log.h"
 #include "t3widget/main.h"
 #include "t3widget/util.h"
 #include "t3widget/widgets/button.h"
+#include "t3widget/widgets/smartlabel.h"
+#include "t3widget/widgets/textfield.h"
+#include "t3window/window.h"
 
 // FIXME: auto-complete list from previous entries
 namespace t3widget {

@@ -13,9 +13,18 @@
 */
 
 #include "t3widget/wrapinfo.h"
+
+#include <cstddef>
+#include <limits>
+#include <memory>
+#include <type_traits>
+#include <utility>
+
 #include "t3widget/internal.h"
 #include "t3widget/log.h"
+#include "t3widget/textbuffer.h"
 #include "t3widget/textbuffer_impl.h"
+#include "t3widget/util.h"
 
 namespace t3widget {
 

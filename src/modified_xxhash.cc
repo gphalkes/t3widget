@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <cstring>
 
+#include "t3widget/widget_api.h"
+
 namespace t3widget {
 namespace {
 
