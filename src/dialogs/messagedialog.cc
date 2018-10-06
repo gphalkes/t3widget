@@ -45,31 +45,33 @@ message_dialog_t::message_dialog_t(int width, optional<std::string> _title,
   impl->text_window->set_tabsize(0);
   impl->text_window->set_enabled(false);
 
-  auto &widgets = dialog_t::widgets();
+  button_t *first_button = nullptr, *last_button;
   for (string_view button_name : buttons) {
-    if (widgets.size() == 1) {
-      button_t *button = emplace_back<button_t>(button_name, true);
-      button->connect_activate([this] { hide(); });
-      button->connect_activate(impl->activate_internal.get_trigger());
-      button->set_anchor(this, T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
-      total_width += button->get_width();
-    } else {
+    if (first_button) {
       button_t *button = emplace_back<button_t>(button_name);
-      button->set_anchor(widgets.back().get(),
-                         T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
+      button->set_anchor(last_button, T3_PARENT(T3_ANCHOR_TOPRIGHT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
       button->set_position(0, 2);
 
-      static_cast<button_t *>(widgets.back().get())->connect_move_focus_right([this] {
-        focus_next();
-      });
+      static_cast<button_t *>(last_button)->connect_move_focus_right([this] { focus_next(); });
       button->connect_move_focus_left([this] { focus_previous(); });
       button->connect_activate([this] { hide(); });
 
       total_width += 2 + button->get_width();
+      last_button = button;
+    } else {
+      first_button = emplace_back<button_t>(button_name, true);
+      first_button->connect_activate([this] { hide(); });
+      first_button->connect_activate(impl->activate_internal.get_trigger());
+      first_button->set_anchor(this,
+                               T3_PARENT(T3_ANCHOR_BOTTOMCENTER) | T3_CHILD(T3_ANCHOR_BOTTOMLEFT));
+      total_width += first_button->get_width();
+      last_button = first_button;
     }
   }
 
-  widgets[1]->set_position(-1, -total_width / 2);
+  if (first_button) {
+    first_button->set_position(-1, -total_width / 2);
+  }
 }
 
 message_dialog_t::~message_dialog_t() { delete impl->text_window->get_text(); }
