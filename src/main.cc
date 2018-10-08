@@ -67,52 +67,73 @@ static int linux_meta_mode = -1;
 insert_char_dialog_t *insert_char_dialog;
 message_dialog_t *message_dialog;
 
-complex_error_t::complex_error_t() : success(true), source(SRC_NONE), error(0) {}
-complex_error_t::complex_error_t(source_t _source, int _error, const char *_file_name,
-                                 int _line_number)
-    : success(false),
-      source(_source),
-      error(_error),
-      file_name(_file_name),
-      line_number(_line_number) {}
+struct T3_WIDGET_LOCAL complex_error_t::implementation_t {
+  bool success;
+  source_t source;
+  int error;
+  const char *file_name;
+  int line_number;
 
-void complex_error_t::set_error(source_t _source, int _error, const char *_file_name,
-                                int _line_number) {
-  success = false;
-  source = _source;
-  error = _error;
-  file_name = _file_name;
-  line_number = _line_number;
+  implementation_t() : success(true), source(SRC_NONE), error(0) {}
+  implementation_t(source_t _source, int _error, const char *_file_name, int _line_number)
+      : success(false),
+        source(_source),
+        error(_error),
+        file_name(_file_name),
+        line_number(_line_number) {}
+};
+
+complex_error_t::complex_error_t() : impl(new implementation_t) {}
+complex_error_t::complex_error_t(source_t source, int error, const char *file_name, int line_number)
+    : impl(new implementation_t(source, error, file_name, line_number)) {}
+
+complex_error_t::~complex_error_t() {}
+
+complex_error_t::complex_error_t(const complex_error_t &other)
+    : impl(new implementation_t(*other.impl)) {}
+
+complex_error_t &complex_error_t::operator=(const complex_error_t &other) {
+  *impl = *other.impl;
+  return *this;
 }
 
-bool complex_error_t::get_success() { return success; }
-complex_error_t::source_t complex_error_t::get_source() { return source; }
-int complex_error_t::get_error() { return error; }
+void complex_error_t::set_error(source_t source, int error, const char *file_name,
+                                int line_number) {
+  impl->success = false;
+  impl->source = source;
+  impl->error = error;
+  impl->file_name = file_name;
+  impl->line_number = line_number;
+}
+
+bool complex_error_t::get_success() { return impl->success; }
+complex_error_t::source_t complex_error_t::get_source() { return impl->source; }
+int complex_error_t::get_error() { return impl->error; }
 
 std::string complex_error_t::get_string() {
   std::string error_str;
 
-  switch (source) {
+  switch (impl->source) {
     case SRC_ERRNO:
-      if (file_name != nullptr) {
+      if (impl->file_name != nullptr) {
         char number_buffer[128];
-        error_str = file_name;
-        sprintf(number_buffer, ":%d: ", line_number);
+        error_str = impl->file_name;
+        sprintf(number_buffer, ":%d: ", impl->line_number);
         error_str.append(number_buffer);
       }
-      error_str.append(strerror(error));
+      error_str.append(strerror(impl->error));
       break;
     case SRC_TRANSCRIPT:
       error_str = "libtranscript: ";
-      error_str.append(transcript_strerror(static_cast<transcript_error_t>(error)));
+      error_str.append(transcript_strerror(static_cast<transcript_error_t>(impl->error)));
       break;
     case SRC_T3_KEY:
       error_str = "libt3key: ";
-      error_str.append(t3_key_strerror(error));
+      error_str.append(t3_key_strerror(impl->error));
       break;
     case SRC_T3_WINDOW:
       error_str = "libt3window: ";
-      error_str.append(t3_window_strerror(error));
+      error_str.append(t3_window_strerror(impl->error));
       break;
     default:
       return strerror(0);
@@ -120,7 +141,9 @@ std::string complex_error_t::get_string() {
   return error_str;
 }
 
-init_parameters_t *init_parameters_t::create() { return new init_parameters_t(); }
+std::unique_ptr<init_parameters_t> init_parameters_t::create() {
+  return std::unique_ptr<init_parameters_t>(new init_parameters_t);
+}
 
 init_parameters_t::init_parameters_t()
     : separate_keypad(false), disable_external_clipboard(false) {}
@@ -278,7 +301,7 @@ complex_error_t init(const init_parameters_t *params) {
   text_line_t::init();
 
   if (init_params == nullptr) {
-    init_params = init_parameters_t::create();
+    init_params = init_parameters_t::create().release();
   }
 
   if (params == nullptr || !params->term.is_valid()) {

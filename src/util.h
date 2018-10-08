@@ -223,6 +223,8 @@ class propagate_const {
   propagate_const(U &&u) : t_(std::forward<U>(u)) {}
   propagate_const(const propagate_const &) = delete;
 
+  propagate_const &operator=(const propagate_const &) = delete;
+
   element_type *get() { t_.get(); }
   const element_type *get() const { t_.get(); }
   explicit operator bool() const { return static_cast<bool>(t_); }

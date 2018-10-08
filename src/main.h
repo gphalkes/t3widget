@@ -42,18 +42,16 @@ class T3_WIDGET_API complex_error_t {
   enum source_t { SRC_NONE, SRC_ERRNO, SRC_TRANSCRIPT, SRC_T3_KEY, SRC_T3_WINDOW };
 
  private:
-  bool success;
-  source_t source;
-  int error;
-  const char *file_name;
-  int line_number;
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
 
  public:
   complex_error_t();
-  complex_error_t(source_t _source, int _error, const char *_file_name = nullptr,
-                  int _line_number = 0);
-  void set_error(source_t _source, int _error, const char *_file_name = nullptr,
-                 int _line_number = 0);
+  complex_error_t(source_t source, int error, const char *file_name = nullptr, int line_number = 0);
+  ~complex_error_t();
+  complex_error_t(const complex_error_t &other);
+  complex_error_t &operator=(const complex_error_t &other);
+  void set_error(source_t source, int error, const char *file_name = nullptr, int line_number = 0);
   bool get_success();
   source_t get_source();
   int get_error();
@@ -81,7 +79,7 @@ class T3_WIDGET_API init_parameters_t {
   bool disable_external_clipboard;
 
   /** Construct a new init_parameters_t object. */
-  static init_parameters_t *create();
+  static std::unique_ptr<init_parameters_t> create();
 
  private:
   init_parameters_t();
