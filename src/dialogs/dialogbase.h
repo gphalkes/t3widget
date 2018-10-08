@@ -74,6 +74,8 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
     return result;
   }
 
+  std::unique_ptr<widget_t> erase(size_t idx);
+
   bool is_child(const window_component_t *widget) const override;
   void set_child_focus(window_component_t *target) override;
   /** Request that the dialog itself (not its children) is redrawn. */
@@ -84,7 +86,7 @@ class T3_WIDGET_API dialog_base_t : public virtual window_component_t,
   widget_t *get_current_widget();
   void focus_widget(size_t idx);
   bool focus_hotkey_widget(key_t key);
-  widgets_t &widgets();
+  const widgets_t &widgets();
 
  public:
   /** Destroy this dialog.

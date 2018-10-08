@@ -14,8 +14,8 @@
 #ifndef T3_WIDGET_LISTPANE_H
 #define T3_WIDGET_LISTPANE_H
 
-#include <functional>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <t3widget/util.h>
 #include <t3widget/widgets/scrollbar.h>
@@ -64,12 +64,12 @@ class T3_WIDGET_API list_pane_t : public widget_t, public container_t {
   void push_front(std::unique_ptr<widget_t> widget);
   std::unique_ptr<widget_t> pop_back();
   std::unique_ptr<widget_t> pop_front();
-  widget_t *back();
-  widget_t *operator[](int idx);
+  const widget_t *back() const;
+  const widget_t *operator[](int idx) const;
   size_t size() const;
   bool empty() const;
 
-  typedef size_t iterator;
+  using iterator = size_t;
 
   iterator erase(iterator position);
   iterator begin();

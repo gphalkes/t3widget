@@ -12,8 +12,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <algorithm>
-#include <functional>
 #include <cstring>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <stdio.h>
@@ -1573,20 +1573,20 @@ void edit_window_t::set_indent_aware_home(bool _indent_aware_home) {
 
 void edit_window_t::set_show_tabs(bool _show_tabs) { impl->show_tabs = _show_tabs; }
 
-int edit_window_t::get_tabsize() { return impl->tabsize; }
+int edit_window_t::get_tabsize() const { return impl->tabsize; }
 
-wrap_type_t edit_window_t::get_wrap() { return impl->wrap_type; }
+wrap_type_t edit_window_t::get_wrap() const { return impl->wrap_type; }
 
-bool edit_window_t::get_tab_spaces() { return impl->tab_spaces; }
+bool edit_window_t::get_tab_spaces() const { return impl->tab_spaces; }
 
-bool edit_window_t::get_auto_indent() { return impl->auto_indent; }
+bool edit_window_t::get_auto_indent() const { return impl->auto_indent; }
 
-bool edit_window_t::get_indent_aware_home() { return impl->indent_aware_home; }
+bool edit_window_t::get_indent_aware_home() const { return impl->indent_aware_home; }
 
-bool edit_window_t::get_show_tabs() { return impl->show_tabs; }
+bool edit_window_t::get_show_tabs() const { return impl->show_tabs; }
 
-edit_window_t::view_parameters_t *edit_window_t::save_view_parameters() {
-  return new view_parameters_t(this);
+std::unique_ptr<edit_window_t::view_parameters_t> edit_window_t::save_view_parameters() {
+  return wrap_unique(new view_parameters_t(this));
 }
 
 void edit_window_t::save_view_parameters(view_parameters_t *params) {
@@ -1652,7 +1652,7 @@ void edit_window_t::autocomplete_activated() {
   impl->autocompleter->autocomplete(text, idx);
 }
 
-text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) {
+text_coordinate_t edit_window_t::xy_to_text_coordinate(int x, int y) const {
   text_coordinate_t coord;
   text_pos_t x_pos = x;
   text_pos_t y_pos = y;

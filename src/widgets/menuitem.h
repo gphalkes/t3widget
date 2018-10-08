@@ -37,6 +37,8 @@ class T3_WIDGET_API menu_item_base_t : public widget_t {
   virtual void process_mouse_event_from_menu(mouse_event_t event);
 
  public:
+  T3_WIDGET_DISALLOW_COPY(menu_item_base_t)
+
   menu_item_base_t(menu_panel_t *_parent, size_t impl_size = 0)
       : widget_t(1, 4, true, impl_size), parent(_parent) {}
   void set_position(optint top, optint left) override;
@@ -62,8 +64,8 @@ class T3_WIDGET_API menu_item_t : public menu_item_base_t {
   void show() override;
   void hide() override;
   bool is_hotkey(key_t key) const override;
-  int get_label_width();
-  int get_shortcut_key_width();
+  text_pos_t get_label_width() const;
+  text_pos_t get_shortcut_key_width() const;
 };
 
 class T3_WIDGET_API menu_separator_t : public menu_item_base_t {

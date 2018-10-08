@@ -135,7 +135,7 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void activate_autocomplete(bool autocomplete_single);
 
   /** Convert coordinates relative to the edit window to a text_coordinate_t. */
-  text_coordinate_t xy_to_text_coordinate(int x, int y);
+  text_coordinate_t xy_to_text_coordinate(int x, int y) const;
   /** Ensure that the cursor is visible. */
   void ensure_cursor_on_screen();
   /** Change the lines to start and end repainting.
@@ -241,20 +241,20 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   void set_show_tabs(bool _show_tabs);
 
   /** Get the size of a tab. */
-  int get_tabsize();
+  int get_tabsize() const;
   /** Get the wrap type. */
-  wrap_type_t get_wrap();
+  wrap_type_t get_wrap() const;
   /** Get tab indents with spaces. */
-  bool get_tab_spaces();
+  bool get_tab_spaces() const;
   /** Get automatic indent. */
-  bool get_auto_indent();
+  bool get_auto_indent() const;
   /** Get indent aware home. */
-  bool get_indent_aware_home();
+  bool get_indent_aware_home() const;
   /** Get show tabs. */
-  bool get_show_tabs();
+  bool get_show_tabs() const;
 
   /** Save the current view parameters, to allow them to be restored later. */
-  view_parameters_t *save_view_parameters();
+  std::unique_ptr<edit_window_t::view_parameters_t> save_view_parameters();
   /** Save the current view parameters, to allow them to be restored later. */
   void save_view_parameters(view_parameters_t *params);
 

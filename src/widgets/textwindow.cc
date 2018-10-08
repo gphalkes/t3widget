@@ -71,12 +71,12 @@ text_window_t::text_window_t(text_buffer_t *_text, bool with_scrollbar)
 
 text_window_t::~text_window_t() {}
 
-void text_window_t::set_text(text_buffer_t *_text) {
-  if (impl->text == _text) {
+void text_window_t::set_text(text_buffer_t *text) {
+  if (impl->text == text) {
     return;
   }
 
-  impl->text = _text;
+  impl->text = text;
   impl->wrap_info->set_text_buffer(impl->text);
   impl->top.line = 0;
   impl->top.pos = 0;

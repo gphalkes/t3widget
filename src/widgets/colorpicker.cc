@@ -245,7 +245,7 @@ color_picker_t::color_picker_t(bool _fg) : color_picker_base_t(_fg) {
   init_window(y + 2, COLORS_PER_LINE + 2);
 }
 
-t3_attr_t color_picker_t::get_paint_attr(int color) {
+t3_attr_t color_picker_t::get_paint_attr(int color) const {
   switch (color) {
     case -2:
       return impl->fg ? (attributes.dialog & T3_ATTR_FG_MASK) |
@@ -272,7 +272,7 @@ void color_picker_t::paint_color_name(int color) {
   }
 }
 
-int color_picker_t::xy_to_color(int x, int y) {
+int color_picker_t::xy_to_color(int x, int y) const {
   int color;
   if (x == 0 || x == window.get_width() - 1 || y == 0 || y == window.get_height() - 1) {
     return INT_MIN;
@@ -291,7 +291,7 @@ int color_picker_t::xy_to_color(int x, int y) {
   return color;
 }
 
-void color_picker_t::color_to_xy(int color, int &x, int &y) {
+void color_picker_t::color_to_xy(int color, int &x, int &y) const {
   if (color < 16) {
     y = 1;
     x = color + 3;
@@ -321,7 +321,7 @@ color_pair_picker_t::color_pair_picker_t() : color_picker_base_t(true) {
   init_window(y + 1, COLORS_PER_LINE + 2);
 }
 
-int color_pair_picker_t::xy_to_color(int x, int y) {
+int color_pair_picker_t::xy_to_color(int x, int y) const {
   int color;
 
   if (x == 0 || x == window.get_width() - 1 || y == 0 || y == window.get_height() - 1) {
@@ -336,14 +336,14 @@ int color_pair_picker_t::xy_to_color(int x, int y) {
   return color;
 }
 
-void color_pair_picker_t::color_to_xy(int color, int &x, int &y) {
+void color_pair_picker_t::color_to_xy(int color, int &x, int &y) const {
   /* Take undefined and default color into account. */
   color += 2;
   x = 1 + color % COLORS_PER_LINE;
   y = 1 + color / COLORS_PER_LINE;
 }
 
-t3_attr_t color_pair_picker_t::get_paint_attr(int color) {
+t3_attr_t color_pair_picker_t::get_paint_attr(int color) const {
   switch (color) {
     case -2:
       return impl->undefined_colors & T3_ATTR_FG_MASK;

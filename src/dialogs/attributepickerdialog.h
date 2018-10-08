@@ -38,7 +38,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
   void ok_activate();
   void default_activate();
   void group_expanded(bool state);
-  t3_attr_t get_attribute();
+  t3_attr_t get_attribute() const;
 
  public:
   attribute_picker_dialog_t(optional<std::string> _title = "Attribute", bool with_default = true);

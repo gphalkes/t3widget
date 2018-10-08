@@ -142,7 +142,7 @@ bool button_t::process_mouse_event(mouse_event_t event) {
   return true;
 }
 
-int button_t::get_width() { return window.get_width(); }
+int button_t::get_width() const { return window.get_width(); }
 
 bool button_t::is_hotkey(key_t key) const { return impl->text.is_hotkey(key); }
 

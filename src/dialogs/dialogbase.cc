@@ -34,8 +34,7 @@ dialog_base_list_t dialog_base_t::dialog_base_list;
 struct dialog_base_t::implementation_t {
   bool redraw = true;               /**< Boolean indicating whether redrawing is necessary. */
   t3window::window_t shadow_window; /**< t3_window_t used to draw the shadow under a dialog. */
-  widgets_t::iterator
-      current_widget; /**< Iterator indicating the widget that has the input focus. */
+  size_t current_widget; /**< Index in #widgets indicating the widget that has the input focus. */
   /** List of widgets on this dialog. This list should only be filled using #push_back. */
   widgets_t widgets;
 };
@@ -50,7 +49,7 @@ dialog_base_t::dialog_base_t(int height, int width, bool has_shadow, size_t impl
   }
   dialog_base_list.push_back(this);
   window.set_restrict(nullptr);
-  impl->current_widget = impl->widgets.begin();
+  impl->current_widget = std::numeric_limits<size_t>::max();
 }
 
 /** Create a new ::dialog_base_t.
@@ -134,16 +133,17 @@ void dialog_base_t::update_contents() {
 }
 
 void dialog_base_t::set_focus(focus_t focus) {
-  if (impl->current_widget != impl->widgets.end()) {
-    (*impl->current_widget)->set_focus(focus);
+  if (impl->current_widget < impl->widgets.size()) {
+    impl->widgets[impl->current_widget]->set_focus(focus);
   }
 }
 
 void dialog_base_t::show() {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
-  for (current_widget = widgets.begin();
-       current_widget != widgets.end() && !(*current_widget)->accepts_focus(); current_widget++) {
+  for (current_widget = 0;
+       current_widget < widgets.size() && !widgets[current_widget]->accepts_focus();
+       ++current_widget) {
   }
 
   window.show();
@@ -163,23 +163,23 @@ void dialog_base_t::focus_next() {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
 
-  if (current_widget == widgets.end()) {
+  if (current_widget >= widgets.size()) {
     return;
   }
 
-  (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+  widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
   auto start_widget = current_widget;
   do {
     ++current_widget;
-    if (current_widget == widgets.end()) {
-      current_widget = widgets.begin();
+    if (current_widget == widgets.size()) {
+      current_widget = 0;
     }
-  } while (!(*current_widget)->accepts_focus() && current_widget != start_widget);
+  } while (!widgets[current_widget]->accepts_focus() && current_widget != start_widget);
 
-  if (current_widget == start_widget && !(*current_widget)->accepts_focus()) {
-    current_widget = widgets.end();
+  if (current_widget == start_widget && !widgets[current_widget]->accepts_focus()) {
+    current_widget = std::numeric_limits<size_t>::max();
   } else {
-    (*current_widget)->set_focus(window_component_t::FOCUS_IN_FWD);
+    widgets[current_widget]->set_focus(window_component_t::FOCUS_IN_FWD);
   }
 }
 
@@ -187,24 +187,24 @@ void dialog_base_t::focus_previous() {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
 
-  if (current_widget == widgets.end()) {
+  if (current_widget >= widgets.size()) {
     return;
   }
 
-  (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
+  widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
   auto start_widget = current_widget;
   do {
-    if (current_widget == widgets.begin()) {
-      current_widget = widgets.end();
+    if (current_widget == 0) {
+      current_widget = widgets.size();
     }
 
     --current_widget;
-  } while (!(*current_widget)->accepts_focus() && current_widget != start_widget);
+  } while (!widgets[current_widget]->accepts_focus() && current_widget != start_widget);
 
-  if (current_widget == start_widget && !(*current_widget)->accepts_focus()) {
-    current_widget = widgets.end();
+  if (current_widget == start_widget && !widgets[current_widget]->accepts_focus()) {
+    current_widget = std::numeric_limits<size_t>::max();
   } else {
-    (*current_widget)->set_focus(window_component_t::FOCUS_IN_BCK);
+    widgets[current_widget]->set_focus(window_component_t::FOCUS_IN_BCK);
   }
 }
 
@@ -216,20 +216,20 @@ void dialog_base_t::set_child_focus(window_component_t *target) {
 
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
-  for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
-    if (iter->get() == target) {
-      if (*current_widget != *iter) {
-        (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-        current_widget = iter;
-        (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+  for (size_t i = 0; i < widgets.size(); ++i) {
+    if (widgets[i].get() == target) {
+      if (current_widget != i) {
+        widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
+        current_widget = i;
+        widgets[current_widget]->set_focus(window_component_t::FOCUS_SET);
       }
       return;
     } else {
-      container_t *container = dynamic_cast<container_t *>(iter->get());
+      container_t *container = dynamic_cast<container_t *>(widgets[i].get());
       if (container != nullptr && container->is_child(target)) {
-        if (*current_widget != *iter) {
-          (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-          current_widget = iter;
+        if (current_widget != i) {
+          widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
+          current_widget = i;
         }
         container->set_child_focus(target);
         return;
@@ -249,47 +249,54 @@ void dialog_base_t::set_depth(int depth) {
 }
 
 widget_t *dialog_base_t::get_current_widget() {
-  return impl->current_widget == impl->widgets.end() ? nullptr : impl->current_widget->get();
+  return impl->current_widget < impl->widgets.size() ? impl->widgets[impl->current_widget].get()
+                                                     : nullptr;
 }
 
 void dialog_base_t::focus_widget(size_t idx) {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
-  (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-  idx = std::min(widgets.size() - 1, idx);
-  current_widget = widgets.begin() + idx;
-  (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+  if (current_widget < widgets.size()) {
+    widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
+  }
+  current_widget = std::min(widgets.size() - 1, idx);
+  widgets[current_widget]->set_focus(window_component_t::FOCUS_SET);
 }
 
 bool dialog_base_t::focus_hotkey_widget(key_t key) {
   auto &current_widget = impl->current_widget;
   auto &widgets = impl->widgets;
 
-  for (widgets_t::iterator iter = widgets.begin(); iter != widgets.end(); iter++) {
+  for (size_t i = 0; i < widgets.size(); ++i) {
     widget_container_t *widget_container;
     widget_t *hotkey_target;
 
-    if (!(*iter)->is_enabled() || !(*iter)->is_shown()) {
+    widget_t *iter_ptr = widgets[i].get();
+    if (!iter_ptr->is_enabled() || !iter_ptr->is_shown()) {
       continue;
     }
 
-    if ((*iter)->is_hotkey(key & ~EKEY_META)) {
-      if ((*iter)->accepts_focus()) {
-        (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-        current_widget = iter;
-        (*current_widget)->set_focus(window_component_t::FOCUS_SET);
+    if (iter_ptr->is_hotkey(key & ~EKEY_META)) {
+      if (iter_ptr->accepts_focus()) {
+        if (current_widget < widgets.size()) {
+          widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
+        }
+        current_widget = i;
+        widgets[current_widget]->set_focus(window_component_t::FOCUS_SET);
       }
-      if ((*iter)->process_key(EKEY_HOTKEY)) {
+      if (iter_ptr->process_key(EKEY_HOTKEY)) {
         return true;
       }
-    } else if ((widget_container = dynamic_cast<widget_container_t *>(iter->get())) != nullptr &&
+    } else if ((widget_container = dynamic_cast<widget_container_t *>(iter_ptr)) != nullptr &&
                (hotkey_target = widget_container->is_child_hotkey(key)) != nullptr) {
       if (hotkey_target->accepts_focus()) {
-        (*current_widget)->set_focus(window_component_t::FOCUS_OUT);
-        current_widget = iter;
+        if (current_widget < widgets.size()) {
+          widgets[current_widget]->set_focus(window_component_t::FOCUS_OUT);
+        }
+        current_widget = i;
         widget_container->set_child_focus(hotkey_target);
       }
-      if ((*iter)->process_key(EKEY_HOTKEY)) {
+      if (iter_ptr->process_key(EKEY_HOTKEY)) {
         return true;
       }
     }
@@ -297,7 +304,7 @@ bool dialog_base_t::focus_hotkey_widget(key_t key) {
   return false;
 }
 
-widgets_t &dialog_base_t::widgets() { return impl->widgets; }
+const widgets_t &dialog_base_t::widgets() { return impl->widgets; }
 
 t3window::window_t &dialog_base_t::shadow_window() { return impl->shadow_window; }
 
@@ -334,6 +341,25 @@ void dialog_base_t::insert(const widget_t *before, std::unique_ptr<widget_t> wid
     }
   }
   widgets.insert(widgets.begin(), std::move(widget));
+}
+
+std::unique_ptr<widget_t> t3widget::dialog_base_t::erase(size_t idx) {
+  if (idx >= impl->widgets.size()) {
+    return nullptr;
+  }
+
+  if (impl->current_widget > idx && impl->current_widget < impl->widgets.size()) {
+    --impl->current_widget;
+  } else if (impl->current_widget == idx) {
+    focus_next();
+    if (impl->current_widget == idx) {
+      impl->current_widget = std::numeric_limits<size_t>::max();
+    }
+  }
+
+  std::unique_ptr<widget_t> result = std::move(impl->widgets[idx]);
+  impl->widgets.erase(impl->widgets.begin() + idx);
+  return result;
 }
 
 void dialog_base_t::force_redraw() {

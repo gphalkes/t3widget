@@ -389,9 +389,9 @@ std::unique_ptr<widget_t> list_pane_t::pop_front() {
   return result;
 }
 
-widget_t *list_pane_t::back() { return impl->widgets.back().get(); }
+const widget_t *list_pane_t::back() const { return impl->widgets.back().get(); }
 
-widget_t *list_pane_t::operator[](int idx) { return impl->widgets[idx].get(); }
+const widget_t *list_pane_t::operator[](int idx) const { return impl->widgets[idx].get(); }
 
 size_t list_pane_t::size() const { return impl->widgets.size(); }
 

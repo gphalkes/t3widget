@@ -24,9 +24,9 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
   single_alloc_pimpl_t<implementation_t> impl;
 
   color_picker_base_t(bool _fg);
-  virtual int xy_to_color(int x, int y) = 0;
-  virtual void color_to_xy(int color, int &x, int &y) = 0;
-  virtual t3_attr_t get_paint_attr(int color) = 0;
+  virtual int xy_to_color(int x, int y) const = 0;
+  virtual void color_to_xy(int color, int &x, int &y) const = 0;
+  virtual t3_attr_t get_paint_attr(int color) const = 0;
   virtual void paint_color_name(int color);
 
  public:
@@ -56,9 +56,9 @@ class T3_WIDGET_API color_picker_base_t : public widget_t {
 
 class T3_WIDGET_API color_picker_t : public color_picker_base_t {
  protected:
-  int xy_to_color(int x, int y) override;
-  void color_to_xy(int color, int &x, int &y) override;
-  t3_attr_t get_paint_attr(int color) override;
+  int xy_to_color(int x, int y) const override;
+  void color_to_xy(int color, int &x, int &y) const override;
+  t3_attr_t get_paint_attr(int color) const override;
   void paint_color_name(int color) override;
 
  public:
@@ -67,9 +67,9 @@ class T3_WIDGET_API color_picker_t : public color_picker_base_t {
 
 class T3_WIDGET_API color_pair_picker_t : public color_picker_base_t {
  protected:
-  int xy_to_color(int x, int y) override;
-  void color_to_xy(int color, int &x, int &y) override;
-  t3_attr_t get_paint_attr(int color) override;
+  int xy_to_color(int x, int y) const override;
+  void color_to_xy(int color, int &x, int &y) const override;
+  t3_attr_t get_paint_attr(int color) const override;
 
  public:
   color_pair_picker_t();

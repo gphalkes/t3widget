@@ -38,7 +38,7 @@ class T3_WIDGET_API expander_group_t {
   /** Add an expander to the group. */
   void add_expander(expander_t *expander);
   void collapse();
-  int get_group_height();
+  int get_group_height() const;
 
   T3_WIDGET_DECLARE_SIGNAL(expanded, bool);
 };

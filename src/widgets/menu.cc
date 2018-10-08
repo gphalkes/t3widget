@@ -296,7 +296,7 @@ bool menu_bar_t::process_mouse_event(mouse_event_t event) {
   return true;
 }
 
-int menu_bar_t::coord_to_menu_idx(int x) {
+int menu_bar_t::coord_to_menu_idx(int x) const {
   int idx = 0;
   for (auto iter = impl->menus.begin(); iter != impl->menus.end(); iter++, idx++) {
     int menu_start = (*iter)->get_base_window()->get_x() + 2;

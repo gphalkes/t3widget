@@ -218,7 +218,7 @@ void attribute_picker_dialog_t::group_expanded(bool state) {
   set_size(impl->expander_group->get_group_height() + ATTRIBUTE_PICKER_DIALOG_HEIGHT, None);
 }
 
-t3_attr_t attribute_picker_dialog_t::get_attribute() {
+t3_attr_t attribute_picker_dialog_t::get_attribute() const {
   t3_attr_t result = 0;
   if (impl->underline_box->get_state()) {
     result |= T3_ATTR_UNDERLINE;

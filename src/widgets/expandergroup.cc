@@ -73,7 +73,7 @@ void expander_group_t::widget_expanded(bool is_expanded, expander_t *source) {
 
 void expander_group_t::collapse() { impl->collapse(); }
 
-int expander_group_t::get_group_height() { return impl->height; }
+int expander_group_t::get_group_height() const { return impl->height; }
 
 _T3_WIDGET_IMPL_SIGNAL(expander_group_t, expanded, bool)
 

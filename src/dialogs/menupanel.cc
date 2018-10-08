@@ -12,9 +12,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <algorithm>
-#include <functional>
 #include <cstring>
 #include <deque>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <string>
@@ -106,7 +106,7 @@ bool menu_panel_t::set_size(optint height, optint _width) {
   (void)_width;
   bool result;
   int i = 0;
-  for (std::unique_ptr<widget_t> &widget : widgets()) {
+  for (const std::unique_ptr<widget_t> &widget : widgets()) {
     widget->set_size(None, impl->width - 2);
     ++i;
   }
@@ -174,8 +174,9 @@ menu_item_base_t *menu_panel_t::insert_item(const menu_item_base_t *before,
   }
   item_ptr->set_position(widgets().size(), None);
 
-  impl->shortcut_key_width = std::max(impl->shortcut_key_width, item_ptr->get_shortcut_key_width());
-  impl->label_width = std::max(impl->label_width, item_ptr->get_label_width());
+  impl->shortcut_key_width =
+      std::max<text_pos_t>(impl->shortcut_key_width, item_ptr->get_shortcut_key_width());
+  impl->label_width = std::max<text_pos_t>(impl->label_width, item_ptr->get_label_width());
   if (impl->shortcut_key_width + impl->label_width > impl->width - 2) {
     impl->width = impl->shortcut_key_width + impl->label_width + 2;
   }
@@ -195,11 +196,11 @@ menu_item_base_t *menu_panel_t::insert_separator(const menu_item_base_t *before)
 }
 
 std::unique_ptr<menu_item_base_t> menu_panel_t::remove_item(menu_item_base_t *item) {
-  for (auto iter = widgets().begin(); iter != widgets().end(); iter++) {
-    if (iter->get() == item) {
+  const widgets_t &widgets = this->widgets();
+  for (size_t i = 0; i != widgets.size(); ++i) {
+    if (widgets[i].get() == item) {
       unset_widget_parent(item);
-      iter->release();
-      widgets().erase(iter);
+      erase(i).release();
       recompute_panel_dimensions();
       return wrap_unique(item);
     }
@@ -217,8 +218,8 @@ void menu_panel_t::recompute_panel_dimensions() {
     menu_item_t *label_item = dynamic_cast<menu_item_t *>(iter->get());
     if (label_item != nullptr) {
       impl->shortcut_key_width =
-          std::max(impl->shortcut_key_width, label_item->get_shortcut_key_width());
-      impl->label_width = std::max(impl->label_width, label_item->get_label_width());
+          std::max<text_pos_t>(impl->shortcut_key_width, label_item->get_shortcut_key_width());
+      impl->label_width = std::max<text_pos_t>(impl->label_width, label_item->get_label_width());
     }
     if (impl->shortcut_key_width + impl->label_width > impl->width - 2) {
       impl->width = impl->shortcut_key_width + impl->label_width + 2;

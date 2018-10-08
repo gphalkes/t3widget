@@ -31,17 +31,19 @@ class T3_WIDGET_API file_dialog_t : public dialog_t {
  protected:
   file_dialog_t(int height, int width, optional<std::string> _title, size_t impl_size = 0);
 
-  widget_t *get_anchor_widget();
+  widget_t *get_anchor_widget() const;
   const widget_t *get_insert_before_widget() const;
   void ok_callback();
   void ok_callback(const std::string &file);
-  virtual const std::string &get_filter() = 0;
+  virtual const std::string &get_filter() const = 0;
 
  public:
   ~file_dialog_t() override;
   bool set_size(optint height, optint width) override;
   void change_dir(const std::string &dir);
-  virtual int set_file(string_view file);
+  /** Sets the file listing and text input from the file name.
+      @returns 0 on success or the value of @c errno on error. */
+  virtual int set_from_file(string_view file);
   void refresh_view();
   void set_options_widget(std::unique_ptr<widget_t> options);
   virtual void reset();
@@ -56,7 +58,7 @@ class T3_WIDGET_API open_file_dialog_t : public file_dialog_t {
   struct T3_WIDGET_LOCAL implementation_t;
   single_alloc_pimpl_t<implementation_t> impl;
 
-  const std::string &get_filter() override;
+  const std::string &get_filter() const override;
 
  public:
   open_file_dialog_t(int height, int width);
@@ -73,7 +75,7 @@ class T3_WIDGET_API save_as_dialog_t : public file_dialog_t {
   single_alloc_pimpl_t<implementation_t> impl;
 
  protected:
-  const std::string &get_filter() override { return empty_filter; }
+  const std::string &get_filter() const override { return empty_filter; }
 
  public:
   save_as_dialog_t(int height, int width);

@@ -46,7 +46,7 @@ class T3_WIDGET_API button_t : public widget_t, public focus_widget_t {
 
   bool process_mouse_event(mouse_event_t event) override;
   /** Retrieve this button_t's width. */
-  int get_width();
+  int get_width() const;
 
   /** @fn connection_t connect_activate(std::function<void()> func)
       Connect a callback to the #activate signal.

@@ -43,7 +43,7 @@ class T3_WIDGET_API menu_bar_t : public widget_t {
   void previous_menu();
 
   /** Translate an x coordinate into the index of a menu. */
-  int coord_to_menu_idx(int x);
+  int coord_to_menu_idx(int x) const;
 
  public:
   /** Create a new menu_bar_t.

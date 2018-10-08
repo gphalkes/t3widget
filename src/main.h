@@ -43,14 +43,16 @@ class T3_WIDGET_API complex_error_t {
 
  private:
   struct T3_WIDGET_LOCAL implementation_t;
-  pimpl_t<implementation_t> impl;
+  std::unique_ptr<implementation_t> impl;
 
  public:
   complex_error_t();
   complex_error_t(source_t source, int error, const char *file_name = nullptr, int line_number = 0);
   ~complex_error_t();
   complex_error_t(const complex_error_t &other);
+  complex_error_t(complex_error_t &&other);
   complex_error_t &operator=(const complex_error_t &other);
+  complex_error_t &operator=(complex_error_t &&other);
   void set_error(source_t source, int error, const char *file_name = nullptr, int line_number = 0);
   bool get_success();
   source_t get_source();

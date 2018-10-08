@@ -12,10 +12,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <algorithm>
-#include <functional>
 #include <cerrno>
 #include <cstring>
 #include <deque>
+#include <functional>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -133,7 +133,7 @@ file_dialog_t::file_dialog_t(int height, int width, optional<std::string> _title
 
 file_dialog_t::~file_dialog_t() {}
 
-widget_t *file_dialog_t::get_anchor_widget() { return impl->show_hidden_label; }
+widget_t *file_dialog_t::get_anchor_widget() const { return impl->show_hidden_label; }
 const widget_t *file_dialog_t::get_insert_before_widget() const { return impl->ok_button; }
 
 void file_dialog_t::set_options_widget(std::unique_ptr<widget_t> options) {
@@ -181,7 +181,7 @@ bool file_dialog_t::set_size(optint height, optint width) {
   return result;
 }
 
-int file_dialog_t::set_file(string_view file) {
+int file_dialog_t::set_from_file(string_view file) {
   size_t idx;
   int result;
 
@@ -342,7 +342,7 @@ open_file_dialog_t::open_file_dialog_t(int height, int width)
 
 open_file_dialog_t::~open_file_dialog_t() {}
 
-const std::string &open_file_dialog_t::get_filter() { return impl->filter_line->get_text(); }
+const std::string &open_file_dialog_t::get_filter() const { return impl->filter_line->get_text(); }
 
 bool open_file_dialog_t::set_size(optint height, optint width) {
   bool result = file_dialog_t::set_size(height, width);

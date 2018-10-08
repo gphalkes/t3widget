@@ -78,16 +78,14 @@ T3_WIDGET_LOCAL void stop_clipboard();
     @param str The string to parse the escape from.
     @param error_message Pointer to storage for an error message.
     @param read_position The index in @p str to start reading, updated by parse_escape.
-        @param replacements A boolean indicating whether replacement markers should be parsed as
-   such.
+    @param replacements A boolean indicating whether replacement markers should be parsed as such.
 */
 T3_WIDGET_LOCAL int parse_escape(const std::string &str, std::string *error_message,
                                  size_t &read_position, bool replacements = false);
 /** Convert escapes in a string to associated values.
     @param str The string to parse, updated by this function.
     @param error_message Pointer to storage for an error message.
-        @param replacements A boolean indicating whether replacement markers should be parsed as
-   such.
+    @param replacements A boolean indicating whether replacement markers should be parsed as such.
 */
 T3_WIDGET_LOCAL bool parse_escapes(std::string &str, std::string *error_message,
                                    bool replacements = false);

@@ -92,8 +92,15 @@ complex_error_t::~complex_error_t() {}
 complex_error_t::complex_error_t(const complex_error_t &other)
     : impl(new implementation_t(*other.impl)) {}
 
+complex_error_t::complex_error_t(complex_error_t &&other) : impl(std::move(other.impl)) {}
+
 complex_error_t &complex_error_t::operator=(const complex_error_t &other) {
   *impl = *other.impl;
+  return *this;
+}
+
+complex_error_t &complex_error_t::operator=(complex_error_t &&other) {
+  impl = std::move(other.impl);
   return *this;
 }
 

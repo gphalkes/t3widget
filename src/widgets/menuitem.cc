@@ -115,9 +115,9 @@ void menu_item_t::process_mouse_event_from_menu(mouse_event_t event) {
   return;
 }
 
-int menu_item_t::get_label_width() { return impl->label.get_width() + 2; }
+text_pos_t menu_item_t::get_label_width() const { return impl->label.get_width() + 2; }
 
-int menu_item_t::get_shortcut_key_width() {
+text_pos_t menu_item_t::get_shortcut_key_width() const {
   return impl->shortcut_key.empty()
              ? 0
              : (t3_term_strncwidth(impl->shortcut_key.data(), impl->shortcut_key.size()) + 2);

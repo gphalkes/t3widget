@@ -45,7 +45,7 @@ class T3_WIDGET_API text_window_t : public widget_t, public center_component_t, 
   bool process_mouse_event(mouse_event_t event) override;
 
   void set_scrollbar(bool with_scrollbar);
-  void set_text(text_buffer_t *_text);
+  void set_text(text_buffer_t *text);
   text_buffer_t *get_text() const;
   void set_tabsize(int size);
   text_pos_t get_text_height() const;

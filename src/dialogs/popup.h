@@ -44,7 +44,7 @@ class T3_WIDGET_API popup_t : public dialog_base_t, public mouse_target_t {
   void hide() override;
   bool process_mouse_event(mouse_event_t event) override;
 
-  bool is_shown();
+  bool is_shown() const;
 };
 
 }  // namespace t3widget
