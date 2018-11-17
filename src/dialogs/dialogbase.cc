@@ -24,6 +24,7 @@
 #include "t3widget/interfaces.h"
 #include "t3widget/key.h"
 #include "t3widget/util.h"
+#include "t3widget/widgets/bullet.h"
 #include "t3widget/widgets/widget.h"
 #include "t3window/window.h"
 
@@ -38,6 +39,15 @@ struct dialog_base_t::implementation_t {
   /** List of widgets on this dialog. This list should only be filled using #push_back. */
   widgets_t widgets;
 };
+
+namespace {
+
+widget_t *dummy_widget() {
+  static widget_t *dummy = new bullet_t([] { return false; });
+  return dummy;
+}
+
+}  // namespace
 
 dialog_base_t::dialog_base_t(int height, int width, bool has_shadow, size_t impl_size)
     : impl_allocator_t(impl_alloc<implementation_t>(impl_size)),
@@ -176,11 +186,7 @@ void dialog_base_t::focus_next() {
     }
   } while (!widgets[current_widget]->accepts_focus() && current_widget != start_widget);
 
-  if (current_widget == start_widget && !widgets[current_widget]->accepts_focus()) {
-    current_widget = std::numeric_limits<size_t>::max();
-  } else {
-    widgets[current_widget]->set_focus(window_component_t::FOCUS_IN_FWD);
-  }
+  widgets[current_widget]->set_focus(window_component_t::FOCUS_IN_FWD);
 }
 
 void dialog_base_t::focus_previous() {
@@ -201,11 +207,7 @@ void dialog_base_t::focus_previous() {
     --current_widget;
   } while (!widgets[current_widget]->accepts_focus() && current_widget != start_widget);
 
-  if (current_widget == start_widget && !widgets[current_widget]->accepts_focus()) {
-    current_widget = std::numeric_limits<size_t>::max();
-  } else {
-    widgets[current_widget]->set_focus(window_component_t::FOCUS_IN_BCK);
-  }
+  widgets[current_widget]->set_focus(window_component_t::FOCUS_IN_BCK);
 }
 
 void dialog_base_t::set_child_focus(window_component_t *target) {
@@ -250,7 +252,7 @@ void dialog_base_t::set_depth(int depth) {
 
 widget_t *dialog_base_t::get_current_widget() {
   return impl->current_widget < impl->widgets.size() ? impl->widgets[impl->current_widget].get()
-                                                     : nullptr;
+                                                     : dummy_widget();
 }
 
 void dialog_base_t::focus_widget(size_t idx) {
@@ -348,17 +350,23 @@ std::unique_ptr<widget_t> t3widget::dialog_base_t::erase(size_t idx) {
     return nullptr;
   }
 
+  if (impl->current_widget == idx) {
+    focus_next();
+  }
+
   if (impl->current_widget > idx && impl->current_widget < impl->widgets.size()) {
     --impl->current_widget;
   } else if (impl->current_widget == idx) {
-    focus_next();
-    if (impl->current_widget == idx) {
-      impl->current_widget = std::numeric_limits<size_t>::max();
+    if (idx + 1 == impl->widgets.size()) {
+      impl->current_widget = 0;
     }
   }
 
   std::unique_ptr<widget_t> result = std::move(impl->widgets[idx]);
   impl->widgets.erase(impl->widgets.begin() + idx);
+  if (window.is_shown() && impl->current_widget < impl->widgets.size()) {
+    impl->widgets[impl->current_widget]->set_focus(window_component_t::FOCUS_REVERT);
+  }
   return result;
 }
 

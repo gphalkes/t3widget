@@ -93,13 +93,12 @@ int main(int argc, char *argv[]) {
 	log_file = fopen("test.log", "w+");
 
 	complex_error_t result;
-	init_parameters_t *params = init_parameters_t::create();
-	if (!(result = init(params)).get_success()) {
+	std::unique_ptr<init_parameters_t> params = init_parameters_t::create();
+	if (!(result = init(params.get())).get_success()) {
 		fprintf(stderr, "Error: %s\n", result.get_string().c_str());
 		fprintf(stderr, "init failed\n");
 		exit(EXIT_FAILURE);
 	}
-	delete params;
 	#ifdef CALL_INIT
 	CALL_INIT
 	#endif

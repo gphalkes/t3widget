@@ -57,6 +57,6 @@ void bullet_t::update_contents() {
   }
 }
 
-void bullet_t::set_focus(focus_t focus) { impl->has_focus = focus; }
+void bullet_t::set_focus(focus_t focus) { impl->has_focus = focus != FOCUS_OUT; }
 
 }  // namespace t3widget
