@@ -21,11 +21,11 @@ setup_TEST() {
 
 setup_vars() {
   if [[ "${DIR#.}" !=  "$DIR" ]] ; then
-    TERMINFO="$PWD/"
+    TERMINFO_DIR="$PWD/"
   elif [[ "${DIR#~}" != "$DIR" ]] ; then
-  	TERMINFO="$HOME${DIR#~}"
+    TERMINFO_DIR="$HOME${DIR#~}"
   fi
-  export TERMINFO="$TERMINFO/terminfo"
+  export TERMINFO="$TERMINFO_DIR/terminfo"
 }
 
 build_test() {

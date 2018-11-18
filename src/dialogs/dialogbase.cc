@@ -163,6 +163,9 @@ void dialog_base_t::show() {
 }
 
 void dialog_base_t::hide() {
+  if (impl->current_widget < impl->widgets.size()) {
+    impl->widgets[impl->current_widget]->set_focus(window_component_t::FOCUS_OUT);
+  }
   window.hide();
   if (impl->shadow_window != nullptr) {
     impl->shadow_window.hide();
@@ -350,7 +353,7 @@ std::unique_ptr<widget_t> t3widget::dialog_base_t::erase(size_t idx) {
     return nullptr;
   }
 
-  if (impl->current_widget == idx) {
+  if (impl->current_widget == idx && window.is_shown()) {
     focus_next();
   }
 
