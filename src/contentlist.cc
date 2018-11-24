@@ -107,7 +107,7 @@ class string_list_t::iterator_adapter_t : public const_string_list_iterator_t::a
     return iter_ == other_ptr->iter_;
   }
   std::unique_ptr<adapter_base_t> clone() const override {
-    return make_unique<iterator_adapter_t>(iter_);
+    return t3widget::make_unique<iterator_adapter_t>(iter_);
   }
 
  private:
@@ -127,11 +127,13 @@ void string_list_t::push_back(std::string str) {
 }
 
 const_string_list_iterator_t string_list_t::begin() const {
-  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->strings.begin()));
+  return const_string_list_iterator_t(
+      t3widget::make_unique<iterator_adapter_t>(impl->strings.begin()));
 }
 
 const_string_list_iterator_t string_list_t::end() const {
-  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->strings.end()));
+  return const_string_list_iterator_t(
+      t3widget::make_unique<iterator_adapter_t>(impl->strings.end()));
 }
 
 _T3_WIDGET_IMPL_SIGNAL(string_list_t, content_changed)
@@ -216,7 +218,7 @@ class file_list_t::iterator_adapter_t : public const_string_list_iterator_t::ada
     return iter_ == other_ptr->iter_;
   }
   std::unique_ptr<adapter_base_t> clone() const override {
-    return make_unique<iterator_adapter_t>(iter_);
+    return t3widget::make_unique<iterator_adapter_t>(iter_);
   }
 
  private:
@@ -292,10 +294,11 @@ file_list_t &file_list_t::operator=(const file_list_t &other) {
 }
 
 const_string_list_iterator_t file_list_t::begin() const {
-  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->files.begin()));
+  return const_string_list_iterator_t(
+      t3widget::make_unique<iterator_adapter_t>(impl->files.begin()));
 }
 const_string_list_iterator_t file_list_t::end() const {
-  return const_string_list_iterator_t(make_unique<iterator_adapter_t>(impl->files.end()));
+  return const_string_list_iterator_t(t3widget::make_unique<iterator_adapter_t>(impl->files.end()));
 }
 
 _T3_WIDGET_IMPL_SIGNAL(file_list_t, content_changed)
@@ -377,7 +380,7 @@ class T3_WIDGET_API filtered_list_internal_t : public B {
       return iter_ == other_ptr->iter_;
     }
     std::unique_ptr<adapter_base_t> clone() const override {
-      return make_unique<iterator_adapter_t>(iter_, base_);
+      return t3widget::make_unique<iterator_adapter_t>(iter_, base_);
     }
 
    private:
@@ -386,10 +389,12 @@ class T3_WIDGET_API filtered_list_internal_t : public B {
   };
 
   const_string_list_iterator_t begin() const override {
-    return const_string_list_iterator_t(make_unique<iterator_adapter_t>(items.begin(), base));
+    return const_string_list_iterator_t(
+        t3widget::make_unique<iterator_adapter_t>(items.begin(), base));
   }
   const_string_list_iterator_t end() const override {
-    return const_string_list_iterator_t(make_unique<iterator_adapter_t>(items.end(), base));
+    return const_string_list_iterator_t(
+        t3widget::make_unique<iterator_adapter_t>(items.end(), base));
   }
 };
 
@@ -421,11 +426,11 @@ class filtered_file_list_t
 };
 
 std::unique_ptr<filtered_string_list_base_t> new_filtered_string_list(string_list_base_t *list) {
-  return make_unique<filtered_string_list_t>(list);
+  return t3widget::make_unique<filtered_string_list_t>(list);
 }
 
 std::unique_ptr<filtered_file_list_base_t> new_filtered_file_list(file_list_base_t *list) {
-  return make_unique<filtered_file_list_t>(list);
+  return t3widget::make_unique<filtered_file_list_t>(list);
 }
 
 //===================================== filters ====================================================

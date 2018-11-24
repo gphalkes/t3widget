@@ -24,6 +24,7 @@
 #include <thread>
 #include <utility>
 
+#include "util.h"
 #include "widget_api.h"
 
 #ifdef HAS_SELECT_H
@@ -96,7 +97,7 @@ class x11_base_t {
     /* Clear data from wake-up pipe */
     if (FD_ISSET(wakeup_pipe[0], fds)) {
       char buffer[8];
-      read(wakeup_pipe[0], buffer, sizeof(buffer));
+      nosig_read(wakeup_pipe[0], buffer, sizeof(buffer));
     }
   }
 
@@ -106,7 +107,10 @@ class x11_base_t {
     return wakeup_pipe[0] + 1;
   }
 
-  void send_wakeup() { write(wakeup_pipe[1], &wakeup_pipe, 1); }
+  void send_wakeup() {
+    char data;
+    nosig_write(wakeup_pipe[1], &data, 1);
+  }
 
   x11_atom_t get_atom(int atom) { return atoms[atom]; }
   x11_window_t get_window() { return window; }

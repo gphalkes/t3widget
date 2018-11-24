@@ -125,9 +125,9 @@ std::unique_ptr<finder_t> finder_t::create(const std::string &needle, int flags,
                                            const std::string *replacement) {
   std::unique_ptr<finder_base_t> result;
   if (flags & find_flags_t::REGEX) {
-    result = make_unique<regex_finder_t>(flags, replacement);
+    result = t3widget::make_unique<regex_finder_t>(flags, replacement);
   } else {
-    result = make_unique<plain_finder_t>(flags, replacement);
+    result = t3widget::make_unique<plain_finder_t>(flags, replacement);
   }
   if (!result->set_needle(needle, error_message)) {
     return nullptr;

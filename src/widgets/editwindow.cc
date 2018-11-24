@@ -1586,6 +1586,7 @@ bool edit_window_t::get_indent_aware_home() const { return impl->indent_aware_ho
 bool edit_window_t::get_show_tabs() const { return impl->show_tabs; }
 
 std::unique_ptr<edit_window_t::view_parameters_t> edit_window_t::save_view_parameters() {
+  // This can't use make_unique, as the constructor is private and only this class is a friend.
   return wrap_unique(new view_parameters_t(this));
 }
 

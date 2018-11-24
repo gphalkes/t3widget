@@ -193,7 +193,7 @@ void text_field_t::delete_selection(bool save_to_copy_buffer) {
 
   std::unique_ptr<text_line_t> result = impl->line->cut_line(start, end);
   if (save_to_copy_buffer) {
-    set_clipboard(make_unique<std::string>(result->get_data()));
+    set_clipboard(t3widget::make_unique<std::string>(result->get_data()));
   }
 
   impl->pos = start;
@@ -328,7 +328,8 @@ bool text_field_t::process_key(key_t key) {
                 end = impl->selection_start_pos;
               }
 
-              set_clipboard(make_unique<std::string>(impl->line->get_data(), start, (end - start)));
+              set_clipboard(
+                  t3widget::make_unique<std::string>(impl->line->get_data(), start, (end - start)));
             }
             return true;
 
@@ -698,7 +699,7 @@ void text_field_t::set_selection_end(bool update_primary) {
       start = impl->selection_end_pos;
       length = impl->selection_start_pos - start;
     }
-    set_primary(make_unique<std::string>(impl->line->get_data(), start, length));
+    set_primary(t3widget::make_unique<std::string>(impl->line->get_data(), start, length));
   }
 }
 
@@ -861,7 +862,7 @@ void text_field_t::drop_down_list_t::update_list_pane() {
   }
 
   for (const std::string &str : *completions) {
-    list_pane->push_back(make_unique<label_t>(str));
+    list_pane->push_back(t3widget::make_unique<label_t>(str));
   }
 }
 

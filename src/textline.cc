@@ -916,10 +916,10 @@ text_line_factory_t *text_line_t::get_line_factory() const { return impl->factor
 text_line_factory_t::text_line_factory_t() {}
 text_line_factory_t::~text_line_factory_t() {}
 std::unique_ptr<text_line_t> text_line_factory_t::new_text_line_t(int buffersize) {
-  return make_unique<text_line_t>(buffersize, this);
+  return t3widget::make_unique<text_line_t>(buffersize, this);
 }
 std::unique_ptr<text_line_t> text_line_factory_t::new_text_line_t(string_view _buffer) {
-  return make_unique<text_line_t>(_buffer, this);
+  return t3widget::make_unique<text_line_t>(_buffer, this);
 }
 
 }  // namespace t3widget

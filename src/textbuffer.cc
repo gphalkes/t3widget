@@ -533,8 +533,9 @@ std::unique_ptr<std::string> text_buffer_t::implementation_t::convert_block(text
   }
 
   if (current_start.line == current_end.line) {
-    return make_unique<std::string>(lines[current_start.line]->get_data(), current_start.pos,
-                                    current_end.pos - current_start.pos);
+    return t3widget::make_unique<std::string>(lines[current_start.line]->get_data(),
+                                              current_start.pos,
+                                              current_end.pos - current_start.pos);
   }
 
   // FIXME: new and append may fail!
