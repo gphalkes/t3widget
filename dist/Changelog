@@ -1,7 +1,12 @@
+Version 1.0.0:
+	The API has been overhauled to use more of the features of the C++11
+	standard. This release is both binary and API incompatible with previous
+	releases.
+
 Version 0.6.4:
-  Bug fixes:
-  - Bracketed paste mode was not handled correctly due to inadvertent setting of
-    the EKEY_PROTECT bit.
+	Bug fixes:
+	- Bracketed paste mode was not handled correctly due to inadvertent setting
+	  of the EKEY_PROTECT bit.
 
 Version 0.6.3:
 	Bug fixes:

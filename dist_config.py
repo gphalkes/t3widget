@@ -6,7 +6,7 @@ auxsources= [ 'src/widget_api.h' ]
 extrabuilddirs = [ 'doc' ]
 auxfiles = [ 'doc/doxygen.conf', 'doc/DoxygenLayout.xml', 'doc/main_doc.h' ]
 
-versioninfo = '1:0:0'
+versioninfo = '2:0:0'
 
 
 def get_replacements(mkdist):

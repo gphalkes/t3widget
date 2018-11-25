@@ -88,7 +88,7 @@ distclean: dist-clean
 		-DX11_MOD_NAME=\"$(libdir)/libt3widget/libt3widget<LIBVERSION>-x11.mod\" -c -o $@ $<
 
 src/x11.lo: src/x11.cc
-	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) \
+	$(SILENTCXXLT) $(LIBTOOL) $(SILENCELT) --mode=compile --tag=CXX $(CXX) -shared $(CXXFLAGS) $(CONFIGFLAGS) \
 		$(GETTEXTFLAGS) -DLOCALEDIR=\"$(LOCALEDIR)\" -Isrc -DT3_WIDGET_BUILD_DSO -D_T3_WIDGET_INTERNAL \
 		$(X11_FLAGS) -c -o $@ $<
 
@@ -98,7 +98,7 @@ src/libt3widget.la: $(OBJECTS)
 
 src/libt3widget<LIBVERSION>-x11.la: src/x11.lo src/libt3widget.la
 	$(SILENTLDLT) $(LIBTOOL) $(SILENCELT) --mode=link --tag=CXX $(CXX) -shared -module -avoid-version \
-		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(X11_LIBS) $(GETTEXTLIBS) \
+		-shrext .mod $(CXXFLAGS) $(LDFLAGS) -o $@ src/x11.lo $(LDLIBS) $(CONFIGLIBS) $(X11_LIBS) $(GETTEXTLIBS) \
 		-rpath $(libdir)
 
 # Macros to make DESTDIR support more readable
