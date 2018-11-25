@@ -132,7 +132,8 @@ std::unique_ptr<finder_t> finder_t::create(const std::string &needle, int flags,
   if (!result->set_needle(needle, error_message)) {
     return nullptr;
   }
-  return result;
+  // Using std::move here because some older C++11 compilers didn't correctly treat this as a move.
+  return std::move(result);
 }
 
 //================================= plain_finder_t implementation ==================================

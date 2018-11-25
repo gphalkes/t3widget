@@ -14,9 +14,9 @@
 #ifndef T3_WIDGET_WIDGETS_H
 #define T3_WIDGET_WIDGETS_H
 
-#include <functional>
 #include <cstddef>
 #include <deque>
+#include <functional>
 #include <memory>
 #include <t3widget/interfaces.h>
 

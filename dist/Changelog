@@ -1,3 +1,7 @@
+Version 1.0.1:
+	Fix compilation on some older compilers, that don't automatically apply
+	moves.
+
 Version 1.0.0:
 	The API has been overhauled to use more of the features of the C++11
 	standard. This release is both binary and API incompatible with previous
