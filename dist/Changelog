@@ -1,3 +1,6 @@
+Version 1.0.2:
+	Fix hanging on exit in the X11 module.
+
 Version 1.0.1:
 	Fix compilation on some older compilers, that don't automatically apply
 	moves.

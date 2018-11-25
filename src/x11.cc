@@ -96,8 +96,8 @@ class x11_base_t {
   void x11_acknowledge_wakeup(fd_set *fds) {
     /* Clear data from wake-up pipe */
     if (FD_ISSET(wakeup_pipe[0], fds)) {
-      char buffer[8];
-      nosig_read(wakeup_pipe[0], buffer, sizeof(buffer));
+      char buffer;
+      nosig_read(wakeup_pipe[0], &buffer, sizeof(buffer));
     }
   }
 
