@@ -45,6 +45,7 @@ enum {
   WINCH_SIGNAL,
   QUIT_SIGNAL,
   EXIT_MAIN_LOOP_SIGNAL,
+  RESTART_READ_SIGNAL,
 };
 
 struct kp_mapping_t {
@@ -727,6 +728,11 @@ void reinit_keys() {
   // Enable bracketed paste.
   t3_term_putp("\033[?2004h");
   reinit_mouse_reporting();
+
+  // Notify the read_keys thread that it should restart the select action. This will reinitialize
+  // the file descriptor set, which is necessary for GPM.
+  char restart_read_signal = RESTART_READ_SIGNAL;
+  nosig_write(signal_pipe[1], &restart_read_signal, 1);
 }
 
 void cleanup_keys() {

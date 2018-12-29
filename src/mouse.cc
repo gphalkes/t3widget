@@ -388,6 +388,20 @@ static bool process_gpm_event() {
   mouse_event_buffer.push_back(mouse_event);
   return true;
 }
+
+static void init_gpm() {
+  Gpm_Connect connect;
+  connect.eventMask = GPM_DOWN | GPM_UP | GPM_DRAG | GPM_MOVE;
+  connect.defaultMask = GPM_HARD | GPM_MOVE;
+  connect.minMod = 0;
+  connect.maxMod = ~0;
+
+  use_gpm = true;
+  if (Gpm_Open(&connect, 0) < 0) {
+    use_gpm = false;
+  }
+}
+
 #endif
 
 void init_mouse_reporting(bool xterm_mouse) {
@@ -399,18 +413,7 @@ void init_mouse_reporting(bool xterm_mouse) {
     return;
   }
 #if defined(HAS_GPM)
-  {
-    Gpm_Connect connect;
-    connect.eventMask = GPM_DOWN | GPM_UP | GPM_DRAG | GPM_MOVE;
-    connect.defaultMask = GPM_HARD | GPM_MOVE;
-    connect.minMod = 0;
-    connect.maxMod = ~0;
-
-    if (Gpm_Open(&connect, 0) >= 0) {
-      lprintf("Socket opened successfully\n");
-      use_gpm = true;
-    }
-  }
+  init_gpm();
 #endif
 }
 
@@ -418,12 +421,22 @@ void deinit_mouse_reporting() {
   if (xterm_mouse_reporting) {
     t3_term_putp(disable_mouse);
   }
+#if defined(HAS_GPM)
+  if (use_gpm) {
+    Gpm_Close();
+    use_gpm = false;
+  }
+#endif
 }
 
 void reinit_mouse_reporting() {
   if (xterm_mouse_reporting) {
     t3_term_putp(enable_mouse);
+    return;
   }
+#if defined(HAS_GPM)
+  init_gpm();
+#endif
 }
 
 void stop_mouse_reporting() {
