@@ -232,11 +232,10 @@ bool split_t::unsplit(std::unique_ptr<widget_t> *widget) {
     }
   } else {
     if (current_window->unsplit(widget)) {
-      *current = std::move(current_window->impl->widgets.front());
-      set_widget_parent(current->get());
+      std::unique_ptr<widget_t> wrapped_widget = std::move(current_window->impl->widgets.front());
+      set_widget_parent(wrapped_widget.get());
+      *current = std::move(wrapped_widget);
       (*current)->set_anchor(this, 0);
-      current_window->impl->widgets.clear();
-      delete current_window;
       if (impl->focus) {
         (*current)->set_focus(window_component_t::FOCUS_SET);
       }
