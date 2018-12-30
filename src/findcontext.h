@@ -15,7 +15,6 @@
 #define T3_WIDGET_FINDCONTEXT_H
 
 #include <memory>
-#include <pcre.h>
 #include <string>
 #include <t3widget/string_view.h>
 #include <t3widget/util.h>
@@ -39,7 +38,13 @@ class T3_WIDGET_API finder_t {
   /** Destroy a finder_t instance. */
   virtual ~finder_t();
 
-  /** Try to find the previously set @c needle in a string. */
+  /** Try to find the previously set @c needle in a string.
+
+      @p result is used to determine where search must start and end. When end points within the
+      string (including haystack.size()) are passed, the matching will not match an empty string
+      at the start/end points. To allow matching empty strings at the start/end points, pass a
+      negative position. Note the the line numbers are ignored.
+  */
   virtual bool match(const std::string &haystack, find_result_t *result, bool reverse) = 0;
   /** Retrieve the flags set when setting the search context. */
   virtual int get_flags() const = 0;

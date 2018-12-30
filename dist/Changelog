@@ -7,6 +7,7 @@ Version 1.0.3:
     holding down the mouse button in GPM mode.
   - Ensure that the mouse cursor is visible when the holding down the mouse
     button in GPM mode.
+  - Allow searching for empty strings using regular expressions.
 
 Version 1.0.2:
 	Fix hanging on exit in the X11 module.

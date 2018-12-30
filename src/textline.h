@@ -83,6 +83,9 @@ class T3_WIDGET_API text_line_t {
   static void paint_part(t3window::window_t *win, const char *paint_buffer, text_pos_t todo,
                          bool is_print, t3_attr_t selection_attr);
   static int key_width(key_t key);
+  static text_pos_t adjust_position(string_view str, text_pos_t pos, int adjust);
+  static int byte_width_from_first(string_view str, text_pos_t pos);
+  static int width_at(string_view str, text_pos_t pos);
 
   t3_attr_t get_draw_attrs(text_pos_t i, const paint_info_t &info) const;
 
@@ -91,6 +94,8 @@ class T3_WIDGET_API text_line_t {
 
   void reserve(text_pos_t size);
   int byte_width_from_first(text_pos_t pos) const;
+
+  friend class regex_finder_t;
 
  protected:
   text_line_factory_t *get_line_factory() const;

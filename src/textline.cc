@@ -797,32 +797,36 @@ bool text_line_t::backspace_char(text_pos_t pos, undo_t *undo) {
     This function finds the next (previous) point in the line at which the cursor could be. This
     means skipping all zero-width characters between the current position and the next
     non-zero-width character, and repeating for @a adjust times. */
-text_pos_t text_line_t::adjust_position(text_pos_t pos, int adjust) const {
+text_pos_t text_line_t::adjust_position(string_view str, text_pos_t pos, int adjust) {
   if (adjust > 0) {
-    for (; adjust > 0 && static_cast<size_t>(pos) < impl->buffer.size();
-         adjust -= (width_at(pos) ? 1 : 0)) {
-      pos += byte_width_from_first(pos);
+    for (; adjust > 0 && static_cast<size_t>(pos) < str.size();
+         adjust -= (width_at(str, pos) ? 1 : 0)) {
+      pos += byte_width_from_first(str, pos);
     }
   } else if (adjust < 0) {
-    for (; adjust < 0 && pos > 0; adjust += (width_at(pos) ? 1 : 0)) {
+    for (; adjust < 0 && pos > 0; adjust += (width_at(str, pos) ? 1 : 0)) {
       do {
         pos--;
-      } while (pos > 0 && (impl->buffer[pos] & 0xc0) == 0x80);
+      } while (pos > 0 && (str[pos] & 0xc0) == 0x80);
     }
   } else {
-    while (pos > 0 && width_at(pos) == 0) {
+    while (pos > 0 && width_at(str, pos) == 0) {
       do {
         pos--;
-      } while (pos > 0 && (impl->buffer[pos] & 0xc0) == 0x80);
+      } while (pos > 0 && (str[pos] & 0xc0) == 0x80);
     }
   }
   return pos;
 }
 
+text_pos_t text_line_t::adjust_position(text_pos_t pos, int adjust) const {
+  return adjust_position(impl->buffer, pos, adjust);
+}
+
 text_pos_t text_line_t::size() const { return impl->buffer.size(); }
 
-int text_line_t::byte_width_from_first(text_pos_t pos) const {
-  switch (impl->buffer[pos] & 0xF0) {
+int text_line_t::byte_width_from_first(string_view str, text_pos_t pos) {
+  switch (str[pos] & 0xF0) {
     case 0xF0:
       return 4;
     case 0xE0:
@@ -835,6 +839,10 @@ int text_line_t::byte_width_from_first(text_pos_t pos) const {
   }
 }
 
+int text_line_t::byte_width_from_first(text_pos_t pos) const {
+  return byte_width_from_first(impl->buffer, pos);
+}
+
 int text_line_t::key_width(key_t key) {
   int width = t3_utf8_wcwidth(static_cast<uint32_t>(key));
   if (width < 0) {
@@ -843,8 +851,8 @@ int text_line_t::key_width(key_t key) {
   return width;
 }
 
-int text_line_t::width_at(text_pos_t pos) const {
-  const char *buffer_data = impl->buffer.data();
+int text_line_t::width_at(string_view str, text_pos_t pos) {
+  const char *buffer_data = str.data();
   uint32_t c = t3_utf8_get(buffer_data + pos, nullptr);
   if (is_conjoining_jamo_t(c) && pos > 0) {
     do {
@@ -874,6 +882,9 @@ int text_line_t::width_at(text_pos_t pos) const {
   }
   return key_width(c);
 }
+
+int text_line_t::width_at(text_pos_t pos) const { return width_at(impl->buffer, pos); }
+
 bool text_line_t::is_print(text_pos_t pos) const {
   return impl->buffer[pos] == '\t' ||
          !uc_is_general_category_withtable(t3_utf8_get(impl->buffer.data() + pos, nullptr),

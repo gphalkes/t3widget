@@ -184,15 +184,15 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
   size_t c_size;
   const char *c;
 
-  text_pos_t start;
+  text_pos_t start = std::max<text_pos_t>(0, result->start.pos);
+  if (static_cast<size_t>(start) > haystack.size()) {
+    start = static_cast<text_pos_t>(haystack.size());
+  }
+  text_pos_t end = result->end.pos < 0 || static_cast<size_t>(result->end.pos) > haystack.size()
+                       ? static_cast<text_pos_t>(haystack.size())
+                       : result->end.pos;
   if (reverse) {
-    start = result->end.pos >= 0 && static_cast<size_t>(result->end.pos) > haystack.size()
-                ? static_cast<text_pos_t>(haystack.size())
-                : result->end.pos;
-  } else {
-    start = result->start.pos >= 0 && static_cast<size_t>(result->start.pos) > haystack.size()
-                ? static_cast<text_pos_t>(haystack.size())
-                : result->start.pos;
+    std::swap(start, end);
   }
   text_pos_t curr_char = start;
 
@@ -201,7 +201,7 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
     while (curr_char > 0) {
       text_pos_t next_char = adjust_position(haystack, curr_char, -1);
 
-      if (next_char < result->start.pos) {
+      if (next_char < end) {
         return false;
       }
 
@@ -236,7 +236,7 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
     while (static_cast<size_t>(curr_char) < haystack.size()) {
       text_pos_t next_char = adjust_position(haystack, curr_char, 1);
 
-      if (next_char > result->end.pos) {
+      if (next_char > end) {
         return false;
       }
 
@@ -345,7 +345,7 @@ bool regex_finder_t::match(const std::string &haystack, find_result_t *result, b
     return false;
   }
 
-  int pcre_flags = PCRE_NOTEMPTY | PCRE_NO_UTF8_CHECK;
+  int pcre_flags = PCRE_NO_UTF8_CHECK;
   /* Because of the way we match backwards, we can't directly use the ovector
      in context. That gets destroyed by trying to find a further match if none
      exists. */
@@ -357,30 +357,75 @@ bool regex_finder_t::match(const std::string &haystack, find_result_t *result, b
 
   text_pos_t start = result->start.pos;
   text_pos_t end = result->end.pos;
+  bool may_not_match_end = true;
+  bool may_not_match_start = true;
 
-  if (static_cast<size_t>(end) >= haystack.size()) {
+  if (static_cast<size_t>(end) > haystack.size() || end < 0) {
+    end = haystack.size();
+    may_not_match_end = false;
+  } else if (static_cast<size_t>(end) >= haystack.size() || end < 0) {
     end = haystack.size();
   } else {
     pcre_flags |= PCRE_NOTEOL;
   }
 
+  if (start < 0) {
+    may_not_match_start = false;
+    start = 0;
+  }
+  if (start != 0) {
+    pcre_flags |= PCRE_NOTBOL;
+  }
+
   // FIXME: pcre_exec uses int arguments; need to handle the overflow gracefully.
   if (reverse) {
-    do {
+    while (start <= end) {
       match_result = pcre_exec(regex_.get(), nullptr, haystack.data(), end, start, pcre_flags,
                                local_ovector, sizeof(local_ovector) / sizeof(local_ovector[0]));
-      if (match_result >= 0) {
-        found_ = true;
+      if (match_result < 0) {
+        break;
+      }
+      const bool found_this_iteration = may_not_match_end ? local_ovector[0] != end : true;
+      found_ |= found_this_iteration;
+      if (found_this_iteration) {
         memcpy(ovector_, local_ovector, sizeof(ovector_));
         captures_ = match_result;
-        start = text_pos_t(ovector_[1]);
       }
-    } while (match_result >= 0);
+      if (start == text_pos_t(local_ovector[1])) {
+        text_pos_t new_start = text_line_t::adjust_position(haystack, start, 1);
+        if (new_start == start) {
+          break;
+        }
+        start = new_start;
+      } else {
+        start = text_pos_t(local_ovector[1]);
+      }
+      pcre_flags |= PCRE_NOTBOL;
+    }
   } else {
-    match_result = pcre_exec(regex_.get(), nullptr, haystack.data(), end, start, pcre_flags,
-                             ovector_, sizeof(ovector_) / sizeof(ovector_[0]));
-    captures_ = match_result;
-    found_ = match_result >= 0;
+    while (true) {
+      match_result = pcre_exec(regex_.get(), nullptr, haystack.data(), end, start, pcre_flags,
+                               ovector_, sizeof(ovector_) / sizeof(ovector_[0]));
+      captures_ = match_result;
+      if (match_result < 0) {
+        break;
+      }
+      if (may_not_match_start) {
+        may_not_match_start = false;
+        found_ = ovector_[1] != start;
+        if (!found_) {
+          text_pos_t new_start = text_line_t::adjust_position(haystack, start, 1);
+          if (new_start == start) {
+            break;
+          }
+          start = new_start;
+        }
+      } else {
+        found_ = true;
+        break;
+      }
+      pcre_flags |= PCRE_NOTBOL;
+    }
   }
   if (!found_) {
     return false;

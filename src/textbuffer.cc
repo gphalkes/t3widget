@@ -785,13 +785,13 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
   if (((finder->get_flags() & find_flags_t::BACKWARD) != 0) ^ reverse) {
     start = idx = result->start.line;
     result->end = result->start;
-    result->start.pos = 0;
+    result->start.pos = -1;
     if (finder->match(lines[idx]->get_data(), result, true)) {
       result->start.line = result->end.line = idx;
       return true;
     }
 
-    result->end.pos = std::numeric_limits<text_pos_t>::max();
+    result->end.pos = -1;
     for (; idx > 0;) {
       idx--;
       if (finder->match(lines[idx]->get_data(), result, true)) {
@@ -814,13 +814,13 @@ bool text_buffer_t::implementation_t::find(finder_t *finder, find_result_t *resu
   } else {
     start = idx = cursor.line;
     result->start = cursor;
-    result->end.pos = std::numeric_limits<text_pos_t>::max();
+    result->end.pos = -1;
     if (finder->match(lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;
     }
 
-    result->start.pos = 0;
+    result->start.pos = -1;
     const size_t lines_size = lines.size();
     for (idx++; idx < static_cast<text_pos_t>(lines_size); idx++) {
       if (finder->match(lines[idx]->get_data(), result, false)) {
