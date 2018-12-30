@@ -380,19 +380,24 @@ complex_error_t init(const init_parameters_t *params) {
 }
 
 void iterate() {
+  static bool should_draw_mouse_cursor = false;
   key_t key;
   mouse_event_t mouse_event;
 
   dialog_t::update_dialogs();
   t3_term_update();
-  draw_mouse_cursor(mouse_event);
+  if (should_draw_mouse_cursor) {
+    draw_mouse_cursor(mouse_event);
+  }
   key = read_key();
   if (key == EKEY_MOUSE_EVENT) {
+    should_draw_mouse_cursor = true;
     mouse_event = read_mouse_event();
     lprintf("Got mouse event: x=%d, y=%d, button_state=%d, modifier_state=%d\n", mouse_event.x,
             mouse_event.y, mouse_event.button_state, mouse_event.modifier_state);
     mouse_target_t::handle_mouse_event(mouse_event);
   } else {
+    should_draw_mouse_cursor = false;
     lprintf("Got key %04X\n", key);
     switch (key) {
       case EKEY_RESIZE:

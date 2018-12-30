@@ -356,7 +356,7 @@ static bool process_gpm_event() {
     if (gpm_event.buttons & GPM_B_MIDDLE) {
       mouse_event.button_state = mouse_button_state |= EMOUSE_BUTTON_MIDDLE;
     }
-    gpm_visiblepointer = 1;
+    // gpm_visiblepointer = 1;
   } else if (gpm_event.type & GPM_UP) {
     mouse_event.type = EMOUSE_BUTTON_RELEASE;
     if (gpm_event.buttons & GPM_B_LEFT) {
@@ -368,7 +368,7 @@ static bool process_gpm_event() {
     if (gpm_event.buttons & GPM_B_MIDDLE) {
       mouse_event.button_state = mouse_button_state &= ~EMOUSE_BUTTON_MIDDLE;
     }
-    gpm_visiblepointer = 0;
+    // gpm_visiblepointer = 0;
   } else if (gpm_event.wdy != 0) {
     mouse_event.type = EMOUSE_BUTTON_PRESS;
     mouse_event.button_state |= gpm_event.wdy < 0 ? EMOUSE_SCROLL_DOWN : EMOUSE_SCROLL_UP;
@@ -480,7 +480,7 @@ bool check_mouse_fd(fd_set *readset) {
 
 void draw_mouse_cursor(const mouse_event_t &event) {
 #if defined(HAS_GPM)
-  if (use_gpm && gpm_visiblepointer) {
+  if (use_gpm /*&& gpm_visiblepointer*/) {
     Gpm_DrawPointer(event.x + 1, event.y + 1, gpm_consolefd);
   }
 #endif
