@@ -181,5 +181,8 @@ reverse_view(T &t) {
 
 T3_WIDGET_LOCAL bool starts_with(const std::string &str, const std::string &with);
 
+// Calls the relevant GPM function to show the mouse cursor if the mouse button is down.
+T3_WIDGET_LOCAL void draw_mouse_cursor(const mouse_event_t &event);
+
 }  // namespace t3widget
 #endif

@@ -3,6 +3,10 @@ Version 1.0.3:
   - Unsplitting caused segmentation faults.
   - The connection to GPM remained open during suspend, making GPM useless for
     the duration of the suspend.
+  - Prevent the mouse cursor from moving beyond the top of the screen while
+    holding down the mouse button in GPM mode.
+  - Ensure that the mouse cursor is visible when the holding down the mouse
+    button in GPM mode.
 
 Version 1.0.2:
 	Fix hanging on exit in the X11 module.
