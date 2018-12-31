@@ -95,7 +95,7 @@ void message_dialog_t::set_message(string_view message) {
   text_buffer_t *text = new text_buffer_t();
   text_pos_t text_height;
 
-  impl->text_window->set_size(None, window.get_width() - 2);
+  impl->text_window->set_size(None, window.get_width() - 4);
 
   text->append_text(message);
   old_text = impl->text_window->get_text();
@@ -103,7 +103,7 @@ void message_dialog_t::set_message(string_view message) {
   delete old_text;
 
   impl->text_window->set_anchor(this, 0);
-  impl->text_window->set_position(1, 1);
+  impl->text_window->set_position(1, 2);
   impl->text_window->set_scrollbar(false);
   impl->text_window->set_enabled(false);
 
