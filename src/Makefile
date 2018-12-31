@@ -86,7 +86,7 @@ CXXFLAGS += -D_T3_WIDGET_DEBUG
 CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -DHAS_STRDUP
 CXXFLAGS += -pthread
-CXXFLAGS += `pkg-config --cflags libpcre`
+CXXFLAGS += `pkg-config --cflags libpcre2-8`
 CXXFLAGS += -std=c++11
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
@@ -98,7 +98,7 @@ CXXFLAGS += -DHAS_GPM
 LDLIBS.libt3widget.la += $(T3LDFLAGS.t3window) -lt3window
 LDLIBS.libt3widget.la += $(T3LDFLAGS.transcript) -ltranscript
 LDLIBS.libt3widget.la += $(T3LDFLAGS.t3key) -lt3key
-LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
+LDLIBS.libt3widget.la += `pkg-config --libs libpcre2-8`
 LDLIBS.libt3widget.la += -lunistring
 LDLIBS.libt3widget.la += -lgpm
 LDLIBS.libt3widget.la += -lm

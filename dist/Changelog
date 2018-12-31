@@ -1,13 +1,16 @@
 Version 1.0.3:
-  Bug fixes:
-  - Unsplitting caused segmentation faults.
-  - The connection to GPM remained open during suspend, making GPM useless for
-    the duration of the suspend.
-  - Prevent the mouse cursor from moving beyond the top of the screen while
-    holding down the mouse button in GPM mode.
-  - Ensure that the mouse cursor is visible when the holding down the mouse
-    button in GPM mode.
-  - Allow searching for empty strings using regular expressions.
+	New features:
+	- Migrate to using PCRE2 instead of PCRE.
+
+	Bug fixes:
+	- Unsplitting caused segmentation faults.
+	- The connection to GPM remained open during suspend, making GPM useless for
+	  the duration of the suspend.
+	- Prevent the mouse cursor from moving beyond the top of the screen while
+	  holding down the mouse button in GPM mode.
+	- Ensure that the mouse cursor is visible when the holding down the mouse
+	  button in GPM mode.
+	- Allow searching for empty strings using regular expressions.
 
 Version 1.0.2:
 	Fix hanging on exit in the X11 module.
