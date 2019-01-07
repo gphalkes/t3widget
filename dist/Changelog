@@ -1,3 +1,7 @@
+Version 1.0.4:
+	Introduce a PCRE2 compatibility layer using PCRE, to allow compilation on
+	platforms which don't provide PCRE2.
+
 Version 1.0.3:
 	New features:
 	- Migrate to using PCRE2 instead of PCRE.

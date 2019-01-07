@@ -174,7 +174,21 @@ int main(int argc, char *argv[]) {
 }
 EOF
 
-	pkgconfig libpcre2-8 LIBPCRE test_link_cxx PKGCONFIG_REQUIRES_PRIVATE || \
+	pkgconfig libpcre2-8 LIBPCRE test_link_cxx PKGCONFIG_REQUIRES_PRIVATE || {
+		clean_c
+		cat > .configcxx.cc <<EOF
+#include <pcre.h>
+int main(int argc, char *argv[]) {
+	int err;
+	int err_offset;
+	char *error_message;
+	pcre *pcre = pcre_compile2("pattern", PCRE_UTF8, &err, &error_message, &err_offset, NULL);
+	return 0;
+}
+EOF
+		pkgconfig libpcre LIBPCRE test_link PKGCONFIG_REQUIRES_PRIVATE && \
+			CONFIGFLAGS="${CONFIGFLAGS} -DPCRE_COMPAT"
+	} || \
 		error "!! Can not find libpcre2-8. libpcre2-8 is required to compile libt3widget."
 
 	if test_select "select in <sys/select.h>" "sys/select.h" ; then

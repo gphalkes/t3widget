@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+PCRE_COMPAT ?= 0
+
 SOURCES.libt3widget.la := \
 	autocompleter.cc \
 	clipboard.cc \
@@ -24,6 +26,7 @@ SOURCES.libt3widget.la := \
 	main.cc \
 	modified_xxhash.cc \
 	mouse.cc \
+	pcre_compat.cc \
 	string_view.cc \
 	stringmatcher.cc \
 	textbuffer.cc \
@@ -86,7 +89,11 @@ CXXFLAGS += -D_T3_WIDGET_DEBUG
 CXXFLAGS += -D_T3_WIDGET_INTERNAL
 CXXFLAGS += -DHAS_STRDUP
 CXXFLAGS += -pthread
+ifeq ($(PCRE_COMPAT), 0)
 CXXFLAGS += `pkg-config --cflags libpcre2-8`
+else
+CXXFLAGS += `pkg-config --cflags libpcre` -DPCRE_COMPAT
+endif
 CXXFLAGS += -std=c++11
 # Set default visibility to hidden, so we find out when we forgot to export something
 CXXFLAGS += -fvisibility=hidden
@@ -98,7 +105,11 @@ CXXFLAGS += -DHAS_GPM
 LDLIBS.libt3widget.la += $(T3LDFLAGS.t3window) -lt3window
 LDLIBS.libt3widget.la += $(T3LDFLAGS.transcript) -ltranscript
 LDLIBS.libt3widget.la += $(T3LDFLAGS.t3key) -lt3key
+ifneq ($(PCRE_COMPAT), 1)
 LDLIBS.libt3widget.la += `pkg-config --libs libpcre2-8`
+else
+LDLIBS.libt3widget.la += `pkg-config --libs libpcre`
+endif
 LDLIBS.libt3widget.la += -lunistring
 LDLIBS.libt3widget.la += -lgpm
 LDLIBS.libt3widget.la += -lm

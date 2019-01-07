@@ -17,7 +17,11 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#ifdef PCRE_COMPAT
+#include "t3widget/pcre_compat.h"
+#else
 #include <pcre2.h>
+#endif
 #include <string>
 #include <unicase.h>
 
@@ -330,7 +334,7 @@ bool regex_finder_t::set_needle(const std::string &needle, std::string *error_me
     pcre_flags |= PCRE2_CASELESS;
   }
 
-  regex_.reset(pcre2_compile_8(reinterpret_cast<PCRE2_SPTR8>(pattern.data()), pattern.size(),
+  regex_.reset(pcre2_compile_8(reinterpret_cast<PCRE2_SPTR8>(pattern.c_str()), pattern.size(),
                                pcre_flags, &error_code, &error_offset, nullptr));
   if (regex_ == nullptr) {
     char buffer[256];
