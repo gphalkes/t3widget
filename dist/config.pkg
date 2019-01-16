@@ -181,7 +181,7 @@ EOF
 int main(int argc, char *argv[]) {
 	int err;
 	int err_offset;
-	char *error_message;
+	const char *error_message;
 	pcre *pcre = pcre_compile2("pattern", PCRE_UTF8, &err, &error_message, &err_offset, NULL);
 	return 0;
 }
