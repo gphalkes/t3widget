@@ -1,6 +1,12 @@
+Version 1.0.6:
+	Bug fixes
+	- Search & replace handles zero-width search results from regular expressions
+	  allowing, for example, inserting a string at the start of the line by
+	  replacing the pattern ^ by some text.
+
 Version 1.0.5:
-  Fix the configure script such that it attempts to compile all tests using the
-  correct CXXFLAGS.
+	Fix the configure script such that it attempts to compile all tests using the
+	correct CXXFLAGS.
 
 Version 1.0.4:
 	Introduce a PCRE2 compatibility layer using PCRE, to allow compilation on

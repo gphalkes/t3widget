@@ -351,7 +351,7 @@ void edit_window_t::repaint_screen() {
         info.selection_end = -1;
       }
 
-      info.cursor = impl->focus && impl->top_left.line + i == cursor.line ? cursor.pos : -1;
+      info.cursor = impl->top_left.line + i == cursor.line ? cursor.pos : -1;
       impl->edit_window.set_paint(i, 0);
       impl->edit_window.clrtoeol();
       text->paint_line(&impl->edit_window, impl->top_left.line + i, info);
@@ -378,7 +378,7 @@ void edit_window_t::repaint_screen() {
         info.selection_end = -1;
       }
 
-      info.cursor = impl->focus && draw_line.line == cursor.line ? cursor.pos : -1;
+      info.cursor = draw_line.line == cursor.line ? cursor.pos : -1;
       impl->edit_window.set_paint(i, 0);
       impl->edit_window.clrtoeol();
       impl->wrap_info->paint_line(&impl->edit_window, draw_line, info);
@@ -783,17 +783,19 @@ void edit_window_t::find_activated(std::shared_ptr<finder_t> _finder, find_actio
       break;
     case find_action_t::REPLACE_ALL: {
       int replacements;
-      text_coordinate_t start(0, 0);
+      text_coordinate_t start(0, -1);
       text_coordinate_t eof(std::numeric_limits<text_pos_t>::max(),
                             std::numeric_limits<text_pos_t>::max());
 
       for (replacements = 0; text->find_limited(local_finder, start, eof, &result);
            replacements++) {
+        lprintf("Find result: %ld %ld\n", result.start.line, result.start.pos);
         if (replacements == 0) {
           text->start_undo_block();
         }
         text->replace(*local_finder, result);
         start = text->get_cursor();
+        lprintf("New start: %ld %ld\n", start.line, start.pos);
       }
 
       if (replacements == 0) {
@@ -1188,7 +1190,7 @@ void edit_window_t::update_contents() {
      - cursor-only movements mostly don't require entire redraws [well, that depends:
         for matching brace/parenthesis it may require more than a single line update]
   */
-  if (!impl->focus && !reset_redraw()) {
+  if (!reset_redraw()) {
     return;
   }
 

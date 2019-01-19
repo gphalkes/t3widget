@@ -173,14 +173,7 @@ bool text_buffer_t::find_limited(finder_t *finder, text_coordinate_t start, text
 }
 
 void text_buffer_t::replace(const finder_t &finder, const find_result_t &result) {
-  std::string replacement_str;
-
-  if (result.start == result.end) {
-    return;
-  }
-
-  replacement_str = finder.get_replacement(impl->lines[result.start.line]->get_data());
-
+  std::string replacement_str = finder.get_replacement(impl->lines[result.start.line]->get_data());
   replace_block(result.start, result.end, replacement_str);
 }
 
@@ -495,14 +488,12 @@ bool text_buffer_t::implementation_t::replace_block(text_coordinate_t start, tex
 
   // FIXME: check that everything succeeds and return false if it doesn't
   // FIXME: make sure original state is restored on failing sub action
-  // Simply insert on empty block.
-  if (start == end) {
-    return insert_block(block);
-  }
 
   start_undo_block();
   text_coordinate_t loc = std::min(start, end);
-  delete_block_internal(start, end, get_undo(UNDO_DELETE, loc));
+  if (start != end) {
+    delete_block_internal(start, end, get_undo(UNDO_DELETE, loc));
+  }
 
   converted_block = line_factory->new_text_line_t(block);
   *get_undo(UNDO_ADD, loc)->get_text() = converted_block->get_data();
@@ -852,14 +843,14 @@ bool text_buffer_t::implementation_t::find_limited(finder_t *finder, text_coordi
   /* Note: the finder->match function does not take value of result->start.line
      and result->end.line into account. */
   result->start = start;
-  result->end.pos = std::numeric_limits<text_pos_t>::max();
+  result->end.pos = -1;
 
   for (idx = start.line; static_cast<size_t>(idx) < lines.size() && idx < end.line; idx++) {
     if (finder->match(lines[idx]->get_data(), result, false)) {
       result->start.line = result->end.line = idx;
       return true;
     }
-    result->start.pos = 0;
+    result->start.pos = -1;
   }
 
   result->end = end;
