@@ -1,3 +1,7 @@
+Version 1.0.5:
+  Fix the configure script such that it attempts to compile all tests using the
+  correct CXXFLAGS.
+
 Version 1.0.4:
 	Introduce a PCRE2 compatibility layer using PCRE, to allow compilation on
 	platforms which don't provide PCRE2.
