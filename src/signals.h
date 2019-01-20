@@ -101,12 +101,17 @@ class T3_WIDGET_API signal_t {
  public:
   /// Add a callback to be called on activation.
   connection_t connect(std::function<void(Args...)> func) {
-    for (auto iter = funcs.begin(); iter != funcs.end();) {
-      if (!(*iter)->is_valid()) {
-        // Remove functions that no longer exist.
-        iter = funcs.erase(iter);
-      } else {
-        ++iter;
+    /* Only remove elements from the list if this is not called from within an activation. Doing so
+       within an activation will mean that we modify a list that is being iterated over, causing
+       invalid results. */
+    if (!in_activation_) {
+      for (auto iter = funcs.begin(); iter != funcs.end();) {
+        if (!(*iter)->is_valid()) {
+          // Remove functions that no longer exist.
+          iter = funcs.erase(iter);
+        } else {
+          ++iter;
+        }
       }
     }
     funcs.emplace_back(new internal::func_ptr_t<Args...>(func));
@@ -115,11 +120,14 @@ class T3_WIDGET_API signal_t {
 
   /// Activate the signal, i.e. call all the registered active callbacks.
   void operator()(Args... args) const {
+    bool in_activation = in_activation_;
+    in_activation_ = true;
     for (const std::shared_ptr<internal::func_ptr_base_t> &func : funcs) {
       if (func->is_valid() && !func->is_blocked()) {
         static_cast<internal::func_ptr_t<Args...> *>(func.get())->call(args...);
       }
     }
+    in_activation_ = in_activation;
   }
 
   /** Get a callback which, when called, activates the signal.
@@ -131,6 +139,7 @@ class T3_WIDGET_API signal_t {
   }
 
  private:
+  mutable bool in_activation_ = false;
   std::list<std::shared_ptr<internal::func_ptr_base_t>> funcs;
 };
 
