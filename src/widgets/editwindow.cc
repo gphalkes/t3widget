@@ -1043,36 +1043,10 @@ bool edit_window_t::process_key(key_t key) {
       break;
 
     case EKEY_SHIFT | '\t':
-      if (text->get_selection_mode() != selection_mode_t::NONE &&
-          text->get_selection_start().line != text->get_selection_end().line) {
-        unindent_selection();
-      } else {
-        text->unindent_line(impl->tabsize);
-        ensure_cursor_on_screen();
-        impl->last_set_pos = impl->screen_pos;
-        text_pos_t cursor_line = text->get_cursor().line;
-        update_repaint_lines(cursor_line);
-      }
+      unindent_selection();
       break;
     case '\t':
-      if (text->get_selection_mode() != selection_mode_t::NONE &&
-          text->get_selection_start().line != text->get_selection_end().line) {
-        indent_selection();
-      } else {
-        std::string space;
-        if (text->get_selection_mode() != selection_mode_t::NONE) {
-          delete_selection();
-        }
-
-        if (impl->tab_spaces) {
-          space.append(impl->tabsize - (impl->screen_pos % impl->tabsize), ' ');
-        } else {
-          space.append(1, '\t');
-        }
-        text->insert_block(space);
-        ensure_cursor_on_screen();
-        impl->last_set_pos = impl->screen_pos;
-      }
+      indent_selection();
       break;
     case EKEY_PASTE_START:
       if (!impl->pasting_text) {
@@ -1346,17 +1320,43 @@ void edit_window_t::insert_special() {
 }
 
 void edit_window_t::indent_selection() {
-  text->indent_selection(impl->tabsize, impl->tab_spaces);
-  ensure_cursor_on_screen();
-  impl->last_set_pos = impl->screen_pos;
-  update_repaint_lines(text->get_selection_start().line, text->get_selection_end().line);
+  if (text->get_selection_mode() != selection_mode_t::NONE &&
+      text->get_selection_start().line != text->get_selection_end().line) {
+    text->indent_selection(impl->tabsize, impl->tab_spaces);
+    ensure_cursor_on_screen();
+    impl->last_set_pos = impl->screen_pos;
+    update_repaint_lines(text->get_selection_start().line, text->get_selection_end().line);
+  } else {
+    std::string space;
+    if (text->get_selection_mode() != selection_mode_t::NONE) {
+      delete_selection();
+    }
+
+    if (impl->tab_spaces) {
+      space.append(impl->tabsize - (impl->screen_pos % impl->tabsize), ' ');
+    } else {
+      space.append(1, '\t');
+    }
+    text->insert_block(space);
+    ensure_cursor_on_screen();
+    impl->last_set_pos = impl->screen_pos;
+  }
 }
 
 void edit_window_t::unindent_selection() {
-  text->unindent_selection(impl->tabsize);
-  ensure_cursor_on_screen();
-  impl->last_set_pos = impl->screen_pos;
-  update_repaint_lines(text->get_selection_start().line, text->get_selection_end().line);
+  if (text->get_selection_mode() != selection_mode_t::NONE &&
+      text->get_selection_start().line != text->get_selection_end().line) {
+    text->unindent_selection(impl->tabsize);
+    ensure_cursor_on_screen();
+    impl->last_set_pos = impl->screen_pos;
+    update_repaint_lines(text->get_selection_start().line, text->get_selection_end().line);
+  } else {
+    text->unindent_line(impl->tabsize);
+    ensure_cursor_on_screen();
+    impl->last_set_pos = impl->screen_pos;
+    text_pos_t cursor_line = text->get_cursor().line;
+    update_repaint_lines(cursor_line);
+  }
 }
 
 void edit_window_t::goto_line() {
