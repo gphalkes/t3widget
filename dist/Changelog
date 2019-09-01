@@ -1,3 +1,8 @@
+Version 1.0.7:
+	Bug fixes
+	- Handle errors in getcwd more gracefully (i.e. return / as current working
+	  directory).
+
 Version 1.0.6:
 	Bug fixes
 	- Search & replace handles zero-width search results from regular expressions

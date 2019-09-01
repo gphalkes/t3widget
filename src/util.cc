@@ -284,30 +284,31 @@ std::string get_working_directory() {
   size_t buffer_max = 511;
   char *buffer = nullptr, *result;
 
+  call_on_return_t free_buffer([&] { free(buffer); });
+
   do {
     result = reinterpret_cast<char *>(realloc(buffer, buffer_max));
     if (result == nullptr) {
-      free(buffer);
       throw ENOMEM;
     }
     buffer = result;
     if ((result = getcwd(buffer, buffer_max)) == nullptr) {
       if (errno != ERANGE) {
-        int error_save = errno;
-        free(buffer);
-        throw error_save;
+        lprintf("Could not get working directory (returning /): %s\n", strerror(errno));
+        return "/";
       }
 
       if ((static_cast<size_t>(-1)) / 2 < buffer_max) {
-        free(buffer);
         throw ENOMEM;
       }
     }
   } while (result == nullptr);
 
-  std::string retval(buffer);
-  free(buffer);
-  return retval;
+  if (buffer[0] == '/') {
+    return buffer;
+  } else {
+    return "/";
+  }
 }
 
 std::string get_directory(string_view directory) {
