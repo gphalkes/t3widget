@@ -782,6 +782,36 @@ bool text_line_t::append_char(key_t c, undo_t *undo) {
   return insert_char(impl->buffer.size(), c, undo);
 }
 
+/* Backspace word at 'pos' */
+bool text_line_t::backspace_word(text_pos_t pos, text_pos_t newpos, undo_t *undo) {
+    text_pos_t oldspace;
+
+  if (pos < 0 || static_cast<size_t>(pos) > impl->buffer.size()) {
+    return false;
+  }
+
+  if (newpos < 0 || static_cast<size_t>(newpos) > impl->buffer.size()) {
+    return false;
+  }
+
+  if (impl->starts_with_combining && newpos == 0) {
+    impl->starts_with_combining = false;
+  }
+
+  oldspace = pos - newpos;
+  if (undo != nullptr) {
+    tiny_string_t *undo_text = undo->get_text();
+    undo_text->reserve(oldspace);
+    ASSERT(undo->get_type() == UNDO_BACKSPACE_WORD);
+    undo_text->insert(undo_text->size(),
+                      string_view(impl->buffer.data() + newpos, oldspace));
+  }
+
+  impl->buffer.erase(newpos, oldspace);
+
+  return true;
+}
+
 /* Delete char at 'pos - 1' */
 bool text_line_t::backspace_char(text_pos_t pos, undo_t *undo) {
   if (pos == 0) {

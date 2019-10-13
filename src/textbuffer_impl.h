@@ -57,6 +57,7 @@ struct text_buffer_t::implementation_t {
   bool overwrite_char(key_t c);
   bool delete_char();
   bool backspace_char();
+  bool backspace_word();
   bool merge_internal(text_pos_t line);
   bool insert_block_internal(text_coordinate_t insert_at, std::unique_ptr<text_line_t> block);
   void delete_block_internal(text_coordinate_t start, text_coordinate_t end, undo_t *undo);
