@@ -231,7 +231,6 @@ bool text_field_t::process_key(key_t key) {
           newpos = 0;
         }
         if (impl->line->backspace_word(impl->pos, newpos, nullptr)) {
-          impl->line->backspace_word(impl->pos, newpos, nullptr);
           impl->pos = newpos;
           ensure_cursor_on_screen();
           force_redraw();
