@@ -1012,6 +1012,29 @@ bool edit_window_t::process_key(key_t key) {
       impl->last_set_pos = impl->screen_pos;
       break;
     }
+    case EKEY_BS | EKEY_CTRL:
+      if (text->get_selection_mode() == selection_mode_t::NONE) {
+        const text_coordinate_t cursor = text->get_cursor();
+        if (cursor.pos <= text->get_line_size(cursor.line)) {
+          if (cursor.pos != 0) {
+            text->backspace_word();
+            update_repaint_lines(cursor.line);
+          } else if (cursor.line != 0) {
+            text->merge(true);
+            update_repaint_lines(cursor.line);
+          }
+        } else {
+          ASSERT(false);
+        }
+        ensure_cursor_on_screen();
+        impl->last_set_pos = impl->screen_pos;
+      } else {
+        delete_selection();
+      }
+      if (impl->autocomplete_panel->is_shown()) {
+        activate_autocomplete(false);
+      }
+      break;
     case EKEY_BS:
       if (text->get_selection_mode() == selection_mode_t::NONE) {
         const text_coordinate_t cursor = text->get_cursor();
