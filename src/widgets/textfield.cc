@@ -222,6 +222,23 @@ bool text_field_t::process_key(key_t key) {
     case EKEY_UP:
       move_focus_up();
       break;
+    case EKEY_BS | EKEY_CTRL:
+      if (impl->selection_mode != selection_mode_t::NONE) {
+        delete_selection(false);
+      } else if (impl->pos > 0) {
+        text_pos_t newpos = impl->line->get_previous_word(impl->pos);
+        if(newpos < 0) {
+          newpos = 0;
+        }
+        if (impl->line->backspace_word(impl->pos, newpos, nullptr)) {
+          impl->line->backspace_word(impl->pos, newpos, nullptr);
+          impl->pos = newpos;
+          ensure_cursor_on_screen();
+          force_redraw();
+          impl->edited = true;
+        }
+      }
+      break;
     case EKEY_BS:
       if (impl->selection_mode != selection_mode_t::NONE) {
         delete_selection(false);
