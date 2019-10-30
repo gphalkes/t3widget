@@ -13,7 +13,6 @@
 */
 #include <algorithm>
 #include <cstring>
-#include <ext/alloc_traits.h>
 #include <limits>
 #include <memory>
 #include <string>
