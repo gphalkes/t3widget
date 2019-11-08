@@ -278,11 +278,11 @@ bool text_buffer_t::implementation_t::backspace_char() {
 bool text_buffer_t::implementation_t::backspace_word() {
   text_pos_t newpos;
   text_line_t *line = lines[cursor.line].get();
-  newpos =  line->get_previous_word(cursor.pos);
-  if(newpos < 0) {
+  newpos = line->get_previous_word(cursor.pos);
+  if (newpos < 0) {
     newpos = 0;
   }
-  if (!line->backspace_word(cursor.pos, newpos, get_undo(UNDO_BACKSPACE_WORD))) {
+  if (!line->backspace_word(cursor.pos, newpos, get_undo(UNDO_BACKSPACE))) {
     return false;
   }
   cursor.pos = newpos;
@@ -717,11 +717,6 @@ void text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *
       if (type == UNDO_DELETE) {
         cursor = start;
       }
-      break;
-    case UNDO_BACKSPACE_WORD:
-      start = current->get_start();
-      start.pos -= current->get_text()->size();
-      insert_block_internal(start, line_factory->new_text_line_t(*current->get_text()));
       break;
     case UNDO_BACKSPACE:
       start = current->get_start();

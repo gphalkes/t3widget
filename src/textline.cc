@@ -784,7 +784,7 @@ bool text_line_t::append_char(key_t c, undo_t *undo) {
 
 /* Backspace word at 'pos' */
 bool text_line_t::backspace_word(text_pos_t pos, text_pos_t newpos, undo_t *undo) {
-    text_pos_t oldspace;
+  text_pos_t oldspace;
 
   if (pos < 0 || static_cast<size_t>(pos) > impl->buffer.size()) {
     return false;
@@ -802,9 +802,8 @@ bool text_line_t::backspace_word(text_pos_t pos, text_pos_t newpos, undo_t *undo
   if (undo != nullptr) {
     tiny_string_t *undo_text = undo->get_text();
     undo_text->reserve(oldspace);
-    ASSERT(undo->get_type() == UNDO_BACKSPACE_WORD);
-    undo_text->insert(undo_text->size(),
-                      string_view(impl->buffer.data() + newpos, oldspace));
+    ASSERT(undo->get_type() == UNDO_BACKSPACE);
+    undo_text->insert(0, string_view(impl->buffer.data() + newpos, oldspace));
   }
 
   impl->buffer.erase(newpos, oldspace);
