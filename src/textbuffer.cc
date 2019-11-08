@@ -57,6 +57,8 @@ bool text_buffer_t::delete_char() { return impl->delete_char(); }
 
 bool text_buffer_t::backspace_char() { return impl->backspace_char(); }
 
+bool text_buffer_t::backspace_word() { return impl->backspace_word(); }
+
 bool text_buffer_t::is_modified() const { return !impl->undo_list.is_at_mark(); }
 
 bool text_buffer_t::merge(bool backspace) { return impl->merge(backspace); }
@@ -262,6 +264,25 @@ bool text_buffer_t::implementation_t::backspace_char() {
 
   newpos = lines[cursor.line]->adjust_position(cursor.pos, -1);
   if (!lines[cursor.line]->backspace_char(cursor.pos, get_undo(UNDO_BACKSPACE))) {
+    return false;
+  }
+  cursor.pos = newpos;
+  cursor.pos = lines[cursor.line]->adjust_position(cursor.pos, 0);
+
+  rewrap_required(rewrap_type_t::REWRAP_LINE_LOCAL, cursor.line, cursor.pos);
+
+  last_undo_position = cursor;
+  return true;
+}
+
+bool text_buffer_t::implementation_t::backspace_word() {
+  text_pos_t newpos;
+  text_line_t *line = lines[cursor.line].get();
+  newpos =  line->get_previous_word(cursor.pos);
+  if(newpos < 0) {
+    newpos = 0;
+  }
+  if (!line->backspace_word(cursor.pos, newpos, get_undo(UNDO_BACKSPACE_WORD))) {
     return false;
   }
   cursor.pos = newpos;
@@ -696,6 +717,11 @@ void text_buffer_t::implementation_t::apply_undo_redo(undo_type_t type, undo_t *
       if (type == UNDO_DELETE) {
         cursor = start;
       }
+      break;
+    case UNDO_BACKSPACE_WORD:
+      start = current->get_start();
+      start.pos -= current->get_text()->size();
+      insert_block_internal(start, line_factory->new_text_line_t(*current->get_text()));
       break;
     case UNDO_BACKSPACE:
       start = current->get_start();

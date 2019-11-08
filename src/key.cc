@@ -660,27 +660,27 @@ complex_error_t init_keys(const optional<std::string> &term, bool separate_keypa
       }
 
     } else {
+      key_t key = separate_keypad ? iter->second : map_kp(iter->second);
+      for (size_t j = dash; j != std::string::npos && key_node->key[j] != 0; j++) {
+        switch (key_node->key[j]) {
+          case 'c':
+            key |= EKEY_CTRL;
+            break;
+          case 'm':
+            key |= EKEY_META;
+            break;
+          case 's':
+            key |= EKEY_SHIFT;
+            break;
+          default:
+            break;
+        }
+      }
       if (key_node->string[0] != 27) {
         if (strlen(key_node->string) == 1) {
-          map_single[static_cast<unsigned char>(key_node->string[0])] = iter->second;
+          map_single[static_cast<unsigned char>(key_node->string[0])] = key;
         }
       } else {
-        key_t key = separate_keypad ? iter->second : map_kp(iter->second);
-        for (size_t j = dash; j != std::string::npos && key_node->key[j] != 0; j++) {
-          switch (key_node->key[j]) {
-            case 'c':
-              key |= EKEY_CTRL;
-              break;
-            case 'm':
-              key |= EKEY_META;
-              break;
-            case 's':
-              key |= EKEY_SHIFT;
-              break;
-            default:
-              break;
-          }
-        }
         map[key_node->string] = key;
       }
     }
