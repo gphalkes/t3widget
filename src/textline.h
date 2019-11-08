@@ -132,6 +132,7 @@ class T3_WIDGET_API text_line_t {
   bool delete_char(text_pos_t pos, undo_t *undo);
   bool append_char(key_t c, undo_t *undo);
   bool backspace_char(text_pos_t pos, undo_t *undo);
+  bool backspace_word(text_pos_t pos, text_pos_t newpos, undo_t *undo);
 
   text_pos_t adjust_position(text_pos_t pos, int adjust) const;
 

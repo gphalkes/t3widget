@@ -57,6 +57,7 @@ class T3_WIDGET_API text_buffer_t {
   bool overwrite_char(key_t c);
   bool delete_char();
   bool backspace_char();
+  bool backspace_word();
   bool merge(bool backspace);
   bool break_line(const std::string &indent = "");
   bool insert_block(const std::string &block);
