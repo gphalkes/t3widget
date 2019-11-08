@@ -5,6 +5,9 @@ Version 1.0.7:
 	Bug fixes
 	- Handle errors in getcwd more gracefully (i.e. return / as current working
 	  directory).
+	- Make force_redraw for frame_t call widget_t force_redraw as well, to ensure
+	  that the frame_t is redrawn as well. This was very visible when resizing
+	  the file dialogs.
 
 Version 1.0.6:
 	Bug fixes

@@ -120,6 +120,7 @@ void frame_t::set_enabled(bool enable) {
   }
 }
 void frame_t::force_redraw() {
+  widget_t::force_redraw();
   if (impl->child != nullptr) {
     impl->child->force_redraw();
   }
