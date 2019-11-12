@@ -125,6 +125,10 @@ bool menu_panel_t::process_mouse_event(mouse_event_t event) {
   }
   if (event.x < 1 || event.x > window.get_width() - 2 || event.y < 1 ||
       event.y > window.get_height() - 2) {
+    if (event.type == EMOUSE_BUTTON_PRESS &&
+        (event.button_state & (EMOUSE_BUTTON_LEFT | EMOUSE_BUTTON_RIGHT | EMOUSE_BUTTON_MIDDLE))) {
+      close();
+    }
     return true;
   }
   focus_widget(event.y - 1);

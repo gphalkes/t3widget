@@ -2,6 +2,7 @@ Version 1.0.7:
 	New features:
 	- Ctrl+backspace erases the last word starting from the cursor.
 	- Expander widgets also expand/collapse on +/- and right/left arrow.
+	- Menus, including right-click menus, now close when clicking on the border.
 
 	Bug fixes
 	- Handle errors in getcwd more gracefully (i.e. return / as current working

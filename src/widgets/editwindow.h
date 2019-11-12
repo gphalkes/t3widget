@@ -25,7 +25,6 @@ class edit_window_t;
 
 #include <t3widget/autocompleter.h>
 #include <t3widget/dialogs/menupanel.h>
-#include <t3widget/dialogs/popup.h>
 #include <t3widget/interfaces.h>
 #include <t3widget/key.h>
 #include <t3widget/key_binding.h>
