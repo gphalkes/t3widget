@@ -112,9 +112,16 @@ class T3_WIDGET_API focus_widget_t {
   /** Emit signal when the user pressed the down arrow key and focus should move. */
   void move_focus_down() const;
 
+  /** Get a function that will trigger the move_focus_left signal, for conneting to another signal.
+   */
   std::function<void()> get_move_focus_left_trigger() const;
+  /** Get a function that will trigger the move_focus_right signal, for conneting to another signal.
+   */
   std::function<void()> get_move_focus_right_trigger() const;
+  /** Get a function that will trigger the move_focus_up signal, for conneting to another signal. */
   std::function<void()> get_move_focus_up_trigger() const;
+  /** Get a function that will trigger the move_focus_down signal, for conneting to another signal.
+   */
   std::function<void()> get_move_focus_down_trigger() const;
 
   struct T3_WIDGET_LOCAL implementation_t;

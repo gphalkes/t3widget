@@ -69,16 +69,16 @@ bool button_t::process_key(key_t key) {
       break;
     case EKEY_LEFT:
       move_focus_left();
-      break;
+      return !impl->has_focus;
     case EKEY_RIGHT:
       move_focus_right();
-      break;
+      return !impl->has_focus;
     case EKEY_UP:
       move_focus_up();
-      break;
+      return !impl->has_focus;
     case EKEY_DOWN:
       move_focus_down();
-      break;
+      return !impl->has_focus;
     default:
       return false;
   }

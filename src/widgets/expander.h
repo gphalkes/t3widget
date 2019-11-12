@@ -42,6 +42,8 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
   single_alloc_pimpl_t<implementation_t> impl;
 
   void focus_up_from_child();
+  void expand();
+  void collapse();
 
  public:
   /** Create a new expander_t.
@@ -70,7 +72,7 @@ class T3_WIDGET_API expander_t : public widget_t, public widget_container_t, pub
 
   bool process_key(key_t key) override;
   void update_contents() override;
-  void set_focus(focus_t _focus) override;
+  void set_focus(focus_t focus) override;
   bool set_size(optint height, optint width) override;
   bool is_hotkey(key_t key) const override;
   void set_enabled(bool enable) override;

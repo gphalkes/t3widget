@@ -66,9 +66,40 @@ void expander_t::focus_up_from_child() {
   force_redraw();
 }
 
+void expander_t::expand() {
+  if (!impl->child) {
+    return;
+  }
+
+  impl->child->show();
+  impl->is_expanded = true;
+  window.resize(impl->full_height, window.get_width());
+  force_redraw();
+  if (impl->focus == FOCUS_SELF && impl->child != nullptr && impl->child->accepts_focus()) {
+    impl->focus = FOCUS_CHILD;
+    impl->child->set_focus(window_component_t::FOCUS_SET);
+  }
+  impl->expanded(true);
+}
+
+void expander_t::collapse() {
+  if (impl->child != nullptr) {
+    impl->child->hide();
+  }
+  if (impl->focus == FOCUS_CHILD) {
+    if (impl->child != nullptr) {
+      impl->child->set_focus(window_component_t::FOCUS_OUT);
+    }
+    impl->focus = FOCUS_SELF;
+  }
+  window.resize(1, window.get_width());
+  impl->is_expanded = false;
+  force_redraw();
+  impl->expanded(false);
+}
+
 void expander_t::set_child(std::unique_ptr<t3widget::widget_t> _child) {
   focus_widget_t *focus_child;
-  /* FIXME: connect to move_focus_XXX events. (requires dynamic_cast'ing to focus_widget_t) */
   if (impl->child != nullptr) {
     unset_widget_parent(impl->child.get());
     impl->move_up_connection.disconnect();
@@ -119,25 +150,11 @@ void expander_t::set_size_from_child() {
   force_redraw();
 }
 
-void expander_t::set_expanded(bool expand) {
-  if (!expand && impl->is_expanded) {
-    if (impl->focus == FOCUS_CHILD) {
-      impl->child->set_focus(window_component_t::FOCUS_OUT);
-      impl->focus = FOCUS_SELF;
-    }
-    if (impl->child != nullptr) {
-      impl->child->hide();
-    }
-    impl->is_expanded = false;
-    window.resize(1, window.get_width());
-    force_redraw();
-    impl->expanded(false);
-  } else if (expand && !impl->is_expanded && impl->child != nullptr) {
-    impl->child->show();
-    impl->is_expanded = true;
-    window.resize(impl->full_height, window.get_width());
-    force_redraw();
-    impl->expanded(true);
+void expander_t::set_expanded(bool expanded) {
+  if (!expanded && impl->is_expanded) {
+    collapse();
+  } else if (expanded && !impl->is_expanded) {
+    expand();
   }
 }
 
@@ -153,41 +170,52 @@ bool expander_t::process_key(key_t key) {
       return true;
     } else if (key == EKEY_DOWN && !impl->is_expanded) {
       move_focus_down();
+      return impl->focus == FOCUS_NONE;
     } else if (key == EKEY_UP) {
       move_focus_up();
+      return impl->focus == FOCUS_NONE;
     } else if (key == EKEY_RIGHT) {
       move_focus_right();
+      if (impl->focus == FOCUS_SELF) {
+        expand();
+      }
+      return impl->focus == FOCUS_NONE;
     } else if (key == EKEY_LEFT) {
       move_focus_left();
-    } else if (key == ' ' || key == EKEY_NL || key == EKEY_HOTKEY) {
-      if (!impl->is_expanded && impl->child != nullptr) {
-        window.resize(impl->full_height, window.get_width());
-        impl->is_expanded = true;
-        force_redraw();
-        impl->child->show();
-        if (impl->child->accepts_focus()) {
-          impl->focus = FOCUS_CHILD;
-          impl->child->set_focus(window_component_t::FOCUS_SET);
-        }
-        impl->expanded(true);
-      } else if (impl->is_expanded) {
-        if (impl->child != nullptr) {
-          impl->child->hide();
-        }
-        window.resize(1, window.get_width());
-        impl->is_expanded = false;
-        force_redraw();
-        impl->expanded(false);
+      if (impl->focus == FOCUS_SELF) {
+        collapse();
       }
+      return impl->focus == FOCUS_NONE;
+    } else if (key == ' ' || key == EKEY_NL || key == EKEY_HOTKEY) {
+      if (impl->is_expanded) {
+        collapse();
+      } else {
+        expand();
+      }
+      return true;
+    } else if (key == '+' && !impl->is_expanded) {
+      expand();
+      return true;
+    } else if (key == '-' && impl->is_expanded) {
+      collapse();
       return true;
     }
   } else if (impl->focus == FOCUS_CHILD) {
     bool result = impl->child->process_key(key);
-    if (!result && key == (EKEY_SHIFT | '\t')) {
-      impl->focus = FOCUS_SELF;
-      result = true;
-      impl->child->set_focus(window_component_t::FOCUS_OUT);
-      force_redraw();
+    if (!result) {
+      if (key == (EKEY_SHIFT | '\t')) {
+        impl->focus = FOCUS_SELF;
+        result = true;
+        impl->child->set_focus(window_component_t::FOCUS_OUT);
+        force_redraw();
+        return true;
+      } else if (key == '-') {
+        collapse();
+        return true;
+      } else if (impl->focus == FOCUS_CHILD && key == EKEY_LEFT) {
+        collapse();
+        return true;
+      }
     }
     return result;
   }
@@ -210,21 +238,20 @@ void expander_t::update_contents() {
   impl->label.draw(&impl->symbol_window, 0, impl->focus == FOCUS_SELF);
 }
 
-void expander_t::set_focus(focus_t _focus) {
-  if (_focus == window_component_t::FOCUS_OUT) {
+void expander_t::set_focus(focus_t focus) {
+  if (focus == window_component_t::FOCUS_OUT) {
     if (impl->focus == FOCUS_CHILD && impl->child != nullptr) {
       impl->child->set_focus(window_component_t::FOCUS_OUT);
     }
     impl->last_focus = impl->focus;
     impl->focus = FOCUS_NONE;
-  } else if (_focus == window_component_t::FOCUS_SET ||
-             _focus == window_component_t::FOCUS_IN_FWD ||
-             (_focus == window_component_t::FOCUS_REVERT && impl->last_focus == FOCUS_SELF) ||
+  } else if (focus == window_component_t::FOCUS_SET || focus == window_component_t::FOCUS_IN_FWD ||
+             (focus == window_component_t::FOCUS_REVERT && impl->last_focus == FOCUS_SELF) ||
              impl->child == nullptr || !impl->is_expanded) {
     impl->focus = FOCUS_SELF;
   } else {
     impl->focus = FOCUS_CHILD;
-    impl->child->set_focus(_focus);
+    impl->child->set_focus(focus);
   }
   force_redraw();
 }
@@ -307,26 +334,12 @@ widget_t *expander_t::is_child_hotkey(key_t key) const {
 
 bool expander_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
-    if (!impl->is_expanded && impl->child != nullptr) {
-      window.resize(impl->full_height, window.get_width());
-      impl->is_expanded = true;
-      force_redraw();
-      impl->child->show();
-      impl->expanded(true);
-      if (impl->focus == FOCUS_SELF) {
-        impl->focus = FOCUS_CHILD;
-        impl->child->set_focus(window_component_t::FOCUS_SET);
-      }
-    } else if (impl->is_expanded) {
+    if (impl->is_expanded) {
       /* No need to handle impl->focus, because we got a set_focus(SET) event
          before this call anyway. */
-      if (impl->child != nullptr) {
-        impl->child->hide();
-      }
-      window.resize(1, window.get_width());
-      impl->is_expanded = false;
-      force_redraw();
-      impl->expanded(false);
+      collapse();
+    } else {
+      expand();
     }
   }
   return true;
