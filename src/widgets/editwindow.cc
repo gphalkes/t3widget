@@ -153,11 +153,13 @@ void edit_window_t::init(bool _init) {
     global_find_dialog = nullptr;
     delete replace_buttons;
     replace_buttons = nullptr;
+    delete right_click_menu;
+    right_click_menu = nullptr;
   }
 }
 
 edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params)
-    : impl(new implementation_t()), text(nullptr) {
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()), text(nullptr) {
   /* Register the unbacked window for mouse events, such that we can get focus
      if the bottom line is clicked. */
   init_unbacked_window(11, 11, true);

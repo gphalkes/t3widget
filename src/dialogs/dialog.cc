@@ -45,7 +45,8 @@ dialog_t::dialog_t(int height, int width, optional<std::string> title, size_t im
 
     This constructor should only be called by ::main_window_base_t.
 */
-dialog_t::dialog_t() : impl(new implementation_t(nullopt)) {}
+dialog_t::dialog_t()
+    : dialog_base_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>(nullopt)) {}
 
 void dialog_t::activate_dialog() {
   if (!active_dialogs.empty()) {

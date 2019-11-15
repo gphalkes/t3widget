@@ -108,7 +108,9 @@ class x11_base_t {
   }
 
   void send_wakeup() {
-    char data;
+    /* The actual data is irrelevant here, but to prevent warnings about uninitialized data, this
+       is still initialized here. */
+    char data = 0;
     nosig_write(wakeup_pipe[1], &data, 1);
   }
 

@@ -50,7 +50,8 @@ struct find_dialog_t::implementation_t {
 // FIXME: keep (limited) history
 
 find_dialog_t::find_dialog_t(int _state)
-    : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIALOG_WIDTH, _("Find")), impl(new implementation_t()) {
+    : dialog_t(FIND_DIALOG_HEIGHT, FIND_DIALOG_WIDTH, _("Find"), impl_alloc<implementation_t>(0)),
+      impl(new_impl<implementation_t>()) {
   smart_label_t *find_label = emplace_back<smart_label_t>("Fi_nd", true);
   find_label->set_position(1, 2);
   impl->find_line = emplace_back<text_field_t>();
