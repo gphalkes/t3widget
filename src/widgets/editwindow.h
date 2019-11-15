@@ -295,6 +295,9 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
   void set_auto_indent(bool _auto_indent);
   void set_indent_aware_home(bool _indent_aware_home);
   void set_show_tabs(bool _show_tabs);
+  void set_top_left(text_coordinate_t pos);
+
+  text_coordinate_t get_top_left() const;
 };
 
 }  // namespace t3widget

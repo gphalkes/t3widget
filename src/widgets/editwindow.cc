@@ -221,7 +221,12 @@ void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *para
 
 bool edit_window_t::set_size(optint height, optint width) {
   bool result = true;
-  // FIXME: these int's are optional!!! Take that into account below!
+  if (!height.is_valid()) {
+    height = window.get_height();
+  }
+  if (!width.is_valid()) {
+    width = window.get_width();
+  }
 
   if (width.value() != window.get_width() || height.value() > window.get_height()) {
     update_repaint_lines(0, std::numeric_limits<text_pos_t>::max());
@@ -1921,6 +1926,8 @@ void edit_window_t::view_parameters_t::set_indent_aware_home(bool _indent_aware_
   indent_aware_home = _indent_aware_home;
 }
 void edit_window_t::view_parameters_t::set_show_tabs(bool _show_tabs) { show_tabs = _show_tabs; }
+void edit_window_t::view_parameters_t::set_top_left(text_coordinate_t pos) { top_left = pos; }
+text_coordinate_t edit_window_t::view_parameters_t::get_top_left() const { return top_left; }
 
 //====================== autocomplete_panel_t ========================
 

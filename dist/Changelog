@@ -1,8 +1,9 @@
-Version 1.0.7:
+Version 1.1.0:
 	New features:
 	- Ctrl+backspace erases the last word starting from the cursor.
 	- Expander widgets also expand/collapse on +/- and right/left arrow.
 	- Menus, including right-click menus, now close when clicking on the border.
+	- The top_left position is accessible in the edit_window_t::view_parameters_t.
 
 	Bug fixes
 	- Handle errors in getcwd more gracefully (i.e. return / as current working
@@ -10,6 +11,8 @@ Version 1.0.7:
 	- Make force_redraw for frame_t call widget_t force_redraw as well, to ensure
 	  that the frame_t is redrawn as well. This was very visible when resizing
 	  the file dialogs.
+	- Calling set_size on edit_window_t now correctly handles nullopt values in
+	  the parameters.
 
 Version 1.0.6:
 	Bug fixes
