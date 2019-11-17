@@ -3,7 +3,9 @@ Version 1.1.0:
 	- Ctrl+backspace erases the last word starting from the cursor.
 	- Expander widgets also expand/collapse on +/- and right/left arrow.
 	- Menus, including right-click menus, now close when clicking on the border.
-	- The top_left position is accessible in the edit_window_t::view_parameters_t.
+	- edit_window_t::view_parameters_t is deprecated and replaced by
+	  edit_window_t::behavior_parameters_t. The reason for the replacement is to
+	  make the parameters extensible without breaking ABI compatibility.
 
 	Bug fixes
 	- Handle errors in getcwd more gracefully (i.e. return / as current working

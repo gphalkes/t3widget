@@ -134,6 +134,18 @@ struct edit_window_t::implementation_t {
       repaint_max = std::numeric_limits<text_pos_t>::max(); /**< Last line to repaint. */
 };
 
+struct edit_window_t::behavior_parameters_t::implementation_t {
+  text_coordinate_t top_left{0, 0};
+  text_pos_t last_set_pos = 0;
+  int tabsize = 8;
+  int ins_mode = 0;
+  wrap_type_t wrap_type = wrap_type_t::NONE;
+  bool tab_spaces = false;
+  bool auto_indent = true;
+  bool indent_aware_home = true;
+  bool show_tabs = false;
+};
+
 void edit_window_t::init(bool _init) {
   if (_init) {
     /* Construct these from t3widget::init, such that the locale is set correctly and
@@ -158,8 +170,7 @@ void edit_window_t::init(bool _init) {
   }
 }
 
-edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params)
-    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()), text(nullptr) {
+void edit_window_t::init_instance() {
   /* Register the unbacked window for mouse events, such that we can get focus
      if the bottom line is clicked. */
   init_unbacked_window(11, 11, true);
@@ -185,8 +196,6 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
   impl->scrollbar->connect_clicked(bind_front(&edit_window_t::scrollbar_clicked, this));
   impl->scrollbar->connect_dragged(bind_front(&edit_window_t::scrollbar_dragged, this));
 
-  set_text(_text == nullptr ? new text_buffer_t() : _text, params);
-
   impl->screen_pos = 0;
   impl->focus = false;
 
@@ -194,9 +203,33 @@ edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *para
   impl->autocomplete_panel->connect_activate([this] { autocomplete_activated(); });
 }
 
+edit_window_t::edit_window_t(text_buffer_t *_text, const view_parameters_t *params)
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()), text(nullptr) {
+  init_instance();
+  set_text(_text == nullptr ? new text_buffer_t() : _text, params);
+}
+
+edit_window_t::edit_window_t(text_buffer_t *_text, const behavior_parameters_t *params)
+    : widget_t(impl_alloc<implementation_t>(0)), impl(new_impl<implementation_t>()), text(nullptr) {
+  init_instance();
+  set_text(_text == nullptr ? new text_buffer_t() : _text, params);
+}
+
 edit_window_t::~edit_window_t() { delete impl->wrap_info; }
 
 void edit_window_t::set_text(text_buffer_t *_text, const view_parameters_t *params) {
+  if (text == _text) {
+    return;
+  }
+  if (params != nullptr) {
+    behavior_parameters_t new_params(*params);
+    set_text(_text, &new_params);
+  } else {
+    set_text(_text, static_cast<behavior_parameters_t *>(nullptr));
+  }
+}
+
+void edit_window_t::set_text(text_buffer_t *_text, const behavior_parameters_t *params) {
   if (text == _text) {
     return;
   }
@@ -1626,6 +1659,15 @@ void edit_window_t::save_view_parameters(view_parameters_t *params) {
   *params = view_parameters_t(this);
 }
 
+std::unique_ptr<edit_window_t::behavior_parameters_t> edit_window_t::save_behavior_parameters() {
+  // This can't use make_unique, as the constructor is private and only this class is a friend.
+  return wrap_unique(new behavior_parameters_t(*this));
+}
+
+void edit_window_t::save_behavior_parameters(behavior_parameters_t *params) {
+  *params = behavior_parameters_t(*this);
+}
+
 void edit_window_t::draw_info_window() {}
 
 void edit_window_t::set_autocompleter(autocompleter_t *_autocompleter) {
@@ -1926,8 +1968,101 @@ void edit_window_t::view_parameters_t::set_indent_aware_home(bool _indent_aware_
   indent_aware_home = _indent_aware_home;
 }
 void edit_window_t::view_parameters_t::set_show_tabs(bool _show_tabs) { show_tabs = _show_tabs; }
-void edit_window_t::view_parameters_t::set_top_left(text_coordinate_t pos) { top_left = pos; }
-text_coordinate_t edit_window_t::view_parameters_t::get_top_left() const { return top_left; }
+
+//====================== behavior_parameters_t ========================
+
+edit_window_t::behavior_parameters_t::behavior_parameters_t(const edit_window_t &view)
+    : impl(new implementation_t) {
+  impl->top_left = view.impl->top_left;
+  impl->wrap_type = view.impl->wrap_type;
+  if (impl->wrap_type != wrap_type_t::NONE) {
+    impl->top_left.pos =
+        view.impl->wrap_info->calculate_line_pos(impl->top_left.line, 0, impl->top_left.pos);
+  }
+  impl->tabsize = view.impl->tabsize;
+  impl->tab_spaces = view.impl->tab_spaces;
+  impl->ins_mode = view.impl->ins_mode;
+  impl->last_set_pos = view.impl->last_set_pos;
+  impl->auto_indent = view.impl->auto_indent;
+  impl->indent_aware_home = view.impl->indent_aware_home;
+  impl->show_tabs = view.impl->show_tabs;
+}
+
+edit_window_t::behavior_parameters_t::behavior_parameters_t() : impl(new implementation_t) {}
+
+edit_window_t::behavior_parameters_t::behavior_parameters_t(
+    const edit_window_t::view_parameters_t &params) {
+  impl->top_left = params.top_left;
+  impl->wrap_type = params.wrap_type;
+  impl->tabsize = params.tabsize;
+  impl->tab_spaces = params.tab_spaces;
+  impl->ins_mode = params.ins_mode;
+  impl->last_set_pos = params.last_set_pos;
+  impl->auto_indent = params.auto_indent;
+  impl->indent_aware_home = params.indent_aware_home;
+  impl->show_tabs = params.show_tabs;
+}
+
+/* Destructor must be defined in the .cc file, because in the .h file the size of implementation_t
+   is undefined. */
+edit_window_t::behavior_parameters_t::~behavior_parameters_t() {}
+
+edit_window_t::behavior_parameters_t &edit_window_t::behavior_parameters_t::operator=(
+    const behavior_parameters_t &other) {
+  *impl = *other.impl;
+  return *this;
+}
+
+void edit_window_t::behavior_parameters_t::apply_parameters(edit_window_t *view) const {
+  view->impl->top_left = impl->top_left;
+  view->impl->tabsize = impl->tabsize;
+  view->set_wrap(impl->wrap_type);
+  /* view->set_wrap will make sure that view->wrap_info is nullptr if
+     wrap_type != NONE. */
+  if (view->impl->wrap_info != nullptr) {
+    view->impl->wrap_info->set_text_buffer(view->text);
+    view->impl->top_left.pos = view->impl->wrap_info->find_line(impl->top_left);
+  }
+  // the calling function will call ensure_cursor_on_screen
+  view->impl->tab_spaces = impl->tab_spaces;
+  view->impl->ins_mode = impl->ins_mode;
+  view->impl->last_set_pos = impl->last_set_pos;
+  view->impl->auto_indent = impl->auto_indent;
+  view->impl->indent_aware_home = impl->indent_aware_home;
+  view->impl->show_tabs = impl->show_tabs;
+}
+
+void edit_window_t::behavior_parameters_t::set_tabsize(int _tabsize) { impl->tabsize = _tabsize; }
+void edit_window_t::behavior_parameters_t::set_wrap(wrap_type_t _wrap_type) {
+  impl->wrap_type = _wrap_type;
+}
+void edit_window_t::behavior_parameters_t::set_tab_spaces(bool _tab_spaces) {
+  impl->tab_spaces = _tab_spaces;
+}
+void edit_window_t::behavior_parameters_t::set_auto_indent(bool _auto_indent) {
+  impl->auto_indent = _auto_indent;
+}
+void edit_window_t::behavior_parameters_t::set_indent_aware_home(bool _indent_aware_home) {
+  impl->indent_aware_home = _indent_aware_home;
+}
+void edit_window_t::behavior_parameters_t::set_show_tabs(bool _show_tabs) {
+  impl->show_tabs = _show_tabs;
+}
+void edit_window_t::behavior_parameters_t::set_top_left(text_coordinate_t pos) {
+  impl->top_left = pos;
+}
+
+int edit_window_t::behavior_parameters_t::get_tabsize() const { return impl->tabsize; }
+wrap_type_t edit_window_t::behavior_parameters_t::get_wrap_type() const { return impl->wrap_type; }
+bool edit_window_t::behavior_parameters_t::get_tab_spaces() const { return impl->tab_spaces; }
+bool edit_window_t::behavior_parameters_t::get_auto_indent() const { return impl->auto_indent; }
+bool edit_window_t::behavior_parameters_t::get_indent_aware_home() const {
+  return impl->indent_aware_home;
+}
+bool edit_window_t::behavior_parameters_t::get_show_tabs() const { return impl->show_tabs; }
+text_coordinate_t edit_window_t::behavior_parameters_t::get_top_left() const {
+  return impl->top_left;
+}
 
 //====================== autocomplete_panel_t ========================
 

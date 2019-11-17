@@ -115,6 +115,12 @@ class T3_WIDGET_API edit_window_t : public widget_t,
 
   void right_click_menu_activated(int action);
 
+  /** Internal function for initializing an instance.
+
+      Called from the constructors to do the part of the work that is the common between them.
+  */
+  void init_instance();
+
  protected:
   text_buffer_t *text;            /**< Buffer holding the text currently displayed. */
   t3window::window_t info_window; /**< Window for other information, such as buffer name. */
@@ -149,12 +155,20 @@ class T3_WIDGET_API edit_window_t : public widget_t,
 
  public:
   class T3_WIDGET_API view_parameters_t;
+  class T3_WIDGET_API behavior_parameters_t;
 
   /** Create a new edit_window_t.
       @param _text The text to display in the edit_window_t.
       @param params The view parameters to set.
+
+      @deprecated Use the constructor taking a ::edit_window_t::behavior_parameters_t instead.
   */
-  edit_window_t(text_buffer_t *_text = nullptr, const view_parameters_t *params = nullptr);
+  edit_window_t(text_buffer_t *_text, const view_parameters_t *params);
+  /** Create a new edit_window_t.
+      @param _text The text to display in the edit_window_t.
+      @param params The view parameters to set.
+  */
+  edit_window_t(text_buffer_t *_text = nullptr, const behavior_parameters_t *params = nullptr);
   ~edit_window_t() override;
   bool process_key(key_t key) override;
   bool set_size(optint height, optint width) override;
@@ -172,8 +186,17 @@ class T3_WIDGET_API edit_window_t : public widget_t,
       get_text to retrieve the current text_buffer_t before calling this
       function to make sure you have a reference to the current buffer that
       you can use to delete the old text_buffer_t.
+
+      @deprecated Use the overload taking a ::edit_window_t::behavior_parameters_t instead.
   */
-  void set_text(text_buffer_t *_text, const view_parameters_t *params = nullptr);
+  void set_text(text_buffer_t *_text, const view_parameters_t *params);
+  /** Set the text to display.
+      The previously displayed text will be replaced, without deleting. Use
+      get_text to retrieve the current text_buffer_t before calling this
+      function to make sure you have a reference to the current buffer that
+      you can use to delete the old text_buffer_t.
+  */
+  void set_text(text_buffer_t *_text, const behavior_parameters_t *params = nullptr);
   /** Get the text currently displayed. */
   text_buffer_t *get_text() const;
   /** Apply the undo action. */
@@ -252,10 +275,19 @@ class T3_WIDGET_API edit_window_t : public widget_t,
   /** Get show tabs. */
   bool get_show_tabs() const;
 
-  /** Save the current view parameters, to allow them to be restored later. */
+  /** Save the current view parameters, to allow them to be restored later.
+      @deprecated Use ::edit_window_t::save_behavior_parameters instead.
+  */
   std::unique_ptr<edit_window_t::view_parameters_t> save_view_parameters();
-  /** Save the current view parameters, to allow them to be restored later. */
+  /** Save the current view parameters, to allow them to be restored later.
+      @deprecated Use ::edit_window_t::save_behavior_parameters instead.
+  */
   void save_view_parameters(view_parameters_t *params);
+
+  /** Save the current view parameters, to allow them to be restored later. */
+  std::unique_ptr<edit_window_t::behavior_parameters_t> save_behavior_parameters();
+  /** Save the current view parameters, to allow them to be restored later. */
+  void save_behavior_parameters(behavior_parameters_t *params);
 
   /** Set the autocompleter to use. */
   void set_autocompleter(autocompleter_t *_autocompleter);
@@ -270,6 +302,10 @@ class T3_WIDGET_API edit_window_t : public widget_t,
 #undef _T3_ACTION_FILE
 };
 
+/** A (deprecated) class to hold the parameters of an edit window.
+
+    @deprecated Use ::edit_window_t::behavior_parameters_t instead.
+*/
 class T3_WIDGET_API edit_window_t::view_parameters_t {
   friend class edit_window_t;
 
@@ -295,8 +331,38 @@ class T3_WIDGET_API edit_window_t::view_parameters_t {
   void set_auto_indent(bool _auto_indent);
   void set_indent_aware_home(bool _indent_aware_home);
   void set_show_tabs(bool _show_tabs);
+};
+
+class T3_WIDGET_API edit_window_t::behavior_parameters_t {
+  friend class edit_window_t;
+
+ private:
+  struct T3_WIDGET_LOCAL implementation_t;
+  pimpl_t<implementation_t> impl;
+
+  behavior_parameters_t(const edit_window_t &view);
+  behavior_parameters_t(const edit_window_t::view_parameters_t &params);
+  void apply_parameters(edit_window_t *view) const;
+
+ public:
+  behavior_parameters_t();
+  ~behavior_parameters_t();
+  behavior_parameters_t &operator=(const behavior_parameters_t &other);
+
+  void set_tabsize(int _tabsize);
+  void set_wrap(wrap_type_t _wrap_type);
+  void set_tab_spaces(bool _tab_spaces);
+  void set_auto_indent(bool _auto_indent);
+  void set_indent_aware_home(bool _indent_aware_home);
+  void set_show_tabs(bool _show_tabs);
   void set_top_left(text_coordinate_t pos);
 
+  int get_tabsize() const;
+  wrap_type_t get_wrap_type() const;
+  bool get_tab_spaces() const;
+  bool get_auto_indent() const;
+  bool get_indent_aware_home() const;
+  bool get_show_tabs() const;
   text_coordinate_t get_top_left() const;
 };
 
