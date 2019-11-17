@@ -68,6 +68,12 @@ class T3_WIDGET_API connection_t {
   connection_t() = default;
   connection_t(std::shared_ptr<internal::func_ptr_base_t> f) : func(f) {}
   connection_t(const connection_t &other) : func(other.func) {}
+
+  connection_t &operator=(const connection_t &other) {
+    func = other.func;
+    return *this;
+  }
+
   /// Disconnect the callback from the signal.
   void disconnect() {
     if (func) {

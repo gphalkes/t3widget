@@ -1368,6 +1368,8 @@ void edit_window_t::right_click_menu_activated(int action) {
     case ACTION_PASTE_SELECTION:
       paste(false);
       break;
+    default:
+      break;
   }
 }
 

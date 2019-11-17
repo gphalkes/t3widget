@@ -196,7 +196,6 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
   }
 
   size_t c_size;
-  const char *c;
 
   text_pos_t start = std::max<text_pos_t>(0, result->start.pos);
   if (static_cast<size_t>(start) > haystack.size()) {
@@ -225,7 +224,6 @@ bool plain_finder_t::match(const std::string &haystack, find_result_t *result, b
         char *c_data = reinterpret_cast<char *>(
             u8_casefold(reinterpret_cast<const uint8_t *>(substr.data()), substr.size(), nullptr,
                         nullptr, reinterpret_cast<uint8_t *>(folded_.get()), &c_size));
-        c = c_data;
         if (c_data != folded_.get()) {
           // Previous value of folded will be automatically deleted.
           folded_.reset(c_data);
