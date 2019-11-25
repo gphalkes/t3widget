@@ -1,4 +1,4 @@
-Version 1.1.0:
+Version :
 	New features:
 	- Ctrl+backspace erases the last word starting from the cursor.
 	- Expander widgets also expand/collapse on +/- and right/left arrow.
@@ -6,6 +6,7 @@ Version 1.1.0:
 	- edit_window_t::view_parameters_t is deprecated and replaced by
 	  edit_window_t::behavior_parameters_t. The reason for the replacement is to
 	  make the parameters extensible without breaking ABI compatibility.
+	- checkbox_t can now operate in tri-state mode.
 
 	Bug fixes
 	- Handle errors in getcwd more gracefully (i.e. return / as current working

@@ -23,10 +23,15 @@
 #include "t3window/window.h"
 
 namespace t3widget {
+namespace {
+const char kStateToChar[] = " X?";
+}
 
 struct checkbox_t::implementation_t {
+  /** Whether tri-state mode is enabled. */
+  bool is_tristate;
   /** Current state (true if checked). */
-  bool state;
+  TriState state;
   /** Boolean indicating whether this widget should be drawn as focuessed. */
   bool has_focus = false;
   /** Label associated with this checkbox_t. Used for determining the hotkey. */
@@ -34,25 +39,55 @@ struct checkbox_t::implementation_t {
   signal_t<> activate;
   signal_t<> toggled;
 
-  implementation_t(bool _state) : state(_state) {}
+  implementation_t(bool _state)
+      : is_tristate(false), state(_state ? checkbox_t::CHECKED : checkbox_t::UNCHECKED) {}
+  implementation_t(TriState _state) : is_tristate(true), state(_state) {}
 };
 
-checkbox_t::checkbox_t(bool _state)
+checkbox_t::checkbox_t(bool state)
     : widget_t(1, 3, true,
                impl_alloc<focus_widget_t::implementation_t>(impl_alloc<implementation_t>(0))),
       focus_widget_t(this),
-      impl(new_impl<implementation_t>(_state)) {}
+      impl(new_impl<implementation_t>(state)) {}
+
+checkbox_t::checkbox_t(TriState state)
+    : widget_t(1, 3, true,
+               impl_alloc<focus_widget_t::implementation_t>(impl_alloc<implementation_t>(0))),
+      focus_widget_t(this),
+      impl(new_impl<implementation_t>(state)) {}
 
 checkbox_t::~checkbox_t() {}
+
+void checkbox_t::next_state() {
+  if (impl->is_tristate) {
+    switch (impl->state) {
+      case UNCHECKED:
+        impl->state = CHECKED;
+        break;
+      case CHECKED:
+        impl->state = INDERMINATE;
+        break;
+      default:
+        impl->state = UNCHECKED;
+        break;
+    }
+  } else {
+    if (impl->state == UNCHECKED) {
+      impl->state = CHECKED;
+    } else {
+      impl->state = UNCHECKED;
+    }
+  }
+  force_redraw();
+  impl->toggled();
+  update_contents();
+}
 
 bool checkbox_t::process_key(key_t key) {
   switch (key) {
     case ' ':
     case EKEY_HOTKEY:
-      impl->state ^= true;
-      force_redraw();
-      impl->toggled();
-      update_contents();
+      next_state();
       break;
     case EKEY_NL:
       impl->activate();
@@ -88,6 +123,11 @@ void checkbox_t::update_contents() {
   window.set_default_attrs(attributes.dialog);
   window.set_paint(0, 0);
   window.addch('[', 0);
+  char c = '-';
+  if (is_enabled()) {
+    c = kStateToChar[std::max<int>(impl->state, 2)];
+  }
+
   window.addch(is_enabled() ? (impl->state ? 'X' : ' ') : '-',
                impl->has_focus ? T3_ATTR_REVERSE : 0);
   window.addch(']', 0);
@@ -101,10 +141,10 @@ void checkbox_t::set_focus(focus_t focus) {
   impl->has_focus = focus;
 }
 
-bool checkbox_t::get_state() { return impl->state; }
+bool checkbox_t::get_state() { return impl->state == CHECKED; }
 
 void checkbox_t::set_state(bool _state) {
-  impl->state = !!_state;
+  impl->state = _state ? CHECKED : UNCHECKED;
   force_redraw();
 }
 
@@ -127,12 +167,27 @@ void checkbox_t::set_enabled(bool enable) {
 
 bool checkbox_t::process_mouse_event(mouse_event_t event) {
   if (event.button_state & EMOUSE_CLICKED_LEFT) {
-    impl->state ^= true;
-    force_redraw();
-    impl->toggled();
-    update_contents();
+    next_state();
   }
   return true;
+}
+
+void checkbox_t::set_tristate_mode(bool is_tristate) {
+  if (impl->is_tristate == is_tristate) {
+    return;
+  }
+  if (impl->is_tristate && impl->state == INDERMINATE) {
+    impl->state = UNCHECKED;
+    force_redraw();
+  }
+  impl->is_tristate = is_tristate;
+}
+
+checkbox_t::TriState checkbox_t::get_tristate() const { return impl->state; }
+
+void checkbox_t::set_tristate(TriState state) {
+  impl->state = state;
+  force_redraw();
 }
 
 _T3_WIDGET_IMPL_SIGNAL(checkbox_t, activate)

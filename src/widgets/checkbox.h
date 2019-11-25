@@ -33,11 +33,16 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
 
   single_alloc_pimpl_t<implementation_t> impl;
 
+  void next_state();
+
  public:
+  /** Enum indicating the different states the checkbox can be in. */
+  enum TriState { UNCHECKED, CHECKED, INDERMINATE };
   /** Create a new checkbox_t.
       @param _state The initial state of the checkbox_t.
   */
-  checkbox_t(bool _state = false);
+  checkbox_t(bool state = false);
+  checkbox_t(TriState tristate);
   ~checkbox_t() override;
   bool process_key(key_t key) override;
   /** Set the size of this checkbox_t (ignored).
@@ -52,12 +57,25 @@ class T3_WIDGET_API checkbox_t : public widget_t, public focus_widget_t {
       contents will be shown as a dash (-).
   */
   void set_enabled(bool enable) override;
-  /** Retrieve the current state of the checkbox_t. */
+  /** Retrieve the current state of the checkbox_t.
+
+      If the checkbox_t is in tri-state mode and the value is INDETERMINATE, false is returned. */
   bool get_state();
   /** Set the current state of the checkbox_t. */
   void set_state(bool _state);
   /** Associate this checkbox_t with a smart_label_t. */
   void set_label(smart_label_t *_label);
+
+  /** Sets whether the checkbox_t should be in tri-state mode.
+
+      When switching the checkbox_t to non-tri-state mode and the value is currently INDETERMINATE,
+      the value will be set to UNCHECKED.
+  */
+  void set_tristate_mode(bool is_tristate);
+  /** Retrieve the current state of the checkbox_t. */
+  TriState get_tristate() const;
+  /** Set the current state of the checkbox_t. */
+  void set_tristate(TriState state);
 
   /** @fn connection_t connect_activate(std::function<void()> func)
       Connect a callback to the #activate signal.
