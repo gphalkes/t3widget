@@ -24,7 +24,7 @@
 
 namespace t3widget {
 namespace {
-const char kStateToChar[] = " X?";
+const char kStateToChar[] = " X#";
 }
 
 struct checkbox_t::implementation_t {
