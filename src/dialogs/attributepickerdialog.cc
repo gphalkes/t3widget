@@ -46,6 +46,20 @@ struct attribute_picker_dialog_t::implementation_t {
   implementation_t() : fg_picker(nullptr), bg_picker(nullptr), base_attributes(0) {}
 };
 
+namespace {
+
+checkbox_t::TriState attr_to_state(t3_attr_t attr, t3_attr_t bit) {
+  if (attr & bit) {
+    return checkbox_t::CHECKED;
+  }
+  if (attr & (bit << (T3_ATTR_COLOR_SHIFT + 17))) {
+    return checkbox_t::UNCHECKED;
+  }
+  return checkbox_t::INDERMINATE;
+}
+
+}  // namespace
+
 attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _title,
                                                      bool with_default)
     : dialog_t(ATTRIBUTE_PICKER_DIALOG_HEIGHT + 2, ATTRIBUTE_PICKER_DIALOG_WIDTH, std::move(_title),
@@ -56,7 +70,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
 
   t3_term_get_caps(&capabilities);
 
-  impl->underline_box = emplace_back<checkbox_t>(false);
+  impl->underline_box = emplace_back<checkbox_t>(checkbox_t::UNCHECKED);
   impl->underline_box->set_position(1, 2);
   smart_label_t *underline_label = emplace_back<smart_label_t>("_Underline");
   underline_label->set_anchor(impl->underline_box,
@@ -68,7 +82,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->underline_box->connect_toggled([this] { attribute_changed(); });
   impl->underline_box->connect_activate([this] { ok_activate(); });
 
-  impl->bold_box = emplace_back<checkbox_t>(false);
+  impl->bold_box = emplace_back<checkbox_t>(checkbox_t::UNCHECKED);
   impl->bold_box->set_anchor(impl->underline_box,
                              T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->bold_box->set_position(1, 0);
@@ -82,7 +96,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->bold_box->connect_toggled([this] { attribute_changed(); });
   impl->bold_box->connect_activate([this] { ok_activate(); });
 
-  impl->dim_box = emplace_back<checkbox_t>(false);
+  impl->dim_box = emplace_back<checkbox_t>(checkbox_t::UNCHECKED);
   impl->dim_box->set_anchor(impl->bold_box,
                             T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->dim_box->set_position(1, 0);
@@ -95,7 +109,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->dim_box->connect_toggled([this] { attribute_changed(); });
   impl->dim_box->connect_activate([this] { ok_activate(); });
 
-  impl->reverse_box = emplace_back<checkbox_t>(false);
+  impl->reverse_box = emplace_back<checkbox_t>(checkbox_t::UNCHECKED);
   impl->reverse_box->set_anchor(impl->dim_box,
                                 T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->reverse_box->set_position(1, 0);
@@ -109,7 +123,7 @@ attribute_picker_dialog_t::attribute_picker_dialog_t(optional<std::string> _titl
   impl->reverse_box->connect_toggled([this] { attribute_changed(); });
   impl->reverse_box->connect_activate([this] { ok_activate(); });
 
-  impl->blink_box = emplace_back<checkbox_t>(false);
+  impl->blink_box = emplace_back<checkbox_t>(checkbox_t::UNCHECKED);
   impl->blink_box->set_anchor(impl->reverse_box,
                               T3_PARENT(T3_ANCHOR_TOPLEFT) | T3_CHILD(T3_ANCHOR_TOPLEFT));
   impl->blink_box->set_position(1, 0);
@@ -220,20 +234,55 @@ void attribute_picker_dialog_t::group_expanded(bool state) {
 
 t3_attr_t attribute_picker_dialog_t::get_attribute() const {
   t3_attr_t result = 0;
-  if (impl->underline_box->get_state()) {
-    result |= T3_ATTR_UNDERLINE;
+  switch (impl->underline_box->get_tristate()) {
+    case checkbox_t::UNCHECKED:
+      result |= T3_ATTR_UNDERLINE_SET;
+      break;
+    case checkbox_t::CHECKED:
+      result |= T3_ATTR_UNDERLINE | T3_ATTR_UNDERLINE_SET;
+      break;
+    default:
+      break;
   }
-  if (impl->bold_box->get_state()) {
-    result |= T3_ATTR_BOLD;
+  switch (impl->bold_box->get_tristate()) {
+    case checkbox_t::UNCHECKED:
+      result |= T3_ATTR_BOLD_SET;
+      break;
+    case checkbox_t::CHECKED:
+      result |= T3_ATTR_BOLD | T3_ATTR_BOLD_SET;
+      break;
+    default:
+      break;
   }
-  if (impl->dim_box->get_state()) {
-    result |= T3_ATTR_DIM;
+  switch (impl->dim_box->get_tristate()) {
+    case checkbox_t::UNCHECKED:
+      result |= T3_ATTR_DIM_SET;
+      break;
+    case checkbox_t::CHECKED:
+      result |= T3_ATTR_DIM | T3_ATTR_DIM_SET;
+      break;
+    default:
+      break;
   }
-  if (impl->blink_box->get_state()) {
-    result |= T3_ATTR_BLINK;
+  switch (impl->blink_box->get_tristate()) {
+    case checkbox_t::UNCHECKED:
+      result |= T3_ATTR_BLINK_SET;
+      break;
+    case checkbox_t::CHECKED:
+      result |= T3_ATTR_BLINK | T3_ATTR_BLINK_SET;
+      break;
+    default:
+      break;
   }
-  if (impl->reverse_box->get_state()) {
-    result |= T3_ATTR_REVERSE;
+  switch (impl->reverse_box->get_tristate()) {
+    case checkbox_t::UNCHECKED:
+      result |= T3_ATTR_REVERSE_SET;
+      break;
+    case checkbox_t::CHECKED:
+      result |= T3_ATTR_REVERSE | T3_ATTR_REVERSE_SET;
+      break;
+    default:
+      break;
   }
   if (impl->fg_picker != nullptr) {
     result |= impl->fg_picker->get_color();
@@ -245,11 +294,11 @@ t3_attr_t attribute_picker_dialog_t::get_attribute() const {
 }
 
 void attribute_picker_dialog_t::set_attribute(t3_attr_t attr) {
-  impl->underline_box->set_state(attr & T3_ATTR_UNDERLINE);
-  impl->bold_box->set_state(attr & T3_ATTR_BOLD);
-  impl->dim_box->set_state(attr & T3_ATTR_DIM);
-  impl->blink_box->set_state(attr & T3_ATTR_BLINK);
-  impl->reverse_box->set_state(attr & T3_ATTR_REVERSE);
+  impl->underline_box->set_tristate(attr_to_state(attr, T3_ATTR_UNDERLINE));
+  impl->bold_box->set_tristate(attr_to_state(attr, T3_ATTR_BOLD));
+  impl->dim_box->set_tristate(attr_to_state(attr, T3_ATTR_DIM));
+  impl->blink_box->set_tristate(attr_to_state(attr, T3_ATTR_BLINK));
+  impl->reverse_box->set_tristate(attr_to_state(attr, T3_ATTR_REVERSE));
   if (impl->fg_picker != nullptr) {
     impl->fg_picker->set_color(attr);
   }
