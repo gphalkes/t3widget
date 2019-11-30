@@ -1,3 +1,9 @@
+Version 1.1.1:
+	Bug fixes:
+	- Display of the indeterminate state of checkbox_t did not work.
+	- Fix incorrect initialization of edit_window_t::behavior_parameters_t from
+	  edit_window_t::view_parameters_t.
+
 Version 1.1.0:
 	New features:
 	- Ctrl+backspace erases the last word starting from the cursor.

@@ -1993,7 +1993,8 @@ edit_window_t::behavior_parameters_t::behavior_parameters_t(const edit_window_t 
 edit_window_t::behavior_parameters_t::behavior_parameters_t() : impl(new implementation_t) {}
 
 edit_window_t::behavior_parameters_t::behavior_parameters_t(
-    const edit_window_t::view_parameters_t &params) {
+    const edit_window_t::view_parameters_t &params)
+    : impl(new implementation_t) {
   impl->top_left = params.top_left;
   impl->wrap_type = params.wrap_type;
   impl->tabsize = params.tabsize;
