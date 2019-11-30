@@ -24,7 +24,7 @@
 
 namespace t3widget {
 namespace {
-const char kStateToChar[] = " X#";
+const char kStateToChar[] = " X:";
 }
 
 struct checkbox_t::implementation_t {
@@ -125,11 +125,10 @@ void checkbox_t::update_contents() {
   window.addch('[', 0);
   char c = '-';
   if (is_enabled()) {
-    c = kStateToChar[std::max<int>(impl->state, 2)];
+    c = kStateToChar[std::min<int>(impl->state, 2)];
   }
 
-  window.addch(is_enabled() ? (impl->state ? 'X' : ' ') : '-',
-               impl->has_focus ? T3_ATTR_REVERSE : 0);
+  window.addch(c, impl->has_focus ? T3_ATTR_REVERSE : 0);
   window.addch(']', 0);
 }
 
