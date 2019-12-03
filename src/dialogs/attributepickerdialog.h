@@ -45,6 +45,7 @@ class T3_WIDGET_API attribute_picker_dialog_t : public dialog_t {
   ~attribute_picker_dialog_t() override;
   void show() override;
 
+  /** Set the value of the attributes to a specific value. */
   void set_attribute(t3_attr_t attr);
   /** Set the base attributes for the attribute picker.
       @param attr The base attributes to use

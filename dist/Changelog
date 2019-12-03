@@ -1,3 +1,10 @@
+Version 1.2.0:
+	New features:
+	- The attribute picker dialog distinguishes between explicitly unset and
+	  indeterminate settings. The latter will always fall back to the base
+	  attributes they are combined with. This requires libt3window version 0.4.0
+	  or later.
+
 Version 1.1.1:
 	Bug fixes:
 	- Display of the indeterminate state of checkbox_t did not work.

@@ -184,6 +184,10 @@ t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode) {
      other attributes, while the full attributes define the complete rendering.
      In full attributes, the color should not be left unspecified, at least
      not in the default setting.
+
+     The attributes in this set don't use the T3_ATTR_*_SET bits to allow older software to keep
+     working without modification or recompilation. They are chosen such that all the highlight
+     attributes are strictly additive.
   */
   switch (attribute) {
     case attribute_t::NON_PRINT:
@@ -221,9 +225,8 @@ t3_attr_t get_default_attribute(attribute_t attribute, bool color_mode) {
       return ensure_color(color_mode ? T3_ATTR_BG_BLACK : T3_ATTR_REVERSE);
     case attribute_t::META_TEXT:
       return color_mode ? T3_ATTR_FG_CYAN : T3_ATTR_UNDERLINE;
-    default:
-      return 0;
   }
+  return 0;
 }
 
 }  // namespace t3widget
