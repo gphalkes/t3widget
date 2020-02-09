@@ -112,12 +112,12 @@ install: all
 	$(INSTALL) -d $(_libdir)
 	$(LIBTOOL) --mode=install $(INSTALL) -s -m0644 src/libt3widget.la $(_libdir)
 	chmod 0644 $(_libdir)/libt3widget.la
-	$(INSTALL) -d $(_includedir)/t3/widget/t3widget
-	$(INSTALL) -m0644 src/*.h $(_includedir)/t3/widget/t3widget
-	$(INSTALL) -d $(_includedir)/t3/widget/t3widget/dialogs
-	$(INSTALL) -m0644 src/dialogs/*.h $(_includedir)/t3/widget/t3widget/dialogs
-	$(INSTALL) -d $(_includedir)/t3/widget/t3widget/widgets
-	$(INSTALL) -m0644 src/widgets/*.h $(_includedir)/t3/widget/t3widget/widgets
+	$(INSTALL) -d $(_includedir)/t3widget
+	$(INSTALL) -m0644 src/*.h $(_includedir)/t3widget
+	$(INSTALL) -d $(_includedir)/t3widget/dialogs
+	$(INSTALL) -m0644 src/dialogs/*.h $(_includedir)/t3widget/dialogs
+	$(INSTALL) -d $(_includedir)/t3widget/widgets
+	$(INSTALL) -m0644 src/widgets/*.h $(_includedir)/t3widget/widgets
 	$(INSTALL) -d $(_docdir)
 	$(INSTALL) -m0644 COPYING README Changelog $(_docdir)
 	$(INSTALL) -d $(_pkgconfigdir)
@@ -134,7 +134,7 @@ uninstall:
 		$(LIBTOOL) --mode=uninstall rm $(_libdir)/libt3widget/libt3widget<LIBVERSION>-x11.la ; \
 		rmdir $(_libdir)/libt3widget || true ; \
 	fi
-	rm -rf $(_includedir)/t3/widget
+	rm -rf $(_includedir)/t3widget
 	rm -rf $(_docdir)
 	rm -f $(_pkgconfigdir)/libt3widget.pc
 
