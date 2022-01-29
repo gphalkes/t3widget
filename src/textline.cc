@@ -478,7 +478,7 @@ void text_line_t::paint_line(t3window::window_t *win, const text_line_t::paint_i
     } else {
       /* Take care of double width characters that cross the right screen edge. */
       if (total + accumulated + width_at(i) > size) {
-        endchars = (size - total + accumulated);
+        endchars = size - (total + accumulated);
         break;
       }
       accumulated += width_at(i);

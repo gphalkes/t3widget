@@ -1,3 +1,9 @@
+Version 1.2.1:
+  Bug fixes:
+  - Fix incorrect computation of the number of endchars in a text_line when the
+    end of the line truncated a double-width character. This would cause a
+    segmentation fault in the t3window library.
+
 Version 1.2.0:
 	New features:
 	- The attribute picker dialog distinguishes between explicitly unset and
