@@ -1,3 +1,8 @@
+Version 1.2.2:
+  Bug fixes:
+  - Fix typo in copy-assignment operator signature leading to an infinite
+    recursion and segmentation fault.
+
 Version 1.2.1:
   Bug fixes:
   - Fix incorrect computation of the number of endchars in a text_line when the

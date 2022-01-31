@@ -160,7 +160,7 @@ class T3_WIDGET_LOCAL file_name_entry_t {
   /** Construct a copy of an existing file_name_entry_t. */
   file_name_entry_t(const file_name_entry_t &other) { *this = other; }
 
-  file_name_entry_t operator=(const file_name_entry_t &other) {
+  file_name_entry_t& operator=(const file_name_entry_t &other) {
     name = other.name;
     utf8_name = other.utf8_name;
     is_dir = other.is_dir;
