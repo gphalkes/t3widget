@@ -319,10 +319,6 @@ class T3_WIDGET_API basic_string_view {
 };
 
 template <class CharT, class Traits>
-T3_WIDGET_API constexpr
-    typename basic_string_view<CharT, Traits>::size_type basic_string_view<CharT, Traits>::npos;
-
-template <class CharT, class Traits>
 T3_WIDGET_API constexpr bool operator==(basic_string_view<CharT, Traits> lhs,
                                         basic_string_view<CharT, Traits> rhs) noexcept {
   return lhs.compare(rhs) == 0;
